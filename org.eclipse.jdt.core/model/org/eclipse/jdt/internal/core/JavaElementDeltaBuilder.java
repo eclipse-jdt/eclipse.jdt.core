@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A java element delta biulder creates a java element delta on
@@ -254,6 +255,25 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 		if (!CharOperation.equals(oldSourceTypeInfo.getTypeParameterNames(), newSourceTypeInfo.getTypeParameterNames())
 				|| !equals(oldSourceTypeInfo.getTypeParameterBounds(), newSourceTypeInfo.getTypeParameterBounds())) {
 			this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
+		}
+		HashMap oldTypeCategories = oldSourceTypeInfo.categories;
+		HashMap newTypeCategories = newSourceTypeInfo.categories;
+		if (oldTypeCategories != null) {
+			Iterator elements = oldTypeCategories.keySet().iterator();
+			while (elements.hasNext()) {
+				IJavaElement element = (IJavaElement) elements.next();
+				String[] oldCategories = (String[]) oldTypeCategories.get(element);
+				String[] newCategories = newTypeCategories == null ? null : (String[]) newTypeCategories.get(element);
+				if (!Util.equalArraysOrNull(oldCategories, newCategories)) {
+					this.delta.changed(element, IJavaElementDelta.F_CATEGORIES);
+				}
+			}
+		} else if (newTypeCategories != null) {
+			Iterator elements = newTypeCategories.keySet().iterator();
+			while (elements.hasNext()) {
+				IJavaElement element = (IJavaElement) elements.next();
+				this.delta.changed(element, IJavaElementDelta.F_CATEGORIES); // all categories for this element were removed
+			}
 		}
 	}
 }

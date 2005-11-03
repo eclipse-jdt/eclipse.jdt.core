@@ -31,7 +31,7 @@ public abstract class Statement extends ASTNode {
 	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
 	
 		if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0) {
-			this.bits &= ~ASTNode.IsReachableMASK;
+			this.bits &= ~ASTNode.IsReachable;
 			boolean reported = flowInfo == FlowInfo.DEAD_END;
 			if (!didAlreadyComplain && reported) {
 				scope.problemReporter().unreachableCode(this);

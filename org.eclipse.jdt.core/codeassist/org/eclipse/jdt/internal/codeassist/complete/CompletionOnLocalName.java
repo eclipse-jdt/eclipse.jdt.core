@@ -30,9 +30,8 @@ public class CompletionOnLocalName extends LocalDeclaration {
 		super.resolve(scope);
 		throw new CompletionNodeFound(this, scope);
 	}
-
-	public StringBuffer printStatement(int indent, StringBuffer output) {
-
+	
+	public StringBuffer printAsExpression(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		output.append("<CompleteOnLocalName:"); //$NON-NLS-1$
 		if (type != null)  type.print(0, output).append(' ');
@@ -41,7 +40,12 @@ public class CompletionOnLocalName extends LocalDeclaration {
 			output.append(" = "); //$NON-NLS-1$
 			initialization.printExpression(0, output); 
 		}
-		return output.append(">;"); //$NON-NLS-1$
+		return output.append('>');
+	}
+
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		this.printAsExpression(indent, output);
+		return output.append(';');
 	}	
 }
 

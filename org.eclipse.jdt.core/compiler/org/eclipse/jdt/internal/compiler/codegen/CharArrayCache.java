@@ -77,14 +77,39 @@ public int get(char[] key) {
 	return -1;
 }
 private int hashCodeChar(char[] val) {
-	int length = val.length;
+	final int length = val.length;
 	int hash = 0;
-	int n = 2; // number of characters skipped
+	final int n = 3; // number of characters skipped
 	for (int i = 0; i < length; i += n) {
 		hash += val[i];
 	}
 	return (hash & 0x7FFFFFFF) % keyTable.length;
 }
+/**
+ * Puts the specified element into the hashtable if it wasn't there already, 
+ * using the specified key.  The element may be retrieved by doing a get() with the same key.
+ * The key and the element cannot be null. 
+ * 
+ * @param key the given key in the hashtable
+ * @param value the given value
+ * @return int the old value of the key, or -value if it did not have one.
+ */
+public int putIfAbsent(char[] key, int value) {
+	int index = hashCodeChar(key);
+	while (keyTable[index] != null) {
+		if (CharOperation.equals(keyTable[index], key))
+			return valueTable[index];
+		index = (index + 1) % keyTable.length;
+	}
+	keyTable[index] = key;
+	valueTable[index] = value;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++elementSize > threshold)
+		rehash();
+	return -value; // negative when added (value is assumed to be > 0)
+}
+
 /**
  * Puts the specified element into the hashtable, using the specified
  * key.  The element may be retrieved by doing a get() with the same key.
@@ -94,7 +119,7 @@ private int hashCodeChar(char[] val) {
  * @param value <CODE>int</CODE> the specified element
  * @return int the old value of the key, or -1 if it did not have one.
  */
-public int put(char[] key, int value) { 
+private int put(char[] key, int value) { 
 	int index = hashCodeChar(key);
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key))

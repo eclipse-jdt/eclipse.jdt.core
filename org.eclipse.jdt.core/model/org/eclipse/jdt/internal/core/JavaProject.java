@@ -147,12 +147,12 @@ public class JavaProject
 			return null;
 
 //		if (JavaModelManager.VERBOSE) {
-//			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString()); //$NON-NLS-1$
+//			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString());
 //		}
 
 		if (IS_CASE_SENSITIVE) {
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)");
 //			}
 			return externalPath;
 		}
@@ -162,7 +162,7 @@ public class JavaProject
 		if (workspace == null) return externalPath; // protection during shutdown (30487)
 		if (workspace.getRoot().findMember(externalPath) != null) {
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)");
 //			}
 			return externalPath;
 		}
@@ -174,7 +174,7 @@ public class JavaProject
 		} catch (IOException e) {
 			// default to original path
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (IOException)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (IOException)");
 //			}
 			return externalPath;
 		}
@@ -184,7 +184,7 @@ public class JavaProject
 		if (canonicalLength == 0) {
 			// the java.io.File canonicalization failed
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)");
 //			}
 			return externalPath;
 		} else if (externalPath.isAbsolute()) {
@@ -197,7 +197,7 @@ public class JavaProject
 				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
 			} else {
 //				if (JavaModelManager.VERBOSE) {
-//					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+//					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")");
 //				}
 				return externalPath;
 			}
@@ -208,7 +208,7 @@ public class JavaProject
 			result = result.setDevice(null);
 		} 
 //		if (JavaModelManager.VERBOSE) {
-//			System.out.println("JAVA MODEL - Canonical path is " + result.toString()); //$NON-NLS-1$
+//			System.out.println("JAVA MODEL - Canonical path is " + result.toString());
 //		}
 		return result;
 	}
@@ -903,6 +903,52 @@ public class JavaProject
 	 */
 	protected IPath defaultOutputLocation() {
 		return this.project.getFullPath().append("bin"); //$NON-NLS-1$
+	}
+	
+	public IClasspathEntry decodeClasspathEntry(String encodedEntry) {
+
+		try {
+			if (encodedEntry == null) return null;
+			StringReader reader = new StringReader(encodedEntry);
+			Element node;
+	
+			try {
+				DocumentBuilder parser =
+					DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				node = parser.parse(new InputSource(reader)).getDocumentElement();
+			} catch (SAXException e) {
+				return null;
+			} catch (ParserConfigurationException e) {
+				return null;
+			} finally {
+				reader.close();
+			}
+	
+			if (!node.getNodeName().equalsIgnoreCase("classpathentry") //$NON-NLS-1$
+					|| node.getNodeType() != Node.ELEMENT_NODE) {
+				return null; 
+			}
+			return ClasspathEntry.elementDecode(node, this, null/*not interested in unknown elements*/);
+		} catch (IOException e) {
+			// bad format
+			return null;
+		}
+	}
+	
+	public String encodeClasspathEntry(IClasspathEntry classpathEntry) {
+		try {
+			ByteArrayOutputStream s = new ByteArrayOutputStream();
+			OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
+			XMLWriter xmlWriter = new XMLWriter(writer, this, false/*don't print XML version*/);
+			
+			((ClasspathEntry)classpathEntry).elementEncode(xmlWriter, this.project.getFullPath(), true/*indent*/, true/*insert new line*/, null/*not interested in unknown elements*/);
+	
+			writer.flush();
+			writer.close();
+			return s.toString("UTF8");//$NON-NLS-1$
+		} catch (IOException e) {
+			return null; // never happens since all is done in memory
+		}
 	}
 
 	/**
@@ -1677,7 +1723,7 @@ public class JavaProject
 			case IResource.FOLDER:
 				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
-				return new PackageFragmentRoot(resource, this); //$NON-NLS-1$
+				return new PackageFragmentRoot(resource, this);
 			default:
 				return null;
 		}
@@ -2113,7 +2159,7 @@ public class JavaProject
 		if (rscFile.exists()) {
 			byte[] bytes = Util.getResourceContentsAsByteArray(rscFile);
 			try {
-				property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+				property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 			} catch (UnsupportedEncodingException e) {
 				Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
 				// fallback to default
@@ -2132,7 +2178,7 @@ public class JavaProject
 					return null;
 				}
 				try {
-					property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+					property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 				} catch (UnsupportedEncodingException e) {
 					Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
 					// fallback to default
@@ -2888,7 +2934,7 @@ public class JavaProject
 		IFile rscFile = this.project.getFile(key);
 		byte[] bytes = null;
 		try {
-			bytes = value.getBytes("UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+			bytes = value.getBytes(org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 		} catch (UnsupportedEncodingException e) {
 			Util.log(e, "Could not write .classpath with UTF-8 encoding "); //$NON-NLS-1$
 			// fallback to default

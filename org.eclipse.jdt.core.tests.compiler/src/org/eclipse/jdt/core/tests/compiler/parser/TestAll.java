@@ -31,23 +31,7 @@ public class TestAll extends TestCase {
 		ArrayList testClasses = new ArrayList();
 
 		/* completion tests */
-		testClasses.add(AllocationExpressionCompletionTest.class);
-		testClasses.add(ClassLiteralAccessCompletionTest.class);
-		testClasses.add(CompletionParserTest.class);
-		testClasses.add(CompletionRecoveryTest.class);
-		testClasses.add(DietCompletionTest.class);
-		testClasses.add(ExplicitConstructorInvocationCompletionTest.class);
-		testClasses.add(FieldAccessCompletionTest.class);
-		testClasses.add(InnerTypeCompletionTest.class);
-		testClasses.add(LabelStatementCompletionTest.class);
-		testClasses.add(MethodInvocationCompletionTest.class);
-		testClasses.add(NameReferenceCompletionTest.class);
-		testClasses.add(ReferenceTypeCompletionTest.class);
-		testClasses.add(CompletionParserTest2.class);
-		testClasses.add(CompletionParserTestKeyword.class);
-		testClasses.add(GenericsCompletionParserTest.class);
-		testClasses.add(AnnotationCompletionParserTest.class);
-		testClasses.add(EnumCompletionParserTest.class);
+		testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
 		
 		/* selection tests */
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);

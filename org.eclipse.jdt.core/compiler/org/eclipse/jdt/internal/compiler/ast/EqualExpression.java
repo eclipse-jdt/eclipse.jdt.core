@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -133,7 +134,7 @@ public class EqualExpression extends BinaryExpression {
 			return;
 		}
 		Label falseLabel;
-		bits |= OnlyValueRequiredMASK;
+		bits |= OnlyValueRequired;
 		generateOptimizedBoolean(
 			currentScope, 
 			codeStream, 
@@ -144,7 +145,7 @@ public class EqualExpression extends BinaryExpression {
 			if (valueRequired){
 				// comparison is TRUE 
 				codeStream.iconst_1();
-				if ((bits & ValueForReturnMASK) != 0){
+				if ((bits & IsReturnedValue) != 0){
 					codeStream.generateImplicitConversion(this.implicitConversion);
 					codeStream.generateReturnBytecode(this);
 					// comparison is FALSE
@@ -289,7 +290,7 @@ public class EqualExpression extends BinaryExpression {
 			if (left instanceof NullLiteral) {
 				// null == null
 				if (valueRequired) {
-						if ((bits & OnlyValueRequiredMASK) != 0) {
+						if ((bits & OnlyValueRequired) != 0) {
 							if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 								codeStream.iconst_1();
 							} else {
@@ -407,10 +408,10 @@ public class EqualExpression extends BinaryExpression {
 	public TypeBinding resolveType(BlockScope scope) {
 	
 			boolean leftIsCast, rightIsCast;
-			if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= DisableUnnecessaryCastCheck; // will check later on
 			TypeBinding originalLeftType = left.resolveType(scope);
 	
-			if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= DisableUnnecessaryCastCheck; // will check later on
 			TypeBinding originalRightType = right.resolveType(scope);
 	
 		// always return BooleanBinding
@@ -420,7 +421,7 @@ public class EqualExpression extends BinaryExpression {
 		}
 	
 		// autoboxing support
-		boolean use15specifics = scope.compilerOptions().sourceLevel >= JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding leftType = originalLeftType, rightType = originalRightType;
 		if (use15specifics) {
 			if (leftType != NullBinding && leftType.isBaseType()) {
@@ -476,8 +477,8 @@ public class EqualExpression extends BinaryExpression {
 			left.computeConversion(scope, objectType, leftType);
 			right.computeConversion(scope, objectType, rightType);
 			// check need for operand cast
-			boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMASK) != 0;
-			boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMASK) != 0;
+			boolean unnecessaryLeftCast = (left.bits & UnnecessaryCast) != 0;
+			boolean unnecessaryRightCast = (right.bits & UnnecessaryCast) != 0;
 			if (unnecessaryLeftCast || unnecessaryRightCast) {
 				TypeBinding alternateLeftType = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType : leftType;
 				TypeBinding alternateRightType = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType : rightType;

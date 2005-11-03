@@ -84,7 +84,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
  * <ul>
  * <li> its location (originating source file name, source position, line number), </li>
  * <li> its message description and a predicate to check its severity (warning or error). </li>
- * <li> its ID : an number identifying the very nature of this problem. All possible IDs are listed
+ * <li> its ID : a number identifying the very nature of this problem. All possible IDs are listed
  * as constants on this interface. </li>
  * </ul>
  * 
@@ -97,91 +97,92 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
  */
 public interface IProblem { 
 	
-	/**
-	 * Answer back the original arguments recorded into the problem.
-	 * @return the original arguments recorded into the problem
-	 */
-	String[] getArguments();
+/**
+ * Answer back the original arguments recorded into the problem.
+ * @return the original arguments recorded into the problem
+ */
+String[] getArguments();
 
-	/**
-	 * Returns the problem id
-	 * 
-	 * @return the problem id
-	 */
-	int getID();
+/**
+ * Returns the problem id
+ * 
+ * @return the problem id
+ */
+int getID();
 
-	/**
-	 * Answer a localized, human-readable message string which describes the problem.
-	 * 
-	 * @return a localized, human-readable message string which describes the problem
-	 */
-	String getMessage();
+/**
+ * Answer a localized, human-readable message string which describes the problem.
+ * 
+ * @return a localized, human-readable message string which describes the problem
+ */
+String getMessage();
 
-	/**
-	 * Answer the file name in which the problem was found.
-	 * 
-	 * @return the file name in which the problem was found
-	 */
-	char[] getOriginatingFileName();
-	
-	/**
-	 * Answer the end position of the problem (inclusive), or -1 if unknown.
-	 * 
-	 * @return the end position of the problem (inclusive), or -1 if unknown
-	 */
-	int getSourceEnd();
+/**
+ * Answer the file name in which the problem was found.
+ * 
+ * @return the file name in which the problem was found
+ */
+char[] getOriginatingFileName();
 
-	/**
-	 * Answer the line number in source where the problem begins.
-	 * 
-	 * @return the line number in source where the problem begins
-	 */
-	int getSourceLineNumber();
+/**
+ * Answer the end position of the problem (inclusive), or -1 if unknown.
+ * 
+ * @return the end position of the problem (inclusive), or -1 if unknown
+ */
+int getSourceEnd();
 
-	/**
-	 * Answer the start position of the problem (inclusive), or -1 if unknown.
-	 * 
-	 * @return the start position of the problem (inclusive), or -1 if unknown
-	 */
-	int getSourceStart();
+/**
+ * Answer the line number in source where the problem begins.
+ * 
+ * @return the line number in source where the problem begins
+ */
+int getSourceLineNumber();
 
-	/**
-	 * Checks the severity to see if the Error bit is set.
-	 * 
-	 * @return true if the Error bit is set for the severity, false otherwise
-	 */
-	boolean isError();
+/**
+ * Answer the start position of the problem (inclusive), or -1 if unknown.
+ * 
+ * @return the start position of the problem (inclusive), or -1 if unknown
+ */
+int getSourceStart();
 
-	/**
-	 * Checks the severity to see if the Error bit is not set.
-	 * 
-	 * @return true if the Error bit is not set for the severity, false otherwise
-	 */
-	boolean isWarning();
+/**
+ * Checks the severity to see if the Error bit is set.
+ * 
+ * @return true if the Error bit is set for the severity, false otherwise
+ */
+boolean isError();
 
-	/**
-	 * Set the end position of the problem (inclusive), or -1 if unknown.
-	 * Used for shifting problem positions.
-	 * 
-	 * @param sourceEnd the given end position
-	 */
-	void setSourceEnd(int sourceEnd);
+/**
+ * Checks the severity to see if the Error bit is not set.
+ * 
+ * @return true if the Error bit is not set for the severity, false otherwise
+ */
+boolean isWarning();
 
-	/**
-	 * Set the line number in source where the problem begins.
-	 * 
-	 * @param lineNumber the given line number
-	 */
-	void setSourceLineNumber(int lineNumber);
+/**
+ * Set the end position of the problem (inclusive), or -1 if unknown.
+ * Used for shifting problem positions.
+ * 
+ * @param sourceEnd the given end position
+ */
+void setSourceEnd(int sourceEnd);
 
-	/**
-	 * Set the start position of the problem (inclusive), or -1 if unknown.
-	 * Used for shifting problem positions.
-	 * 
-	 * @param sourceStart the given start position
-	 */
-	void setSourceStart(int sourceStart);
-	
+/**
+ * Set the line number in source where the problem begins.
+ * 
+ * @param lineNumber the given line number
+ */
+void setSourceLineNumber(int lineNumber);
+
+/**
+ * Set the start position of the problem (inclusive), or -1 if unknown.
+ * Used for shifting problem positions.
+ * 
+ * @param sourceStart the given start position
+ */
+void setSourceStart(int sourceStart);
+
+
 	/**
 	 * Problem Categories
 	 * The high bits of a problem ID contains information about the category of a problem. 
@@ -200,9 +201,7 @@ public interface IProblem {
 	int ImportRelated = 0x10000000;
 	int Internal = 0x20000000;
 	int Syntax = 0x40000000;
-	/**
-	 * @since 3.0
-	 */
+	/** @since 3.0 */
 	int Javadoc = 0x80000000;
 	
 	/**
@@ -454,6 +453,8 @@ public interface IProblem {
 	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 198;
 
 	// miscellaneous
+	/** @since 3.2 */
+	int UnusedLabel = Internal + 199;
 	int ThisInStaticContext = Internal + 200;
 	int StaticMethodRequested = Internal + MethodRelated + 201;
 	int IllegalDimension = Internal + 202;
@@ -517,12 +518,15 @@ public interface IProblem {
 	int NullSourceString = Syntax + Internal + 258;
 	int UnterminatedString = Syntax + Internal + 259;
 	int UnterminatedComment = Syntax + Internal + 260;
+	int NonExternalizedStringLiteral = Internal + 261;
 	/** @since 3.1 */
 	int InvalidDigit = Syntax + Internal + 262;	
 	/** @since 3.1 */
 	int InvalidLowSurrogate = Syntax + Internal + 263;
 	/** @since 3.1 */
 	int InvalidHighSurrogate = Syntax + Internal + 264;
+	/** @since 3.2 */
+	int UnnecessaryNLSTag = Internal + 265;
 
 	// type related problems
 	/** @since 3.1 */
@@ -705,7 +709,6 @@ public interface IProblem {
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
 	int CodeSnippetMissingMethod = Internal + 421;
-	int NonExternalizedStringLiteral = Internal + 261;
 	int CannotUseSuperInCodeSnippet = Internal + 422;
 	
 	//constant pool
@@ -839,6 +842,7 @@ public interface IProblem {
 	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 514;
+
 	/** @since 3.1 */
 	int JavadocMissingHashCharacter = Javadoc + Internal + 515;
 	/** @since 3.1 */
@@ -851,6 +855,11 @@ public interface IProblem {
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
+
+	/** @since 3.2 */
+	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
+	/** @since 3.2 */
+	int JavadocMissingIdentifier = Javadoc + Internal + 467;
 
 	/**
 	 * Generics
@@ -959,6 +968,10 @@ public interface IProblem {
 	int UnsafeRawGenericMethodInvocation = TypeRelated + 570;
 	/** @since 3.1 */
 	int TypeParameterHidingType = TypeRelated + 571;
+	/** @since 3.2 */
+	int RawTypeReference = TypeRelated + 572;
+	/** @since 3.2 */
+	int NoAdditionalBoundAfterTypeVariable = TypeRelated + 573;
 	
 	/**
 	 * Foreach
@@ -1098,6 +1111,8 @@ public interface IProblem {
 	int IllegalModifierForEnumConstructor = MethodRelated + 760;
 	/** @since 3.1 */
 	int MissingEnumConstantCase = FieldRelated + 761;
+	/** @since 3.2 */ // TODO need to fix 3.1.1 contribution (inline this constant on client side)
+	int EnumStaticFieldInInInitializerContext = FieldRelated + 762;
 	
 	/**
 	 * Var args

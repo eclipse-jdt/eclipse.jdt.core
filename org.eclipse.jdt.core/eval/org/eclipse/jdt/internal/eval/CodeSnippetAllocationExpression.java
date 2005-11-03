@@ -133,7 +133,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		for (int i = 0; i < length; i++) {
 			Expression argument = this.arguments[i];
 			if (argument instanceof CastExpression) {
-				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null) {

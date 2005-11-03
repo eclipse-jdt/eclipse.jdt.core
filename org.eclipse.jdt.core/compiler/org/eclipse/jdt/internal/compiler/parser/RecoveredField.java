@@ -60,7 +60,7 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
 
 	if (this.alreadyCompletedFieldInitialization 
-			|| ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) == 0)
+			|| ((typeDeclaration.bits & ASTNode.IsAnonymousType) == 0)
 			|| (this.fieldDeclaration.declarationSourceEnd != 0 && typeDeclaration.sourceStart > this.fieldDeclaration.declarationSourceEnd)) {
 		return super.add(typeDeclaration, bracketBalanceValue);
 	} else { 
@@ -123,7 +123,7 @@ public FieldDeclaration updatedFieldDeclaration(){
 					fieldDeclaration.initialization = recoveredType.updatedTypeDeclaration().allocation;
 				}
 			}
-			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
+			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalType;
 		} else if(fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 			// fieldDeclaration is an enum constant
 			for (int i = 0; i < this.anonymousTypeCount; i++){

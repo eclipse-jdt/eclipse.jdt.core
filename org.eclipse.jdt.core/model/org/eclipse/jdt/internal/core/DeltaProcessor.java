@@ -592,7 +592,7 @@ public class DeltaProcessor {
 					} else {
 						// java project may have been been closed or removed (look for
 						// element amongst old java project s list).
-						element =  (Openable) this.manager.getJavaModel().findJavaProject(proj);
+						element =  this.manager.getJavaModel().findJavaProject(proj);
 					}
 				}
 				break;
@@ -1672,7 +1672,7 @@ public class DeltaProcessor {
 //					}
 //				} catch (JavaModelException e) {
 //					if (project.getProject().isAccessible()) {
-//						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+//						Util.log(e, "Could not save classpath for "+ project.getPath());
 //					}
 //				}
 				break;
@@ -1820,7 +1820,7 @@ public class DeltaProcessor {
 					}
 					// this.processPostChange = false;
 					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
-						updateClasspathMarkers(delta);
+						updateClasspathMarkers(delta, updates);
 						JavaBuilder.buildStarting();
 					}
 					// does not fire any deltas
@@ -2108,7 +2108,7 @@ public class DeltaProcessor {
 	/*
 	 * Update the .classpath format, missing entries and cycle markers for the projects affected by the given delta.
 	 */
-	private void updateClasspathMarkers(IResourceDelta delta) {
+	private void updateClasspathMarkers(IResourceDelta delta, DeltaProcessingState.ProjectUpdateInfo[] updates) {
 		
 		Map preferredClasspaths = new HashMap(5);
 		Map preferredOutputs = new HashMap(5);
@@ -2121,45 +2121,53 @@ public class DeltaProcessor {
 		// update .classpath format markers for affected projects (dependent projects 
 		// or projects that reference a library in one of the projects that have changed)
 		if (!affectedProjects.isEmpty()) {
-			try {
-				IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-				IProject[] projects = workspaceRoot.getProjects();
-				int length = projects.length;
-				for (int i = 0; i < length; i++){
-					IProject project = projects[i];
-					JavaProject javaProject = (JavaProject)JavaCore.create(project);
-					if (preferredClasspaths.get(javaProject) == null) { // not already updated
-						try {
-							IPath projectPath = project.getFullPath();
-							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/); // allowed to reuse model cache
-							for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
-								IClasspathEntry entry = classpath[j];
-								switch (entry.getEntryKind()) {
-									case IClasspathEntry.CPE_PROJECT:
-										if (affectedProjects.contains(entry.getPath())) {
-											javaProject.updateClasspathMarkers(null, null);
-										}
-										break;
-									case IClasspathEntry.CPE_LIBRARY:
-										IPath entryPath = entry.getPath();
-										IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
-										if (!libProjectPath.equals(projectPath) // if library contained in another project
-												&& affectedProjects.contains(libProjectPath)) {
-											javaProject.updateClasspathMarkers(null, null);
-										}
-										break;
-								}
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IProject[] projects = workspaceRoot.getProjects();
+			int length = projects.length;
+			for (int i = 0; i < length; i++){
+				IProject project = projects[i];
+				JavaProject javaProject = (JavaProject)JavaCore.create(project);
+				if (preferredClasspaths.get(javaProject) == null) { // not already updated
+					try {
+						IPath projectPath = project.getFullPath();
+						IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/); // allowed to reuse model cache
+						for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
+							IClasspathEntry entry = classpath[j];
+							switch (entry.getEntryKind()) {
+								case IClasspathEntry.CPE_PROJECT:
+									if (affectedProjects.contains(entry.getPath())) {
+										javaProject.updateClasspathMarkers(null, null);
+									}
+									break;
+								case IClasspathEntry.CPE_LIBRARY:
+									IPath entryPath = entry.getPath();
+									IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
+									if (!libProjectPath.equals(projectPath) // if library contained in another project
+											&& affectedProjects.contains(libProjectPath)) {
+										javaProject.updateClasspathMarkers(null, null);
+									}
+									break;
 							}
-						} catch(JavaModelException e) {
-								// project no longer exists
 						}
+					} catch(JavaModelException e) {
+							// project no longer exists
 					}
 				}
-
-				// update all cycle markers
+			}
+		}
+		if (!affectedProjects.isEmpty() || updates != null) {
+			// update all cycle markers since the given delta may have affected cycles
+			if (updates != null) {
+				for (int i = 0, length = updates.length; i < length; i++) {
+					DeltaProcessingState.ProjectUpdateInfo info = updates[i];
+					if (!preferredClasspaths.containsKey(info.project))
+						preferredClasspaths.put(info.project, info.newResolvedPath);
+				}
+			}
+			try {
 				JavaProject.updateAllCycleMarkers(preferredClasspaths);
-			} catch(JavaModelException e) {
-				// project no longer exists
+			} catch (JavaModelException e) {
+				// project no longer exist
 			}
 		}
 	}

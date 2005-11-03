@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -34,6 +32,15 @@ import org.eclipse.jdt.internal.core.util.Util;
  * - don't hardcode positions
 */
 public class AttachSourceTests extends ModifyingResourceTests {
+	static {
+//		TESTS_NAMES = new String[] { "testRootPath13" };
+//		TESTS_NUMBERS = new int[] { 5 };
+//		TESTS_RANGE = new int[] { 169, 180 };
+	}
+
+	public static Test suite() {
+		return buildTestSuite(AttachSourceTests.class);
+	}
 
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
@@ -44,9 +51,6 @@ public class AttachSourceTests extends ModifyingResourceTests {
 	
 public AttachSourceTests(String name) {
 	super(name);
-}
-public static Test suite() {
-	return new Suite(AttachSourceTests.class);
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
 	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS2);
@@ -868,5 +872,84 @@ public void testRootPath12() throws JavaModelException {
 	attachSource(root, null, null); // detach source
 	root.close();
 }
-
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110172
+ */
+public void test110172() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test6.jar"));
+	assertTrue("Root doesn't exist", root.exists());
+	attachSource(root, "/AttachSourceTests/test6src.zip", null);
+	
+	try {
+		// check the javadoc source range in a class file
+		IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("X.class");
+		assertNotNull(cf);
+		final String source = cf.getSource();
+		assertNotNull("No source", source);
+		IJavaElement[] children = cf.getChildren();
+		assertEquals("Wrong number of children", 1, children.length);
+		IJavaElement element = children[0];
+		assertTrue("Not a type", element instanceof IType);
+		IType type = (IType) element;
+		IJavaElement[] members = type.getChildren();
+		final int length = members.length;
+		assertEquals("Wrong number", 9, length);
+		for (int i = 0; i < length; i++) {
+			element = members[i];
+			assertTrue(element instanceof IMember);
+			final ISourceRange javadocRange = ((IMember) element).getJavadocRange();
+			final String elementName = element.getElementName();
+			if ("f".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("field f") != -1);
+			} else if ("foo".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("method foo") != -1);
+			} else if ("A".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("member type A") != -1);
+			} else if ("X".equals(elementName)) {
+				// need treatment for the two constructors
+				assertTrue("Not an IMethod", element instanceof IMethod);
+				IMethod method = (IMethod) element;
+				switch(method.getNumberOfParameters()) {
+					case 0 :
+						assertNull("Has a javadoc source range", javadocRange);
+						break;
+					case 1:
+						assertNotNull("No javadoc source range", javadocRange);
+						final int start = javadocRange.getOffset();
+						final int end = javadocRange.getLength() + start - 1;
+						String javadocSource = source.substring(start, end);
+						assertTrue("Wrong javadoc", javadocSource.indexOf("constructor") != -1);
+				}
+			} else if ("f3".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("Real") != -1);
+			} else if ("f2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("foo2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("B".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			}
+		}
+	} finally {
+		attachSource(root, null, null); // detach source
+		root.close();
+	}
+}
 }

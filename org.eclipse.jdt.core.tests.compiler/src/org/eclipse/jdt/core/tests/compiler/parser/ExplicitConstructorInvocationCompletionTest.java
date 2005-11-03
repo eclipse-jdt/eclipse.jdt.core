@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be an ExplicitConstructorInvocation
  * or inside an ExplicitConstructorInvocation
@@ -17,6 +19,9 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 public class ExplicitConstructorInvocationCompletionTest extends AbstractCompletionTest {
 public ExplicitConstructorInvocationCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(ExplicitConstructorInvocationCompletionTest.class);
 }
 /*
  * Completion on a qualified 'super' constructor invocation.

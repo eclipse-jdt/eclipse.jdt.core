@@ -18,37 +18,34 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
  *	try statements, exception handlers, etc...
  */
 public class SwitchFlowContext extends FlowContext {
+	
 	public Label breakLabel;
 	public UnconditionalFlowInfo initsOnBreak = FlowInfo.DEAD_END;
 	
-	public SwitchFlowContext(
-		FlowContext parent,
-		ASTNode associatedNode,
-		Label breakLabel) {
-		super(parent, associatedNode);
-		this.breakLabel = breakLabel;
-	}
+public SwitchFlowContext(FlowContext parent, ASTNode associatedNode, Label breakLabel) {
+	super(parent, associatedNode);
+	this.breakLabel = breakLabel;
+}
 
-	public Label breakLabel() {
-		return breakLabel;
-	}
+public Label breakLabel() {
+	return breakLabel;
+}
 
-	public String individualToString() {
-		StringBuffer buffer = new StringBuffer("Switch flow context"); //$NON-NLS-1$
-		buffer.append("[initsOnBreak -").append(initsOnBreak.toString()).append(']'); //$NON-NLS-1$
-		return buffer.toString();
-	}
+public String individualToString() {
+	StringBuffer buffer = new StringBuffer("Switch flow context"); //$NON-NLS-1$
+	buffer.append("[initsOnBreak -").append(initsOnBreak.toString()).append(']'); //$NON-NLS-1$
+	return buffer.toString();
+}
 
-	public boolean isBreakable() {
-		return true;
-	}
+public boolean isBreakable() {
+	return true;
+}
 
-	public void recordBreakFrom(FlowInfo flowInfo) {
-
-		if (initsOnBreak == FlowInfo.DEAD_END) {
-			initsOnBreak = flowInfo.copy().unconditionalInits();
-		} else {
-			initsOnBreak = initsOnBreak.mergedWith(flowInfo.copy().unconditionalInits());
-		}
+public void recordBreakFrom(FlowInfo flowInfo) {
+	if (initsOnBreak == FlowInfo.DEAD_END) {
+		initsOnBreak = flowInfo.copy().unconditionalInits();
+	} else {
+		initsOnBreak = initsOnBreak.mergedWith(flowInfo.copy().unconditionalInits());
 	}
+}
 }

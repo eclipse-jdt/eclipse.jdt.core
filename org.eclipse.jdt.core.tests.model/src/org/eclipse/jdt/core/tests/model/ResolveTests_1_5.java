@@ -2169,4 +2169,71 @@ public void test0097() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83206
+public void test0098() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0098/Color.java",
+				"public enum Color<\n" +
+				"	BLUE,\n" +
+				"	RED;\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0098/Test.java",
+				"public class Test<\n" +
+				"	void foo() {\n" +
+				"		Color.valueOf(\"RED\");\n" +
+				"	}\n" +
+				"}\n",
+				"valueOf");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99645
+public void test0099() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0099/Test.java",
+			"public class Test<\n" +
+			"	void foo() {\n" +
+			"		class Local<TLocal>{}\n" +
+			"	}\n" +
+			"}\n",
+			"TLocal");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"<TLocal> [in Local [in foo() [in Test [in [Working copy] Test.java [in test0099 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99645
+public void test0100() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0100/Test.java",
+			"public class Test<\n" +
+			"	void foo() {\n" +
+			"		class Local<TLocal>{\n" +
+			"			TLocal var;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+			"TLocal");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"<TLocal> [in Local [in foo() [in Test [in [Working copy] Test.java [in test0100 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
 }

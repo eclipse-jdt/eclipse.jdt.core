@@ -17,9 +17,7 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,7 +28,6 @@ import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
@@ -64,6 +61,25 @@ protected ClassFile(PackageFragment parent, String name) {
 	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
 	this.name = new String(name.substring(0, name.length() - 6)); // don't hold on the .class file extension to save memory
 	this.checkAutomaticSourceMapping = false;
+}
+
+/*
+ * @see IClassFile#becomeWorkingCopy(IProblemRequestor, WorkingCopyOwner, IProgressMonitor)
+ */
+public ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	CompilationUnit workingCopy = new ClassFileWorkingCopy(this, owner == null ? DefaultWorkingCopyOwner.PRIMARY : owner);
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	if (perWorkingCopyInfo == null) {
+		// close cu and its children
+		close();
+
+		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(workingCopy, problemRequestor);
+		operation.runOperation(monitor);
+		
+		return workingCopy;
+	}
+	return perWorkingCopyInfo.workingCopy;
 }
 
 /**
@@ -344,7 +360,7 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 				classFile.getBuffer();
 				
 				SourceRange range = mapper.getSourceRange(classFile.getType());
-				if (range == SourceMapper.fgUnknownRange) continue; 
+				if (range == SourceMapper.UNKNOWN_RANGE) continue; 
 				int newStart = range.offset;
 				int newEnd = newStart + range.length - 1;
 				if(newStart > start && newEnd < end
@@ -465,24 +481,15 @@ public String getTypeName() {
  * @see IClassFile
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
-	// get the source if possible
-	char[] contents = null;
-	SourceMapper mapper = this.getSourceMapper();
-	if (mapper != null) {
-		contents = mapper.findSource(getType());
+	CompilationUnit workingCopy = new ClassFileWorkingCopy(this, owner == null ? DefaultWorkingCopyOwner.PRIMARY : owner);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
+		manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true/*record usage*/, null/*not used since don't create*/);
+	if (perWorkingCopyInfo != null) {
+		return perWorkingCopyInfo.getWorkingCopy(); // return existing handle instead of the one created above
 	}
-	if (contents == null) {
-		return null;
-	}
-
-	ClassFileWorkingCopy workingCopy = new ClassFileWorkingCopy();
-	IBuffer buffer = owner == null ? this.getBuffer() : owner.createBuffer(workingCopy);
-	workingCopy.buffer = buffer;
-	
-	// set the buffer source
-	if (buffer != null && buffer.getCharacters() == null){
-		buffer.setContents(contents);
-	}
+	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null);
+	op.runOperation(monitor);
 	return workingCopy;
 }
 /**
@@ -745,20 +752,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
 			}
 			public void acceptError(IProblem error) {
-				if (true) return; // was disabled in 1.0
-
-				try {
-					IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IJavaModelMarker.ID, error.getID());
-					marker.setAttribute(IMarker.CHAR_START, error.getSourceStart());
-					marker.setAttribute(IMarker.CHAR_END, error.getSourceEnd() + 1);
-					marker.setAttribute(IMarker.LINE_NUMBER, error.getSourceLineNumber());
-					marker.setAttribute(IMarker.MESSAGE, error.getMessage());
-					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					requestor.acceptError(marker);
-				} catch(CoreException e){
-					// marker could not be created: ignore
-				}
+				// was disabled in 1.0
 			}
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);

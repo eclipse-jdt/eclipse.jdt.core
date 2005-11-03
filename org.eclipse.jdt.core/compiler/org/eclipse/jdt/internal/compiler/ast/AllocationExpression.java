@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -207,7 +208,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			output.append("new "); //$NON-NLS-1$
 		}
 		if (typeArguments != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeArguments.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeArguments[j].print(0, output);
@@ -244,7 +245,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 					if (currentType == null) return null;
 					do {
 						// isStatic() is answering true for toplevel types
-						if ((currentType.modifiers & AccStatic) != 0) break checkParameterizedAllocation;
+						if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
 						if (currentType.isRawType()) break checkParameterizedAllocation;
 					} while ((currentType = currentType.enclosingType())!= null);
 					ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
@@ -284,7 +285,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
 				if (argument instanceof CastExpression) {
-					argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+					argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 					argsContainCast = true;
 				}
 				if ((argumentTypes[i] = argument.resolveType(scope)) == null) {

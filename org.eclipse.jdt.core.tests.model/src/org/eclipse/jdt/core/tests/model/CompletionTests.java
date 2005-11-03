@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.Method;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.core.*;
@@ -26,29 +25,35 @@ public CompletionTests(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
-	setUpJavaProject("Completion");
+	if (COMPLETION_PROJECT == null)  {
+		COMPLETION_PROJECT = setUpJavaProject("Completion");
+	} else {
+		setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
+	}
 	super.setUpSuite();
 }
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
-	deleteProject("Completion");
 }
-
+static {
+//	TESTS_NAMES = new String[] { "testCamelCaseType1"};
+}
 public static Test suite() {
-	TestSuite suite = new Suite(CompletionTests.class.getName());		
-
-	if (true) {
-		Class c = CompletionTests.class;
-		Method[] methods = c.getMethods();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new CompletionTests(methods[i].getName()));
-			}
-		}
-		return suite;
-	}
-	suite.addTest(new CompletionTests("testCompletionInsideExtends11"));			
-	return suite;
+	return buildTestSuite(CompletionTests.class);
+//	TestSuite suite = new Suite(CompletionTests.class.getName());		
+//
+//	if (true) {
+//		Class c = CompletionTests.class;
+//		Method[] methods = c.getMethods();
+//		for (int i = 0, max = methods.length; i < max; i++) {
+//			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+//				suite.addTest(new CompletionTests(methods[i].getName()));
+//			}
+//		}
+//		return suite;
+//	}
+//	suite.addTest(new CompletionTests("testCompletionInsideExtends11"));			
+//	return suite;
 }
 
 /**
@@ -121,12 +126,12 @@ public void testCompletionFindClass() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "A";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
+    		"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
     		"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-    		"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"A[TYPE_REF]{A, , LA;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
             requestor.getResults());
 }
@@ -189,7 +194,7 @@ public void testCompletionFindConstructor() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "CompletionFindConstructor(";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -219,7 +224,7 @@ public void testCompletionFindConstructor2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Constructor2(";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -249,7 +254,7 @@ public void testCompletionFindConstructor3() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Constructor3(";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -278,7 +283,7 @@ public void testCompletionFindConstructor4() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Constructor4(";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -307,7 +312,7 @@ public void testCompletionFindConstructor5() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Constructor5(";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -423,7 +428,7 @@ public void testCompletionFindImport1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "pac";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
     
 	assertResults(
 			"pack[PACKAGE_REF]{pack.*;, pack, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
@@ -447,7 +452,7 @@ public void testCompletionFindImport2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "pack1.P";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
     
 	assertResults(
 			"pack1.pack3[PACKAGE_REF]{pack1.pack3.*;, pack1.pack3, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n"+
@@ -559,7 +564,7 @@ public void testCompletionFindSuperInterface() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Super";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 	    assertResults(
@@ -737,7 +742,7 @@ public void testCompletionAmbiguousFieldName2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBa";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "xBar[FIELD_REF]{CompletionAmbiguousFieldName2.this.xBar, LCompletionAmbiguousFieldName2;, I, xBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
@@ -800,7 +805,7 @@ public void testCompletionPrefixFieldName1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBa";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"xBar[FIELD_REF]{CompletionPrefixFieldName1.this.xBar, LCompletionPrefixFieldName1;, I, xBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
@@ -829,7 +834,7 @@ public void testCompletionPrefixFieldName2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBa";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"xBar[FIELD_REF]{xBar, LCompletionPrefixFieldName2;, I, xBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED)+"}",
@@ -857,7 +862,7 @@ public void testCompletionPrefixMethodName1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBa";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"xBar[METHOD_REF]{CompletionPrefixMethodName1.this.xBar(), LCompletionPrefixMethodName1;, ()I, xBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
@@ -886,7 +891,7 @@ public void testCompletionPrefixMethodName2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBa";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"xBar[METHOD_REF]{xBar(), LCompletionPrefixMethodName2;, ()I, xBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED)+"}",
@@ -913,7 +918,7 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "xBar(1,";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"+
@@ -943,7 +948,7 @@ public void testCompletionFindMemberType1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Inner";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"B1.Inner1[TYPE_REF]{Inner1, , LB1$Inner1;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) +"}",
@@ -971,7 +976,7 @@ public void testCompletionFindMemberType2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "ZInner";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"B2.ZInner2[TYPE_REF]{ZInner2, , LB2$ZInner2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
@@ -990,8 +995,8 @@ public void testCompletionMethodDeclaration() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a, Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"\n" +
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:eqFoo    completion:public int eqFoo(int a, Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"\n" +
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1018,12 +1023,12 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "eq";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration2;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1062,11 +1067,11 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "eq";
 	    int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration3;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1096,12 +1101,12 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "eq";
 	    int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration4;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1136,28 +1141,28 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "new CompletionSuperClass() {";
 	    int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 			assertResults(
 				"[POTENTIAL_METHOD_DECLARATION]{, LCompletionSuperClass;, ()V, , null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+ "}",
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+ "}",
 				requestor.getResults());
 		} else {
 			assertResults(
 				"[POTENTIAL_METHOD_DECLARATION]{, LCompletionSuperClass;, ()V, , null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
 				"CompletionMethodDeclaration5[TYPE_REF]{CompletionMethodDeclaration5, , LCompletionMethodDeclaration5;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+ "}",
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+ "}",
 				requestor.getResults());
 		}
 	} finally {
@@ -1195,7 +1200,7 @@ public void testCompletionMethodDeclaration7() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1212,7 +1217,7 @@ public void testCompletionMethodDeclaration8() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1229,7 +1234,7 @@ public void testCompletionMethodDeclaration9() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1246,7 +1251,7 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80063
@@ -1267,7 +1272,7 @@ public void testCompletionMethodDeclaration11() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "fo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration11_2;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
@@ -1294,7 +1299,7 @@ public void testCompletionMethodDeclaration12() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "fo";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration12_3;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
@@ -1520,7 +1525,7 @@ public void testCompletionSameSuperClass() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "bar";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"bar[FIELD_REF]{CompletionSameSuperClass.this.bar, LA;, I, bar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}\n"+
@@ -1552,7 +1557,7 @@ public void testCompletionSuperType() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuperClass.";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"CompletionSuperClass.Inner[TYPE_REF]{Inner, , LCompletionSuperClass$Inner;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS+ R_NON_RESTRICTED)+"}",
@@ -1608,7 +1613,7 @@ public void testCompletionSuperType2() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuper";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1683,7 +1688,7 @@ public void testCompletionSuperType3() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuper";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1733,7 +1738,7 @@ public void testCompletionSuperType4() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuperClass2.Inner";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"CompletionSuperClass2.InnerInterface[TYPE_REF]{InnerInterface, , LCompletionSuperClass2$InnerInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+ "}\n"+
@@ -1765,7 +1770,7 @@ public void testCompletionSuperType5() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuperInterface2.Inner";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"CompletionSuperInterface2.InnerClass[TYPE_REF]{InnerClass, , LCompletionSuperInterface2$InnerClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
@@ -1822,7 +1827,7 @@ public void testCompletionSuperType6() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuper";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1872,7 +1877,7 @@ public void testCompletionSuperType7() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuperClass2.Inner";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"CompletionSuperClass2.InnerClass[TYPE_REF]{InnerClass, , LCompletionSuperClass2$InnerClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
@@ -1904,7 +1909,7 @@ public void testCompletionSuperType8() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "CompletionSuperInterface2.Inner";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"CompletionSuperInterface2.InnerClass[TYPE_REF]{InnerClass, , LCompletionSuperInterface2$InnerClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
@@ -2277,7 +2282,7 @@ public void testCompletionAllocationExpressionIsParent2() throws JavaModelExcept
     String str = this.wc.getSource();
     String completeBehind = "zz";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "zzObject[FIELD_REF]{zzObject, LCompletionAllocationExpressionIsParent2;, Ljava.lang.Object;, zzObject, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
@@ -2314,7 +2319,7 @@ public void testCompletionAllocationExpressionIsParent3() throws JavaModelExcept
     String str = this.wc.getSource();
     String completeBehind = "zz";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "zzObject[FIELD_REF]{zzObject, LCompletionAllocationExpressionIsParent3;, Ljava.lang.Object;, zzObject, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
@@ -2389,7 +2394,7 @@ public void testCompletionAllocationExpressionIsParent6() throws JavaModelExcept
     String str = this.wc.getSource();
     String completeBehind = "zz";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "zzObject[FIELD_REF]{zzObject, LCompletionAllocationExpressionIsParent6;, Ljava.lang.Object;, zzObject, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
@@ -2701,7 +2706,7 @@ public void testCompletionEmptyTypeName1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "new ";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -2837,13 +2842,13 @@ public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "foo";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionAbstractMethodRelevance1;, ()V, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"foo1[METHOD_DECLARATION]{public void foo1(), LCompletionAbstractSuperClass;, ()V, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"foo3[METHOD_DECLARATION]{public void foo3(), LCompletionAbstractSuperClass;, ()V, foo3, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"foo2[METHOD_DECLARATION]{public void foo2(), LCompletionAbstractSuperClass;, ()V, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"foo1[METHOD_DECLARATION]{public void foo1(), LCompletionAbstractSuperClass;, ()V, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"foo3[METHOD_DECLARATION]{public void foo3(), LCompletionAbstractSuperClass;, ()V, foo3, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"foo2[METHOD_DECLARATION]{public void foo2(), LCompletionAbstractSuperClass;, ()V, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -2874,12 +2879,12 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "eq";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionAbstractMethodRelevance2;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -2974,7 +2979,7 @@ public void testCompletionMemberType() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "new Y";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
 		"CompletionMemberType.Y[TYPE_REF]{Y, , LCompletionMemberType$Y;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_EXACT_NAME+ R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
@@ -3051,7 +3056,7 @@ public void testCompletionQualifiedExpectedType() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "new ";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
     	assertResults(
@@ -3383,7 +3388,7 @@ public void testCompletionKeywordSuper6() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "sup";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -3393,8 +3398,8 @@ public void testCompletionKeywordSuper6() throws JavaModelException {
     assertResults(
             "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry1() throws JavaModelException {
@@ -5509,7 +5514,7 @@ public void testCompletionKeywordFinal5() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal6() throws JavaModelException {
@@ -5536,7 +5541,7 @@ public void testCompletionKeywordFinal7() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal8() throws JavaModelException {
@@ -5898,7 +5903,7 @@ public void testCompletionKeywordThis15() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "CompletionKeywordThis15.";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionKeywordThis15.InnerClass[TYPE_REF]{InnerClass, , LCompletionKeywordThis15$InnerClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -5995,7 +6000,7 @@ public void testCompletionKeywordSuper12() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "sup";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "expectedTypesSignatures=null\n"+
@@ -6005,8 +6010,8 @@ public void testCompletionKeywordSuper12() throws JavaModelException {
     assertResults(
             "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry4() throws JavaModelException {
@@ -8135,7 +8140,7 @@ public void testCompletionKeywordFinal14() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal15() throws JavaModelException {
@@ -8162,7 +8167,7 @@ public void testCompletionKeywordFinal16() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal17() throws JavaModelException {
@@ -8325,7 +8330,7 @@ public void testCompletionKeywordTrue5() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "tr";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"true[KEYWORD]{true, null, null, true, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
@@ -8348,7 +8353,7 @@ public void testCompletionKeywordTrue6() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "var = ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -8496,7 +8501,7 @@ public void testCompletionMemberType2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "new ";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -8525,7 +8530,7 @@ public void testCompletionMemberType3() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "new MemberE";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 		"CompletionMemberType3.MemberException[TYPE_REF]{MemberException, test, Ltest.CompletionMemberType3$MemberException;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION+ R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
@@ -8725,7 +8730,7 @@ public void testCompletionEmptyToken2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "testCompletionEmptyToken2.";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     int start = str.lastIndexOf(completeBehind);
     int end = start + completeBehind.length();
@@ -8754,17 +8759,27 @@ public void testCompletionFindSecondaryType1() throws JavaModelException {
 		requestor.getResults());
 }
 public void testCompletionLocalType1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionLocalType1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionLocalType1.java",
+		"public class CompletionLocalType1 {\n" +
+		"	void foo() {\n" +
+		"		class ZZZZ {\n" +
+		"			ZZZ\n" +
+		"		}\n" +
+		"	}\n" +
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "ZZZ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	assertEquals(
-		"element:ZZZZ    completion:ZZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, LZZZZ;, ()V, ZZZ, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n"+
+			"ZZZZ[TYPE_REF]{ZZZZ, , LZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 public void testCompletionType1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -8796,7 +8811,7 @@ public void testCompletionQualifiedAllocationType1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "YYY";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
 		"CompletionQualifiedAllocationType1.YYY[TYPE_REF]{YYY, , LCompletionQualifiedAllocationType1$YYY;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
@@ -8848,7 +8863,7 @@ public void testCompletionAbstractMethod1() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "fo";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "",
@@ -8874,7 +8889,7 @@ public void testCompletionAbstractMethod2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "fo";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
            "foo[METHOD_REF]{foo(), LCompletionAbstractMethod2$A;, ()V, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED) + "}",
@@ -8899,7 +8914,7 @@ public void testCompletionAbstractMethod3() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "fo";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
            "foo[METHOD_REF]{foo(), LCompletionAbstractMethod3$A;, ()V, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED)+"}",
@@ -8928,123 +8943,269 @@ public void testCompletionAbstractMethod4() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "fo";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
            "",
            requestor.getResults());
 }
 public void testCompletionStaticMethodDeclaration1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo    completion:public static void foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+		
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration1.java",
+	            "public class CompletionStaticMethodDeclaration1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "	foo\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration2() throws JavaModelException {
-	this.wc = getWorkingCopy(
-            "/Completion/src/CompletionStaticMethodDeclaration2.java",
-            "public class CompletionStaticMethodDeclaration2 {\n" +
-            "	class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-            "		foo\n" +
-            "	}\n" +
-            "}");
-    
-    
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "foo";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
-
-	assertResults(
-			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration2$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration2.java",
+	            "public class CompletionStaticMethodDeclaration2 {\n" +
+	            "	class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "		foo\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration2$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration3() throws JavaModelException {
-	this.wc = getWorkingCopy(
-            "/Completion/src/CompletionStaticMethodDeclaration3.java",
-            "public class CompletionStaticMethodDeclaration3 {\n" +
-            "	static class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-            "		foo\n" +
-            "	}\n" +
-            "}");
-    
-    
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "foo";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
-
-	assertResults(
-			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration3$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED) + "}\n" +
-			"foo[METHOD_DECLARATION]{public static void foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration3.java",
+	            "public class CompletionStaticMethodDeclaration3 {\n" +
+	            "	static class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "		foo\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration3$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration4() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration4.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration4.java",
+	            "public class CompletionStaticMethodDeclaration4 {\n" +
+	            "	void bar() {\n" +
+	            "		class Local1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "			foo\n" +
+	            "		}\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LLocal1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration5() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration5.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration5.java",
+	            "public class CompletionStaticMethodDeclaration5 {\n"+
+	            "	void bar() {\n"+
+	            "		static class Local1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "			foo\n"+
+	            "		}\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LLocal1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration6() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration6.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration6.java",
+	            "public class CompletionStaticMethodDeclaration6 {\n"+
+	            "	void bar() {\n"+
+	            "		new TypeWithAMethodAndAStaticMethod() {\n"+
+	            "			foo\n"+
+	            "		};\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethod1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethod1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo    completion:CompletionStaticMethod1.foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo    completion:foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:CompletionStaticMethod1.this.foo0()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethod1.java",
+	            "public class CompletionStaticMethod1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "	void bar(){\n"+
+	            "		new TypeWithAMethodAndAStaticMethod(){\n"+
+	            "			class Inner1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "				void bar(){\n"+
+	            "					foo\n"+
+	            "				}\n"+
+	            "			}\n"+
+	            "		};\n"+
+	            "	}\n"+
+	            "	\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo0[METHOD_REF]{CompletionStaticMethod1.this.foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_REF]{foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_REF]{CompletionStaticMethod1.foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_REF]{foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionAfterSwitch() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -9280,7 +9441,7 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 
 	assertResults(
 			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {
@@ -9351,7 +9512,7 @@ public void testCompletionInsideGenericClass() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "CompletionInsideGenericClas";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionInsideGenericClas[POTENTIAL_METHOD_DECLARATION]{CompletionInsideGenericClas, Ltest.CompletionInsideGenericClass;, ()V, CompletionInsideGenericClas, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
@@ -9375,7 +9536,7 @@ public void testCompletionInsideExtends1() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9404,7 +9565,7 @@ public void testCompletionInsideExtends2() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionInsideExtends2TopLevel[TYPE_REF]{CompletionInsideExtends2TopLevel, test, Ltest.CompletionInsideExtends2TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -9429,7 +9590,7 @@ public void testCompletionInsideExtends3() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9461,7 +9622,7 @@ public void testCompletionInsideExtends4() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionInsideExtends4[TYPE_REF]{CompletionInsideExtends4, test, Ltest.CompletionInsideExtends4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -9489,7 +9650,7 @@ public void testCompletionInsideExtends5() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9523,7 +9684,7 @@ public void testCompletionInsideExtends6() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionInsideExtends6[TYPE_REF]{CompletionInsideExtends6, test, Ltest.CompletionInsideExtends6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -9546,7 +9707,7 @@ public void testCompletionInsideExtends7() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9574,7 +9735,7 @@ public void testCompletionInsideExtends8() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"CompletionInsideExtends8TopLevel[TYPE_REF]{CompletionInsideExtends8TopLevel, test, Ltest.CompletionInsideExtends8TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -9599,7 +9760,7 @@ public void testCompletionInsideExtends9() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9631,7 +9792,7 @@ public void testCompletionInsideExtends10() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "extends CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 		assertResults(
@@ -9663,7 +9824,7 @@ public void testCompletionInsideExtends11() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "implements ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertResults(
@@ -9696,7 +9857,7 @@ public void testCompletionInsideExtends12() throws JavaModelException {
 	String str = this.wc.getSource();
 	String completeBehind = "implements CompletionInsideExtends";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 		assertResults(
@@ -9725,7 +9886,7 @@ public void testCompletionArrayLength() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "leng";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "length[FIELD_REF]{length, [J, I, length, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -9748,7 +9909,7 @@ public void testCompletionArrayClone() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "clon";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
             "clone[METHOD_REF]{clone(), [J, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
@@ -9775,7 +9936,7 @@ public void testCompletionAllMemberTypes() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Member";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
     	assertResults(
@@ -9817,7 +9978,7 @@ public void testCompletionAllMemberTypes2() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Member";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
     	assertResults(
@@ -9862,7 +10023,7 @@ public void testCompletionAllMemberTypes3() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "Member";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
     	assertResults(
@@ -9932,7 +10093,7 @@ public void testCompletionAllMemberTypes4() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "Member";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 	    	assertResults(
@@ -10000,7 +10161,7 @@ public void testCompletionAllMemberTypes5() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "Member";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 	    	// AType.Member1.Member2.Member3 and AType.Member1.Member2.Member3.Member4 should not be proposed because they are not visible.
@@ -10051,7 +10212,7 @@ public void testCompletionAllMemberTypes6() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "Member";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 	    	assertResults(
@@ -10093,7 +10254,7 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "Member";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 	    	assertResults(
@@ -10132,7 +10293,7 @@ public void testBug96213() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "removed";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
             "removed[LOCAL_VARIABLE_REF]{removed, null, I, removed, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -10165,7 +10326,7 @@ public void testCompletionWithProblem1() throws JavaModelException {
 	    String str = this.wc.getSource();
 	    String completeBehind = "a.zz";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    // no completion must be found
 		assertResults(
@@ -10207,7 +10368,7 @@ public void testCompletionExpectedTypeOnEmptyToken1() throws JavaModelException 
 	    String str = this.wc.getSource();
 	    String completeBehind = "AType a = new ";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    assertResults(
 	            "expectedTypesSignatures={Ltest.AType;}\n"+
@@ -10257,7 +10418,7 @@ public void testCompletionExpectedTypeOnEmptyToken3() throws JavaModelException 
 	    String str = this.wc.getSource();
 	    String completeBehind = "AType a = ";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    assertResults(
 	            "expectedTypesSignatures={Ltest.AType;}\n"+
@@ -10304,7 +10465,7 @@ public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException 
 	    String str = this.wc.getSource();
 	    String completeBehind = "AInterface a = new ";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	    assertResults(
 	            "expectedTypesSignatures={Ltest.AInterface;}\n"+
@@ -10329,21 +10490,555 @@ public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=99811
 public void testBug99811() throws JavaModelException {
-    this.wc = getWorkingCopy(
-            "/Completion/src/test/A.java",
-            "public abstract class A implements I {}");
-    getWorkingCopy(
-            "/Completion/src/test/I.java",
-            "public interface I {\n"+
-            "  public class M extends A {}\n"+
-            "}");
+	ICompilationUnit aType = null;
+    try {
+    	this.wc = getWorkingCopy(
+	            "/Completion/src/test/A.java",
+	            "public abstract class A implements I {}");
+    	
+	    aType = getWorkingCopy(
+	            "/Completion/src/test/I.java",
+	            "public interface I {\n"+
+	            "  public class M extends A {}\n"+
+	            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "A";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults("", requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType1() throws JavaModelException {
+    this.workingCopies = new ICompilationUnit[2];
+    this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/imported/ZZZZ.java",
+		"package test.imported;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+		
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/CompletionImportedType1.java",
+			"package test;"+
+			"public class CompletionImportedType1 {"+
+			"  ZZZ\n"+
+			"}");
 
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "A";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[1].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	assertResults("", requestor.getResults());
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType1;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported.ZZZZ, test.imported, Ltest.imported.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionImportedType2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/imported1/ZZZZ.java",
+		"package test.imported1;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/imported2/ZZZZ.java",
+		"package test.imported2;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/imported3/ZZZZ.java",
+		"package test.imported3;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+		"/Completion/src/test/CompletionImportedType2.java",
+		"package test;"+
+		"import test.imported1.*;"+
+		"import test.imported2.*;"+
+		"import test.imported3.*;"+
+		"public class CompletionImportedType2 {"+
+		"  ZZZ\n"+
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[3].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[3].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType2;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported2.ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported3.ZZZZ, test.imported3, Ltest.imported3.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionImportedType3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/imported1/ZZZZ.java",
+		"package test.imported1;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/imported2/ZZZZ.java",
+		"package test.imported2;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/imported3/ZZZZ.java",
+		"package test.imported3;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+		"/Completion/src/test/CompletionImportedType3.java",
+		"package test;"+
+		"import test.imported2.*;"+
+		"public class CompletionImportedType3 {"+
+		"  ZZZ\n"+
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[3].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[3].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType3;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported3.ZZZZ, test.imported3, Ltest.imported3.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionImportedType4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/imported1/ZZZZ.java",
+		"package test.imported1;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/imported2/ZZZZ.java",
+		"package test.imported2;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+		
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/CompletionImportedType4.java",
+		"package test;"+
+		"import test.imported1.*;"+
+		"public class CompletionImportedType4 {"+
+		"  ZZZ\n"+
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[2].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType4;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported2.ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionImportedType5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/imported1/ZZZZ.java",
+		"package test.imported1;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/imported2/ZZZZ.java",
+		"package test.imported2;"+
+		"public class ZZZZ {\n"+
+		"  \n"+
+		"}");
+		
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/CompletionImportedType5.java",
+		"package test;"+
+		"import test.imported2.*;"+
+		"public class CompletionImportedType5 {"+
+		"  ZZZ\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[2].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType5;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZZ[TYPE_REF]{ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseType1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  FF\n"+
+			"}");
+	
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/FoFoFo.java",
+			"package camelcase;"+
+			"public class FoFoFo {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/FFFTest.java",
+			"package camelcase;"+
+			"public class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseType2() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  camelcase.FF\n"+
+			"}");
+	
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/FoFoFo.java",
+			"package camelcase;"+
+			"public class FoFoFo {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/FFFTest.java",
+			"package camelcase;"+
+			"public class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseType3() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+			
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  /**/FF\n"+
+			"}\n"+
+			"class FoFoFo {\n"+
+			"}\n"+
+			"class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/**/FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseType4() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  FF\n"+
+			"}");
+	
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/Member1.java",
+			"package camelcase;"+
+			"public class Member1 {\n"+
+			"  public class FoFoFo {\n"+
+			"  }\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/Member2.java",
+			"package camelcase;"+
+			"public class Member2 {\n"+
+			"  public class FFFTest {\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Member1.FoFoFo[TYPE_REF]{camelcase.Member1.FoFoFo, camelcase, Lcamelcase.Member1$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Member2.FFFTest[TYPE_REF]{camelcase.Member2.FFFTest, camelcase, Lcamelcase.Member2$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseType5() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  public class FoFoFo {\n"+
+			"    public class FFFTest {\n"+
+			"      FF\n"+
+			"    }\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test$FoFoFo$FFFTest;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test.FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.Test$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"Test.FoFoFo.FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.Test$FoFoFo$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseMethod1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+	this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  void oneTwoThree(){}\n"+
+			"  void oTTMethod(){}\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.Test;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.Test;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseField1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  int oneTwoThree;\n"+
+			"  int oTTField;\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.Test;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTField[FIELD_REF]{oTTField, Lcamelcase.Test;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseLocalVariable1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  void foo() {\n"+
+			"    int oneTwoThree;\n"+
+			"    int oTTLocal;\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[LOCAL_VARIABLE_REF]{oneTwoThree, null, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTLocal[LOCAL_VARIABLE_REF]{oTTLocal, null, I, oTTLocal, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void testCamelCaseMethodDeclaration1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test extends SuperClass {\n"+
+			"  oTT\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/SuperClass.java",
+			"package camelcase;"+
+			"public class SuperClass {\n"+
+			"  public void oneTwoThree(){}\n"+
+			"  public void oTTMethod(){}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oTT[POTENTIAL_METHOD_DECLARATION]{oTT, Lcamelcase.Test;, ()V, oTT, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"oneTwoThree[METHOD_DECLARATION]{public void oneTwoThree(), Lcamelcase.SuperClass;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_DECLARATION]{public void oTTMethod(), Lcamelcase.SuperClass;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 }

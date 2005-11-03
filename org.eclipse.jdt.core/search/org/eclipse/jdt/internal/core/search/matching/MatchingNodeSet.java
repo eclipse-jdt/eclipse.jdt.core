@@ -54,7 +54,7 @@ public MatchingNodeSet(boolean mustResolvePattern) {
 }
 
 public int addMatch(ASTNode node, int matchLevel) {
-	switch (matchLevel) {
+	switch (matchLevel & PatternLocator.NODE_SET_MASK) {
 		case PatternLocator.INACCURATE_MATCH:
 			addTrustedMatch(node, POTENTIAL_MATCH);
 			break;

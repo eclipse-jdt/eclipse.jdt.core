@@ -230,6 +230,7 @@ public void enterField(FieldInfo fieldInfo) {
 	this.unitInfo.addAnnotationPositions(handle, fieldInfo.annotationPositions);
 
 	parentInfo.addChild(handle);
+	parentInfo.addCategories(handle, fieldInfo.categories);
 	this.newElements.put(handle, info);
 
 	this.infoStack.push(info);
@@ -318,6 +319,7 @@ public void enterMethod(MethodInfo methodInfo) {
 		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
 	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);
 	parentInfo.addChild(handle);
+	parentInfo.addCategories(handle, methodInfo.categories);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
@@ -354,6 +356,9 @@ public void enterType(TypeInfo typeInfo) {
 	for (int i = 0, length = superinterfaces == null ? 0 : superinterfaces.length; i < length; i++)
 		superinterfaces[i] = manager.intern(superinterfaces[i]);
 	info.setSuperInterfaceNames(superinterfaces);
+	info.addCategories(handle, typeInfo.categories);
+	if (parentHandle.getElementType() == IJavaElement.TYPE)
+		((SourceTypeElementInfo) parentInfo).addCategories(handle, typeInfo.categories);
 	parentInfo.addChild(handle);
 	this.unitInfo.addAnnotationPositions(handle, typeInfo.annotationPositions);
 	this.newElements.put(handle, info);

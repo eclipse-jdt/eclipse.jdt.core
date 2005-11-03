@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -70,7 +71,7 @@ public class CommentRecorderParser extends Parser {
 			break nextComment;
 		}
 		if (deprecated) {
-			checkAndSetModifiers(AccDeprecated);
+			checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 		}
 		// modify the modifier source start to point at the first comment
 		if (lastCommentIndex >= 0 && checkDeprecated) {
@@ -220,6 +221,13 @@ public class CommentRecorderParser extends Parser {
 		return positions;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
+	 */
+	public void initialize(boolean initializeNLS) {
+		super.initialize(initializeNLS);
+		this.commentPtr = -1;
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
 	 */

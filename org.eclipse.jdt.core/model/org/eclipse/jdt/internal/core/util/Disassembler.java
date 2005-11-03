@@ -10,28 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.text.NumberFormat;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
-import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IClassFileAttribute;
-import org.eclipse.jdt.core.util.IClassFileReader;
-import org.eclipse.jdt.core.util.ICodeAttribute;
-import org.eclipse.jdt.core.util.IConstantPoolConstant;
-import org.eclipse.jdt.core.util.IConstantPoolEntry;
-import org.eclipse.jdt.core.util.IConstantValueAttribute;
-import org.eclipse.jdt.core.util.IExceptionAttribute;
-import org.eclipse.jdt.core.util.IExceptionTableEntry;
-import org.eclipse.jdt.core.util.IFieldInfo;
-import org.eclipse.jdt.core.util.IInnerClassesAttribute;
-import org.eclipse.jdt.core.util.IInnerClassesAttributeEntry;
-import org.eclipse.jdt.core.util.ILineNumberAttribute;
-import org.eclipse.jdt.core.util.ILocalVariableAttribute;
-import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
-import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.core.util.ISourceAttribute;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
  * Disassembler of .class files. It generates an output in the Writer that looks close to
@@ -39,10 +24,10 @@ import org.eclipse.jdt.core.util.ISourceAttribute;
  */
 public class Disassembler extends ClassFileBytesDisassembler {
 
-	private static final String EMPTY_CLASS_NAME = "\"\""; //$NON-NLS-1$
+	private static final char[] EMPTY_CLASS_NAME = new char[0];
 	private static final char[] ANY_EXCEPTION = Messages.classfileformat_anyexceptionhandler.toCharArray();	 
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
-	private static final String VERSION_UNKNOWN = "unknown";//$NON-NLS-1$
+	private static final String VERSION_UNKNOWN = Messages.classfileformat_versionUnknown;
 
 	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
 		if ((accessFlags & modifierConstant) != 0) {		
@@ -72,6 +57,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}	
 
+	private void decodeModifiersForFieldForWorkingCopy(StringBuffer buffer, int accessFlags) {
+		boolean firstModifier = true;
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
+		if (!firstModifier) {
+			buffer.append(Messages.disassembler_space); 
+		}
+	}	
+	
 	private final void decodeModifiersForInnerClasses(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
 		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
@@ -321,20 +320,98 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}));
 	}
 
+	private void disassembleEnumConstructor(IClassFileReader classFileReader, char[] className, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		final ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		char[] methodDescriptor = methodInfo.getDescriptor();
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		// disassemble compact version of annotations
+		if (runtimeInvisibleAnnotationsAttribute != null) {
+			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
+		}
+		if (runtimeVisibleAnnotationsAttribute != null) {
+			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
+		}
+		final int accessFlags = methodInfo.getAccessFlags();
+		decodeModifiersForMethod(buffer, accessFlags & IModifierConstants.ACC_PRIVATE);
+		CharOperation.replace(methodDescriptor, '/', '.');
+		final boolean isVarArgs = (accessFlags & IModifierConstants.ACC_VARARGS) != 0;
+		final char[] signature = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
+		int index = CharOperation.indexOf(',', signature);
+		index = CharOperation.indexOf(',', signature, index + 1);
+		buffer.append(signature, 0, CharOperation.indexOf('(', signature) + 1);
+		buffer.append(signature, index + 2, signature.length - index - 2);
+		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
+		if (exceptionAttribute != null) {
+			buffer.append(" throws "); //$NON-NLS-1$
+			char[][] exceptionNames = exceptionAttribute.getExceptionNames();
+			int length = exceptionNames.length;
+			for (int i = 0; i < length - 1; i++) {
+				char[] exceptionName = exceptionNames[i];
+				CharOperation.replace(exceptionName, '/', '.');
+				buffer
+					.append(returnClassName(exceptionName, '.', mode))
+					.append(Messages.disassembler_comma)
+					.append(Messages.disassembler_space); 
+			}
+			char[] exceptionName = exceptionNames[length - 1];
+			CharOperation.replace(exceptionName, '/', '.');
+			buffer.append(returnClassName(exceptionName, '.', mode));
+		}
+		if (((accessFlags & IModifierConstants.ACC_NATIVE) == 0)
+				&& ((accessFlags & IModifierConstants.ACC_ABSTRACT) == 0)) {
+			buffer.append(" {"); //$NON-NLS-1$
+			final char[] returnType = Signature.getReturnType(methodDescriptor);
+			if (returnType.length == 1) {
+				switch(returnType[0]) {
+					case 'V' :
+						writeNewLine(buffer, lineSeparator, tabNumber);							
+						break;
+					case 'I' :
+					case 'B' :
+					case 'J' :
+					case 'D' :
+					case 'F' :
+					case 'S' :
+					case 'C' :
+						writeNewLine(buffer, lineSeparator, tabNumber + 1);
+						buffer.append("return 0;"); //$NON-NLS-1$
+						writeNewLine(buffer, lineSeparator, tabNumber);							
+						break;
+					default :
+						// boolean
+						writeNewLine(buffer, lineSeparator, tabNumber + 1);
+						buffer.append("return false;"); //$NON-NLS-1$
+						writeNewLine(buffer, lineSeparator, tabNumber);							
+				}
+			} else {
+				// object
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				buffer.append("return null;"); //$NON-NLS-1$
+				writeNewLine(buffer, lineSeparator, tabNumber);							
+			}
+			buffer.append('}');
+		} else {
+			buffer.append(';');
+		}
+	}
+	
 	/**
 	 * Disassemble a method info header
 	 */
-	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+	private void disassemble(IClassFileReader classFileReader, char[] className, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-		char[] methodDescriptor = methodInfo.getDescriptor();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
-		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
-		IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
-		IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
+		final ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		final char[] methodDescriptor = methodInfo.getDescriptor();
+		final ISignatureAttribute signatureAttribute = (ISignatureAttribute) Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
+		final IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Messages.bind(Messages.classfileformat_methoddescriptor,
 				new String[] {
@@ -369,22 +446,36 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		int accessFlags = methodInfo.getAccessFlags();
+		final int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags);
-		if (methodInfo.isSynthetic()) {
+		if (methodInfo.isSynthetic() && !checkMode(mode, WORKING_COPY)) {
 			buffer.append("synthetic"); //$NON-NLS-1$
 			buffer.append(Messages.disassembler_space); 
 		}
 		CharOperation.replace(methodDescriptor, '/', '.');
-		char[] methodName;
+		final boolean isVarArgs = (accessFlags & IModifierConstants.ACC_VARARGS) != 0;
 		if (methodInfo.isConstructor()) {
-			methodName = classFileReader.getClassName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, false, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
+			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
+				final char[] signature = signatureAttribute.getSignature();
+				CharOperation.replace(signature, '/', '.');
+				disassembleGenericSignature(mode, buffer, signature);
+				buffer.append(' ');
+				buffer.append(Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+			} else {
+				buffer.append(Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+			}
 		} else if (methodInfo.isClinit()) {
 			buffer.append(Messages.bind(Messages.classfileformat_clinitname));
 		} else {
-			methodName = methodInfo.getName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, true, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
+			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
+				final char[] signature = signatureAttribute.getSignature();
+				CharOperation.replace(signature, '/', '.');
+				disassembleGenericSignature(mode, buffer, signature);
+				buffer.append(' ');
+				buffer.append(Signature.toCharArray(signature, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+			} else {
+				buffer.append(Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+			}
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
@@ -409,7 +500,51 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
 			}
 		}
-		buffer.append(Messages.disassembler_endofmethodheader); 
+		if (checkMode(mode, WORKING_COPY)) {
+			// put the annotation default attribute if needed
+			if (annotationDefaultAttribute != null) {
+				buffer.append(" default "); //$NON-NLS-1$
+				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
+			}
+			if (((accessFlags & IModifierConstants.ACC_NATIVE) == 0)
+					&& ((accessFlags & IModifierConstants.ACC_ABSTRACT) == 0)) {
+				buffer.append(" {"); //$NON-NLS-1$
+				final char[] returnType = Signature.getReturnType(methodDescriptor);
+				if (returnType.length == 1) {
+					switch(returnType[0]) {
+						case 'V' :
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+							break;
+						case 'I' :
+						case 'B' :
+						case 'J' :
+						case 'D' :
+						case 'F' :
+						case 'S' :
+						case 'C' :
+							writeNewLine(buffer, lineSeparator, tabNumber + 1);
+							buffer.append("return 0;"); //$NON-NLS-1$
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+							break;
+						default :
+							// boolean
+							writeNewLine(buffer, lineSeparator, tabNumber + 1);
+							buffer.append("return false;"); //$NON-NLS-1$
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+					}
+				} else {
+					// object
+					writeNewLine(buffer, lineSeparator, tabNumber + 1);
+					buffer.append("return null;"); //$NON-NLS-1$
+					writeNewLine(buffer, lineSeparator, tabNumber);							
+				}
+				buffer.append('}');
+			} else {
+				buffer.append(';');
+			}	
+		} else {
+			buffer.append(Messages.disassembler_endofmethodheader);
+		}
 		
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			if (codeAttribute != null) {
@@ -475,12 +610,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode) {
 		if (classFileReader == null) return EMPTY_OUTPUT;
+		char[] className = classFileReader.getClassName();
+		if (className == null) {
+			// incomplete initialization. We cannot go further.
+			return EMPTY_OUTPUT;
+		}
+		CharOperation.replace(className, '/', '.');
+		final int classNameLength = className.length;
+		final int accessFlags = classFileReader.getAccessFlags();
+		final boolean isEnum = (accessFlags & IModifierConstants.ACC_ENUM) != 0;
+
 		StringBuffer buffer = new StringBuffer();
-	
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		final int accessFlags = classFileReader.getAccessFlags();
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
@@ -489,7 +632,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Messages.disassembler_sourceattributeheader); 
 				buffer.append(sourceAttribute.getSourceFileName());
 			}
-			String versionNumber = VERSION_UNKNOWN;//$NON-NLS-1$
+			String versionNumber = VERSION_UNKNOWN;
 			if (minorVersion == 3 && majorVersion == 45) {
 				versionNumber = JavaCore.VERSION_1_1;
 			} else if (minorVersion == 0 && majorVersion == 46) {
@@ -518,12 +661,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 		}
-		char[] className = classFileReader.getClassName();
-		if (className == null) {
-			// incomplete initialization. We cannot go further.
-			return buffer.toString();
-		}
+		final int lastDotIndexInClassName = CharOperation.lastIndexOf('.', className);
 		
+		if (checkMode(mode, WORKING_COPY) && lastDotIndexInClassName != -1) { 
+			// we print a package declaration
+			buffer.append("package ");//$NON-NLS-1$
+			buffer.append(className, 0, lastDotIndexInClassName);
+			buffer.append(';');
+			writeNewLine(buffer, lineSeparator, 0);
+		}
+
 		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -540,71 +687,90 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		boolean decoded = false;
-		if (innerClassesAttribute != null) {
-			// search the right entry
-			IInnerClassesAttributeEntry[] entries = innerClassesAttribute.getInnerClassAttributesEntries();
-			for (int i = 0, max = entries.length; i < max ; i++) {
-				IInnerClassesAttributeEntry entry = entries[i];
-				char[] innerClassName = entry.getInnerClassName();
-				if (innerClassName != null) {
-					if (CharOperation.equals(classFileReader.getClassName(), innerClassName)) {
-						decodeModifiersForInnerClasses(buffer, entry.getAccessFlags());
-						decoded = true;
+		if (isEnum && checkMode(mode, WORKING_COPY)) {
+			decodeModifiersForType(buffer, accessFlags & IModifierConstants.ACC_PUBLIC);
+		} else {
+			if (innerClassesAttribute != null) {
+				// search the right entry
+				IInnerClassesAttributeEntry[] entries = innerClassesAttribute.getInnerClassAttributesEntries();
+				for (int i = 0, max = entries.length; i < max ; i++) {
+					IInnerClassesAttributeEntry entry = entries[i];
+					char[] innerClassName = entry.getInnerClassName();
+					if (innerClassName != null) {
+						if (CharOperation.equals(classFileReader.getClassName(), innerClassName)) {
+							decodeModifiersForInnerClasses(buffer, entry.getAccessFlags());
+							decoded = true;
+						}
 					}
 				}
 			}
-		}
-		if (!decoded) {
-			decodeModifiersForType(buffer, accessFlags);
-			if (isSynthetic(classFileReader)) {
-				buffer.append("synthetic"); //$NON-NLS-1$
-				buffer.append(Messages.disassembler_space); 
+			if (!decoded) {
+				decodeModifiersForType(buffer, accessFlags);
+				if (isSynthetic(classFileReader)) {
+					buffer.append("synthetic"); //$NON-NLS-1$
+					buffer.append(Messages.disassembler_space); 
+				}
 			}
 		}
 		
-		if ((accessFlags & IModifierConstants.ACC_ENUM) != 0) {
+		final boolean isAnnotation = (accessFlags & IModifierConstants.ACC_ANNOTATION) != 0;
+		if (isEnum) {
 			buffer.append("enum "); //$NON-NLS-1$
 		} else if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
 		} else {
-			if ((accessFlags & IModifierConstants.ACC_ANNOTATION) != 0) {
+			if (isAnnotation) {
 				buffer.append("@"); //$NON-NLS-1$
 			}
 			buffer.append("interface "); //$NON-NLS-1$
 		}
-		CharOperation.replace(className, '/', '.');
-		buffer.append(className);
+		
+		if (checkMode(mode, WORKING_COPY)) {
+			// we print the simple class name
+			final int start = lastDotIndexInClassName + 1;
+			buffer.append(className, start, classNameLength - start);
+			className = CharOperation.subarray(className, start, classNameLength);
+			if (signatureAttribute != null) {
+				disassembleGenericSignature(mode, buffer, signatureAttribute.getSignature());
+			}
+		} else {
+			buffer.append(className);
+		}
 		
 		char[] superclassName = classFileReader.getSuperclassName();
 		if (superclassName != null) {
-			buffer.append(" extends "); //$NON-NLS-1$
 			CharOperation.replace(superclassName, '/', '.');
-			buffer.append(returnClassName(superclassName, '.', mode));
-		}
-		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
-		int length = superclassInterfaces.length;
-		if (length != 0) {
-			buffer.append(" implements "); //$NON-NLS-1$
-			for (int i = 0; i < length - 1; i++) {
-				char[] superinterface = superclassInterfaces[i];
-				CharOperation.replace(superinterface, '/', '.');
-				buffer
-					.append(returnClassName(superinterface, '.', mode))
-					.append(Messages.disassembler_comma)
-					.append(Messages.disassembler_space); 
+			if (!isJavaLangObject(superclassName) && !isEnum) {
+				buffer.append(" extends "); //$NON-NLS-1$
+				buffer.append(returnClassName(superclassName, '.', mode));
 			}
-			char[] superinterface = superclassInterfaces[length - 1];
-			CharOperation.replace(superinterface, '/', '.');
-			buffer.append(returnClassName(superinterface, '.', mode));
+		}
+		if (!isAnnotation || !checkMode(mode, WORKING_COPY)) {
+			char[][] superclassInterfaces = classFileReader.getInterfaceNames();
+			int length = superclassInterfaces.length;
+			if (length != 0) {
+				buffer.append(" implements "); //$NON-NLS-1$
+				for (int i = 0; i < length - 1; i++) {
+					char[] superinterface = superclassInterfaces[i];
+					CharOperation.replace(superinterface, '/', '.');
+					buffer
+						.append(returnClassName(superinterface, '.', mode))
+						.append(Messages.disassembler_comma)
+						.append(Messages.disassembler_space); 
+				}
+				char[] superinterface = superclassInterfaces[length - 1];
+				CharOperation.replace(superinterface, '/', '.');
+				buffer.append(returnClassName(superinterface, '.', mode));
+			}
 		}
 		buffer.append(Messages.bind(Messages.disassembler_opentypedeclaration)); 
 		if (checkMode(mode, SYSTEM)) {
 			disassemble(classFileReader.getConstantPool(), buffer, lineSeparator, 1);
 		}
-		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
+		disassembleTypeMembers(classFileReader, className, buffer, lineSeparator, 1, mode, isEnum);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
-			length = attributes.length;
+			int length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
 			int remainingAttributesLength = length;
 			if (innerClassesAttribute != null) {
@@ -656,6 +822,46 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(Messages.disassembler_closetypedeclaration); 
 		return buffer.toString();
 	}
+
+	private void disassembleGenericSignature(int mode, StringBuffer buffer, final char[] signature) {
+		CharOperation.replace(signature, '/', '.');
+		final char[][] typeParameters = Signature.getTypeParameters(signature);
+		final int typeParametersLength = typeParameters.length;
+		if (typeParametersLength != 0) {
+			buffer.append('<');
+			for (int i = 0; i < typeParametersLength; i++) {
+				// extract the name
+				buffer.append(typeParameters[i], 0, CharOperation.indexOf(':', typeParameters[i]));
+				final char[][] bounds = Signature.getTypeParameterBounds(typeParameters[i]);
+				final int boundsLength = bounds.length;
+				if (boundsLength != 0) {
+					if (boundsLength == 1) {
+						final char[] bound = bounds[0];
+						// check if this is java.lang.Object
+						if (!isJavaLangObject(Signature.toCharArray(bound))) {
+							buffer.append(" extends "); //$NON-NLS-1$
+							buffer.append(returnClassName(Signature.toCharArray(bound), '.', mode));
+						}
+					} else {
+						buffer.append(" extends "); //$NON-NLS-1$
+						for (int j= 0; j < boundsLength - 1; j++) {
+							buffer.append(returnClassName(Signature.toCharArray(bounds[j]), '.', mode));
+							buffer.append(" & "); //$NON-NLS-1$
+							}
+						buffer.append(returnClassName(Signature.toCharArray(bounds[boundsLength - 1]), '.', mode));
+					}
+				}	
+				if (i < typeParametersLength - 1) {
+					buffer.append(',');
+				}
+			}
+			buffer.append('>');
+		}
+	}
+
+	private boolean isJavaLangObject(final char[] className) {
+		return CharOperation.equals(TypeConstants.JAVA_LANG_OBJECT, CharOperation.splitOn('.', className));
+	}
 	
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber - 1);
@@ -667,11 +873,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.classformat_classformatexception);
 			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		}
-		int exceptionTableLength = codeAttribute.getExceptionTableLength();
+		final int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {
 			final int tabNumberForExceptionAttribute = tabNumber + 2;
 			dumpTab(tabNumberForExceptionAttribute, buffer);
-			IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
+			final IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Messages.disassembler_exceptiontableheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
 			for (int i = 0; i < exceptionTableLength - 1; i++) {
@@ -709,8 +915,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
 		}
-		ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-		int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
+		final ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+		final int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
 			int tabNumberForLineAttribute = tabNumber + 2;
 			dumpTab(tabNumberForLineAttribute, buffer);
@@ -731,8 +937,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(lineattributesEntries[lineAttributeLength - 1][1])
 				}));
 		} 
-		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
-		int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
+		final ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
+		final int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (localVariableAttributeLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
@@ -771,8 +977,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					new String(returnClassName(typeName, '.', mode))
 				}));
 		} 
-		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
-		int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
+		final ILocalVariableTypeTableAttribute localVariableTypeAttribute= (ILocalVariableTypeTableAttribute) getAttribute(IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE, codeAttribute);
+		final int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
 		if (localVariableTypeTableLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
@@ -810,7 +1016,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(index),
 					new String(returnClassName(typeName, '.', mode))
 				}));
-		} 
+		}
+		final int length = codeAttribute.getAttributesCount();
+		if (length != 0) {
+			IClassFileAttribute[] attributes = codeAttribute.getAttributes();
+			for (int i = 0; i < length; i++) {
+				IClassFileAttribute attribute = attributes[i];
+				if (CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.STACK_MAP_TABLE)) {
+					disassemble((StackMapTableAttribute) attribute, buffer, lineSeparator, tabNumber + 1);
+				} else if (attribute != lineNumberAttribute
+						&& attribute != localVariableAttribute
+						&& attribute != localVariableTypeAttribute) {
+					disassemble(attribute, buffer, lineSeparator, tabNumber + 1);
+				}
+			}
+		}		
 	}
 
 	private void disassemble(IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
@@ -939,13 +1159,63 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(Messages.disassembler_constantpoolindex) 
 			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
 			.append(" ")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClass()); //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClass());
 		if (enclosingMethodAttribute.getMethodNameAndTypeIndex() != 0) {
 			buffer
 				.append(".")//$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
+				.append(enclosingMethodAttribute.getMethodName())
+				.append(enclosingMethodAttribute.getMethodDescriptor());
 		}
+	}
+	
+	private void disassembleEnumConstants(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, char[][] argumentTypes) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		// disassemble compact version of annotations
+		if (runtimeInvisibleAnnotationsAttribute != null) {
+			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
+		}
+		if (runtimeVisibleAnnotationsAttribute != null) {
+			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
+			writeNewLine(buffer, lineSeparator, tabNumber);
+		}
+		buffer.append(new String(fieldInfo.getName()));
+		buffer.append('(');
+		final int length = argumentTypes.length;
+		if (length != 0) {
+			// insert default value for corresponding argument types
+			for (int i = 0; i < length; i++) {
+				final char[] type = argumentTypes[i];
+				switch(type.length) {
+					case 1 :
+						switch(type[0]) {
+							case 'B' :
+							case 'I' :
+							case 'J' :
+							case 'D' :
+							case 'F' :
+							case 'S' :
+								buffer.append('0');
+								break;
+							case 'Z' :
+								buffer.append("false"); //$NON-NLS-1$
+								break;
+							case 'C' :
+								buffer.append("\' \'"); //$NON-NLS-1$
+								break;
+						}
+						break;
+					default :
+						buffer.append("null"); //$NON-NLS-1$
+				}
+				if (i < length - 1) {
+					buffer.append(',');
+				}
+			}
+		}
+		buffer.append(')').append(',');
 	}
 	
 	/**
@@ -953,9 +1223,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	private void disassemble(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		char[] fieldDescriptor = fieldInfo.getDescriptor();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		final char[] fieldDescriptor = fieldInfo.getDescriptor();
+		final ISignatureAttribute signatureAttribute = (ISignatureAttribute) Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Messages.bind(Messages.classfileformat_fieldddescriptor,
 				new String[] {
@@ -971,8 +1240,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
-		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
@@ -984,12 +1253,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
-		if (fieldInfo.isSynthetic()) {
-			buffer.append("synthetic"); //$NON-NLS-1$
-			buffer.append(Messages.disassembler_space); 
+		if (checkMode(mode, WORKING_COPY)) {
+			decodeModifiersForFieldForWorkingCopy(buffer, fieldInfo.getAccessFlags());
+			if (signatureAttribute != null) {
+				buffer.append(returnClassName(getSignatureForField(signatureAttribute.getSignature()), '.', mode));
+			} else {
+				buffer.append(returnClassName(getSignatureForField(fieldDescriptor), '.', mode));
+			}
+		} else {
+			decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
+			if (fieldInfo.isSynthetic()) {
+				buffer.append("synthetic"); //$NON-NLS-1$
+				buffer.append(Messages.disassembler_space);
+			}
+			buffer.append(returnClassName(getSignatureForField(fieldDescriptor), '.', mode));
 		}
-		buffer.append(getSignatureForField(fieldDescriptor));
 		buffer.append(' ');
 		buffer.append(new String(fieldInfo.getName()));
 		IConstantValueAttribute constantValueAttribute = fieldInfo.getConstantValueAttribute();
@@ -1004,7 +1282,18 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					buffer.append(constantPoolEntry.getFloatValue() + "f"); //$NON-NLS-1$
 					break;
 				case IConstantPoolConstant.CONSTANT_Double :
-					buffer.append(constantPoolEntry.getDoubleValue());
+					final double doubleValue = constantPoolEntry.getDoubleValue();
+					if (checkMode(mode, ClassFileBytesDisassembler.WORKING_COPY)) {
+						if (doubleValue == Double.POSITIVE_INFINITY) {
+							buffer.append("1.0 / 0.0"); //$NON-NLS-1$
+						} else if (doubleValue == Double.NEGATIVE_INFINITY) {
+							buffer.append("-1.0 / 0.0"); //$NON-NLS-1$
+						} else {
+							buffer.append(constantPoolEntry.getDoubleValue());
+						}
+					} else {
+						buffer.append(constantPoolEntry.getDoubleValue());
+					}
 					break;
 				case IConstantPoolConstant.CONSTANT_Integer:
 					switch(fieldDescriptor[0]) {
@@ -1208,6 +1497,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}
 
+
+	private void disassemble(StackMapTableAttribute attribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Messages.bind(Messages.disassembler_stackmaptableattributeheader,
+			new String[] {
+				Long.toString(attribute.getAttributeLength()),
+				getBytesAsString(attribute.getBytes(), lineSeparator, tabNumber)
+			}));
+	}
+
 	private void disassembleAsModifier(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
 		buffer.append('@').append(Signature.toCharArray(typeName)).append('(');
@@ -1271,7 +1570,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					case IConstantPoolConstant.CONSTANT_Utf8:
 						value = "\"" + decodeStringValue(constantPoolEntry.getUtf8Value()) + "\"";//$NON-NLS-1$//$NON-NLS-2$
 				}
-				buffer.append(value); //$NON-NLS-1$
+				buffer.append(value);
 				break;
 			case IAnnotationComponentValue.ENUM_TAG:
 				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');
@@ -1319,19 +1618,140 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}
 
-	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
-		IFieldInfo[] fields = classFileReader.getFieldInfos();
-		for (int i = 0, max = fields.length; i < max; i++) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);
+	private String getBytesAsString(final byte[] bytes, final String lineSeparator, final int tabNumber) {
+		StringBuffer buffer = new StringBuffer();
+		NumberFormat format = NumberFormat.getInstance();
+		format.setMaximumIntegerDigits(3);
+		format.setMinimumIntegerDigits(3);
+		final int length = bytes.length;
+		if (length == 0) {
+			return "{}"; //$NON-NLS-1$
+		} else {
+			buffer.append('{');
+			writeNewLine(buffer, lineSeparator, tabNumber + 2);
+			String hexString = Integer.toHexString(bytes[0] & 0xFF);
+			switch(hexString.length()) {
+				case 1 :
+					buffer.append('0');
+					break;
+			}
+			buffer.append(hexString).append(' ');
+			hexString = Integer.toHexString(bytes[1] & 0xFF);
+			switch(hexString.length()) {
+				case 1 :
+					buffer.append('0');
+					break;
+			}
+			buffer.append(hexString);
+			for (int i = 2; i < length; i++) {
+				if ((i - 2) % 11 == 0) {
+					writeNewLine(buffer, lineSeparator, tabNumber + 2);
+				} else {
+					buffer.append(' ');
+				}
+				final int currentByte = bytes[i] & 0xFF;
+				hexString = Integer.toHexString(currentByte).toUpperCase();
+				switch(hexString.length()) {
+					case 1 :
+						buffer.append('0');
+						break;
+				}
+				buffer.append(hexString).append('(').append(format.format(currentByte)).append(')');
+			}
+			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			buffer.append('}');
 		}
-		IMethodInfo[] methods = classFileReader.getMethodInfos();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			disassemble(classFileReader, methods[i], buffer, lineSeparator, tabNumber, mode);
+		return String.valueOf(buffer);
+	}
+
+	private void disassembleTypeMembers(IClassFileReader classFileReader, char[] className, StringBuffer buffer, String lineSeparator, int tabNumber, int mode, boolean isEnum) {
+		IFieldInfo[] fields = classFileReader.getFieldInfos();
+		if (isEnum && checkMode(mode, WORKING_COPY)) {
+			int index = 0;
+			final int fieldsLength = fields.length;
+			IMethodInfo[] methods = classFileReader.getMethodInfos();
+			char[][] constructorArguments = getConstructorArgumentsForEnum(methods);
+			enumConstantLoop: for (; index < fieldsLength; index++) {
+				final IFieldInfo fieldInfo = fields[index];
+				final int accessFlags = fieldInfo.getAccessFlags();
+				if ((accessFlags & IModifierConstants.ACC_ENUM) != 0) {
+					writeNewLine(buffer, lineSeparator, tabNumber);
+					disassembleEnumConstants(fields[index], buffer, lineSeparator, tabNumber, constructorArguments);
+				} else {
+					break enumConstantLoop;
+				}
+			}
+			buffer.append(';');
+			boolean foundSyntheticField = false;
+			fieldLoop: for (; index < fieldsLength; index++) {
+				if (!foundSyntheticField && CharOperation.equals(TypeConstants.SYNTHETIC_ENUM_VALUES, fields[index].getName())) {
+					foundSyntheticField = true;
+					continue fieldLoop;
+				}
+				writeNewLine(buffer, lineSeparator, tabNumber);
+				disassemble(fields[index], buffer, lineSeparator, tabNumber, mode);
+			}
+			methodLoop: for (int i = 0, max = methods.length; i < max; i++) {
+				final IMethodInfo methodInfo = methods[i];
+				if (CharOperation.equals(methodInfo.getName(), TypeConstants.VALUES)) {
+					final char[] descriptor = methodInfo.getDescriptor();
+					CharOperation.replace(descriptor, '/', '.');
+					if (Signature.getParameterCount(descriptor) == 0) {
+						if (CharOperation.equals(returnClassName(Signature.getReturnType(descriptor), '.', mode),
+								CharOperation.concat(new char[] {'[', 'L'}, className, new char[] {';'}))) {
+							continue methodLoop;
+						}
+					}
+				} else if (CharOperation.equals(methodInfo.getName(), TypeConstants.VALUEOF)) {
+					final char[] descriptor = methodInfo.getDescriptor();
+					CharOperation.replace(descriptor, '/', '.');
+					final char[][] parameterTypes = Signature.getParameterTypes(descriptor);
+					if (parameterTypes.length == 1
+							&& CharOperation.equals(parameterTypes[0], "Ljava.lang.String;".toCharArray())) { //$NON-NLS-1$
+						if (CharOperation.equals(returnClassName(Signature.getReturnType(descriptor), '.', mode),
+								CharOperation.concat('L', className, ';'))) {
+							continue methodLoop;
+						}
+					}
+				} else if (methodInfo.isClinit() || methodInfo.isSynthetic()) {
+					continue methodLoop;
+				} else if (methodInfo.isConstructor()) {
+					writeNewLine(buffer, lineSeparator, tabNumber);
+					disassembleEnumConstructor(classFileReader, className, methodInfo, buffer, lineSeparator, tabNumber, mode);
+				} else {
+					writeNewLine(buffer, lineSeparator, tabNumber);
+					disassemble(classFileReader, className, methodInfo, buffer, lineSeparator, tabNumber, mode);
+				}
+			}
+		} else {
+			for (int i = 0, max = fields.length; i < max; i++) {
+				writeNewLine(buffer, lineSeparator, tabNumber);
+				disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);
+			}
+			IMethodInfo[] methods = classFileReader.getMethodInfos();
+			for (int i = 0, max = methods.length; i < max; i++) {
+				writeNewLine(buffer, lineSeparator, tabNumber);
+				disassemble(classFileReader, className, methods[i], buffer, lineSeparator, tabNumber, mode);
+			}
 		}
 	}
 	
+	private char[][] getConstructorArgumentsForEnum(final IMethodInfo[] methods) {
+		loop: for (int i = 0, max = methods.length; i < max; i++) {
+			IMethodInfo methodInfo = methods[i];
+			if (methodInfo.isConstructor()) {
+				char[][] parameterTypes = Signature.getParameterTypes(methodInfo.getDescriptor());
+				final int length = parameterTypes.length;
+				if (length >= 2) {
+					return CharOperation.subarray(parameterTypes, 2, length);
+				}
+			} else {
+				continue loop;
+			}
+		}
+		return null;
+	}
+
 	private final void dumpTab(int tabNumber, StringBuffer buffer) {
 		for (int i = 0; i < tabNumber; i++) {
 			buffer.append(Messages.disassembler_indentation); 
@@ -1354,29 +1774,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		return null;
 	}
-	/**
-	 * Method getEntryFor.
-	 * @param localIndex
-	 * @param entries
-	 * @return ILocalVariableTableEntry
-	 */
-	private ILocalVariableTableEntry getEntryFor(
-		int localIndex,
-		ILocalVariableTableEntry[] entries) {
-			
-			for (int i = 0, max = entries.length; i < max; i++) {
-				ILocalVariableTableEntry entry = entries[i];
-				if (localIndex == entry.getIndex()) {
-					return entry;
-				}
-			}
-			return null;
-	}
-	private ILocalVariableTypeTableAttribute getLocalVariableTypeAttribute(ICodeAttribute codeAttribute) {
+	private IClassFileAttribute getAttribute(final char[] attributeName, final ICodeAttribute codeAttribute) {
 		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE)) {
-				return (ILocalVariableTypeTableAttribute) attributes[i];
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
 			}
 		}
 		return null;
@@ -1390,33 +1792,66 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 			if (localVariableAttribute != null) {
 				ILocalVariableTableEntry[] entries = localVariableAttribute.getLocalVariableTable();
-				int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
+				final int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
 				for (int i = 0; i < paramCount; i++) {
-					ILocalVariableTableEntry searchedEntry = getEntryFor(startingIndex + i, entries);
+					ILocalVariableTableEntry searchedEntry = getEntryFor(getLocalIndex(startingIndex, i, methodDescriptor), entries);
 					if (searchedEntry != null) {
 						parameterNames[i] = searchedEntry.getName();
 					} else {
-						parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+						parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 					}
 				}
 			} else {
 				for (int i = 0; i < paramCount; i++) {
-					parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+					parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 				}
 			}
 		} else {
 			for (int i = 0; i < paramCount; i++) {
-				parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+				parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 			}
 		}
 		return parameterNames;
 	}
+	
+	private int getLocalIndex(final int startingSlot, final int index, final char[] methodDescriptor) {
+		int slot = startingSlot;
+		final char[][] types = Signature.getParameterTypes(methodDescriptor);
+		for (int i = 0; i < index; i++) {
+			final char[] type = types[i];
+			switch(type.length) {
+				case 1 :
+					switch(type[0]) {
+						case 'D' :
+						case 'J' :
+							slot += 2;
+							break;
+						default :
+							slot++;
+					}
+					break;
+				default :
+					slot++;
+			}
+		}
+		return slot;
+	}
+
+	private ILocalVariableTableEntry getEntryFor(final int index, final ILocalVariableTableEntry[] entries) {
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTableEntry entry = entries[i];
+			if (index == entry.getIndex()) {
+				return entry;
+			}
+		}
+		return null;
+	}
 
 	private char[] getSignatureForField(char[] fieldDescriptor) {
 		char[] newFieldDescriptor = CharOperation.replaceOnCopy(fieldDescriptor, '/', '.');
-		newFieldDescriptor = CharOperation.replaceOnCopy(newFieldDescriptor, '$', '~');
+		newFieldDescriptor = CharOperation.replaceOnCopy(newFieldDescriptor, '$', '%');
 		char[] fieldDescriptorSignature = Signature.toCharArray(newFieldDescriptor);
-		CharOperation.replace(fieldDescriptorSignature, '~', '$');
+		CharOperation.replace(fieldDescriptorSignature, '%', '$');
 		return fieldDescriptorSignature;
 	}
 	
@@ -1452,18 +1887,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return (mode & ClassFileBytesDisassembler.COMPACT) != 0;
 	}
 
-	private String returnClassName(char[] classInfoName, char separator, int mode) {
+	private char[] returnClassName(char[] classInfoName, char separator, int mode) {
 		if (classInfoName.length == 0) {
 			return EMPTY_CLASS_NAME;
 		} else if (isCompact(mode)) {
 			int lastIndexOfSlash = CharOperation.lastIndexOf(separator, classInfoName);
 			if (lastIndexOfSlash != -1) {
-				return new String(classInfoName, lastIndexOfSlash + 1, classInfoName.length - lastIndexOfSlash - 1);
+				return CharOperation.subarray(classInfoName, lastIndexOfSlash + 1, classInfoName.length);
 			}
-			return new String(classInfoName);
-		} else {
-			return new String(classInfoName);
 		}
+		return classInfoName;
 	}
 	
 	private void writeNewLine(StringBuffer buffer, String lineSeparator, int tabNumber) {

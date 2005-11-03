@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0575"};
+//		TESTS_NAMES = new String[] {"test0576"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -2924,7 +2924,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;", typeBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206$B;", typeBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2956,7 +2956,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		IVariableBinding fieldBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;.field)I", fieldBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206$B;.field)I", fieldBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2972,7 +2972,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;.bar()V", methodBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206$B;.bar()V", methodBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -4713,7 +4713,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0547/A$74;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0547/A$74$Local;", typeBinding.getKey());
 		
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 3, bodyDeclarations.size());
@@ -4722,7 +4722,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration2 = (TypeDeclaration) bodyDeclaration;
 		
 		typeBinding = typeDeclaration2.resolveBinding();
-		assertEquals("Wrong key", "Ltest0547/A$100;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0547/A$100$LocalMember;", typeBinding.getKey());
 	}
 	
 	/**
@@ -5335,6 +5335,34 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that the binding key of a raw member type is correct.
+	 * (regression test for bug 100549 Strange binding keys from AST on class file of nested type)
+	 */
+	public void test0576() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/X.java",
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  /*start*/public class Member {\n" +
+				"  }/*end*/\n" +
+				"}",
+			}, "1.5");
+			IClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
+			String source = classFile.getSource();
+			MarkerInfo markerInfo = new MarkerInfo(source);
+			markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+			markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+			ASTNode node = buildAST(markerInfo, classFile);
+			ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());
+		} finally {
+			deleteProject("P1");
 		}
 	}
 	

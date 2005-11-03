@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.core.SourceRefElement;
  */
 public class AbstractJavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
 
-	public static List TEST_SUITES = null;
+	public static List JAVA_SEARCH_SUITES = null;
 	protected static IJavaProject JAVA_PROJECT;
 	protected static boolean COPY_DIRS = true;
 	protected static int EXACT_RULE = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;
@@ -340,7 +340,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	protected JavaSearchResultCollector resultCollector;
 
 	public AbstractJavaSearchTests(String name) {
-		this(name, 3);
+		this(name, 2);
 	}
 	public AbstractJavaSearchTests(String name, int tabs) {
 		super(name, tabs);
@@ -376,6 +376,23 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 			if (!displayName || collector.count>0) {
 				System.out.print(displayString(actual, this.tabs));
 				System.out.println(this.endChar);
+			}
+			if (this.workingCopies != null) {
+				int length = this.workingCopies.length;
+				String[] sources = new String[length*2];
+				for (int i=0; i<length; i++) {
+					sources[i*2] = this.workingCopies[i].getPath().toString();
+					try {
+						sources[i*2+1] = this.workingCopies[i].getSource();
+					} catch (JavaModelException e) {
+						// ignore
+					}
+				}
+				System.out.println("--------------------------------------------------------------------------------");
+				for (int i=0; i<length; i+=2) {
+					System.out.println(sources[i]);
+					System.out.println(sources[i+1]);
+				}
 			}
 		}
 		assertEquals(

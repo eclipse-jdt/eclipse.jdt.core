@@ -95,18 +95,33 @@ protected int matchLevel(ImportReference importRef) {
 protected int matchLevelForTokens(char[][] tokens) {
 	if (this.pattern.pkgName == null) return ACCURATE_MATCH;
 
+	char[] packageName = null;
+	if (this.isCamelCase) {
+		packageName = CharOperation.concatWith(tokens, '.');
+		if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName)) {
+			return POSSIBLE_CAMELCASE_MATCH;
+		}
+	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
+			if (this.isCamelCase) break;
 		case SearchPattern.R_PREFIX_MATCH:
-			if (CharOperation.prefixEquals(this.pattern.pkgName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
-				return POSSIBLE_MATCH;
+			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
+			if (CharOperation.prefixEquals(this.pattern.pkgName, packageName, this.isCaseSensitive)) {
+				return POSSIBLE_PREFIX_MATCH;
+			}
 			break;
 		case SearchPattern.R_PATTERN_MATCH:
 			char[] patternName = this.pattern.pkgName[this.pattern.pkgName.length - 1] == '*'
 				? this.pattern.pkgName
 				: CharOperation.concat(this.pattern.pkgName, ".*".toCharArray()); //$NON-NLS-1$
-			if (CharOperation.match(patternName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
+			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
+			if (CharOperation.match(patternName, packageName, this.isCaseSensitive)) {
 				return POSSIBLE_MATCH;
+			}
+			break;
+		case SearchPattern.R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 	return IMPOSSIBLE_MATCH;

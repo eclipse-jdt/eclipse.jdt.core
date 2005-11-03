@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.core.jdom.*;
 
 import junit.framework.Test;
@@ -64,7 +64,7 @@ public void testCreateMethodWithAbstractModifier() {
 	
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(IConstants.AccPublic| IConstants.AccAbstract);
+	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccAbstract);
 	assertSourceEquals(
 		"source code incorrect", 
 		"public abstract void foo() {\n" + 
@@ -98,7 +98,7 @@ public void testCreateMethodWithModifiers() {
 
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(IConstants.AccPublic| IConstants.AccStatic);
+	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccStatic);
 	assertSourceEquals(
 		"source code incorrect", 
 		"public static void foo() {\n" + 
@@ -113,7 +113,7 @@ public void testCreateMethodWithModifiersAndExceptions() {
 	
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(IConstants.AccPrivate);
+	method.setFlags(ClassFileConstants.AccPrivate);
 	method.setExceptions(new String[]
 		{"java.lang.IllegalArgumentException",
 		 "java.io.FileNotFoundExcpetion"});

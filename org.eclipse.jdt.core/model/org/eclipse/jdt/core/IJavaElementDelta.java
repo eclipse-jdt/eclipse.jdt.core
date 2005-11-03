@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * A Java element delta describes changes in Java element between two discrete
@@ -128,50 +129,50 @@ public interface IJavaElementDelta {
 	 * Change flag indicating that the content of the element has changed.
 	 * This flag is only valid for elements which correspond to files.
 	 */
-	public int F_CONTENT = 0x00001;
+	public int F_CONTENT = 0x000001;
 
 	/**
 	 * Change flag indicating that the modifiers of the element have changed.
 	 * This flag is only valid if the element is an <code>IMember</code>. 
 	 */
-	public int F_MODIFIERS = 0x00002;
+	public int F_MODIFIERS = 0x000002;
 
 	/**
 	 * Change flag indicating that there are changes to the children of the element.
 	 * This flag is only valid if the element is an <code>IParent</code>. 
 	 */
-	public int F_CHILDREN = 0x00008;
+	public int F_CHILDREN = 0x000008;
 
 	/**
 	 * Change flag indicating that the element was moved from another location.
 	 * The location of the old element can be retrieved using <code>getMovedFromElement</code>.
 	 */
-	public int F_MOVED_FROM = 0x00010;
+	public int F_MOVED_FROM = 0x000010;
 
 	/**
 	 * Change flag indicating that the element was moved to another location.
 	 * The location of the new element can be retrieved using <code>getMovedToElement</code>.
 	 */
-	public int F_MOVED_TO = 0x00020;
+	public int F_MOVED_TO = 0x000020;
 
 	/**
 	 * Change flag indicating that a classpath entry corresponding to the element has been added to the project's classpath. 
 	 * This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 */
-	public int F_ADDED_TO_CLASSPATH = 0x00040;
+	public int F_ADDED_TO_CLASSPATH = 0x000040;
 
 	/**
 	 * Change flag indicating that a classpath entry corresponding to the element has been removed from the project's 
 	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 */
-	public int F_REMOVED_FROM_CLASSPATH = 0x00080;
+	public int F_REMOVED_FROM_CLASSPATH = 0x000080;
 
 	/**
 	 * Change flag indicating that a classpath entry corresponding to the element has changed position in the project's 
 	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 * @deprecated Use F_REORDER instead.
 	 */
-	public int F_CLASSPATH_REORDER = 0x00100;
+	public int F_CLASSPATH_REORDER = 0x000100;
 	/**
 	 * Change flag indicating that the element has changed position relatively to its siblings. 
 	 * If the element is an <code>IPackageFragmentRoot</code>,  a classpath entry corresponding 
@@ -179,39 +180,39 @@ public interface IJavaElementDelta {
 	 * 
 	 * @since 2.1
 	 */
-	public int F_REORDER = 0x00100;
+	public int F_REORDER = 0x000100;
 
 	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been
 	 * opened. This flag is only valid if the element is an <code>IJavaProject</code>. 
 	 */
-	public int F_OPENED = 0x00200;
+	public int F_OPENED = 0x000200;
 
 	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been
 	 * closed. This flag is only valid if the element is an <code>IJavaProject</code>. 
 	 */
-	public int F_CLOSED = 0x00400;
+	public int F_CLOSED = 0x000400;
 
 	/**
 	 * Change flag indicating that one of the supertypes of an <code>IType</code>
 	 * has changed.
 	 */
-	public int F_SUPER_TYPES = 0x00800;
+	public int F_SUPER_TYPES = 0x000800;
 
 	/**
 	 * Change flag indicating that the source attachment path or the source attachment root path of a classpath entry 
 	 * corresponding to the element was added. This flag is only valid if the element is an 
 	 * <code>IPackageFragmentRoot</code>.
 	 */
-	public int F_SOURCEATTACHED = 0x01000;	
+	public int F_SOURCEATTACHED = 0x001000;	
 
 	/**
 	 * Change flag indicating that the source attachment path or the source attachment root path of a classpath entry 
 	 * corresponding to the element was removed. This flag is only valid if the element is an 
 	 * <code>IPackageFragmentRoot</code>.
 	 */
-	public int F_SOURCEDETACHED = 0x02000;	
+	public int F_SOURCEDETACHED = 0x002000;	
 	
 	/**
 	 * Change flag indicating that this is a fine-grained delta, that is, an analysis down
@@ -226,7 +227,7 @@ public interface IJavaElementDelta {
      * 
      * @since 2.0
 	 */
-	public int F_FINE_GRAINED = 0x04000;
+	public int F_FINE_GRAINED = 0x004000;
 
 	/**
 	 * Change flag indicating that the element's archive content on the classpath has changed.
@@ -236,7 +237,7 @@ public interface IJavaElementDelta {
 	 * @see IPackageFragmentRoot#isArchive()
 	 * @since 2.0
 	 */
-	public int F_ARCHIVE_CONTENT_CHANGED = 0x08000;
+	public int F_ARCHIVE_CONTENT_CHANGED = 0x008000;
 	
 	/**
 	 * Change flag indicating that a compilation unit has become a primary working copy, or that a 
@@ -245,7 +246,7 @@ public interface IJavaElementDelta {
 	 * 
 	 * @since 3.0
 	 */
-	public int F_PRIMARY_WORKING_COPY = 0x10000;
+	public int F_PRIMARY_WORKING_COPY = 0x010000;
 
 	/**
 	 * Change flag indicating that the raw classpath (or the output folder) of a project has changed. 
@@ -253,7 +254,7 @@ public interface IJavaElementDelta {
 	 *
 	 * @since 3.0
 	 */
-	public int F_CLASSPATH_CHANGED = 0x20000;
+	public int F_CLASSPATH_CHANGED = 0x020000;
 
 	/**
 	 * Change flag indicating that the resource of a primary compilation unit has changed.
@@ -261,8 +262,25 @@ public interface IJavaElementDelta {
 	 * 
 	 * @since 3.0
 	 */
-	public int F_PRIMARY_RESOURCE = 0x40000;
+	public int F_PRIMARY_RESOURCE = 0x040000;
 
+	/**
+	 * Change flag indicating that a reconcile operation has affected the compilation unit AST created in a 
+	 * previous reconcile operation. Use {@link #getCompilationUnitAST()} to retrieve the AST (if any is available).
+	 * This flag is only valid if the element is an <code>ICompilationUnit</code> in working copy mode.
+	 * 
+	 * @since 3.2
+	 */
+	public int F_AST_AFFECTED = 0x080000;
+	
+	/**
+	 * Change flag indicating that the categories of the element have changed.
+	 * This flag is only valid if the element is an <code>IMember</code>. 
+	 * 
+	 * @since 3.2
+	 */
+	public int F_CATEGORIES = 0x100000;
+	
 	/**
 	 * Returns deltas for the children that have been added.
 	 * @return deltas for the children that have been added
@@ -274,6 +292,21 @@ public interface IJavaElementDelta {
 	 * @return deltas for the affected (added, removed, or changed) children
 	 */
 	public IJavaElementDelta[] getAffectedChildren();
+	
+	/**
+	 * Returns the compilation unit AST created by the last reconcile operation on this delta's element.
+	 * This returns a non-null value if and only if:
+	 * <ul>
+	 * <li>the last reconcile operation on this working copy requested an AST</li>
+	 * <li>this delta's element is an <code>ICompilationUnit</code> in working copy mode</li>
+	 * <li>the delta comes from a <code>POST_RECONCILE</code> event
+	 * </ul>
+	 * @return the AST created during the last reconcile operation
+	 * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see #F_AST_AFFECTED
+	 * @since 3.2
+	 */
+	public CompilationUnit getCompilationUnitAST();
 
 	/**
 	 * Returns deltas for the children which have changed.

@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 110 };
+//		TESTS_NUMBERS = new int[] { 123 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -720,17 +720,17 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	case MX.BLEU : break;\n" + 
-			"	     ^^^^^^^\n" + 
+			"	        ^^^^\n" + 
 			"The enum constant X.MX.BLEU reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	case MX.BLANC : break;\n" + 
-			"	     ^^^^^^^^\n" + 
+			"	        ^^^^^\n" + 
 			"The enum constant X.MX.BLANC reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	case MX.ROUGE : break;\n" + 
-			"	     ^^^^^^^^\n" + 
+			"	        ^^^^^\n" + 
 			"The enum constant X.MX.ROUGE reference cannot be qualified in a case label\n" + 
 			"----------\n");
 	}
@@ -977,7 +977,12 @@ public class EnumTest extends AbstractComparableTest {
 				"}",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X extends Enum {\n" + 
+			"	                       ^^^^\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Enum {\n" + 
 			"	                       ^^^^\n" + 
 			"The type X may not subclass Enum explicitly\n" + 
@@ -1577,7 +1582,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public abstract enum X extends java.lang.Enum {\n"; 
+			"public abstract enum X {\n"; 
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String actualOutput = null;
@@ -1827,7 +1832,7 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	case X.D:\n" + 
-			"	     ^^^\n" + 
+			"	       ^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
 			"----------\n");
 	}
@@ -2004,9 +2009,9 @@ public class EnumTest extends AbstractComparableTest {
 			""
 		);
 		String expectedOutput = 
-			"  // Method descriptor #16 (Ljava/lang/String;I)V\n" + 
+			"  // Method descriptor #18 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n" + 
+			"  private X(java.lang.String arg0, int arg1);\n" + 
 			"    0  aload_0 [this]\n" + 
 			"    1  aload_1\n" + 
 			"    2  iload_2\n" + 
@@ -2423,9 +2428,9 @@ public class EnumTest extends AbstractComparableTest {
 		);
 
 		String[] expectedOutputs = new String[] {
-			"  private strictfp X(String arg, int arg);\n",
+			"  private strictfp X(java.lang.String arg0, int arg1);\n",
 			"  public static final strictfp X[] values();\n",
-			"  public static final strictfp X valueOf(String arg);\n"
+			"  public static final strictfp X valueOf(java.lang.String arg0);\n"
 		};
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -2628,9 +2633,9 @@ public class EnumTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor #18 (Ljava/lang/String;I)V\n" + 
+			"  // Method descriptor #20 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n"; 
+			"  private X(java.lang.String arg0, int arg1);\n"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -2673,7 +2678,12 @@ public class EnumTest extends AbstractComparableTest {
 			"	            ^^^^^^^^\n" + 
 			"Incompatible operand types X.Test1 and X.Test2\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 19)\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	void foo3(Test1 t1, Enum t2) {\n" + 
+			"	                    ^^^^\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 19)\n" + 
 			"	boolean booleanTest = (Test1.test11 == Test2.test22);\n" + 
 			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Incompatible operand types X.Test1 and X.Test2\n" + 
@@ -2878,18 +2888,18 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public final enum X extends java.lang.Enum {\n" + 
+			"public final enum X {\n" + 
 			"  \n" + 
 			"  // Field descriptor #6 [LX;\n" + 
 			"  private static final synthetic X[] ENUM$VALUES;\n" + 
 			"  \n" + 
 			"  // Method descriptor #8 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n" + 
+			"  private X(java.lang.String arg0, int arg1);\n" + 
 			"    0  aload_0 [this]\n" + 
 			"    1  aload_1\n" + 
 			"    2  iload_2\n" + 
-			"    3  invokespecial java.lang.Enum(java.lang.String, int) [11]\n" + 
+			"    3  invokespecial java.lang.Enum(java.lang.String, int) [10]\n" + 
 			"    6  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
@@ -2899,7 +2909,7 @@ public class EnumTest extends AbstractComparableTest {
 			"  // Method descriptor #17 ()[LX;\n" + 
 			"  // Stack: 5, Locals: 3\n" + 
 			"  public static final X[] values();\n" + 
-			"     0  getstatic X.ENUM$VALUES : X[] [19]\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [18]\n" + 
 			"     3  dup\n" + 
 			"     4  astore_0\n" + 
 			"     5  iconst_0\n" + 
@@ -2907,12 +2917,12 @@ public class EnumTest extends AbstractComparableTest {
 			"     7  arraylength\n" + 
 			"     8  dup\n" + 
 			"     9  istore_1\n" + 
-			"    10  anewarray X [2]\n" + 
+			"    10  anewarray X [1]\n" + 
 			"    13  dup\n" + 
 			"    14  astore_2\n" + 
 			"    15  iconst_0\n" + 
 			"    16  iload_1\n" + 
-			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void  [25]\n" + 
+			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [20]\n" + 
 			"    20  aload_2\n" + 
 			"    21  areturn\n" + 
 			"      Line numbers:\n" + 
@@ -2920,8 +2930,8 @@ public class EnumTest extends AbstractComparableTest {
 			"  \n" + 
 			"  // Method descriptor #27 (Ljava/lang/String;)LX;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
-			"  public static final X valueOf(String arg);\n" + 
-			"     0  getstatic X.ENUM$VALUES : X[] [19]\n" + 
+			"  public static final X valueOf(java.lang.String arg0);\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [18]\n" + 
 			"     3  dup\n" + 
 			"     4  astore_1\n" + 
 			"     5  arraylength\n" + 
@@ -2933,18 +2943,18 @@ public class EnumTest extends AbstractComparableTest {
 			"    13  aaload\n" + 
 			"    14  dup\n" + 
 			"    15  astore_3\n" + 
-			"    16  invokevirtual X.name() : java.lang.String  [31]\n" + 
-			"    19  invokevirtual java.lang.String.equals(java.lang.Object) : boolean  [37]\n" + 
+			"    16  invokevirtual X.name() : java.lang.String [28]\n" + 
+			"    19  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [32]\n" + 
 			"    22  ifeq 27\n" + 
 			"    25  aload_3\n" + 
 			"    26  areturn\n" + 
 			"    27  iinc 2 -1\n" + 
 			"    30  iload_2\n" + 
 			"    31  ifge 10\n" + 
-			"    34  new java.lang.IllegalArgumentException [39]\n" + 
+			"    34  new java.lang.IllegalArgumentException [38]\n" + 
 			"    37  dup\n" + 
 			"    38  aload_0\n" + 
-			"    39  invokespecial java.lang.IllegalArgumentException(java.lang.String) [42]\n" + 
+			"    39  invokespecial java.lang.IllegalArgumentException(java.lang.String) [40]\n" + 
 			"    42  athrow\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
@@ -3025,15 +3035,20 @@ public class EnumTest extends AbstractComparableTest {
 				"class A<T> {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	public enum X implements I { \r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public enum X implements I { \n" + 
 			"	            ^\n" + 
 			"The type X must implement the inherited abstract method I.foo(A)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	public void foo(A<String> a) {}\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public void foo(A<String> a) {}\n" + 
 			"	            ^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(A<String>) of type X has the same erasure as foo(A) of type I but does not override it\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	interface I { void foo(A a); }\n" + 
+			"	                       ^\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 			"----------\n");
 	}
 
@@ -3238,6 +3253,11 @@ the right of e1."
 			"	Foo<Bar> foo = null;\n" + 
 			"	    ^^^\n" + 
 			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 19)\n" + 
+			"	class Bar extends Foo {\n" + 
+			"	                  ^^^\n" + 
+			"Foo is a raw type. References to generic type Foo<U> should be parameterized\n" + 
 			"----------\n");
 	}		
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93396
@@ -3888,7 +3908,7 @@ the right of e1."
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	X.VALUE = null;\n" + 
-			"	^^^^^^^\n" + 
+			"	  ^^^^^\n" + 
 			"The final field X.VALUE cannot be assigned\n" + 
 			"----------\n");
 	}	
@@ -3944,15 +3964,15 @@ the right of e1."
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The static field X.BLANC should be accessed in a static way\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	      ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	           ^^^^^\n" + 
+			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	X x2 = BLEU; // ko\n" + 
@@ -3961,7 +3981,7 @@ the right of e1."
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	X x = BLEU.BLANC; // ok\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	           ^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 13)\n" + 
@@ -3969,15 +3989,15 @@ the right of e1."
 			"	          ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 16)\n" + 
+			"6. ERROR in X.java (at line 16)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The static field X.BLANC should be accessed in a static way\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 16)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	      ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 16)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	           ^^^^^\n" + 
+			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 17)\n" + 
 			"	X x2 = BLEU; // ko\n" + 
@@ -4006,15 +4026,25 @@ the right of e1."
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	static ArrayList someList;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
 			"	if (someList == null) {\n" + 
 			"	    ^^^^^^^^\n" + 
 			"Cannot refer to the static enum field X.someList within an initializer\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
 			"	someList = new ArrayList();\n" + 
 			"	^^^^^^^^\n" + 
 			"Cannot refer to the static enum field X.someList within an initializer\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	someList = new ArrayList();\n" + 
+			"	               ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test119() {
@@ -4064,15 +4094,15 @@ the right of e1."
 			"	            ^\n" + 
 			"Cannot refer to the static enum field X.A within an initializer\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	final X a2 = B.A;\n" + 
-			"	             ^^^\n" + 
-			"The static field X.A should be accessed in a static way\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	final X a2 = B.A;\n" + 
-			"	             ^^^\n" + 
+			"	             ^\n" + 
 			"Cannot refer to the static enum field X.B within an initializer\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	final X a2 = B.A;\n" + 
+			"	               ^\n" + 
+			"The static field X.A should be accessed in a static way\n" + 
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92165
@@ -4103,5 +4133,104 @@ the right of e1."
 			"	^^^^^\n" + 
 			"Cannot refer to the static enum field X.error within an initializer\n" + 
 			"----------\n");
-	}				
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105592
+	public void test122() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public enum State {\n" +
+				"		NORMAL\n" +
+				"	}\n" +
+				"	public void foo() {\n" +
+				"		State state = State.NORMAL;\n" +
+				"		switch (state) {\n" +
+				"		case (NORMAL) :\n" +
+				"			System.out.println(State.NORMAL);\n" +
+				"			break;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110403
+	public void test123() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"enum Foo {\n" +
+				" A(0);\n" +
+				" Foo(int x) {\n" +
+				"    t[0]=x;\n" +
+				" }\n" +
+				" private static final int[] t = new int[12];\n" +
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 4)\n" + 
+			"	t[0]=x;\n" + 
+			"	^\n" + 
+			"Cannot refer to the static enum field Foo.t within an initializer\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=1101417
+	public void test124() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" public enum X {\n" + 
+				"  max {\n" + 
+				"   { \n" + 
+				"     val=3;  \n" + 
+				"   }         \n" + 
+				"   @Override public String toString() {\n" + 
+				"     return Integer.toString(val);\n" + 
+				"   }\n" + 
+				"  }; \n" + 
+				"  {\n" + 
+				"    val=2;\n" + 
+				"  }\n" + 
+				"  private int val; \n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    System.out.println(max); // 3\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	val=3;  \n" + 
+			"	^^^\n" + 
+			"Cannot make a static reference to the non-static field val\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return Integer.toString(val);\n" + 
+			"	                        ^^^\n" + 
+			"Cannot make a static reference to the non-static field val\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112231
+	public void test125() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"\n" + 
+				"public class X {\n" + 
+				"	interface I {\n" + 
+				"		int values();\n" + 
+				"		enum E implements I {\n" + 
+				"			A, B, C;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	enum E implements I {\n" + 
+			"	     ^\n" + 
+			"This static method cannot hide the instance method from X.I\n" + 
+			"----------\n");
+	}
 }

@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
-public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConstants, TypeIds {
+public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
 
@@ -29,7 +30,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
 	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
-	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)
+	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement)
 	public final static int Bit8 = 0x80; 						// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression)
 	public final static int Bit9 = 0x100; 					// depth (name ref, msg) | operator (operator) | is local type (type decl)
 	public final static int Bit10= 0x200; 					// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
@@ -37,7 +38,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) 
 	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
-	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression)
+	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
 	public final static int Bit18 = 0x20000; 				
@@ -53,7 +54,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
 	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement)
-	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl)
+	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L; 		
@@ -82,7 +83,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static long Bit55L = 0x40000000000000L;
 	public final static long Bit56L = 0x80000000000000L;
 
-	public int bits = IsReachableMASK; 				// reachable by default
+	public int bits = IsReachable; 				// reachable by default
 
 	// for operators 
 	public static final int ReturnTypeIDMASK = Bit1|Bit2|Bit3|Bit4; 
@@ -90,57 +91,57 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static final int OperatorMASK = Bit7|Bit8|Bit9|Bit10|Bit11|Bit12; // 6 bits for operator ID
 
 	// for binary expressions
-	public static final int ValueForReturnMASK = Bit5; 
-	public static final int OnlyValueRequiredMASK = Bit6; 
+	public static final int IsReturnedValue = Bit5; 
+	public static final int OnlyValueRequired = Bit6; 
 
 	// for cast expressions
-	public static final int UnnecessaryCastMASK = Bit15;
-	public static final int IgnoreNeedForCastCheckMASK = Bit6;
-	public static final int NeedRuntimeCheckCastMASK = Bit7;
-	public static final int UnsafeCastMask = Bit8;
+	public static final int UnnecessaryCast = Bit15;
+	public static final int DisableUnnecessaryCastCheck = Bit6;
+	public static final int GenerateCheckcast = Bit7;
+	public static final int UnsafeCast = Bit8;
 	
 	// for name references 
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;	
-	public static final int FirstAssignmentToLocalMASK = Bit4;
+	public static final int FirstAssignmentToLocal = Bit4;
 	
 	// for this reference
-	public static final int IsImplicitThisMask = Bit3; 
+	public static final int IsImplicitThis = Bit3; 
 
 	// for single name references
 	public static final int DepthSHIFT = 5;	// Bit6 -> Bit13
 	public static final int DepthMASK = Bit6|Bit7|Bit8|Bit9|Bit10|Bit11|Bit12|Bit13; // 8 bits for actual depth value (max. 255)
 
 	// for statements 
-	public static final int IsReachableMASK = Bit32; 
-	public static final int IsLocalDeclarationReachableMASK = Bit31; 
-
+	public static final int IsReachable = Bit32; 
+	public static final int IsLocalDeclarationReachable = Bit31; 
+	public static final int LabelUsed = Bit7;
+	
 	// for type declaration
-	public static final int AddAssertionMASK = Bit1;
-	public static final int IsLocalTypeMASK = Bit9;
-	public static final int IsAnonymousTypeMASK = Bit10; // used to test for anonymous 
-	public static final int AnonymousAndLocalMask = IsAnonymousTypeMASK | IsLocalTypeMASK; // used to set anonymous marker
-	public static final int IsMemberTypeMASK = Bit11; // local member do not know it is local at parse time (need to look at binding)
+	public static final int ContainsAssertion = Bit1;
+	public static final int IsLocalType = Bit9;
+	public static final int IsAnonymousType = Bit10; // used to test for anonymous 
+	public static final int IsMemberType = Bit11; // local member do not know it is local at parse time (need to look at binding)
 	public static final int HasAbstractMethods = Bit12; // used to promote abstract enums
 	
 	// for type, method and field declarations 
-	public static final int HasLocalTypeMASK = Bit2; // cannot conflict with AddAssertionMASK
+	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 
 	// for expression 
 	public static final int ParenthesizedSHIFT = 21; // Bit22 -> Bit29
 	public static final int ParenthesizedMASK = Bit22|Bit23|Bit24|Bit25|Bit26|Bit27|Bit28|Bit29; // 8 bits for parenthesis count value (max. 255)
 
 	// for assignment
-	public static final int IsAssignmentWithNoEffectMASK = Bit30;	
+	public static final int AssignmentHasNoEffect = Bit30;
 	
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssignedMASK = Bit14; // set only for true assignments, as opposed to compound ones
-	public static final int IsCompoundAssignedMASK = Bit17; // set only for compound assignments, as opposed to other ones
+	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
+	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for empty statement
-	public static final int IsUsefulEmptyStatementMASK = Bit1;
+	public static final int IsUsefulEmptyStatement = Bit1;
 
 	// for block and method declaration
-	public static final int UndocumentedEmptyBlockMASK = Bit4;
+	public static final int UndocumentedEmptyBlock = Bit4;
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
@@ -153,9 +154,8 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for type reference
 	public static final int IsSuperType = Bit5;
-	
-	// for variable argument
 	public static final int IsVarArgs = Bit15;
+	public static final int IgnoreRawTypeCheck = Bit31;
 	
 	// for array initializer
 	public static final int IsAnnotationDefaultValue = Bit1;
@@ -267,7 +267,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 		if (!isStrictlyAssigned && (field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself 
-			field.original().modifiers |= AccLocallyUsed;
+			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 	
 		if (!field.isViewedAsDeprecated()) return false;
@@ -292,7 +292,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if ((method.isPrivate() || method.declaringClass.isLocalType()) && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from within inside itself (e.g. direct recursions)
-			method.original().modifiers |= AccLocallyUsed;
+			method.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 		
 		if (!method.isViewedAsDeprecated()) return false;
@@ -329,7 +329,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if ((refType.isPrivate() /*|| refType.isLocalType()*/) && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
-			((ReferenceBinding)refType.erasure()).modifiers |= AccLocallyUsed;
+			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 		
 		if (refType.hasRestrictedAccess()) {
@@ -338,6 +338,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}
 		}
+		
 		if (!refType.isViewedAsDeprecated()) return false;
 		
 		// inside same unit - no report
@@ -367,25 +368,25 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	public static StringBuffer printModifiers(int modifiers, StringBuffer output) {
 
-		if ((modifiers & AccPublic) != 0)
+		if ((modifiers & ClassFileConstants.AccPublic) != 0)
 			output.append("public "); //$NON-NLS-1$
-		if ((modifiers & AccPrivate) != 0)
+		if ((modifiers & ClassFileConstants.AccPrivate) != 0)
 			output.append("private "); //$NON-NLS-1$
-		if ((modifiers & AccProtected) != 0)
+		if ((modifiers & ClassFileConstants.AccProtected) != 0)
 			output.append("protected "); //$NON-NLS-1$
-		if ((modifiers & AccStatic) != 0)
+		if ((modifiers & ClassFileConstants.AccStatic) != 0)
 			output.append("static "); //$NON-NLS-1$
-		if ((modifiers & AccFinal) != 0)
+		if ((modifiers & ClassFileConstants.AccFinal) != 0)
 			output.append("final "); //$NON-NLS-1$
-		if ((modifiers & AccSynchronized) != 0)
+		if ((modifiers & ClassFileConstants.AccSynchronized) != 0)
 			output.append("synchronized "); //$NON-NLS-1$
-		if ((modifiers & AccVolatile) != 0)
+		if ((modifiers & ClassFileConstants.AccVolatile) != 0)
 			output.append("volatile "); //$NON-NLS-1$
-		if ((modifiers & AccTransient) != 0)
+		if ((modifiers & ClassFileConstants.AccTransient) != 0)
 			output.append("transient "); //$NON-NLS-1$
-		if ((modifiers & AccNative) != 0)
+		if ((modifiers & ClassFileConstants.AccNative) != 0)
 			output.append("native "); //$NON-NLS-1$
-		if ((modifiers & AccAbstract) != 0)
+		if ((modifiers & ClassFileConstants.AccAbstract) != 0)
 			output.append("abstract "); //$NON-NLS-1$
 		return output;
 	}

@@ -25,6 +25,8 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -75,8 +77,8 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_PREFIX = "testUnknownElements";
-//	TESTS_NAMES = new String[] {"testUnknownElements2"};
+//	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
+//	TESTS_NAMES = new String[] {"testCycleDetection4"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -113,19 +115,18 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	computed.append("}");
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
 }
-protected void assertClasspathEquals(IClasspathEntry[] classpath, String expected) {
-	StringBuffer buffer = new StringBuffer();
-	int length = classpath == null ? 0 : classpath.length;
-	for (int i=0; i<length; i++) {
-		buffer.append(classpath[i]);
-		if (i < length-1)
-			buffer.append('\n');
-	}
-	String actual = buffer.toString();
-	if (!actual.equals(expected)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	}
-	assertEquals(expected, actual);
+private void assertEncodeDecodeEntry(String projectName, String expectedEncoded, IClasspathEntry entry) {
+	IJavaProject project = getJavaProject(projectName);
+	String encoded = project.encodeClasspathEntry(entry);
+	assertSourceEquals(
+		"Unexpected encoded entry",
+		expectedEncoded,
+		encoded);
+	IClasspathEntry decoded = project.decodeClasspathEntry(encoded);
+	assertEquals(
+		"Unexpected decoded entry",
+		entry,
+		decoded);
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
 	waitForAutoBuild();
@@ -1965,6 +1966,68 @@ public void testEncoding() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that a source classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry01() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry kind=\"src\" path=\"src\"/>\n", 
+		JavaCore.newSourceEntry(new Path("/P/src"))
+	);
+}
+/*
+ * Ensures that a source classpath entry with all possible attributes can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry02() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry including=\"**/Y.java\" excluding=\"**/X.java\" output=\"bin\" kind=\"src\" path=\"src\">\n" + 
+		"	<attributes>\n" + 
+		"		<attribute value=\"some value\" name=\"attrName\"/>\n" + 
+		"	</attributes>\n" + 
+		"</classpathentry>\n", 
+		JavaCore.newSourceEntry(
+			new Path("/P/src"), 
+			new IPath[] {new Path("**/Y.java")},
+			new IPath[] {new Path("**/X.java")},
+			new Path("/P/bin"),
+			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attrName", "some value")})
+	);
+}
+/*
+ * Ensures that a project classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry03() {
+	assertEncodeDecodeEntry(
+		"P1", 
+		"<classpathentry kind=\"src\" path=\"/P2\"/>\n",
+		JavaCore.newProjectEntry(new Path("/P2"))
+	);
+}
+/*
+ * Ensures that a library classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry04() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry exported=\"true\" sourcepath=\"src.zip\" kind=\"lib\" rootpath=\"root\" path=\"lib.jar\">\n" + 
+		"	<attributes>\n" + 
+		"		<attribute value=\"val1\" name=\"attr1\"/>\n" + 
+		"	</attributes>\n" + 
+		"	<accessrules>\n" + 
+		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\"/>\n" + 
+		"	</accessrules>\n" + 
+		"</classpathentry>\n",	
+		JavaCore.newLibraryEntry(
+			new Path("/P/lib.jar"),
+			new Path("/P/src.zip"),
+			new Path("root"),
+			new IAccessRule[] {JavaCore.newAccessRule(new Path("**/A*.java"), IAccessRule.K_ACCESSIBLE)},
+			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attr1", "val1")},
+			true)
+	);
+}
 /**
  * Ensures that adding an empty classpath container
  * generates the correct deltas.
@@ -1998,6 +2061,34 @@ public void testEmptyContainer() throws CoreException {
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a .classpath with an empty inclusion pattern is correctly handled
+ * (regression test for bug 105581 Creating a Java project from existing source fails because of "Unhandled event loop exception":)
+ */
+public void testEmptyInclusionPattern() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {""}, "bin");
+		project.open(null);
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"  <classpathentry including=\"X.java|\" kind=\"src\" path=\"\"/>\n" + 
+			"  <classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		project.getProject().close(null);
+		project.getProject().open(null);
+		project.getPackageFragmentRoot(project.getProject()).open(null);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		assertClasspathEquals(
+			classpath, 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false][including:X.java]"
+		);
+	} finally {
+		deleteProject("P");
 	}
 }
 /**
@@ -2992,6 +3083,44 @@ public void testCycleDetection3() throws CoreException {
 	} finally {
 		//this.stopDeltas();
 		this.deleteProjects(projectNames);
+	}
+}
+/*
+ * Ensures that a cycle is detected if introduced during a post-change event.
+ * (regression test for bug 113051 No classpath marker produced when cycle through PDE container)
+ */
+public void testCycleDetection4() throws CoreException {
+	IResourceChangeListener listener = new IResourceChangeListener() {
+		boolean containerNeedUpdate = true;
+		public void resourceChanged(IResourceChangeEvent event) {
+			if (containerNeedUpdate) {
+				TestContainer container = new TestContainer(
+					new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+					new IClasspathEntry[] { JavaCore.newProjectEntry(new Path("/P1")) });
+				try {
+					JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {getJavaProject("P2")}, new IClasspathContainer[] {container}, null);
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+				containerNeedUpdate = false;
+			}
+		}
+	};
+	try {
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {}, new String[] {"/P2"}, "");
+		TestContainer container = new TestContainer(
+			new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+			new IClasspathEntry[] {});
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {container.getPath().toString()}, "");
+		JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {p2}, new IClasspathContainer[] {container}, null);
+		waitForAutoBuild();
+		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+		createFile("/P1/test.txt", "");
+		waitForAutoBuild();
+		assertCycleMarkers(p1, new IJavaProject[] {p1, p2}, new int[] {1, 1});
+	} finally {
+		getWorkspace().removeResourceChangeListener(listener);
+		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 public void testPerfDenseCycleDetection1() throws CoreException {

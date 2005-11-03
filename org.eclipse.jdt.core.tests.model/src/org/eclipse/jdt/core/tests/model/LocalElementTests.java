@@ -23,8 +23,18 @@ public class LocalElementTests extends ModifyingResourceTests {
 		super(name);
 	}
 	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_NAMES = new String[] { "testLocalType5" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NUMBERS = new int[] { 13 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_RANGE = new int[] { 16, -1 };
+	}
 	public static Test suite() {
-		return new Suite(LocalElementTests.class);
+		return buildTestSuite(LocalElementTests.class);
 	}
 
 	public void setUpSuite() throws Exception {
@@ -210,6 +220,26 @@ public class LocalElementTests extends ModifyingResourceTests {
 		}
 	}
 	
+	/*
+	 * Ensures that an anonymous in an enum constant is said to be local.
+	 * (regression test for bug 85298 [1.5][enum] IType of anonymous enum declaration says isLocal() == false)
+	 */
+	public void testAnonymousType6() throws CoreException {
+		try {
+			createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createFile(
+				"/P15/En.java",
+				"public enum En {\n" +
+				"  CONST() {};\n" +
+				"}"
+			);
+			IType type = getCompilationUnit("/P15/En.java").getType("En").getField("CONST").getType("", 1);
+			assertTrue("Should be a local type", type.isLocal());
+		} finally {
+			deleteProject("P15");
+		}
+	}
+
 	/*
 	 * IType.getSuperclassName() test
 	 */

@@ -43,10 +43,6 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 	 * the region).
 	 */
 	protected Map cuToHandle;
-	/**
-	 * A map from compilation unit handles to working copies.
-	 */
-	protected Map handleToWorkingCopy;
 
 	/**
 	 * The scope this hierarchy builder should restrain results to.
@@ -468,8 +464,14 @@ public static void searchAllPossibleSubTypes(
 		}		
 	};
 
+	int superRefKind;
+	try {
+		superRefKind = type.isClass() ? SuperTypeReferencePattern.ONLY_SUPER_CLASSES : SuperTypeReferencePattern.ALL_SUPER_TYPES;
+	} catch (JavaModelException e) {
+		superRefKind = SuperTypeReferencePattern.ALL_SUPER_TYPES;
+	}
 	SuperTypeReferencePattern pattern =
-		new SuperTypeReferencePattern(null, null, false, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		new SuperTypeReferencePattern(null, null, superRefKind, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	MatchLocator.setFocus(pattern, type);
 	SubTypeSearchJob job = new SubTypeSearchJob(
 		pattern, 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.core.jdom.*;
 
 import junit.framework.Test;
@@ -103,7 +103,7 @@ public void testCreateClassWithImplements4() {
 public void testCreateClassWithModifiers() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
-	type.setFlags(IConstants.AccPublic | IConstants.AccFinal);
+	type.setFlags(ClassFileConstants.AccPublic | ClassFileConstants.AccFinal);
 	assertSourceEquals(
 		"source code incorrect", 
 		"public final class Foo {\n" +

@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public interface ISourceElementRequestor {
 	
 	public static class TypeInfo {
-		public int kind;
 		public int declarationStart;
 		public int modifiers;
 		public char[] name;
@@ -49,6 +48,7 @@ public interface ISourceElementRequestor {
 		public char[][] superinterfaces;
 		public TypeParameterInfo[] typeParameters;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	public static class TypeParameterInfo {
@@ -75,6 +75,7 @@ public interface ISourceElementRequestor {
 		public char[][] exceptionTypes;
 		public TypeParameterInfo[] typeParameters;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	public static class FieldInfo {
@@ -85,6 +86,7 @@ public interface ISourceElementRequestor {
 		public int nameSourceStart; 
 		public int nameSourceEnd;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);

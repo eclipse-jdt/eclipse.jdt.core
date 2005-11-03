@@ -11,12 +11,13 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionOnKeyword2 extends ImportReference implements CompletionOnKeyword {
 	private char[] token;
 	private char[][] possibleKeywords;
 	public CompletionOnKeyword2(char[] token, long pos, char[][] possibleKeywords) {
-		super(new char[][]{token}, new long[]{pos}, false, AccDefault);
+		super(new char[][]{token}, new long[]{pos}, false, ClassFileConstants.AccDefault);
 		this.token = token;
 		this.possibleKeywords = possibleKeywords;
 	}

@@ -769,7 +769,7 @@ boolean includesTypeOrSupertype(IType type) {
 		String superclassName = type.getSuperclassName();
 		if (superclassName != null) {
 			int lastSeparator = superclassName.lastIndexOf('.');
-			String simpleName = (lastSeparator > -1) ? superclassName.substring(lastSeparator) : superclassName;
+			String simpleName = superclassName.substring(lastSeparator+1);
 			if (hasTypeNamed(simpleName)) return true;
 		}
 	
@@ -779,7 +779,7 @@ boolean includesTypeOrSupertype(IType type) {
 			for (int i = 0, length = superinterfaceNames.length; i < length; i++) {
 				String superinterfaceName = superinterfaceNames[i];
 				int lastSeparator = superinterfaceName.lastIndexOf('.');
-				String simpleName = (lastSeparator > -1) ? superinterfaceName.substring(lastSeparator) : superinterfaceName;
+				String simpleName = superinterfaceName.substring(lastSeparator+1);
 				if (hasTypeNamed(simpleName)) return true;
 			}
 		}

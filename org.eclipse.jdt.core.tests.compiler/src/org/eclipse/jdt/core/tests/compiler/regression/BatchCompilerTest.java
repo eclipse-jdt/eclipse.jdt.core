@@ -32,7 +32,7 @@ public BatchCompilerTest(String name) {
 public static Test suite() {
 	if (false) {
 		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test032"));
+		suite.addTest(new BatchCompilerTest("test035"));
 		return suite;
 	}
 	if (false) {
@@ -384,6 +384,8 @@ public static Test suite() {
 										normalizedValueBuffer.append(source
 												.substring(currentCharIndex));
 									state = END;
+								} else {
+									state = SKIPING;
 								}
 								break;
 							default:
@@ -402,7 +404,7 @@ public static Test suite() {
 							}
 	
 						}
-					} 
+					}
 					else if (currentChar == '\n')
 						state = END;
 					else
@@ -429,7 +431,7 @@ public static Test suite() {
 	 */
 	private static Normalizer textLogsNormalizer = new StringNormalizer(
 			new XMLClasspathsSectionNormalizer(new LinesRangeNormalizer(null,
-					0, 1)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+					0, 2)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
 
 	/**
 	 * Normalizer instance for XML log files.
@@ -1767,13 +1769,11 @@ public void test032(){
 	        "	           ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
 	        "----------\n" + 
-	        "----------\n" + 
 	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 27)\n" + 
 	        "	return l1;\n" + 
 	        "	       ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-	        "----------\n" + 
 	        "----------\n" + 
 	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 33)\n" + 
@@ -1781,13 +1781,11 @@ public void test032(){
 	        "	       ^^^^^^^^^^^^^^\n" + 
 	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
 	        "----------\n" + 
-	        "----------\n" + 
 	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                ^^\n" + 
 	        "The local variable l1 is never read\n" + 
-	        "----------\n" + 
 	        "----------\n" + 
 	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 58)\n" + 
@@ -1941,13 +1939,11 @@ public void test032(){
         "	           ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
         "----------\n" + 
-        "----------\n" + 
         "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 27)\n" + 
         "	return l1;\n" + 
         "	       ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-        "----------\n" + 
         "----------\n" + 
         "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 33)\n" + 
@@ -1955,13 +1951,11 @@ public void test032(){
         "	       ^^^^^^^^^^^^^^\n" + 
         "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
-        "----------\n" + 
         "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                ^^\n" + 
         "The local variable l1 is never read\n" + 
-        "----------\n" + 
         "----------\n" + 
         "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 58)\n" + 
@@ -1991,7 +1985,6 @@ public void test033(){
         "",
         true);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105430
 public void test034(){
 	this.runConformTest(
 		new String[] {
@@ -2008,6 +2001,53 @@ public void test034(){
         "",
         "",
         true);
+}
+// check classpath value
+public void test035(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"public class Y { public static final String S = \"\"; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import p.Y;\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(Y.S);\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!f.delete()) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!f.delete()) {
+			System.out.println("Could not delete Y");
+		}
+		
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;

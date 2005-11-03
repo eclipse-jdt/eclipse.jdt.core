@@ -50,6 +50,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_arguments_in_explicit_constructor_call;
 	public int alignment_for_arguments_in_method_invocation;
 	public int alignment_for_arguments_in_qualified_allocation_expression;
+	public int alignment_for_assignment;
 	public int alignment_for_binary_expression;
 	public int alignment_for_compact_if;
 	public int alignment_for_conditional_expression;
@@ -111,6 +112,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_body_declarations_compare_to_enum_declaration_header;
 	public boolean indent_body_declarations_compare_to_type_header;
 	public boolean indent_breaks_compare_to_cases;
+	public boolean indent_empty_lines;
 	public boolean indent_switchstatements_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_switch;
 	public int indentation_size;
@@ -237,6 +239,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_type_arguments;
 	public boolean insert_space_before_comma_in_type_parameters;
 	public boolean insert_space_before_ellipsis;
+	public boolean insert_space_before_parenthesized_expression_in_return;
 	public boolean insert_space_before_question_in_wilcard;
 	public boolean insert_space_before_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_before_opening_angle_bracket_in_type_arguments;
@@ -319,6 +322,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL, getAlignment(this.alignment_for_arguments_in_explicit_constructor_call));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_arguments_in_method_invocation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_qualified_allocation_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ASSIGNMENT, getAlignment(this.alignment_for_assignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION, getAlignment(this.alignment_for_binary_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF, getAlignment(this.alignment_for_compact_if));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
@@ -374,6 +378,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_DECLARATION_HEADER, this.indent_body_declarations_compare_to_enum_declaration_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, this.indent_body_declarations_compare_to_type_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES, this.indent_breaks_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_EMPTY_LINES, this.indent_empty_lines ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.indentation_size));
@@ -528,6 +533,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED, this.insert_space_before_opening_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_opening_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE, this.insert_space_before_opening_paren_in_while? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_RETURN, this.insert_space_before_parenthesized_expression_in_return ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR, this.insert_space_before_postfix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR, this.insert_space_before_prefix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL, this.insert_space_before_question_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -617,6 +623,16 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
 			} catch (ClassCastException e) {
 				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			}
+		}
+		final Object alignmentForAssignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ASSIGNMENT);
+		if (alignmentForAssignmentOption != null) {
+			try {
+				this.alignment_for_assignment = Integer.parseInt((String) alignmentForAssignmentOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_assignment =  Alignment.M_ONE_PER_LINE_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_assignment =  Alignment.M_ONE_PER_LINE_SPLIT;
 			}
 		}
 		final Object alignmentForBinaryExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION);
@@ -1050,6 +1066,10 @@ public class DefaultCodeFormatterOptions {
 		final Object indentBreaksCompareToCasesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES);
 		if (indentBreaksCompareToCasesOption != null) {
 			this.indent_breaks_compare_to_cases = DefaultCodeFormatterConstants.TRUE.equals(indentBreaksCompareToCasesOption);
+		}
+		final Object indentEmptyLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_EMPTY_LINES);
+		if (indentEmptyLinesOption != null) {
+			this.indent_empty_lines = DefaultCodeFormatterConstants.TRUE.equals(indentEmptyLinesOption);
 		}
 		final Object indentSwitchstatementsCompareToCasesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES);
 		if (indentSwitchstatementsCompareToCasesOption != null) {
@@ -1673,6 +1693,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeOpeningParenInWhileOption != null) {
 			this.insert_space_before_opening_paren_in_while = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInWhileOption);
 		}
+		final Object insertSpaceBeforeParenthesizedExpressionInReturnOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_RETURN);
+		if (insertSpaceBeforeParenthesizedExpressionInReturnOption != null) {
+			this.insert_space_before_parenthesized_expression_in_return = JavaCore.INSERT.equals(insertSpaceBeforeParenthesizedExpressionInReturnOption);
+		}
 		final Object insertSpaceBeforePostfixOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR);
 		if (insertSpaceBeforePostfixOperatorOption != null) {
 			this.insert_space_before_postfix_operator = JavaCore.INSERT.equals(insertSpaceBeforePostfixOperatorOption);
@@ -1813,6 +1837,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
@@ -1868,6 +1893,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
 		this.indent_breaks_compare_to_cases = true;
+		this.indent_empty_lines = false;
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = true;
 		this.indentation_size = 4;
@@ -1992,6 +2018,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;
+		this.insert_space_before_parenthesized_expression_in_return = true;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
@@ -2062,6 +2089,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
@@ -2117,6 +2145,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
 		this.indent_breaks_compare_to_cases = true;
+		this.indent_empty_lines = false;
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = false;
 		this.indentation_size = 4;
@@ -2241,6 +2270,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;
+		this.insert_space_before_parenthesized_expression_in_return = true;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
@@ -2293,7 +2323,7 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;
-		this.tab_size = 4;
+		this.tab_size = 8;
 		this.page_width = 80;
 		this.tab_char = SPACE;
 		this.use_tabs_only_for_leading_indentations = false;

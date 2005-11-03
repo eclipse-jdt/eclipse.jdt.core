@@ -133,8 +133,6 @@ public int getNextToken() throws InvalidInputException {
 						//checkNonExternalizedString();
 						if (this.recordLineSeparator) {
 							pushLineSeparator();
-						} else {
-							this.currentLine = null;
 						}
 					}
 					isWhiteSpace = 
@@ -151,6 +149,11 @@ public int getNextToken() throws InvalidInputException {
 					&& (this.cursorLocation < this.startPosition)
 					&& !Character.isJavaIdentifierStart(this.currentCharacter)){
 					this.currentPosition = this.startPosition; // for next token read
+					/* Warning:
+					 * Above statement reset scanner position at token start which can make
+					 * scanner enter in an infinite loop if completionIdentifier is still null!
+					 * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=114115)
+					 */
 					return TokenNameIdentifier;
 				}
 			} while (isWhiteSpace);
@@ -613,8 +616,6 @@ public int getNextToken() throws InvalidInputException {
 										} else {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
 									}
 								}
 								if (this.tokenizeComments) {
@@ -659,8 +660,6 @@ public int getNextToken() throws InvalidInputException {
 										if (!isUnicode) {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
 									}
 								}
 								isUnicode = false;
@@ -689,8 +688,6 @@ public int getNextToken() throws InvalidInputException {
 											if (!isUnicode) {
 												pushLineSeparator();
 											}
-										} else {
-											this.currentLine = null;
 										}
 									}
 									star = this.currentCharacter == '*';
@@ -711,7 +708,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
-								if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
+								if (!isJavadoc && this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);

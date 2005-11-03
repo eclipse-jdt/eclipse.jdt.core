@@ -49,7 +49,7 @@ public FieldPattern(
 	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.typeQualification = isCaseSensitive() ? typeQualification : CharOperation.toLowerCase(typeQualification);
-	this.typeSimpleName = isCaseSensitive() ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
+	this.typeSimpleName = (isCaseSensitive() || isCamelCase())  ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }

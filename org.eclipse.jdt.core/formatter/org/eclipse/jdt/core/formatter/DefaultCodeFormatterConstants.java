@@ -115,6 +115,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_qualified_allocation_expression";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of assignment
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_assignment"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, M_NO_ALIGNMENT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ASSIGNMENT  = JavaCore.PLUGIN_ID + ".formatter.alignment_for_assignment";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of binary expression
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_binary_expression"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -743,6 +754,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES = JavaCore.PLUGIN_ID + ".formatter.indent_breaks_compare_to_cases";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to ident empty lines
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_empty_lines"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_INDENT_EMPTY_LINES = JavaCore.PLUGIN_ID + ".formatter.indent_empty_lines"; //$NON-NLS-1$	
 	/**
 	 * <pre>
 	 * FORMATTER / Option to indent statements inside a block
@@ -2622,6 +2645,19 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_paren_in_while";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space before parenthesized expression in return statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_parenthesized_expression_in_return"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * 
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_RETURN  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_parenthesized_expression_in_return";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before a postfix operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_postfix_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2928,7 +2964,6 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
-	 * <p>This is used only if the {@link #FORMATTER_TAB_CHAR } is set to {@link JavaCore#TAB}.</p>
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.1

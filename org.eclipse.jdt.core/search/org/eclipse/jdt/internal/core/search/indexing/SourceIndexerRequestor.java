@@ -12,9 +12,8 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
@@ -253,17 +252,17 @@ public void enterMethod(MethodInfo methodInfo) {
  */
 public void enterType(TypeInfo typeInfo) {
 	// TODO (jerome) might want to merge the 4 methods
-	switch (typeInfo.kind) {
-		case IGenericType.CLASS_DECL:
+	switch (TypeDeclaration.kind(typeInfo.modifiers)) {
+		case TypeDeclaration.CLASS_DECL:
 			enterClass(typeInfo);
 			break;
-		case IGenericType.ANNOTATION_TYPE_DECL: 
+		case TypeDeclaration.ANNOTATION_TYPE_DECL: 
 			enterAnnotationType(typeInfo);
 			break;
-		case IGenericType.INTERFACE_DECL:
+		case TypeDeclaration.INTERFACE_DECL:
 			enterInterface(typeInfo);
 			break;
-		case IGenericType.ENUM_DECL: 
+		case TypeDeclaration.ENUM_DECL: 
 			enterEnum(typeInfo);
 			break;
 	}

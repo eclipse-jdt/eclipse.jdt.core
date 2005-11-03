@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 
-public abstract class Binding implements CompilerModifiers, ProblemReasons {
+public abstract class Binding {
 
 	// binding kinds
 	public static final int FIELD = ASTNode.Bit1;
@@ -65,7 +65,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	* Answer true if the receiver is not a problem binding
 	*/
 	public final boolean isValidBinding() {
-		return problemId() == NoError;
+		return problemId() == ProblemReasons.NoError;
 	}
 	/* API
 	* Answer the problem id associated with the receiver.
@@ -73,7 +73,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	*/
 	// TODO (philippe) should rename into problemReason()
 	public int problemId() {
-		return NoError;
+		return ProblemReasons.NoError;
 	}
 	/* Answer a printable representation of the receiver.
 	*/

@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -61,25 +62,25 @@ public CodeSnippetClassFile(
 	int accessFlags = aType.getAccessFlags();
 	
 	if (!aType.isInterface()) { // class or enum
-		accessFlags |= AccSuper;
+		accessFlags |= ClassFileConstants.AccSuper;
 	}
 	if (aType.isNestedType()) {
 		if (aType.isStatic()) {
 			// clear Acc_Static
-			accessFlags &= ~AccStatic;
+			accessFlags &= ~ClassFileConstants.AccStatic;
 		}
 		if (aType.isPrivate()) {
 			// clear Acc_Private and Acc_Public
-			accessFlags &= ~(AccPrivate | AccPublic);
+			accessFlags &= ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccPublic);
 		}
 		if (aType.isProtected()) {
 			// clear Acc_Protected and set Acc_Public
-			accessFlags &= ~AccProtected;
-			accessFlags |= AccPublic;
+			accessFlags &= ~ClassFileConstants.AccProtected;
+			accessFlags |= ClassFileConstants.AccPublic;
 		}
 	}
 	// clear Acc_Strictfp
-	accessFlags &= ~AccStrictfp;
+	accessFlags &= ~ClassFileConstants.AccStrictfp;
 
 	this.enclosingClassFile = enclosingClassFile;
 	// now we continue to generate the bytes inside the contents array

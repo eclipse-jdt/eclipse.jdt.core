@@ -32,8 +32,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.util.WeakHashSet;
-import org.eclipse.jdt.internal.compiler.util.WeakHashSetOfCharArray;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -43,6 +41,9 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.WeakHashSet;
+import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,6 +102,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
+	public final static IPath CP_ENTRY_IGNORE_PATH = new Path(CP_ENTRY_IGNORE);
 	
 	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 1;
 
@@ -165,6 +167,8 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String CONTAINER_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/containerinitializer" ; //$NON-NLS-1$
 	public static final String RECONCILE_PERF = JavaCore.PLUGIN_ID + "/perf/reconcile" ; //$NON-NLS-1$
 	
+	private static final String ENABLE_NEW_FORMATTER = JavaCore.PLUGIN_ID + "/formatter/enable_new" ; //$NON-NLS-1$
+
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
 	
@@ -178,126 +182,6 @@ public class JavaModelManager implements ISaveParticipant {
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
-	public class CompilationParticipants {
-		
-		/** Map<ICompilationParticipant, eventMask> registered by plugins */
-		private Map pluginCPs;
-		
-		/** Map<ICompilationParticipant, eventMask> from calls to add() */
-		private Map dynamicCPs = new HashMap();
-		
-		/**
-		 * @see JavaCore#addCompilationParticipant(ICompilationParticipant, int)
-		 */
-		public synchronized void add(ICompilationParticipant icp, int eventMask) {
-			dynamicCPs.put(icp, new Integer(eventMask));
-		}
-
-		/**
-		 * @see JavaCore#removeCompilationParticipant(ICompilationParticipant)
-		 */
-		public synchronized void remove(ICompilationParticipant icp) {
-			dynamicCPs.remove(icp);
-		}
-		
-		/**
-		 * Returns an immutable list containing the subset of registered
-		 * listeners that have requested notification of at least one of
-		 * the events in the flags mask.
-		 * The first time this is called, it loads listeners from plugins,
-		 * which may cause plugins to be loaded.  
-		 * 
-		 * <p>
-		 * The initialization of ICompilationParticipants  is synchronized.  A deadlock may 
-		 * occur if all of the following conditions are true:  
-		 *  
-		 *  <li>A plugin defines <code>ICompilationParticipants</code></li>
-		 *  <li>That plugin's <code>start()</code> method spawns a thread which causes 
-		 *  <code>getCompilationParticipants()</code> to be invoked</li>
-		 *  <li>The <code>start()</code> method blocks waiting for the spawned thread to complete.</li> 
-		 *  
-		 *  Note that a build and reconcile operations will cause <code>getCompilationParticipants()</code> to 
-		 *  be called.
-		 *  
-		 * @param eventMask an ORed combination of values from ICompilationParticipant.
-		 * @param project the java project on which the compilation participant will
-		 * operate
-		 * @return an immutable list of ICompilationParticipant.
-		 */
-		public List getCompilationParticipants(int eventMask, IJavaProject project) {
-			initPlugins();
-			List filteredICPs = new ArrayList();
-			Iterator it;
-			synchronized(this) {
-				it = dynamicCPs.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry cp = (Map.Entry)it.next();
-					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-						ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
-						if (participant.doesParticipateInProject(project))
-							filteredICPs.add(participant);
-					}
-				}
-			}
-			it = pluginCPs.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry cp = (Map.Entry)it.next();
-				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-					ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
-					if (participant.doesParticipateInProject(project))
-						filteredICPs.add(participant);
-				}
-			}
-			return Collections.unmodifiableList(filteredICPs);
-		}
-		
-		private synchronized void initPlugins() {
-			if (null != pluginCPs) {
-				return;
-			}
-			pluginCPs = new HashMap();
-
-			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
-			if (extension == null) 
-				return;
-			IExtension[] extensions = extension.getExtensions();
-			for(int iExtension = 0; iExtension < extensions.length; iExtension++){
-				// for all extensions of this point...
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					// for all config elements named "compilationParticipant"
-					for(int j = 0; j < configElements.length; j++){
-						String elementName = configElements[j].getName();
-						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
-							continue;
-						}
-						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
-						try {
-							Integer eventMask;
-							if (null != eventMaskStr) {
-								eventMask = Integer.decode(eventMaskStr);
-							}
-							else {
-								// if mask is unspecified, send it all events
-								eventMask = new Integer(-1); 
-							}
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-							if (execExt instanceof ICompilationParticipant){
-								pluginCPs.put(execExt, eventMask);
-							}
-						} catch(CoreException e) {
-							// TODO: what is the right way to handle exceptions?
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private final CompilationParticipants compilationParticipants = new CompilationParticipants();
-	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -787,7 +671,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Set of elements which are out of sync with their buffers.
 	 */
-	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
+	protected HashSet elementsOutOfSynchWithBuffers = new HashSet(11);
 	
 	/**
 	 * Holds the state used for delta processing.
@@ -1058,6 +942,9 @@ public class JavaModelManager implements ISaveParticipant {
 			
 			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
 			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(ENABLE_NEW_FORMATTER);
+			if(option != null) DefaultCodeFormatter.USE_NEW_FORMATTER = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		// configure performance options
@@ -1168,6 +1055,126 @@ public class JavaModelManager implements ISaveParticipant {
 		return container;			
 	}
 	
+	public class CompilationParticipants {
+		
+		/** Map<ICompilationParticipant, eventMask> registered by plugins */
+		private Map pluginCPs;
+		
+		/** Map<ICompilationParticipant, eventMask> from calls to add() */
+		private Map dynamicCPs = new HashMap();
+		
+		/**
+		 * @see JavaCore#addCompilationParticipant(ICompilationParticipant, int)
+		 */
+		public synchronized void add(ICompilationParticipant icp, int eventMask) {
+			dynamicCPs.put(icp, new Integer(eventMask));
+		}
+
+		/**
+		 * @see JavaCore#removeCompilationParticipant(ICompilationParticipant)
+		 */
+		public synchronized void remove(ICompilationParticipant icp) {
+			dynamicCPs.remove(icp);
+		}
+		
+		/**
+		 * Returns an immutable list containing the subset of registered
+		 * listeners that have requested notification of at least one of
+		 * the events in the flags mask.
+		 * The first time this is called, it loads listeners from plugins,
+		 * which may cause plugins to be loaded.  
+		 * 
+		 * <p>
+		 * The initialization of ICompilationParticipants  is synchronized.  A deadlock may 
+		 * occur if all of the following conditions are true:  
+		 *  
+		 *  <li>A plugin defines <code>ICompilationParticipants</code></li>
+		 *  <li>That plugin's <code>start()</code> method spawns a thread which causes 
+		 *  <code>getCompilationParticipants()</code> to be invoked</li>
+		 *  <li>The <code>start()</code> method blocks waiting for the spawned thread to complete.</li> 
+		 *  
+		 *  Note that a build and reconcile operations will cause <code>getCompilationParticipants()</code> to 
+		 *  be called.
+		 *  
+		 * @param eventMask an ORed combination of values from ICompilationParticipant.
+		 * @param project the java project on which the compilation participant will
+		 * operate
+		 * @return an immutable list of ICompilationParticipant.
+		 */
+		public List getCompilationParticipants(int eventMask, IJavaProject project) {
+			initPlugins();
+			List filteredICPs = new ArrayList();
+			Iterator it;
+			synchronized(this) {
+				it = dynamicCPs.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry cp = (Map.Entry)it.next();
+					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
+						ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+						if (participant.doesParticipateInProject(project))
+							filteredICPs.add(participant);
+					}
+				}
+			}
+			it = pluginCPs.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry cp = (Map.Entry)it.next();
+				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
+					ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+					if (participant.doesParticipateInProject(project))
+						filteredICPs.add(participant);
+				}
+			}
+			return Collections.unmodifiableList(filteredICPs);
+		}
+		
+		private synchronized void initPlugins() {
+			if (null != pluginCPs) {
+				return;
+			}
+			pluginCPs = new HashMap();
+
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
+					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
+			if (extension == null) 
+				return;
+			IExtension[] extensions = extension.getExtensions();
+			for(int iExtension = 0; iExtension < extensions.length; iExtension++){
+				// for all extensions of this point...
+				for(int i = 0; i < extensions.length; i++){
+					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+					// for all config elements named "compilationParticipant"
+					for(int j = 0; j < configElements.length; j++){
+						String elementName = configElements[j].getName();
+						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
+							continue;
+						}
+						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
+						try {
+							Integer eventMask;
+							if (null != eventMaskStr) {
+								eventMask = Integer.decode(eventMaskStr);
+							}
+							else {
+								// if mask is unspecified, send it all events
+								eventMask = new Integer(-1); 
+							}
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+							if (execExt instanceof ICompilationParticipant){
+								pluginCPs.put(execExt, eventMask);
+							}
+						} catch(CoreException e) {
+							// TODO: what is the right way to handle exceptions?
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private final CompilationParticipants compilationParticipants = new CompilationParticipants();
+	
 	public CompilationParticipants getCompilationParticipants() {
 		return compilationParticipants;
 	}
@@ -1179,7 +1186,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
-	protected Map getElementsOutOfSynchWithBuffers() {
+	protected HashSet getElementsOutOfSynchWithBuffers() {
 		return this.elementsOutOfSynchWithBuffers;
 	}
 
@@ -2086,7 +2093,7 @@ public class JavaModelManager implements ISaveParticipant {
 		// Subsequent resolution against package in the jar would fail as a result.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
 		// (theodora)
-		for(Iterator it = newElements.entrySet().iterator(); it.hasNext(); ){
+		for(Iterator it = newElements.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry entry = (Map.Entry)it.next();
 			IJavaElement element = (IJavaElement)entry.getKey();
 			if( element instanceof JarPackageFragmentRoot ){
@@ -2641,6 +2648,7 @@ public class JavaModelManager implements ISaveParticipant {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				this.deltaState,
+				/* update spec in JavaCore#addPreProcessingResourceChangedListener(...) if adding more event types */
 				IResourceChangeEvent.PRE_BUILD
 					| IResourceChangeEvent.POST_BUILD
 					| IResourceChangeEvent.POST_CHANGE
@@ -2758,9 +2766,9 @@ public class JavaModelManager implements ISaveParticipant {
 //				if (previousPath != null){
 //					if (CP_RESOLVE_VERBOSE){
 //						Util.verbose(
-//							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
-//							"	variable: "+ variableName + '\n' + //$NON-NLS-1$
-//							"	previous value: " + previousPath); //$NON-NLS-1$
+//							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" +
+//							"	variable: "+ variableName + '\n' +
+//							"	previous value: " + previousPath);
 //					}
 //					this.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
 //				}
@@ -2917,7 +2925,9 @@ public class JavaModelManager implements ISaveParticipant {
 
 			// update cache - do not only rely on listener refresh		
 			if (variablePath == null) {
-				this.variables.remove(variableName);
+				// if path is null, record that the variable was removed to avoid asking the initializer to initialize it again
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=112609
+				this.variables.put(variableName, CP_ENTRY_IGNORE_PATH);
 			} else {
 				this.variables.put(variableName, variablePath);
 			}

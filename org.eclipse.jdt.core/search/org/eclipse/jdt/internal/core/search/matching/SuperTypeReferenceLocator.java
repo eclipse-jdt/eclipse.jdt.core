@@ -68,17 +68,19 @@ public int resolveLevel(Binding binding) {
 
 	ReferenceBinding type = (ReferenceBinding) binding;
 	int level = IMPOSSIBLE_MATCH;
-	if (!this.pattern.checkOnlySuperinterfaces) {
+	if (this.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES) {
 		level = resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, type.superclass());
 		if (level == ACCURATE_MATCH) return ACCURATE_MATCH;
 	}
 
-	ReferenceBinding[] superInterfaces = type.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++) {
-		int newLevel = resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, superInterfaces[i]);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
-			level = newLevel;
+	if (this.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
+		ReferenceBinding[] superInterfaces = type.superInterfaces();
+		for (int i = 0, max = superInterfaces.length; i < max; i++) {
+			int newLevel = resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, superInterfaces[i]);
+			if (newLevel > level) {
+				if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+				level = newLevel;
+			}
 		}
 	}
 	return level;

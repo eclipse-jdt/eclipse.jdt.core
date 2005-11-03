@@ -66,13 +66,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	static {
 //		TESTS_PREFIX = "testPerfBatch";
-//		TESTS_NAMES = new String[] { "testFullBuildAllWarning" };
+//		TESTS_NAMES = new String[] { "testBatchCompilerAllWarnings" };
 	}
 
 	public static Test suite() {
 		Test suite = buildSuite(testClass());
 		TESTS_COUNT = suite.countTestCases();
-		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+		createPrintStream(testClass(), LOG_STREAMS, TESTS_COUNT, null);
 		return suite;
 	}
 
@@ -133,7 +133,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
 			parser.getMethodBodies(unitDeclaration);
 			parsedCharacters += content.length;
-			parsedLines += unitResult.lineSeparatorPositions.length;
+			parsedLines += unitResult.getLineSeparatorPositions().length;
 		}
 		stopMeasuring();
 
@@ -270,7 +270,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			}
 		}
 	}
-
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()

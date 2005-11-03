@@ -25,6 +25,7 @@ package org.eclipse.jdt.internal.compiler;
  *
  * Any (parsing) problem encountered is also provided.
  */
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -47,8 +48,6 @@ public class DocumentElementParser extends Parser {
 	/* int[] stack for storing javadoc positions */
 	int[][] intArrayStack;
 	int intArrayPtr;
-	
-	CompilerOptions options;
 	
 public DocumentElementParser(
 	final IDocumentElementRequestor requestor, 
@@ -95,7 +94,7 @@ public void checkComment() {
 		break nextComment;
 	}
 	if (deprecated) {
-		checkAndSetModifiers(AccDeprecated);
+		checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 	}
 	// modify the modifier source start to point at the first comment
 	if (commentPtr >= 0) {
@@ -210,11 +209,11 @@ protected void consumeClassHeaderName1() {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -663,11 +662,11 @@ protected void consumeInterfaceHeaderName1() {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -685,7 +684,7 @@ protected void consumeInterfaceHeaderName1() {
 	intPtr--;
 	int declSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
-	typeDecl.modifiers = this.intStack[this.intPtr--] | AccInterface;
+	typeDecl.modifiers = this.intStack[this.intPtr--] | ClassFileConstants.AccInterface;
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
 	}
@@ -975,7 +974,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		false,
-		AccStatic);
+		ClassFileConstants.AccStatic);
 }
 /*
  *
@@ -996,7 +995,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		false,
-		AccDefault);
+		ClassFileConstants.AccDefault);
 }
 protected void consumeStaticImportOnDemandDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name '.' '*'
@@ -1013,7 +1012,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		true,
-		AccStatic);
+		ClassFileConstants.AccStatic);
 }
 /*
  *
@@ -1029,7 +1028,7 @@ protected void consumeStaticInitializer() {
 		initializer.declarationSourceStart,
 		initializer.declarationSourceEnd,
 		intArrayStack[intArrayPtr--],
-		AccStatic, 
+		ClassFileConstants.AccStatic, 
 		intStack[intPtr--], 
 		initializer.block.sourceStart,
 		initializer.declarationSourceEnd);
@@ -1064,7 +1063,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'), 
 		importReference.sourceStart,
 		true,
-		AccDefault);
+		ClassFileConstants.AccDefault);
 }
 /*
  * Flush javadocs defined prior to a given positions.
@@ -1089,7 +1088,12 @@ public CompilationUnitDeclaration endParse(int act) {
 	}
 	return super.endParse(act);
 }
-
+public void initialize(boolean initializeNLS) {
+	//positionning the parser for a new compilation unit
+	//avoiding stack reallocation and all that....
+	super.initialize(initializeNLS);
+	intArrayPtr = -1;
+}
 public void initialize() {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
@@ -1120,7 +1124,7 @@ protected void parse() {
 public void parseCompilationUnit(ICompilationUnit unit) {
 	char[] regionSource = unit.getContents();
 	try {
-		initialize();
+		initialize(true);
 		goForCompilationUnit();
 		referenceContext =
 			compilationUnit = 

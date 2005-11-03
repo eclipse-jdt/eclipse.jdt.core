@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
-
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -19,7 +17,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CreateMembersTests extends AbstractJavaModelTests {
@@ -42,8 +39,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-
-		setUpJavaProject("CreateMembers");
+		setUpJavaProject("CreateMembers", "1.5");
 	}
 	public void tearDownSuite() throws Exception {
 		deleteProject("CreateMembers");
@@ -71,58 +67,40 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
 	public void test002() throws JavaModelException {
-		Hashtable oldOptions = JavaCore.getOptions();
-		try {
-			Hashtable options = new Hashtable(oldOptions);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			JavaCore.setOptions(options);
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			IField sibling = type.getField("j");
-			type.createField("int i;", sibling, true, null);
-			String expectedSource = 
-				"public enum E {\n" + 
-				"	E1, E2;\n" + 
-				"	int i;\n" + 
-				"	int j;\n" + 
-				"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			JavaCore.setOptions(oldOptions);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		IField sibling = type.getField("j");
+		type.createField("int i;", sibling, true, null);
+		String expectedSource = 
+			"public enum E {\n" + 
+			"	E1, E2;\n" + 
+			"	int i;\n" + 
+			"	int j;\n" + 
+			"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
 	public void test003() throws JavaModelException {
-		Hashtable oldOptions = JavaCore.getOptions();
-		try {
-			Hashtable options = new Hashtable(oldOptions);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			JavaCore.setOptions(options);
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Annot.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			IMethod sibling = type.getMethod("foo", new String[]{});
-			type.createMethod("String bar();", sibling, true, null);
-			String expectedSource = 
-				"public @interface Annot {\n" + 
-				"	String bar();\n" + 
-				"\n" + 
-				"	String foo();\n" + 
-				"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			JavaCore.setOptions(oldOptions);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Annot.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod sibling = type.getMethod("foo", new String[]{});
+		type.createMethod("String bar();", sibling, true, null);
+		String expectedSource = 
+			"public @interface Annot {\n" + 
+			"	String bar();\n" + 
+			"\n" + 
+			"	String foo();\n" + 
+			"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 	
 	/*
@@ -130,74 +108,47 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	 * (regression test for bug 93487 IType#findMethods fails on vararg methods)
 	 */
 	public void test004() throws JavaModelException {
-		Hashtable oldOptions = JavaCore.getOptions();
-		try {
-			Hashtable options = new Hashtable(oldOptions);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			JavaCore.setOptions(options);
-			IType type = getCompilationUnit("/CreateMembers/src/A.java").getType("A");
-			IMethod method = type.createMethod(
-				"void bar(String... args) {}",
-				null, // no siblings
-				false, // don't force
-				null // no progress monitor
-			);
-			assertTrue("Method should exist", method.exists());
-		} finally {
-			JavaCore.setOptions(oldOptions);
-		}
+		IType type = getCompilationUnit("/CreateMembers/src/A.java").getType("A");
+		IMethod method = type.createMethod(
+			"void bar(String... args) {}",
+			null, // no siblings
+			false, // don't force
+			null // no progress monitor
+		);
+		assertTrue("Method should exist", method.exists());
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
 	public void test005() throws JavaModelException {
-		Hashtable oldOptions = JavaCore.getOptions();
-		try {
-			Hashtable options = new Hashtable(oldOptions);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			JavaCore.setOptions(options);
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E2.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			type.createField("int i;", null, true, null);
-			String expectedSource = 
-				"public enum E2 {\n" + 
-				"	A, B, C;\n\n" +
-				"	int i;\n" + 
-				"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			JavaCore.setOptions(oldOptions);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E2.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		type.createField("int i;", null, true, null);
+		String expectedSource = 
+			"public enum E2 {\n" + 
+			"	A, B, C;\n\n" +
+			"	int i;\n" + 
+			"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
 	public void test006() throws JavaModelException {
-		Hashtable oldOptions = JavaCore.getOptions();
-		try {
-			Hashtable options = new Hashtable(oldOptions);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			JavaCore.setOptions(options);
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E3.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			type.createType("class DD {}", null, true, null);
-			String expectedSource = 
-				"public enum E3 {\n" + 
-				"	A, B, C;\n\n" +
-				"	class DD {}\n" + 
-				"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			JavaCore.setOptions(oldOptions);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E3.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		type.createType("class DD {}", null, true, null);
+		String expectedSource = 
+			"public enum E3 {\n" + 
+			"	A, B, C;\n\n" +
+			"	class DD {}\n" + 
+			"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 }

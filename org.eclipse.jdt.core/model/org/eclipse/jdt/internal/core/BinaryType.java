@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
@@ -182,6 +182,38 @@ public IJavaElement[] getChildren() throws JavaModelException {
 		}
 	}
 	return cfi.binaryChildren;
+}
+public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {
+	IJavaElement[] children = getChildren();
+	int length = children.length;
+	if (length == 0) return children;
+	SourceMapper mapper= getSourceMapper();
+	if (mapper != null) {
+		// ensure the class file's buffer is open so that categories are computed
+		((ClassFile)getClassFile()).getBuffer();
+		
+		HashMap categories = mapper.categories;
+		IJavaElement[] result = new IJavaElement[length];
+		int index = 0;
+		if (categories != null) {
+			for (int i = 0; i < length; i++) {
+				IJavaElement child = children[i];
+				String[] cats = (String[]) categories.get(child);
+				if (cats != null) {
+					for (int j = 0, length2 = cats.length; j < length2; j++) {
+						if (cats[j].equals(category)) {
+							result[index++] = child;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (index < length)
+			System.arraycopy(result, 0, result = new IJavaElement[index], 0, index);
+		return result;
+	}
+	return NO_ELEMENTS;	
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	ClassFile cf = (ClassFile)this.parent;
@@ -472,6 +504,22 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 	}
 }
 
+public String getSourceFileName() {
+		BinaryType typeParent = (BinaryType) getDeclaringType();
+		BinaryType declType = this;
+		while (typeParent != null) {
+			declType = typeParent;
+			typeParent = (BinaryType) declType.getDeclaringType();
+		}
+		IBinaryType info;
+		try {
+			info = (IBinaryType) declType.getElementInfo();
+		} catch (JavaModelException e) {
+			return null;
+		}
+		return declType.sourceFileName(info);
+}
+
 /*
  * @see IType#getSuperclassName()
  */
@@ -635,7 +683,7 @@ public boolean isAnonymous() throws JavaModelException {
  */
 public boolean isClass() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	return info.getKind() == IGenericType.CLASS_DECL;
+	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.CLASS_DECL;
 
 }
 
@@ -645,7 +693,7 @@ public boolean isClass() throws JavaModelException {
  */
 public boolean isEnum() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	return info.getKind() == IGenericType.ENUM_DECL;
+	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.ENUM_DECL;
 }
 
 /*
@@ -653,9 +701,9 @@ public boolean isEnum() throws JavaModelException {
  */
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	switch (info.getKind()) {
-		case IGenericType.INTERFACE_DECL:
-		case IGenericType.ANNOTATION_TYPE_DECL: // annotation is interface too
+	switch (TypeDeclaration.kind(info.getModifiers())) {
+		case TypeDeclaration.INTERFACE_DECL:
+		case TypeDeclaration.ANNOTATION_TYPE_DECL: // annotation is interface too
 			return true;
 	}
 	return false;
@@ -666,7 +714,7 @@ public boolean isInterface() throws JavaModelException {
  */
 public boolean isAnnotation() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	return info.getKind() == IGenericType.ANNOTATION_TYPE_DECL;
+	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.ANNOTATION_TYPE_DECL;
 }
 
 /*

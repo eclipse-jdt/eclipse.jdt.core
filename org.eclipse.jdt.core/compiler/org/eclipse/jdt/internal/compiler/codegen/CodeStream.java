@@ -16,11 +16,10 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, BaseTypes, TypeConstants, TypeIds {
+public class CodeStream implements OperatorIds, Opcodes, BaseTypes, TypeConstants, TypeIds {
 
 	public static final boolean DEBUG = false;
 	
@@ -34,7 +33,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public byte[] bCodeStream;
 	public int pcToSourceMapSize;
 	public int[] pcToSourceMap = new int[24];
-	public int lastEntryPC; // last entry recorded 
+	public int lastEntryPC; // last entry recorded
 	public int[] lineSeparatorPositions;
 	public int position; // So when first set can be incremented
 	public int classFileOffset;
@@ -77,7 +76,7 @@ public CodeStream(ClassFile classFile, long targetLevel) {
 	this.generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
 	this.generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
 	if (this.generateLineNumberAttributes) {
-		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
+		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
 	}
 }
 final public void aaload() {
@@ -1816,9 +1815,9 @@ public void generateSyntheticEnclosingInstanceValues(
 		// deny access to enclosing instance argument for allocation and super constructor call (if 1.4)
 		// always consider it if complying to 1.5
 		boolean denyEnclosingArgInConstructorCall;
-		if (compliance <= JDK1_3) {
+		if (compliance <= ClassFileConstants.JDK1_3) {
 			denyEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression;
-		} else if (compliance == JDK1_4){
+		} else if (compliance == ClassFileConstants.JDK1_4){
 			denyEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression
 				|| invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess();
 		} else {
@@ -2020,13 +2019,13 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	signature = CharOperation.concat(signature, arrayBinding.constantPoolName());
 	this.invoke(OPC_invokestatic, 0, 1, enumBinding.constantPoolName(), TypeConstants.VALUES, signature);
 	this.arraylength();
-	this.newarray(INT_ARRAY);
+	this.newarray(ClassFileConstants.INT_ARRAY);
 	this.astore_0();
 	final FieldBinding[] fields = enumBinding.fields();
 	if (fields != null) {
 		for (int i = 0, max = fields.length; i < max; i++) {
 			FieldBinding fieldBinding = fields[i];
-			if ((fieldBinding.getAccessFlags() & IConstants.AccEnum) != 0) {
+			if ((fieldBinding.getAccessFlags() & ClassFileConstants.AccEnum) != 0) {
 				final Label endLabel = new Label(this);
 				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, BaseTypes.LongBinding /* represents NoSuchFieldError*/);
 				this.aload_0();
@@ -2181,7 +2180,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangByteConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.byteByteSignature); //$NON-NLS-1$
+				ConstantPool.byteByteSignature);
 			break;
 		case T_short :
 			// invokestatic: Short.valueOf(short)
@@ -2191,7 +2190,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangShortConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.shortShortSignature); //$NON-NLS-1$
+				ConstantPool.shortShortSignature);
 			break;
 		case T_char :
 			// invokestatic: Character.valueOf(char)
@@ -2201,7 +2200,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangCharacterConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.charCharacterSignature); //$NON-NLS-1$
+				ConstantPool.charCharacterSignature);
 			break;
 		case T_int :
 			// invokestatic: Integer.valueOf(int)
@@ -2211,7 +2210,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangIntegerConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.IntIntegerSignature); //$NON-NLS-1$
+				ConstantPool.IntIntegerSignature);
 			break;
 		case T_long :
 			// invokestatic: Long.valueOf(long)
@@ -2221,7 +2220,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangLongConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.longLongSignature); //$NON-NLS-1$
+				ConstantPool.longLongSignature);
 			break;
 		case T_float :
 			// invokestatic: Float.valueOf(float)
@@ -2231,7 +2230,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangFloatConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.floatFloatSignature); //$NON-NLS-1$
+				ConstantPool.floatFloatSignature);
 			break;
 		case T_double :
 			// invokestatic: Double.valueOf(double)
@@ -2241,7 +2240,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangDoubleConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.doubleDoubleSignature); //$NON-NLS-1$
+				ConstantPool.doubleDoubleSignature);
 			break;
 		case T_boolean :
 			// invokestatic: Boolean.valueOf(boolean)
@@ -2251,7 +2250,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangBooleanConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.booleanBooleanSignature); //$NON-NLS-1$
+				ConstantPool.booleanBooleanSignature);
 	}
 }
 public void generateUnboxingConversion(int unboxedTypeID) {
@@ -3334,7 +3333,12 @@ final public void invokeinterface(MethodBinding methodBinding) {
 	}
 	position += 3;
 	bCodeStream[classFileOffset++] = OPC_invokeinterface;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			true));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
@@ -3402,7 +3406,12 @@ final public void invokespecial(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
 		// enclosing instances
 		TypeBinding[] syntheticArgumentTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes();
@@ -3454,7 +3463,12 @@ final public void invokestatic(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
@@ -3476,7 +3490,7 @@ final public void invokestatic(MethodBinding methodBinding) {
  */
 public void invokeStringConcatenationAppendForType(int typeID) {
 	if (DEBUG) {
-		if (this.targetLevel >= JDK1_5) {
+		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuilder.append(...)"); //$NON-NLS-1$
 		} else {
 			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
@@ -3491,7 +3505,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 		case T_int :
 		case T_byte :
 		case T_short :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendIntSignature;
 			} else {
@@ -3500,7 +3514,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			}
 			break;
 		case T_long :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendLongSignature;
 			} else {
@@ -3510,7 +3524,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			argCount = 2;
 			break;
 		case T_float :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendFloatSignature;
 			} else {
@@ -3519,7 +3533,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			}
 			break;
 		case T_double :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendDoubleSignature;
 			} else {
@@ -3529,7 +3543,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			argCount = 2;
 			break;
 		case T_char :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendCharSignature;
 			} else {
@@ -3538,7 +3552,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			}
 			break;
 		case T_boolean :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendBooleanSignature;
 			} else {
@@ -3549,7 +3563,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 		case T_undefined :
 		case T_JavaLangObject :
 		case T_null :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendObjectSignature;
 			} else {
@@ -3558,7 +3572,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			}
 			break;
 		case T_JavaLangString :
-			if (this.targetLevel >= JDK1_5) {
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 				signature = ConstantPool.StringBuilderAppendStringSignature;
 			} else {
@@ -3678,14 +3692,14 @@ public void invokeJavaUtilIteratorNext() {
 public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
 	if (DEBUG) {
-		if (this.targetLevel >= JDK1_5) {
+		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuilder.<init>()V"); //$NON-NLS-1$
 		} else {
 			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
 		}
 	}
 	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= JDK1_5) {
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
@@ -3698,14 +3712,14 @@ public void invokeStringConcatenationDefaultConstructor() {
 }
 public void invokeStringConcatenationStringConstructor() {
 	if (DEBUG) {
-		if (this.targetLevel >= JDK1_5) {
+		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 			System.out.println(position + "\t\tjava.lang.StringBuilder.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 		} else {
 			System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 		}
 	}
 	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= JDK1_5) {
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
@@ -3719,14 +3733,14 @@ public void invokeStringConcatenationStringConstructor() {
 
 public void invokeStringConcatenationToString() {
 	if (DEBUG) {
-		if (this.targetLevel >= JDK1_5) {
+		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 			System.out.println(position + "\t\tinvokevirtual: StringBuilder.toString()Ljava.lang.String;"); //$NON-NLS-1$
 		} else {
 			System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
 		}
 	}
 	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= JDK1_5) {
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
@@ -3873,7 +3887,12 @@ final public void invokevirtual(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
@@ -5111,28 +5130,28 @@ public void newArray(ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case T_int :
-			this.newarray(INT_ARRAY);
+			this.newarray(ClassFileConstants.INT_ARRAY);
 			break;
 		case T_byte :
-			this.newarray(BYTE_ARRAY);
+			this.newarray(ClassFileConstants.BYTE_ARRAY);
 			break;
 		case T_boolean :
-			this.newarray(BOOLEAN_ARRAY);
+			this.newarray(ClassFileConstants.BOOLEAN_ARRAY);
 			break;
 		case T_short :
-			this.newarray(SHORT_ARRAY);
+			this.newarray(ClassFileConstants.SHORT_ARRAY);
 			break;
 		case T_char :
-			this.newarray(CHAR_ARRAY);
+			this.newarray(ClassFileConstants.CHAR_ARRAY);
 			break;
 		case T_long :
-			this.newarray(LONG_ARRAY);
+			this.newarray(ClassFileConstants.LONG_ARRAY);
 			break;
 		case T_float :
-			this.newarray(FLOAT_ARRAY);
+			this.newarray(ClassFileConstants.FLOAT_ARRAY);
 			break;
 		case T_double :
-			this.newarray(DOUBLE_ARRAY);
+			this.newarray(ClassFileConstants.DOUBLE_ARRAY);
 			break;
 		default :
 			this.anewarray(component);
@@ -5199,7 +5218,7 @@ public void newStringContatenation() {
 	// new: java.lang.StringBuffer
 	// new: java.lang.StringBuilder
 	if (DEBUG) {
-		if (this.targetLevel >= JDK1_5) {
+		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 			System.out.println(position + "\t\tnew: java.lang.StringBuilder"); //$NON-NLS-1$
 		} else {
 			System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
@@ -5215,7 +5234,7 @@ public void newStringContatenation() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	if (this.targetLevel >= JDK1_5) {
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangStringBuilderConstantPoolName));
 	} else {
 		writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangStringBufferConstantPoolName));

@@ -317,6 +317,7 @@ public void testCopyCURename() throws CoreException {
  */
 public void testCopyCUReadOnly() throws CoreException {
 	IFile file = null;
+	IFile file2 = null;
 	try {
 		this.createFolder("/P/src/p1");
 		file = this.createFile(
@@ -333,12 +334,17 @@ public void testCopyCUReadOnly() throws CoreException {
 	
 		copyPositive(cuSource, pkgDest, null, null, false);
 		
-		assertTrue("Destination cu should be read-only", getFile("/P/src/p2/X.java").isReadOnly());
+		file2 = getFile("/P/src/p2/X.java");
+		assertTrue("Destination cu should be read-only", file2.isReadOnly());
 	} finally {
 		if (file != null) {
 			setReadOnly(file, false);
 		}
+		if (file2 != null) {
+			setReadOnly(file2, false);
+		}
 		deleteFolder("/P/src/p1");
+		deleteFolder("/P/src/p2");
 	}
 }
 /**

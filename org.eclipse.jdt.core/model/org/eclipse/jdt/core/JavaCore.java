@@ -402,6 +402,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_RAW_TYPE_REFERENCE = PLUGIN_ID + ".compiler.problem.rawTypeReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_FINAL_PARAMETER_BOUND = PLUGIN_ID + ".compiler.problem.finalParameterBound"; //$NON-NLS-1$
@@ -453,6 +459,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_UNUSED_LABEL = PLUGIN_ID + ".compiler.problem.unusedLabel"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -531,6 +543,12 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_MAX_PER_UNIT = PLUGIN_ID + ".compiler.maxProblemPerUnit"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_FATAL_OPTIONAL_ERROR = PLUGIN_ID + ".compiler.problem.fatalOptionalError"; //$NON-NLS-1$	
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -777,6 +795,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String CODEASSIST_CAMEL_CASE_MATCH = PLUGIN_ID + ".codeComplete.camelCaseMatch"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_IMPLICIT_QUALIFICATION = PLUGIN_ID + ".codeComplete.forceImplicitQualification"; //$NON-NLS-1$
@@ -891,6 +915,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions()
@@ -1106,7 +1136,7 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
-	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+	 * The listener is guaranteed to be notified of the POST_CHANGE resource change event before
 	 * the Java core starts processing the resource change event itself.
 	 * <p>
 	 * Has no effect if an identical listener is already registered.
@@ -1115,9 +1145,41 @@ public final class JavaCore extends Plugin {
 	 * @param listener the listener
 	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
 	 * @since 3.0
+	 * @deprecated use addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE) instead
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
-		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener);
+		addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE);
+	}
+	
+	/**
+	 * Adds the given listener for resource change events of the given types to the Java core. 
+	 * The listener is guaranteed to be notified of the resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * <p>
+	 * If an identical listener is already registered, the given event types are added to the event types 
+	 * of interest to the listener.
+	 * </p>
+	 * <p>
+	 * Supported event types are:
+	 * <ul>
+	 * <li>{@link IResourceChangeEvent#PRE_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_CHANGE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_DELETE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_CLOSE}</li>
+	 * </ul>
+	 * This list may increase in the future.
+	 * </p>
+	 * 
+	 * @param listener the listener
+	 * @param eventMask the bit-wise OR of all event types of interest to the
+	 * listener
+	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
+	 * @see IResourceChangeEvent
+	 * @since 3.2
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener, int eventMask) {
+		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener, eventMask);
 	}
 	
 	/**
@@ -1435,6 +1497,8 @@ public final class JavaCore extends Plugin {
 		}
 		
 		if (variablePath != null) {
+			if (variablePath == JavaModelManager.CP_ENTRY_IGNORE_PATH)
+				return null;
 			return variablePath;
 		}
 
@@ -1922,6 +1986,14 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
+	 *     
+	 * COMPILER / Reporting Raw Type Reference
+	 *    When enabled, the compiler will issue an error or a warning when detecting references to raw types. Raw types are 
+	 *    discouraged, and are intended to help interfacing with legacy code. In the future, the language specification may 
+	 *    reject raw references to generic types.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
 	 * 
 	 * COMPILER / Reporting final Bound for Type Parameter
 	 *    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 
@@ -2076,11 +2148,20 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
-	 * COMPILER / Maximum number of problems reported per compilation unit
+	 * COMPILER / Maximum Number of Problems Reported per Compilation Unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.maxProblemPerUnit"
 	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:           "100"
+	 * 
+	 * COMPILER / Treating Optional Error as Fatal
+	 *    When enabled, optional errors (i.e. optional problems which severity is set to "error") will be treated as standard
+	 *    compiler errors, yielding problem methods/types preventing from running offending code until the issue got resolved.
+	 *    When disabled, optional errors are only considered as warnings, still carrying an error indication to make them more
+	 *    severe. Note that by default, errors are fatal, whether they are optional or not.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * 
 	 * COMPILER / Defining the Automatic Task Tags
 	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters
@@ -2135,6 +2216,14 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning when encountering a token
 	 *    it cannot handle inside a @SuppressWarnings annotation.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Unreferenced Label
+	 *    When enabled, the compiler will issue an error or a warning when encountering a labeled statement which label
+	 *    is never explicitly referenced. A label is considered to be referenced if its name explicitly appears behind a break
+	 *    or continue statement; for instance the following label would be considered unreferenced;   LABEL: { break; }
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedLabel"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
@@ -2361,6 +2450,12 @@ public final class JavaCore extends Plugin {
 	 *  CODEASSIST / Activate Discouraged Reference Sensitive Completion
 	 *    When active, completion doesn't show that have discouraged reference.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 *     
+	 *	CODEASSIST / Activate Camel Case Sensitive Completion
+	 *    When active, completion show proposals whose name match to the CamelCase pattern.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * </pre>
@@ -3941,21 +4036,21 @@ public final class JavaCore extends Plugin {
 //					if (previousContainer != null) {
 //						if (JavaModelManager.CP_RESOLVE_VERBOSE){
 //							StringBuffer buffer = new StringBuffer();
-//							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
-//							buffer.append("	project: " + affectedProject.getElementName() + '\n'); //$NON-NLS-1$
-//							buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-//							buffer.append("	previous value: "); //$NON-NLS-1$
+//							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); 
+//							buffer.append("	project: " + affectedProject.getElementName() + '\n');
+//							buffer.append("	container path: " + containerPath + '\n');
+//							buffer.append("	previous value: ");
 //							buffer.append(previousContainer.getDescription());
-//							buffer.append(" {\n"); //$NON-NLS-1$
+//							buffer.append(" {\n");
 //							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
 //							if (entries != null){
 //								for (int j = 0; j < entries.length; j++){
-//									buffer.append(" 		"); //$NON-NLS-1$
+//									buffer.append(" 		");
 //									buffer.append(entries[j]); 
 //									buffer.append('\n'); 
 //								}
 //							}
-//							buffer.append(" 	}"); //$NON-NLS-1$
+//							buffer.append(" 	}");
 //							Util.verbose(buffer.toString());
 //						}
 //						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 

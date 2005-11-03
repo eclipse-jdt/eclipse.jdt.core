@@ -51,11 +51,12 @@ import org.eclipse.text.edits.TextEdit;
  * @since 2.1
  */
 public class SortElementsOperation extends JavaModelOperation {
-	
+	public static final String CONTAINS_MALFORMED_NODES = "malformed"; //$NON-NLS-1$
+
 	Comparator comparator;
 	int[] positions;
     int apiLevel;
-	
+    
 	/**
 	 * Constructor for SortElementsOperation.
      * 
@@ -79,6 +80,16 @@ public class SortElementsOperation extends JavaModelOperation {
 		return this.elementsToProcess.length;
 	}
 	
+	boolean checkMalformedNodes(ASTNode node) {
+		Object property = node.getProperty(CONTAINS_MALFORMED_NODES);
+		if (property == null) return false;
+		return ((Boolean) property).booleanValue();
+	}
+
+	protected boolean isMalformed(ASTNode node) {
+		return (node.getFlags() & ASTNode.MALFORMED) != 0;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#executeOperation()
 	 */
@@ -121,6 +132,7 @@ public class SortElementsOperation extends JavaModelOperation {
 				for (Iterator iter = types.iterator(); iter.hasNext();) {
 					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) iter.next();
 					typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(typeDeclaration.getStartPosition()));
+					compilationUnit.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(typeDeclaration)));
 				}
 				return true;
 			}
@@ -129,6 +141,7 @@ public class SortElementsOperation extends JavaModelOperation {
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
+					annotationTypeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
 				return true;
 			}
@@ -138,6 +151,7 @@ public class SortElementsOperation extends JavaModelOperation {
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
+					anonymousClassDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
 				return true;
 			}
@@ -147,6 +161,7 @@ public class SortElementsOperation extends JavaModelOperation {
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
+					typeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
 				return true;
 			}
@@ -156,11 +171,13 @@ public class SortElementsOperation extends JavaModelOperation {
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
+					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
 				List enumConstants = enumDeclaration.enumConstants();
 				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
 					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
 					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(enumConstantDeclaration.getStartPosition()));
+					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(enumConstantDeclaration)));
 				}				
 				return true;
 			}
@@ -180,6 +197,9 @@ public class SortElementsOperation extends JavaModelOperation {
 		Document document = new Document(generatedSource);
 		domUnit.accept(new ASTVisitor() {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
+				if (checkMalformedNodes(compilationUnit)) {
+					return true; // abort sorting of current element
+				}
 				ListRewrite listRewrite = rewriter.getListRewrite(compilationUnit, org.eclipse.jdt.core.dom.CompilationUnit.TYPES_PROPERTY);
 				List types = compilationUnit.types();
 				final int length = types.size();
@@ -194,6 +214,9 @@ public class SortElementsOperation extends JavaModelOperation {
 				return true;
 			}
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
+				if (checkMalformedNodes(annotationTypeDeclaration)) {
+					return true; // abort sorting of current element
+				}
 				ListRewrite listRewrite = rewriter.getListRewrite(annotationTypeDeclaration, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
@@ -209,6 +232,9 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
+				if (checkMalformedNodes(anonymousClassDeclaration)) {
+					return true; // abort sorting of current element
+				}
 				ListRewrite listRewrite = rewriter.getListRewrite(anonymousClassDeclaration, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
@@ -224,6 +250,9 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 			
 			public boolean visit(TypeDeclaration typeDeclaration) {
+				if (checkMalformedNodes(typeDeclaration)) {
+					return true; // abort sorting of current element
+				}
 				ListRewrite listRewrite = rewriter.getListRewrite(typeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
@@ -239,6 +268,9 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 
 			public boolean visit(EnumDeclaration enumDeclaration) {
+				if (checkMalformedNodes(enumDeclaration)) {
+					return true; // abort sorting of current element
+				}
 				ListRewrite listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
 				int length = bodyDeclarations.size();

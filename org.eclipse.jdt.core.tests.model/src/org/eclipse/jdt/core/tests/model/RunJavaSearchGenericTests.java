@@ -42,8 +42,8 @@ public static Test suite() {
 	TestSuite ts = new TestSuite(RunJavaSearchGenericTests.class.getName());
 
 	// Get all classes
-	AbstractJavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
-	List allClasses = new ArrayList(AbstractJavaSearchTests.TEST_SUITES);
+	AbstractJavaSearchTests.JAVA_SEARCH_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
+	List allClasses = new ArrayList(AbstractJavaSearchTests.JAVA_SEARCH_SUITES);
 	allClasses.add(JavaSearchBugsTests.class);
 
 	// Reset forgotten subsets of tests

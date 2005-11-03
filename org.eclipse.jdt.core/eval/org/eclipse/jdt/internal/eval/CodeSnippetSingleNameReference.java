@@ -99,7 +99,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	}
 	this.constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 
-	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
+	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssigned) !=0)) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 	}
 	return fieldBinding.type;
@@ -207,7 +207,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			}
 			// normal local assignment (since cannot store in outer local which are final locations)
 			codeStream.store(localBinding, valueRequired);
-			if ((this.bits & FirstAssignmentToLocalMASK) != 0) { // for local variable debug attributes
+			if ((this.bits & FirstAssignmentToLocal) != 0) { // for local variable debug attributes
 				localBinding.recordInitializationStartPC(codeStream.position);
 			}
 			// implicit conversion

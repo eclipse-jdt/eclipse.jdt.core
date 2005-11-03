@@ -111,7 +111,7 @@ public class SwitchStatement extends Statement {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	    try {
-			if ((bits & IsReachableMASK) == 0) {
+			if ((bits & IsReachable) == 0) {
 				return;
 			}
 			int pc = codeStream.position;
@@ -310,7 +310,7 @@ public class SwitchStatement extends Statement {
 					System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
 				}
 			} else {
-				if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+				if ((this.bits & UndocumentedEmptyBlock) != 0) {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 				}
 			}
@@ -323,7 +323,7 @@ public class SwitchStatement extends Statement {
 					FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
 					for (int i = 0, max = enumFields.length; i <max; i++) {
 						FieldBinding enumConstant = enumFields[i];
-						if ((enumConstant.modifiers & AccEnum) == 0) continue;
+						if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
 						findConstant : {
 							for (int j = 0; j < caseCount; j++) {
 								if (enumConstant.id == this.constants[j]) break findConstant;

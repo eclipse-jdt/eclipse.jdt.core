@@ -205,7 +205,7 @@ public class SearchableEnvironment
 	 * This method can not be used to find member types... member
 	 * types are found relative to their enclosing type.
 	 */
-	public void findTypes(char[] prefix, final boolean findMembers, final ISearchRequestor storage) {
+	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, final ISearchRequestor storage) {
 
 		/*
 			if (true){
@@ -232,12 +232,20 @@ public class SearchableEnvironment
 			char[] qualification, simpleName;
 			if (lastDotIndex < 0) {
 				qualification = null;
-				simpleName = CharOperation.toLowerCase(prefix);
+				if (camelCaseMatch) {
+					simpleName = prefix;
+				} else {
+					simpleName = CharOperation.toLowerCase(prefix);
+				}
 			} else {
 				qualification = CharOperation.subarray(prefix, 0, lastDotIndex);
-				simpleName =
-					CharOperation.toLowerCase(
-						CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length));
+				if (camelCaseMatch) {
+					simpleName = CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length);
+				} else {
+					simpleName =
+						CharOperation.toLowerCase(
+							CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length));
+				}
 			}
 
 			IProgressMonitor progressMonitor = new IProgressMonitor() {
@@ -277,10 +285,12 @@ public class SearchableEnvironment
 				}
 			};
 			try {
+				int matchRule = SearchPattern.R_PREFIX_MATCH;
+				if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					simpleName,
-					SearchPattern.R_PREFIX_MATCH, // not case sensitive
+					matchRule, // not case sensitive
 					IJavaSearchConstants.TYPE,
 					this.searchScope,
 					typeRequestor,
@@ -307,6 +317,7 @@ public class SearchableEnvironment
 	 * the <code>prefix</code> are returned.
 	 */
 	private void findTypes(String prefix, ISearchRequestor storage, int type) {
+		//TODO (david) should add camel case support
 		SearchableEnvironmentRequestor requestor =
 			new SearchableEnvironmentRequestor(storage, this.unitToSkip, this.project, this.nameLookup);
 		int index = prefix.lastIndexOf('.');

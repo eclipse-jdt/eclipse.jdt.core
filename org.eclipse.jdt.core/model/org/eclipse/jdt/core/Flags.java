@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * Utility class for decoding modifier flags in Java elements.
@@ -35,82 +35,82 @@ public final class Flags {
 	 * Constant representing the absence of any flag
 	 * @since 3.0
 	 */
-	public static final int AccDefault = 0;
+	public static final int AccDefault = ClassFileConstants.AccDefault;
 	/**
 	 * Public access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccPublic = IConstants.AccPublic;
+	public static final int AccPublic = ClassFileConstants.AccPublic;
 	/**
 	 * Private access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccPrivate = IConstants.AccPrivate;
+	public static final int AccPrivate = ClassFileConstants.AccPrivate;
 	/**
 	 * Protected access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccProtected = IConstants.AccProtected;
+	public static final int AccProtected = ClassFileConstants.AccProtected;
 	/**
 	 * Static access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccStatic = IConstants.AccStatic;
+	public static final int AccStatic = ClassFileConstants.AccStatic;
 	/**
 	 * Final access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccFinal = IConstants.AccFinal;
+	public static final int AccFinal = ClassFileConstants.AccFinal;
 	/**
 	 * Synchronized access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccSynchronized = IConstants.AccSynchronized;
+	public static final int AccSynchronized = ClassFileConstants.AccSynchronized;
 	/**
 	 * Volatile property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccVolatile = IConstants.AccVolatile;
+	public static final int AccVolatile = ClassFileConstants.AccVolatile;
 	/**
 	 * Transient property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccTransient = IConstants.AccTransient;
+	public static final int AccTransient = ClassFileConstants.AccTransient;
 	/**
 	 * Native property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccNative = IConstants.AccNative;
+	public static final int AccNative = ClassFileConstants.AccNative;
 	/**
 	 * Interface property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccInterface = IConstants.AccInterface;
+	public static final int AccInterface = ClassFileConstants.AccInterface;
 	/**
 	 * Abstract property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccAbstract = IConstants.AccAbstract;
+	public static final int AccAbstract = ClassFileConstants.AccAbstract;
 	/**
 	 * Strictfp property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccStrictfp = IConstants.AccStrictfp;
+	public static final int AccStrictfp = ClassFileConstants.AccStrictfp;
 	/**
 	 * Super property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccSuper = IConstants.AccSuper;
+	public static final int AccSuper = ClassFileConstants.AccSuper;
 	/**
 	 * Synthetic property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccSynthetic = IConstants.AccSynthetic;
+	public static final int AccSynthetic = ClassFileConstants.AccSynthetic;
 	/**
 	 * Deprecated property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccDeprecated = IConstants.AccDeprecated;
+	public static final int AccDeprecated = ClassFileConstants.AccDeprecated;
 	
 	/**
 	 * Bridge method property flag (added in J2SE 1.5). Used to flag a compiler-generated
@@ -118,7 +118,7 @@ public final class Flags {
 	 * See The Java Virtual Machine Specification for more details.
 	 * @since 3.0
 	 */
-	public static final int AccBridge = IConstants.AccBridge;
+	public static final int AccBridge = ClassFileConstants.AccBridge;
 
 	/**
 	 * Varargs method property flag (added in J2SE 1.5).
@@ -126,21 +126,21 @@ public final class Flags {
 	 * See The Java Virtual Machine Specification for more details.
 	 * @since 3.0
 	 */
-	public static final int AccVarargs = IConstants.AccVarargs;
+	public static final int AccVarargs = ClassFileConstants.AccVarargs;
 
 	/**
 	 * Enum property flag (added in J2SE 1.5).
 	 * See The Java Virtual Machine Specification for more details.
 	 * @since 3.0
 	 */
-	public static final int AccEnum = 0x4000;
+	public static final int AccEnum = ClassFileConstants.AccEnum;
 
 	/**
 	 * Annotation property flag (added in J2SE 1.5).
 	 * See The Java Virtual Machine Specification for more details.
 	 * @since 3.0
 	 */
-	public static final int AccAnnotation = 0x2000;
+	public static final int AccAnnotation = ClassFileConstants.AccAnnotation;
 
 	/**
 	 * Not instantiable.

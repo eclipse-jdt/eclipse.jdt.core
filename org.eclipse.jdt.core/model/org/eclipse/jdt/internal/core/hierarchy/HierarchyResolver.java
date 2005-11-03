@@ -218,7 +218,7 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 				superInterfaceNames = sourceType.getInterfaceNames();
 			}
 		} else {
-			if (sourceType.getKind() == IGenericType.ANNOTATION_TYPE_DECL)
+			if (TypeDeclaration.kind(sourceType.getModifiers()) == TypeDeclaration.ANNOTATION_TYPE_DECL)
 				superInterfaceNames = new char[][] {TypeConstants.CharArray_JAVA_LANG_ANNOTATION_ANNOTATION};
 			else
 				superInterfaceNames = sourceType.getInterfaceNames();
@@ -309,7 +309,7 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 		// simple super class name
 		char[] superclassName = null;
 		TypeReference superclass;
-		if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+		if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 			superclass = typeDeclaration.allocation.type;
 		} else {
 			superclass = typeDeclaration.superclass;
@@ -334,7 +334,6 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 	
 		HierarchyType hierarchyType = new HierarchyType(
 			type, 
-			typeDeclaration.kind(),
 			typeDeclaration.name,
 			typeDeclaration.binding.modifiers,
 			superclassName,

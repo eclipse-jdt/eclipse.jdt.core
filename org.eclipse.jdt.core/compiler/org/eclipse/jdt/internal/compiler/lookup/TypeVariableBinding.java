@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * Binding for a type parameter, held by source/binary type or method.
@@ -37,7 +38,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
-		this.modifiers = AccPublic | AccGenericSignature; // treat type var as public
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= HasTypeVariable;
 	}
 
@@ -165,20 +166,24 @@ public class TypeVariableBinding extends ReferenceBinding {
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+	 * Constraints:
+	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
+	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
+	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 	 */
-	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
+	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 		
 		// cannot infer anything from a null type
-		switch (otherType.kind()) {
+		switch (actualType.kind()) {
 			case Binding.BASE_TYPE :
-				if (otherType == NullBinding) return;
-				TypeBinding boxedType = scope.environment().computeBoxingType(otherType);
-				if (boxedType == otherType) return;
-				otherType = boxedType;
+				if (actualType == NullBinding) return;
+				TypeBinding boxedType = scope.environment().computeBoxingType(actualType);
+				if (boxedType == actualType) return;
+				actualType = boxedType;
 				break;
 			case Binding.WILDCARD_TYPE :
-				WildcardBinding otherWildcard = (WildcardBinding) otherType;
-				if (otherWildcard.otherBounds != null) break; // intersection type
+				WildcardBinding actualWildcard = (WildcardBinding) actualType;
+				if (actualWildcard.otherBounds != null) break; // intersection type
 				return; // wildcards are not true type expressions (JLS 15.12.2.7, p.453 2nd discussion)
 		}
 	
@@ -208,16 +213,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 		    		length = constraintSubstitutes.length;
 			        for (int i = 0; i < length; i++) {
 			        	TypeBinding substitute = constraintSubstitutes[i];
-			            if (substitute == otherType) return; // already there
+			            if (substitute == actualType) return; // already there
 			            if (substitute == null) {
-			                constraintSubstitutes[i] = otherType;
+			                constraintSubstitutes[i] = actualType;
 			                break insertLoop;
 			            }
 			        }
 			        // no free spot found, need to grow by one
 			        System.arraycopy(constraintSubstitutes, 0, constraintSubstitutes = new TypeBinding[length+1], 0, length);
 		    	}
-		        constraintSubstitutes[length] = otherType;
+		        constraintSubstitutes[length] = actualType;
 		        variableSubstitutes[variableConstraint] = constraintSubstitutes;
 		    }
 	    }
@@ -395,7 +400,7 @@ public class TypeVariableBinding extends ReferenceBinding {
     }
    
 	ReferenceBinding resolve(LookupEnvironment environment) {
-		if ((this.modifiers & AccUnresolved) == 0)
+		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 			return this;
 
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
@@ -409,7 +414,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
 			}
 		}
-		this.modifiers &= ~AccUnresolved;
+		this.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	
 		// finish resolving the types
 		if (this.superclass != null)

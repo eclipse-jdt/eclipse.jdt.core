@@ -38,11 +38,11 @@ protected Map getCompilerOptions() {
 }
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-	static {
+//	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 36, 37};
-//		TESTS_RANGE = new int[] { 21, 50 };
-	}
+//		TESTS_NUMBERS = new int[] { 31 };
+//		TESTS_RANGE = new int[] { 34, 38 };
+//	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -218,7 +218,7 @@ public void test007() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  bipush 9\n" + 
 		"     2  newarray int [10]\n" + 
 		"     4  dup\n" + 
@@ -276,9 +276,9 @@ public void test007() {
 		"    73  iload 4\n" + 
 		"    75  iload 5\n" + 
 		"    77  if_icmplt 62\n" + 
-		"    80  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    83  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    85  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [29]\n" + 
+		"    80  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    83  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    85  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    88  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -324,7 +324,12 @@ public void test008() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	void foo(Iterable col) {\n" + 
+		"	         ^^^^^^^^\n" + 
+		"Iterable is a raw type. References to generic type Iterable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
 		"	for (X x : col) {\n" + 
 		"	           ^^^\n" + 
 		"Type mismatch: cannot convert from element type Object to X\n" + 
@@ -465,7 +470,7 @@ public void test014() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -473,9 +478,9 @@ public void test014() {
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
 		"     7  astore_1 [tab]\n" + 
-		"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    11  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [29]\n" + 
+		"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    11  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -524,7 +529,7 @@ public void test015() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -532,9 +537,9 @@ public void test015() {
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
 		"     7  astore_1 [tab]\n" + 
-		"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    11  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [29]\n" + 
+		"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    11  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -584,7 +589,7 @@ public void test016() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -604,9 +609,9 @@ public void test016() {
 		"    23  iload_2\n" + 
 		"    24  iload_3\n" + 
 		"    25  if_icmplt 20\n" + 
-		"    28  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    31  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [29]\n" + 
+		"    28  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    31  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -676,7 +681,7 @@ public void test018() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 6\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -696,9 +701,9 @@ public void test018() {
 		"    23  iload_3\n" + 
 		"    24  iaload\n" + 
 		"    25  istore_2 [e]\n" + 
-		"    26  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+		"    26  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 		"    29  iload_2 [e]\n" + 
-		"    30  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+		"    30  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 		"    33  goto 42\n" + 
 		"    36  iload_3\n" + 
 		"    37  iload 4\n" + 
@@ -759,13 +764,13 @@ public void test019() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  astore_1 [tab]\n" + 
-		"     4  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"     7  ldc <String \"SUC\"> [23]\n" + 
-		"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     7  ldc <String \"SUC\"> [22]\n" + 
+		"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    12  aload_1 [tab]\n" + 
 		"    13  astore 4\n" + 
 		"    15  iconst_0\n" + 
@@ -774,16 +779,16 @@ public void test019() {
 		"    19  arraylength\n" + 
 		"    20  istore_3\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    27  ldc <String \"1x\"> [31]\n" + 
-		"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"    24  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    27  ldc <String \"1x\"> [30]\n" + 
+		"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    32  goto 40\n" + 
 		"    35  iload_2\n" + 
 		"    36  iload_3\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    43  ldc <String \"CESS\"> [33]\n" + 
-		"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [36]\n" + 
+		"    40  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    43  ldc <String \"CESS\"> [32]\n" + 
+		"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -841,13 +846,13 @@ public void test020() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  astore_1 [tab]\n" + 
-		"     4  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"     7  ldc <String \"SUC\"> [23]\n" + 
-		"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     7  ldc <String \"SUC\"> [22]\n" + 
+		"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    12  aload_1 [tab]\n" + 
 		"    13  astore 4\n" + 
 		"    15  iconst_0\n" + 
@@ -856,16 +861,16 @@ public void test020() {
 		"    19  arraylength\n" + 
 		"    20  istore_3\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    27  ldc <String \"1x\"> [31]\n" + 
-		"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"    24  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    27  ldc <String \"1x\"> [30]\n" + 
+		"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    32  iinc 2 1\n" + 
 		"    35  iload_2\n" + 
 		"    36  iload_3\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    43  ldc <String \"CESS\"> [33]\n" + 
-		"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [36]\n" + 
+		"    40  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    43  ldc <String \"CESS\"> [32]\n" + 
+		"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -928,7 +933,7 @@ public void test021() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 8\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"      0  bipush 9\n" + 
 		"      2  newarray int [10]\n" + 
 		"      4  dup\n" + 
@@ -1002,9 +1007,9 @@ public void test021() {
 		"    103  iload 6\n" + 
 		"    105  if_icmplt 69\n" + 
 		"    108  goto 52\n" + 
-		"    111  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+		"    111  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 		"    114  iload_2 [sum]\n" + 
-		"    115  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+		"    115  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 		"    118  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1071,8 +1076,8 @@ public void test022() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
-		"     0  new java.util.ArrayList [17]\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  new java.util.ArrayList [16]\n" + 
 		"     3  dup\n" + 
 		"     4  invokespecial java.util.ArrayList() [18]\n" + 
 		"     7  astore_1 [arrayList]\n" + 
@@ -1080,11 +1085,11 @@ public void test022() {
 		"     9  istore_2 [i]\n" + 
 		"    10  goto 29\n" + 
 		"    13  aload_1 [arrayList]\n" + 
-		"    14  new java.lang.Integer [20]\n" + 
+		"    14  new java.lang.Integer [19]\n" + 
 		"    17  dup\n" + 
 		"    18  iload_2 [i]\n" + 
-		"    19  invokespecial java.lang.Integer(int) [23]\n" + 
-		"    22  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [27]\n" + 
+		"    19  invokespecial java.lang.Integer(int) [21]\n" + 
+		"    22  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [24]\n" + 
 		"    25  pop\n" + 
 		"    26  iinc 2 1 [i]\n" + 
 		"    29  iload_2 [i]\n" + 
@@ -1093,24 +1098,24 @@ public void test022() {
 		"    35  iconst_0\n" + 
 		"    36  istore_2 [sum]\n" + 
 		"    37  aload_1 [arrayList]\n" + 
-		"    38  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator  [31]\n" + 
+		"    38  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [28]\n" + 
 		"    41  astore 4\n" + 
 		"    43  goto 64\n" + 
 		"    46  aload 4\n" + 
-		"    48  invokeinterface java.util.Iterator.next() : java.lang.Object  [37] [nargs: 1]\n" + 
-		"    53  checkcast java.lang.Integer [20]\n" + 
+		"    48  invokeinterface java.util.Iterator.next() : java.lang.Object [32] [nargs: 1]\n" + 
+		"    53  checkcast java.lang.Integer [19]\n" + 
 		"    56  astore_3 [e]\n" + 
 		"    57  iload_2 [sum]\n" + 
 		"    58  aload_3 [e]\n" + 
-		"    59  invokevirtual java.lang.Integer.intValue() : int  [41]\n" + 
+		"    59  invokevirtual java.lang.Integer.intValue() : int [38]\n" + 
 		"    62  iadd\n" + 
 		"    63  istore_2 [sum]\n" + 
 		"    64  aload 4\n" + 
-		"    66  invokeinterface java.util.Iterator.hasNext() : boolean  [45] [nargs: 1]\n" + 
+		"    66  invokeinterface java.util.Iterator.hasNext() : boolean [42] [nargs: 1]\n" + 
 		"    71  ifne 46\n" + 
-		"    74  getstatic java.lang.System.out : java.io.PrintStream [51]\n" + 
+		"    74  getstatic java.lang.System.out : java.io.PrintStream [46]\n" + 
 		"    77  iload_2 [sum]\n" + 
-		"    78  invokevirtual java.io.PrintStream.println(int) : void  [56]\n" + 
+		"    78  invokevirtual java.io.PrintStream.println(int) : void [52]\n" + 
 		"    81  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -1206,15 +1211,15 @@ public void test024() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  anewarray java.lang.String [17]\n" + 
+		"     1  anewarray java.lang.String [16]\n" + 
 		"     4  dup\n" + 
 		"     5  iconst_0\n" + 
-		"     6  ldc <String \"SUCCESS\"> [19]\n" + 
+		"     6  ldc <String \"SUCCESS\"> [18]\n" + 
 		"     8  aastore\n" + 
 		"     9  astore_1 [tab]\n" + 
-		"    10  new java.util.ArrayList [21]\n" + 
+		"    10  new java.util.ArrayList [20]\n" + 
 		"    13  dup\n" + 
 		"    14  invokespecial java.util.ArrayList() [22]\n" + 
 		"    17  astore_2 [list]\n" + 
@@ -1232,24 +1237,24 @@ public void test024() {
 		"    37  astore_3 [arg]\n" + 
 		"    38  aload_2 [list]\n" + 
 		"    39  aload_3 [arg]\n" + 
-		"    40  invokeinterface java.util.List.add(java.lang.Object) : boolean  [28] [nargs: 2]\n" + 
+		"    40  invokeinterface java.util.List.add(java.lang.Object) : boolean [23] [nargs: 2]\n" + 
 		"    45  pop\n" + 
 		"    46  iinc 4 1\n" + 
 		"    49  iload 4\n" + 
 		"    51  iload 5\n" + 
 		"    53  if_icmplt 32\n" + 
 		"    56  aload_2 [list]\n" + 
-		"    57  invokeinterface java.util.List.iterator() : java.util.Iterator  [32] [nargs: 1]\n" + 
+		"    57  invokeinterface java.util.List.iterator() : java.util.Iterator [29] [nargs: 1]\n" + 
 		"    62  astore 4\n" + 
 		"    64  goto 82\n" + 
 		"    67  aload 4\n" + 
-		"    69  invokeinterface java.util.Iterator.next() : java.lang.Object  [38] [nargs: 1]\n" + 
+		"    69  invokeinterface java.util.Iterator.next() : java.lang.Object [33] [nargs: 1]\n" + 
 		"    74  astore_3 [arg]\n" + 
-		"    75  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+		"    75  getstatic java.lang.System.out : java.io.PrintStream [39]\n" + 
 		"    78  aload_3 [arg]\n" + 
-		"    79  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [50]\n" + 
+		"    79  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [45]\n" + 
 		"    82  aload 4\n" + 
-		"    84  invokeinterface java.util.Iterator.hasNext() : boolean  [54] [nargs: 1]\n" + 
+		"    84  invokeinterface java.util.Iterator.hasNext() : boolean [51] [nargs: 1]\n" + 
 		"    89  ifne 67\n" + 
 		"    92  return\n" + 
 		"      Line numbers:\n" + 
@@ -1359,9 +1364,9 @@ public void test027() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
-		"     1  anewarray java.lang.Object [4]\n" + 
+		"     1  anewarray java.lang.Object [3]\n" + 
 		"     4  astore_1 [array]\n" + 
 		"     5  aload_1 [array]\n" + 
 		"     6  astore 4\n" + 
@@ -1380,9 +1385,9 @@ public void test027() {
 		"    27  iload_2\n" + 
 		"    28  iload_3\n" + 
 		"    29  if_icmplt 17\n" + 
-		"    32  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"    35  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    37  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [29]\n" + 
+		"    32  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    35  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    37  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    40  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1452,89 +1457,89 @@ public void test028() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
-		"      0  new java.util.ArrayList [17]\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"      0  new java.util.ArrayList [16]\n" + 
 		"      3  dup\n" + 
 		"      4  invokespecial java.util.ArrayList() [18]\n" + 
 		"      7  astore_1 [slist]\n" + 
 		"      8  aload_1 [slist]\n" + 
-		"      9  new java.util.ArrayList [17]\n" + 
+		"      9  new java.util.ArrayList [16]\n" + 
 		"     12  dup\n" + 
 		"     13  invokespecial java.util.ArrayList() [18]\n" + 
-		"     16  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     16  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     19  pop\n" + 
 		"     20  aload_1 [slist]\n" + 
 		"     21  iconst_0\n" + 
-		"     22  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"     25  checkcast java.util.ArrayList [17]\n" + 
-		"     28  ldc <String \"SU\"> [28]\n" + 
-		"     30  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     22  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"     25  checkcast java.util.ArrayList [16]\n" + 
+		"     28  ldc <String \"SU\"> [27]\n" + 
+		"     30  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     33  pop\n" + 
 		"     34  aload_1 [slist]\n" + 
 		"     35  iconst_0\n" + 
-		"     36  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"     39  checkcast java.util.ArrayList [17]\n" + 
-		"     42  ldc <String \"C\"> [30]\n" + 
-		"     44  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     36  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"     39  checkcast java.util.ArrayList [16]\n" + 
+		"     42  ldc <String \"C\"> [29]\n" + 
+		"     44  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     47  pop\n" + 
 		"     48  aload_1 [slist]\n" + 
 		"     49  iconst_0\n" + 
-		"     50  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"     53  checkcast java.util.ArrayList [17]\n" + 
-		"     56  ldc <String \"C\"> [30]\n" + 
-		"     58  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     50  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"     53  checkcast java.util.ArrayList [16]\n" + 
+		"     56  ldc <String \"C\"> [29]\n" + 
+		"     58  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     61  pop\n" + 
 		"     62  aload_1 [slist]\n" + 
-		"     63  new java.util.ArrayList [17]\n" + 
+		"     63  new java.util.ArrayList [16]\n" + 
 		"     66  dup\n" + 
 		"     67  invokespecial java.util.ArrayList() [18]\n" + 
-		"     70  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     70  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     73  pop\n" + 
 		"     74  aload_1 [slist]\n" + 
 		"     75  iconst_1\n" + 
-		"     76  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"     79  checkcast java.util.ArrayList [17]\n" + 
-		"     82  ldc <String \"E\"> [32]\n" + 
-		"     84  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     76  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"     79  checkcast java.util.ArrayList [16]\n" + 
+		"     82  ldc <String \"E\"> [31]\n" + 
+		"     84  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"     87  pop\n" + 
 		"     88  aload_1 [slist]\n" + 
 		"     89  iconst_1\n" + 
-		"     90  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"     93  checkcast java.util.ArrayList [17]\n" + 
-		"     96  ldc <String \"S\"> [34]\n" + 
-		"     98  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"     90  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"     93  checkcast java.util.ArrayList [16]\n" + 
+		"     96  ldc <String \"S\"> [33]\n" + 
+		"     98  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"    101  pop\n" + 
 		"    102  aload_1 [slist]\n" + 
 		"    103  iconst_1\n" + 
-		"    104  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"    107  checkcast java.util.ArrayList [17]\n" + 
-		"    110  ldc <String \"S\"> [34]\n" + 
-		"    112  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean  [22]\n" + 
+		"    104  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"    107  checkcast java.util.ArrayList [16]\n" + 
+		"    110  ldc <String \"S\"> [33]\n" + 
+		"    112  invokevirtual java.util.ArrayList.add(java.lang.Object) : boolean [19]\n" + 
 		"    115  pop\n" + 
 		"    116  iconst_0\n" + 
 		"    117  istore_2 [i]\n" + 
 		"    118  goto 168\n" + 
 		"    121  aload_1 [slist]\n" + 
 		"    122  iload_2 [i]\n" + 
-		"    123  invokevirtual java.util.ArrayList.get(int) : java.lang.Object  [26]\n" + 
-		"    126  checkcast java.util.ArrayList [17]\n" + 
-		"    129  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator  [38]\n" + 
+		"    123  invokevirtual java.util.ArrayList.get(int) : java.lang.Object [23]\n" + 
+		"    126  checkcast java.util.ArrayList [16]\n" + 
+		"    129  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [35]\n" + 
 		"    132  astore 4\n" + 
 		"    134  goto 155\n" + 
 		"    137  aload 4\n" + 
-		"    139  invokeinterface java.util.Iterator.next() : java.lang.Object  [44] [nargs: 1]\n" + 
-		"    144  checkcast java.lang.String [46]\n" + 
+		"    139  invokeinterface java.util.Iterator.next() : java.lang.Object [39] [nargs: 1]\n" + 
+		"    144  checkcast java.lang.String [45]\n" + 
 		"    147  astore_3 [s]\n" + 
-		"    148  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+		"    148  getstatic java.lang.System.out : java.io.PrintStream [47]\n" + 
 		"    151  aload_3 [s]\n" + 
-		"    152  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [58]\n" + 
+		"    152  invokevirtual java.io.PrintStream.print(java.lang.String) : void [53]\n" + 
 		"    155  aload 4\n" + 
-		"    157  invokeinterface java.util.Iterator.hasNext() : boolean  [62] [nargs: 1]\n" + 
+		"    157  invokeinterface java.util.Iterator.hasNext() : boolean [59] [nargs: 1]\n" + 
 		"    162  ifne 137\n" + 
 		"    165  iinc 2 1 [i]\n" + 
 		"    168  iload_2 [i]\n" + 
 		"    169  aload_1 [slist]\n" + 
-		"    170  invokevirtual java.util.ArrayList.size() : int  [66]\n" + 
+		"    170  invokevirtual java.util.ArrayList.size() : int [63]\n" + 
 		"    173  if_icmplt 121\n" + 
 		"    176  return\n" + 
 		"      Line numbers:\n" + 
@@ -1729,40 +1734,40 @@ public void test034() {
 		"ab");
 	// 	ensure proper declaring class (Bar): 1  invokevirtual Bar.iterator() : java.util.Iterator  [33]
 	String expectedOutput =
-			"  // Method descriptor #23 (LBar;)V\n" + 
-			"  // Signature: (TT;)V\n" + 
-			"  // Stack: 2, Locals: 4\n" + 
-			"  void foo(Bar t);\n" + 
-			"     0  aload_1 [t]\n" + 
-			"     1  invokevirtual Bar.iterator() : java.util.Iterator  [33]\n" +
-			"     4  astore_3\n" + 
-			"     5  goto 25\n" + 
-			"     8  aload_3\n" + 
-			"     9  invokeinterface java.util.Iterator.next() : java.lang.Object  [39] [nargs: 1]\n" + 
-			"    14  checkcast java.lang.String [41]\n" + 
-			"    17  astore_2 [s]\n" + 
-			"    18  getstatic java.lang.System.out : java.io.PrintStream [47]\n" + 
-			"    21  aload_2 [s]\n" + 
-			"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [53]\n" + 
-			"    25  aload_3\n" + 
-			"    26  invokeinterface java.util.Iterator.hasNext() : boolean  [57] [nargs: 1]\n" + 
-			"    31  ifne 8\n" + 
-			"    34  getstatic java.lang.System.out : java.io.PrintStream [47]\n" + 
-			"    37  invokevirtual java.io.PrintStream.println() : void  [60]\n" + 
-			"    40  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 18, line: 9]\n" + 
-			"        [pc: 25, line: 8]\n" + 
-			"        [pc: 34, line: 11]\n" + 
-			"        [pc: 40, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 41] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 41] local: t index: 1 type: Bar\n" + 
-			"        [pc: 18, pc: 34] local: s index: 2 type: java.lang.String\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 41] local: this index: 0 type: X<T>\n" + 
-			"        [pc: 0, pc: 41] local: t index: 1 type: T\n";
+		"  // Method descriptor #25 (LBar;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  void foo(Bar t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokevirtual Bar.iterator() : java.util.Iterator [30]\n" + 
+		"     4  astore_3\n" + 
+		"     5  goto 25\n" + 
+		"     8  aload_3\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [34] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [40]\n" + 
+		"    17  astore_2 [s]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [42]\n" + 
+		"    21  aload_2 [s]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [48]\n" + 
+		"    25  aload_3\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [54] [nargs: 1]\n" + 
+		"    31  ifne 8\n" + 
+		"    34  getstatic java.lang.System.out : java.io.PrintStream [42]\n" + 
+		"    37  invokevirtual java.io.PrintStream.println() : void [58]\n" + 
+		"    40  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 25, line: 8]\n" + 
+		"        [pc: 34, line: 11]\n" + 
+		"        [pc: 40, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 41] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 41] local: t index: 1 type: Bar\n" + 
+		"        [pc: 18, pc: 34] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 41] local: this index: 0 type: X<T>\n" + 
+		"        [pc: 0, pc: 41] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1830,40 +1835,40 @@ public void test035() {
 		"ab");
 	// 	ensure proper declaring class (IFoo): 1  invokeinterface IFoo.iterator() : java.util.Iterator  [35] [nargs: 1]
 	String expectedOutput =
-			"  // Method descriptor #23 (LIFoo;)V\n" + 
-			"  // Signature: (TT;)V\n" + 
-			"  // Stack: 2, Locals: 4\n" + 
-			"  void foo(IFoo t);\n" + 
-			"     0  aload_1 [t]\n" + 
-			"     1  invokeinterface IFoo.iterator() : java.util.Iterator  [35] [nargs: 1]\n" + 
-			"     6  astore_3\n" + 
-			"     7  goto 27\n" + 
-			"    10  aload_3\n" + 
-			"    11  invokeinterface java.util.Iterator.next() : java.lang.Object  [41] [nargs: 1]\n" + 
-			"    16  checkcast java.lang.String [43]\n" + 
-			"    19  astore_2 [s]\n" + 
-			"    20  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
-			"    23  aload_2 [s]\n" + 
-			"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [55]\n" + 
-			"    27  aload_3\n" + 
-			"    28  invokeinterface java.util.Iterator.hasNext() : boolean  [59] [nargs: 1]\n" + 
-			"    33  ifne 10\n" + 
-			"    36  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
-			"    39  invokevirtual java.io.PrintStream.println() : void  [62]\n" + 
-			"    42  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 20, line: 9]\n" + 
-			"        [pc: 27, line: 8]\n" + 
-			"        [pc: 36, line: 11]\n" + 
-			"        [pc: 42, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 43] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 43] local: t index: 1 type: IFoo\n" + 
-			"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 43] local: this index: 0 type: X<T>\n" + 
-			"        [pc: 0, pc: 43] local: t index: 1 type: T\n";
+		"  // Method descriptor #25 (LIFoo;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  void foo(IFoo t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokeinterface IFoo.iterator() : java.util.Iterator [30] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
+		"     7  goto 27\n" + 
+		"    10  aload_3\n" + 
+		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object [36] [nargs: 1]\n" + 
+		"    16  checkcast java.lang.String [42]\n" + 
+		"    19  astore_2 [s]\n" + 
+		"    20  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+		"    23  aload_2 [s]\n" + 
+		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void [50]\n" + 
+		"    27  aload_3\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [56] [nargs: 1]\n" + 
+		"    33  ifne 10\n" + 
+		"    36  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+		"    39  invokevirtual java.io.PrintStream.println() : void [60]\n" + 
+		"    42  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 20, line: 9]\n" + 
+		"        [pc: 27, line: 8]\n" + 
+		"        [pc: 36, line: 11]\n" + 
+		"        [pc: 42, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 43] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 43] local: t index: 1 type: IFoo\n" + 
+		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 43] local: this index: 0 type: X<T>\n" + 
+		"        [pc: 0, pc: 43] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1881,9 +1886,9 @@ public void test035() {
 		assertTrue(false);
 	} catch (IOException e) {
 		assertTrue(false);
-	}		
+	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
 public void test036() { 
 	this.runConformTest(
 		new String[] {
@@ -1913,20 +1918,20 @@ public void test036() {
 		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
 		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
-		"  public void foo(Runnable t);\n" + 
+		"  public void foo(java.lang.Runnable t);\n" + 
 		"     0  aload_1 [t]\n" + 
-		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator  [42] [nargs: 1]\n" + 
+		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" + 
 		"     6  astore_3\n" + 
 		"     7  goto 27\n" + 
 		"    10  aload_3\n" + 
-		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object  [48] [nargs: 1]\n" + 
-		"    16  checkcast java.lang.String [19]\n" + 
+		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" + 
+		"    16  checkcast java.lang.String [18]\n" + 
 		"    19  astore_2 [s]\n" + 
-		"    20  getstatic java.lang.System.out : java.io.PrintStream [54]\n" + 
+		"    20  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
 		"    23  aload_2 [s]\n" + 
-		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [60]\n" + 
+		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" + 
 		"    27  aload_3\n" + 
-		"    28  invokeinterface java.util.Iterator.hasNext() : boolean  [64] [nargs: 1]\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" + 
 		"    33  ifne 10\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
@@ -1989,20 +1994,20 @@ public void test037() {
 		"  // Method descriptor #43 (Ljava/util/ArrayList;)V\n" + 
 		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
 		"  // Stack: 2, Locals: 3\n" + 
-		"  public static void foo(ArrayList t);\n" + 
+		"  public static void foo(java.util.ArrayList t);\n" + 
 		"     0  aload_0 [t]\n" + 
-		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator  [48]\n" + 
+		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [45]\n" + 
 		"     4  astore_2\n" + 
 		"     5  goto 25\n" + 
 		"     8  aload_2\n" + 
-		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object  [54] [nargs: 1]\n" + 
-		"    14  checkcast java.lang.String [20]\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [49] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [19]\n" + 
 		"    17  astore_1 [s]\n" + 
-		"    18  getstatic java.lang.System.out : java.io.PrintStream [60]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [55]\n" + 
 		"    21  aload_1 [s]\n" + 
-		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [66]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [61]\n" + 
 		"    25  aload_2\n" + 
-		"    26  invokeinterface java.util.Iterator.hasNext() : boolean  [70] [nargs: 1]\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [67] [nargs: 1]\n" + 
 		"    31  ifne 8\n" + 
 		"    34  return\n" + 
 		"      Line numbers:\n" + 

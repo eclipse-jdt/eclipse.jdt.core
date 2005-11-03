@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 
 public class AnnotationMethodInfo extends MethodInfo 
 {	
@@ -43,7 +44,7 @@ public class AnnotationMethodInfo extends MethodInfo
 			if (attributeName.length > 0) {
 				switch(attributeName[0]) {
 					case 'A' :
-						if(CharOperation.equals(attributeName, AnnotationDefaultName)){		
+						if(CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName)){		
 							decodeDefaultValue(readOffset);
 						}
 						break;

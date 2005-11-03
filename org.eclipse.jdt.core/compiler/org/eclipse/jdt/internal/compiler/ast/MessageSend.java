@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MessageSend extends Expression implements InvocationSite {
     
@@ -76,7 +77,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
 						&& this.binding.parameters == NoParameters 
-						&& scope.compilerOptions().complianceLevel >= JDK1_5 
+						&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;			
@@ -226,7 +227,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 	
 	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
 	if (this.typeArguments != null) {
-		output.append('<');//$NON-NLS-1$
+		output.append('<');
 		int max = typeArguments.length - 1;
 		for (int j = 0; j < max; j++) {
 			typeArguments[j].print(0, output);
@@ -235,7 +236,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 		typeArguments[max].print(0, output);
 		output.append('>');
 	}
-	output.append(selector).append('(') ; //$NON-NLS-1$
+	output.append(selector).append('(') ;
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length ; i ++) {	
 			if (i > 0) output.append(", "); //$NON-NLS-1$
@@ -252,10 +253,11 @@ public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
 	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
-		this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
 	this.actualReceiverType = receiver.resolveType(scope); 
+	boolean receiverIsType = receiver instanceof NameReference && (((NameReference) receiver).bits & Binding.TYPE) != 0;
 	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
 		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) { 
@@ -285,7 +287,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		for (int i = 0; i < length; i++){
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
-				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
@@ -295,7 +297,15 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError) {
 			if(actualReceiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
-				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, new TypeBinding[]{}, this);
+				int resolvedCount = 0;
+				for (int i = 0; i < length; i++)
+					if (argumentTypes[i] != null)
+						resolvedCount++;
+				TypeBinding[] knownArgs = new TypeBinding[resolvedCount];
+				for (int i = length; --i >= 0;)
+					if (argumentTypes[i] != null)
+						knownArgs[--resolvedCount] = argumentTypes[i];
+				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, knownArgs, this);
 			}			
 			return null;
 		}
@@ -339,16 +349,20 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding = closestMatch;
 			if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
 				// ignore cases where method is used from within inside itself (e.g. direct recursions)
-				closestMatch.original().modifiers |= AccLocallyUsed;
+				closestMatch.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 		}
 		return this.resolvedType;
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
-		if (receiver instanceof NameReference 
-				&& (((NameReference) receiver).bits & Binding.TYPE) != 0) {
+		if (receiverIsType) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
+			if (this.actualReceiverType.isRawType() 
+					&& (this.receiver.bits & IgnoreRawTypeCheck) == 0 
+					&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
+			}
 		} else {
 			// compute generic cast if necessary
 			TypeBinding receiverErasure = this.actualReceiverType.erasure();
@@ -362,10 +376,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
-		if (!(receiver.isImplicitThis()
-				|| receiver.isSuper()
-				|| (receiver instanceof NameReference 
-					&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
+		if (!(receiver.isImplicitThis() || receiver.isSuper() || receiverIsType)) {
 			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
 		}
 		if (!receiver.isImplicitThis() && binding.declaringClass != actualReceiverType) {
@@ -387,7 +398,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
 			&& this.binding.parameters == NoParameters 
-			&& scope.compilerOptions().complianceLevel >= JDK1_5 
+			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {

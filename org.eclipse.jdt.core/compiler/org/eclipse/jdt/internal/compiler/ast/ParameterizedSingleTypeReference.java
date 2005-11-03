@@ -45,7 +45,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
 	public TypeReference copyDims(int dim) {
-		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, (((long)this.sourceStart)<<32) + this.sourceEnd);
+		return new ParameterizedSingleTypeReference(token, typeArguments, dim, (((long)sourceStart)<<32)+sourceEnd);
 	}
 
 	/**

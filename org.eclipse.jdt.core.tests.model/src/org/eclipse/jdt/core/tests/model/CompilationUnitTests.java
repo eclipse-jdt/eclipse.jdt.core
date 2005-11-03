@@ -19,6 +19,7 @@ import junit.framework.Test;
 
 public class CompilationUnitTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
+	ICompilationUnit workingCopy;
 	
 public CompilationUnitTests(String name) {
 	super(name);
@@ -81,16 +82,28 @@ public void setUpSuite() throws Exception {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "Bug78275" };
+//	TESTS_NAMES = new String[] { "test110172" };
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(CompilationUnitTests.class);
 }
+protected void tearDown() throws Exception {
+	if (this.workingCopy != null)
+		this.workingCopy.discardWorkingCopy();
+	super.tearDown();
+}
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
 	super.tearDownSuite();
+}
+
+private ICompilationUnit createWorkingCopy(String source) throws JavaModelException {
+	this.workingCopy = getCompilationUnit("/P/src/p/Y.java").getWorkingCopy(new WorkingCopyOwner(){}, null, null);
+	this.workingCopy.getBuffer().setContents(source);
+	this.workingCopy.makeConsistent(null);
+	return workingCopy;
 }
 /**
  * Calls methods that do nothing to ensure code coverage
@@ -127,6 +140,288 @@ public void testDeprecatedFlag() throws JavaModelException {
 	assertTrue("Method bar should not be deprecated", !Flags.isDeprecated(type.getMethod("bar", new String[]{}).getFlags()));
 	assertTrue("Method fred should be deprecated", Flags.isDeprecated(type.getMethod("fred", new String[]{}).getFlags()));
 }
+
+/*
+ * Ensures that the categories for a class are correct.
+ */
+public void testGetCategories01() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test\n" +
+		" */\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	String[] categories = this.workingCopy.getType("Y").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an interface are correct.
+ */
+public void testGetCategories02() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test\n" +
+		" */\n" +
+		"public interface Y {\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an enumeration type are correct.
+ */
+public void testGetCategories03() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test\n" +
+		" */\n" +
+		"public enum Y {\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an annotation type type are correct.
+ */
+public void testGetCategories04() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test\n" +
+		" */\n" +
+		"public @interface Y {\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for a method are correct.
+ */
+public void testGetCategories05() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for a constructor are correct.
+ */
+public void testGetCategories06() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  public Y() {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getMethod("Y", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for a field are correct.
+ */
+public void testGetCategories07() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getField("field").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for a member type are correct.
+ */
+public void testGetCategories08() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  class Member {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getType("Member").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an element that has no categories is empty.
+ */
+public void testGetCategories09() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"  */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an element that has multiple category tags is correct.
+ */
+public void testGetCategories10() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test1\n" +
+		"   * @category test2\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\n" +
+		"test2\n",
+		categories);
+}
+
+/*
+ * Ensures that the categories for an element that has multiple categories for one category tag is correct.
+ */
+public void testGetCategories11() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test1 test2\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\n" +
+		"test2\n",
+		categories);
+}
+
+/*
+ * Ensures that the children of a type for a given category are correct.
+ */
+public void testGetChildrenForCategory01() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo1() {}\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo2() {}\n" +
+		"  /**\n" +
+		"   * @category other\n" +
+		"   */\n" +
+		"  void foo3() {}\n" +
+		"}"
+	);
+	IJavaElement[] children = workingCopy.getType("Y").getChildrenForCategory("test");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		children);
+}
+
+/*
+ * Ensures that the children of a type for a given category are correct.
+ */
+public void testGetChildrenForCategory02() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test1 test2\n" +
+		"   */\n" +
+		"  class Member {}\n" +
+		"  /**\n" +
+		"   * @category test1\n" +
+		"   */\n" +
+		"  void foo1() {}\n" +
+		"  /**\n" +
+		"   * @category test2\n" +
+		"   */\n" +
+		"  void foo2() {}\n" +
+		"}"
+	);
+	IJavaElement[] children = workingCopy.getType("Y").getChildrenForCategory("test1");
+	assertElementsEqual(
+		"Unexpected children",
+		"Member [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		children);
+}
+
 /**
  * Ensures <code>getContents()</code> returns the correct value
  * for a <code>CompilationUnit</code> that is not present
@@ -613,85 +908,61 @@ public void testBug73884() throws CoreException {
  * Ensure that the type parameters for a type are correct.
  */
 public void testTypeParameter1() throws CoreException {
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = workingCopy(
-			"package p;\n" +
-			"public class Y<T> {\n" +
-			"}"
-		);
-		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
-		assertTypeParametersEqual(
-			"T\n",
-			typeParameters);
-	} finally {
-		if (workingCopy != null)
-			workingCopy.discardWorkingCopy();
-	}
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y<T> {\n" +
+		"}"
+	);
+	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	assertTypeParametersEqual(
+		"T\n",
+		typeParameters);
 }
 
 /*
  * Ensure that the type parameters for a type are correct.
  */
 public void testTypeParameter2() throws CoreException {
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = workingCopy(
-			"package p;\n" +
-			"public class Y<T, U> {\n" +
-			"}"
-		);
-		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
-		assertTypeParametersEqual(
-			"T\n" +
-			"U\n",
-			typeParameters);
-	} finally {
-		if (workingCopy != null)
-			workingCopy.discardWorkingCopy();
-	}
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y<T, U> {\n" +
+		"}"
+	);
+	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	assertTypeParametersEqual(
+		"T\n" +
+		"U\n",
+		typeParameters);
 }
 
 /*
  * Ensure that the type parameters for a type are correct.
  */
 public void testTypeParameter3() throws CoreException {
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = workingCopy(
-			"package p;\n" +
-			"public class Y<T extends List> {\n" +
-			"}"
-		);
-		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
-		assertTypeParametersEqual(
-			"T extends List\n",
-			typeParameters);
-	} finally {
-		if (workingCopy != null)
-			workingCopy.discardWorkingCopy();
-	}
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y<T extends List> {\n" +
+		"}"
+	);
+	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	assertTypeParametersEqual(
+		"T extends List\n",
+		typeParameters);
 }
 
 /*
  * Ensure that the type parameters for a type are correct.
  */
 public void testTypeParameter4() throws CoreException {
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = workingCopy(
-			"package p;\n" +
-			"public class Y<T extends List & Runnable & Comparable> {\n" +
-			"}"
-		);
-		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
-		assertTypeParametersEqual(
-			"T extends List & Runnable & Comparable\n",
-			typeParameters);
-	} finally {
-		if (workingCopy != null)
-			workingCopy.discardWorkingCopy();
-	}
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y<T extends List & Runnable & Comparable> {\n" +
+		"}"
+	);
+	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	assertTypeParametersEqual(
+		"T extends List & Runnable & Comparable\n",
+		typeParameters);
 }
 
 /*
@@ -699,31 +970,18 @@ public void testTypeParameter4() throws CoreException {
  * (regression test for bug 75658 [1.5] SourceElementParser do not compute correctly bounds of type parameter)
  */
 public void testTypeParameter5() throws CoreException {
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = workingCopy(
-			"package p;\n" +
-			"public class Y {\n" +
-			"  <T extends List, U extends X & Runnable> void foo() {\n" +
-			"  }\n" +
-			"}"
-		);
-		ITypeParameter[] typeParameters = workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
-		assertTypeParametersEqual(
-			"T extends List\n" + 
-			"U extends X & Runnable\n",
-			typeParameters);
-	} finally {
-		if (workingCopy != null)
-			workingCopy.discardWorkingCopy();
-	}
-}
-
-private ICompilationUnit workingCopy(String source) throws JavaModelException {
-	ICompilationUnit workingCopy = getCompilationUnit("/P/src/p/Y.java").getWorkingCopy(new WorkingCopyOwner(){}, null, null);
-	workingCopy.getBuffer().setContents(source);
-	workingCopy.makeConsistent(null);
-	return workingCopy;
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  <T extends List, U extends X & Runnable> void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	ITypeParameter[] typeParameters = workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
+	assertTypeParametersEqual(
+		"T extends List\n" + 
+		"U extends X & Runnable\n",
+		typeParameters);
 }
 
 /*
@@ -744,6 +1002,139 @@ public void testBug78275() throws CoreException {
 		IInitializer[] initializers = type.getInitializers();
 		assertEquals("Invalid number of initializers", 1, initializers.length);
 		assertTrue("Invalid length for initializer", initializers[0].getSourceRange().getLength() > 0);
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+public void test110172() throws CoreException {
+	try {
+		String source =
+			"/**\n" +
+			" * Class X javadoc \n" +
+			" */\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * Javadoc for initializer\n" +
+			"	 */\n" +
+			"	static {\n" +
+			"	}\n" +
+			"	\n" +
+			"	 /**\n" +
+			"	  * Javadoc for field f \n" +
+			"	  */\n" +
+			"	public int f;\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for method foo\n" +
+			"	 */\n" +
+			"	public void foo(int i, long l, String s) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for member type A\n" +
+			"	 */\n" +
+			"	public class A {\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Javadoc for constructor X(int)\n" +
+			"	 */\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for f3\n" +
+			"	 */\n" +
+			"	/*\n" +
+			"	 * Not a javadoc comment\n" +
+			"	 */\n" +
+			"	/**\n" +
+			"	 * Real javadoc for f3\n" +
+			"	 */\n" +
+			"	public String f3;\n" +
+			"	\n" +
+			"	public int f2;\n" +
+			"	\n" +
+			"	public void foo2() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public class B {\n" +
+			"	}\n" +
+			"\n" +
+			"	X() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	{\n" +
+			"	}\n" +
+			"}";
+		createFile("/P/src/X.java", source);
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		IJavaElement[] members = type.getChildren();
+		final int length = members.length;
+		assertEquals("Wrong number", 11, length);
+		for (int i = 0; i < length; i++) {
+			final IJavaElement element = members[i];
+			assertTrue(element instanceof IMember);
+			final ISourceRange javadocRange = ((IMember) element).getJavadocRange();
+			final String elementName = element.getElementName();
+			if ("f".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("field f") != -1);
+			} else if ("foo".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("method foo") != -1);
+			} else if ("A".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("member type A") != -1);
+			} else if ("X".equals(elementName)) {
+				// need treatment for the two constructors
+				assertTrue("Not an IMethod", element instanceof IMethod);
+				IMethod method = (IMethod) element;
+				switch(method.getNumberOfParameters()) {
+					case 0 :
+						assertNull("Has a javadoc source range", javadocRange);
+						break;
+					case 1:
+						assertNotNull("No javadoc source range", javadocRange);
+						final int start = javadocRange.getOffset();
+						final int end = javadocRange.getLength() + start - 1;
+						String javadocSource = source.substring(start, end);
+						assertTrue("Wrong javadoc", javadocSource.indexOf("constructor") != -1);
+				}
+			} else if ("f3".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("Real") != -1);
+			} else if ("f2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("foo2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("B".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if (element instanceof IInitializer) {
+				IInitializer initializer = (IInitializer) element;
+				if (Flags.isStatic(initializer.getFlags())) {
+					assertNotNull("No javadoc source range", javadocRange);
+					final int start = javadocRange.getOffset();
+					final int end = javadocRange.getLength() + start - 1;
+					String javadocSource = source.substring(start, end);
+					assertTrue("Wrong javadoc", javadocSource.indexOf("initializer") != -1);
+				} else {
+					assertNull("Has a javadoc source range", javadocRange);
+				}
+			}
+		}
 	} finally {
 		deleteFile("/P/src/X.java");
 	}

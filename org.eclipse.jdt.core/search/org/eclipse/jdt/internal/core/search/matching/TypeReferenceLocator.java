@@ -103,13 +103,35 @@ protected int matchLevel(ImportReference importRef) {
 			? this.pattern.qualification
 			: CharOperation.concat(this.pattern.qualification, this.pattern.simpleName, '.');
 		char[] qualifiedTypeName = CharOperation.concatWith(tokens, '.');
+		if (qualifiedPattern == null) return ACCURATE_MATCH; // null is as if it was "*"
+		if (qualifiedTypeName == null) return IMPOSSIBLE_MATCH; // cannot match null name
+		if (qualifiedTypeName.length == 0) { // empty name
+			if (qualifiedPattern.length == 0) { // can only matches empty pattern
+				return ACCURATE_MATCH;
+			}
+			return IMPOSSIBLE_MATCH;
+		}
+		boolean matchFirstChar = !this.isCaseSensitive || (qualifiedPattern[0] == qualifiedTypeName[0]);
+		if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(qualifiedPattern, qualifiedTypeName)) {
+			return POSSIBLE_CAMELCASE_MATCH;
+		}
 		switch (this.matchMode) {
-			case SearchPattern.R_EXACT_MATCH :
-			case SearchPattern.R_PREFIX_MATCH :
-				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
+			case SearchPattern.R_EXACT_MATCH:
+				if (this.isCamelCase) break;
+			case SearchPattern.R_PREFIX_MATCH:
+				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_PREFIX_MATCH;
+				}
 				break;
+
 			case SearchPattern.R_PATTERN_MATCH:
-				if (CharOperation.match(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
+				if (CharOperation.match(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_MATCH;
+				}
+				break;
+
+			case SearchPattern.R_REGEXP_MATCH :
+				// TODO (frederic) implement regular expression match
 				break;
 		}
 	}

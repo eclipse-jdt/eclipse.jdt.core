@@ -1450,6 +1450,19 @@ public class JavadocTest_1_4 extends JavadocTest {
 		);
 	}
 
+	public void test040() {
+		runConformReferenceTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @category\n" +
+				" */\n" +
+				"public class X {\n" +
+				"}\n"
+			}
+		);
+	}
+
 	/**
 	 * Test fix for bug 80257: [javadoc] Invalid missing reference warning on @see or @link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
@@ -2470,12 +2483,12 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"3. ERROR in Invalid.java (at line 4)\n" + 
 			"	* @see Test#foo()\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments ()\n" + 
+			"Javadoc: The method foo(String[]) in the type Test is not applicable for the arguments ()\n" + 
 			"----------\n" + 
 			"4. ERROR in Invalid.java (at line 5)\n" + 
 			"	* @see Test#foo(String)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (String)\n" + 
+			"Javadoc: The method foo(String[]) in the type Test is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
 			"5. ERROR in Invalid.java (at line 6)\n" + 
 			"	* @see Test#foo(String, String)\n" + 
@@ -2490,12 +2503,12 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"7. ERROR in Invalid.java (at line 8)\n" + 
 			"	* @see Test#foo(Exception, boolean)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
+			"Javadoc: The method foo(Exception, boolean[]) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
 			"----------\n" + 
 			"8. ERROR in Invalid.java (at line 9)\n" + 
 			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
+			"Javadoc: The method foo(Exception, boolean[]) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
 			"----------\n"
 		);
 	}
@@ -2996,6 +3009,53 @@ public class JavadocTest_1_4 extends JavadocTest {
 				"	int foo;\n" + 
 				"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Bug 112346: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=112346"
+	 */
+	public void testBug112346() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * Test references\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#foo()\n" + 
+				" */\n" + 
+				"public class Test<T> {\n" + 
+				"	T field;\n" + 
+				"	T foo() { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Test#field\n" + 
+			"	            ^^^^^\n" + 
+			"Javadoc: field cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 4)\n" + 
+			"	* @see Test#foo()\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo() is undefined for the type Test\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 6)\n" + 
+			"	public class Test<T> {\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 7)\n" + 
+			"	T field;\n" + 
+			"	^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 8)\n" + 
+			"	T foo() { return null; }\n" + 
+			"	^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 }

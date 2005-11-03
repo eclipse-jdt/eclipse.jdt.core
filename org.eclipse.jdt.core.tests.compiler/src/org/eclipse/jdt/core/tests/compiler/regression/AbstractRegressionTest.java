@@ -426,6 +426,114 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
 		}
 	}
+	
+	protected void runNegativeTestWithExecution(
+			String[] testFiles, 
+			String expectedProblemLog, 
+			String expectedSuccessOutputString, 
+			String[] classLib,
+			boolean shouldFlushOutputDirectory, 
+			String[] vmArguments, 
+			Map customOptions,
+			ICompilerRequestor clientRequestor) {
+
+		if (shouldFlushOutputDirectory)
+			Util.flushDirectoryContent(new File(OUTPUT_DIR));
+
+		IProblemFactory problemFactory = getProblemFactory();
+		Requestor requestor = 
+			new Requestor(
+				problemFactory, 
+				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
+				true,
+				clientRequestor);
+
+		Map options = getCompilerOptions();
+		if (customOptions != null) {
+			options.putAll(customOptions);
+		}
+		Compiler batchCompiler = 
+			new Compiler(
+				getNameEnvironment(new String[]{}, classLib), 
+				getErrorHandlingPolicy(), 
+				options,
+				requestor, 
+				problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
+		try {
+			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		} catch(RuntimeException e) {
+			System.out.println(getClass().getName() + '#' + getName());
+			e.printStackTrace();
+			for (int i = 0; i < testFiles.length; i += 2) {
+				System.out.print(testFiles[i]);
+				System.out.println(" ["); //$NON-NLS-1$
+				System.out.println(testFiles[i + 1]);
+				System.out.println("]"); //$NON-NLS-1$
+			}
+			throw e;
+		}
+		assertTrue("Must have errors", requestor.hasErrors);
+		
+		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
+		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+			System.out.println(getClass().getName() + '#' + getName());
+			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+			for (int i = 0; i < testFiles.length; i += 2) {
+				System.out.print(testFiles[i]);
+				System.out.println(" ["); //$NON-NLS-1$
+				System.out.println(testFiles[i + 1]);
+				System.out.println("]"); //$NON-NLS-1$
+			}
+			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+		}
+		
+		String sourceFile = testFiles[0];
+
+		// Compute class name by removing ".java" and replacing slashes with dots
+		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+		if (className.endsWith(PACKAGE_INFO_NAME)) return;
+
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+		boolean passed = 
+			this.verifier.verifyClassFiles(
+				sourceFile, 
+				className, 
+				expectedSuccessOutputString,
+				this.classpaths, 
+				null, 
+				vmArguments);
+		if (!passed) {
+			String platformIndependantExpectedSuccessOutputString = Util.convertToIndependantLineDelimiter(expectedSuccessOutputString);
+			String platformIndependantFailureReason = Util.convertToIndependantLineDelimiter(this.verifier.failureReason);
+			if (platformIndependantFailureReason.indexOf(platformIndependantExpectedSuccessOutputString) == -1) {
+				System.out.println(getClass().getName() + '#' + getName());
+				System.out.println(Util.displayString(platformIndependantFailureReason, INDENT, SHIFT));
+				assertEquals("Invalid runtime log ", platformIndependantExpectedSuccessOutputString, platformIndependantFailureReason);
+				System.out.println(getClass().getName() + '#' + getName());
+				for (int i = 0; i < testFiles.length; i += 2) {
+					System.out.print(testFiles[i]);
+					System.out.println(" ["); //$NON-NLS-1$
+					System.out.println(testFiles[i + 1]);
+					System.out.println("]"); //$NON-NLS-1$
+				}
+			}
+		} else if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+	}
+
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.verifier == null) {

@@ -26,8 +26,17 @@ public class MementoTests extends ModifyingResourceTests {
 public MementoTests(String name) {
 	super(name);
 }
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//	TESTS_PREFIX =  "testArray";
+//	TESTS_NAMES = new String[] { "testProjectMemento3" };
+//	TESTS_NUMBERS = new int[] { 8 };
+//	TESTS_RANGE = new int[] { 6, -1 };
+}
+
 public static Test suite() {
-	return new Suite(MementoTests.class);
+	return buildTestSuite(MementoTests.class);
 }
 protected void assertMemento(String expected, IJavaElement element) {
 	String actual = element.getHandleIdentifier();
@@ -591,6 +600,16 @@ public void testProjectMemento2() {
 	IJavaProject project = getJavaProject("P (abc) ~");
 	assertMemento(
 		"=P \\(abc) \\~",
+		project);
+}
+/**
+ * Tests that a project with a ']' in its name can be persisted and restored using its memento.
+ * (regression test for bug 108615 Unable to inherit abstract methods from jarred interface)
+ */
+public void testProjectMemento3() {
+	IJavaProject project = getJavaProject("P[]");
+	assertMemento(
+		"=P\\[\\]",
 		project);
 }
 /**

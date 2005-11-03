@@ -373,7 +373,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
-	if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
+	if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssigned) !=0)) {
 		scope.problemReporter().deprecatedField(this.binding, this);
 	}
 	// check for this.x in static is done in the resolution of the receiver

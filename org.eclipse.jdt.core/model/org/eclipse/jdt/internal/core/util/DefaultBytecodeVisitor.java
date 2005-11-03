@@ -1472,33 +1472,24 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _invokespecial(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
+		final String signature = returnMethodSignature(constantMethodref);
 		buffer.append(Messages.bind(Messages.classformat_invokespecial, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL],
 			Integer.toString(index),
-			Util.toString(
-				constantMethodref.getClassName(),
-				constantMethodref.getMethodName(),
-				constantMethodref.getMethodDescriptor(),
-				true,
-				isCompact())
+			signature
 		}));
 		writeNewLine();
 	}
-
 	/**
 	 * @see IBytecodeVisitor#_invokestatic(int, int, IConstantPoolEntry)
 	 */
 	public void _invokestatic(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
+		final String signature = returnMethodSignature(constantMethodref);
 		buffer.append(Messages.bind(Messages.classformat_invokestatic, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESTATIC],
 			Integer.toString(index),
-			Util.toString(
-				constantMethodref.getClassName(),
-				constantMethodref.getMethodName(),
-				constantMethodref.getMethodDescriptor(),
-				true,
-				isCompact())
+			signature
 		}));
 		writeNewLine();
 	}
@@ -1508,15 +1499,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _invokevirtual(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
+		final String signature = returnMethodSignature(constantMethodref);
 		buffer.append(Messages.bind(Messages.classformat_invokevirtual,new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEVIRTUAL],
 			Integer.toString(index),
-			Util.toString(
-				constantMethodref.getClassName(),
-				constantMethodref.getMethodName(),
-				constantMethodref.getMethodDescriptor(),
-				true,
-				isCompact())
+			signature
 		}));
 		writeNewLine();
 	}
@@ -2460,6 +2447,19 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private String returnDeclaringClassName(IConstantPoolEntry constantRef) {
 		final char[] className = constantRef.getClassName();
 		return returnClassName(className);
+	}
+
+	private String returnMethodSignature(IConstantPoolEntry constantMethodref) {
+		final char[] methodDescriptor = constantMethodref.getMethodDescriptor();
+		CharOperation.replace(methodDescriptor, '$', '#');
+		final char[] signature = Util.toString(
+				constantMethodref.getClassName(),
+				constantMethodref.getMethodName(),
+				methodDescriptor,
+				true,
+				isCompact()).toCharArray();
+		CharOperation.replace(signature, '#', '$');
+		return String.valueOf(signature);
 	}
 
 	private void writeNewLine() {

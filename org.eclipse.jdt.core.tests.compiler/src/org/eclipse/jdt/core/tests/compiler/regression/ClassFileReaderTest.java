@@ -10,31 +10,34 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.core.util.IClassFileReader;
 
-public class ClassFileReaderTest extends AbstractRegressionTest {
+public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
-	public static Test suite() {
-		if (false) {
-			TestSuite suite = new TestSuite();
-			suite.addTest(new ClassFileReaderTest("test071"));
-			return suite;
-		}
-		return setupSuite(testClass());
+	static {
+//		TESTS_NAMES = new String[] { "test127" };
+//		TESTS_NUMBERS = new int[] { 83 };
+//		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
+	public static Test suite() {
+		return buildTestSuite(testClass());
+	}
 	public static Class testClass() {
 		return ClassFileReaderTest.class;
 	}
@@ -42,14 +45,18 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public ClassFileReaderTest(String name) {
 		super(name);
 	}
-
-	private void checkClassFile(String compliance, String className, String source, String expectedOutput) {
-		compileAndDeploy(compliance, source, className);
+	private void checkClassFile(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
+		compileAndDeploy(compliance, source, directoryName, className);
 		try {
-			File f = new File(EVAL_DIRECTORY + File.separator + className + ".class");
+			File directory = new File(EVAL_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				assertTrue(".class file not generated properly in " + directory, false);
+			}
+			File f = new File(directory, className + ".class");
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.SYSTEM);
+			String result = disassembler.disassemble(classFileBytes, "\n", mode);
 			int index = result.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(result, 3));
@@ -57,19 +64,54 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
 			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
 		} finally {
 			removeTempClass(className);
 		}
 	}
-	private void checkClassFile(String className, String source, String expectedOutput) {
+	
+	/**
+	 * @deprecated
+	 */
+	private void checkClassFileUsingInputStream(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws IOException {
+		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
+		compileAndDeploy(compliance, source, directoryName, className);
+		BufferedInputStream inputStream = null;
+		try {
+			File directory = new File(EVAL_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				assertTrue(".class file not generated properly in " + directory, false);
+			}
+			File f = new File(directory, className + ".class");
+			inputStream = new BufferedInputStream(new FileInputStream(f));
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(inputStream, IClassFileReader.ALL);
+			assertNotNull(classFileReader);
+			String result = ToolFactory.createDefaultClassFileDisassembler().disassemble(classFileReader, "\n", mode);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+			removeTempClass(className);
+		}
+	}
+	private void checkClassFile(String compliance, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
+		this.checkClassFile(compliance, "", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	private void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		checkClassFile("1.4", className, source, expectedOutput);
 	}
 	
-	public void compileAndDeploy(String compliance, String source, String className) {
+	public void compileAndDeploy(String compliance, String source, String directoryName, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -77,7 +119,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				return;
 			}
 		}
-		String fileName = SOURCE_DIRECTORY + File.separator + className + ".java";
+		if (directoryName != null && directoryName.length() != 0) {
+			directory = new File(SOURCE_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				if (!directory.mkdirs()) {
+					System.out.println("Could not create " + directory);
+					return;
+				}
+			}
+		}
+		String fileName = directory.getAbsolutePath() + File.separator + className + ".java";
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 			writer.write(source);
@@ -113,7 +164,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	}
 	
 	public void compileAndDeploy(String source, String className) {
-		compileAndDeploy("1.4", source, className);
+		compileAndDeploy("1.4", source, "", className);
 	}
 
 	public void removeTempClass(String className) {
@@ -142,7 +193,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=15051
 	 */
-	public void test001() {
+	public void test001() throws ClassFormatException, IOException {
 		String source =
 			"public class A001 {\n" +
 			"	private int i = 6;\n" +
@@ -159,11 +210,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor #19 ()I\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public int foo();\n" + 
-			"     0  new A001$1$A [21]\n" + 
+			"     0  new A001$1$A [20]\n" + 
 			"     3  dup\n" + 
 			"     4  aload_0 [this]\n" + 
-			"     5  invokespecial A001$1$A(A001) [24]\n" + 
-			"     8  invokevirtual A001$1$A.get() : int  [27]\n" + 
+			"     5  invokespecial A001$1$A(A001) [22]\n" + 
+			"     8  invokevirtual A001$1$A.get() : int [25]\n" + 
 			"    11  ireturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -175,7 +226,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
 	 */
-	public void test002() {
+	public void test002() throws ClassFormatException, IOException {
 		String source =
 			"public class A002 {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -186,11 +237,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
-			"  public static void main(String[] args);\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     3  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     3  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -204,7 +255,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26098
 	 */
-	public void test003() {
+	public void test003() throws ClassFormatException, IOException {
 		String source =
 			"public class A003 {\n" +
 			"\n" +
@@ -230,10 +281,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [17]\n" + 
 			"     3  aload_0 [this]\n" + 
-			"     4  invokevirtual A003.bar() : int  [24]\n" + 
-			"     7  invokevirtual java.io.PrintStream.println(int) : void  [30]\n" + 
+			"     4  invokevirtual A003.bar() : int [23]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(int) : void [25]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 8]\n" + 
@@ -246,7 +297,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test004() {
+	public void test004() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -261,7 +312,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -271,9 +322,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     8  if_icmpne 22\n" + 
 			"    11  iload_1 [b]\n" + 
 			"    12  ifne 22\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    18  iload_2 [i]\n" + 
-			"    19  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    19  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -292,7 +343,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test005() {
+	public void test005() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -306,15 +357,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -330,7 +381,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test006() {
+	public void test006() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -344,7 +395,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  bipush 6\n" + 
 			"    2  istore_1 [i]\n" + 
 			"    3  return\n" + 
@@ -360,7 +411,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test007() {
+	public void test007() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -374,13 +425,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -396,7 +447,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test008() {
+	public void test008() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -410,7 +461,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  iconst_0\n" + 
 			"    1  istore_1 [b]\n" + 
 			"    2  return\n" + 
@@ -426,7 +477,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test009() {
+	public void test009() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -441,7 +492,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -451,9 +502,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     8  if_icmpeq 15\n" + 
 			"    11  iload_1 [b]\n" + 
 			"    12  ifne 22\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    18  iload_2 [i]\n" + 
-			"    19  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    19  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -472,7 +523,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test010() {
+	public void test010() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -486,15 +537,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 9\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -510,7 +561,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test011() {
+	public void test011() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -524,15 +575,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -548,7 +599,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test012() {
+	public void test012() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -562,11 +613,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  iconst_0\n" + 
 			"    1  istore_1 [b]\n" + 
-			"    2  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"    5  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"    2  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    5  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    8  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -581,7 +632,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test013() {
+	public void test013() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -595,13 +646,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -617,7 +668,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test014() {
+	public void test014() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -632,7 +683,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -649,9 +700,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    21  goto 25\n" + 
 			"    24  iconst_1\n" + 
 			"    25  if_icmpne 35\n" + 
-			"    28  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    28  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    31  iload_2 [i]\n" + 
-			"    32  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    32  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    35  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -670,7 +721,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test015() {
+	public void test015() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -684,15 +735,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -708,7 +759,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test016() {
+	public void test016() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -722,15 +773,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -746,7 +797,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test017() {
+	public void test017() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -760,13 +811,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -782,7 +833,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test018() {
+	public void test018() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -796,13 +847,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifeq 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -819,7 +870,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 * http:  //bugs.eclipse.org/bugs/show_bug.cgi?id=26881
 	 */
-	public void test019() {
+	public void test019() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -834,7 +885,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -847,9 +898,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    14  goto 21\n" + 
 			"    17  iload_1 [b]\n" + 
 			"    18  ifne 28\n" + 
-			"    21  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    24  iload_2 [i]\n" + 
-			"    25  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    25  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    28  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -868,7 +919,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test020() {
+	public void test020() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -882,15 +933,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmplt 15\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    11  iload_1 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -907,7 +958,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test021() {
+	public void test021() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -921,14 +972,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iflt 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -944,7 +995,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test022() {
+	public void test022() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -958,14 +1009,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifgt 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -981,7 +1032,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test023() {
+	public void test023() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -995,14 +1046,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifle 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1018,7 +1069,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test024() {
+	public void test024() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1032,14 +1083,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifge 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1055,7 +1106,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test025() {
+	public void test025() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1069,15 +1120,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmple 15\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    11  iload_1 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1095,7 +1146,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test026() {
+	public void test026() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1109,14 +1160,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifge 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1133,7 +1184,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test027() {
+	public void test027() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1147,14 +1198,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifle 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1170,7 +1221,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test028() {
+	public void test028() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1184,15 +1235,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpge 15\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    11  iload_1 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1209,7 +1260,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test029() {
+	public void test029() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1223,14 +1274,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  ifgt 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1247,7 +1298,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test030() {
+	public void test030() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1261,14 +1312,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iflt 14\n" + 
-			"     7  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     7  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    10  iload_1 [i]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1284,7 +1335,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test031() {
+	public void test031() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1298,15 +1349,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpgt 15\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    11  iload_1 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1323,7 +1374,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test032() {
+	public void test032() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1337,15 +1388,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpgt 15\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    11  iload_1 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1362,7 +1413,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test033() {
+	public void test033() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1377,7 +1428,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -1395,9 +1446,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    24  iconst_1\n" + 
 			"    25  iand\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    29  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    32  iload_2 [i]\n" + 
-			"    33  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    33  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1416,7 +1467,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test034() {
+	public void test034() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1430,15 +1481,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1454,7 +1505,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test035() {
+	public void test035() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1468,7 +1519,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  bipush 6\n" + 
 			"    2  istore_1 [i]\n" + 
 			"    3  return\n" + 
@@ -1484,7 +1535,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test036() {
+	public void test036() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1498,13 +1549,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1520,7 +1571,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test037() {
+	public void test037() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1534,7 +1585,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  iconst_0\n" + 
 			"    1  istore_1 [b]\n" + 
 			"    2  return\n" + 
@@ -1550,7 +1601,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test038() {
+	public void test038() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1565,7 +1616,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -1583,9 +1634,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    24  iconst_1\n" + 
 			"    25  ior\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    29  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    32  iload_2 [i]\n" + 
-			"    33  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    33  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1604,7 +1655,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test039() {
+	public void test039() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1618,12 +1669,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
-			"     3  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     3  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"     6  iload_1 [i]\n" + 
-			"     7  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1638,7 +1689,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test040() {
+	public void test040() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1652,15 +1703,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1676,7 +1727,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test041() {
+	public void test041() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1690,11 +1741,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"    0  iconst_0\n" + 
 			"    1  istore_1 [b]\n" + 
-			"    2  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"    5  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"    2  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    5  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    8  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1709,7 +1760,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test042() {
+	public void test042() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1723,13 +1774,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1745,7 +1796,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test043() {
+	public void test043() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1760,7 +1811,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
@@ -1778,9 +1829,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    24  iconst_1\n" + 
 			"    25  ixor\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    29  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    32  iload_2 [i]\n" + 
-			"    33  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    33  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1799,7 +1850,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test044() {
+	public void test044() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1813,15 +1864,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1837,7 +1888,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test045() {
+	public void test045() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1851,15 +1902,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_1 [i]\n" + 
 			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    12  iload_1 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [27]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1875,7 +1926,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test046() {
+	public void test046() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1889,13 +1940,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifeq 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1911,7 +1962,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test047() {
+	public void test047() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1925,13 +1976,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  istore_1 [b]\n" + 
 			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"     9  invokevirtual java.io.PrintStream.println() : void  [26]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1944,7 +1995,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 
-	public void test048() {
+	public void test048() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"\n" +
@@ -2006,7 +2057,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 	
-	public void test049() {
+	public void test049() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2034,7 +2085,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test050() {
+	public void test050() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2057,9 +2108,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 8\n" + 
-			"     8  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"     8  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"    11  iload_0 [i]\n" + 
-			"    12  invokevirtual java.io.PrintStream.println(int) : void  [32]\n" + 
+			"    12  invokevirtual java.io.PrintStream.println(int) : void [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2071,7 +2122,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test051() {
+	public void test051() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2100,7 +2151,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test052() {
+	public void test052() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2122,9 +2173,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 9\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"    12  iload_0 [i]\n" + 
-			"    13  invokevirtual java.io.PrintStream.println(int) : void  [32]\n" + 
+			"    13  invokevirtual java.io.PrintStream.println(int) : void [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2136,7 +2187,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test053() {
+	public void test053() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2161,7 +2212,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 12\n" + 
-			"     8  invokestatic X.boom() : boolean  [27]\n" + 
+			"     8  invokestatic X.boom() : boolean [26]\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
@@ -2173,7 +2224,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test054() {
+	public void test054() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2199,11 +2250,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 14\n" + 
-			"     8  invokestatic X.boom() : boolean  [27]\n" + 
+			"     8  invokestatic X.boom() : boolean [26]\n" + 
 			"    11  ifeq 14\n" + 
-			"    14  getstatic java.lang.System.out : java.io.PrintStream [33]\n" + 
+			"    14  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
 			"    17  iload_0 [i]\n" + 
-			"    18  invokevirtual java.io.PrintStream.println(int) : void  [39]\n" + 
+			"    18  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
 			"    21  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2215,7 +2266,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test055() {
+	public void test055() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2241,7 +2292,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 13\n" + 
-			"     9  invokestatic X.boom() : boolean  [27]\n" + 
+			"     9  invokestatic X.boom() : boolean [26]\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
 			"      Line numbers:\n" + 
@@ -2253,7 +2304,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test056() {
+	public void test056() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2278,11 +2329,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 15\n" + 
-			"     9  invokestatic X.boom() : boolean  [27]\n" + 
+			"     9  invokestatic X.boom() : boolean [26]\n" + 
 			"    12  ifne 15\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [33]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
 			"    18  iload_0 [i]\n" + 
-			"    19  invokevirtual java.io.PrintStream.println(int) : void  [39]\n" + 
+			"    19  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2294,7 +2345,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test057() {
+	public void test057() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2322,7 +2373,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test058() {
+	public void test058() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2342,9 +2393,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  static void foo3();\n" + 
 			"     0  iconst_5\n" + 
 			"     1  istore_0 [i]\n" + 
-			"     2  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"     2  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"     5  iload_0 [i]\n" + 
-			"     6  invokevirtual java.io.PrintStream.println(int) : void  [32]\n" + 
+			"     6  invokevirtual java.io.PrintStream.println(int) : void [27]\n" + 
 			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2355,7 +2406,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test059() {
+	public void test059() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2384,7 +2435,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test060() {
+	public void test060() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2403,9 +2454,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  static void bar3();\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_0 [i]\n" + 
-			"     3  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"     3  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"     6  iload_0 [i]\n" + 
-			"     7  invokevirtual java.io.PrintStream.println(int) : void  [32]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(int) : void [27]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2416,7 +2467,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test061() {
+	public void test061() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2447,7 +2498,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test062() {
+	public void test062() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2470,9 +2521,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  static void foo4();\n" + 
 			"     0  iconst_5\n" + 
 			"     1  istore_0 [i]\n" + 
-			"     2  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
+			"     2  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
 			"     5  iload_0 [i]\n" + 
-			"     6  invokevirtual java.io.PrintStream.println(int) : void  [37]\n" + 
+			"     6  invokevirtual java.io.PrintStream.println(int) : void [32]\n" + 
 			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2483,7 +2534,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test063() {
+	public void test063() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2515,7 +2566,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test064() {
+	public void test064() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2537,9 +2588,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  static void bar4();\n" + 
 			"     0  bipush 6\n" + 
 			"     2  istore_0 [i]\n" + 
-			"     3  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
+			"     3  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
 			"     6  iload_0 [i]\n" + 
-			"     7  invokevirtual java.io.PrintStream.println(int) : void  [37]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(int) : void [32]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2550,7 +2601,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test065() {
+	public void test065() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2575,7 +2626,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 12\n" + 
-			"     8  invokestatic X.boom() : boolean  [27]\n" + 
+			"     8  invokestatic X.boom() : boolean [26]\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
@@ -2587,7 +2638,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test066() {
+	public void test066() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2613,11 +2664,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 14\n" + 
-			"     8  invokestatic X.boom() : boolean  [27]\n" + 
+			"     8  invokestatic X.boom() : boolean [26]\n" + 
 			"    11  ifeq 14\n" + 
-			"    14  getstatic java.lang.System.out : java.io.PrintStream [33]\n" + 
+			"    14  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
 			"    17  iload_0 [i]\n" + 
-			"    18  invokevirtual java.io.PrintStream.println(int) : void  [39]\n" + 
+			"    18  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
 			"    21  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2629,7 +2680,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test067() {
+	public void test067() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2655,7 +2706,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 13\n" + 
-			"     9  invokestatic X.boom() : boolean  [27]\n" + 
+			"     9  invokestatic X.boom() : boolean [26]\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
 			"      Line numbers:\n" + 
@@ -2667,7 +2718,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test068() {
+	public void test068() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2692,11 +2743,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 15\n" + 
-			"     9  invokestatic X.boom() : boolean  [27]\n" + 
+			"     9  invokestatic X.boom() : boolean [26]\n" + 
 			"    12  ifne 15\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [33]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
 			"    18  iload_0 [i]\n" + 
-			"    19  invokevirtual java.io.PrintStream.println(int) : void  [39]\n" + 
+			"    19  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2711,18 +2762,18 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47886
 	 */
-	public void test069() {
+	public void test069() throws ClassFormatException, IOException {
 		String source =
 			"public interface I {\n" + 
 			"}";
 		String expectedOutput =
 			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" + 
-			"public abstract interface I extends java.lang.Object {\n" + 
+			"public abstract interface I {\n" + 
 			"  Constant pool:\n" + 
-			"    constant #1 utf8: I\n" + 
-			"    constant #2 class: #1 I\n" + 
-			"    constant #3 utf8: java/lang/Object\n" + 
-			"    constant #4 class: #3 java/lang/Object\n" + 
+			"    constant #1 class: #2 I\n" + 
+			"    constant #2 utf8: I\n" + 
+			"    constant #3 class: #4 java/lang/Object\n" + 
+			"    constant #4 utf8: java/lang/Object\n" + 
 			"    constant #5 utf8: SourceFile\n" + 
 			"    constant #6 utf8: I.java\n" + 
 			"}";
@@ -2732,7 +2783,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
-	public void test070() {
+	public void test070() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
 			"	X(String s) {\n" +
@@ -2743,7 +2794,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
 			"  // Stack: 0, Locals: 5\n" + 
-			"  public void foo(int i, long l, String[][]... arg);\n" + 
+			"  public void foo(int i, long l, java.lang.String[][]... args);\n" + 
 			"    0  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
@@ -2759,7 +2810,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
 	 */
-	public void test071() {
+	public void test071() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2771,19 +2822,384 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  iconst_0\n" + 
 			"     1  newarray long [11]\n" + 
 			"     3  astore_1 [tab]\n" + 
-			"     4  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"     7  aload_1 [tab]\n" + 
-			"     8  invokevirtual long[].clone() : java.lang.Object  [27]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(java.lang.Object) : void  [33]\n" + 
-			"    14  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"     8  invokevirtual long[].clone() : java.lang.Object [22]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" + 
+			"    14  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    17  aload_1 [tab]\n" + 
-			"    18  invokevirtual long[].clone() : java.lang.Object  [27]\n" + 
-			"    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void  [33]\n" + 
+			"    18  invokevirtual long[].clone() : java.lang.Object [22]\n" + 
+			"    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" + 
 			"    24  return\n";
 		checkClassFile("1.5", "X", source, expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test072() throws ClassFormatException, IOException {
+		String source =
+			"package p;\n" +
+			"public abstract class X {\n" + 
+			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
+			"	X(X x) {}\n" +
+			"	int foo() { return 0; }\n" +
+			"	double foo2() { return 0; }\n" +
+			"	byte foo3() { return 0; }\n" +
+			"	char foo4() { return 0; }\n" +
+			"	float foo5() { return 0; }\n" +
+			"	long foo6() { return 0; }\n" +
+			"	short foo7() { return 0; }\n" +
+			"	Object foo8() { return null; }\n" +
+			"	boolean foo9() { return false; }\n" +
+			"	void foo10() {}\n" +
+			"	native void foo11();\n" +
+			"	abstract String foo12();\n" +
+			"}";
+		String expectedOutput =
+			"package p;\n" + 
+			"public abstract class X {\n" + 
+			"  \n" + 
+			"  public static final double CONST = 1.0 / 0.0;\n" + 
+			"  \n" + 
+			"  X(p.X x) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  int foo() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  double foo2() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  byte foo3() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  char foo4() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  float foo5() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  long foo6() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  short foo7() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  java.lang.Object foo8() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  boolean foo9() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  void foo10() {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  native void foo11();\n" + 
+			"  \n" + 
+			"  abstract java.lang.String foo12();\n" + 
+			"}";
+		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test073() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" + 
+			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
+			"	X(X x) {}\n" +
+			"}";
+		String expectedOutput =
+			"public class X {\n" + 
+			"  \n" + 
+			"  public static final double CONST = 1.0 / 0.0;\n" + 
+			"  \n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.4", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test074() throws ClassFormatException, IOException {
+		String source =
+			"package p;\n" +
+			"public class X {\n" + 
+			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
+			"	X(X x) {}\n" +
+			"}";
+		String expectedOutput =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  \n" + 
+			"  public static final double CONST = 1.0 / 0.0;\n" + 
+			"  \n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test075() throws ClassFormatException, IOException {
+		String source =
+			"package p;\n" +
+			"public class X {\n" + 
+			"	public static final String CONST = \"\";\n" +
+			"	X(X x) {}\n" +
+			"}";
+		String expectedOutput =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  \n" + 
+			"  public static final String CONST = \"\";\n" + 
+			"  \n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	public void test076() throws ClassFormatException, IOException {
+		String source =
+			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  U field;\n" +
+			"  String field2;\n" +
+			"  <T> Y(T t) {}\n" +
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return t;\n" + 
+			"  }\n" + 
+			"}";
+		String expectedOutput =
+			"public class Y<W,U extends Reader & Serializable> {\n" + 
+			"  \n" + 
+			"  U field;\n" + 
+			"  \n" + 
+			"  String field2;\n" + 
+			"  \n" + 
+			"  <T> Y(T t) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	public void test077() throws ClassFormatException, IOException {
+		String source =
+			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  U field;\n" +
+			"  String field2;\n" +
+			"  <T> Y(T t) {}\n" +
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return t;\n" + 
+			"  }\n" + 
+			"}";
+		String expectedOutput =
+			"public class Y<W,U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  \n" + 
+			"  U field;\n" + 
+			"  \n" + 
+			"  java.lang.String field2;\n" + 
+			"  \n" + 
+			"  <T> Y(T t) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  <T> T foo(T t, java.lang.String... s) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
+	 */
+	public void test078() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" +
+			"	X(String s) {\n" +
+			"	}\n" +
+			"	public static void foo(int i, long l, String[][]... args) {\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
+			"  // Stack: 0, Locals: 4\n" + 
+			"  public static void foo(int i, long l, java.lang.String[][]... args);\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
+			"        [pc: 0, pc: 1] local: l index: 1 type: long\n" + 
+			"        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]\n" + 
+			"}";
+		checkClassFile("1.5", "X", source, expectedOutput);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
+	 */
+	public void test079() throws ClassFormatException, IOException {
+		String source =
+			"public enum X { \n" + 
+			"	\n" + 
+			"	BLEU(10),\n" + 
+			"	BLANC(20),\n" + 
+			"	ROUGE(30);\n" +
+			"	X(int i) {}\n" +
+			"}\n";
+		String expectedOutput =
+			"public enum X {\n" + 
+			"  \n" + 
+			"  BLEU(0),\n" + 
+			"  \n" + 
+			"  BLANC(0),\n" + 
+			"  \n" + 
+			"  ROUGE(0),;\n" + 
+			"  \n" + 
+			"  private X(int i) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
+	 * TODO corner case that doesn't produce the right source
+	 */
+	public void test080() throws ClassFormatException, IOException {
+		String source =
+			"public enum X {\n" +
+			"	BLEU(0) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLEU\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	BLANC(1) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLANC\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	ROUGE(2) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"ROUGE\";\n" +
+			"		}\n" +
+			"	},;\n" +
+			"	\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"	abstract public String colorName();\n" +
+			"}";
+		String expectedOutput =
+			"public enum X {\n" +
+			"  \n" +
+			"  BLEU(0),\n" +
+			"  \n" +
+			"  BLANC(0),\n" +
+			"  \n" +
+			"  ROUGE(0),;\n" +
+			"  \n" +
+			"  private X(int i) {\n" +
+			"  }\n" +
+			"  \n" +
+			"  public abstract java.lang.String colorName();\n" +
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
+	 * TODO corner case that doesn't produce the right source
+	 */
+	public void test081() throws ClassFormatException, IOException {
+		String source =
+			"interface I {\n" +
+			"	String colorName();\n" +
+			"}\n" +
+			"public enum X implements I {\n" +
+			"	BLEU(0) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLEU\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	BLANC(1) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLANC\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	ROUGE(2) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"ROUGE\";\n" +
+			"		}\n" +
+			"	},;\n" +
+			"	\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"public enum X implements I {\n" + 
+			"  \n" + 
+			"  BLEU(0),\n" + 
+			"  \n" + 
+			"  BLANC(0),\n" + 
+			"  \n" + 
+			"  ROUGE(0),;\n" + 
+			"  \n" + 
+			"  private X(int i) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
+	 */
+	public void test082() throws ClassFormatException, IOException {
+		String source =
+			"@interface X {\n" +
+			"	String firstName();\n" +
+			"	String lastName() default \"Smith\";\n" +
+			"}\n";
+		String expectedOutput =
+			"abstract @interface X {\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String firstName();\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
+	 * @deprecated Using deprecated API
+	 */
+	public void test083() throws ClassFormatException, IOException {
+		String source =
+			"@interface X {\n" +
+			"	String firstName();\n" +
+			"	String lastName() default \"Smith\";\n" +
+			"}\n";
+		String expectedOutput =
+			"abstract @interface X {\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String firstName();\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
+			"}";
+		checkClassFileUsingInputStream("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 }

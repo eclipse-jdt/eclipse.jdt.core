@@ -103,7 +103,7 @@ protected void setUp() throws Exception {
 	this.setUpJavaProject("TypeHierarchyNotification");
 }
 static {
-//	TESTS_NAMES= new String[] { "testBinaryTypeHiddenByOtherJar" };
+//	TESTS_NAMES= new String[] { "testAddExtendsSourceType3" };
 }
 public static Test suite() {
 	return buildTestSuite(TypeHierarchyNotificationTests.class);
@@ -739,6 +739,41 @@ public void testAddExtendsSourceType2() throws CoreException {
 			copy.discardWorkingCopy();
 		}
 	}
+}
+/**
+ * While in a primary working copy, when adding an extends clause with a qualified name in a hierarchy, 
+ * we should be notified of change after a reconcile.
+ * (regression test for bug 111396 TypeHierarchy doesn't notify listeners on addition of fully qualified subtypes)
+ */
+public void testAddExtendsSourceType3() throws CoreException {
+	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
+	ICompilationUnit copy = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "B.java");
+	ITypeHierarchy h = null;
+	try {
+		copy.becomeWorkingCopy(null, null);
+		h = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "A.java").getType("A").newTypeHierarchy(javaProject, null);
+		h.addTypeHierarchyChangedListener(this);
+
+		// add p2.A as the superclass of p2.B
+		String typeName = "B";
+		String newSuper = "p2.A";
+		String source = copy.getBuffer().getContents();
+		int superIndex = -1;
+		String newSource = 
+			source.substring(0, (superIndex = source.indexOf(typeName) + typeName.length())) +
+			" extends " +
+			newSuper +
+			source.substring(superIndex);
+		copy.getBuffer().setContents(newSource);
+		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		copy.commitWorkingCopy(true, null);
+		this.assertOneChange(h);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		copy.discardWorkingCopy();
+	}
+	
 }
 /**
  * When editing a source type NOT in a hierarchy, we should receive NO CHANGES.

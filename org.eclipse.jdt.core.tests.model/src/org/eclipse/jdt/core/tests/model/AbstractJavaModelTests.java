@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -98,6 +100,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			
 			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
 		}
+		public CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
+			for (int i=0, length= this.deltas.length; i<length; i++) {
+				CompilationUnit result = getCompilationUnitAST(workingCopy, this.deltas[i]);
+				if (result != null)
+					return result;
+			}
+			return null;
+		}
+		private CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy, IJavaElementDelta delta) {
+			if ((delta.getFlags() & IJavaElementDelta.F_AST_AFFECTED) != 0 && workingCopy.equals(delta.getElement()))
+				return delta.getCompilationUnitAST();
+			return null;
+		}
 		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
 			org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
 				public int compare(Object a, Object b) {
@@ -111,22 +126,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=0, length= this.deltas.length; i<length; i++) {
-				IJavaElementDelta[] projects = this.deltas[i].getAffectedChildren();
-				sortDeltas(projects);
-				for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
-					buffer.append(projects[j]);
-					if (j != projectsLength-1) {
-						buffer.append("\n");
+				IJavaElementDelta delta = this.deltas[i];
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				int childrenLength=children.length;
+				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
+				int resourceDeltasLength = resourceDeltas == null ? 0 : resourceDeltas.length;
+				if (childrenLength == 0 && resourceDeltasLength == 0) {
+					buffer.append(delta);
+				} else {
+					sortDeltas(children);
+					for (int j=0; j<childrenLength; j++) {
+						buffer.append(children[j]);
+						if (j != childrenLength-1) {
+							buffer.append("\n");
+						}
 					}
-				}
-				IResourceDelta[] nonJavaProjects = this.deltas[i].getResourceDeltas();
-				if (nonJavaProjects != null) {
-					for (int j=0, nonJavaProjectsLength=nonJavaProjects.length; j<nonJavaProjectsLength; j++) {
+					for (int j=0; j<resourceDeltasLength; j++) {
 						if (j == 0 && buffer.length() != 0) {
 							buffer.append("\n");
 						}
-						buffer.append(nonJavaProjects[j]);
-						if (j != nonJavaProjectsLength-1) {
+						buffer.append(resourceDeltas[j]);
+						if (j != resourceDeltasLength-1) {
 							buffer.append("\n");
 						}
 					}
@@ -321,10 +341,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 		if (!actual.equals(expected)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 0));
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
 			System.out.println(this.endChar);
 		}
 		assertEquals(message, expected, actual);
+	}
+	/*
+	 * Ensures that the toString() of the given AST node is as expected.
+	 */
+	public void assertASTNodeEquals(String message, String expected, ASTNode actual) {
+		String actualString = actual == null ? "null" : actual.toString();
+		assertSourceEquals(message, expected, actualString);
 	}
 	/**
 	 * Ensures the elements are present after creation.
@@ -334,6 +361,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			IJavaElement newElement = newElements[i];
 			assertTrue("Element should be present after creation", newElement.exists());
 		}
+	}
+	protected void assertClasspathEquals(IClasspathEntry[] classpath, String expected) {
+		StringBuffer buffer = new StringBuffer();
+		int length = classpath == null ? 0 : classpath.length;
+		for (int i=0; i<length; i++) {
+			buffer.append(classpath[i]);
+			if (i < length-1)
+				buffer.append('\n');
+		}
+		String actual = buffer.toString();
+		if (!actual.equals(expected)) {
+		 	System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		}
+		assertEquals(expected, actual);
 	}
 	/**
 	 * Ensures the element is present after creation.
@@ -416,7 +457,7 @@ protected void assertDeltas(String message, String expected) {
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
 		String actual = toString(strings, true/*add extra new lines*/);
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + this.endChar);
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -424,7 +465,7 @@ protected void assertDeltas(String message, String expected) {
 		String expected = toString(expectedStrings, false/*don't add extra new lines*/);
 		String actual = toString(actualStrings, false/*don't add extra new lines*/);
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + this.endChar);
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -1377,10 +1418,11 @@ protected void assertDeltas(String message, String expected) {
 		return getWorkingCopy(path, "", computeProblems);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, null/*don't compute problems*/);
+		return getWorkingCopy(path, source, false);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
-		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, computeProblems);
+		if (this.wcOwner == null) this.wcOwner = new WorkingCopyOwner() {};
+		return getWorkingCopy(path, source, this.wcOwner, computeProblems);
 	}
 	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, boolean computeProblems) throws JavaModelException {
 		IProblemRequestor problemRequestor = computeProblems
@@ -1480,6 +1522,30 @@ protected void assertDeltas(String message, String expected) {
 		description.setNatureIds(new String[] {});
 		project.setDescription(description, null);
 	}
+	protected void removeLibrary(IJavaProject javaProject, String jarName, String sourceZipName) throws CoreException, IOException {
+		IProject project = javaProject.getProject();
+		String projectPath = '/' + project.getName() + '/';
+		removeLibraryEntry(javaProject, new Path(projectPath + jarName));
+		project.getFile(jarName).delete(false, null);
+		project.getFile(sourceZipName).delete(false, null);
+	}
+	protected void removeLibraryEntry(IJavaProject project, Path path) throws JavaModelException {
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		IClasspathEntry[] newEntries = new IClasspathEntry[length-1];
+		for (int i = 0; i < length; i++) {
+			IClasspathEntry entry = entries[i];
+			if (entry.getPath().equals(path)) {
+				if (i > 0)
+					System.arraycopy(entries, 0, newEntries, 0, i);
+				if (i < length-1)
+				System.arraycopy(entries, i+1, newEntries, i+1, length-i);
+				break;
+			}	
+		}
+		project.setRawClasspath(newEntries, null);
+	}
+
 	/**
 	 * Returns a delta for the given element in the delta tree
 	 */
@@ -1823,10 +1889,10 @@ protected void assertDeltas(String message, String expected) {
 		String sourceWorkspacePath = getSourceWorkspacePath();
 		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
 		copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
-		
+
 		// ensure variables are set
 		setUpJCLClasspathVariables(compliance);
-	
+
 		// create project
 		final IProject project = getWorkspaceRoot().getProject(projectName);
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
@@ -1837,38 +1903,70 @@ protected void assertDeltas(String message, String expected) {
 		};
 		getWorkspace().run(populate, null);
 		IJavaProject javaProject = JavaCore.create(project);
-		if ("1.5".equals(compliance)) {
-			// set options
-			Map options = new HashMap();
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-			javaProject.setOptions(options);
-			
-			// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
-			IClasspathEntry[] classpath = javaProject.getRawClasspath();
-			IPath jclLib = new Path("JCL_LIB");
-			for (int i = 0, length = classpath.length; i < length; i++) {
-				IClasspathEntry entry = classpath[i];
-				if (entry.getPath().equals(jclLib)) {
-					classpath[i] = JavaCore.newVariableEntry(
-							new Path("JCL15_LIB"), 
-							new Path("JCL15_SRC"), 
-							entry.getSourceAttachmentRootPath(), 
-							entry.getAccessRules(), 
-							new IClasspathAttribute[0], 
-							entry.isExported());
-					break;
-				}
-			}
-			javaProject.setRawClasspath(classpath, null);
-		}
+		setUpProjectCompliance(javaProject, compliance);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		return javaProject;
+	}
+
+	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
+		// Look for version to set and return if that's already done
+		String version = CompilerOptions.VERSION_1_4;
+		String jclLibString = null;
+		String newJclLibString = null;
+		String newJclSrcString = null;
+		switch (compliance.charAt(2)) {
+			case '5':
+				version = CompilerOptions.VERSION_1_5;
+				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+					return;
+				}
+				jclLibString = "JCL_LIB";
+				newJclLibString = "JCL15_LIB";
+				newJclSrcString = "JCL15_SRC";
+				break;
+			case '3':
+				version = CompilerOptions.VERSION_1_3;
+			default:
+				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+					return;
+				}
+				jclLibString = "JCL15_LIB";
+				newJclLibString = "JCL_LIB";
+				newJclSrcString = "JCL_SRC";
+				break;
+		}
+		
+		// ensure variables are set
+		setUpJCLClasspathVariables(compliance);
+		
+		// set options
+		Map options = new HashMap();
+		options.put(CompilerOptions.OPTION_Compliance, version);
+		options.put(CompilerOptions.OPTION_Source, version);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, version);	
+		javaProject.setOptions(options);
+		
+		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+		IClasspathEntry[] classpath = javaProject.getRawClasspath();
+		IPath jclLib = new Path(jclLibString);
+		for (int i = 0, length = classpath.length; i < length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry.getPath().equals(jclLib)) {
+				classpath[i] = JavaCore.newVariableEntry(
+						new Path(newJclLibString), 
+						new Path(newJclSrcString), 
+						entry.getSourceAttachmentRootPath(), 
+						entry.getAccessRules(), 
+						new IClasspathAttribute[0], 
+						entry.isExported());
+				break;
+			}
+		}
+		javaProject.setRawClasspath(classpath, null);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		if ("1.5".equals(compliance)) {
@@ -1901,10 +1999,7 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		if (discard) {
-			workingCopies = null;
-		}
-		discard = true;
+		this.discard = true;
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
@@ -1995,6 +2090,7 @@ protected void assertDeltas(String message, String expected) {
 		return toString(strings, false/*don't add extra new line*/);
 	}
 	protected String toString(String[] strings, boolean addExtraNewLine) {
+		if (strings == null) return "null";
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = strings.length; i < length; i++){
 			buffer.append(strings[i]);
@@ -2005,11 +2101,21 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (discard && workingCopies != null) {
-			discardWorkingCopies(workingCopies);
-			wcOwner = null;
+		if (this.discard) {
+			if (this.workingCopies != null) {
+				discardWorkingCopies(this.workingCopies);
+				this.workingCopies = null;
+			}
+			this.wcOwner = null;
 		}
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
+	 */
+	public void tearDownSuite() throws Exception {
+		super.tearDownSuite();
+	}
+
 	/**
 	 * Wait for autobuild notification to occur
 	 */
@@ -2026,6 +2132,7 @@ protected void assertDeltas(String message, String expected) {
 			}
 		} while (wasInterrupted);
 	}
+
 	public static void waitUntilIndexesReady() {
 		// dummy query for waiting until the indexes are ready
 		SearchEngine engine = new SearchEngine();
@@ -2050,5 +2157,4 @@ protected void assertDeltas(String message, String expected) {
 		} catch (CoreException e) {
 		}
 	}
-
 }

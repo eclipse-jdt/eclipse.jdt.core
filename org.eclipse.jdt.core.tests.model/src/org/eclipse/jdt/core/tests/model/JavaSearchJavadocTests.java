@@ -417,6 +417,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				getJavaSearchScope(), 
 				this.resultCollector);
 		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -458,6 +459,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				getJavaSearchScope(), 
 				this.resultCollector);
 		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}

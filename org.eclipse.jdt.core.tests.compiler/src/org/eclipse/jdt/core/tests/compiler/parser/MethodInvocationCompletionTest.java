@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be a MethodInvocation.
  */
 public class MethodInvocationCompletionTest extends AbstractCompletionTest {
 public MethodInvocationCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(MethodInvocationCompletionTest.class);
 }
 /*
  * Completion with no receiver inside a for statement.

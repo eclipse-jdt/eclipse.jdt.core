@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -74,7 +74,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) {
 		MethodScope scope = method.scope;
 		// can optionally skip overriding methods
-		if ((method.binding.modifiers & (CompilerModifiers.AccOverriding | CompilerModifiers.AccImplementing)) != 0
+		if ((method.binding.modifiers & (ExtraCompilerModifiers.AccOverriding | ExtraCompilerModifiers.AccImplementing)) != 0
 		        && !scope.compilerOptions().reportUnusedDeclaredThrownExceptionWhenOverriding) {
 		    return;
 		}

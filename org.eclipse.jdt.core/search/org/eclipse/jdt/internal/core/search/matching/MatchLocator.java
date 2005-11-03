@@ -140,7 +140,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 		try {
 			char[] simpleName;
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
 				simpleName = CharOperation.NO_CHAR;
 			} else {
 				simpleName = typeDeclaration.name;
@@ -152,7 +152,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 				occurrenceCount = occurrenceCount + 1;
 			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
 				reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
@@ -999,6 +999,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
 		locateMatches(javaProject, possibleMatches, index, max);
 		index += max;
 	}
+	this.patternLocator.clear();
 }
 /**
  * Locate the matches in the given files and report them using the search requestor. 
@@ -1126,7 +1127,6 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
 		this.bindings = null;
-		this.patternLocator.clear();
 	}
 }
 /**
@@ -1295,9 +1295,9 @@ public SearchMatch newFieldReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
@@ -1313,9 +1313,9 @@ public SearchMatch newLocalVariableReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
@@ -1524,7 +1524,7 @@ protected void report(SearchMatch match) throws CoreException {
 	if (BasicSearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
 		System.out.println("Reporting match"); //$NON-NLS-1$
-		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
+		System.out.println("\tResource: " + match.getResource());//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try {
 			if (this.parser != null && match.getOffset() > 0 && match.getLength() > 0 && !(match.getElement() instanceof BinaryMember)) {
@@ -1791,7 +1791,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 }
 protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, Binding binaryMemberBinding, IBinaryType info, int accuracy) throws CoreException {
 	ClassFile classFile = (ClassFile) binaryMember.getClassFile();
-	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.fgUnknownRange;
+	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.UNKNOWN_RANGE;
 	if (range.getOffset() == -1) {
 		BinaryType type = (BinaryType) classFile.getType();
 		String sourceFileName = type.sourceFileName(info);
@@ -1837,7 +1837,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	}
 
 	// handle nodes for the local type first
-	if ((method.bits & ASTNode.HasLocalTypeMASK) != 0) {
+	if ((method.bits & ASTNode.HasLocalType) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(method, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, method.binding, nodeSet);
@@ -2026,6 +2026,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	
 	// Clear handle cache
 	this.methodHandles = null;
+	this.bindings.removeKey(this.pattern);
 	this.patternLocator.mustResolve = locatorMustResolve;
 }
 /**
@@ -2044,7 +2045,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	}
 
 	// handle the nodes for the local type first
-	if ((field.bits & ASTNode.HasLocalTypeMASK) != 0) {
+	if ((field.bits & ASTNode.HasLocalType) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(field, type, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, field.binding, nodeSet);
@@ -2177,7 +2178,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	}
 	
 	// super types
-	if ((type.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+	if ((type.bits & ASTNode.IsAnonymousType) != 0) {
 		TypeReference superType =type.allocation.type;
 		if (superType != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);

@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.codeassist.select;
  */
  
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -90,7 +91,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
 	if(kind != 0) {
 //		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
-		nextElement : switch (kind) {
+		switch (kind) {
 			case K_BETWEEN_CASE_AND_COLON :
 				if(this.expressionPtr > 0) {
 					SwitchStatement switchStatement = new SwitchStatement();
@@ -372,7 +373,7 @@ protected void consumeEnterAnonymousClassBody() {
 
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
 	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 	QualifiedAllocationExpression alloc = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
@@ -514,7 +515,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				intStack[intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 		arg.declarationSourceStart = modifierPositions;
 		pushOnAstStack(arg);
 		
@@ -532,9 +533,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		listLength++;
 	} 	
 }
-protected void consumeInstanceOfExpression(int op) {
+protected void consumeInstanceOfExpression() {
 	if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpression(op);
+		super.consumeInstanceOfExpression();
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
@@ -542,9 +543,9 @@ protected void consumeInstanceOfExpression(int op) {
 		this.lastIgnoredToken = -1;
 	}
 }
-protected void consumeInstanceOfExpressionWithName(int op) {
+protected void consumeInstanceOfExpressionWithName() {
 	if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpressionWithName(op);
+		super.consumeInstanceOfExpressionWithName();
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
@@ -863,7 +864,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccStatic);
+	ImportReference reference = this.createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
@@ -932,7 +933,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
+	ImportReference reference = this.createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
@@ -1231,12 +1232,12 @@ public  String toString() {
 	String s = ""; //$NON-NLS-1$
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	return s + super.toString();

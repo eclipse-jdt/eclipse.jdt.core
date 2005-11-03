@@ -38,7 +38,7 @@ public class SourceModifier implements ISourceModifier {
 	
 	public ReplaceEdit[] getModifications(String source) {
 		List result= new ArrayList();
-		int destIndentLevel= Indents.computeIndentUnits(this.destinationIndent, this.tabWidth, this.indentWidth);
+		int destIndentLevel= Indents.measureIndentUnits(this.destinationIndent, this.tabWidth, this.indentWidth);
 		if (destIndentLevel == this.sourceIndentLevel) {
 			return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
 		}

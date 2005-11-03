@@ -102,7 +102,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {
-				((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
+				((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
 			}
 		}
 		return capturedParameterizedType;
@@ -110,36 +110,40 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+	 * Constraints:
+	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
+	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
+	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 	 */
-	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
+	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 		
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-		if (otherType == NullBinding) return;
+		if (actualType == NullBinding) return;
 	
 		if (this.arguments == null) return;
-		if (!(otherType instanceof ReferenceBinding)) return;
-		ReferenceBinding equivalent, otherEquivalent;
+		if (!(actualType instanceof ReferenceBinding)) return;
+		ReferenceBinding formalEquivalent, actualEquivalent;
 		switch (constraint) {
 			case CONSTRAINT_EQUAL :
 			case CONSTRAINT_EXTENDS :
-				equivalent = this;
-		        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this.type);
-		        if (otherEquivalent == null) return;
+				formalEquivalent = this;
+		        actualEquivalent = ((ReferenceBinding)actualType).findSuperTypeWithSameErasure(this.type);
+		        if (actualEquivalent == null) return;
 		        break;
 			case CONSTRAINT_SUPER :
 	        default:
-		        equivalent = this.findSuperTypeWithSameErasure(otherType);
-		        if (equivalent == null) return;
-		        otherEquivalent = (ReferenceBinding) otherType;
+		        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
+		        if (formalEquivalent == null) return;
+		        actualEquivalent = (ReferenceBinding) actualType;
 		        break;
 		}
-        TypeBinding[] elements;
-        switch (equivalent.kind()) {
+        TypeBinding[] formalArguments;
+        switch (formalEquivalent.kind()) {
         	case Binding.GENERIC_TYPE :
-        		elements = equivalent.typeVariables();
+        		formalArguments = formalEquivalent.typeVariables();
         		break;
         	case Binding.PARAMETERIZED_TYPE :
-        		elements = ((ParameterizedTypeBinding)equivalent).arguments;
+        		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
@@ -147,13 +151,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         	default :
         		return;
         }
-        TypeBinding[] otherElements;
-        switch (otherEquivalent.kind()) {
+        TypeBinding[] actualArguments;
+        switch (actualEquivalent.kind()) {
         	case Binding.GENERIC_TYPE :
-        		otherElements = otherEquivalent.typeVariables();
+        		actualArguments = actualEquivalent.typeVariables();
         		break;
         	case Binding.PARAMETERIZED_TYPE :
-        		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
+        		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
@@ -161,9 +165,33 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         	default :
         		return;
         }
-        for (int i = 0, length = elements.length; i < length; i++) {
-        	TypeBinding element = elements[i];
-            element.collectSubstitutes(scope, otherElements[i], substitutes, element.isWildcard() ? constraint : CONSTRAINT_EQUAL);
+        for (int i = 0, length = formalArguments.length; i < length; i++) {
+        	TypeBinding formalArgument = formalArguments[i];
+        	TypeBinding actualArgument = actualArguments[i];
+        	if (formalArgument.isWildcard()) {
+                formalArgument.collectSubstitutes(scope, actualArgument, substitutes, constraint);
+                continue;
+        	} else if (actualArgument.isWildcard()){
+    			WildcardBinding actualWildcardArgument = (WildcardBinding) actualArgument;
+    			if (actualWildcardArgument.otherBounds == null) {
+    				if (constraint == CONSTRAINT_SUPER) { // JLS 15.12.7, p.459
+						switch(actualWildcardArgument.boundKind) {
+		    				case Wildcard.EXTENDS :
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, CONSTRAINT_SUPER);
+		    					continue;
+		    				case Wildcard.SUPER :
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, CONSTRAINT_EXTENDS);
+		    					continue;
+		    				default :
+		    					continue; // cannot infer anything further from unbound wildcard
+		    			}
+    				} else {
+    					continue; // cannot infer anything further from wildcard
+    				}
+    			}
+        	}
+        	// by default, use EQUAL constraint
+            formalArgument.collectSubstitutes(scope, actualArgument, substitutes, CONSTRAINT_EQUAL);
         }
 	}
 	
@@ -203,7 +231,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        if (typeBinding instanceof CaptureBinding)
 		        	captureSourceType = ((CaptureBinding) typeBinding).sourceType;
 		    }
-		    sig.append('>'); //$NON-NLS-1$
+		    sig.append('>');
 		}
 		sig.append(';');
 		if (captureSourceType != null && captureSourceType != this.type) {
@@ -317,7 +345,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    for (int i = 0, length = this.arguments.length; i < length; i++) {
 			        sig.append(this.arguments[i].genericTypeSignature());
 			    }
-			    sig.append('>'); //$NON-NLS-1$
+			    sig.append('>');
 			}
 			sig.append(';');
 			int sigLength = sig.length();
@@ -534,9 +562,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.modifiers = someType.modifiers;
 		// only set AccGenericSignature if parameterized or have enclosing type required signature
 		if (someArguments != null)
-			this.modifiers |= AccGenericSignature;
+			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		else if (this.enclosingType != null) 
-			this.modifiers |= (this.enclosingType.modifiers & AccGenericSignature);
+			this.modifiers |= (this.enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 		if (someArguments != null) {
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
@@ -982,7 +1010,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (methods != NoMethods) {
 				buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 				for (int i = 0, length = methods.length; i < length; i++)
-					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
 			}
 		} else {
 			buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -990,12 +1018,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	
 //		if (memberTypes != null) {
 //			if (memberTypes != NoMemberTypes) {
-//				buffer.append("\n/*   members   */"); //$NON-NLS-1$
+//				buffer.append("\n/*   members   */");
 //				for (int i = 0, length = memberTypes.length; i < length; i++)
-//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
+//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE");
 //			}
 //		} else {
-//			buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$
+//			buffer.append("NULL MEMBER TYPES");
 //		}
 	
 		buffer.append("\n\n"); //$NON-NLS-1$

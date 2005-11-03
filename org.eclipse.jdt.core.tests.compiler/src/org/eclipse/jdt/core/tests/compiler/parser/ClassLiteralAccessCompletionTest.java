@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be a ClassLiteralAccess.
  */
 public class ClassLiteralAccessCompletionTest extends AbstractCompletionTest {
 public ClassLiteralAccessCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(ClassLiteralAccessCompletionTest.class);
 }
 /*
  * Completion on the keyword 'class' on an array type

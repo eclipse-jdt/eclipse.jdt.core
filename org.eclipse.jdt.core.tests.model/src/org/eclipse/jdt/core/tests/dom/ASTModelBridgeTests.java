@@ -36,7 +36,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testBinaryMemberTypeFromAnonymousClassFile2" };
+//		TESTS_NAMES = new String[] { "testLocalType2" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -418,7 +418,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("Y", 1)
 		);
 		assertBindingsEqual(
-			"LX$42;",
+			"LX$42$Y;",
 			bindings);
 	}
 	
@@ -679,6 +679,52 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a local type
+	 * and coming from a binding key resolution is correct.
+	 */
+	public void testLocalType2() throws CoreException {
+		String filePath = "/P/src/Z.java";
+		try {
+			String contents = 
+				"public class Z {\n" +
+				"  void foo() {\n" +
+				"    /*start*/class Local {\n" +
+				"    }/*end*/\n" +
+				"  }\n" +
+				"}";
+			createFile(filePath, contents);
+
+			// Get the binding key
+			ASTNode node = buildAST(contents, getCompilationUnit(filePath));
+			IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
+			String bindingKey = binding.getKey();
+			
+			// Resolve the binding key
+			BindingRequestor requestor = new BindingRequestor();
+			String[] bindingKeys = new String[] {bindingKey};
+			resolveASTs(
+				new ICompilationUnit[] {}, 
+				bindingKeys,
+				requestor,
+				getJavaProject("P"),
+				workingCopy.getOwner()
+			);
+			IBinding[] bindings = requestor.getBindings(bindingKeys);
+			
+			// Ensure the Java element is correct
+			IJavaElement element = bindings[0].getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"Local [in foo() [in Z [in Z.java [in <default> [in src [in P]]]]]]",
+				element
+			);
+			assertTrue("Element should exist", element.exists());
+		} finally {
+			deleteFile(filePath);
+		}
 	}
 
 	/*

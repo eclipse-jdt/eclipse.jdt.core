@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 /**
@@ -25,9 +26,9 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	public ParameterizedFieldBinding(ParameterizedTypeBinding parameterizedDeclaringClass, FieldBinding originalField) {
 	    super (
 	            originalField.name, 
-	            (originalField.modifiers & AccEnum) != 0
+	            (originalField.modifiers & ClassFileConstants.AccEnum) != 0
 	            	? parameterizedDeclaringClass // enum constant get paramType as its type
-           			: (originalField.modifiers & AccStatic) != 0 
+           			: (originalField.modifiers & ClassFileConstants.AccStatic) != 0 
            					? originalField.type // no subst for static field
            					: Scope.substitute(parameterizedDeclaringClass, originalField.type), 
 	            originalField.modifiers, 

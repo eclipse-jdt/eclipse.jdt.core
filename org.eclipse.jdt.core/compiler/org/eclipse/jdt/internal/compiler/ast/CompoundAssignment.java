@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -27,8 +28,8 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		//but is build as an expression ==> the checkcast cannot fail
 	
 		super(lhs, expression, sourceEnd);
-		lhs.bits &= ~IsStrictlyAssignedMASK; // tag lhs as NON assigned - it is also a read access
-		lhs.bits |= IsCompoundAssignedMASK; // tag lhs as assigned by compound
+		lhs.bits &= ~IsStrictlyAssigned; // tag lhs as NON assigned - it is also a read access
+		lhs.bits |= IsCompoundAssigned; // tag lhs as assigned by compound
 		this.operator = operator ;
 	}
 	
@@ -106,7 +107,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
 		TypeBinding lhsType = originalLhsType, expressionType = originalExpressionType;
-		boolean use15specifics = scope.compilerOptions().sourceLevel >= JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean unboxedLhs = false;
 		if (use15specifics) {
 			if (!lhsType.isBaseType() && expressionType.id != T_JavaLangString && expressionType.id != T_null) {

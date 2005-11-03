@@ -37,7 +37,7 @@ public class JavadocFieldReference extends FieldReference {
 	/*
 	 * Resolves type on a Block or Class scope.
 	 */
-	private TypeBinding internalResolveType(Scope scope) {
+	protected TypeBinding internalResolveType(Scope scope) {
 
 		this.constant = NotAConstant;
 		if (this.receiver == null) {
@@ -95,7 +95,7 @@ public class JavadocFieldReference extends FieldReference {
 		}
 		this.binding = (FieldBinding) fieldBinding;
 
-		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
+		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssigned) != 0)) {
 			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getDeclarationModifiers());
 		}
 		return this.resolvedType = this.binding.type;

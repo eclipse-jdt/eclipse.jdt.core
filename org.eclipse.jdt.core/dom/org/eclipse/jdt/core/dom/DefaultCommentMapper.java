@@ -519,7 +519,7 @@ class DefaultCommentMapper {
 			// Look for children unresolved extended end
 			ASTNode previousNode = node;
 			int ptr = this.trailingPtr - 1; // children extended end were stored before
-			unresolved: while (ptr >= 0) {
+			while (ptr >= 0) {
 				int[] range = this.trailingIndexes[ptr];
 				if (range[0] != -1 || range[1] != -1) break; // there's no more unresolved nodes
 				ASTNode unresolved = this.trailingNodes[ptr];

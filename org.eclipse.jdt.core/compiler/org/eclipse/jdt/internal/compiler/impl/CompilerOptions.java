@@ -20,10 +20,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class CompilerOptions implements ProblemReasons, ProblemSeverities, ClassFileConstants {
+public class CompilerOptions {
 	
 	/**
 	 * Option IDs
@@ -79,6 +78,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
 	public static final String OPTION_ReportUncheckedTypeOperation = "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"; //$NON-NLS-1$
+	public static final String OPTION_ReportRawTypeReference =  "org.eclipse.jdt.core.compiler.problem.rawTypeReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportFinalParameterBound = "org.eclipse.jdt.core.compiler.problem.finalParameterBound"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingSerialVersion = "org.eclipse.jdt.core.compiler.problem.missingSerialVersion"; //$NON-NLS-1$
 	public static final String OPTION_ReportVarargsArgumentNeedCast = "org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast"; //$NON-NLS-1$
@@ -101,6 +101,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
+	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -122,6 +124,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
+	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$	
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -172,7 +175,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long ForbiddenReference = ASTNode.Bit35L;
 	public static final long VarargsArgumentNeedCast = ASTNode.Bit36L;
 	public static final long NullReference = ASTNode.Bit37L;
-	public static final long Autoboxing = ASTNode.Bit38L;
+	public static final long AutoBoxing = ASTNode.Bit38L;
 	public static final long AnnotationSuperInterface = ASTNode.Bit39L;
 	public static final long TypeParameterHiding = ASTNode.Bit40L;
 	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
@@ -180,13 +183,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
-	
-	// TODO (olivier) remove once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
-	private static final int IntMissingSerialVersion = (int) (MissingSerialVersion >>> 32);
-	private static final int IntAutoBoxing = (int) (Autoboxing >>> 32);
-	private static final int IntTypeParameterHiding = (int) (TypeParameterHiding >>> 32);
-	private static final int IntIncompleteEnumSwitch = (int) (IncompleteEnumSwitch >>> 32);
-	private static final int IntMissingDeprecatedAnnotation = (int) (MissingDeprecatedAnnotation >>> 32);
+	public static final long RawTypeReference = ASTNode.Bit46L;
+	public static final long UnusedLabel = ASTNode.Bit47L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -215,6 +213,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| UnhandledWarningToken
 		| UnusedLocalVariable
 		| UnusedPrivateMember
+		| UnusedLabel
 		/*| NullReference*/;
 
 	// Debug attributes
@@ -225,9 +224,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
 
-	public long complianceLevel = JDK1_4; // by default be compliant with 1.4
-	public long sourceLevel = JDK1_3; //1.3 source behavior by default
-	public long targetJDK = JDK1_2; // default generates for JVM1.2
+	public long complianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
+	public long sourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
+	public long targetJDK = ClassFileConstants.JDK1_2; // default generates for JVM1.2
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
@@ -270,17 +269,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public boolean reportSpecialParameterHidingField = false;
 
 	// check javadoc comments tags
-	public int reportInvalidJavadocTagsVisibility = AccPrivate; 
+	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
 	public boolean reportInvalidJavadocTags = true;
 	public boolean reportInvalidJavadocTagsDeprecatedRef = true;
 	public boolean reportInvalidJavadocTagsNotVisibleRef = true;
 
 	// check missing javadoc tags
-	public int reportMissingJavadocTagsVisibility = AccPrivate; 
+	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
 	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments
-	public int reportMissingJavadocCommentsVisibility = AccPublic; 
+	public int reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic; 
 	public boolean reportMissingJavadocCommentsOverriding = false; 
 
 	// JSR bytecode inlining
@@ -291,6 +290,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	// suppress warning annotation
 	public boolean suppressWarnings = true;
+	
+	// treat optional error as fatal or just like warning?
+	public boolean treatOptionalErrorAsFatal = true;
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -343,7 +345,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse)); 
-		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(Autoboxing)); 
+		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(AutoBoxing)); 
 		optionsMap.put(OPTION_ReportAnnotationSuperInterface, getSeverityString(AnnotationSuperInterface)); 
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch)); 
 		optionsMap.put(OPTION_ReportInvalidJavadoc, getSeverityString(InvalidJavadoc));
@@ -362,6 +364,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
 		optionsMap.put(OPTION_ReportUncheckedTypeOperation, getSeverityString(UncheckedTypeOperation));
+		optionsMap.put(OPTION_ReportRawTypeReference, getSeverityString(RawTypeReference));
 		optionsMap.put(OPTION_ReportFinalParameterBound, getSeverityString(FinalParameterBound));
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
@@ -370,9 +373,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
 		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
+		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
+		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); 
+		
 		if (this.defaultEncoding != null) {
 			optionsMap.put(OPTION_Encoding, this.defaultEncoding); 
 		}
@@ -392,10 +398,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	public int getSeverity(long irritant) {
 		if((this.errorThreshold & irritant) != 0)
-			return Error;
+			return ProblemSeverities.Error | ProblemSeverities.Optional;
 		if((this.warningThreshold & irritant) != 0)
-			return Warning;
-		return Ignore;
+			return ProblemSeverities.Warning | ProblemSeverities.Optional;
+		return ProblemSeverities.Ignore;
 	}
 
 	public String getSeverityString(long irritant) {
@@ -408,11 +414,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	public String getVisibilityString(int level) {
 		switch (level) {
-			case AccPublic:
+			case ClassFileConstants.AccPublic:
 				return PUBLIC;
-			case AccProtected:
+			case ClassFileConstants.AccProtected:
 				return PROTECTED;
-			case AccPrivate:
+			case ClassFileConstants.AccPrivate:
 				return PRIVATE;
 			default:
 				return DEFAULT;
@@ -482,7 +488,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.targetJDK = level;
-			if (this.targetJDK >= JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
+			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
 		}
 		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
 			if (optionValue instanceof String) {
@@ -500,7 +506,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_PrivateConstructorAccess)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level >= JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
+			if (level >= ClassFileConstants.JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterWhenImplementingAbstract)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -562,7 +568,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_InlineJsr)) != null) {
-			if (this.targetJDK < JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
+			if (this.targetJDK < ClassFileConstants.JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
 				if (ENABLED.equals(optionValue)) {
 					this.inlineJsrBytecode = true;
 				} else if (DISABLED.equals(optionValue)) {
@@ -575,6 +581,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.suppressWarnings = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.suppressWarnings = false;
+			}
+		}		
+		if ((optionValue = optionsMap.get(OPTION_FatalOptionalError)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.treatOptionalErrorAsFatal = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.treatOptionalErrorAsFatal = false;
 			}
 		}		
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -606,19 +619,21 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUncheckedTypeOperation)) != null) updateSeverity(UncheckedTypeOperation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportRawTypeReference)) != null) updateSeverity(RawTypeReference, optionValue);		
 		if ((optionValue = optionsMap.get(OPTION_ReportFinalParameterBound)) != null) updateSeverity(FinalParameterBound, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedReference)) != null) updateSeverity(DiscouragedReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportVarargsArgumentNeedCast)) != null) updateSeverity(VarargsArgumentNeedCast, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(Autoboxing, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(AutoBoxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
-		
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLabel)) != null) updateSeverity(UnusedLabel, optionValue);
+				
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -632,13 +647,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ( (optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccPublic;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccProtected;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccDefault;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccPrivate;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTags)) != null) {
@@ -667,13 +682,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccPublic;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccProtected;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccDefault;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccPrivate;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsOverriding)) != null) {
@@ -688,13 +703,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccPublic;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccProtected;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccDefault;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccPrivate;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsOverriding)) != null) {
@@ -767,19 +782,22 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- inline JSR bytecode : ").append(this.inlineJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unsafe type operation: ").append(getSeverityString(UncheckedTypeOperation)); //$NON-NLS-1$
+		buf.append("\n\t- unsafe raw type: ").append(getSeverityString(RawTypeReference)); //$NON-NLS-1$
 		buf.append("\n\t- final bound for type parameter: ").append(getSeverityString(FinalParameterBound)); //$NON-NLS-1$
 		buf.append("\n\t- missing serialVersionUID: ").append(getSeverityString(MissingSerialVersion)); //$NON-NLS-1$
 		buf.append("\n\t- varargs argument need cast: ").append(getSeverityString(VarargsArgumentNeedCast)); //$NON-NLS-1$
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
 		buf.append("\n\t- discouraged reference to type with access restriction: ").append(getSeverityString(DiscouragedReference)); //$NON-NLS-1$
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
-		buf.append("\n\t- autoboxing: ").append(getSeverityString(Autoboxing)); //$NON-NLS-1$
+		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
+		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
+		buf.append("\n\t- treat optional error as fatal: ").append(this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -797,30 +815,34 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	}				
 	public static long versionToJdkLevel(Object versionID) {
 		if (VERSION_1_1.equals(versionID)) {
-			return JDK1_1;
+			return ClassFileConstants.JDK1_1;
 		} else if (VERSION_1_2.equals(versionID)) {
-			return JDK1_2;
+			return ClassFileConstants.JDK1_2;
 		} else if (VERSION_1_3.equals(versionID)) {
-			return JDK1_3;
+			return ClassFileConstants.JDK1_3;
 		} else if (VERSION_1_4.equals(versionID)) {
-			return JDK1_4;
+			return ClassFileConstants.JDK1_4;
 		} else if (VERSION_1_5.equals(versionID)) {
-			return JDK1_5;
+			return ClassFileConstants.JDK1_5;
+		} else if (VERSION_1_6.equals(versionID)) {
+			return ClassFileConstants.JDK1_6;
 		}
 		return 0; // unknown
 	}
 
 	public static String versionFromJdkLevel(long jdkLevel) {
-		if (jdkLevel == JDK1_1) {
+		if (jdkLevel == ClassFileConstants.JDK1_1) {
 			return VERSION_1_1;
-		} else if (jdkLevel == JDK1_2) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_2) {
 			return VERSION_1_2;
-		} else if (jdkLevel == JDK1_3) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_3) {
 			return VERSION_1_3;
-		} else if (jdkLevel == JDK1_4) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_4) {
 			return VERSION_1_4;
-		} else if (jdkLevel == JDK1_5) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_5) {
 			return VERSION_1_5;
+		} else if (jdkLevel == ClassFileConstants.JDK1_6) {
+			return VERSION_1_6;
 		}
 		return ""; // unknown version //$NON-NLS-1$
 	}
@@ -828,6 +850,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Return all warning option names for use as keys in compiler options maps.
 	 * @return all warning option names
+	 * TODO (maxime) revise for ensuring completeness
 	 */
 	public static String[] warningOptionNames() {
 		String[] result = {
@@ -911,18 +934,21 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		} else {
 			irritantInt = (int)(irritant >>> 32);
-			// TODO (olivier) remove contants once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
 			switch (irritantInt) {
-				case IntMissingSerialVersion :
+				case (int)(MissingSerialVersion >>> 32) :
 					return "serial"; //$NON-NLS-1$
-				case IntAutoBoxing :
+				case (int)(AutoBoxing >>> 32) :
 					return "boxing"; //$NON-NLS-1$
-				case IntTypeParameterHiding :
+				case (int)(TypeParameterHiding >>> 32) :
 					return "hiding"; //$NON-NLS-1$
-				case IntIncompleteEnumSwitch :
+				case (int)(IncompleteEnumSwitch >>> 32) :
 					return "incomplete-switch"; //$NON-NLS-1$
-				case IntMissingDeprecatedAnnotation :
+				case (int)(MissingDeprecatedAnnotation >>> 32) :
 					return "dep-ann"; //$NON-NLS-1$
+				case (int)(RawTypeReference >>> 32):
+					return "unchecked"; //$NON-NLS-1$
+				case (int) UnusedLabel:
+					return "unused"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -936,7 +962,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'b' :
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
-					return Autoboxing;
+					return AutoBoxing;
 				break;
 			case 'd' :
 				if ("deprecation".equals(warningToken)) //$NON-NLS-1$
@@ -969,9 +995,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException;
+					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
-					return UncheckedTypeOperation;
+					return UncheckedTypeOperation | RawTypeReference;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
 					return UnqualifiedFieldAccess;
 				break;

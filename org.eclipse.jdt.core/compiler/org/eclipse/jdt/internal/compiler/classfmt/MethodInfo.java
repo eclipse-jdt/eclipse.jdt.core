@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
-public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
+public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
 	protected int accessFlags;
 	protected int attributeBytes;
@@ -65,16 +65,16 @@ protected static AnnotationInfo[][] _createMethod(MethodInfo methodInfo)
 				case 'R' :
 					AnnotationInfo[] methodAnnos = null;
 					AnnotationInfo[][] paramAnnos = null;
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						methodAnnos = decodeMethodAnnotations(readOffset, true, methodInfo);						
 					}
-					else if (CharOperation.equals(attributeName, RuntimeInvisibleAnnotationsName)) {
+					else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						methodAnnos = decodeMethodAnnotations(readOffset, false, methodInfo);
 					}
-					else if( CharOperation.equals(attributeName, RuntimeVisibleParameterAnnotationsName)){
+					else if( CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleParameterAnnotationsName)){
 						paramAnnos = decodeParamAnnotations(readOffset, true, methodInfo);						
 					}
-					else if( CharOperation.equals(attributeName, RuntimeInvisibleParameterAnnotationsName)){
+					else if( CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleParameterAnnotationsName)){
 						paramAnnos = decodeParamAnnotations(readOffset, false, methodInfo);
 					}
 					if( methodAnnos != null ){
@@ -390,7 +390,7 @@ private void readExceptionAttributes() {
 	for (int i = 0; i < attributesCount; i++) {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, ExceptionsName)) {
+		if (CharOperation.equals(attributeName, AttributeNamesConstants.ExceptionsName)) {
 			// read the number of exception entries
 			int entriesNumber = u2At(readOffset + 6);
 			// place the readOffset at the beginning of the exceptions table
@@ -426,15 +426,15 @@ private void readModifierRelatedAttributes() {
 		if (attributeName.length != 0) {
 			switch(attributeName[0]) {
 				case 'D' :
-					if (CharOperation.equals(attributeName, DeprecatedName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
 						this.accessFlags |= AccDeprecated;
 					break;
 				case 'S' :
-					if (CharOperation.equals(attributeName, SyntheticName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
 						this.accessFlags |= AccSynthetic;
 					break;
 				case 'A' :
-					if (CharOperation.equals(attributeName, AnnotationDefaultName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName))
 						this.accessFlags |= AccAnnotationDefault;
 					break;
 			}

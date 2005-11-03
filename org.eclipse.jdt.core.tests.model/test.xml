@@ -54,7 +54,7 @@
       <property name="data-dir" value="${formatter-folder}"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
-                value="org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests"/>
+                value="org.eclipse.jdt.core.tests.RunFormatterTests"/>
     </ant>
   </target>
 

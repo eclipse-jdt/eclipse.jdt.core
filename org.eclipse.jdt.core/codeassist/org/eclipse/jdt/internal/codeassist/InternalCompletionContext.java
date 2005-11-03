@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.codeassist;
 public class InternalCompletionContext {
 	protected char[][] expectedTypesSignatures;
 	protected char[][] expectedTypesKeys;
+	protected int javadoc;
 	
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
@@ -25,5 +26,9 @@ public class InternalCompletionContext {
 	
 	protected void setExpectedTypesKeys(char[][] expectedTypesKeys) {
 		this.expectedTypesKeys = expectedTypesKeys;
+	}
+
+	protected void setJavadoc(int javadoc) {
+		this.javadoc = javadoc;
 	}
 }

@@ -49,6 +49,8 @@ public static Test suite() {
 	standardTests.add(XLargeTest.class);
 	standardTests.add(InternalScannerTest.class);
 	standardTests.add(ConditionalExpressionTest.class);
+	standardTests.add(ExternalizeStringLiteralsTest.class);
+	standardTests.add(NonFatalErrorTest.class);
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
 		standardTests.add(JavadocTest.ALL_CLASSES.get(i));
@@ -87,6 +89,7 @@ public static Test suite() {
 		tests_1_5.add(InternalHexFloatTest.class);
 		tests_1_5.add(JavadocTest_1_5.class);
 		tests_1_5.add(BatchCompilerTest.class);
+		tests_1_5.add(ExternalizeStringLiterals15Test.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

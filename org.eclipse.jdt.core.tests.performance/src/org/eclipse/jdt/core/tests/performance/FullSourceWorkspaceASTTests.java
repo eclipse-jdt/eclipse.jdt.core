@@ -12,13 +12,14 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -40,13 +41,13 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-		TESTS_PREFIX = "testPerfDom";
+//		TESTS_PREFIX = "testDomAstCreationJLS2";
 	}
 
 	public static Test suite() {
         Test suite = buildSuite(testClass());
         TESTS_COUNT = suite.countTestCases();
-        createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+        createPrintStream(testClass(), LOG_STREAMS, TESTS_COUNT, null);
         return suite;
     }
 
@@ -576,8 +577,12 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	public void testDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM>Creation>Src>JLS2", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Currently investigating performance issue on this test...");
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
 		createAST(unit, AST.JLS2);
 	}
 

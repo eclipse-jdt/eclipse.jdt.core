@@ -21,12 +21,14 @@ import junit.framework.Test;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -44,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 194 };
+//		TESTS_NUMBERS = new int[] { 199, 200, 201 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5845,6 +5847,70 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Should be 1", 1, arrayType.getDimensions());
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106834
+	public void test0195() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" +
+			"	<S extends Number, T> void take(S e, T f) {}\n" +
+			"	<S extends Number, T> void take(T e, S f) {}\n" +
+			"	<S extends Number, T extends S> void take(T e, S f) {}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit unit = (CompilationUnit) node;
+    	node = getASTNode(unit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+    	IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+    	
+    	node = getASTNode(unit, 0, 1);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration2 = (MethodDeclaration) node;
+    	IMethodBinding methodBinding2 = methodDeclaration2.resolveBinding();
+    	
+    	node = getASTNode(unit, 0, 2);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration3 = (MethodDeclaration) node;
+    	IMethodBinding methodBinding3 = methodDeclaration3.resolveBinding();
+
+    	assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding2));
+    	assertFalse("Bindings are equals", methodBinding2.isEqualTo(methodBinding));
+    	assertFalse("Bindings are equals", methodBinding3.isEqualTo(methodBinding));
+    	assertFalse("Bindings are equals", methodBinding3.isEqualTo(methodBinding2));
+    	assertFalse("Bindings are equals", methodBinding2.isEqualTo(methodBinding3));
+    	assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding3));
+    	assertTrue("Bindings are not equals", methodBinding3.isEqualTo(methodBinding3));
+    	assertTrue("Bindings are not equals", methodBinding2.isEqualTo(methodBinding2));
+    	assertTrue("Bindings are not equals", methodBinding.isEqualTo(methodBinding));
+    }
+	
+	/*
+	 * Ensures that the signature of and IBinding representing a local type ends with the local type's simple name.
+	 * (regression test for bug 104879 BindingKey#internalToSignature() returns invalid signature for local type
+	 */
+	public void test0196() throws JavaModelException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    /*start*/class Y {\n" +
+			"    }/*end*/\n" +
+			"  }\n" +
+			"}",
+			this.workingCopy);
+		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		
+		String key = binding.getKey();
+		String signature = new BindingKey(key).internalToSignature();
+		String simpleName = Signature.getSimpleName(Signature.toString(signature));
+		assertEquals("Unexpected simple name", "Y", simpleName);
+	}
+
+	
 	/*
 	 * Ensures that creating an AST with binding resolution where there is a problem in a binary
 	 * doesn't throw an NPE
@@ -5885,4 +5951,181 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			deleteProject("P");
 		}
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110773
+	 */
+	public void test0198() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"public class X<E> {\n" +
+			"    class B { }\n" +
+			"    {\n" +
+			"        X<String>.B b;\n" +
+			"    }\n" +
+			"}",
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 1);
+    	assertEquals("Not a initializer", ASTNode.INITIALIZER, node.getNodeType());
+    	Initializer initializer = (Initializer) node;
+    	Block block = initializer.getBody();
+    	assertNotNull("No block", block);
+    	List statements = block.statements();
+    	assertEquals("Wrong size", 1, statements.size());
+    	Statement statement = (Statement) statements.get(0);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+    	VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+    	Type type = variableDeclarationStatement.getType();
+    	ITypeBinding typeBinding = type.resolveBinding();
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+    	TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+    	ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+    	assertTrue("Not a member type", typeDeclaration.isMemberTypeDeclaration());
+    	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding2));
+    	assertFalse("Binding should not be equals", typeBinding2.isEqualTo(typeBinding));
+    	ITypeBinding typeBinding3 = typeBinding.getTypeDeclaration();
+    	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding3));
+    	assertFalse("Binding should not be equals", typeBinding3.isEqualTo(typeBinding));
+    }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0199() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (byte[] bs : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	checkSourceRange(type, "byte[]", source);
+    	checkSourceRange(parameter, "byte[] bs", source);
+    	assertTrue("not an array type", type.isArrayType());
+    	ArrayType arrayType = (ArrayType) type;
+    	Type elementType = arrayType.getElementType();
+    	assertTrue("not a primitive type", elementType.isPrimitiveType());
+    	checkSourceRange(elementType, "byte", source);
+    }
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0200() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (final byte[] bs : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	checkSourceRange(type, "byte[]", source);
+    	checkSourceRange(parameter, "final byte[] bs", source);
+    }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0201() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (final byte bs[] : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	assertEquals("Wrong extended dimension", 1, parameter.getExtraDimensions());
+    	checkSourceRange(type, "byte", source);
+    	checkSourceRange(parameter, "final byte bs[]", source);
+    	assertTrue("not a primitive type", type.isPrimitiveType());
+    }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0202() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (@Ann final byte bs[] : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"@interface Ann {}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	assertEquals("Wrong extended dimension", 1, parameter.getExtraDimensions());
+    	checkSourceRange(type, "byte", source);
+    	checkSourceRange(parameter, "@Ann final byte bs[]", source);
+    	assertTrue("not a primitive type", type.isPrimitiveType());
+    	List modifiers = parameter.modifiers();
+    	assertEquals("Wrong size", 2, modifiers.size());
+    	final ASTNode modifier1 = ((ASTNode) modifiers.get(0));
+		assertEquals("Not an annotation", ASTNode.MARKER_ANNOTATION, modifier1.getNodeType());
+    	final ASTNode modifier2 = ((ASTNode) modifiers.get(1));
+		assertEquals("Not a modifier", ASTNode.MODIFIER, modifier2.getNodeType());
+		checkSourceRange(modifier1, "@Ann", source);
+		checkSourceRange(modifier2, "final", source);
+    }
 }

@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.*;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.*;
@@ -33,14 +32,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	public ASTConverterTest(String name) {
 		super(name);
 	}
-
+	static {
+//		TESTS_NAMES = new String[] {"test0602"};
+//		TESTS_NUMBERS =  new int[] { 618 };
+	}
 	public static Test suite() {
-		if (true) {
-			return new Suite(ASTConverterTest.class);		
-		}
-		TestSuite suite = new Suite(ASTConverterTest.class.getName());
-		suite.addTest(new ASTConverterTest("test0206"));
-		return suite;
+		return buildTestSuite(ASTConverterTest.class);
 	}
 		
 	/** @deprecated using deprecated code */
@@ -9154,7 +9151,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertProblemsSize(compilationUnit, 1, "The label test is never explicitly referenced"); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$
@@ -9175,7 +9172,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertProblemsSize(compilationUnit, 1, "The label test is never explicitly referenced"); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$

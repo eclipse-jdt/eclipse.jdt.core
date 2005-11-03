@@ -190,14 +190,14 @@ public class ArrayReference extends Reference {
 		constant = Constant.NotAConstant;
 		if (receiver instanceof CastExpression	// no cast check for ((type[])null)[0]
 				&& ((CastExpression)receiver).innermostCastedExpression() instanceof NullLiteral) {
-			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 		}		
 		TypeBinding arrayType = receiver.resolveType(scope);
 		if (arrayType != null) {
 			receiver.computeConversion(scope, arrayType, arrayType);
 			if (arrayType.isArrayType()) {
 				TypeBinding elementType = ((ArrayBinding) arrayType).elementsType();
-				this.resolvedType = ((this.bits & IsStrictlyAssignedMASK) == 0) ? elementType.capture(scope, this.sourceEnd) : elementType;
+				this.resolvedType = ((this.bits & IsStrictlyAssigned) == 0) ? elementType.capture(scope, this.sourceEnd) : elementType;
 			} else {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}

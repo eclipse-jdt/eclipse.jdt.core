@@ -26,8 +26,8 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
      */
 	public RawTypeBinding(ReferenceBinding type, ReferenceBinding enclosingType, LookupEnvironment environment){
 		super(type, null, enclosingType, environment);
-		if (enclosingType == null || (enclosingType.modifiers & AccGenericSignature) == 0)
-			this.modifiers &= ~AccGenericSignature; // only need signature if enclosing needs one
+		if (enclosingType == null || (enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0)
+			this.modifiers &= ~ExtraCompilerModifiers.AccGenericSignature; // only need signature if enclosing needs one
 	}    
 	
 	public char[] computeUniqueKey(boolean isLeaf) {

@@ -680,7 +680,7 @@ public class QualifiedNameReference extends NameReference {
 				}
 			}
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && indexOfFirstFieldBinding == length))
 				scope.problemReporter().deprecatedField(field, this);
 		} else {
 			field = null;
@@ -690,7 +690,7 @@ public class QualifiedNameReference extends NameReference {
 		if (index == length) { //	restrictiveFlag == FIELD
 			this.constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
 			// perform capture conversion if read access
-			return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+			return (type != null && (this.bits & IsStrictlyAssigned) == 0)
 					? type.capture(scope, this.sourceEnd)
 					: type;
 		}
@@ -734,7 +734,7 @@ public class QualifiedNameReference extends NameReference {
 				    }
 			    }
 				// only last field is actually a write access if any
-				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
+				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && index+1 == length)) {
 					scope.problemReporter().deprecatedField(field, this);
 				}
 				Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
@@ -763,7 +763,7 @@ public class QualifiedNameReference extends NameReference {
 		setDepth(firstDepth);
 		type = (otherBindings[otherBindingsLength - 1]).type;
 		// perform capture conversion if read access
-		return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+		return (type != null && (this.bits & IsStrictlyAssigned) == 0)
 				? type.capture(scope, this.sourceEnd)
 				: type;		
 	}
@@ -843,6 +843,24 @@ public class QualifiedNameReference extends NameReference {
 		}			
 	}
 
+	public Constant optimizedBooleanConstant() {
+
+		switch (this.resolvedType.id) {
+			case T_boolean :
+			case T_JavaLangBoolean :
+				if (this.constant != NotAConstant) return this.constant;
+				switch (bits & RestrictiveFlagMASK) {
+					case Binding.FIELD : // reading a field
+						if (this.otherBindings == null)
+							return ((FieldBinding)this.binding).constant();
+						// fall thru
+					case Binding.LOCAL : // reading a local variable
+						return this.otherBindings[this.otherBindings.length-1].constant();
+				}
+		}
+		return NotAConstant;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		
 		for (int i = 0; i < tokens.length; i++) {
@@ -920,7 +938,8 @@ public class QualifiedNameReference extends NameReference {
 				    TypeBinding type = (TypeBinding) binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					return this.resolvedType = scope.environment().convertToRawType(type);
+					type = scope.environment().convertToRawType(type);
+					return this.resolvedType = type;
 			}
 		}
 		//========error cases===============

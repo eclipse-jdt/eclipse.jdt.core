@@ -20,6 +20,17 @@ package org.eclipse.jdt.core;
  */
 public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation, IParent {
 /**
+ * Returns the categories defined by this member's Javadoc. A category is the identifier
+ * following the tag <code>@category</code> in the member's Javadoc.
+ * Returns an empty array if no category is defined in this member's Javadoc.
+ * 
+ * @return the categories defined by this member's doc
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ *  @since 3.2
+ */
+String[] getCategories() throws JavaModelException;
+/**
  * Returns the class file in which this member is declared, or <code>null</code>
  * if this member is not declared in a class file (for example, a source type).
  * This is a handle-only method.
@@ -60,6 +71,22 @@ IType getDeclaringType();
  * @see Flags
  */
 int getFlags() throws JavaModelException;
+/**
+ * Returns the Javadoc range if this element is from source or if this element
+ * is a binary element with an attached source, null otherwise.
+ * 
+ * <p>If this element is from source, the javadoc range is 
+ * extracted from the corresponding source.</p>
+ * <p>If this element is from a binary, the javadoc is extracted from the
+ * attached source if present.</p>
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return a source range corresponding to the javadoc source or <code>null</code>
+ * if no source is available or the element has no javadoc comment.
+ * @since 3.2
+ */
+ISourceRange getJavadocRange() throws JavaModelException;
 /**
  * Returns the source range of this member's simple name,
  * or <code>null</code> if this member does not have a name

@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class CompilationResult {
+	private static final int[] EMPTY_LINE_ENDS = new int[0];
 	
 	public IProblem problems[];
 	public IProblem tasks[];
@@ -130,11 +131,18 @@ public class CompilationResult {
 		int removed = 0;
 		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
 			IProblem problem = this.problems[i];
-			if (!problem.isWarning()) 
-				continue nextProblem;
+			int problemID = problem.getID();
+			if (!problem.isWarning()) {
+				switch (problemID) {
+					case IProblem.NonExternalizedStringLiteral :
+					case IProblem.UnnecessaryNLSTag :
+						break;
+					default :
+						continue nextProblem;
+				}
+			}
 			int start = problem.getSourceStart();
 			int end = problem.getSourceEnd();
-			int problemID = problem.getID();
 			nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
 				long position = this.suppressWarningScopePositions[j];
 				int startSuppress = (int) (position >>> 32);
@@ -257,6 +265,11 @@ public class CompilationResult {
 		return errors;
 	}
 	
+
+	public int[] getLineSeparatorPositions() {
+		return this.lineSeparatorPositions == null ? EMPTY_LINE_ENDS : this.lineSeparatorPositions;
+	}
+
 	/**
 	 * Answer the problems (errors and warnings) encountered during compilation.
 	 *
@@ -473,7 +486,7 @@ public class CompilationResult {
 			buffer.append("No COMPILED type\n");  //$NON-NLS-1$
 		}
 		if (problems != null){
-			buffer.append(this.problemCount).append(" PROBLEM(s) detected \n"); //$NON-NLS-1$//$NON-NLS-2$
+			buffer.append(this.problemCount).append(" PROBLEM(s) detected \n"); //$NON-NLS-1$
 			for (int i = 0; i < this.problemCount; i++){
 				buffer.append("\t - ").append(this.problems[i]).append('\n'); //$NON-NLS-1$
 			}

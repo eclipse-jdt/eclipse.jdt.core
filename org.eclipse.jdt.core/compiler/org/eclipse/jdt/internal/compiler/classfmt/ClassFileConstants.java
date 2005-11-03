@@ -10,10 +10,42 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 
-public interface ClassFileConstants extends IConstants {
+public interface ClassFileConstants {
 	
+	int AccDefault = 0;
+	/*
+	 * Modifiers
+	 */
+	int AccPublic       = 0x0001;
+	int AccPrivate      = 0x0002;
+	int AccProtected    = 0x0004;
+	int AccStatic       = 0x0008;
+	int AccFinal        = 0x0010;
+	int AccSynchronized = 0x0020;
+	int AccVolatile     = 0x0040;
+	int AccBridge       = 0x0040;
+	int AccTransient    = 0x0080;
+	int AccVarargs      = 0x0080;
+	int AccNative       = 0x0100;
+	int AccInterface    = 0x0200;
+	int AccAbstract     = 0x0400;
+	int AccStrictfp     = 0x0800;
+	int AccSynthetic    = 0x1000;
+	int AccAnnotation   = 0x2000;
+	int AccEnum         = 0x4000;
+
+	/**
+	 * Other VM flags.
+	 */
+	int AccSuper = 0x0020;
+
+	/**
+	 * Extra flags for types and members attributes.
+	 */
+	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
+	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"	
 	int Utf8Tag = 1;
 	int IntegerTag = 3;
 	int FloatTag = 4;
@@ -43,6 +75,7 @@ public interface ClassFileConstants extends IConstants {
 	int MAJOR_VERSION_1_3 = 47;
 	int MAJOR_VERSION_1_4 = 48;
 	int MAJOR_VERSION_1_5 = 49; 
+	int MAJOR_VERSION_1_6 = 50; 
 	
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -56,6 +89,7 @@ public interface ClassFileConstants extends IConstants {
 	long JDK1_3 =  ((long)ClassFileConstants.MAJOR_VERSION_1_3 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_4 = ((long)ClassFileConstants.MAJOR_VERSION_1_4 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_5 = ((long)ClassFileConstants.MAJOR_VERSION_1_5 << 16) + ClassFileConstants.MINOR_VERSION_0;	
+	long JDK1_6 = ((long)ClassFileConstants.MAJOR_VERSION_1_6 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -188,7 +189,7 @@ public class TryStatement extends SubRoutineStatement {
 	 * returnAddress is only allocated if jsr is allowed
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		// in case the labels needs to be reinitialized
@@ -425,7 +426,7 @@ public class TryStatement extends SubRoutineStatement {
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printIndent(indent, output).append("try \n"); //$NON-NLS-1$
-		tryBlock.printStatement(indent + 1, output); //$NON-NLS-1$
+		tryBlock.printStatement(indent + 1, output);
 
 		//catches
 		if (catchBlocks != null)
@@ -455,7 +456,7 @@ public class TryStatement extends SubRoutineStatement {
 		
 		if (finallyBlock != null) {
 			if (finallyBlock.isEmptyBlock()) {
-				if ((finallyBlock.bits & UndocumentedEmptyBlockMASK) != 0) {
+				if ((finallyBlock.bits & UndocumentedEmptyBlock) != 0) {
 					scope.problemReporter().undocumentedEmptyBlock(finallyBlock.sourceStart, finallyBlock.sourceEnd);
 				}
 			} else {
@@ -467,14 +468,14 @@ public class TryStatement extends SubRoutineStatement {
 				// the type does not matter as long as it is not a base type
 				if (!upperScope.compilerOptions().inlineJsrBytecode) {
 					this.returnAddressVariable =
-						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
+						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);
 					this.returnAddressVariable.setConstant(NotAConstant); // not inlinable
 				}
 				this.subRoutineStartLabel = new Label();
 	
 				this.anyExceptionVariable =
-					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
+					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
 				finallyScope.addLocalVariable(this.anyExceptionVariable);
 				this.anyExceptionVariable.setConstant(NotAConstant); // not inlinable
 	
@@ -488,7 +489,7 @@ public class TryStatement extends SubRoutineStatement {
 								new LocalVariableBinding(
 									SecretLocalDeclarationName,
 									methodReturnType,
-									AccDefault,
+									ClassFileConstants.AccDefault,
 									false);
 							finallyScope.addLocalVariable(this.secretReturnValue);
 							this.secretReturnValue.setConstant(NotAConstant); // not inlinable

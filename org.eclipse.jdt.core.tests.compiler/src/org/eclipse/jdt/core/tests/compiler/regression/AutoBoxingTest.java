@@ -1025,7 +1025,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"   public static void main(String[] s) {\n" +
+				"   public static void main(String[] args) {\n" +
 				"      if (new Integer(1) == new Integer(0)) {\n" +
 				"         System.out.println();\n" +
 				"      }\n" +
@@ -1054,21 +1054,21 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 1\n" + 
-			"  public static void main(String[] s);\n" + 
-			"     0  new java.lang.Integer [17]\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  new java.lang.Integer [16]\n" + 
 			"     3  dup\n" + 
 			"     4  iconst_1\n" + 
-			"     5  invokespecial java.lang.Integer(int) [20]\n" + 
-			"     8  new java.lang.Integer [17]\n" + 
+			"     5  invokespecial java.lang.Integer(int) [18]\n" + 
+			"     8  new java.lang.Integer [16]\n" + 
 			"    11  dup\n" + 
 			"    12  iconst_0\n" + 
-			"    13  invokespecial java.lang.Integer(int) [20]\n" + 
+			"    13  invokespecial java.lang.Integer(int) [18]\n" + 
 			"    16  if_acmpne 25\n" + 
-			"    19  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
-			"    22  invokevirtual java.io.PrintStream.println() : void  [31]\n" + 
-			"    25  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
-			"    28  ldc <String \"SUCCESS\"> [33]\n" + 
-			"    30  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [37]\n" + 
+			"    19  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    22  invokevirtual java.io.PrintStream.println() : void [27]\n" + 
+			"    25  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    28  ldc <String \"SUCCESS\"> [32]\n" + 
+			"    30  invokevirtual java.io.PrintStream.print(java.lang.String) : void [34]\n" + 
 			"    33  return\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
@@ -2469,17 +2469,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n"
 			},
- 		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	Short s = (short) _byte; // cast is necessary\n" + 
-		"	          ^^^^^^^^^^^^^\n" + 
-		"The expression of type short is boxed into Short\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	Short s2 = _byte; // ko\n" + 
-		"	      ^^\n" + 
-		"Type mismatch: cannot convert from byte to Short\n" + 
-		"----------\n"
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Short s = (short) _byte; // cast is necessary\n" + 
+			"	          ^^^^^^^^^^^^^\n" + 
+			"The expression of type short is boxed into Short\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Short s2 = _byte; // ko\n" + 
+			"	           ^^^^^\n" + 
+			"Type mismatch: cannot convert from byte to Short\n" + 
+			"----------\n"
         );
 	}
     // autoboxing and type argument inference
@@ -2536,17 +2536,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	i = i++;\n" + 
-			"	^^^^^^^\n" + 
-			"The assignment to variable i has no effect\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
-			"	f = f++;\n" + 
-			"	^^^^^^^\n" + 
-			"The assignment to variable f has no effect\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -3382,6 +3372,97 @@ public void test113() {
 		"	Short[] shorts = { 0, 1, 2, 3 };\n" + 
 		"	                            ^\n" + 
 		"The expression of type int is boxed into Short\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182
+public void test114() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		char c = \'a\';\n" + 
+			"		System.out.printf(\"%c\",c);		\n" + 
+			"		System.out.printf(\"%d\\n\",(int)c);		\n" + 
+			"	}\n" + 
+			"	Zork z;\n" +
+			"}\n" ,
+		},
+		// ensure no unnecessary cast warning
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\r\n" + 
+		"	System.out.printf(\"%c\",c);		\r\n" + 
+		"	                       ^\n" + 
+		"The expression of type char is boxed into Character\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\r\n" + 
+		"	System.out.printf(\"%d\\n\",(int)c);		\r\n" + 
+		"	                         ^^^^^^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182 - variation
+public void test115() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		char c = \'a\';\n" + 
+			"		System.out.printf(\"%c\",c);		\n" + 
+			"		System.out.printf(\"%d\\n\",(int)c);		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"a97");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106870
+public void test116() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    boolean foo(Long l, Float f) {\n" + 
+			"    	return f == l;\n" + 
+			"    }\n" + 
+			"    float bar(Long l, Float f) {\n" + 
+			"    	return this == null ? f : l;\n" + 
+			"    }\n" + 
+			"    double baz(Long l, Float f) {\n" + 
+			"    	return this == null ? f : l;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	return f == l;\r\n" + 
+		"	       ^^^^^^\n" + 
+		"Incompatible operand types Float and Long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                      ^\n" + 
+		"The expression of type Float is unboxed into float\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                          ^\n" + 
+		"The expression of type Long is unboxed into float\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                      ^\n" + 
+		"The expression of type Float is unboxed into float\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                          ^\n" + 
+		"The expression of type Long is unboxed into float\n" + 
 		"----------\n");
 }
 }

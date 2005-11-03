@@ -1649,7 +1649,7 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object  [21]\n";
+		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
 		
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3126,7 +3126,12 @@ public void test088() {
 		"	             ^^^\n" + 
 		"The method a() from the type X is never used locally\n" + 
 		"----------\n" + 
-		"4. WARNING in p\\X.java (at line 39)\n" + 
+		"4. WARNING in p\\X.java (at line 31)\n" + 
+		"	Class c = b.getClass();\n" + 
+		"	^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Varargs argument null should be cast to Class[] when passed to the method getMethod(String, Class...) from type Class\n" + 
@@ -3168,7 +3173,7 @@ public void test090() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X x = this.clone();\n" + 
-		"	  ^\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to X\n" + 
 		"----------\n"
 	);
@@ -3452,6 +3457,28 @@ public void test101() {
 		},
 		""
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108856
+public void test102() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						System.out.println(this.getClass().getName());\n" + 
+			"						System.out.println(this.getClass().getSimpleName());\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"X$1$1");
 }
 public static Class testClass() {
 	return Compliance_1_5.class;

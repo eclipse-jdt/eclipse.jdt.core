@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
  *      such as DietClassFileReader
  */
 public class ClassFile
-	implements AttributeNamesConstants, CompilerModifiers, TypeConstants, TypeIds {
+	implements TypeConstants, TypeIds {
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
@@ -370,24 +370,24 @@ public class ClassFile
 		// Modifier manipulations for classfile
 		int accessFlags = aType.getAccessFlags();
 		if (aType.isPrivate()) { // rewrite private to non-public
-			accessFlags &= ~AccPublic;
+			accessFlags &= ~ClassFileConstants.AccPublic;
 		}
 		if (aType.isProtected()) { // rewrite protected into public
-			accessFlags |= AccPublic;
+			accessFlags |= ClassFileConstants.AccPublic;
 		}
 		// clear all bits that are illegal for a class or an interface
 		accessFlags
 			&= ~(
-				AccStrictfp
-					| AccProtected
-					| AccPrivate
-					| AccStatic
-					| AccSynchronized
-					| AccNative);
+				ClassFileConstants.AccStrictfp
+					| ClassFileConstants.AccProtected
+					| ClassFileConstants.AccPrivate
+					| ClassFileConstants.AccStatic
+					| ClassFileConstants.AccSynchronized
+					| ClassFileConstants.AccNative);
 					
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
 		if (!aType.isInterface()) { // class or enum
-			accessFlags |= AccSuper;
+			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		
 		this.enclosingClassFile = enclosingClassFile;
@@ -444,7 +444,7 @@ public class ClassFile
 		MethodBinding methodBinding) {
 
 		// force the modifiers to be public and abstract
-		methodBinding.modifiers = AccPublic | AccAbstract;
+		methodBinding.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 
 		this.generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
@@ -568,11 +568,11 @@ public class ClassFile
 				}
 				// access flag
 				if (innerClass.isAnonymousType()) {
-					accessFlags |= AccPrivate;
+					accessFlags |= ClassFileConstants.AccPrivate;
 				} else if (innerClass.isLocalType() && !innerClass.isMemberType()) {
-					accessFlags |= AccPrivate;
+					accessFlags |= ClassFileConstants.AccPrivate;
 				} else if (innerClass.isMemberType() && innerClass.isInterface()) {
-					accessFlags |= AccStatic; // implicitely static
+					accessFlags |= ClassFileConstants.AccStatic; // implicitely static
 				}
 				contents[contentsOffset++] = (byte) (accessFlags >> 8);
 				contents[contentsOffset++] = (byte) accessFlags;
@@ -627,7 +627,7 @@ public class ClassFile
 			if (this.referenceBinding instanceof LocalTypeBinding) {
 				MethodBinding methodBinding = ((LocalTypeBinding) this.referenceBinding).enclosingMethod;
 				if (methodBinding != null) {
-					int enclosingMethodIndex = constantPool.literalIndexForMethod(methodBinding.selector, methodBinding.signature());
+					int enclosingMethodIndex = constantPool.literalIndexForNameAndType(methodBinding.selector, methodBinding.signature());
 					methodIndexByte1 = (byte) (enclosingMethodIndex >> 8);
 					methodIndexByte2 = (byte) enclosingMethodIndex;
 				}
@@ -837,7 +837,7 @@ public class ClassFile
 		int accessFlags = fieldBinding.getAccessFlags();
 		if (targetJDK < ClassFileConstants.JDK1_5) {
 		    // pre 1.5, synthetic was an attribute, not a modifier
-		    accessFlags &= ~AccSynthetic;
+		    accessFlags &= ~ClassFileConstants.AccSynthetic;
 		}		
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
@@ -923,7 +923,7 @@ public class ClassFile
 	
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, IProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		
@@ -947,7 +947,7 @@ public class ClassFile
 		completeCodeAttributeForMissingAbstractProblemMethod(
 			methodBinding,
 			codeAttributeOffset,
-			compilationResult.lineSeparatorPositions,
+			compilationResult.getLineSeparatorPositions(),
 			problem.getSourceLineNumber());
 			
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
@@ -1000,11 +1000,6 @@ public class ClassFile
 		attributeNumber++; // code attribute
 		completeCodeAttributeForClinit(
 			codeAttributeOffset,
-			referenceBinding
-				.scope
-				.referenceCompilationUnit()
-				.compilationResult
-				.lineSeparatorPositions,
 			problemLine);
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
@@ -1024,7 +1019,7 @@ public class ClassFile
 		IProblem[] problems) {
 
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
 		
@@ -1067,7 +1062,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
+				.getLineSeparatorPositions(),
 			problemLine);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
@@ -1109,7 +1104,7 @@ public class ClassFile
 			method.abort(ProblemSeverities.AbortType, null);
 		}
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
 		
@@ -1157,7 +1152,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
+				.getLineSeparatorPositions(),
 			problemLine);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
@@ -1270,7 +1265,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1300,7 +1295,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;			
@@ -1325,7 +1320,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1354,7 +1349,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;		
@@ -1385,7 +1380,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1416,7 +1411,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1446,7 +1441,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -2048,13 +2043,9 @@ public class ClassFile
 	 * - code_length
 	 * - exception table
 	 * - and debug attributes if necessary.
-	 *
-	 * @param codeAttributeOffset <CODE>int</CODE>
-	 * @param startLineIndexes int[]
 	 */
 	public void completeCodeAttributeForClinit(
 		int codeAttributeOffset,
-		int[] startLineIndexes,
 		int problemLine) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;
@@ -2862,7 +2853,7 @@ public class ClassFile
 	 * @return char[]
 	 */
 	public char[] fileName() {
-		return constantPool.UTF8Cache.returnKeyFor(1);
+		return constantPool.UTF8Cache.returnKeyFor(2);
 	}
 
 	private void generateAnnotation(Annotation annotation, int attributeOffset) {
@@ -3259,7 +3250,7 @@ public class ClassFile
 	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
 		int attributesNumber = generateMethodInfoAttribute(methodBinding);
 		int attributeOffset = contentsOffset;
-		if ((declaration.modifiers & AccAnnotationDefault) != 0) {
+		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
 			// add an annotation default attribute
 			int annotationDefaultNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.AnnotationDefaultName);
@@ -3314,10 +3305,10 @@ public class ClassFile
 		}
 		if (targetJDK < ClassFileConstants.JDK1_5) {
 		    // pre 1.5, synthetic was an attribute, not a modifier
-		    accessFlags &= ~AccSynthetic;
+		    accessFlags &= ~ClassFileConstants.AccSynthetic;
 		}
 		if (methodBinding.isRequiredToClearPrivateModifier()) {
-			accessFlags &= ~AccPrivate;
+			accessFlags &= ~ClassFileConstants.AccPrivate;
 		}
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
@@ -3344,8 +3335,8 @@ public class ClassFile
 		if (contentsOffset + 10 >= this.contents.length) {
 			resizeContents(10);
 		}
-		contents[contentsOffset++] = (byte) ((AccDefault | AccStatic) >> 8);
-		contents[contentsOffset++] = (byte) (AccDefault | AccStatic);
+		contents[contentsOffset++] = (byte) ((ClassFileConstants.AccDefault | ClassFileConstants.AccStatic) >> 8);
+		contents[contentsOffset++] = (byte) (ClassFileConstants.AccDefault | ClassFileConstants.AccStatic);
 		int nameIndex = constantPool.literalIndex(ConstantPool.Clinit);
 		contents[contentsOffset++] = (byte) (nameIndex >> 8);
 		contents[contentsOffset++] = (byte) nameIndex;

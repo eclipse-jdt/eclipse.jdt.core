@@ -12,17 +12,6 @@ package org.eclipse.jdt.internal.compiler.env;
 
 public interface IGenericType extends IDependent {
 
-	// Type decl kinds
-	int CLASS_DECL = 1;
-	int INTERFACE_DECL = 2;
-	int ENUM_DECL = 3;	
-	int ANNOTATION_TYPE_DECL = 4;
-	
-/**
- * Returns the kind of this type CLASS, INTERFACE, ENUM, ANNOTATION_TYPE
- */
-int getKind();
-
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.

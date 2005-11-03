@@ -2,9 +2,6 @@
 <projectDescription>
 	<name>org.eclipse.jdt.core</name>
 	<comment></comment>
-	<projects>
-		<project>org.eclipse.ant.core</project>
-	</projects>
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>

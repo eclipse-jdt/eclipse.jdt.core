@@ -49,4 +49,24 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"SUCCESS"
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=107193
+	public void test002() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class RecipeElement {\n" +
+				"    public static final RecipeElement[] NO_CHILDREN= new RecipeElement[0]; \n" +
+				"}\n" +
+				"class Ingredient extends RecipeElement { }\n" +
+				"class X extends RecipeElement {\n" +
+				"    private Ingredient[] fIngredients;\n" +
+				"    public RecipeElement[] getChildren() {\n" +
+				"        return fIngredients == null ? NO_CHILDREN : fIngredients;\n" +
+				"    }\n" +
+				"}",
+			},
+			""
+		);
+	}
 }

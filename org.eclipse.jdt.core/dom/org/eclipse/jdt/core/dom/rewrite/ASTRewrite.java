@@ -399,12 +399,12 @@ public class ASTRewrite {
 		}
 //		if (node == null) {
 //			if (prop.isSimpleProperty() || (prop.isChildProperty() && ((ChildPropertyDescriptor) prop).isMandatory())) {
-//				String message= "Can not remove property " + prop.getId(); //$NON-NLS-1$
+//				String message= "Can not remove property " + prop.getId();
 //				throw new IllegalArgumentException(message);
 //			}
 //		} else {
 //			if (!prop.getNodeClass().isInstance(node)) {
-//				String message= node.getClass().getName() +  " is not a valid type for property " + prop.getId(); //$NON-NLS-1$
+//				String message= node.getClass().getName() +  " is not a valid type for property " + prop.getId();
 //				throw new IllegalArgumentException(message);
 //			}
 //		}

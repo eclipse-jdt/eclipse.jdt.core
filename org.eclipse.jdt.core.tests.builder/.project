@@ -2,13 +2,6 @@
 <projectDescription>
 	<name>org.eclipse.jdt.core.tests.builder</name>
 	<comment></comment>
-	<projects>
-		<project>org.eclipse.core.resources</project>
-		<project>org.eclipse.core.runtime.compatibility</project>
-		<project>org.eclipse.jdt.core</project>
-		<project>org.eclipse.jdt.core.tests.compiler</project>
-		<project>org.junit</project>
-	</projects>
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>

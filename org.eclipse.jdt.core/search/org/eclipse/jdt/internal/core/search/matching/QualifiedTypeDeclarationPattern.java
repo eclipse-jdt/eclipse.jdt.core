@@ -23,7 +23,7 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this(matchRule);
 
 	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;

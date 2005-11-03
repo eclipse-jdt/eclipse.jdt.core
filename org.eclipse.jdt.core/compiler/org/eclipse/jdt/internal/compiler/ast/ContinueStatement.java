@@ -16,9 +16,9 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ContinueStatement extends BranchStatement {
 
-	public ContinueStatement(char[] l, int s, int e) {
+	public ContinueStatement(char[] label, int sourceStart, int sourceEnd) {
 		
-		super(l, s, e);
+		super(label, sourceStart, sourceEnd);
 	}
 	
 	public FlowInfo analyseCode(

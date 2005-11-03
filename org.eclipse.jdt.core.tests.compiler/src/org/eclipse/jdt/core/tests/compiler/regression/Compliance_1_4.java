@@ -1640,7 +1640,7 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object  [21]\n";
+		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
 		
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3128,7 +3128,7 @@ public void test090() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	X x = this.clone();\n" + 
-		"	  ^\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to X\n" + 
 		"----------\n"
 	);
@@ -3460,7 +3460,7 @@ public void test101() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	Character c2 = \'c\';\n" + 
-		"	          ^^\n" + 
+		"	               ^^^\n" + 
 		"Type mismatch: cannot convert from char to Character\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
@@ -3469,5 +3469,26 @@ public void test101() {
 		"Type mismatch: cannot convert from char to Character\n" + 
 		"----------\n"
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108856
+public void test102() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						System.out.println(this.getClass().getName());\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"X$2");
 }
 }

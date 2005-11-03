@@ -301,4 +301,13 @@ public abstract class CommentLine implements IBorderAttributes {
 			}
 		}
 	}
+	
+	public String toString() {
+		final StringBuffer buffer = new StringBuffer();
+		final int size = this.fRanges.size();
+		for (int i = 0; i < size; i++) {
+			buffer.append(this.fRanges.get(i)).append("\n"); //$NON-NLS-1$
+		}
+		return String.valueOf(buffer);
+	}
 }

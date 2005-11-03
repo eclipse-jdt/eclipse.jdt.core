@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -62,12 +63,12 @@ public ReconcilerTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	// TESTS_NAMES = new String[] { "testTwoProjectsWithDifferentCompliances" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
-	//TESTS_NUMBERS = new int[] { 13 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-	//TESTS_RANGE = new int[] { 16, -1 };
+// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+// TESTS_NAMES = new String[] { "testNoChanges1" };
+// Numbers of tests to run: "test<number>" will be run for each number of this array
+//TESTS_NUMBERS = new int[] { 13 };
+// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(ReconcilerTests.class);
@@ -175,7 +176,7 @@ private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner own
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 }
-private void setWorkingCopyContents(String contents) throws JavaModelException {
+void setWorkingCopyContents(String contents) throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(contents);
 	this.problemRequestor.initialize(contents.toCharArray());
 }
@@ -489,8 +490,80 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with changes, creating AST and no problem detection)
+ */
+public void testBroadcastAST1() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"}");
+	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with NO changes, creating AST and forcing problem detection)
+ */
+public void testBroadcastAST2() throws JavaModelException {
+	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"  public void foo(){\n" + 
+		"  }\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with NO changes, creating AST and no problem detection)
+ */
+public void testBroadcastAST3() throws JavaModelException {
+	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"null",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled twice in a batch operation)
+ */
+public void testBroadcastAST4() throws CoreException {
+	JavaCore.run(
+		new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, monitor);
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class X {\n" +
+					"}");
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, monitor);				
+			}
+		},
+		null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
  * Ensures that reconciling a subclass doesn't close the buffer while resolving its superclass.
@@ -549,6 +622,95 @@ public void testCancel() throws JavaModelException {
 	
 	// last should not throw an OperationCanceledException
 	this.workingCopy.reconcile(AST.JLS2, true, null, new Canceler(counter.count));
+}
+/**
+ * Ensures that the delta is correct when adding a category
+ */
+public void testCategories1() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
+}
+/**
+ * Ensures that the delta is correct when removing a category
+ */
+public void testCategories2() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
+}
+/**
+ * Ensures that the delta is correct when changing a category
+ */
+public void testCategories3() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat2\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
@@ -1559,7 +1721,7 @@ public void testNoChanges1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 }
 /**
@@ -1579,8 +1741,42 @@ public void testNoChanges2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
+}
+/*
+ * Ensures that using a non-generic method with no parametera and with a raw receiver type doesn't create a type safety warning
+ * (regression test for bug 105756 [1.5][model] Incorrect warning on using raw types)
+ */
+public void testRawUsage() throws CoreException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"Reconciler15/src/Generic105756.java", 
+			"public class Generic105756<T> {\n" +
+			"  void foo() {}\n" +
+			"}",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+			"public class X {\n" +
+			"  void bar(Generic105756 g) {\n" +
+			"    g.foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -140,7 +140,7 @@ public TypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
-	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
@@ -176,16 +176,15 @@ protected void decodeModifiers(char value) {
 	this.modifiers = value; // implicit cast to int type
 
 	// Extract suffix from modifiers instead of index key
-	int kind = this.modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
-	switch (kind) {
-		case IConstants.AccAnnotation:
-		case IConstants.AccAnnotation+IConstants.AccInterface:
+	switch (this.modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation)) {
+		case ClassFileConstants.AccAnnotation:
+		case ClassFileConstants.AccAnnotation+ClassFileConstants.AccInterface:
 			this.typeSuffix = ANNOTATION_TYPE_SUFFIX;
 			break;
-		case IConstants.AccEnum:
+		case ClassFileConstants.AccEnum:
 			this.typeSuffix = ENUM_SUFFIX;
 			break;
-		case IConstants.AccInterface:
+		case ClassFileConstants.AccInterface:
 			this.typeSuffix = INTERFACE_SUFFIX;
 			break;
 		default:
@@ -283,14 +282,16 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the simpleName
 			break;
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
+			matchRule &= ~R_EXACT_MATCH;
 			if (this.simpleName != null) {
-				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+				matchRule |= R_PREFIX_MATCH;
 				key = this.pkg == null
 					? CharOperation.append(this.simpleName, SEPARATOR)
 					: CharOperation.concat(this.simpleName, SEPARATOR, this.pkg, SEPARATOR, CharOperation.NO_CHAR);
 				break; // do a prefix query with the simpleName and possibly the pkg
 			}
-			matchRule = matchRule - R_EXACT_MATCH + R_PATTERN_MATCH;
+			matchRule |= R_PATTERN_MATCH;
 			// fall thru to encode the key and do a pattern query
 		case R_PATTERN_MATCH :
 			if (this.pkg == null) {
@@ -302,7 +303,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 						case ANNOTATION_TYPE_SUFFIX :
 						case CLASS_AND_INTERFACE_SUFFIX :
 						case CLASS_AND_ENUM_SUFFIX :
-							key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
+							// null key already returns all types
+							// key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
 							break;
 					}
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {
@@ -313,6 +315,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// must decode to check enclosingTypeNames due to the encoding of local types
 			key = CharOperation.concat(
 				this.simpleName == null ? ONE_STAR : this.simpleName, SEPARATOR, this.pkg, SEPARATOR, ONE_STAR);
+			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 

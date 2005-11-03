@@ -30,7 +30,10 @@ public char classOrInterface;
 public int modifiers;
 public char[][] typeParameterSignatures;
 
-protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
+protected int superRefKind;
+public static final int ALL_SUPER_TYPES = 0;
+public static final int ONLY_SUPER_INTERFACES = 1; // used for IMPLEMENTORS
+public static final int ONLY_SUPER_CLASSES = 2; // used for hierarachy with a class focus
 
 protected static char[][] CATEGORIES = { SUPER_REF };
 
@@ -139,15 +142,15 @@ public static char[] createIndexKey(
 public SuperTypeReferencePattern(
 	char[] superQualification,
 	char[] superSimpleName,
-	boolean checkOnlySuperinterfaces,
+	int superRefKind,
 	int matchRule) {
 
 	this(matchRule);
 
 	this.superQualification = isCaseSensitive() ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = isCaseSensitive() ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superSimpleName = (isCaseSensitive() || isCamelCase())  ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	((InternalSearchPattern)this).mustResolve = superQualification != null;
-	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
+	this.superRefKind = superRefKind;
 }
 SuperTypeReferencePattern(int matchRule) {
 	super(SUPER_REF_PATTERN, matchRule);
@@ -203,8 +206,13 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
-	if (this.checkOnlySuperinterfaces)
+	if (this.superRefKind == ONLY_SUPER_INTERFACES)
 		if (pattern.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
+	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != IIndexConstants.ONE_ZERO/*not an anonymous*/) 
+		// consider enumerations as classes, reject interfaces and annotations
+		if (pattern.superClassOrInterface == IIndexConstants.INTERFACE_SUFFIX 
+			|| pattern.superClassOrInterface == IIndexConstants.ANNOTATION_TYPE_SUFFIX) 
+			return false;
 
 	if (pattern.superQualification != null)
 		if (!matchesName(this.superQualification, pattern.superQualification)) return false;
@@ -218,8 +226,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 	// cannot include the superQualification since it may not exist in the index
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
 			// do a prefix query with the superSimpleName
-			matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			matchRule &= ~R_EXACT_MATCH;
+			matchRule |= R_PREFIX_MATCH;
 			if (this.superSimpleName != null)
 				key = CharOperation.append(this.superSimpleName, SEPARATOR);
 			break;
@@ -229,15 +239,25 @@ EntryResult[] queryIn(Index index) throws IOException {
 		case R_PATTERN_MATCH :
 			// do a pattern query with the superSimpleName
 			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
+			break;
 	}
 
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 protected StringBuffer print(StringBuffer output) {
-	output.append(
-		this.checkOnlySuperinterfaces
-			? "SuperInterfaceReferencePattern: <" //$NON-NLS-1$
-			: "SuperTypeReferencePattern: <"); //$NON-NLS-1$
+	switch (this.superRefKind) {
+		case ALL_SUPER_TYPES:
+			output.append("SuperTypeReferencePattern: <"); //$NON-NLS-1$
+			break;
+		case ONLY_SUPER_INTERFACES:
+			output.append("SuperInterfaceReferencePattern: <"); //$NON-NLS-1$
+			break;
+		case ONLY_SUPER_CLASSES:
+			output.append("SuperClassReferencePattern: <"); //$NON-NLS-1$
+			break;
+	}
 	if (superSimpleName != null) 
 		output.append(superSimpleName);
 	else

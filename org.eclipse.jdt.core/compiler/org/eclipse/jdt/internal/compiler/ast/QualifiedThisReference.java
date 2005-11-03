@@ -23,6 +23,7 @@ public class QualifiedThisReference extends ThisReference {
 	public QualifiedThisReference(TypeReference name, int sourceStart, int sourceEnd) {
 		super(sourceStart, sourceEnd);
 		qualification = name;
+		name.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
 		this.sourceStart = name.sourceStart;
 	}
 

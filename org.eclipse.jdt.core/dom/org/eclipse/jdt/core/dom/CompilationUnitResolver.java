@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -254,7 +254,7 @@ class CompilationUnitResolver extends Compiler {
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 		compilationUnit = converter.convert(compilationUnitDeclaration, source);
-		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		ast.setDefaultNodeFlag(0);
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
@@ -629,14 +629,14 @@ class CompilationUnitResolver extends Compiler {
 				removeUnresolvedBindings(memberTypes[i]);
 			}
 		}
-		if (type.binding != null && (type.binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+		if (type.binding != null && (type.binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 			type.binding = null;
 		}
 		
 		final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
 		if (fields != null) {
 			for (int i = 0, max = fields.length; i < max; i++){
-				if (fields[i].binding != null && (fields[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+				if (fields[i].binding != null && (fields[i].binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 					fields[i].binding = null;
 				}
 			}
@@ -645,7 +645,7 @@ class CompilationUnitResolver extends Compiler {
 		final AbstractMethodDeclaration[] methods = type.methods;
 		if (methods != null) {
 			for (int i = 0, max = methods.length; i < max; i++){
-				if (methods[i].binding !=  null && (methods[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+				if (methods[i].binding !=  null && (methods[i].binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 					methods[i].binding = null;
 				}
 			}
@@ -673,7 +673,8 @@ class CompilationUnitResolver extends Compiler {
 					// only process requested units
 					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
 						super.process(unit, i); // this.process(...) is optimized to not process already known units
-						
+
+						// requested AST
 						ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
 						if (source != null) {
 							// convert AST
@@ -688,7 +689,7 @@ class CompilationUnitResolver extends Compiler {
 							converter.setAST(ast);
 							CompilationUnit compilationUnit = converter.convert(unit, contents);
 							compilationUnit.setJavaElement(source);
-							compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
+							compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
 							ast.setDefaultNodeFlag(0);
 							ast.setOriginalModificationCount(ast.modificationCount());
 							
@@ -698,6 +699,7 @@ class CompilationUnitResolver extends Compiler {
 							worked(1);
 						} 
 						
+						// requested binding
 						Object key = this.requestedKeys.get(fileName);
 						if (key instanceof BindingKeyResolver) {
 							reportBinding(key, astRequestor, owner, unit);
@@ -715,8 +717,8 @@ class CompilationUnitResolver extends Compiler {
 						this.requestedKeys.removeKey(fileName);
 					} else {
 						if (unit.scope != null)
-							unit.scope.faultInTypes(); // still force resolution of signatures, so clients can query DOM AST
-
+							unit.scope.faultInTypes();// still force resolution of signatures, so clients can query DOM AST
+				
 						// the following ensures that all type, method and field bindings are correctly initialized
 						// as they may be needed by further units
 						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111822)

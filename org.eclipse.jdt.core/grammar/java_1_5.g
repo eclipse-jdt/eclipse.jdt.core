@@ -1365,7 +1365,7 @@ RelationalExpression ::= RelationalExpression '>=' ShiftExpression
 
 InstanceofExpression -> RelationalExpression
 InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
+/.$putCase consumeInstanceOfExpression(); $break ./
 /:$readableName Expression:/
 
 EqualityExpression -> InstanceofExpression
@@ -1621,12 +1621,16 @@ EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
 /.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
-EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier Dimsopt ':' Expression ')'
-/.$putCase consumeEnhancedForStatementHeader(false); $break ./
-/:$readableName EnhancedForStatementHeader:/
-/:$compliance 1.5:/
-EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt ':' Expression ')'
-/.$putCase consumeEnhancedForStatementHeader(true); $break ./
+EnhancedForStatementHeaderInit ::= 'for' '(' Type PushModifiers Identifier Dimsopt
+/.$putCase consumeEnhancedForStatementHeaderInit(false); $break ./
+/:$readableName EnhancedForStatementHeaderInit:/
+
+EnhancedForStatementHeaderInit ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt
+/.$putCase consumeEnhancedForStatementHeaderInit(true); $break ./
+/:$readableName EnhancedForStatementHeaderInit:/
+
+EnhancedForStatementHeader ::= EnhancedForStatementHeaderInit ':' Expression ')'
+/.$putCase consumeEnhancedForStatementHeader(); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
 
@@ -1955,9 +1959,9 @@ RelationalExpression_NotName ::= Name '>=' ShiftExpression
 
 InstanceofExpression_NotName -> RelationalExpression_NotName
 InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpressionWithName(OperatorIds.INSTANCEOF); $break ./
+/.$putCase consumeInstanceOfExpressionWithName(); $break ./
 InstanceofExpression_NotName  ::= InstanceofExpression_NotName 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
+/.$putCase consumeInstanceOfExpression(); $break ./
 /:$readableName Expression:/
 
 EqualityExpression_NotName -> InstanceofExpression_NotName

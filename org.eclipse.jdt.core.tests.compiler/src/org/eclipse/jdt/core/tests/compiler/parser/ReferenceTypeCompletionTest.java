@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be a ReferenceType.
  */
 public class ReferenceTypeCompletionTest extends AbstractCompletionTest {
 public ReferenceTypeCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(ReferenceTypeCompletionTest.class);
 }
 /*
  * Regression test for 1FTZCIG. 

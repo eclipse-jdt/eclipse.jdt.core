@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public class SourceElementValuePair implements IElementValuePair 
@@ -59,7 +59,7 @@ public class SourceElementValuePair implements IElementValuePair
                     fieldBinding = (FieldBinding)binding;
             }
 
-            if( fieldBinding != null && (fieldBinding.modifiers & IConstants.AccEnum) > 0 ){
+            if( fieldBinding != null && (fieldBinding.modifiers & ClassFileConstants.AccEnum) > 0 ){
 				return fieldBinding;
             }
         }

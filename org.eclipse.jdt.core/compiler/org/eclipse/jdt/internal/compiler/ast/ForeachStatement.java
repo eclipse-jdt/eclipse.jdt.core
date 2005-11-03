@@ -64,11 +64,9 @@ public class ForeachStatement extends Statement {
 	
 	public ForeachStatement(
 		LocalDeclaration elementVariable,
-		Expression collection,
 		int start) {
 
 		this.elementVariable = elementVariable;
-		this.collection = collection;
 		this.sourceStart = start;
 		this.kind = -1;
 	}
@@ -120,7 +118,7 @@ public class ForeachStatement extends Statement {
 		// element variable is not used
 		if (!(this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0))) {
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0))) {
 			switch(this.kind) {
 				case ARRAY :
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
@@ -152,13 +150,13 @@ public class ForeachStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	    
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
 		if (this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0)) {
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0)) {
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
@@ -184,7 +182,7 @@ public class ForeachStatement extends Statement {
 				// declaringClass.iterator();
 				MethodBinding iteratorMethodBinding =
 					new MethodBinding(
-							AccPublic,
+							ClassFileConstants.AccPublic,
 							"iterator".toCharArray(),//$NON-NLS-1$
 							scope.getJavaUtilIterator(),
 							TypeConstants.NoParameters,
@@ -304,10 +302,10 @@ public class ForeachStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuffer printStatement(int indent, StringBuffer output) {
 
-		printIndent(tab, output).append("for ("); //$NON-NLS-1$
-		this.elementVariable.print(0, output); 
+		printIndent(indent, output).append("for ("); //$NON-NLS-1$
+		this.elementVariable.printAsExpression(0, output); 
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
@@ -315,7 +313,7 @@ public class ForeachStatement extends Statement {
 			output.append(';');
 		} else {
 			output.append('\n');
-			this.action.printStatement(tab + 1, output); //$NON-NLS-1$
+			this.action.printStatement(indent + 1, output);
 		}
 		return output;
 	}
@@ -427,23 +425,23 @@ public class ForeachStatement extends Statement {
 			switch(this.kind) {
 				case ARRAY :
 					// allocate #index secret variable (of type int)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(NotAConstant); // not inlinable
 					
 					// allocate #max secret variable
-					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
+					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.maxVariable);
 					this.maxVariable.setConstant(NotAConstant); // not inlinable
 					// add #array secret variable (of collection type)
-					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
+					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.collectionVariable);
 					this.collectionVariable.setConstant(NotAConstant); // not inlinable
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
 					// allocate #index secret variable (of type Iterator)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(NotAConstant); // not inlinable
 					break;

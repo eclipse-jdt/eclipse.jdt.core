@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import junit.framework.Test;
@@ -18,9 +19,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.team.core.RepositoryProvider;
 
@@ -196,7 +194,10 @@ public void testContents() throws CoreException {
 /**
  * Test creating a working copy on a class file with a customized buffer.
  */
-public void testOnClassFile() throws JavaModelException {
+public void testOnClassFile() throws JavaModelException, IOException {
+	// ensure the external JCL is copied
+	setupExternalJCL("jclMin");
+			
 	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPathString()), this.getExternalJCLSourcePath().toOSString(), "src");
 	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPathString(), "java.lang", "Object.class");
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();

@@ -31,6 +31,7 @@ public void bufferChanged(BufferChangedEvent bufferChangedEvent) {
 	this.events.add(bufferChangedEvent);
 }
 protected IBuffer createBuffer(String path, String content) throws CoreException {
+	waitUntilIndexesReady(); // ensure that the indexer is not reading the file
 	this.createFile(path, content);
 	ICompilationUnit cu = this.getCompilationUnit(path);
 	IBuffer buffer = cu.getBuffer();

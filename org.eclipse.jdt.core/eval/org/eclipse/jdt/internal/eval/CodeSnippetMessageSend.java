@@ -201,7 +201,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.constant = NotAConstant;
 	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
-		this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
 	this.actualReceiverType = receiver.resolveType(scope); 
@@ -234,7 +234,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		for (int i = 0; i < length; i++) {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
-				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
 			if ((argumentTypes[i] = this.arguments[i].resolveType(scope)) == null)
@@ -340,7 +340,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
 			&& this.binding.parameters == NoParameters 
-			&& scope.compilerOptions().complianceLevel >= JDK1_5 
+			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {

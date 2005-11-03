@@ -243,7 +243,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			output.append(tokens[i]);
 			TypeReference[] typeArgument = typeArguments[i];
 			if (typeArgument != null) {
-				output.append('<');//$NON-NLS-1$
+				output.append('<');
 				int max = typeArgument.length - 1;
 				for (int j = 0; j < max; j++) {
 					typeArgument[j].print(0, output);
@@ -257,7 +257,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		output.append(tokens[length - 1]);
 		TypeReference[] typeArgument = typeArguments[length - 1];
 		if (typeArgument != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeArgument.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeArgument[j].print(0, output);

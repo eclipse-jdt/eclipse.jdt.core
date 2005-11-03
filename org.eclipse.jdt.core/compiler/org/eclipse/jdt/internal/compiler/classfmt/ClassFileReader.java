@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
+public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
 }
@@ -239,12 +239,12 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			}
 			switch(attributeName[0] ) {
 				case 'D' :
-					if (CharOperation.equals(attributeName, DeprecatedName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName)) {
 						this.accessFlags |= AccDeprecated;
 					}
 					break;
 				case 'I' :
-					if (CharOperation.equals(attributeName, InnerClassName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.InnerClassName)) {
 						int innerOffset = readOffset + 6;
 						int number_of_classes = u2At(innerOffset);
 						if (number_of_classes != 0) {
@@ -266,29 +266,29 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					if (attributeName.length > 2) {
 						switch(attributeName[1]) {
 							case 'o' :
-								if (CharOperation.equals(attributeName, SourceName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SourceName)) {
 									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
 									this.sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 								}
 								break;
 							case 'y' :
-								if (CharOperation.equals(attributeName, SyntheticName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName)) {
 									this.accessFlags |= AccSynthetic;
 								}
 								break;
 							case 'i' :
-								if (CharOperation.equals(attributeName, SignatureName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SignatureName)) {
 									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
 									this.signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));				
 								}
 						}
 					}
 					break;
-				case 'R' :		
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+				case 'R' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						decodeAnnotations(readOffset, true);
 					}
-					else if(CharOperation.equals(attributeName, RuntimeInvisibleAnnotationsName )){
+					else if(CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName )){
 						decodeAnnotations(readOffset, false);
 					}
 					break;
@@ -304,7 +304,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		e.printStackTrace();
 		throw new ClassFormatException(
 			ClassFormatException.ErrTruncatedInput, 
-			readOffset);			
+			readOffset); 
 	}
 }
 
@@ -455,22 +455,6 @@ public char[][] getInterfaceNames() {
 	return this.interfaceNames;
 }
 
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	
-		switch (getModifiers() & (AccInterface|AccAnnotation|AccEnum)) {
-			case AccInterface :
-				return IGenericType.INTERFACE_DECL;
-			case AccInterface|AccAnnotation :
-				return IGenericType.ANNOTATION_TYPE_DECL;
-			case AccEnum :
-				return IGenericType.ENUM_DECL;
-			default : 
-				return IGenericType.CLASS_DECL;
-		}
-}
 /**
  * Answer the receiver's nested types or null if the array is empty.
  * 

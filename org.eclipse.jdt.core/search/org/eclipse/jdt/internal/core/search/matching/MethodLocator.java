@@ -63,7 +63,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 /*
  * Return whether a type name is in pattern all super declaring types names.
  */
-boolean isTypeInSuperDeclaringTypeNames(char[][] typeName) {
+private boolean isTypeInSuperDeclaringTypeNames(char[][] typeName) {
 	if (allSuperDeclaringTypeNames == null) return false;
 	int length = allSuperDeclaringTypeNames.length;
 	for (int i= 0; i<length; i++) {
@@ -268,7 +268,7 @@ private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding metho
 					if (matchMethod == null) {
 						if (methodParametersEqualsPattern(methods[i].original())) return true;
 					} else {
-						if (methodsHaveSameParameters(methods[i].original(), matchMethod)) return true;
+						if (methods[i].original().areParametersEqual(matchMethod)) return true;
 					}
 				}
 			}
@@ -291,7 +291,7 @@ private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding metho
 					if (matchMethod == null) {
 						if (methodParametersEqualsPattern(methods[j].original())) return true;
 					} else {
-						if (methodsHaveSameParameters(methods[j].original(), matchMethod)) return true;
+						if (methods[j].original().areParametersEqual(matchMethod)) return true;
 					}
 				}
 			}
@@ -427,28 +427,12 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 private boolean methodParametersEqualsPattern(MethodBinding method) {
 	TypeBinding[] methodParameters = method.parameters;
 
-	int length = methodParameters==null ? 0 : methodParameters.length;
-	int patternLength = this.pattern.parameterSimpleNames==null ? 0 : this.pattern.parameterSimpleNames.length;
-	if (length != patternLength) return false;
+	int length = methodParameters.length;
+	if (length != this.pattern.parameterSimpleNames.length) return false;
 
 	for (int i = 0; i < length; i++) {
 		char[] paramQualifiedName = qualifiedPattern(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i]);
 		if (!CharOperation.match(paramQualifiedName, methodParameters[i].readableName(), this.isCaseSensitive)) {
-			return false;
-		}
-	}
-	return true;
-}
-private boolean methodsHaveSameParameters(MethodBinding method, MethodBinding matchMethod) {
-	TypeBinding[] methodParameters = method.parameters;
-	TypeBinding[] matchMethodParameters = matchMethod.parameters;
-
-	int length = methodParameters==null ? 0 : methodParameters.length;
-	int matchLength = matchMethodParameters==null ? 0 : matchMethodParameters.length;
-	if (length != matchLength) return false;
-
-	for (int i = 0; i < length; i++) {
-		if (!CharOperation.equals(methodParameters[i].readableName(), matchMethodParameters[i].readableName(), this.isCaseSensitive)) {
 			return false;
 		}
 	}
@@ -467,18 +451,20 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 				}
 				return null;
 			}
-			// If method binding override a method in super hierarchy which original match pattern then report match
 			if (matchOverriddenMethod(methodBinding.declaringClass, methodBinding, null)) {
 				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
 				return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
 			}
-			// If pattern binding override a method in super hierarchy which original match method binding then report match
-			MethodBinding patternBinding = locator.getMethodBinding(this.pattern);
-			if (patternBinding != null) {
-				if (matchOverriddenMethod(patternBinding.declaringClass, patternBinding, methodBinding)) {
-					this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
-					return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
+			if (isTypeInSuperDeclaringTypeNames(methodBinding.declaringClass.compoundName)) {
+				MethodBinding patternBinding = locator.getMethodBinding(this.pattern);
+				if (patternBinding != null) {
+					if (!matchOverriddenMethod(patternBinding.declaringClass, patternBinding, methodBinding)) {
+						this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
+						return null;
+					}
 				}
+				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
+				return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
 			}
 			this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
 			return null;

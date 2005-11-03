@@ -75,15 +75,15 @@ public void test001() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 3\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  astore_1 [c1]\n" + 
 		"     4  aload_1 [c1]\n" + 
 		"     5  astore_2 [c2]\n" + 
-		"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"     9  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    11  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     9  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    11  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    14  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1296,16 +1296,16 @@ public void test034() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
-		"  public static void main(String[] args);\n" + 
-		"     0  new java.util.ArrayList [17]\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  new java.util.ArrayList [16]\n" + 
 		"     3  dup\n" + 
 		"     4  invokespecial java.util.ArrayList() [18]\n" + 
 		"     7  astore_1 [list]\n" + 
-		"     8  new java.util.ArrayList [17]\n" + 
+		"     8  new java.util.ArrayList [16]\n" + 
 		"    11  dup\n" + 
 		"    12  invokespecial java.util.ArrayList() [18]\n" + 
 		"    15  astore_1 [list]\n" + 
-		"    16  new java.util.ArrayList [17]\n" + 
+		"    16  new java.util.ArrayList [16]\n" + 
 		"    19  dup\n" + 
 		"    20  invokespecial java.util.ArrayList() [18]\n" + 
 		"    23  astore_2 [alist]\n" + 
@@ -1313,9 +1313,9 @@ public void test034() {
 		"    25  astore_3 [list2]\n" + 
 		"    26  aload_2 [alist]\n" + 
 		"    27  astore_3 [list2]\n" + 
-		"    28  getstatic java.lang.System.out : java.io.PrintStream [24]\n" + 
-		"    31  ldc <String \"SUCCESS\"> [26]\n" + 
-		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [32]\n" + 
+		"    28  getstatic java.lang.System.out : java.io.PrintStream [19]\n" + 
+		"    31  ldc <String \"SUCCESS\"> [25]\n" + 
+		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void [27]\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 6]\n" + 
@@ -1442,7 +1442,32 @@ public void test038() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
-
+//unnecessary cast warnings in assignment (Object o = (String) something).
+public void test039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	Object fo = (String) new Object();\n" + 
+			"	void foo(ArrayList al) {\n" + 
+			"		List l = (List) al;\n" + 
+			"		Object o;\n" + 
+			"		o = (ArrayList) al;\n" + 
+			"		Object o2 = (ArrayList) al;\n" + 
+			"		o = (ArrayList) l;\n" + 
+			"		Object o3 = (ArrayList) l;\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

@@ -12,12 +12,12 @@ package org.eclipse.jdt.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -98,22 +98,14 @@ public class ToolFactory {
 	}
 
 	/**
-	 * Create an instance of the built-in code formatter. A code formatter implementation can be contributed via the 
-	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will 
-	 * default to using the default code formatter.
+	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
 	 * 
-	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
-	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
-	 * 	the current settings from <code>JavaCore#getOptions</code>.
-	 * @return an instance of the built-in code formatter
-	 * @see ICodeFormatter
-	 * @see ToolFactory#createCodeFormatter()
-	 * @see JavaCore#getOptions()
-	 * @deprecated - use #createCodeFormatter(Map) instead
+	 * @return a classfile bytecode disassembler
+	 * @see ClassFileBytesDisassembler
+	 * @since 2.1
 	 */
-	public static ICodeFormatter createDefaultCodeFormatter(Map options){
-		if (options == null) options = JavaCore.getOptions();
-		return new org.eclipse.jdt.internal.formatter.old.CodeFormatter(options);
+	public static ClassFileBytesDisassembler createDefaultClassFileBytesDisassembler(){
+		return new Disassembler();
 	}
 	
 	/**
@@ -129,41 +121,6 @@ public class ToolFactory {
 		}
 		return new DeprecatedDisassembler();
 	}
-	
-	/**
-	 * Create a classfile bytecode disassembler, able to produce a String representation of a given classfile.
-	 * 
-	 * @return a classfile bytecode disassembler
-	 * @see ClassFileBytesDisassembler
-	 * @since 2.1
-	 */
-	public static ClassFileBytesDisassembler createDefaultClassFileBytesDisassembler(){
-		return new Disassembler();
-	}
-
-	/**
-	 * Create a default classfile reader, able to expose the internal representation of a given classfile
-	 * according to the decoding flag used to initialize the reader.
-	 * Answer null if the file named fileName doesn't represent a valid .class file.
-	 * The fileName has to be an absolute OS path to the given .class file.
-	 * 
-	 * The decoding flags are described in IClassFileReader.
-	 * 
-	 * @param fileName the name of the file to be read
-	 * @param decodingFlag the flag used to decode the class file reader.
-	 * @return a default classfile reader
-	 * 
-	 * @see IClassFileReader
-	 */
-	public static IClassFileReader createDefaultClassFileReader(String fileName, int decodingFlag){
-		try {
-			return new ClassFileReader(Util.getFileByteContent(new File(fileName)), decodingFlag);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
-			return null;
-		}
-	}	
 	
 	/**
 	 * Create a classfile reader onto a classfile Java element.
@@ -212,6 +169,54 @@ public class ToolFactory {
 	/**
 	 * Create a default classfile reader, able to expose the internal representation of a given classfile
 	 * according to the decoding flag used to initialize the reader.
+	 * Answer null if the input stream contents cannot be retrieved
+	 * 
+	 * The decoding flags are described in IClassFileReader.
+	 * 
+	 * @param stream the given input stream to read
+	 * @param decodingFlag the flag used to decode the class file reader.
+	 * @return a default classfile reader
+	 * 
+	 * @see IClassFileReader
+	 * @since 3.2
+	 */
+	public static IClassFileReader createDefaultClassFileReader(InputStream stream, int decodingFlag) {
+		try {
+			return new ClassFileReader(Util.getInputStreamAsByteArray(stream, -1), decodingFlag);
+		} catch(ClassFormatException e) {
+			return null;
+		} catch(IOException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * Create a default classfile reader, able to expose the internal representation of a given classfile
+	 * according to the decoding flag used to initialize the reader.
+	 * Answer null if the file named fileName doesn't represent a valid .class file.
+	 * The fileName has to be an absolute OS path to the given .class file.
+	 * 
+	 * The decoding flags are described in IClassFileReader.
+	 * 
+	 * @param fileName the name of the file to be read
+	 * @param decodingFlag the flag used to decode the class file reader.
+	 * @return a default classfile reader
+	 * 
+	 * @see IClassFileReader
+	 */
+	public static IClassFileReader createDefaultClassFileReader(String fileName, int decodingFlag){
+		try {
+			return new ClassFileReader(Util.getFileByteContent(new File(fileName)), decodingFlag);
+		} catch(ClassFormatException e) {
+			return null;
+		} catch(IOException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Create a default classfile reader, able to expose the internal representation of a given classfile
+	 * according to the decoding flag used to initialize the reader.
 	 * Answer null if the file named zipFileName doesn't represent a valid zip file or if the zipEntryName
 	 * is not a valid entry name for the specified zip file or if the bytes don't represent a valid
 	 * .class file according to the JVM specifications.
@@ -253,7 +258,26 @@ public class ToolFactory {
 				}
 			}
 		}
-	}	
+	}
+	
+	/**
+	 * Create an instance of the built-in code formatter. A code formatter implementation can be contributed via the 
+	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will 
+	 * default to using the default code formatter.
+	 * 
+	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
+	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
+	 * 	the current settings from <code>JavaCore#getOptions</code>.
+	 * @return an instance of the built-in code formatter
+	 * @see ICodeFormatter
+	 * @see ToolFactory#createCodeFormatter()
+	 * @see JavaCore#getOptions()
+	 * @deprecated - use #createCodeFormatter(Map) instead
+	 */
+	public static ICodeFormatter createDefaultCodeFormatter(Map options){
+		if (options == null) options = JavaCore.getOptions();
+		return new org.eclipse.jdt.internal.formatter.old.CodeFormatter(options);
+	}
 	
 	/**
 	 * Create a scanner, indicating the level of detail requested for tokenizing. The scanner can then be

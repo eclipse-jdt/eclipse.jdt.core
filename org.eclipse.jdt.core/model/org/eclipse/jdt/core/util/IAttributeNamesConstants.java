@@ -129,4 +129,10 @@ public interface IAttributeNamesConstants {
 	 * @since 3.0
 	 */
 	char[] ANNOTATION_DEFAULT = "AnnotationDefault".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "StackMapTable" attribute (added in J2SE 1.6).
+	 * @since 3.2
+	 */
+	char[] STACK_MAP_TABLE = "StackMapTable".toCharArray(); //$NON-NLS-1$
 }

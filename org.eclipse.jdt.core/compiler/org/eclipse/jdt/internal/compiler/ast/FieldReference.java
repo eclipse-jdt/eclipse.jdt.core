@@ -239,7 +239,7 @@ public class FieldReference extends Reference implements InvocationSite {
 					}
 				} else {
 					if (!isStatic){
-						codeStream.invokeObjectGetClass(); // perform null check
+						if (!(this.receiver instanceof ThisReference)) codeStream.invokeObjectGetClass(); // perform null check
 						codeStream.pop();
 					}
 				}
@@ -501,7 +501,17 @@ public class FieldReference extends Reference implements InvocationSite {
 		}		
 	}
 
+	public Constant optimizedBooleanConstant() {
 
+		switch (this.resolvedType.id) {
+			case T_boolean :
+			case T_JavaLangBoolean :		
+				return this.constant != NotAConstant ? this.constant : this.binding.constant();
+			default :
+				return NotAConstant;
+		}
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		return receiver.printExpression(0, output).append('.').append(token);
@@ -516,7 +526,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		//always ignore receiver cast, since may affect constant pool reference
 		boolean receiverCast = false;
 		if (this.receiver instanceof CastExpression) {
-			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 			receiverCast = true;
 		}
 		this.receiverType = receiver.resolveType(scope);
@@ -545,7 +555,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		}
 		this.receiver.computeConversion(scope, this.receiverType, this.receiverType);
-		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
+		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssigned) !=0)) {
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 		}
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
@@ -566,7 +576,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		// perform capture conversion if read access
 		return this.resolvedType = 
-			(((this.bits & IsStrictlyAssignedMASK) == 0) 
+			(((this.bits & IsStrictlyAssigned) == 0) 
 				? fieldBinding.type.capture(scope, this.sourceEnd)
 				: fieldBinding.type);
 	}

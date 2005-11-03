@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
 public class HierarchyType implements IGenericType {
 
 	public IType typeHandle;
-	public int kind;
 	public char[] name;
 	public int modifiers;
 	public char[] superclassName;
@@ -29,14 +28,12 @@ public class HierarchyType implements IGenericType {
 	
 public HierarchyType(
 	IType typeHandle, 
-	int kind,
 	char[] name, 
 	int modifiers, 
 	char[] superclassName,
 	char[][] superInterfaceNames) {
 		
 	this.typeHandle = typeHandle;
-	this.kind = kind;
 	this.name = name;
 	this.modifiers = modifiers;
 	this.superclassName = superclassName;
@@ -48,12 +45,7 @@ public HierarchyType(
 public char[] getFileName() {
 	return this.typeHandle.getCompilationUnit().getElementName().toCharArray();
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	return this.kind;
-}
+
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.

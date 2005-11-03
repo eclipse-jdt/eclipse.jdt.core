@@ -159,7 +159,7 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		}
 		if (results != null && this.cachedChunks == null)
 			cacheDocumentNames();
-	} else if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
+	} else if (matchRule == (SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE)) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
 			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))

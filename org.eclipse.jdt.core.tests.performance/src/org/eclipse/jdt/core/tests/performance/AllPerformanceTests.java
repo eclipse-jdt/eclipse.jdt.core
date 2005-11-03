@@ -21,8 +21,8 @@ import junit.framework.Test;
  */
 public class AllPerformanceTests extends junit.framework.TestCase {
 
-	static String LENGTH = System.getProperty("length", "0");
-	static String ADDITIONAL = System.getProperty("additional");
+	final static String LENGTH = System.getProperty("length", "0");
+	final static boolean ADD = System.getProperty("add", "false").equals("true");
 
 	/**
 	 * Define performance tests classes to be run.
@@ -54,7 +54,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 	 *		- FullSourceWorkspaceTypeHierarchyTests
 	 *		- NameLookupTests2
 	 *
-	 * @see #ADDITIONAL
+	 * @see #ADD
 	 */
 	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
@@ -84,41 +84,30 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		TestCase.TESTS_RANGE = null;
 
 		// Get test suites subset
-		int length = 0;
-		try {
-			length = Integer.parseInt(LENGTH);
-			if (length<=0 || length>testSuites.length)
-				length = testSuites.length;
-		} catch (NumberFormatException e1) {
-			length = testSuites.length;
-		}
-		if (ADDITIONAL != null) {
-			int pos = -1;
+		int length = testSuites.length;
+		if (ADD) {
 			try {
-				pos = Integer.parseInt(ADDITIONAL);
 				Class[] complete = getAdditionalTestClasses();
-				int cl = complete.length;
-				Class[] newSuites = new Class[length+cl];
-				if (pos <= 0) {
-					System.arraycopy(complete, 0, newSuites, 0, cl);
-					System.arraycopy(testSuites, 0, newSuites, cl, length);
-				} else if (pos >= length) {
-					System.arraycopy(testSuites, 0, newSuites, 0, length);
-					System.arraycopy(complete, 0, newSuites, length, cl);
-				} else {
-					for (int i=0; i<pos; i++)
-						newSuites[i] = testSuites[i];
-					for (int i=pos; i<pos+cl; i++)
-						newSuites[i] = complete[i-pos];
-					for (int i=pos+cl; i<length+cl; i++)
-						newSuites[i] = testSuites[i-cl];
-				}
+				int completeLength = complete.length;
+				Class[] newSuites = new Class[length+completeLength];
+				System.arraycopy(testSuites, 0, newSuites, 0, length);
+				System.arraycopy(complete, 0, newSuites, length, completeLength);
 				testSuites = newSuites;
 				length = testSuites.length;
 			} catch (NumberFormatException e1) {
 				// do nothing
 			}
 		}
+
+		// Get suite acronym
+		String suitesAcronym = "";
+		for (int i = 0; i < length; i++) {
+			String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
+			if (name != null) {
+				suitesAcronym += name.substring(0, 1);
+			}
+		}
+		FullSourceWorkspaceTests.RUN_ID = suitesAcronym; //.toLowerCase();
 		
 		// Get tests of suites
 		for (int i = 0; i < length; i++) {

@@ -10,18 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
@@ -146,10 +147,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							CharOperation.concatWith(enclosingTypeNames, '.');
 			if(mustQualifyType(packageName, simpleTypeName, flatEnclosingTypeNames, modifiers)) {
 				int length = 0;
-				int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
+				int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 				switch (kind) {
-					case IConstants.AccAnnotation:
-					case IConstants.AccAnnotation | IConstants.AccInterface:
+					case ClassFileConstants.AccAnnotation:
+					case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;
@@ -168,7 +169,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedAnnotationsModifiers[this.acceptedAnnotationsCount] = modifiers;
 						this.acceptedAnnotations[this.acceptedAnnotationsCount++] = acceptedAnnotation;
 						break;
-					case IConstants.AccEnum:
+					case ClassFileConstants.AccEnum:
 						char[][] acceptedEnum = new char[2][];
 						acceptedEnum[0] = packageName;
 						acceptedEnum[1] = typeName;
@@ -187,7 +188,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedEnumsModifiers[this.acceptedEnumsCount] = modifiers;
 						this.acceptedEnums[this.acceptedEnumsCount++] = acceptedEnum;
 						break;
-					case IConstants.AccInterface:
+					case ClassFileConstants.AccInterface:
 						char[][] acceptedInterface= new char[2][];
 						acceptedInterface[0] = packageName;
 						acceptedInterface[1] = typeName;
@@ -612,7 +613,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
-							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, this);
+							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, false,this);
 							
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
@@ -637,7 +638,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
 								if (!this.acceptedAnswer) {
-									this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
+									this.nameEnvironment.findTypes(this.selectedIdentifier, false, false,this);
 									// try with simple type name
 									if(!this.acceptedAnswer) {
 										acceptQualifiedTypes();
@@ -686,7 +687,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// only reaches here if no selection could be derived from the parsed tree
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer) {
-				this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
+				this.nameEnvironment.findTypes(this.selectedIdentifier, false, false,this);
 				
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
@@ -784,28 +785,35 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			
 			if(enclosingElement instanceof SourceTypeBinding) {
 				SourceTypeBinding enclosingType = (SourceTypeBinding) enclosingElement;
-				this.requestor.acceptTypeParameter(
-					enclosingType.qualifiedPackageName(),
-					enclosingType.qualifiedSourceName(),
-					typeVariableBinding.sourceName(),
-					false,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
+				if (isLocal(enclosingType) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalTypeParameter(typeVariableBinding);
+				} else {
+					this.requestor.acceptTypeParameter(
+						enclosingType.qualifiedPackageName(),
+						enclosingType.qualifiedSourceName(),
+						typeVariableBinding.sourceName(),
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+				}
 			} else if(enclosingElement instanceof MethodBinding) {
 				MethodBinding enclosingMethod = (MethodBinding) enclosingElement;
-				
-				this.requestor.acceptMethodTypeParameter(
-					enclosingMethod.declaringClass.qualifiedPackageName(),
-					enclosingMethod.declaringClass.qualifiedSourceName(),
-					enclosingMethod.isConstructor()
-							? enclosingMethod.declaringClass.sourceName()
-							: enclosingMethod.selector,
-					enclosingMethod.sourceStart(),
-					enclosingMethod.sourceEnd(),
-					typeVariableBinding.sourceName(),
-					false,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
+				if (isLocal(enclosingMethod.declaringClass) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalMethodTypeParameter(typeVariableBinding);
+				} else {
+					this.requestor.acceptMethodTypeParameter(
+						enclosingMethod.declaringClass.qualifiedPackageName(),
+						enclosingMethod.declaringClass.qualifiedSourceName(),
+						enclosingMethod.isConstructor()
+								? enclosingMethod.declaringClass.sourceName()
+								: enclosingMethod.selector,
+						enclosingMethod.sourceStart(),
+						enclosingMethod.sourceEnd(),
+						typeVariableBinding.sourceName(),
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+				}
 			}
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
@@ -834,36 +842,49 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} else
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
-				TypeBinding[] parameterTypes = methodBinding.original().parameters;
-				int length = parameterTypes.length;
-				char[][] parameterPackageNames = new char[length][];
-				char[][] parameterTypeNames = new char[length][];
-				String[] parameterSignatures = new String[length];
-				for (int i = 0; i < length; i++) {
-					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
-					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
-					parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
-				}
 				this.noProposal = false;
-				ReferenceBinding declaringClass = methodBinding.declaringClass;
-				if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
-				} else {
-					this.requestor.acceptMethod(
-						declaringClass.qualifiedPackageName(),
-						declaringClass.qualifiedSourceName(),
-						declaringClass.enclosingType() == null ? null : new String(getSignature(declaringClass.enclosingType())),
-						methodBinding.isConstructor()
-							? declaringClass.sourceName()
-							: methodBinding.selector,
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterSignatures,
-						methodBinding.isConstructor(), 
-						isDeclaration,
-						methodBinding.computeUniqueKey(),
-						this.actualSelectionStart,
-						this.actualSelectionEnd);
+				
+				boolean isValuesOrValueOf = false;
+				if(binding instanceof SyntheticMethodBinding) {
+					SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) binding;
+					if(syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValues
+							|| syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValueOf) {
+						isValuesOrValueOf =  true;
+					}
+				}
+						
+				if(!isValuesOrValueOf && !methodBinding.isSynthetic()) {
+					TypeBinding[] parameterTypes = methodBinding.original().parameters;
+					int length = parameterTypes.length;
+					char[][] parameterPackageNames = new char[length][];
+					char[][] parameterTypeNames = new char[length][];
+					String[] parameterSignatures = new String[length];
+					for (int i = 0; i < length; i++) {
+						parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
+						parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
+						parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
+					}
+					
+					ReferenceBinding declaringClass = methodBinding.declaringClass;
+					if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+						((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
+					} else {
+						this.requestor.acceptMethod(
+							declaringClass.qualifiedPackageName(),
+							declaringClass.qualifiedSourceName(),
+							declaringClass.enclosingType() == null ? null : new String(getSignature(declaringClass.enclosingType())),
+							methodBinding.isConstructor()
+								? declaringClass.sourceName()
+								: methodBinding.selector,
+							parameterPackageNames,
+							parameterTypeNames,
+							parameterSignatures,
+							methodBinding.isConstructor(), 
+							isDeclaration,
+							methodBinding.computeUniqueKey(),
+							this.actualSelectionStart,
+							this.actualSelectionEnd);
+					}
 				}
 				this.acceptedAnswer = true;
 			} else
@@ -966,6 +987,18 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 				if (typeDeclaration.name == assistIdentifier) {
 					throw new SelectionNodeFound(typeDeclaration.binding);
+				}
+				return true;
+			}
+			public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+				if (typeParameter.name == assistIdentifier) {
+					throw new SelectionNodeFound(typeParameter.binding);
+				}
+				return true;
+			}
+			public boolean visit(TypeParameter typeParameter, ClassScope scope) {
+				if (typeParameter.name == assistIdentifier) {
+					throw new SelectionNodeFound(typeParameter.binding);
 				}
 				return true;
 			}
@@ -1087,7 +1120,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer && searchInEnvironment) {
 				if (this.selectedIdentifier != null) {
-					this.nameEnvironment.findTypes(typeName, false, this);
+					this.nameEnvironment.findTypes(typeName, false, false,this);
 					
 					// accept qualified types only if no unqualified type was accepted
 					if(!this.acceptedAnswer) {

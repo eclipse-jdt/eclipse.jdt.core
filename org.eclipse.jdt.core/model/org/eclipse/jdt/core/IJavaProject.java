@@ -58,6 +58,26 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
 public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 
 	/**
+	 * Decodes the classpath entry that has been encoded in the given string
+	 * in the context of this project.
+	 * Returns null if the encoded entry is malformed.
+	 * 
+	 * @param encodedEntry the encoded classpath entry
+	 * @return the decoded classpath entry, or <code>null</code> if unable to decode it
+	 * @since 3.2
+	 */
+	IClasspathEntry decodeClasspathEntry(String encodedEntry);
+	
+	/**
+	 * Encodes the given classpath entry into a string in the context of this project.
+	 * 
+	 * @param classpathEntry the classpath entry to encode
+	 * @return the encoded classpath entry
+	 * @since 3.2
+	 */
+	String encodeClasspathEntry(IClasspathEntry classpathEntry);
+	
+	/**
 	 * Returns the <code>IJavaElement</code> corresponding to the given
 	 * classpath-relative path, or <code>null</code> if no such 
 	 * <code>IJavaElement</code> is found. The result is one of an

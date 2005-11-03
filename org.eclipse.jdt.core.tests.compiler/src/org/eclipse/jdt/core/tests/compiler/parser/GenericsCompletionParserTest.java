@@ -12,11 +12,16 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericsCompletionParserTest extends AbstractCompletionTest {
 public GenericsCompletionParserTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(GenericsCompletionParserTest.class);
 }
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();

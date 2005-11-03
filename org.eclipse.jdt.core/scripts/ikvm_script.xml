@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project name="ecj" default="all" basedir="..">
 	<!-- target name="checkout">
      <exec program="cvs" commandline="-z3 -d:pserver:anonymous@dev.eclipse.org:/home/eclipse co org.eclipse.jdt.core" />

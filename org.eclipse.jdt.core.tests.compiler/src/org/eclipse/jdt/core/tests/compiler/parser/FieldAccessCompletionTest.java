@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be a FieldAccess.
  */
 public class FieldAccessCompletionTest extends AbstractCompletionTest {
 public FieldAccessCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(FieldAccessCompletionTest.class);
 }
 /*
  * AdditiveExpression ::= AdditiveExpression '-' <MultiplicativeExpression>  

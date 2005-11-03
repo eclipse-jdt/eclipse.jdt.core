@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -439,7 +440,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	synchronized IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousTypeMASK) != 0) {
+		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousType) != 0) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			return this.getMethodBinding(anonymousLocalTypeDeclaration.allocation.binding);
 		} else if (node instanceof AllocationExpression) {
@@ -880,6 +881,12 @@ class DefaultBindingResolver extends BindingResolver {
 			if (typeBinding != null) {
 				return typeBinding;
 			}
+		} if (node instanceof JavadocSingleNameReference) {
+			JavadocSingleNameReference singleNameReference = (JavadocSingleNameReference) node;
+			LocalVariableBinding localVariable = (LocalVariableBinding)singleNameReference.binding;
+			if (localVariable != null) {
+				return this.getTypeBinding(localVariable.type);
+			}
 		} if (node instanceof SingleNameReference) {
 			SingleNameReference singleNameReference = (SingleNameReference) node;
 			return this.getTypeBinding(singleNameReference.resolvedType);
@@ -1281,7 +1288,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	synchronized ITypeBinding resolveType(AnonymousClassDeclaration type) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
-		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousTypeMASK) != 0) {
+		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousType) != 0) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			if (anonymousLocalTypeDeclaration != null) {
 				ITypeBinding typeBinding = this.getTypeBinding(anonymousLocalTypeDeclaration.binding);

@@ -102,9 +102,28 @@ public class TypeDeclarationStatement extends Statement {
 			
 	/**
 	 * The type declaration; lazily initialized; defaults to a unspecified, 
-	 * but legal, type declaration.
+	 * but legal, type declaration. In JLS2, corresponds to TYPE_DECLARATION_PROPERTY.
+     * After JLS2, corresponds to DECLARATION_PROPERTY.
+     * @see #typeDeclProperty
 	 */
 	private AbstractTypeDeclaration typeDecl = null;
+    
+    /**
+     * The child property stored on the <code>typeDecl</code> instance variable.
+     * In JLS2, corresponds to TYPE_DECLARATION_PROPERTY. After JLS2, corresponds to 
+     * DECLARATION_PROPERTY.
+     * 
+     * @return the property corresponding to the <code>typeDecl</code> instance variable;
+     * never <code>null</code>
+     */
+    private ChildPropertyDescriptor typeDeclProperty () {
+        if (getAST().apiLevel() == AST.JLS2_INTERNAL) {
+            return TYPE_DECLARATION_PROPERTY;
+        } else {
+            return DECLARATION_PROPERTY;
+        }
+    }
+
 
 	/**
 	 * Creates a new unparented local type declaration statement node owned 
@@ -205,7 +224,7 @@ public class TypeDeclarationStatement extends Statement {
 				if (this.typeDecl == null) {
 					preLazyInit();
 					this.typeDecl = new TypeDeclaration(this.ast);
-					postLazyInit(this.typeDecl, TYPE_DECLARATION_PROPERTY);
+					postLazyInit(this.typeDecl, typeDeclProperty());
 				}
 			}
 		}
@@ -232,9 +251,10 @@ public class TypeDeclarationStatement extends Statement {
 		// a TypeDeclarationStatement may occur inside an 
 		// TypeDeclaration - must check cycles
 		ASTNode oldChild = this.typeDecl;
-		preReplaceChild(oldChild, decl, TYPE_DECLARATION_PROPERTY);
+		ChildPropertyDescriptor typeDeclProperty = typeDeclProperty();
+		preReplaceChild(oldChild, decl, typeDeclProperty);
 		this.typeDecl= decl;
-		postReplaceChild(oldChild, decl, TYPE_DECLARATION_PROPERTY);
+		postReplaceChild(oldChild, decl, typeDeclProperty);
 	}
 	
 	/**

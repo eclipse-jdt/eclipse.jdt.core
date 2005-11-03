@@ -984,4 +984,193 @@ public void test0020() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0021() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K> List<Map<K,T> foo(Map<T,K> m);\n"+
+		"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  <K>Map<K, T> foo(Map<T, K> m);\n" + 
+		"  <K, E>Map<K, E> bar(Map<T, K> m, Map<T, E> e);\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0022() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K> List<Map<K,T> foo();\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  <K>Map<K, T> foo();\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0023() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K>\n"+
+		"	List<Map<K,T> foo();\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  Map<K, T> foo();\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0024() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K> public void foo();\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  public void foo();\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0025() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K> public List<Map<K,T> foo();\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  <K>Map<K, T> foo();\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+public void test0026() {
+	String s = 
+		"import java.util.*;\n"+
+		"public interface X<T> {\n"+
+		"	<K> Map<List<T>,List<K> foo();\n"+
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"import java.util.*;\n" + 
+		"public interface X<T> {\n" + 
+		"  <T>List<K> foo();\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		expectedDietUnitToString;
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

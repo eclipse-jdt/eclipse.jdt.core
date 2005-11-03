@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 public class SourceInitializer extends SourceField {
 public SourceInitializer(
 	int declarationStart, 
@@ -22,7 +24,7 @@ public void setDeclarationSourceEnd(int declarationSourceEnd) {
 }
 
 public String toString(int tab) {
-	if (modifiers == AccStatic) {
+	if (modifiers == ClassFileConstants.AccStatic) {
 		return tabString(tab) + "static {}";
 	}
 	return tabString(tab) + "{}";

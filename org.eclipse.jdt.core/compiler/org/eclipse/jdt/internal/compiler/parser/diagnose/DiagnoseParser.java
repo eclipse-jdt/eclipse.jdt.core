@@ -2025,7 +2025,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			}
 
 			// same loop as first token initialization
-			process_non_terminal:
+			// process_non_terminal:
 			do {
 				tempStackTop -= (Parser.rhs[act]-1);
 				

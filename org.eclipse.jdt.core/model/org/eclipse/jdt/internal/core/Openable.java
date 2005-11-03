@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +50,7 @@ public void bufferChanged(BufferChangedEvent event) {
 		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 		getBufferManager().removeBuffer(event.getBuffer());
 	} else {
-		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().put(this, this);
+		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(this);
 	}
 }	
 /**
@@ -394,34 +393,8 @@ public boolean isStructureKnown() throws JavaModelException {
  * @see IOpenable
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (isConsistent()) return;
-	
-	// create a new info and make it the current info
-	// (this will remove the info and its children just before storing the new infos)
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	boolean hadTemporaryCache = manager.hasTemporaryCache();
-	try {
-		HashMap newElements = manager.getTemporaryCache();
-		openWhenClosed(newElements, monitor);
-		if (newElements.get(this) == null) {
-			// close any buffer that was opened for the new elements
-			Iterator iterator = newElements.keySet().iterator();
-			while (iterator.hasNext()) {
-				IJavaElement element = (IJavaElement)iterator.next();
-				if (element instanceof Openable) {
-					((Openable)element).closeBuffer();
-				}
-			}
-			throw newNotPresentException();
-		}
-		if (!hadTemporaryCache) {
-			manager.putInfos(this, newElements);
-		}
-	} finally {
-		if (!hadTemporaryCache) {
-			manager.resetTemporaryCache();
-		}
-	}
+	// only compilation units can be inconsistent
+	// other openables cannot be inconsistent so default is to do nothing
 }
 /**
  * @see IOpenable

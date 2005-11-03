@@ -24,11 +24,10 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -36,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -78,20 +78,50 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey) {
+protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey, boolean isConstructor) {
 	IMethod method= type.getMethod(new String(selector), parameterSignatures);
 	if (method.exists()) {
-		if (uniqueKey != null)
-			method = new ResolvedBinaryMethod(
-					(JavaElement)method.getParent(),
-					method.getElementName(),
-					method.getParameterTypes(),
-					new String(uniqueKey));
-		addElement(method);
-		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-			System.out.print(method.toString());
-			System.out.println(")"); //$NON-NLS-1$
+		try {
+			if(!isConstructor || ((JavaElement)method).getSourceMapper() == null) {
+				if (uniqueKey != null)
+					method = new ResolvedBinaryMethod(
+							(JavaElement)method.getParent(),
+							method.getElementName(),
+							method.getParameterTypes(),
+							new String(uniqueKey));
+				addElement(method);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+					System.out.print(method.toString());
+					System.out.println(")"); //$NON-NLS-1$
+				}
+			} else {
+				ISourceRange range = method.getSourceRange();
+				if (range.getOffset() != -1 && range.getLength() != 0 ) {
+					if (uniqueKey != null)
+						method = new ResolvedBinaryMethod(
+								(JavaElement)method.getParent(),
+								method.getElementName(),
+								method.getParameterTypes(),
+								new String(uniqueKey));
+					addElement(method);
+					if(SelectionEngine.DEBUG){
+						System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+						System.out.print(method.toString());
+						System.out.println(")"); //$NON-NLS-1$
+					}
+				} else {
+					// no range was actually found, but a method was originally given -> default constructor
+					addElement(type);
+					if(SelectionEngine.DEBUG){
+						System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+						System.out.print(type.toString());
+						System.out.println(")"); //$NON-NLS-1$
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			// an exception occurs, return nothing
 		}
 	}
 }
@@ -100,16 +130,16 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
  */
 public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	int acceptFlags = 0;
-	int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+	int kind = modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation);
 	switch (kind) {
-		case IConstants.AccAnnotation:
-		case IConstants.AccAnnotation+IConstants.AccInterface:
+		case ClassFileConstants.AccAnnotation:
+		case ClassFileConstants.AccAnnotation|ClassFileConstants.AccInterface:
 			acceptFlags = NameLookup.ACCEPT_ANNOTATIONS;
 			break;
-		case IConstants.AccEnum:
+		case ClassFileConstants.AccEnum:
 			acceptFlags = NameLookup.ACCEPT_ENUMS;
 			break;
-		case IConstants.AccInterface:
+		case ClassFileConstants.AccInterface:
 			acceptFlags = NameLookup.ACCEPT_INTERFACES;
 			break;
 		default:
@@ -283,6 +313,45 @@ public void acceptLocalType(TypeBinding typeBinding) {
 		}
 	}
 }
+public void acceptLocalTypeParameter(TypeVariableBinding typeVariableBinding) {
+	IJavaElement res;
+	if(typeVariableBinding.declaringElement instanceof ParameterizedTypeBinding) {
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeVariableBinding.declaringElement).type;
+		res = findLocalElement(localTypeBinding.sourceStart());
+	} else {
+		SourceTypeBinding typeBinding = (SourceTypeBinding)typeVariableBinding.declaringElement;
+		res = findLocalElement(typeBinding.sourceStart());
+	}
+	if (res != null && res.getElementType() == IJavaElement.TYPE) {
+		IType type = (IType) res;
+		ITypeParameter typeParameter = type.getTypeParameter(new String(typeVariableBinding.sourceName));
+		if (typeParameter.exists()) {
+			addElement(typeParameter);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
+				System.out.print(typeParameter.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		}
+	}
+}
+public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBinding) {
+	MethodBinding methodBinding = (MethodBinding)typeVariableBinding.declaringElement;
+	IJavaElement res = findLocalElement(methodBinding.sourceStart());
+	if(res != null && res.getElementType() == IJavaElement.METHOD) {
+		IMethod method = (IMethod) res;
+		
+		ITypeParameter typeParameter = method.getTypeParameter(new String(typeVariableBinding.sourceName));
+		if (typeParameter.exists()) {
+			addElement(typeParameter);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
+				System.out.print(typeParameter.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		}
+	}
+}
 public void acceptLocalVariable(LocalVariableBinding binding) {
 	LocalDeclaration local = binding.declaration;
 	IJavaElement parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
@@ -351,7 +420,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					parameterSignatures[0] = enclosingDeclaringTypeSignature;
 				}
 				
-				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey);
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey, isConstructor);
 			} else {
 				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, uniqueKey);
 			}

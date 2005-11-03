@@ -429,6 +429,72 @@ public void test61() {
 	assertTrue("Path pattern matching failure-2",
 		checkPathMatch("/P/src/**/CVS/".toCharArray(), "/P/src/CVS".toCharArray(), true));
 }
+public void test62() {
+	assertTrue("Camel pattern matching failure-1",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-2",
+			CharOperation.camelCaseMatch("NPExc".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-3",
+			!CharOperation.camelCaseMatch("NPoE".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-4",
+			!CharOperation.camelCaseMatch("NuPExc".toCharArray(), "NullPointerException".toCharArray()));
+}
+public void test63() {
+	assertTrue("Camel pattern matching failure-1",
+			!CharOperation.camelCaseMatch("NPEX".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-2",
+			!CharOperation.camelCaseMatch("NPex".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-3",
+			!CharOperation.camelCaseMatch("npe".toCharArray(), "NullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-4",
+			!CharOperation.camelCaseMatch("npe".toCharArray(), "NPException".toCharArray()));
+	assertTrue("Camel pattern matching failure-5",
+			CharOperation.camelCaseMatch("NPointerE".toCharArray(), "NullPointerException".toCharArray()));
+}
+public void test64() {
+	assertTrue("Camel pattern matching failure-1",
+			CharOperation.camelCaseMatch("IAE".toCharArray(), "IgnoreAllErrorHandler".toCharArray()));
+	assertTrue("Camel pattern matching failure-2",
+			CharOperation.camelCaseMatch("IAE".toCharArray(), "IAnchorElement".toCharArray()));
+	assertTrue("Camel pattern matching failure-3",
+			CharOperation.camelCaseMatch("IAnchorEleme".toCharArray(), "IAnchorElement".toCharArray()));
+	assertTrue("Camel pattern matching failure-4",
+			!CharOperation.camelCaseMatch("".toCharArray(), "IAnchorElement".toCharArray()));
+	assertTrue("Camel pattern matching failure-5",
+			CharOperation.camelCaseMatch(null, "IAnchorElement".toCharArray()));
+	assertTrue("Camel pattern matching failure-6",
+			CharOperation.camelCaseMatch("".toCharArray(), "".toCharArray()));
+	assertTrue("Camel pattern matching failure-7",
+			!CharOperation.camelCaseMatch("IAnchor".toCharArray(), null));
+}
+public void test65() {
+	assertTrue("Camel pattern matching failure-1",
+			CharOperation.camelCaseMatch("iSCDCo".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-2",
+			!CharOperation.camelCaseMatch("inVOke".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-3",
+			CharOperation.camelCaseMatch("i".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-4",
+			!CharOperation.camelCaseMatch("I".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-5",
+			!CharOperation.camelCaseMatch("iStringCD".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-6",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException/java.lang".toCharArray()));
+	assertTrue("Camel pattern matching failure-7",
+			!CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointer/lang.Exception".toCharArray()));
+	assertTrue("Camel pattern matching failure-8",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "Null_Pointer$Exception".toCharArray()));
+	assertTrue("Camel pattern matching failure-9",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "Null1Pointer2Exception".toCharArray()));
+	assertTrue("Camel pattern matching failure-10",
+			!CharOperation.camelCaseMatch("NPE".toCharArray(), "Null.Pointer.Exception".toCharArray()));
+	assertTrue("Camel pattern matching failure-11",
+			!CharOperation.camelCaseMatch("NPE".toCharArray(), "aNullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-12",
+			CharOperation.camelCaseMatch("nullP".toCharArray(), "nullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-13",
+			CharOperation.camelCaseMatch("nP".toCharArray(), "nullPointerException".toCharArray()));
+}
 public static Class testClass() {
 	return UtilTest.class;
 }

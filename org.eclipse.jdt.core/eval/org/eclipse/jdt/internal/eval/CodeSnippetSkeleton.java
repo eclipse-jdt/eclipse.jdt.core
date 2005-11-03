@@ -11,13 +11,12 @@
 package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -67,7 +66,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 			return this.methodDescriptor;
 		}
 		public int getModifiers() {
-			return IConstants.AccPublic;
+			return ClassFileConstants.AccPublic;
 		}
 		public char[] getSelector() {
 			return this.selector;
@@ -129,7 +128,7 @@ public IBinaryMethod[] getMethods() {
 	return this.methods;
 }
 public int getModifiers() {
-	return IConstants.AccPublic;
+	return ClassFileConstants.AccPublic;
 }
 public char[] getName() {
 	return CODE_SNIPPET_NAME;
@@ -142,12 +141,6 @@ public boolean isAnonymous() {
 }
 public boolean isBinaryType() {
 	return true;
-}
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	return IGenericType.CLASS_DECL;
 }
 public boolean isLocal() {
 	return false;

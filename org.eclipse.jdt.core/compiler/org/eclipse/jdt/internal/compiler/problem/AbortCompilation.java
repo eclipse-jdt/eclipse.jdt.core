@@ -60,7 +60,7 @@ public class AbortCompilation extends RuntimeException {
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
 		this.problem.setSourceStart(invocationSite.sourceStart());
 		this.problem.setSourceEnd(invocationSite.sourceEnd());
-		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.lineSeparatorPositions, invocationSite.sourceStart()));
+		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.getLineSeparatorPositions(), invocationSite.sourceStart()));
 		this.compilationResult = unitResult;
 	}
 
@@ -69,7 +69,7 @@ public class AbortCompilation extends RuntimeException {
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
 		this.problem.setSourceStart(astNode.sourceStart());
 		this.problem.setSourceEnd(astNode.sourceEnd());
-		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.lineSeparatorPositions, astNode.sourceStart()));
+		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.getLineSeparatorPositions(), astNode.sourceStart()));
 		this.compilationResult = unitResult;
 	}
 }

@@ -29,7 +29,7 @@ public VariablePattern(int patternKind, boolean findDeclarations, boolean readAc
 	this.writeAccess = writeAccess; // set to find any reference, write only references & all occurences
 	this.findReferences = readAccess || writeAccess;
 
-	this.name = isCaseSensitive() ? name : CharOperation.toLowerCase(name);
+	this.name = (isCaseSensitive() || isCamelCase())  ? name : CharOperation.toLowerCase(name);
 }
 /*
  * Returns whether a method declaration or message send will need to be resolved to 

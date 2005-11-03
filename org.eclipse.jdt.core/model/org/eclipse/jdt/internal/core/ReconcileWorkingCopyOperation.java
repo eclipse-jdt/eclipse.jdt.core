@@ -71,14 +71,17 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				if (progressMonitor != null) progressMonitor.worked(2);
 			
 				// register the deltas
-				if (deltaBuilder.delta != null) {
-					addReconcileDelta(workingCopy, deltaBuilder.delta);
+				JavaElementDelta delta = deltaBuilder.delta;
+				if (delta != null) {
+					delta.changedAST(this.ast);
+					addReconcileDelta(workingCopy, delta);
 				}
 			} else {
 				// force problem detection? - if structure was consistent
-				if (forceProblemDetection) {
+				if (this.forceProblemDetection) {
 					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-					if (problemRequestor != null && problemRequestor.isActive()) {
+					boolean computeProblems = JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()) && problemRequestor != null && problemRequestor.isActive();
+					if (computeProblems) {
 					    CompilationUnitDeclaration unit = null;
 					    try {
 							problemRequestor.beginReporting();
@@ -89,6 +92,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 							if (this.createAST && unit != null) {
 								Map options = workingCopy.getJavaProject().getOptions(true);
 								this.ast = AST.convertCompilationUnit(this.astLevel, unit, contents, options, true/*isResolved*/, workingCopy, this.progressMonitor);
+								JavaElementDelta delta = new JavaElementDelta(workingCopy);
+								delta.changedAST(this.ast);
+								addReconcileDelta(workingCopy, delta);
 								if (progressMonitor != null) progressMonitor.worked(1);
 							}
 					    } finally {

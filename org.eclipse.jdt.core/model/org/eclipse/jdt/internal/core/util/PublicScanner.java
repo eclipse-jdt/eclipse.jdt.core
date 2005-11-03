@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import java.util.Iterator;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.parser.NLSLine;
+import org.eclipse.jdt.internal.compiler.parser.NLSTag;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
@@ -145,70 +142,18 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 		new char[] {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'}; 
 	static final int TableSize = 30, InternalTableSize = 6; //30*6 =210 entries
 	
-	public final static int MAX_OBVIOUS = 128;
-	static final int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
-	public final static int C_LETTER = 4;
-	public final static int C_DIGIT = 3;
-	public final static int C_SEPARATOR = 2;
-	public final static int C_SPACE = 1;
-	static {
-		for (int i = '0'; i <= '9'; i++) 
-			ObviousIdentCharNatures[i] = C_DIGIT;
-		
-		for (int i = 'a'; i <= 'z'; i++) 
-			ObviousIdentCharNatures[i] = C_LETTER;
-		for (int i = 'A'; i <= 'Z'; i++) 
-			ObviousIdentCharNatures[i] = C_LETTER;
-		ObviousIdentCharNatures['_'] = C_LETTER;
-		ObviousIdentCharNatures['$'] = C_LETTER;
-		
-		ObviousIdentCharNatures[10] = C_SPACE; // \ u000a: LINE FEED
-		ObviousIdentCharNatures[12] = C_SPACE; // \ u000c: FORM FEED
-		ObviousIdentCharNatures[13] = C_SPACE; //  \ u000d: CARRIAGE RETURN
-		ObviousIdentCharNatures[32] = C_SPACE; //  \ u0020: SPACE
-		ObviousIdentCharNatures[ 9] = C_SPACE; // \ u0009: HORIZONTAL TABULATION
-		
-		ObviousIdentCharNatures['.'] = C_SEPARATOR;
-		ObviousIdentCharNatures[':'] = C_SEPARATOR;
-		ObviousIdentCharNatures[';'] = C_SEPARATOR;
-		ObviousIdentCharNatures[','] = C_SEPARATOR;
-		ObviousIdentCharNatures['['] = C_SEPARATOR;
-		ObviousIdentCharNatures[']'] = C_SEPARATOR;
-		ObviousIdentCharNatures['('] = C_SEPARATOR;
-		ObviousIdentCharNatures[')'] = C_SEPARATOR;
-		ObviousIdentCharNatures['{'] = C_SEPARATOR;
-		ObviousIdentCharNatures['}'] = C_SEPARATOR;
-		ObviousIdentCharNatures['+'] = C_SEPARATOR;
-		ObviousIdentCharNatures['-'] = C_SEPARATOR;
-		ObviousIdentCharNatures['*'] = C_SEPARATOR;
-		ObviousIdentCharNatures['/'] = C_SEPARATOR;
-		ObviousIdentCharNatures['='] = C_SEPARATOR;
-		ObviousIdentCharNatures['&'] = C_SEPARATOR;
-		ObviousIdentCharNatures['|'] = C_SEPARATOR;
-		ObviousIdentCharNatures['?'] = C_SEPARATOR;
-		ObviousIdentCharNatures['<'] = C_SEPARATOR;
-		ObviousIdentCharNatures['>'] = C_SEPARATOR;
-		ObviousIdentCharNatures['!'] = C_SEPARATOR;
-		ObviousIdentCharNatures['%'] = C_SEPARATOR;
-		ObviousIdentCharNatures['^'] = C_SEPARATOR;
-		ObviousIdentCharNatures['~'] = C_SEPARATOR;
-		ObviousIdentCharNatures['"'] = C_SEPARATOR;
-		ObviousIdentCharNatures['\''] = C_SEPARATOR;
-	}
-	
 	public static final int OptimizedLength = 7;
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
-	public NLSLine currentLine= null;
-	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
-	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
-	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
-	public static final int TAG_POSTFIX_LENGTH= TAG_POSTFIX.length();
-	public StringLiteral[] nonNLSStrings = null;
-	public boolean checkNonExternalizedStringLiterals = false;
-	public boolean wasNonExternalizedStringLiteral = false;
-	
+	public static final char[] TAG_PREFIX= "//$NON-NLS-".toCharArray(); //$NON-NLS-1$
+	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length;
+	public static final char TAG_POSTFIX= '$';
+	public static final int TAG_POSTFIX_LENGTH= 1;
+	private NLSTag[] nlsTags = null;
+	protected int nlsTagsPtr;
+	public boolean checkNonExternalizedStringLiterals;
+
 	// generic support
 	public boolean returnOnlyGreater = false;
 	
@@ -226,6 +171,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 		newEntry4 = 0, 
 		newEntry5 = 0, 
 		newEntry6 = 0;
+	public boolean insideRecovery = false;
 
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -255,9 +201,9 @@ public PublicScanner(
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.sourceLevel = sourceLevel;
 	this.complianceLevel = complianceLevel;
+	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 	this.isTaskCaseSensitive = isTaskCaseSensitive;
@@ -272,15 +218,15 @@ public PublicScanner(
 	char[][] taskPriorities,
 	boolean isTaskCaseSensitive) {
 
-	this.eofPosition = Integer.MAX_VALUE;
-	this.tokenizeComments = tokenizeComments;
-	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.sourceLevel = sourceLevel;
-	this.complianceLevel = sourceLevel;
-	this.taskTags = taskTags;
-	this.taskPriorities = taskPriorities;
-	this.isTaskCaseSensitive = isTaskCaseSensitive;
+	this(
+		tokenizeComments,
+		tokenizeWhiteSpace,
+		checkNonExternalizedStringLiterals,
+		sourceLevel,
+		sourceLevel,
+		taskTags,
+		taskPriorities,
+		isTaskCaseSensitive);
 }
 
 public  final boolean atEnd() {
@@ -289,13 +235,6 @@ public  final boolean atEnd() {
 
 	return this.source.length == this.currentPosition;
 }
-
-protected void checkNonExternalizedString() {
-	if (this.currentLine == null) 
-		return;
-	parseTags(this.currentLine);
-}
-
 // chech presence of task: tags
 // TODO (frederic) see if we need to take unicode characters into account...
 public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputException {
@@ -308,7 +247,7 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 	}
 	int foundTaskIndex = this.foundTaskCount;
 	char previous = src[commentStart+1]; // should be '*' or '/'
-	nextChar : for (
+	for (
 		int i = commentStart + 2; i < commentEnd && i < this.eofPosition; i++) {
 		char[] tag = null;
 		char[] priority = null;
@@ -906,7 +845,6 @@ public int getNextToken() throws InvalidInputException {
 					if (this.currentPosition > this.eofPosition)
 						return TokenNameEOF;
 				}
-				//little trick to get out in the middle of a source compuation
 				if (this.currentPosition > this.eofPosition)
 					return TokenNameEOF;
 				if (checkIfUnicode) {
@@ -915,11 +853,8 @@ public int getNextToken() throws InvalidInputException {
 				} else {
 					offset = this.currentPosition - offset;
 					if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-						checkNonExternalizedString();
 						if (this.recordLineSeparator) {
 							pushLineSeparator();
-						} else {
-							this.currentLine = null;
 						}
 					}
 					// inline version of:
@@ -986,22 +921,6 @@ public int getNextToken() throws InvalidInputException {
 					if (getNextCharAsDigit()) {
 						return scanNumber(true);
 					}
-/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
-						int temp = this.currentPosition;
-						if (getNextChar('.')) {
-							if (getNextChar('.')) {
-								return TokenNameELLIPSIS;
-							} else {
-								this.currentPosition = temp;
-								return TokenNameDOT;
-							}
-						} else {
-							this.currentPosition = temp;
-							return TokenNameDOT;
-						}
-					} else {
-						return TokenNameDOT;
-					}*/
 					int temp = this.currentPosition;
 					if (getNextChar('.')) {
 						if (getNextChar('.')) {
@@ -1242,7 +1161,10 @@ public int getNextToken() throws InvalidInputException {
 									this.unicodeAsBackSlash = false;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
 										getNextUnicodeChar();
+										isUnicode = true;
 										this.withoutUnicodePtr--;
+									} else {
+										isUnicode = false;
 									}
 								} else {
 									if (this.withoutUnicodePtr == 0) {
@@ -1262,7 +1184,9 @@ public int getNextToken() throws InvalidInputException {
 							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 								&& (this.source[this.currentPosition] == 'u')) {
 								getNextUnicodeChar();
+								isUnicode = true;
 							} else {
+								isUnicode = false;
 								if (this.withoutUnicodePtr != 0) {
 									unicodeStore();
 								}
@@ -1288,16 +1212,6 @@ public int getNextToken() throws InvalidInputException {
 
 						}
 						throw e; // rethrow
-					}
-					if (this.checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
-						if (this.currentLine == null) {
-							this.currentLine = new NLSLine();
-						}
-						this.currentLine.add(
-							new StringLiteral(
-								getCurrentTokenSourceString(), 
-								this.startPosition, 
-								this.currentPosition - 1));
 					}
 					return TokenNameStringLiteral;
 				case '/' :
@@ -1349,15 +1263,15 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									checkNonExternalizedString();
+									if (this.checkNonExternalizedStringLiterals) {
+										parseTags();
+									}
 									if (this.recordLineSeparator) {
 										if (isUnicode) {
 											pushUnicodeLineSeparator();
 										} else {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
 									}
 								}
 								if (this.tokenizeComments) {
@@ -1367,6 +1281,9 @@ public int getNextToken() throws InvalidInputException {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
+								if (this.checkNonExternalizedStringLiterals) {
+									parseTags();
+								}
 								if (this.tokenizeComments) {
 									return TokenNameCOMMENT_LINE;
 								} else {
@@ -1398,15 +1315,12 @@ public int getNextToken() throws InvalidInputException {
 									star = true;
 								}
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									checkNonExternalizedString();
 									if (this.recordLineSeparator) {
 										if (isUnicode) {
 											pushUnicodeLineSeparator();
 										} else {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
 									}
 								}
 								isUnicode = false;
@@ -1432,15 +1346,12 @@ public int getNextToken() throws InvalidInputException {
 								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-										checkNonExternalizedString();
 										if (this.recordLineSeparator) {
 											if (isUnicode) {
 												pushUnicodeLineSeparator();
 											} else {
 												pushLineSeparator();
 											}
-										} else {
-											this.currentLine = null;
 										}
 									}
 									switch (this.currentCharacter) {
@@ -1498,14 +1409,15 @@ public int getNextToken() throws InvalidInputException {
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
-
 				default :
 					char c = this.currentCharacter;
-					if (c < MAX_OBVIOUS) {
-						switch (ObviousIdentCharNatures[c]) {
-							case C_LETTER :
+					if (c < ScannerHelper.MAX_OBVIOUS) {
+						switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
+							case ScannerHelper.C_UPPER_LETTER :
+							case ScannerHelper.C_LOWER_LETTER :
+							case ScannerHelper.C_IDENT_PART :
 								return scanIdentifierOrKeyword();
-							case C_DIGIT :
+							case ScannerHelper.C_DIGIT :
 								return scanNumber(false);
 						}
 					}
@@ -1591,7 +1503,16 @@ public void getNextUnicodeChar()
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
 }
-
+public NLSTag[] getNLSTags() {
+	final int length = this.nlsTagsPtr;
+	if (length != 0) {
+		NLSTag[] result = new NLSTag[length];
+		System.arraycopy(this.nlsTags, 0, result, 0, length);
+		this.nlsTagsPtr = 0;
+		return result;
+	}
+	return null;
+}
 public char[] getSource(){
 	return this.source;
 }
@@ -1622,6 +1543,7 @@ public final void jumpOverMethodBody() {
 	int found = 1;
 	try {
 		while (true) { //loop for jumping over comments
+			this.withoutUnicodePtr = 0;
 			// ---------Consume white space and handles startPosition---------
 			boolean isWhiteSpace;
 			do {
@@ -1631,8 +1553,9 @@ public final void jumpOverMethodBody() {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 				} else {
 					if (this.recordLineSeparator
-						&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')))
+							&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 						pushLineSeparator();
+					}
 					isWhiteSpace = CharOperation.isWhitespace(this.currentCharacter);
 				}
 			} while (isWhiteSpace);
@@ -1798,16 +1721,24 @@ public final void jumpOverMethodBody() {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-										if (isUnicode) {
-											pushUnicodeLineSeparator();
-										} else {
-											pushLineSeparator();
+										if (this.checkNonExternalizedStringLiterals) {
+											parseTags();
+										}
+										if (this.recordLineSeparator) {
+											if (isUnicode) {
+												pushUnicodeLineSeparator();
+											} else {
+												pushLineSeparator();
+											}
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
 								 //an eof will then be generated
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
+								if (this.checkNonExternalizedStringLiterals) {
+									parseTags();
+								}
 								if (!this.tokenizeComments) {
 									this.currentPosition++; 
 								}
@@ -1844,8 +1775,6 @@ public final void jumpOverMethodBody() {
 										} else {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
 									}
 								}
 								isUnicode = false;
@@ -1876,8 +1805,6 @@ public final void jumpOverMethodBody() {
 											} else {
 												pushLineSeparator();
 											}
-										} else {
-											this.currentLine = null;
 										}
 									}
 									switch (this.currentCharacter) {
@@ -1920,12 +1847,14 @@ public final void jumpOverMethodBody() {
 				default :
 					try {
 						char c = this.currentCharacter;
-						if (c < MAX_OBVIOUS) {
-							switch (ObviousIdentCharNatures[c]) {
-								case C_LETTER :
+						if (c < ScannerHelper.MAX_OBVIOUS) {
+							switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
+								case ScannerHelper.C_UPPER_LETTER :
+								case ScannerHelper.C_LOWER_LETTER :
+								case ScannerHelper.C_IDENT_PART :
 									scanIdentifierOrKeyword();
 									break NextToken;
-								case C_DIGIT :
+								case ScannerHelper.C_DIGIT :
 									scanNumber(false);
 									break NextToken;
 							}
@@ -2225,64 +2154,120 @@ final char[] optimizedCurrentTokenSource6() {
 	return table[newEntry6 = max] = r; //(r = new char[] {c0, c1, c2, c3, c4, c5});
 }
 
-protected void parseTags(NLSLine line) {
-	String s = new String(getCurrentTokenSource());
-	int pos = s.indexOf(TAG_PREFIX);
-	int lineLength = line.size();
-	while (pos != -1) {
-		int start = pos + TAG_PREFIX_LENGTH;
-		int end = s.indexOf(TAG_POSTFIX, start);
-		if (end != -1) {
-			String index = s.substring(start, end);
-			int i = 0;
-			try {
-				i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
-			} catch (NumberFormatException e) {
-				i = -1; // we don't want to consider this as a valid NLS tag
-			}
-			if (line.exists(i)) {
-				line.set(i, null);
-			}
-		}
-		pos = s.indexOf(TAG_PREFIX, start);
+private void parseTags() {
+	int position = 0;
+	final int currentStartPosition = this.startPosition;
+	final int currentLinePtr = this.linePtr;
+	if (currentLinePtr >= 0) {
+		position = this.lineEnds[currentLinePtr] + 1; 
 	}
-
-	this.nonNLSStrings = new StringLiteral[lineLength];
-	int nonNLSCounter = 0;
-	for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
-		StringLiteral literal = (StringLiteral) iterator.next();
-		if (literal != null) {
-			this.nonNLSStrings[nonNLSCounter++] = literal;
-		}
+	while (Character.isWhitespace(this.source[position])) {
+		position++;
 	}
-	if (nonNLSCounter == 0) {
-		this.nonNLSStrings = null;
-		this.currentLine = null;
+	if (currentStartPosition == position) {
+		// the whole line is commented out
 		return;
-	} 
-	this.wasNonExternalizedStringLiteral = true;
-	if (nonNLSCounter != lineLength) {
-		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
 	}
-	this.currentLine = null;
+	char[] s = null;
+	int sourceEnd = this.currentPosition;
+	int sourceStart = currentStartPosition;
+	int sourceDelta = 0;
+	if (this.withoutUnicodePtr != 0) {
+		// 0 is used as a fast test flag so the real first char is in position 1
+		System.arraycopy(
+			this.withoutUnicodeBuffer, 
+			1, 
+			s = new char[this.withoutUnicodePtr], 
+			0, 
+			this.withoutUnicodePtr);
+		sourceEnd = this.withoutUnicodePtr;
+		sourceStart = 1;
+		sourceDelta = currentStartPosition;
+	} else {
+		s = this.source;
+	}
+	int pos = CharOperation.indexOf(TAG_PREFIX, s, true, sourceStart, sourceEnd);
+	if (pos != -1) {
+		if (this.nlsTags == null) {
+			this.nlsTags = new NLSTag[10];
+			this.nlsTagsPtr = 0;
+		}
+		while (pos != -1) {
+			int start = pos + TAG_PREFIX_LENGTH;
+			int end = CharOperation.indexOf(TAG_POSTFIX, s, start, sourceEnd);
+			if (end != -1) {
+				NLSTag currentTag = null;
+				final int currentLine = currentLinePtr + 1;
+				try {
+					currentTag = new NLSTag(pos + sourceDelta, end + sourceDelta, currentLine, extractInt(s, start, end));
+				} catch (NumberFormatException e) {
+					currentTag = new NLSTag(pos + currentStartPosition, currentStartPosition + end, currentLine, -1);
+				}
+				if (this.nlsTagsPtr == this.nlsTags.length) {
+					// resize
+					System.arraycopy(this.nlsTags, 0, (this.nlsTags = new NLSTag[this.nlsTagsPtr + 10]), 0, this.nlsTagsPtr);
+				}
+				this.nlsTags[this.nlsTagsPtr++] = currentTag;
+			} else {
+				end = start;
+			}
+			pos = CharOperation.indexOf(TAG_PREFIX, s, true, end, sourceEnd);
+		}
+	}
 }
-
+private int extractInt(char[] array, int start, int end) {
+	int value = 0;
+	for (int i = start; i < end; i++) {
+		final char currentChar = array[i];
+		int digit = 0;
+		switch(currentChar) {
+			case '0' :
+				digit = 0;
+				break;
+			case '1' :
+				digit = 1;
+				break;
+			case '2' :
+				digit = 2;
+				break;
+			case '3' :
+				digit = 3;
+				break;
+			case '4' :
+				digit = 4;
+				break;
+			case '5' :
+				digit = 5;
+				break;
+			case '6' :
+				digit = 6;
+				break;
+			case '7' :
+				digit = 7;
+				break;
+			case '8' :
+				digit = 8;
+				break;
+			case '9' :
+				digit = 9;
+				break;
+			default :
+				throw new NumberFormatException();
+		}
+		value *= 10;
+		if (digit < 0) throw new NumberFormatException();
+		value += digit;
+	}
+	return value;
+}
 public final void pushLineSeparator() {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
-	
-	if (this.checkNonExternalizedStringLiterals) {
-	// reinitialize the current line for non externalize strings purpose
-		this.currentLine = null;
-	}
 	//currentCharacter is at position currentPosition-1
-
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		int separatorPos = this.currentPosition - 1;
-		//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 		if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
-		//System.out.println("CR-" + separatorPos);
 		int length = this.lineEnds.length;
 		if (++this.linePtr >=  length)
 			System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
@@ -2308,9 +2293,7 @@ public final void pushLineSeparator() {
 				this.lineEnds[this.linePtr] = this.currentPosition - 1;
 			} else {
 				int separatorPos = this.currentPosition - 1;
-				//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 				if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
-				// System.out.println("LF-" + separatorPos);
 				int length = this.lineEnds.length;
 				if (++this.linePtr >=  length)
 					System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
@@ -2321,11 +2304,6 @@ public final void pushLineSeparator() {
 	}
 }
 public final void pushUnicodeLineSeparator() {
-	if (this.checkNonExternalizedStringLiterals) {
-	// reinitialize the current line for non externalize strings purpose
-		this.currentLine = null;
-	}
-	
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		if (this.source[this.currentPosition] == '\n') {
@@ -2471,10 +2449,12 @@ public int scanIdentifierOrKeyword() {
 			if ((pos = this.currentPosition) >= srcLength) // handle the obvious case upfront
 				break identLoop;
 			char c = src[pos];
-			if (c < MAX_OBVIOUS) {
-				switch (ObviousIdentCharNatures[c]) {
-					case C_LETTER :
-					case C_DIGIT :
+			if (c < ScannerHelper.MAX_OBVIOUS) {
+				switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
+					case ScannerHelper.C_UPPER_LETTER :
+					case ScannerHelper.C_LOWER_LETTER :
+					case ScannerHelper.C_IDENT_PART :
+					case ScannerHelper.C_DIGIT :
 		               if (this.withoutUnicodePtr != 0) {
 							this.currentCharacter = c;
 							unicodeStore();
@@ -2482,8 +2462,8 @@ public int scanIdentifierOrKeyword() {
 						this.currentPosition++;
 						break;						
 						
-					case C_SEPARATOR :
-					case C_SPACE :
+					case ScannerHelper.C_SEPARATOR :
+					case ScannerHelper.C_SPACE :
 						this.currentCharacter = c;
 						break identLoop;	
 

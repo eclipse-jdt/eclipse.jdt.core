@@ -411,7 +411,225 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * @since 3.1
 	 */
 	public static final int ANNOTATION_ATTRIBUTE_REF = 13;
-	
+
+	/**
+	 * Completion is a link reference to a field in a javadoc text.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* blabla System.o^ blabla"</code> and complete it to
+	 * <code>"	* blabla {@link System#out } blabla"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_FIELD_REF = 14;
+
+	/**
+	 * Completion is a link reference to a method in a javadoc text.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* blabla Runtime.get^ blabla"</code> and complete it to
+	 * <code>"	* blabla {@link Runtime#getRuntime() }"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the method that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the method that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the method that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the method that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_METHOD_REF = 15;
+
+	/**
+	 * Completion is a link reference to a type in a javadoc text.
+	 * Any kind of type is allowed, including primitive types, reference types,
+	 * array types, parameterized types, and type variables.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* blabla Str^ blabla"</code> and complete it to
+	 * <code>"	* blabla {@link String } blabla"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the dot-based package name of the package that contains
+	 * the type that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the type that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including Flags.AccInterface, AccEnum,
+	 * and AccAnnotation) of the type that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_TYPE_REF = 16;
+
+	/**
+	 * Completion is a value reference to a static field in a javadoc text.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* blabla System.o^ blabla"</code> and complete it to
+	 * <code>"	* blabla {@value System#out } blabla"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_VALUE_REF = 17;
+
+	/**
+	 * Completion is a method argument or a class/method type parameter
+	 * in javadoc param tag.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* @param arg^ blabla"</code> and complete it to
+	 * <code>"	* @param argument blabla"</code>.
+	 * or
+	 * <code>"	* @param &lt;T^ blabla"</code> and complete it to
+	 * <code>"	* @param &lt;TT&gt; blabla"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_PARAM_REF = 18;
+
+	/**
+	 * Completion is a javadoc block tag.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* @s^ blabla"</code> and complete it to
+	 * <code>"	* @see blabla"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_BLOCK_TAG = 19;
+
+	/**
+	 * Completion is a javadoc inline tag.
+	 * This kind of completion might occur in a context like
+	 * <code>"	* Insert @l^ Object"</code> and complete it to
+	 * <code>"	* Insert {@link Object }"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.2
+	 */
+	public static final int JAVADOC_INLINE_TAG = 20;
+
 	/**
 	 * First valid completion kind.
 	 * 
@@ -424,7 +642,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = ANNOTATION_ATTRIBUTE_REF;
+	protected static final int LAST_KIND = JAVADOC_INLINE_TAG;
 	
 	/**
 	 * Kind of completion request.
@@ -1474,5 +1692,102 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public boolean isConstructor() {
 		return this.isConstructor;
+	}
+	
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append('[');
+		switch(this.completionKind) {
+			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
+				buffer.append("ANONYMOUS_CLASS_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.FIELD_REF :
+				buffer.append("FIELD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.KEYWORD :
+				buffer.append("KEYWORD"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.LABEL_REF :
+				buffer.append("LABEL_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.LOCAL_VARIABLE_REF :
+				buffer.append("LOCAL_VARIABLE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_DECLARATION :
+				buffer.append("METHOD_DECLARATION"); //$NON-NLS-1$
+				if(this.isConstructor) {
+					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
+				}
+				break;
+			case CompletionProposal.METHOD_REF :
+				buffer.append("METHOD_REF"); //$NON-NLS-1$
+				if(this.isConstructor) {
+					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
+				}
+				break;
+			case CompletionProposal.PACKAGE_REF :
+				buffer.append("PACKAGE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.TYPE_REF :
+				buffer.append("TYPE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.VARIABLE_DECLARATION :
+				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.POTENTIAL_METHOD_DECLARATION :
+				buffer.append("POTENTIAL_METHOD_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_NAME_REFERENCE :
+				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
+				buffer.append("ANNOTATION_ATTRIBUTE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_BLOCK_TAG :
+				buffer.append("JAVADOC_BLOCK_TAG"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_INLINE_TAG :
+				buffer.append("JAVADOC_INLINE_TAG"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_FIELD_REF:
+				buffer.append("JAVADOC_FIELD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_METHOD_REF :
+				buffer.append("JAVADOC_METHOD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_TYPE_REF :
+				buffer.append("JAVADOC_TYPE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_PARAM_REF :
+				buffer.append("JAVADOC_PARAM_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_VALUE_REF :
+				buffer.append("JAVADOC_VALUE_REF"); //$NON-NLS-1$
+				break;
+			default :
+				buffer.append("PROPOSAL"); //$NON-NLS-1$
+				break;
+				
+		}
+		buffer.append("]{completion:"); //$NON-NLS-1$
+		if (this.completion != null) buffer.append(this.completion);
+		buffer.append(", declSign:"); //$NON-NLS-1$
+		if (this.declarationSignature != null) buffer.append(this.declarationSignature);  
+		buffer.append(", sign:"); //$NON-NLS-1$
+		if (this.signature != null) buffer.append(this.signature);
+		buffer.append(", declKey:"); //$NON-NLS-1$
+		if (this.declarationKey != null) buffer.append(this.declarationKey);
+		buffer.append(", key:"); //$NON-NLS-1$
+		if (this.key != null) buffer.append(key);
+		buffer.append(", name:"); //$NON-NLS-1$
+		if (this.name != null) buffer.append(this.name);
+		buffer.append(", ["); //$NON-NLS-1$
+		buffer.append(this.replaceStart);
+		buffer.append(',');
+		buffer.append(this.replaceEnd);
+		buffer.append("], relevance="); //$NON-NLS-1$
+		buffer.append(this.relevance);
+		buffer.append('}');
+		return buffer.toString();
 	}
 }

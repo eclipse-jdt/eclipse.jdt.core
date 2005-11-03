@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
 public class MethodBinding extends Binding implements BaseTypes, TypeConstants 
@@ -63,7 +64,7 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	if (this.declaringClass != null) {
 		if (this.declaringClass.isStrictfp())
 			if (!(isNative() || isAbstract()))
-				this.modifiers |= AccStrictfp;
+				this.modifiers |= ClassFileConstants.AccStrictfp;
 	}
 }
 
@@ -380,7 +381,7 @@ public final char[] constantPoolName() {
  * <T> void bar(X<T> t)   -->  <T:Ljava.lang.Object;>(LX<TT;>;)V
  */
 public char[] genericSignature() {
-	if ((this.modifiers & AccGenericSignature) == 0) return null;
+	if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;
 	StringBuffer sig = new StringBuffer(10);
 	if (this.typeVariables != NoTypeVariables) {
 		sig.append('<');
@@ -401,7 +402,7 @@ public char[] genericSignature() {
 	boolean needExceptionSignatures = false;
 	int length = this.thrownExceptions.length;
 	for (int i = 0; i < length; i++) {
-		if((this.thrownExceptions[i].modifiers & AccGenericSignature) != 0) {
+		if((this.thrownExceptions[i].modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			needExceptionSignatures = true;
 			break;
 		}
@@ -418,7 +419,7 @@ public char[] genericSignature() {
 	return genericSignature;
 }
 public final int getAccessFlags() {
-	return modifiers & AccJustFlag;
+	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
 
 public void setExtendedModifiers(final IAnnotationInstance[] methodAnnotations, 
@@ -548,13 +549,13 @@ public boolean hasSubstitutedReturnType() {
 /* Answer true if the receiver is an abstract method
 */
 public final boolean isAbstract() {
-	return (modifiers & AccAbstract) != 0;
+	return (modifiers & ClassFileConstants.AccAbstract) != 0;
 }
 
 /* Answer true if the receiver is a bridge method
 */
 public final boolean isBridge() {
-	return (modifiers & AccBridge) != 0;
+	return (modifiers & ClassFileConstants.AccBridge) != 0;
 }
 
 /* Answer true if the receiver is a constructor
@@ -572,19 +573,19 @@ public final boolean isDefault() {
 /* Answer true if the receiver is a system generated default abstract method
 */
 public final boolean isDefaultAbstract() {
-	return (modifiers & AccDefaultAbstract) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccDefaultAbstract) != 0;
 }
 
 /* Answer true if the receiver is a deprecated method
 */
 public final boolean isDeprecated() {
-	return (modifiers & AccDeprecated) != 0;
+	return (modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
 
 /* Answer true if the receiver is final and cannot be overridden
 */
 public final boolean isFinal() {
-	return (modifiers & AccFinal) != 0;
+	return (modifiers & ClassFileConstants.AccFinal) != 0;
 }
 
 /* Answer true if the receiver is implementing another method
@@ -592,27 +593,27 @@ public final boolean isFinal() {
  * Only set for source methods
 */
 public final boolean isImplementing() {
-	return (modifiers & AccImplementing) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccImplementing) != 0;
 }
 
 /* Answer true if the receiver is a native method
 */
 public final boolean isNative() {
-	return (modifiers & AccNative) != 0;
+	return (modifiers & ClassFileConstants.AccNative) != 0;
 }
 
 /* Answer true if the receiver is overriding another method
  * Only set for source methods
 */
 public final boolean isOverriding() {
-	return (modifiers & AccOverriding) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccOverriding) != 0;
 }
 /*
  * Answer true if the receiver is a "public static void main(String[])" method
  */
 public final boolean isMain() {
 	if (this.selector.length == 4 && CharOperation.equals(this.selector, MAIN)
-			&& ((this.modifiers & (AccPublic | AccStatic)) != 0)
+			&& ((this.modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccStatic)) != 0)
 			&& VoidBinding == this.returnType  
 			&& this.parameters.length == 1) {
 		TypeBinding paramType = this.parameters[0];
@@ -625,68 +626,68 @@ public final boolean isMain() {
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
-	return (modifiers & AccPrivate) != 0;
+	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
 
 /* Answer true if the receiver has private visibility and is used locally
 */
 public final boolean isUsed() {
-	return (modifiers & AccLocallyUsed) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 
 /* Answer true if the receiver has protected visibility
 */
 public final boolean isProtected() {
-	return (modifiers & AccProtected) != 0;
+	return (modifiers & ClassFileConstants.AccProtected) != 0;
 }
 
 /* Answer true if the receiver has public visibility
 */
 public final boolean isPublic() {
-	return (modifiers & AccPublic) != 0;
+	return (modifiers & ClassFileConstants.AccPublic) != 0;
 }
 
 /* Answer true if the receiver got requested to clear the private modifier
  * during private access emulation.
  */
 public final boolean isRequiredToClearPrivateModifier() {
-	return (modifiers & AccClearPrivateModifier) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccClearPrivateModifier) != 0;
 }
 
 /* Answer true if the receiver is a static method
 */
 public final boolean isStatic() {
-	return (modifiers & AccStatic) != 0;
+	return (modifiers & ClassFileConstants.AccStatic) != 0;
 }
 
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
 public final boolean isStrictfp() {
-	return (modifiers & AccStrictfp) != 0;
+	return (modifiers & ClassFileConstants.AccStrictfp) != 0;
 }
 
 /* Answer true if the receiver is a synchronized method
 */
 public final boolean isSynchronized() {
-	return (modifiers & AccSynchronized) != 0;
+	return (modifiers & ClassFileConstants.AccSynchronized) != 0;
 }
 
 /* Answer true if the receiver has public visibility
 */
 public final boolean isSynthetic() {
-	return (modifiers & AccSynthetic) != 0;
+	return (modifiers & ClassFileConstants.AccSynthetic) != 0;
 }
 
 /* Answer true if the receiver method has varargs
 */
 public final boolean isVarargs() {
-	return (modifiers & AccVarargs) != 0;
+	return (modifiers & ClassFileConstants.AccVarargs) != 0;
 }
 
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
+	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
 
 /**
@@ -803,8 +804,11 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 }
 public final int sourceEnd() {
 	AbstractMethodDeclaration method = sourceMethod();
-	if (method == null)
+	if (method == null) {
+		if (this.declaringClass instanceof SourceTypeBinding)
+			return ((SourceTypeBinding) this.declaringClass).sourceEnd();
 		return 0;
+	}
 	return method.sourceEnd;
 }
 public AbstractMethodDeclaration sourceMethod() {
@@ -823,8 +827,11 @@ public AbstractMethodDeclaration sourceMethod() {
 }
 public final int sourceStart() {
 	AbstractMethodDeclaration method = sourceMethod();
-	if (method == null)
+	if (method == null) {
+		if (this.declaringClass instanceof SourceTypeBinding)
+			return ((SourceTypeBinding) this.declaringClass).sourceStart();
 		return 0;
+	}
 	return method.sourceStart;
 }
 
@@ -833,7 +840,7 @@ public final int sourceStart() {
  */
 
 public final void tagForClearingPrivateModifier() {
-	modifiers |= AccClearPrivateModifier;
+	modifiers |= ExtraCompilerModifiers.AccClearPrivateModifier;
 }
 public String toString() {
 	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"; //$NON-NLS-1$

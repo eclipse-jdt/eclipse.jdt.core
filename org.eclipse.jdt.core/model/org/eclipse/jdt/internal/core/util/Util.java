@@ -838,9 +838,8 @@ public class Util {
 	 */
 	public static String getNameWithoutJavaLikeExtension(String fileName) {
 		int index = indexOfJavaLikeExtension(fileName);
-		if (index == -1) {
+		if (index == -1)
 			return fileName;
-		}
 		return fileName.substring(0, index);
 	}
 	
@@ -854,7 +853,7 @@ public class Util {
 		String lineSeparator = null;
 		
 		// line delimiter in given text
-		if (text != null) {
+		if (text != null && text.length() != 0) {
 			lineSeparator = findLineSeparator(text.toCharArray());
 			if (lineSeparator != null)
 				return lineSeparator;
@@ -2030,7 +2029,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2183,7 +2182,6 @@ public class Util {
 			if (includeReturnType) {
 				char[] rts = Signature.getReturnType(methodSignature);
 				appendTypeSignature(rts, 0 , buffer, compact);
-				buffer.append(' ');
 			}
 		}
 		return String.valueOf(buffer);
@@ -2430,7 +2428,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2464,7 +2462,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_CAPTURE) { //$NON-NLS-1$
+		if (c != Signature.C_CAPTURE) {
 			throw new IllegalArgumentException();
 		}
 		return scanTypeBoundSignature(string, start + 1);
@@ -2772,7 +2770,7 @@ public class Util {
 		int paramOpening = 0;
 		
 		// Scan each signature character
-		scanUniqueKey: for (int idx=0, ln = source.length; idx < ln; idx++) {
+		for (int idx=0, ln = source.length; idx < ln; idx++) {
 			switch (source[idx]) {
 				case '>':
 					paramOpening--;

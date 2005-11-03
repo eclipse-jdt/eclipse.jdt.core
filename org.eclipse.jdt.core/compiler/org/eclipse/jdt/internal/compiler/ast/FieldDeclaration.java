@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -94,7 +95,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((this.bits & IsReachableMASK) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
 		// do not generate initialization code if final and static (constant is then
@@ -129,7 +130,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 		if (this.binding != null)
 			return this.binding.isStatic();
-		return (this.modifiers & AccStatic) != 0;
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
@@ -218,13 +219,21 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 							if (initializationType.needsUncheckedConversion(fieldType)) {
 								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
-							}									
+							}
+							if (this.initialization instanceof CastExpression 
+									&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
+								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
+							}								
 						} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
 											|| (initializationType.isBaseType()  // narrowing then boxing ?
-													&& initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
+													&& initializationScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
 													&& !fieldType.isBaseType()
 													&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType)))) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
+							if (this.initialization instanceof CastExpression 
+									&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
+								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
+							}							
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);
 						}
