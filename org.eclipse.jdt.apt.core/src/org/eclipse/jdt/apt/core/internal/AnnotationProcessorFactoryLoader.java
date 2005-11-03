@@ -11,12 +11,9 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +60,8 @@ public class AnnotationProcessorFactoryLoader {
 	// which are.
 	private final Map<IJavaProject, ClassLoader> _project2IterativeClassloaders = 
 		new HashMap<IJavaProject, ClassLoader>();
+	
+	private ClassLoader _batchClassLoader;
     
 	/** 
 	 * Singleton
@@ -78,12 +77,27 @@ public class AnnotationProcessorFactoryLoader {
     }
     
     /**
-     * Called when underlying preferences change
+     * Called when underlying preferences change. 
      */
     public synchronized void resetAll() {
     	removeAptBuildProblemMarkers( null );
     	_project2Factories.clear();
+    	// Need to close the iterative classloaders
+    	for (ClassLoader cl : _project2IterativeClassloaders.values()) {
+    		if (cl instanceof JarClassLoader) {
+    			((JarClassLoader)cl).close();
+    		}
+    	}
     	_project2IterativeClassloaders.clear();
+    }
+    
+    public synchronized void closeBatchClassLoader() {
+    	if (_batchClassLoader == null)
+    		return;
+    	if (_batchClassLoader instanceof JarClassLoader) {
+    		((JarClassLoader)_batchClassLoader).close();
+    	}
+    	_batchClassLoader = null;
     }
     
     /**
@@ -180,7 +194,7 @@ public class AnnotationProcessorFactoryLoader {
 			_project2IterativeClassloaders.put(project, iterativeClassLoader);
 		}
 		
-		ClassLoader batchClassLoader = _createBatchClassLoader(containers, iterativeClassLoader);
+		_createBatchClassLoader(containers, iterativeClassLoader);
 		
 		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
@@ -189,7 +203,7 @@ public class AnnotationProcessorFactoryLoader {
 				final FactoryPath.Attributes attr = entry.getValue();
 				List<AnnotationProcessorFactory> factories;
 				if (attr.runInBatchMode()) {
-					factories = loadFactoryClasses(fc, batchClassLoader, project);
+					factories = loadFactoryClasses(fc, _batchClassLoader, project);
 				}
 				else {
 					factories = loadFactoryClasses(fc, iterativeClassLoader, project);
@@ -285,20 +299,12 @@ public class AnnotationProcessorFactoryLoader {
 		while (i.hasNext()) {
 			FactoryContainer fc = i.next().getKey();
 			if (fc instanceof JarFactoryContainer) {
-				URL url = null;
-				try {
-					url = ((JarFactoryContainer)fc).getJarFileURL();
-					// Open the jar to see if it exists - else we'll enter a build marker.
-					// TODO: we might want to move the "exists()" method into JarFactoryContainer,
-					// and implement it more like ClasspathEntry.validateClasspathEntry().
-					InputStream is = url.openStream();
-					is.close();
-				} catch (IOException e) {
+				File file = ((JarFactoryContainer)fc).getJarFile();
+				if (!file.exists()) {
 					// Remove the jar from the list
 					i.remove();
 					// Add a marker
-					String jarName = (url != null) ? url.toString() : fc.getId();
-					reportMissingFactoryJar( jarName, jproj );
+					reportMissingFactoryJar( file.toString(), jproj );
 				}
 			}
 		}
@@ -372,28 +378,19 @@ public class AnnotationProcessorFactoryLoader {
 	 */
 	private ClassLoader _createIterativeClassLoader( Map<FactoryContainer, FactoryPath.Attributes> containers )
 	{
-		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
+		ArrayList<File> fileList = new ArrayList<File>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
 			FactoryPath.Attributes attr = entry.getValue();
 			FactoryContainer fc = entry.getKey();
 			if (!attr.runInBatchMode() && fc instanceof JarFactoryContainer) {
-				try
-				{
-					JarFactoryContainer jfc = (JarFactoryContainer)fc;
-					URL u = jfc.getJarFileURL();
-					urlList.add( u );
-				}
-				catch ( MalformedURLException mue )
-				{
-					AptPlugin.log(mue, "Could not create ClassLoader for " + fc); //$NON-NLS-1$
-				}
+				JarFactoryContainer jfc = (JarFactoryContainer)fc;
+				fileList.add( jfc.getJarFile() );
 			}
 		}
 		
 		ClassLoader cl;
-		if ( urlList.size() > 0 ) {
-			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			cl = new URLClassLoader( urls, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+		if ( fileList.size() > 0 ) {
+			cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		else {
 			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
@@ -401,38 +398,31 @@ public class AnnotationProcessorFactoryLoader {
 		return cl;
 	}
 	
-	private ClassLoader _createBatchClassLoader( 
+	private void _createBatchClassLoader( 
 			Map<FactoryContainer, FactoryPath.Attributes> containers, 
 			ClassLoader iterativeClassLoader) {
 		
-		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
+		assert _batchClassLoader == null : "Previous batch classloader was non-null -- it was not closed"; //$NON-NLS-1$
+		
+		ArrayList<File> fileList = new ArrayList<File>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
 			FactoryPath.Attributes attr = entry.getValue();
 			FactoryContainer fc = entry.getKey();
 			if (attr.runInBatchMode() && fc instanceof JarFactoryContainer) {
-				try
-				{
-					JarFactoryContainer jfc = (JarFactoryContainer)fc;
-					URL u = jfc.getJarFileURL();
-					urlList.add( u );
-				}
-				catch ( MalformedURLException mue )
-				{
-					AptPlugin.log(mue, "Could not create ClassLoader for " + fc); //$NON-NLS-1$
-				}
+				
+				JarFactoryContainer jfc = (JarFactoryContainer)fc;
+				File f = jfc.getJarFile();
+				fileList.add( f );
+				
 			}
 		}
 		
-		ClassLoader cl;
-		if ( urlList.size() > 0 ) {
-			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			// This needs to be a child of the iterative class loader
-			cl = new URLClassLoader( urls, iterativeClassLoader );
+		if ( fileList.size() > 0 ) {
+			_batchClassLoader = new JarClassLoader( fileList, iterativeClassLoader );
 		}
 		else {
-			cl = iterativeClassLoader;
-		}
-		return cl;
-		
+			// No batch classloader
+			_batchClassLoader = null;
+		}		
 	}
 }

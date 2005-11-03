@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -32,11 +30,8 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
  */
 public abstract class JarFactoryContainer extends FactoryContainer
 {
-	public URL getJarFileURL() throws MalformedURLException { 
-		return getJarFile().toURL(); 
-	}
 	
-	protected abstract File getJarFile();
+	public abstract File getJarFile();
 		
 	@Override
 	protected List<String> loadFactoryNames() throws IOException { 

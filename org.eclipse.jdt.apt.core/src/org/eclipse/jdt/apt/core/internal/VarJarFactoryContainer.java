@@ -43,7 +43,7 @@ public class VarJarFactoryContainer extends JarFactoryContainer {
 	 * @see org.eclipse.jdt.apt.core.internal.JarFactoryContainer#getJarFile()
 	 */
 	@Override
-	protected File getJarFile() {
+	public File getJarFile() {
 		return _jarFile;
 	}
 
