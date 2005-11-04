@@ -46,6 +46,19 @@ public abstract class FactoryContainer
 	
 	public abstract FactoryType getType();
 	
+	/**
+	 * Test whether the resource that backs this container exists,
+	 * can be located, and is (at least in principle) accessible for 
+	 * factories to be loaded from.  For instance, a plugin exists if 
+	 * the plugin is loaded in Eclipse; a jar exists if the jar file 
+	 * can be found on disk.  The test is not required to be perfect:
+	 * for instance, a jar file might exist but be corrupted and
+	 * therefore not really readable, but this method would still return
+	 * true.
+	 * @return true if the resource backing the container exists.
+	 */
+	public abstract boolean exists();
+	
 	protected abstract List<String> loadFactoryNames() throws IOException;
 	
 	protected List<String> _factoryNames;

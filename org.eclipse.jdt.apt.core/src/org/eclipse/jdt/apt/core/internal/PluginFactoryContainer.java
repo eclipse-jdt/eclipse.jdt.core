@@ -47,6 +47,12 @@ public class PluginFactoryContainer extends FactoryContainer
 		}
 	}
 	
+	@Override
+	public boolean exists() {
+		// This object is created only in the process of loading factory plugins.
+		return true;
+	}
+
 	protected List<String> loadFactoryNames() { 
 		return new ArrayList<String>();
 	}
@@ -63,4 +69,5 @@ public class PluginFactoryContainer extends FactoryContainer
 	public FactoryType getType() {
 		return FactoryType.PLUGIN;
 	}
+
 }

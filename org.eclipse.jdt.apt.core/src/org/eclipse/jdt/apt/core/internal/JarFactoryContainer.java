@@ -31,8 +31,20 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 public abstract class JarFactoryContainer extends FactoryContainer
 {
 	
+	/**
+	 * @return a java.io.File.  The file is not guaranteed to exist.
+	 */
 	public abstract File getJarFile();
-		
+	
+	@Override
+	public boolean exists() {
+		try {
+			return getJarFile().exists();
+		} catch (SecurityException e) {
+			return false;
+		}
+	}
+
 	@Override
 	protected List<String> loadFactoryNames() throws IOException { 
 		return getServiceClassnamesFromJar( getJarFile() );

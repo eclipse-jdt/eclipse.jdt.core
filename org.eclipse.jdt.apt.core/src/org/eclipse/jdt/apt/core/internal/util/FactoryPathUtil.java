@@ -26,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -76,6 +77,25 @@ public final class FactoryPathUtil {
 	
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
+	
+	/**
+	 * Test whether a resource is a factory path file.  The criteria are
+	 * that it is a file, it belongs to a project, it is located in the root 
+	 * of that project, and it is named ".factorypath".  Note that the 
+	 * workspace-wide factorypath file does NOT meet these criteria.
+	 * @param path any sort of IResource, or null.
+	 * @return true if the resource is a project-specific factory path file.
+	 */
+	public static boolean isFactoryPathFile(IResource res) {
+		if (res == null || res.getType() != IResource.FILE || res.getProject() == null) {
+			return false;
+		}
+		IPath path = res.getProjectRelativePath();
+		if (path.segmentCount() != 1) {
+			return false;
+		}
+		return FACTORYPATH_FILE.equals(path.lastSegment());
+	}
 	
 	/**
 	 * Loads a map of factory containers from the factory path for a given

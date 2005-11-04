@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
-import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * Provides access to the annotation processor factory path for a Java project.
@@ -220,7 +219,7 @@ public class FactoryPath implements IFactoryPath {
 		}
 	}
 
-	public Map<FactoryContainer, Attributes> getEnabledContainers(IJavaProject jproj) {
+	public Map<FactoryContainer, Attributes> getEnabledContainers() {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>();
 		synchronized(_path) {
 			for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {

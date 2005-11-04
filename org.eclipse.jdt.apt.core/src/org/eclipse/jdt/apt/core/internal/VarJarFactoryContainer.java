@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public class VarJarFactoryContainer extends JarFactoryContainer {
 	
-	private String _id;
-	private File _jarFile;
+	private final String _id;
+	private final File _jarFile;
 
 	/**
 	 * @param jarPath

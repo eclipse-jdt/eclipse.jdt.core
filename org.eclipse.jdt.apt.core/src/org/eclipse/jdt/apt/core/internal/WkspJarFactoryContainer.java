@@ -13,11 +13,12 @@ package org.eclipse.jdt.apt.core.internal;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.apt.core.AptPlugin;
 
 /**
  * Annotation processor factory container based on a jar file 
@@ -25,15 +26,13 @@ import org.eclipse.core.runtime.IPath;
  */
 public class WkspJarFactoryContainer extends JarFactoryContainer {
 
-	private String _id;
-	private File _jarFile;
+	private final String _id;
+	private final File _jarFile; // A java.io.File, not guaranteed to exist.
 
 	/**
 	 * Construct a workspace-jar container from an IPath representing
-	 * the jar file's location in the workspace.  We treat the jar
-	 * file as a physical file rather than as an IResource, which
-	 * means that we don't cooperate with the Eclipse framework: for
-	 * instance, we don't get notified if the jar changes.
+	 * the jar file's location in the workspace.  We will construct
+	 * the container even if the file does not exist.
 	 * @param jar an IPath representing a jar file in the workspace;
 	 * the path is relative to the workspace root.
 	 */
@@ -41,9 +40,20 @@ public class WkspJarFactoryContainer extends JarFactoryContainer {
 		_id = jar.toString();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource res = root.findMember(_id);
-		_jarFile = null;
-		if (null != res && res instanceof IFile) {
+		if (null == res) {
+			// The file evidently doesn't exist on disk.  Do our best to 
+			// construct a java.io.File for it anyway.
+			_jarFile = root.getLocation().append(jar).toFile();
+			
+		}
+		else if (res.getType() == IResource.FILE) {
 			_jarFile = res.getLocation().toFile();
+		}
+		else {
+			_jarFile = null;
+			IStatus s = AptPlugin.createWarningStatus(
+				null, "The factorypath entry " + _id + " does not refer to a jar file"); //$NON-NLS-1$ //$NON-NLS-2$
+			AptPlugin.log(s);
 		}
 	}
 

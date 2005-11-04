@@ -470,9 +470,11 @@ public class AptConfig {
 	{
 		FactoryPath fp = (FactoryPath)path;
 		FactoryPathUtil.setFactoryPath(jproj, fp);
-		// The factory path isn't saved to the Eclipse preference store,
-		// so we can't rely on the ChangeListener mechanism.
-		AnnotationProcessorFactoryLoader.getLoader().resetAll();
+		// Project-specific factory path files are resources, so changes
+		// get picked up by the resource listener.  Workspace changes aren't.
+		if (jproj == null) {
+			AnnotationProcessorFactoryLoader.getLoader().resetAll();
+		}
 	}
 
 	/**
