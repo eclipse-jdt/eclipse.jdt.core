@@ -35,7 +35,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				originalMethod.thrownExceptions,
 				parameterizedDeclaringClass);
 		this.originalMethod = originalMethod;
-
+		this.tagBits = originalMethod.tagBits;
+		
 		final TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
 		Substitution substitution = null;
 		final int length = originalVariables.length;

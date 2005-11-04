@@ -26593,4 +26593,210 @@ public void test859() {
 		},
 		"");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304
+public void test860() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test861() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends A.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test862() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test863() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    B.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test864() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I<T> { }\n" + 
+			"\n" + 
+			"    A.I<Object> foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J<E> extends B.I<E> { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J<Object> foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test865() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B<Object> {\n" + 
+			"	@Override\n" + 
+			"    C.J foo() { return (B.J)super.foo(); }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114997
+public void test866() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  public interface Interface {\n" + 
+			"	  // nothing\n" + 
+			"  }\n" + 
+			"  public List<? extends Interface> field = Collections.emptyList();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114087
+public void test867() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	static <T extends Runnable> List<List<T>> foo1() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar1(List<List<T>> l) {\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> List<T> foo2() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar2(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	{\n" + 
+			"		List<List> o = Foo.foo1();\n" + 
+			"		Foo.bar1(o);\n" + 
+			"	}\n" + 
+			"	{\n" + 
+			"		List o = Foo.foo2();\n" + 
+			"		Foo.bar2(o);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	     ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	                   ^^^^\n" + 
+		"The method foo1() in the type Foo is not applicable for the arguments ()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 21)\n" + 
+		"	Foo.bar1(o);\n" + 
+		"	    ^^^^\n" + 
+		"The method bar1(List<List<T>>) in the type Foo is not applicable for the arguments (List<List>)\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 24)\n" + 
+		"	List o = Foo.foo2();\n" + 
+		"	^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(List) of the generic method bar2(List<T>) of type Foo\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	         ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n");	
+}
 }

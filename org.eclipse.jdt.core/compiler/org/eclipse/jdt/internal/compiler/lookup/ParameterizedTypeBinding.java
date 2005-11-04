@@ -161,6 +161,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+        		if (constraint == CONSTRAINT_EQUAL) {
+        			substitutes.put(VoidBinding, NoTypes); // marker for impossible inference
+        		}
         		return;
         	default :
         		return;

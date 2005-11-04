@@ -35,6 +35,7 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	            parameterizedDeclaringClass, 
 	            null);
 	    this.originalField = originalField;
+	    this.tagBits = originalField.tagBits;
 	    this.id = originalField.id;
 	}
 	/**

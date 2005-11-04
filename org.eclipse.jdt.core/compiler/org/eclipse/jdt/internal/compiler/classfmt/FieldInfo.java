@@ -63,7 +63,8 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)
+							|| CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						decodeStandardAnnotations(readOffset);
 					}
 			}
