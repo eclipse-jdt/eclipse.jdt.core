@@ -20,9 +20,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	public static Test suite() {
-		Test suite = buildTestSuite(testClass());
-		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-		return suite;
+		return buildTestSuite(testClass());
 	}
 	
 	public static Class testClass() {

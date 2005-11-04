@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AssertionTest extends AbstractRegressionTest {
@@ -32,7 +34,19 @@ public class AssertionTest extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return setupSuite(testClass());
+		TestSuite suite = new TestSuite(testClass().getName());
+		if (highestComplianceLevels().compareTo(COMPLIANCE_1_4) < 0) {
+			System.err.println("Cannot run "+testClass().getName()+" at compliance "+highestComplianceLevels()+"!");
+			return suite;
+		}
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			suite.addTest(buildTestSuite(testClass(), COMPLIANCE_1_4));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			suite.addTest(buildTestSuite(testClass(), COMPLIANCE_1_5));
+		}
+		return suite;
 	}
 	
 	public static Class testClass() {

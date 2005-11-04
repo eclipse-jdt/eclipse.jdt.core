@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -30,20 +29,7 @@ public BatchCompilerTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test035"));
-		return suite;
-	}
-	if (false) {
-		TestSuite suite = new TestSuite();
-		for (int i = 23; i < 27; i++) 
-		  suite.addTest(new BatchCompilerTest("test0" + String.valueOf(i)));
-		return suite;
-	}
-	return setupSuite(testClass());
-	// TODO find a way to reduce the number of command line tests to one per 
-	//      test run (aka do not add 1.3, 1.4, 1.5 supplementary level)
+	return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_5);
 }
 
 	/**

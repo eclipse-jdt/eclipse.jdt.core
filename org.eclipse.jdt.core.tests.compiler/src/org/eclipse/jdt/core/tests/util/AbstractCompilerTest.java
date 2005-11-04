@@ -169,6 +169,15 @@ public class AbstractCompilerTest extends TestCase {
 		return test;
 	}
 
+	public static Test buildTestSuiteUniqueCompliance(Class evaluationTestClass, String uniqueCompliance) {
+			String highestLevel = highestComplianceLevels();
+			if (highestLevel.compareTo(uniqueCompliance) < 0) {
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+highestLevel+"!");
+				return new TestSuite();
+			}
+			return buildTestSuite(evaluationTestClass, uniqueCompliance);
+	}
+
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}

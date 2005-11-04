@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
 
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
@@ -23,6 +26,8 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -37,7 +42,9 @@ import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
-	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
+	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
+	protected static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
+	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	public static int INDENT = 2;
 	public static boolean SHIFT = false;
 
@@ -48,7 +55,83 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
-	
+		
+	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		compileAndDeploy(source, directoryName, className);
+		try {
+			File directory = new File(EVAL_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				assertTrue(".class file not generated properly in " + directory, false);
+			}
+			File f = new File(directory, className + ".class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", mode);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} finally {
+			removeTempClass(className);
+		}
+	}
+
+	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		this.checkClassFile("", className, source, expectedOutput, mode);
+	}
+
+	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
+		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	protected void compileAndDeploy(String source, String directoryName, String className) {
+		File directory = new File(SOURCE_DIRECTORY);
+		if (!directory.exists()) {
+			if (!directory.mkdirs()) {
+				System.out.println("Could not create " + SOURCE_DIRECTORY);
+				return;
+			}
+		}
+		if (directoryName != null && directoryName.length() != 0) {
+			directory = new File(SOURCE_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				if (!directory.mkdirs()) {
+					System.out.println("Could not create " + directory);
+					return;
+				}
+			}
+		}
+		String fileName = directory.getAbsolutePath() + File.separator + className + ".java";
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			writer.write(source);
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		StringBuffer buffer = new StringBuffer()
+			.append("\"")
+			.append(fileName)
+			.append("\" -d \"")
+			.append(EVAL_DIRECTORY);
+		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) {
+			buffer.append("\" -1.4 -source 1.3 -target 1.2");
+		} else {
+			buffer.append("\" -1.5");
+		}
+		buffer
+			.append(" -preserveAllLocals -nowarn -g -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(SOURCE_DIRECTORY)
+			.append("\"");
+		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+	}
+
 	/*
 	 * Returns the references in the given .class file.
 	 */
@@ -145,6 +228,29 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			this.javaClassLib = regressionTestSetUp.javaClassLib;
 			this.verifier = regressionTestSetUp.verifier;
 		}
+	}
+
+	protected void removeTempClass(String className) {
+		File dir = new File(SOURCE_DIRECTORY);
+		String[] fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
+			}
+		}
+		
+		dir = new File(EVAL_DIRECTORY);
+		fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
+			}
+		}
+	
 	}
 	protected void runConformTest(String[] testFiles) {
 		runConformTest(testFiles, null, null, true, null);

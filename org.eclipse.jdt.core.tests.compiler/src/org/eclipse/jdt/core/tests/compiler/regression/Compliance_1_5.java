@@ -41,9 +41,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-	Test suite = buildTestSuite(testClass());
-	TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-	return suite;
+		return buildTestSuite(testClass());
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...

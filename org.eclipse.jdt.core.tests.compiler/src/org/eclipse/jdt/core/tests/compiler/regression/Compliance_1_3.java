@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -41,7 +42,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-	return buildTestSuite(testClass());
+		return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_3);
 }
 public static Class testClass() {
 	return Compliance_1_3.class;

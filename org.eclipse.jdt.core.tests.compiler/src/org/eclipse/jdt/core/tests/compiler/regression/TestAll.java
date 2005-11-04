@@ -34,7 +34,6 @@ public static Test suite() {
 	standardTests.add(BooleanTest.class);
 	standardTests.add(CastTest.class);
 	standardTests.add(ClassFileComparatorTest.class);
-	standardTests.add(ClassFileReaderTest.class);
 	standardTests.add(CollisionCase.class);
 	standardTests.add(ConstantTest.class);
 	standardTests.add(DeprecatedTest.class);
@@ -73,6 +72,7 @@ public static Test suite() {
 		ArrayList tests_1_4 = (ArrayList)standardTests.clone();
 		tests_1_4.add(AssertionTest.class);
 		tests_1_4.add(Compliance_1_4.class);
+		tests_1_4.add(ClassFileReaderTest_1_4.class);
 		tests_1_4.add(JavadocTest_1_4.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
@@ -85,6 +85,7 @@ public static Test suite() {
 		ArrayList tests_1_5 = (ArrayList)standardTests.clone();
 		tests_1_5.addAll(RunComparableTests.ALL_CLASSES);
 		tests_1_5.add(AssertionTest.class);
+		tests_1_5.add(ClassFileReaderTest_1_5.class);
 		tests_1_5.add(GenericTypeSignatureTest.class);
 		tests_1_5.add(InternalHexFloatTest.class);
 		tests_1_5.add(JavadocTest_1_5.class);

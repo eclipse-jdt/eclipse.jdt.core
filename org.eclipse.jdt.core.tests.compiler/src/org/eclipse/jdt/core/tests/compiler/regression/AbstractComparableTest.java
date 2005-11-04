@@ -10,15 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 import junit.framework.AssertionFailedError;
+import junit.framework.Test;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -62,6 +58,12 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	// Summary display
 	static String CURRENT_CLASS_NAME;
 	static Map TESTS_COUNTERS = new HashMap();
+
+	public static Test buildTestSuite(Class evaluationTestClass) {
+		Test suite = buildTestSuiteUniqueCompliance(evaluationTestClass, COMPLIANCE_1_5);
+		TESTS_COUNTERS.put(evaluationTestClass.getName(), new Integer(suite.countTestCases()));
+		return suite;
+	}
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()

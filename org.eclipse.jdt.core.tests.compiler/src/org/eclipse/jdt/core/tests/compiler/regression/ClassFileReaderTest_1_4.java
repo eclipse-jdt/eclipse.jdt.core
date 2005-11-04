@@ -10,25 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IClassFileReader;
 
-public class ClassFileReaderTest extends AbstractComparableTest {
-	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
-	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
+public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 83 };
@@ -36,158 +25,14 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_4);
 	}
 	public static Class testClass() {
-		return ClassFileReaderTest.class;
+		return ClassFileReaderTest_1_4.class;
 	}
 
-	public ClassFileReaderTest(String name) {
+	public ClassFileReaderTest_1_4(String name) {
 		super(name);
-	}
-	private void checkClassFile(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
-		compileAndDeploy(compliance, source, directoryName, className);
-		try {
-			File directory = new File(EVAL_DIRECTORY, directoryName);
-			if (!directory.exists()) {
-				assertTrue(".class file not generated properly in " + directory, false);
-			}
-			File f = new File(directory, className + ".class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", mode);
-			int index = result.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
-			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, result);
-			}
-		} finally {
-			removeTempClass(className);
-		}
-	}
-	
-	/**
-	 * @deprecated
-	 */
-	private void checkClassFileUsingInputStream(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws IOException {
-		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
-		compileAndDeploy(compliance, source, directoryName, className);
-		BufferedInputStream inputStream = null;
-		try {
-			File directory = new File(EVAL_DIRECTORY, directoryName);
-			if (!directory.exists()) {
-				assertTrue(".class file not generated properly in " + directory, false);
-			}
-			File f = new File(directory, className + ".class");
-			inputStream = new BufferedInputStream(new FileInputStream(f));
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(inputStream, IClassFileReader.ALL);
-			assertNotNull(classFileReader);
-			String result = ToolFactory.createDefaultClassFileDisassembler().disassemble(classFileReader, "\n", mode);
-			int index = result.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
-			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, result);
-			}
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-			removeTempClass(className);
-		}
-	}
-	private void checkClassFile(String compliance, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
-		this.checkClassFile(compliance, "", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-	private void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
-		checkClassFile("1.4", className, source, expectedOutput);
-	}
-	
-	public void compileAndDeploy(String compliance, String source, String directoryName, String className) {
-		File directory = new File(SOURCE_DIRECTORY);
-		if (!directory.exists()) {
-			if (!directory.mkdirs()) {
-				System.out.println("Could not create " + SOURCE_DIRECTORY);
-				return;
-			}
-		}
-		if (directoryName != null && directoryName.length() != 0) {
-			directory = new File(SOURCE_DIRECTORY, directoryName);
-			if (!directory.exists()) {
-				if (!directory.mkdirs()) {
-					System.out.println("Could not create " + directory);
-					return;
-				}
-			}
-		}
-		String fileName = directory.getAbsolutePath() + File.separator + className + ".java";
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-			writer.write(source);
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		StringBuffer buffer = new StringBuffer();
-		if (JavaCore.VERSION_1_5.equals(compliance)) {
-			buffer
-			.append("\"")
-			.append(fileName)
-			.append("\" -d \"")
-			.append(EVAL_DIRECTORY)
-			.append("\" -1.5 -preserveAllLocals -nowarn -g -classpath \"")
-			.append(Util.getJavaClassLibsAsString())
-			.append(SOURCE_DIRECTORY)
-			.append("\"");
-		} else {
-			buffer
-				.append("\"")
-				.append(fileName)
-				.append("\" -d \"")
-				.append(EVAL_DIRECTORY)
-				.append("\" -1.4 -source 1.3 -target 1.2 -preserveAllLocals -nowarn -g -classpath \"")
-				.append(Util.getJavaClassLibsAsString())
-				.append(SOURCE_DIRECTORY)
-				.append("\"");
-		}
-		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
-	}
-	
-	public void compileAndDeploy(String source, String className) {
-		compileAndDeploy("1.4", source, "", className);
-	}
-
-	public void removeTempClass(String className) {
-		File dir = new File(SOURCE_DIRECTORY);
-		String[] fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-		
-		dir = new File(EVAL_DIRECTORY);
-		fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-	
 	}
 	
 	/**
@@ -2779,64 +2624,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}";
 		checkClassFile("I", source, expectedOutput);
 	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
-	 */
-	public void test070() throws ClassFormatException, IOException {
-		String source =
-			"public class X {\n" +
-			"	X(String s) {\n" +
-			"	}\n" +
-			"	public void foo(int i, long l, String[][]... args) {\n" +
-			"	}\n" +
-			"}";
-		String expectedOutput =
-			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
-			"  // Stack: 0, Locals: 5\n" + 
-			"  public void foo(int i, long l, java.lang.String[][]... args);\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 1] local: i index: 1 type: int\n" + 
-			"        [pc: 0, pc: 1] local: l index: 2 type: long\n" + 
-			"        [pc: 0, pc: 1] local: args index: 4 type: java.lang.String[][][]\n" + 
-			"}";
-		checkClassFile("1.5", "X", source, expectedOutput);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
-	 */
-	public void test071() throws ClassFormatException, IOException {
-		String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		long[] tab = new long[] {};\n" + 
-			"		System.out.println(tab.clone());\n" + 
-			"		System.out.println(tab.clone());\n" + 
-			"	}\n" + 
-			"}";
-		String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(java.lang.String[] args);\n" + 
-			"     0  iconst_0\n" + 
-			"     1  newarray long [11]\n" + 
-			"     3  astore_1 [tab]\n" + 
-			"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     7  aload_1 [tab]\n" + 
-			"     8  invokevirtual long[].clone() : java.lang.Object [22]\n" + 
-			"    11  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" + 
-			"    14  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"    17  aload_1 [tab]\n" + 
-			"    18  invokevirtual long[].clone() : java.lang.Object [22]\n" + 
-			"    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" + 
-			"    24  return\n";
-		checkClassFile("1.5", "X", source, expectedOutput);
-	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
 	public void test072() throws ClassFormatException, IOException {
 		String source =
@@ -2909,7 +2697,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  \n" + 
 			"  abstract java.lang.String foo12();\n" + 
 			"}";
-		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
 	public void test073() throws ClassFormatException, IOException {
@@ -2926,7 +2714,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  X(X x) {\n" + 
 			"  }\n" + 
 			"}";
-		checkClassFile("1.4", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
 	public void test074() throws ClassFormatException, IOException {
@@ -2945,7 +2733,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  X(X x) {\n" + 
 			"  }\n" + 
 			"}";
-		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
@@ -2965,241 +2753,6 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  X(X x) {\n" + 
 			"  }\n" + 
 			"}";
-		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test076() throws ClassFormatException, IOException {
-		String source =
-			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
-			"  U field;\n" +
-			"  String field2;\n" +
-			"  <T> Y(T t) {}\n" +
-			"  <T> T foo(T t, String... s) {\n" + 
-			"    return t;\n" + 
-			"  }\n" + 
-			"}";
-		String expectedOutput =
-			"public class Y<W,U extends Reader & Serializable> {\n" + 
-			"  \n" + 
-			"  U field;\n" + 
-			"  \n" + 
-			"  String field2;\n" + 
-			"  \n" + 
-			"  <T> Y(T t) {\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  <T> T foo(T t, String... s) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}";
-		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test077() throws ClassFormatException, IOException {
-		String source =
-			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
-			"  U field;\n" +
-			"  String field2;\n" +
-			"  <T> Y(T t) {}\n" +
-			"  <T> T foo(T t, String... s) {\n" + 
-			"    return t;\n" + 
-			"  }\n" + 
-			"}";
-		String expectedOutput =
-			"public class Y<W,U extends java.io.Reader & java.io.Serializable> {\n" + 
-			"  \n" + 
-			"  U field;\n" + 
-			"  \n" + 
-			"  java.lang.String field2;\n" + 
-			"  \n" + 
-			"  <T> Y(T t) {\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  <T> T foo(T t, java.lang.String... s) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}";
-		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
-	 */
-	public void test078() throws ClassFormatException, IOException {
-		String source =
-			"public class X {\n" +
-			"	X(String s) {\n" +
-			"	}\n" +
-			"	public static void foo(int i, long l, String[][]... args) {\n" +
-			"	}\n" +
-			"}";
-		String expectedOutput =
-			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
-			"  // Stack: 0, Locals: 4\n" + 
-			"  public static void foo(int i, long l, java.lang.String[][]... args);\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
-			"        [pc: 0, pc: 1] local: l index: 1 type: long\n" + 
-			"        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]\n" + 
-			"}";
-		checkClassFile("1.5", "X", source, expectedOutput);
-	}
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
-	 */
-	public void test079() throws ClassFormatException, IOException {
-		String source =
-			"public enum X { \n" + 
-			"	\n" + 
-			"	BLEU(10),\n" + 
-			"	BLANC(20),\n" + 
-			"	ROUGE(30);\n" +
-			"	X(int i) {}\n" +
-			"}\n";
-		String expectedOutput =
-			"public enum X {\n" + 
-			"  \n" + 
-			"  BLEU(0),\n" + 
-			"  \n" + 
-			"  BLANC(0),\n" + 
-			"  \n" + 
-			"  ROUGE(0),;\n" + 
-			"  \n" + 
-			"  private X(int i) {\n" + 
-			"  }\n" + 
-			"}";
-		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
-	 * TODO corner case that doesn't produce the right source
-	 */
-	public void test080() throws ClassFormatException, IOException {
-		String source =
-			"public enum X {\n" +
-			"	BLEU(0) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLEU\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	BLANC(1) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLANC\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	ROUGE(2) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"ROUGE\";\n" +
-			"		}\n" +
-			"	},;\n" +
-			"	\n" +
-			"	X(int i) {\n" +
-			"	}\n" +
-			"	abstract public String colorName();\n" +
-			"}";
-		String expectedOutput =
-			"public enum X {\n" +
-			"  \n" +
-			"  BLEU(0),\n" +
-			"  \n" +
-			"  BLANC(0),\n" +
-			"  \n" +
-			"  ROUGE(0),;\n" +
-			"  \n" +
-			"  private X(int i) {\n" +
-			"  }\n" +
-			"  \n" +
-			"  public abstract java.lang.String colorName();\n" +
-			"}";
-		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
-	 * TODO corner case that doesn't produce the right source
-	 */
-	public void test081() throws ClassFormatException, IOException {
-		String source =
-			"interface I {\n" +
-			"	String colorName();\n" +
-			"}\n" +
-			"public enum X implements I {\n" +
-			"	BLEU(0) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLEU\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	BLANC(1) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLANC\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	ROUGE(2) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"ROUGE\";\n" +
-			"		}\n" +
-			"	},;\n" +
-			"	\n" +
-			"	X(int i) {\n" +
-			"	}\n" +
-			"}";
-		String expectedOutput =
-			"public enum X implements I {\n" + 
-			"  \n" + 
-			"  BLEU(0),\n" + 
-			"  \n" + 
-			"  BLANC(0),\n" + 
-			"  \n" + 
-			"  ROUGE(0),;\n" + 
-			"  \n" + 
-			"  private X(int i) {\n" + 
-			"  }\n" + 
-			"}";
-		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
-	 */
-	public void test082() throws ClassFormatException, IOException {
-		String source =
-			"@interface X {\n" +
-			"	String firstName();\n" +
-			"	String lastName() default \"Smith\";\n" +
-			"}\n";
-		String expectedOutput =
-			"abstract @interface X {\n" + 
-			"  \n" + 
-			"  public abstract java.lang.String firstName();\n" + 
-			"  \n" + 
-			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
-			"}";
-		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
-	 * @deprecated Using deprecated API
-	 */
-	public void test083() throws ClassFormatException, IOException {
-		String source =
-			"@interface X {\n" +
-			"	String firstName();\n" +
-			"	String lastName() default \"Smith\";\n" +
-			"}\n";
-		String expectedOutput =
-			"abstract @interface X {\n" + 
-			"  \n" + 
-			"  public abstract java.lang.String firstName();\n" + 
-			"  \n" + 
-			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
-			"}";
-		checkClassFileUsingInputStream("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 }

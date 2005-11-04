@@ -13,10 +13,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -67,16 +65,5 @@ public class RunComparableTests extends junit.framework.TestCase {
 			}
 		}
 		return ts;
-	}
-	
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		TestSuite suite = new TestSuite(AbstractCompilerTest.COMPLIANCE_1_5);
-		List tests = TestCase.buildTestsList(evaluationTestClass);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			suite.addTest((Test)tests.get(index));
-		}
-		TestSuite test = new TestSuite(evaluationTestClass.getName());
-		test.addTest(new RegressionTestSetup(suite, AbstractCompilerTest.COMPLIANCE_1_5));
-		return test;
 	}
 }

@@ -19,8 +19,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 
 public class ClassFileComparatorTest extends AbstractRegressionTest {
-	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
-	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
 
 	public ClassFileComparatorTest(String name) {
 		super(name);
@@ -33,30 +31,8 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		return ClassFileComparatorTest.class;
 	}
 
-	public void removeTempClass(String className) {
-		File dir = new File(SOURCE_DIRECTORY);
-		String[] fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-		
-		dir = new File(EVAL_DIRECTORY);
-		fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-	
-	}
 
-	public void compileAndDeploy(String source, String className) {
+	private void compileAndDeploy(String source, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -87,7 +63,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
 	
-	public boolean areStructurallyDifferent(String classFile1, String classFile2, boolean orderRequired, boolean excludeSynthetic) {
+	private boolean areStructurallyDifferent(String classFile1, String classFile2, boolean orderRequired, boolean excludeSynthetic) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(EVAL_DIRECTORY + File.separator + classFile1 + ".class");
 			int fileLength;
