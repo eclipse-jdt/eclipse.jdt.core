@@ -496,6 +496,24 @@ public void testRemovePrefixAndSuffixForFieldName003() {
 		"oneName", //$NON-NLS-1$
 		new String(name));
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114086
+public void testRemovePrefixAndSuffixForFieldName004() {
+	Hashtable options = JavaCore.getOptions();
+	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
+	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre,"); //$NON-NLS-1$
+	JavaCore.setOptions(options);
+	
+	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
+		project,
+		"preOneName".toCharArray(), //$NON-NLS-1$
+		0);
+	
+	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,fieldPrefixPreviousValue);
+	JavaCore.setOptions(options);
+	assertEquals(
+		"oneName", //$NON-NLS-1$
+		new String(name));
+}
 public void testRemovePrefixAndSuffixForLocalName001() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
