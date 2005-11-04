@@ -1117,6 +1117,233 @@ public void test031() {
 		true,
 		customOptions);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=114855
+ */
+public void test032() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  static int except_count;\n" + 
+			"\n" + 
+			"  static boolean test_result = true;\n" + 
+			"  \n" + 
+			"  static Throwable all_except[] =\n" + 
+			"  {\n" + 
+			"    new AbstractMethodError(),             //  0\n" + 
+			"    new ArithmeticException(),             //  1\n" + 
+			"    new ArrayIndexOutOfBoundsException(),  //  2\n" + 
+			"    new ArrayStoreException(),             //  3\n" + 
+			"    new ClassCastException(),              //  4\n" + 
+			"    new ClassCircularityError(),           //  5\n" + 
+			"    new ClassFormatError(),                //  6\n" + 
+			"    new ClassNotFoundException(),          //  7\n" + 
+			"    new CloneNotSupportedException(),      //  8\n" + 
+			"    new Error(),                           //  9\n" + 
+			"    new Exception(),                       // 10\n" + 
+			"    new IllegalAccessError(),              // 11\n" + 
+			"    new IllegalAccessException(),          // 12\n" + 
+			"    new IllegalArgumentException(),        // 13\n" + 
+			"    new IllegalMonitorStateException(),    // 14\n" + 
+			"    new IllegalThreadStateException(),     // 15\n" + 
+			"    new IncompatibleClassChangeError(),    // 16\n" + 
+			"    new IndexOutOfBoundsException(),       // 17\n" + 
+			"    new InstantiationError(),              // 18\n" + 
+			"    new InstantiationException(),          // 19\n" + 
+			"    new InternalError(),                   // 20\n" + 
+			"    new InterruptedException(),            // 21\n" + 
+			"    new LinkageError(),                    // 22\n" + 
+			"    new NegativeArraySizeException(),      // 23\n" + 
+			"    new NoClassDefFoundError(),            // 24\n" + 
+			"    new NoSuchFieldError(),                // 25\n" + 
+			"    new NoSuchMethodError(),               // 26\n" + 
+			"    new NoSuchMethodException(),           // 27\n" + 
+			"    new NullPointerException(),            // 28\n" + 
+			"    new NumberFormatException(),           // 29\n" + 
+			"    new OutOfMemoryError(),                // 30\n" + 
+			"    new StackOverflowError(),              // 31\n" + 
+			"    new RuntimeException(),                // 32\n" + 
+			"    new SecurityException(),               // 33\n" + 
+			"    new StringIndexOutOfBoundsException(), // 34\n" + 
+			"    new ThreadDeath(),                     // 35\n" + 
+			"    new UnknownError(),                    // 36\n" + 
+			"    new UnsatisfiedLinkError(),            // 37\n" + 
+			"    new VerifyError(),                     // 38\n" + 
+			"  };\n" + 
+			"\n" + 
+			"  private static void check_except(int i)\n" + 
+			"    throws Throwable\n" + 
+			"  {\n" + 
+			"    if (except_count != i)\n" + 
+			"    {\n" + 
+			"      System.out.println(\"Error \"+except_count+\" != \"+i+\";\");\n" + 
+			"      test_result=false;\n" + 
+			"    }\n" + 
+			"    throw all_except[++except_count];\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) throws Throwable\n" + 
+			"  {\n" + 
+			"    try {\n" + 
+			"      except_count = 0;\n" + 
+			"      throw all_except[except_count];\n" + 
+			"    } catch (AbstractMethodError e0) {\n" + 
+			"      try {\n" + 
+			"        check_except(0);\n" + 
+			"      } catch (ArithmeticException e1) {\n" + 
+			"        try {\n" + 
+			"          check_except(1);\n" + 
+			"        } catch (ArrayIndexOutOfBoundsException e2) {\n" + 
+			"          try {\n" + 
+			"            check_except(2);\n" + 
+			"          } catch (ArrayStoreException e3) {\n" + 
+			"            try {\n" + 
+			"              check_except(3);\n" + 
+			"            } catch (ClassCastException e4) {\n" + 
+			"              try {\n" + 
+			"                check_except(4);\n" + 
+			"              } catch (ClassCircularityError e5) {\n" + 
+			"                try {\n" + 
+			"                  check_except(5);\n" + 
+			"                } catch (ClassFormatError e6) {\n" + 
+			"                  try {\n" + 
+			"                    check_except(6);\n" + 
+			"                  } catch (ClassNotFoundException e7) {\n" + 
+			"                    try {\n" + 
+			"                      check_except(7);\n" + 
+			"                    } catch (CloneNotSupportedException e8) {\n" + 
+			"                      try {\n" + 
+			"                        check_except(8);\n" + 
+			"                      } catch (Error e9) {\n" + 
+			"                        try {\n" + 
+			"                          check_except(9);\n" + 
+			"                        } catch (Exception e10) {\n" + 
+			"                          try {\n" + 
+			"                            check_except(10);\n" + 
+			"                          } catch (IllegalAccessError e11) {\n" + 
+			"                            try {\n" + 
+			"                              check_except(11);\n" + 
+			"                            } catch (IllegalAccessException e12) {\n" + 
+			"                              try {\n" + 
+			"                                check_except(12);\n" + 
+			"                              } catch (IllegalArgumentException e13) {\n" + 
+			"                                try {\n" + 
+			"                                  check_except(13);\n" + 
+			"                                } catch (IllegalMonitorStateException e14) {\n" + 
+			"                                  try {\n" + 
+			"                                    check_except(14);\n" + 
+			"                                  } catch (IllegalThreadStateException e15) {\n" + 
+			"                                    try {\n" + 
+			"                                      check_except(15);\n" + 
+			"                                    } catch (IncompatibleClassChangeError e16) {\n" + 
+			"                                      try {\n" + 
+			"                                        check_except(16);\n" + 
+			"                                      } catch (IndexOutOfBoundsException e17) {\n" + 
+			"                                        try {\n" + 
+			"                                          check_except(17);\n" + 
+			"                                        } catch (InstantiationError e18) {\n" + 
+			"                                          try {\n" + 
+			"                                            check_except(18);\n" + 
+			"                                          } catch (InstantiationException e19) {\n" + 
+			"                                            try {\n" + 
+			"                                              check_except(19);\n" + 
+			"                                            } catch (InternalError e20) {\n" + 
+			"                                              try {\n" + 
+			"                                                check_except(20);\n" + 
+			"                                              } catch (InterruptedException \n" + 
+			"e21) {\n" + 
+			"                                                try {\n" + 
+			"                                                  check_except(21);\n" + 
+			"                                                } catch (LinkageError e22) {\n" + 
+			"                                                  try {\n" + 
+			"                                                    check_except(22);\n" + 
+			"                                                  } catch \n" + 
+			"(NegativeArraySizeException e23) {\n" + 
+			"                                                    try {\n" + 
+			"                                                      check_except(23);\n" + 
+			"                                                    } catch \n" + 
+			"(NoClassDefFoundError e24) {\n" + 
+			"                                                      try {\n" + 
+			"                                                        check_except(24);\n" + 
+			"                                                      } catch (NoSuchFieldError \n" + 
+			"e25) {\n" + 
+			"                                                        try {\n" + 
+			"                                                          check_except(25);\n" + 
+			"                                                        } catch \n" + 
+			"(NoSuchMethodError e26) {\n" + 
+			"                                                          try {\n" + 
+			"                                                            check_except(26);\n" + 
+			"                                                          } catch \n" + 
+			"(NoSuchMethodException e27) {\n" + 
+			"                                                            try {\n" + 
+			"                                                              check_except(27);\n" + 
+			"                                                            } catch \n" + 
+			"(NullPointerException e28) {\n" + 
+			"                                                              try {\n" + 
+			"                                                                check_except\n" + 
+			"(28);\n" + 
+			"                                                              } catch \n" + 
+			"(NumberFormatException e29) {\n" + 
+			"                                                                try {\n" + 
+			"                                                                  check_except\n" + 
+			"(29);\n" + 
+			"                                                                } catch \n" + 
+			"(OutOfMemoryError e30) {\n" + 
+			"                                                                  try {\n" + 
+			"                                                                    check_except\n" + 
+			"(30);\n" + 
+			"                                                                  } catch \n" + 
+			"(StackOverflowError e31) {\n" + 
+			"                                                                    try {\n" + 
+			"                                                                      \n" + 
+			"check_except(31);\n" + 
+			"                                                                    } catch \n" + 
+			"(RuntimeException e32) {\n" + 
+			"                                                                      try {\n" + 
+			"                                                                        \n" + 
+			"check_except(32);\n" + 
+			"                                                                      } catch \n" + 
+			"(SecurityException e33) {\n" + 
+			"                                                                        try {\n" + 
+			"                                                                          \n" + 
+			"check_except(33);\n" + 
+			"                                                                        } catch \n" + 
+			"(StringIndexOutOfBoundsException e34) {\n" + 
+			"                                                                          try {\n" + 
+			"                                                                            \n" + 
+			"check_except(34);\n" + 
+			"                                                                          } \n" + 
+			"catch (ThreadDeath e35) {\n" + 
+			"                                                                            try \n" + 
+			"{\n" + 
+			"                                                                              \n" + 
+			"check_except(35);\n" + 
+			"                                                                            } \n" + 
+			"catch (UnknownError e36) {\n" + 
+			"                                                                              \n" + 
+			"try {\n" + 
+			"                                                                                \n" + 
+			"check_except(36);\n" + 
+			"                                                                              } \n" + 
+			"catch (UnsatisfiedLinkError e37) {\n" + 
+			"                                                                                \n" + 
+			"try {\n" + 
+			"                                                                                \n" + 
+			"  check_except(37);\n" + 
+			"                                                                                \n" + 
+			"} catch (VerifyError e38) {\n" + 
+			"                                                                                \n" + 
+			"  ++except_count;\n" + 
+			"                                                                                \n" + 
+			"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}\n" + 
+			"    System.out.print(test_result & (except_count == all_except.length));\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"true");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
