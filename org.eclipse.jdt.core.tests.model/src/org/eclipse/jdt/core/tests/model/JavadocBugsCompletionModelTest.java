@@ -27,6 +27,7 @@ public JavadocBugsCompletionModelTest(String name) {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug68757" };
+//	TESTS_NUMBERS = new int[] { 114341 };
 }
 public static Test suite() {
 	return buildTestSuite(JavadocBugsCompletionModelTest.class);
@@ -55,7 +56,7 @@ public void testBug3270() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@throws ", 0); // empty token
 	assertSortedResults(
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+"51}"
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}"
 	);
 }
 public void testBug3270a() throws JavaModelException {
@@ -69,8 +70,8 @@ public void testBug3270a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "I");
 	assertSortedResults(
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+(40+R_INLINE_TAG)+"}\n" + 
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+"41}"
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREEET+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICUNRE+"}"
 	);
 }
 public void testBug3270b() throws JavaModelException {
@@ -84,8 +85,8 @@ public void testBug3270b() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "Cl");
 	assertSortedResults(
-		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+"41}\n" + 
-		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+"21}"
+		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DICUNRE+"}\n" + 
+		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -105,8 +106,8 @@ public void testBug22043() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "S", 2); // 2nd occurence
 	assertSortedResults(
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+"21}\n" +
-		"Serializable[TYPE_REF]{java.io.Serializable, java.io, Ljava.io.Serializable;, null, null, "+this.positions+"18}\n" + 
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}\n" +
+		"Serializable[TYPE_REF]{java.io.Serializable, java.io, Ljava.io.Serializable;, null, null, "+this.positions+R_DICNR+"}\n" + 
 		"short[KEYWORD]{short, null, null, short, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -123,7 +124,7 @@ public void testBug22043a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod", 2); // 2nd occurence
 	assertResults(
-		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DICENUNR+"}"
 	);
 }
 
@@ -139,7 +140,7 @@ public void testBug22043b() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
-		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DICENUNR+"}"
 	);
 }
 
@@ -156,8 +157,8 @@ public void testBug22043c() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
-		"thisIsAMethod[METHOD_REF]{thisIsAMethod(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, thisIsAMethod, (str), "+this.positions+"25}\n" + 
-		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, thisIsAMethod, (str), "+this.positions+R_DICENUNR+"}\n" + 
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DICENUNR+"}"
 	);
 }
 
@@ -176,7 +177,7 @@ public void testBug67732() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "to");
 	assertSortedResults(
-		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+"29}"
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -202,7 +203,7 @@ public void testBug68757() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Other", 2);	// 2nd occurrence
 	assertSortedResults(
-		"OtherType[TYPE_REF]{OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+"21}"
+		"OtherType[TYPE_REF]{OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 public void testBug68757a() throws JavaModelException {
@@ -222,7 +223,7 @@ public void testBug68757a() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Other");
 	assertSortedResults(
-		"OtherType[TYPE_REF]{javadoc.tests.OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+"18}"
+		"OtherType[TYPE_REF]{javadoc.tests.OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
 public void testBug68757b() throws JavaModelException {
@@ -242,7 +243,7 @@ public void testBug68757b() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Other");
 	assertSortedResults(
-		"OtherType[TYPE_REF]{javadoc.tests.OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+"18}"
+		"OtherType[TYPE_REF]{javadoc.tests.OtherType, javadoc.tests, Ljavadoc.tests.OtherType;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
@@ -272,7 +273,7 @@ public void _testBug75551() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Inner");
 	assertSortedResults(
-		"SuperClass.InnerClass[TYPE_REF]{SuperClass.InnerClass, javadoc.bugs, Ljavadoc.bugs.SuperClass$InnerClass;, null, null, "+this.positions+"21}"
+		"SuperClass.InnerClass[TYPE_REF]{SuperClass.InnerClass, javadoc.bugs, Ljavadoc.bugs.SuperClass$InnerClass;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -320,7 +321,7 @@ public void testBug87868() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "meth");
 	assertSortedResults(
-		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs<TS;>;, (TS;)V, method, (s), "+this.positions+"29}"
+		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs<TS;>;, (TS;)V, method, (s), "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -376,7 +377,7 @@ public void testBug113376a() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "javadoc.util.Collection");
 	assertSortedResults(
-		"Collection[TYPE_REF]{javadoc.util.Collection, javadoc.util, Ljavadoc.util.Collection;, null, null, "+this.positions+"24}"
+		"Collection[TYPE_REF]{javadoc.util.Collection, javadoc.util, Ljavadoc.util.Collection;, null, null, "+this.positions+R_DICENQNR+"}"
 	);
 }
 public void testBug113376b() throws JavaModelException {
@@ -400,5 +401,118 @@ public void testBug113376b() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "String.", 0); // empty token
 	assertSortedResults("");
+}
+
+/**
+ * Bug 114341: [javadoc][assist] range of the qualified type completion in javadoc text isn't corect
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114341"
+ */
+public void testBug114341a() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * Secondary.Mem\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Secondary.Mem");
+	assertSortedResults(
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+"49}\n" + 
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+public void testBug114341b() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * @see Secondary.Mem\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
+	assertSortedResults(
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+public void testBug114341c() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * {@link Secondary.Mem }\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
+	assertSortedResults(
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+public void testBug114341d() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * javadoc.text.Secondary.Mem\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.Secondary.Mem");
+	assertSortedResults(
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+"49}\n" + 
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+public void testBug114341e() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * @see javadoc.text.Secondary.Mem\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
+	assertSortedResults(
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+public void testBug114341f() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"  /**\n" + 
+		"   * {@link javadoc.text.Secondary.Mem }\n" + 
+		"   */\n" + 
+		"  void foo() {}\n" + 
+		"}\n" + 
+		"class Secondary {\n" + 
+		"  class Member {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
+	assertSortedResults(
+		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
 }
 }

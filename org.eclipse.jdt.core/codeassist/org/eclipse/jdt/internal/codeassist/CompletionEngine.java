@@ -1202,7 +1202,8 @@ public final class CompletionEngine
 				// get the source positions of the completion identifier
 				if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 					if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
-						setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+						int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
+						setSourceRange(rangeStart, (int) completionPosition);
 						findMemberTypes(this.completionToken,
 							(ReferenceBinding) qualifiedBinding,
 							scope,

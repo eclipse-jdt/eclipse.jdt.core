@@ -233,7 +233,7 @@ public void test010() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "Obj");
 	assertResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+"21}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -246,7 +246,7 @@ public void test011() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "BasicTestRef");
 	assertResults(
-		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+"18}"
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
@@ -260,7 +260,7 @@ public void test012() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "org.eclipse.jdt.core.tests.BasicTestRef");
 	assertResults(
-		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+"20}"
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICQNR+"}"
 	);
 }
 
@@ -274,8 +274,8 @@ public void test013() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "java.la");
 	assertResults(
-		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+"20}\n" + 
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+"20}"
+		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DICQNR+"}\n" + 
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}"
 	);
 }
 
@@ -288,9 +288,9 @@ public void test014() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "pack.Bin");
 	assertSortedResults(
-		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+"20}\n" + 
-		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+"20}\n" + 
-		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+"20}"
+		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DICQNR+"}\n" + 
+		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DICQNR+"}\n" + 
+		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DICQNR+"}"
 	);
 }
 
@@ -304,8 +304,8 @@ public void test015() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "I");
 	assertSortedResults(
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+"21}\n" + 
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+"21}"
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -332,7 +332,7 @@ public void test021() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "FIE");
 	assertResults(
-		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+"18}"
+		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
@@ -352,7 +352,7 @@ public void test022() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "bar");
 	assertResults(
-		"bar[FIELD_REF]{bar, Ljavadoc.tags.OtherTypes;, I, bar, null, "+this.positions+"33}"
+		"bar[FIELD_REF]{bar, Ljavadoc.tags.OtherTypes;, I, bar, null, "+this.positions+R_DICENNRNS+"}"
 	);
 }
 
@@ -376,7 +376,7 @@ public void test024() throws JavaModelException {
 		"package javadoc.tags;\n";
 	completeInJavadoc("/Completion/src/javadoc/tags/package-info.java", source, true, "#", 0); // empty token
 	assertResults(
-		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+"18}\n" + 
+		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DICNR+"}\n" + 
 		"BasicTestReferences[METHOD_REF<CONSTRUCTOR>]{BasicTestReferences(), Lorg.eclipse.jdt.core.tests.BasicTestReferences;, ()V, BasicTestReferences, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -398,8 +398,8 @@ public void test025() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertResults(
-		"obj[FIELD_REF]{obj, Ljavadoc.tags.OtherTypes;, Ljava.lang.Object;, obj, null, "+this.positions+"29}\n" + 
-		"foo[FIELD_REF]{foo, Ljavadoc.tags.OtherTypes;, I, foo, null, "+this.positions+"29}\n" + 
+		"obj[FIELD_REF]{obj, Ljavadoc.tags.OtherTypes;, Ljava.lang.Object;, obj, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"foo[FIELD_REF]{foo, Ljavadoc.tags.OtherTypes;, I, foo, null, "+this.positions+R_DICNRNS+"}\n" + 
 		"OtherTypes[METHOD_REF<CONSTRUCTOR>]{OtherTypes(), Ljavadoc.tags.OtherTypes;, ()V, OtherTypes, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -423,7 +423,7 @@ public void test030() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertResults(
-		"method[METHOD_REF]{method(), Ljavadoc.tags.OtherTypes;, ()V, method, null, "+this.positions+"29}"
+		"method[METHOD_REF]{method(), Ljavadoc.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 public void test031() throws JavaModelException {
@@ -443,8 +443,8 @@ public void test031() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertResults(
-		"foo[METHOD_REF]{foo(), Ljavadoc.tags.OtherTypes;, ()V, foo, null, "+this.positions+"29}\n" + 
-		"method[METHOD_REF]{method(), Ljavadoc.tags.OtherTypes;, ()V, method, null, "+this.positions+"29}\n" + 
+		"foo[METHOD_REF]{foo(), Ljavadoc.tags.OtherTypes;, ()V, foo, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"method[METHOD_REF]{method(), Ljavadoc.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNS+"}\n" + 
 		"OtherTypes[METHOD_REF<CONSTRUCTOR>]{OtherTypes(), Ljavadoc.tags.OtherTypes;, ()V, OtherTypes, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }

@@ -41,7 +41,7 @@ protected void setUp() throws Exception {
 }
 
 /**
- * @category Tests for tag names completion
+ * @tests  Tests for tag names completion
  */
 public void test001() throws JavaModelException {
 	String source =
@@ -217,63 +217,57 @@ public void test011() throws JavaModelException {
 }
 
 /**
- * @category Tests for types completion
+ * @tests  Tests for types completion
  */
 public void test020() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: BasicTestTextIns\n" + 
+		" */\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
-		"	/**\n" + 
-		"	 * Completion after: BasicTestTextIns\n" + 
-		"	 */\n" + 
-		"	public void foo() {\n" + 
-		"	}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", -1);
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(25+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+"25}"
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
 
 public void test021() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: {@link BasicTestTextIns\n" + 
+		" */\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
-		"	/**\n" + 
-		"	 * Completion after: {@link BasicTestTextIns\n" + 
-		"	 */\n" + 
-		"	public void foo() {}\n" + 
 		"}\n" + 
 		"class BasicTestTextInsException extends Exception{\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2);
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+"25}\n" + 
-		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+"21}"
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}\n" + 
+		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
 public void test022() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: @link BasicTestTextIns\n" + 
+		" */\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
-		"	/**\n" + 
-		"	 * Completion after: @link BasicTestTextIns\n" + 
-		"	 */\n" + 
 		"	public void foo() throws BasicTestTextInsException {}\n" + 
 		"}\n" + 
 		"class BasicTestTextInsException extends Exception{\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurence
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException }, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+(51+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(25+R_INLINE_TAG)+"}\n" +
-		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+"51}\n" + 
-		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+"25}"
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(R_DICENUNR+R_INLINE_TAG)+"}\n" +
+		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException }, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}\n" +
+		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -281,34 +275,35 @@ public void test023() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
 		"	/**\n" + 
-		"	 * Completion after: @see BasicTestTextIns\n" + 
+		"	 * Completion after: @link BasicTestTextIns\n" + 
 		"	 */\n" + 
-		"	public void foo() {\n" + 
-		"	}\n" + 
+		"	public void foo() throws BasicTestTextInsException {}\n" + 
+		"}\n" + 
+		"class BasicTestTextInsException extends Exception{\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurence
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(25+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+"25}"
+		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException }, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNREETIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" +
+		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNREET+"}\n" + 
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
 
 public void test024() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: @see BasicTestTextIns\n" + 
+		" */\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
-		"	/**\n" + 
-		"	 * Completion after: java.la\n" + 
-		"	 */\n" + 
-		"	public void foo() throws InterruptedException {\n" + 
-		"	}\n" + 
+		"	public void foo() {}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.la");
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+"20}"
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
 
@@ -316,7 +311,57 @@ public void test025() throws JavaModelException {
 	String source =
 		"package javadoc.text;\n" + 
 		"public class BasicTestTextIns {\n" + 
-		"\n" + 
+		"	/**\n" + 
+		"	 * Completion after: @see BasicTestTextIns\n" + 
+		"	 */\n" + 
+		"	public void foo() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
+	assertSortedResults(
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
+	);
+}
+
+public void test026() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: java.la\n" + 
+		" */\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"	public void foo() throws InterruptedException {\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.la");
+	assertSortedResults(
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}"
+	);
+}
+
+public void test027() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"/**\n" + 
+		" * Completion after: java.lang.I\n" + 
+		" */\n" + 
+		"public class BasicTestTextIns {\n" + 
+		"	public void foo() throws InterruptedException {\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
+	assertSortedResults(
+		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException }, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException }, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}\n" +
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+public void test028() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public class BasicTestTextIns {\n" + 
 		"	/**\n" + 
 		"	 * Completion after: java.lang.I\n" + 
 		"	 */\n" + 
@@ -325,15 +370,15 @@ public void test025() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
 	assertSortedResults(
-		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException }, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+(48+R_INLINE_TAG)+"}\n" + 
-		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException }, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+(18+R_INLINE_TAG)+"}\n" + 
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+"48}\n" + 
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+"18}"
+		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException }, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNREETIT+"}\n" + 
+		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException }, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNREET+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
 /**
- * @category Tests for fields completion
+ * @tests  Tests for fields completion
  */
 public void test030() throws JavaModelException {
 	String source =
@@ -346,7 +391,7 @@ public void test030() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -361,8 +406,8 @@ public void test031() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+(18+R_INLINE_TAG)+"}\n" + 
-		"foo[JAVADOC_VALUE_REF]{{@value BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+(18+R_INLINE_TAG)+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"foo[JAVADOC_VALUE_REF]{{@value BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}"
 	);
 }
 
@@ -377,7 +422,7 @@ public void test032() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link javadoc.text.BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link javadoc.text.BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -399,8 +444,8 @@ public void test033() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherFields#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+(18+R_INLINE_TAG)+"}\n" + 
-		"foo[JAVADOC_VALUE_REF]{{@value OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+(18+R_INLINE_TAG)+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"foo[JAVADOC_VALUE_REF]{{@value OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}"
 	);
 }
 
@@ -416,7 +461,7 @@ public void test034() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -433,7 +478,7 @@ public void test035() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+"29}"
+		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -448,7 +493,7 @@ public void test036() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+"18}"
+		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
@@ -463,7 +508,7 @@ public void test037() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+"29}"
+		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -487,12 +532,12 @@ public void test038() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "fo");
 	assertSortedResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+"18}"
+		"foo[FIELD_REF]{foo, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNR+"}"
 	);
 }
 
 /**
- * @category Tests for methods completion
+ * @tests  Tests for methods completion
  */
 public void test040() throws JavaModelException {
 	String source =
@@ -520,7 +565,7 @@ public void test041() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -536,7 +581,7 @@ public void test042() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -552,7 +597,7 @@ public void test043() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -568,7 +613,7 @@ public void test044() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#param");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+(29+R_INLINE_TAG)+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -584,7 +629,7 @@ public void test045() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"method[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -600,7 +645,7 @@ public void test046() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "param");
 	assertSortedResults(
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"29}"
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -616,7 +661,7 @@ public void test047() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "meth");
 	assertSortedResults(
-		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+"29}"
+		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -632,7 +677,7 @@ public void test048() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "param");
 	assertSortedResults(
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"29}"
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -654,7 +699,7 @@ public void test049() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherTypes#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link OtherTypes#method() }, Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}"
+		"method[JAVADOC_METHOD_REF]{{@link OtherTypes#method() }, Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -676,7 +721,7 @@ public void test050() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertSortedResults(
-		"method[METHOD_REF]{method(), Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+"29}"
+		"method[METHOD_REF]{method(), Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 
@@ -692,8 +737,8 @@ public void test051() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}\n" + 
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+(29+R_INLINE_TAG)+"}\n" + 
+		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
 	);
 }
@@ -710,8 +755,8 @@ public void test052() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+(29+R_INLINE_TAG)+"}\n" + 
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+(29+R_INLINE_TAG)+"}\n" + 
+		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
 	);
 }
@@ -728,8 +773,8 @@ public void test053() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#", 0); //empty token
 	assertSortedResults(
-		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+"29}\n" + 
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"29}\n" + 
+		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNS+"}\n" + 
 		"BasicTestTextIns[METHOD_REF<CONSTRUCTOR>]{BasicTestTextIns(), Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -746,8 +791,8 @@ public void test054() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#", 0); //empty token
 	assertSortedResults(
-		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+"29}\n" + 
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"29}\n" + 
+		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNS+"}\n" + 
 		"BasicTestTextIns[METHOD_REF<CONSTRUCTOR>]{BasicTestTextIns(), Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -764,7 +809,7 @@ public void test055() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+(25+R_INLINE_TAG)+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
 	);
 }
 
@@ -780,7 +825,7 @@ public void test056() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Str");
 	assertSortedResults(
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+"21}"
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 
@@ -796,7 +841,7 @@ public void test057() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "paramMethod(String s");
 	assertSortedResults(
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"25}"
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNR+"}"
 	);
 }
 
@@ -812,7 +857,7 @@ public void test058() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(String str,");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+(25+R_INLINE_TAG)+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
 	);
 }
 
@@ -828,12 +873,12 @@ public void test059() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "paramMethod(String,");
 	assertSortedResults(
-		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+"25}"
+		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNR+"}"
 	);
 }
 
 /**
- * @category Tests for constructors completion
+ * @tests  Tests for constructors completion
  */
 public void test070() throws JavaModelException {
 	String source =
@@ -847,8 +892,8 @@ public void test070() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTest");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -904,7 +949,7 @@ public void test073() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherTypes#O");
 	assertSortedResults(
-		"OtherTypes[JAVADOC_METHOD_REF]{{@link OtherTypes#OtherTypes() }, Ljavadoc.text.OtherTypes;, ()V, OtherTypes, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"OtherTypes[JAVADOC_METHOD_REF]{{@link OtherTypes#OtherTypes() }, Ljavadoc.text.OtherTypes;, ()V, OtherTypes, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -941,8 +986,8 @@ public void test075() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -958,8 +1003,8 @@ public void test076() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1009,7 +1054,7 @@ public void test079() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(int,");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1027,8 +1072,8 @@ public void test080() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
-			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}\n" + 
-			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1044,7 +1089,7 @@ public void test081() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1061,7 +1106,7 @@ public void test082() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1078,7 +1123,7 @@ public void test083() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.Cla");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1096,7 +1141,7 @@ public void test084() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, Class");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
