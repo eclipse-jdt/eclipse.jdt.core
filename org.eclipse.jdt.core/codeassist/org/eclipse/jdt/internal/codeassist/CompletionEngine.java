@@ -4496,7 +4496,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if (notInJavadoc && hasPotentialDefaultAbstractMethods && currentType.isAbstract()){
+			if (notInJavadoc && hasPotentialDefaultAbstractMethods && (currentType.isAbstract() || currentType.isTypeVariable())){
 				findInterfacesMethods(
 					selector,
 					argTypes,
