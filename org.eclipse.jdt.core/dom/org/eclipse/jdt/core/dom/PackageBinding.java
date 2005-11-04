@@ -170,7 +170,7 @@ class PackageBinding implements IPackageBinding {
 			INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; 
 			if (!(nameEnvironment instanceof SearchableEnvironment)) return ResolvedAnnotation.NoAnnotations;
 			NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
-			if (nameLookup == null) return null;
+			if (nameLookup == null) return ResolvedAnnotation.NoAnnotations;
 			final String pkgName = getName();
 			IPackageFragment[] pkgs = nameLookup.findPackageFragments(pkgName, false/*exact match*/);
 			if (pkgs == null) return ResolvedAnnotation.NoAnnotations;
