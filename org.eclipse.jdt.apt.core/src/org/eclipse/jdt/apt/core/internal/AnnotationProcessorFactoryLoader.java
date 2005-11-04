@@ -14,6 +14,9 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -390,7 +393,19 @@ public class AnnotationProcessorFactoryLoader {
 		
 		ClassLoader cl;
 		if ( fileList.size() > 0 ) {
-			cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			//cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			// Temporary revert to URLClassLoader, as the JarClassLoader doesn't properly define packages
+			List<URL> urls = new ArrayList<URL>(fileList.size());
+			for (File f : fileList) {
+				try {
+					urls.add(f.toURL());
+				}
+				catch (MalformedURLException mue) {
+					mue.printStackTrace();
+				}
+			}
+			URL[] urlArray = urls.toArray(new URL[urls.size()]);
+			cl = new URLClassLoader( urlArray, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		else {
 			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
@@ -418,7 +433,19 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		if ( fileList.size() > 0 ) {
-			_batchClassLoader = new JarClassLoader( fileList, iterativeClassLoader );
+			//_batchClassLoader = new JarClassLoader( fileList, iterativeClassLoader );
+//			 Temporary revert to URLClassLoader, as the JarClassLoader doesn't properly define packages
+			List<URL> urls = new ArrayList<URL>(fileList.size());
+			for (File f : fileList) {
+				try {
+					urls.add(f.toURL());
+				}
+				catch (MalformedURLException mue) {
+					mue.printStackTrace();
+				}
+			}
+			URL[] urlArray = urls.toArray(new URL[urls.size()]);
+			_batchClassLoader = new URLClassLoader( urlArray, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		else {
 			// No batch classloader
