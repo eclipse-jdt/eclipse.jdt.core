@@ -27,9 +27,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 class DocCommentParser extends AbstractCommentParser {
 
-	// Public fields
-	
-	// Private fields
 	private Javadoc docComment;
 	private AST ast;
 
@@ -39,7 +36,7 @@ class DocCommentParser extends AbstractCommentParser {
 		this.scanner = scanner;
 		this.sourceLevel = this.ast.apiLevel() >= AST.JLS3 ? ClassFileConstants.JDK1_5 : ClassFileConstants.JDK1_3;
 		this.checkDocComment = check;
-		this.kind = DOM_PARSER;
+		this.kind = DOM_PARSER | TEXT_PARSE;
 	}
 
 	/* (non-Javadoc)

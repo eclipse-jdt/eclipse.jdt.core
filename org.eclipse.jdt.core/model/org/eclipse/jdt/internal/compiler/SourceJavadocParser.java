@@ -22,7 +22,7 @@ public class SourceJavadocParser extends JavadocParser {
 
 public SourceJavadocParser(Parser sourceParser) {
 	super(sourceParser);
-	this.kind = SOURCE_PARSER;
+	this.kind = SOURCE_PARSER | TEXT_PARSE | TEXT_VERIF;
 }
 
 public boolean checkDeprecation(int commentPtr) {

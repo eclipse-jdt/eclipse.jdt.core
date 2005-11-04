@@ -32,7 +32,7 @@ public class JavadocParser extends AbstractCommentParser {
 
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
-		this.kind = COMPIL_PARSER;
+		this.kind = COMPIL_PARSER | TEXT_VERIF;
 	}
 
 	/* (non-Javadoc)
@@ -57,7 +57,7 @@ public class JavadocParser extends AbstractCommentParser {
 		
 		// If there's no tag in javadoc, return without parsing it
 		if (this.firstTagPosition == 0) {
-			switch (this.kind) {
+			switch (this.kind & PARSER_KIND) {
 				case COMPIL_PARSER:
 				case SOURCE_PARSER:
 					return false;
@@ -503,7 +503,7 @@ public class JavadocParser extends AbstractCommentParser {
 					case 'l':
 						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_LINK_VALUE;
-							if (this.inlineTagStarted || this.kind == COMPLETION_PARSER) {
+							if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
 								valid= parseReference();
 							} else {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290

@@ -66,7 +66,7 @@ static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 // TESTS_NAMES = new String[] { "testNoChanges1" };
 // Numbers of tests to run: "test<number>" will be run for each number of this array
-//TESTS_NUMBERS = new int[] { 13 };
+//TESTS_NUMBERS = new int[] { 114338 };
 // Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -111,7 +111,9 @@ public void setUp() throws Exception {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+
+	// Create project with 1.4 compliance
+	IJavaProject project14 = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
@@ -123,10 +125,13 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
-	javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	project14.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	project14.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+
+	// Create project with 1.5 compliance
+	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
-		javaProject, 
+		project15, 
 		"lib15.jar", 
 		"lib15src.zip", 
 		new String[] {
@@ -158,7 +163,7 @@ public void setUpSuite() throws Exception {
 		}, 
 		JavaCore.VERSION_1_5
 	);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
@@ -2203,4 +2208,47 @@ public void testVarargs() throws CoreException {
 	}
 }
 
+/**
+ * Bug 114338:[javadoc] Reconciler reports wrong javadoc warning (missing return type)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114338"
+ *
+ */
+public void testBug114338() throws CoreException {
+	// Set initial CU content
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @return a\n" + 
+		"	 */\n" + 
+		"	boolean get() {\n" + 
+		"		return false;\n" + 
+		"	}\n" + 
+		"}");
+	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+
+	// Modify content
+	String contents =
+		"package p1;\n" +
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @return boolean\n" + 
+		"	 */\n" + 
+		"	boolean get() {\n" + 
+		"		return false;\n" + 
+		"	}\n" + 
+		"}";
+	setWorkingCopyContents(contents);
+	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+}
 }
