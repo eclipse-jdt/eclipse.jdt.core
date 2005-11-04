@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0576"};
+//		TESTS_NAMES = new String[] {"test0577"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -5363,6 +5363,28 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());
 		} finally {
 			deleteProject("P1");
+		}
+	}
+	
+	/*
+	 * Ensures that strings are not optimized when creating the AST through a reconcile
+	 * even if the working copy was consistent.
+	 * (regression test for bug 114909 AST: String concatenation represented as single node)
+	 */
+	public void test0577() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  String s = /*start*/\"a\" + \"b\"/*end*/;\n" +
+				"}",
+				true/*resolve*/);
+			ASTNode string = buildAST(workingCopy);
+			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
 		}
 	}
 	

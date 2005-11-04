@@ -79,9 +79,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IErrorHandlingPolicy policy,
 		Map settings,
 		ICompilerRequestor requestor,
-		IProblemFactory problemFactory) {
+		IProblemFactory problemFactory,
+		boolean parseLiteralExpressionsAsConstants ) {
 
-		super(environment, policy, settings, requestor, problemFactory, true);
+		super(environment, policy, settings, requestor, problemFactory, parseLiteralExpressionsAsConstants );
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		Parser parser,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
-		boolean resetEnvironment,
+		boolean creatingAST,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -152,7 +153,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
-				problemFactory);
+				problemFactory,
+				!creatingAST); // optimize string literal only if not creating a DOM AST
 			if (parser != null) {
 				problemFinder.parser = parser;
 			}
@@ -197,8 +199,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 			if (problemFactory != null)
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			// NB: unit.cleanUp() is done by caller
-			if (problemFinder != null && resetEnvironment)
-				problemFinder.lookupEnvironment.reset();			
+			if (problemFinder != null && !creatingAST)
+				problemFinder.lookupEnvironment.reset();		
 		}
 	}
 
@@ -207,11 +209,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		char[] contents,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
-		boolean resetEnvironment,
+		boolean creatingAST,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, resetEnvironment, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, creatingAST, monitor);
 	}
 
 	

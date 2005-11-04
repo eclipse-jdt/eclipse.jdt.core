@@ -240,13 +240,17 @@ public class AbstractASTTests extends ModifyingResourceTests {
 
 		return findNode(unit, markerInfo);
 	}
+	
+	protected ASTNode buildAST(ICompilationUnit cu) throws JavaModelException {
+		return buildAST(null/*use existing contenst*/, cu, true/*report errors*/);
+	}
 
-	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
-		return buildAST(contents, cu, true);
+	protected ASTNode buildAST(String newContents, ICompilationUnit cu) throws JavaModelException {
+		return buildAST(newContents, cu, true/*report errors*/);
 	}
 	
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile) throws JavaModelException {
-		return buildAST(markerInfo, classFile, true);
+		return buildAST(markerInfo, classFile, true/*report errors*/);
 	}
 
 	/*
@@ -254,8 +258,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
 	 * by "*start*" and "*end*".
 	 */
-	protected ASTNode buildAST(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		ASTNode[] nodes = buildASTs(contents, cu, reportErrors);
+	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors);
 		if (nodes.length == 0) return null;
 		return nodes[0];
 	}
@@ -265,19 +269,26 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 
 	/*
-	 * Removes the marker comments "*start?*" and "*end?*" from the given contents
-	 * (where ? is either empty or a number).
+	 * Removes the marker comments "*start?*" and "*end?*" from the given new contents
+	 * (where ? is either empty or a number), or use the current contents if the given new contents is null.
 	 * Builds an AST from the resulting source.
 	 * For each of the pairs, returns the AST node that was delimited by "*start?*" and "*end?*".
 	 */
-	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		MarkerInfo markerInfo = new MarkerInfo(contents);
-		contents = markerInfo.source;
-
-		cu.getBuffer().setContents(contents);
+	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
+		MarkerInfo markerInfo;
+		if (newContents == null) {
+			markerInfo = new MarkerInfo(cu.getSource());
+			newContents = markerInfo.source;
+			cu.getBuffer().setContents(newContents);
+			cu.makeConsistent(null);
+		} else {
+			markerInfo = new MarkerInfo(newContents);
+			newContents = markerInfo.source;
+			cu.getBuffer().setContents(newContents);
+		}
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) 
-			unit = cu.reconcile(AST.JLS3, false, null, null);
+			unit = cu.reconcile(AST.JLS3, reportErrors, null, null);
 		else {
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setSource(cu);
@@ -289,7 +300,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			StringBuffer buffer = new StringBuffer();
 			IProblem[] problems = unit.getProblems();
 			for (int i = 0, length = problems.length; i < length; i++)
-				Util.appendProblem(buffer, problems[i], contents.toCharArray(), i+1);
+				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);
 			if (buffer.length() > 0)
 				System.err.println(buffer.toString());
 		}
