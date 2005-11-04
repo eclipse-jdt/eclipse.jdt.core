@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
@@ -43,27 +45,69 @@ public Label(CodeStream codeStream) {
 /**
  * Add a forward refrence for the array.
  */
-void addForwardReference(int iPos) {
-	int length;
-	if (forwardReferenceCount >= (length = forwardReferences.length))
-		System.arraycopy(forwardReferences, 0, (forwardReferences = new int[2*length]), 0, length);
-	forwardReferences[forwardReferenceCount++] = iPos;
+void addForwardReference(int pos) {
+	final int count = this.forwardReferenceCount;
+	if (count >= 1) {
+		int previousValue = this.forwardReferences[count - 1];
+		if (previousValue < pos) {
+			int length;
+			if (count >= (length = this.forwardReferences.length))
+				System.arraycopy(this.forwardReferences, 0, (this.forwardReferences = new int[2*length]), 0, length);
+			this.forwardReferences[this.forwardReferenceCount++] = pos;			
+		} else if (previousValue > pos) {
+			int[] refs = this.forwardReferences;
+			// check for duplicates
+			for (int i = 0, max = this.forwardReferenceCount; i < max; i++) {
+				if (refs[i] == pos) return; // already recorded
+			}
+			int length;
+			if (count >= (length = refs.length))
+				System.arraycopy(refs, 0, (this.forwardReferences = new int[2*length]), 0, length);
+			this.forwardReferences[this.forwardReferenceCount++] = pos;
+			Arrays.sort(this.forwardReferences, 0, this.forwardReferenceCount);
+		}
+	} else {
+		int length;
+		if (count >= (length = this.forwardReferences.length))
+			System.arraycopy(this.forwardReferences, 0, (this.forwardReferences = new int[2*length]), 0, length);
+		this.forwardReferences[this.forwardReferenceCount++] = pos;
+	}
 }
 
 /**
- * Add a forward refrence for the array.
+ * Add a forward reference for the array.
  */
 public void appendForwardReferencesFrom(Label otherLabel) {
-	int otherCount = otherLabel.forwardReferenceCount;
+	final int otherCount = otherLabel.forwardReferenceCount;
 	if (otherCount == 0) return;
-	int length = forwardReferences.length;
-	int neededSpace = otherCount + forwardReferenceCount;
-	if (neededSpace >= length){
-		System.arraycopy(forwardReferences, 0, (forwardReferences = new int[neededSpace]), 0, forwardReferenceCount);
+	// need to merge the two sorted arrays of forward references
+	int[] mergedForwardReferences = new int[this.forwardReferenceCount + otherCount];
+	int indexInMerge = 0;
+	int j = 0;
+	int i = 0;
+	int max = this.forwardReferenceCount;
+	int max2 = otherLabel.forwardReferenceCount;
+	loop1 : for (; i < max; i++) {
+		final int value1 = this.forwardReferences[i];
+		for (; j < max2; j++) {
+			final int value2 = otherLabel.forwardReferences[j];
+			if (value1 < value2) {
+				mergedForwardReferences[indexInMerge++] = value1;
+				continue loop1;
+			} else if (value1 == value2) {
+				mergedForwardReferences[indexInMerge++] = value1;
+				j++;
+				continue loop1;
+			} else {
+				mergedForwardReferences[indexInMerge++] = value2;
+			}
+		}
 	}
-	// append other forward references at the end, so they will get updated as well
-	System.arraycopy(otherLabel.forwardReferences, 0, forwardReferences, forwardReferenceCount, otherCount);
-	forwardReferenceCount = neededSpace;
+	for (; j < max2; j++) {
+		mergedForwardReferences[indexInMerge++] = otherLabel.forwardReferences[j];
+	}
+	this.forwardReferences = mergedForwardReferences;
+	this.forwardReferenceCount = indexInMerge;
 }
 
 /*
@@ -172,7 +216,7 @@ public void place() { // Currently lacking wide support.
 				codeStream.classFileOffset -= 3;
 				forwardReferenceCount--;
 				// also update the PCs in the related debug attributes
-				/** OLD CODE
+				/* OLD CODE
 					int index = codeStream.pcToSourceMapSize - 1;
 						while ((index >= 0) && (codeStream.pcToSourceMap[index][1] == oldPosition)) {
 							codeStream.pcToSourceMap[index--][1] = position;
