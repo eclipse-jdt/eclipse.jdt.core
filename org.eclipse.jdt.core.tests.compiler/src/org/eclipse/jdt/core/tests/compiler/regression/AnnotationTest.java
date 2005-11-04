@@ -1789,7 +1789,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums={Color.RED},\n" + 
-			"      annotations={@Foo()},\n" + 
+			"      annotations={@Foo},\n" + 
 			"      ints={(int) 2},\n" + 
 			"      bytes={(byte) 1},\n" + 
 			"      shorts={(short) 5},\n" + 
@@ -1799,11 +1799,14 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      floats={0.0f},\n" + 
 			"      doubles={-0.0})\n" + 
 			"  void foo();"; 
-			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
 		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
 	}
 	
 	public void test063() {
@@ -1865,7 +1868,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums=Color.RED,\n" + 
-			"      annotations=@Foo(),\n" + 
+			"      annotations=@Foo,\n" + 
 			"      ints=(int) 2,\n" + 
 			"      bytes=(byte) 1,\n" + 
 			"      shorts=(short) 5,\n" + 
@@ -1876,10 +1879,13 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      doubles=-0.0)\n" + 
 			"  void foo();"; 
 			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
 		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
 	}
 	
 	public void test064() {
@@ -2205,7 +2211,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract Color[] enums() default {Color.GREEN};\n" + 
 			"  \n" + 
 			"  // Method descriptor #13 ()[LFoo;\n" + 
-			"  public abstract Foo[] annotations() default {@Foo()};\n" + 
+			"  public abstract Foo[] annotations() default {@Foo};\n" + 
 			"  \n" + 
 			"  // Method descriptor #16 ()[I\n" + 
 			"  public abstract int[] ints() default {(int) 0};\n" + 
@@ -2257,7 +2263,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n" + 
 				"@interface I {\n" + 
 				"    Color _enum() default Color.GREEN;\n" + 
-				"    Foo _annotation() default @Foo();\n" + 
+				"    Foo _annotation() default @Foo;\n" + 
 				"    int _int() default 0;\n" + 
 				"    byte _byte() default 1;\n" + 
 				"    short _short() default 3;\n" + 
@@ -2307,7 +2313,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract Color _enum() default Color.GREEN;\n" + 
 			"  \n" + 
 			"  // Method descriptor #13 ()LFoo;\n" + 
-			"  public abstract Foo _annotation() default @Foo();\n" + 
+			"  public abstract Foo _annotation() default @Foo;\n" + 
 			"  \n" + 
 			"  // Method descriptor #16 ()I\n" + 
 			"  public abstract int _int() default (int) 0;\n" + 
