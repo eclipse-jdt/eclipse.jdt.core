@@ -24628,5 +24628,79 @@ public void test865() {
 		},
 		"");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114997
+public void test866() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  public interface Interface {\n" + 
+			"	  // nothing\n" + 
+			"  }\n" + 
+			"  public List<? extends Interface> field = Collections.emptyList();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114087
+public void test867() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	static <T extends Runnable> List<List<T>> foo1() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar1(List<List<T>> l) {\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> List<T> foo2() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar2(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	{\n" + 
+			"		List<List> o = Foo.foo1();\n" + 
+			"		Foo.bar1(o);\n" + 
+			"	}\n" + 
+			"	{\n" + 
+			"		List o = Foo.foo2();\n" + 
+			"		Foo.bar2(o);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	                   ^^^^\n" + 
+		"The method foo1() in the type Foo is not applicable for the arguments ()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
+		"	Foo.bar1(o);\n" + 
+		"	    ^^^^\n" + 
+		"The method bar1(List<List<T>>) in the type Foo is not applicable for the arguments (List<List>)\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(List) of the generic method bar2(List<T>) of type Foo\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	         ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n");	
+}
+
 }
 
