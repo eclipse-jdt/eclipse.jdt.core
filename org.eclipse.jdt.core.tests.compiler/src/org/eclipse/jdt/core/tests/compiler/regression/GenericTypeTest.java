@@ -26797,4 +26797,77 @@ public void test867() {
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 		"----------\n");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114365
+public void test868() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.io.Serializable;\n" +
+			"import java.lang.Cloneable;\n" +
+			"public class X<A extends Collection & Serializable > implements Collection {\n" +
+			"	public int size() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	public boolean isEmpty() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean contains(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public Iterator iterator() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public Object[] toArray() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public Object[] toArray(Object[] arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public boolean add(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean remove(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean containsAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean addAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean removeAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean retainAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void clear() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		\n" +
+			"	}" +
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);	
+}
 }
