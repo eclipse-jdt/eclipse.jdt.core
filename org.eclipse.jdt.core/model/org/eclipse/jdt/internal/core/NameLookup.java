@@ -810,37 +810,51 @@ public class NameLookup implements SuffixConstants {
 				return; // the package is not present
 			}
 			int length= classFiles.length;
-	
-			String unqualifiedName= name;
-			int index= name.lastIndexOf('$');
-			if (index != -1) {
-				//the type name of the inner type
-				unqualifiedName= Util.localTypeName(name, index, name.length());
-				// unqualifiedName is empty if the name ends with a '$' sign.
-				// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
-			}
-			String matchName= partialMatch ? name.toLowerCase() : name;
-			for (int i= 0; i < length; i++) {
-				if (requestor.isCanceled())
-					return;
-				IClassFile classFile= classFiles[i];
-				String elementName = classFile.getElementName();
-				if (partialMatch) elementName = elementName.toLowerCase();
-	
-				/**
-				 * Must use startWith because matchName will never have the 
-				 * extension ".class" and the elementName always will.
-				 */
-				if (elementName.startsWith(matchName)) {
-					IType type= null;
-					try {
-						type= classFile.getType();
-					} catch (JavaModelException npe) {
-						continue; // the classFile is not present
-					}
-					if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
-						if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
+			if (!partialMatch) {
+				// exact match
+				for (int i= 0; i < length; i++) {
+					if (requestor.isCanceled()) return;
+					ClassFile classFile= (ClassFile) classFiles[i];
+					if (name.equals(classFile.name)) { // ClassFile#name contains the name of the .class file without the .class extension
+						IType type = classFile.getType();
+						if (acceptType(type, acceptFlags, false/*not a source type*/)) {
 							requestor.acceptType(type);
+							break;  // since an exact match was requested, no other matching type can exist
+						}
+					}
+				}
+			} else {
+				String unqualifiedName = name;
+				int index = name.lastIndexOf('$');
+				if (index != -1) {
+					//the type name of the inner type
+					unqualifiedName = Util.localTypeName(name, index, name.length());
+					// unqualifiedName is empty if the name ends with a '$' sign.
+					// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
+				}
+				String matchName = name.toLowerCase();
+				for (int i = 0; i < length; i++) {
+					if (requestor.isCanceled())
+						return;
+					IClassFile classFile= classFiles[i];
+					String elementName = classFile.getElementName();
+					elementName = elementName.toLowerCase();
+		
+					/**
+					 * Must use startWith because matchName will never have the 
+					 * extension ".class" and the elementName always will.
+					 */
+					if (elementName.startsWith(matchName)) {
+						IType type= null;
+						try {
+							type = classFile.getType();
+						} catch (JavaModelException npe) {
+							continue; // the classFile is not present
+						}
+						if ((type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
+							if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
+								requestor.acceptType(type);
+						}
 					}
 				}
 			}

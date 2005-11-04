@@ -37,7 +37,7 @@ public NameLookupTests2(String name) {
 	static {
 //		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
 //		TESTS_PREFIX =  "testArray";
-//		TESTS_NAMES = new String[] { "testFindBinaryTypeWithDollarName" };
+//		TESTS_NAMES = new String[] { "testFindBinaryTypeWithSameNameAsMember" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
@@ -243,6 +243,25 @@ public void testFindBinaryTypeWithDollarName() throws CoreException, IOException
 		assertTypesEqual(
 			"Unexpected type", 
 			"p.X$$1\n",
+			new IType[] {type});
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensure that a type with the same simple name as its member type is found
+ * (regression test for bug 102286 Error when trying F4-Type Hierarchy)
+ */
+public void testFindBinaryTypeWithSameNameAsMember() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"/P/lib"}, new String[] {}, "bin");
+		createFolder("/P/lib/p");
+		createFile("/P/lib/p/X.class", "");
+		createFile("/P/lib/p/X$X.class", "");
+		IType type = getNameLookup((JavaProject) project).findType("p.X", false, NameLookup.ACCEPT_ALL);
+		assertTypesEqual(
+			"Unexpected type", 
+			"p.X\n",
 			new IType[] {type});
 	} finally {
 		deleteProject("P");
