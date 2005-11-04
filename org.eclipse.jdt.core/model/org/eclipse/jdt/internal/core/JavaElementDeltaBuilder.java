@@ -62,7 +62,7 @@ public class JavaElementDeltaBuilder {
 	/**
 	 * Change delta
 	 */
-	JavaElementDelta delta;
+	public JavaElementDelta delta = null;
 
 	/**
 	 * List of added elements
@@ -133,6 +133,12 @@ private void added(IJavaElement element) {
  * unit and its new content.
  */
 public void buildDeltas() {
+	this.delta = new JavaElementDelta(this.javaElement);
+	// if building a delta on a compilation unit or below, 
+	// it's a fine grained delta
+	if (this.javaElement.getElementType() >= IJavaElement.COMPILATION_UNIT) {
+		this.delta.fineGrained();
+	}
 	this.recordNewPositions(this.javaElement, 0);
 	this.findAdditions(this.javaElement, 0);
 	this.findDeletions();
@@ -302,15 +308,7 @@ private void initialize() {
 	this.oldPositions = new HashMap(20);
 	this.newPositions = new HashMap(20);
 	this.putOldPosition(this.javaElement, new ListItem(null, null));
-	this.putNewPosition(this.javaElement, new ListItem(null, null));
-	this.delta = new JavaElementDelta(javaElement);
-	
-	// if building a delta on a compilation unit or below, 
-	// it's a fine grained delta
-	if (javaElement.getElementType() >= IJavaElement.COMPILATION_UNIT) {
-		this.delta.fineGrained();
-	}
-	
+	this.putNewPosition(this.javaElement, new ListItem(null, null));	
 	this.added = new ArrayList(5);
 	this.removed = new ArrayList(5);
 }
@@ -425,7 +423,7 @@ private void removeElementInfo(IJavaElement element) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Built delta:\n"); //$NON-NLS-1$
-	buffer.append(this.delta.toString());
+	buffer.append(this.delta == null ? "<null>" : this.delta.toString()); //$NON-NLS-1$
 	return buffer.toString();
 }
 /**

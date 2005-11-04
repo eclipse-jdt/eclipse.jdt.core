@@ -20,7 +20,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -55,6 +57,32 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			super.acceptProblem(problem);
 		}		
 	}
+	
+	class ReconcileParticipant extends CompilationParticipant {
+		int astLevel;
+		boolean resolveBinding;
+		IJavaElementDelta delta;
+		org.eclipse.jdt.core.dom.CompilationUnit ast;
+		ReconcileParticipant() {
+			this(ICompilationUnit.NO_AST, false);
+		}
+		ReconcileParticipant(int astLevel, boolean resolveBinding) {
+			TestCompilationParticipant.PARTICIPANT = this;
+			this.astLevel = astLevel;
+			this.resolveBinding = resolveBinding;
+		}
+		public boolean isActive(IJavaProject project) {
+			return true;
+		}
+		public void reconcile(ReconcileContext context) {
+			this.delta = context.getDelta();
+			try {
+				this.ast = context.getAST(this.astLevel, this.resolveBinding);
+			} catch (JavaModelException e) {
+				assertNull("Unexpected exception", e);
+			}
+		}
+	}
 /**
  */
 public ReconcilerTests(String name) {
@@ -64,7 +92,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-// TESTS_NAMES = new String[] { "testNoChanges1" };
+// TESTS_NAMES = new String[] { "testReconcileParticipant05", "testReconcileParticipant06" };
 // Numbers of tests to run: "test<number>" will be run for each number of this array
 //TESTS_NUMBERS = new int[] { 114338 };
 // Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -189,6 +217,7 @@ void setWorkingCopyContents(String contents) throws JavaModelException {
  * Cleanup after the previous test.
  */
 public void tearDown() throws Exception {
+	TestCompilationParticipant.PARTICIPANT = null;
 	if (this.workingCopy != null) {
 		this.workingCopy.discardWorkingCopy();
 	}
@@ -495,7 +524,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /*
@@ -1726,7 +1755,7 @@ public void testNoChanges1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /**
@@ -1746,7 +1775,7 @@ public void testNoChanges2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /*
@@ -1782,6 +1811,176 @@ public void testRawUsage() throws CoreException {
 		if (otherCopy != null)
 			otherCopy.discardWorkingCopy();
 	}
+}
+/*
+ * Ensures that a reconcile participant is notified when a working copy is reconciled.
+ */
+public void testReconcileParticipant01() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected participant delta",
+		"[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"		bar()[+]: {}\n" + 
+		"		foo()[-]: {}",
+		participant.delta
+	);
+}
+/*
+ * Ensures that a reconcile participant is not notified if not participating.
+ */
+public void testReconcileParticipant02() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(){
+		public boolean isActive(IJavaProject project) {
+			return false;
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected participant delta",
+		"<null>",
+		participant.delta
+	);
+}
+/*
+ * Ensures that a reconcile participant is notified with the correct AST.
+ */
+public void testReconcileParticipant03() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertASTNodeEquals(
+		"Unexpected participant delta",
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"  public void bar(){\n" + 
+		"  }\n" + 
+		"}\n",
+		participant.ast
+	);
+}
+/*
+ * Ensures that the same AST as the one a reconcile participant requested is reported.
+ */
+public void testReconcileParticipant04() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertSame(
+		"Unexpected participant delta",
+		participant.ast,
+		ast
+	);
+}
+/*
+ * Ensures that a participant can fix an error during reconcile.
+ */
+public void testReconcileParticipant05() throws CoreException {
+	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+		public void reconcile(ReconcileContext context) {
+			try {
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public void bar() {\n" +
+					"  }\n" +
+					"}"
+				);
+				context.resetAST();
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    toString()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+}
+/*
+ * Ensures that a participant can introduce an error during reconcile.
+ */
+public void testReconcileParticipant06() throws CoreException {
+	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+		public void reconcile(ReconcileContext context) {
+			try {
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public void bar() {\n" +
+					"    toString()\n" +
+					"  }\n" +
+					"}"
+				);
+				context.resetAST();
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
+		"	toString()\n" + 
+		"	         ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

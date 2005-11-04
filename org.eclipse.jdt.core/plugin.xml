@@ -40,6 +40,14 @@
 	schema="schema/codeFormatter.exsd"/>
 
 <!-- =================================================================================== -->
+<!-- Extension Point: Compilation Participant                                            -->
+<!-- =================================================================================== -->
+
+<extension-point name="%compilationParticipantsName" 
+	id="compilationParticipant"
+	schema="schema/compilationParticipant.exsd"/>
+
+<!-- =================================================================================== -->
 <!-- Extension: Java Nature                                                              -->
 <!-- =================================================================================== -->
 

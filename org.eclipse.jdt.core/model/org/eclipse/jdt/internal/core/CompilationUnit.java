@@ -108,14 +108,28 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
 	IJavaProject project = getJavaProject();
-	boolean computeProblems = JavaProject.hasJavaNature(project.getProject()) && perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
+
+	boolean createAST;
+	boolean resolveBindings;
+	HashMap problems;
+	if (info instanceof ASTHolderCUInfo) {
+		ASTHolderCUInfo astHolder = (ASTHolderCUInfo) info;
+		createAST = astHolder.astLevel != NO_AST;
+		resolveBindings = astHolder.resolveBindings;
+		problems = astHolder.problems;
+	} else {
+		createAST = false;
+		resolveBindings = false;
+		problems = null;
+	}
+	
+	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive() && JavaProject.hasJavaNature(project.getProject());
 	IProblemFactory problemFactory = new DefaultProblemFactory();
 	Map options = project.getOptions(true);
 	if (!computeProblems) {
 		// disable task tags checking to speed up parsing
 		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 	}
-	boolean createAST = info instanceof ASTHolderCUInfo;
 	SourceElementParser parser = new SourceElementParser(
 		requestor, 
 		problemFactory, 
@@ -123,10 +137,11 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		true/*report local declarations*/,
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
-	if (!computeProblems && !createAST) // disable javadoc parsing if not computing problems and not creating ast
+	if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast
 		parser.javadocParser.checkDocComment = false;
 	requestor.parser = parser;
-	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
+	CompilationUnitDeclaration unit = parser.parseCompilationUnit(
+		new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
 				return contents;
 			}
@@ -139,7 +154,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			public char[] getFileName() {
 				return CompilationUnit.this.getFileName();
 			}
-		}, true /*full parse to find local elements*/);
+		}, 
+		true /*full parse to find local elements*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
@@ -152,10 +168,27 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// compute other problems if needed
 	CompilationUnitDeclaration compilationUnitDeclaration = null;
 	try {
-		if (computeProblems){
-			perWorkingCopyInfo.beginReporting();
-			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, perWorkingCopyInfo, createAST, pm);
-			perWorkingCopyInfo.endReporting();
+		if (computeProblems) {
+			if (problems == null) {
+				// report problems to the problem requestor
+				problems = new HashMap();
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, pm);
+				try {
+					perWorkingCopyInfo.beginReporting();
+					for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
+						CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
+						if (categorizedProblems == null) continue;
+						for (int i = 0, length = categorizedProblems.length; i < length; i++) {
+							perWorkingCopyInfo.acceptProblem(categorizedProblems[i]);
+						}
+					}
+				} finally {
+					perWorkingCopyInfo.endReporting();
+				}
+			} else {
+				// collect problems
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, pm);
+			}
 		}
 		
 		if (createAST) {
@@ -931,16 +964,18 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	makeConsistent(false/*don't create AST*/, 0, monitor);
+	makeConsistent(NO_AST, false/*don't resolve bindings*/, null/*don't collect problems but report them*/, monitor);
 }
-public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST, int astLevel, IProgressMonitor monitor) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
 	// create a new info and make it the current info
 	// (this will remove the info and its children just before storing the new infos)
-	if (createAST) {
+	if (astLevel != NO_AST || problems != null) {
 		ASTHolderCUInfo info = new ASTHolderCUInfo();
 		info.astLevel = astLevel;
+		info.resolveBindings = resolveBindings;
+		info.problems = problems;
 		openWhenClosed(info, monitor);
 		org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;
 		info.ast = null;
@@ -1048,24 +1083,12 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
 	
-	boolean createAST = false;
-	switch(astLevel) {
-		case JLS2_INTERNAL :
-		case AST.JLS3 :
-			// client asking for level 2 or level 3 ASTs; these are supported
-			createAST = true;
-			break;
-		default:
-			// client asking for no AST (0) or unknown ast level
-			// either way, request denied
-			createAST = false;
-	}
 	PerformanceStats stats = null;
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats = PerformanceStats.getStats(JavaModelManager.RECONCILE_PERF, this);
 		stats.startRun(new String(this.getFileName()));
 	}
-	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats.endRun();

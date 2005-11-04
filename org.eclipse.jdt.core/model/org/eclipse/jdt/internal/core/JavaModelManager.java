@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -121,6 +122,11 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 	
 	/**
+	 * Name of the extension point for contributing a compilation participant
+	 */
+	public static final String COMPILATION_PARTICIPANT_EXTPOINT_ID = "compilationParticipant" ; //$NON-NLS-1$
+	
+	/**
 	 * Value of the content-type for Java source files
 	 */
 	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
@@ -176,6 +182,74 @@ public class JavaModelManager implements ISaveParticipant {
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
+	static final CompilationParticipant[] NO_PARTICPANTS = new CompilationParticipant[0];
+	
+	public class CompilationParticipants {
+	
+		/*
+		 * The registered compilation participants
+		 */
+		private CompilationParticipant[] registeredParticipants = null;
+				
+		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
+			CompilationParticipant[] participants = getRegisteredParticipants();
+			int length = participants.length;
+			CompilationParticipant[] result = new CompilationParticipant[length];
+			int index = 0;
+			for (int i = 0; i < length; i++) {
+				CompilationParticipant participant = participants[i];
+				if (participant.isActive(project))
+					result[index++] = participant;
+			}
+			if (index == 0)
+				return null;
+			if (index < length)
+				System.arraycopy(result, 0, result = new CompilationParticipant[index], 0, index);
+			return result;
+		}
+		
+		private CompilationParticipant[] getRegisteredParticipants() {
+			if (this.registeredParticipants != null) {
+				return this.registeredParticipants;
+			}
+			ArrayList participants = new ArrayList();
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
+			if (extension == null) 
+				return null;
+			IExtension[] extensions = extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++) {
+				// for all extensions of this point...
+				for(int j = 0; j < extensions.length; j++) {
+					IConfigurationElement [] configElements = extensions[j].getConfigurationElements();
+					// for all config elements named "compilationParticipant"
+					for(int k = 0; k < configElements.length; k++){
+						String elementName = configElements[k].getName();
+						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
+							continue;
+						}
+						try {
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ 
+							if (execExt instanceof CompilationParticipant){
+								participants.add(execExt);
+							}
+						} catch(CoreException e) {
+							// executable extension could not be created: ignore this participant
+							Util.log(e, "Unexpected exception trying to instanciate compilation participant"); //$NON-NLS-1$
+						}
+					}
+				}
+			}
+			int size = participants.size();
+			if (size == 0)
+				return this.registeredParticipants = NO_PARTICPANTS;
+			this.registeredParticipants = new CompilationParticipant[size];
+			participants.toArray(this.registeredParticipants);
+			return this.registeredParticipants;
+		}
+	}
+			
+	public final CompilationParticipants compilationParticipants = new CompilationParticipants();
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
