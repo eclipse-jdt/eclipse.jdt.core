@@ -105,6 +105,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
         	field.enableButton(IDX_REMOVE, enableRemove);
         	boolean enableEdit = canEdit();
         	field.enableButton(IDX_EDIT, enableEdit);
+        	boolean enableAdvanced = canAdvanced();
+        	field.enableButton(IDX_ADVANCED, enableAdvanced);
         }
 
         /**
@@ -316,6 +318,14 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 		FactoryContainer fc = selected.get(0)._fc;
 		return (fc.getType() != FactoryContainer.FactoryType.PLUGIN);
+	}
+
+	/**
+	 * Can only launch the 'advanced' dialog on a single item at a time.
+	 */
+	private boolean canAdvanced() {
+		List<FactoryPathEntry> selected= getSelectedListContents();
+		return (selected.size() == 1);
 	}
 
 	private void addEntries(FactoryPathEntry[] entries) {
