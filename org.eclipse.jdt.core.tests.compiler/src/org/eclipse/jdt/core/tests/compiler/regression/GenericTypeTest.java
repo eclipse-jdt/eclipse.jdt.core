@@ -17662,13 +17662,8 @@ public void test500(){
 				"    }\n" + 
 				"}\n",
             },
-            "----------\n" + 
-    		"1. WARNING in X.java (at line 6)\n" + 
-    		"	boolean c = X.class == Long.class;\n" + 
-    		"	            ^\n" + 
-    		"X is a raw type. References to generic type X<S> should be parameterized\n" + 
     		"----------\n" + 
-    		"2. ERROR in X.java (at line 6)\n" + 
+    		"1. ERROR in X.java (at line 6)\n" + 
     		"	boolean c = X.class == Long.class;\n" + 
     		"	            ^^^^^^^^^^^^^^^^^^^^^\n" + 
     		"Incompatible operand types Class<X> and Class<Long>\n" + 
@@ -26869,5 +26864,26 @@ public void test868() {
 		null,
 		options,
 		null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115181
+public void test869() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Class<?> c = Comparator.class;\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }

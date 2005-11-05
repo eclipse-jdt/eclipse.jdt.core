@@ -22,9 +22,10 @@ public class ClassLiteralAccess extends Expression {
 	public TypeBinding targetType;
 	FieldBinding syntheticField;
 
-	public ClassLiteralAccess(int sourceEnd, TypeReference t) {
-		type = t;
-		this.sourceStart = t.sourceStart;
+	public ClassLiteralAccess(int sourceEnd, TypeReference type) {
+		this.type = type;
+		type.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
+		this.sourceStart = type.sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
 
