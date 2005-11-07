@@ -28,13 +28,23 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnSingleTypeReference extends SingleTypeReference {
+public static final int K_TYPE = 0;
+public static final int K_CLASS = 1;
+public static final int K_INTERFACE = 2;
+public static final int K_EXCEPTION = 3;
+
+private int kind = K_TYPE;
 public boolean isCompletionNode;
 public boolean isConstructorType;
 public CompletionOnFieldType fieldTypeCompletionNode;
 
 public CompletionOnSingleTypeReference(char[] source, long pos) {
+	this(source, pos, K_TYPE);
+}
+public CompletionOnSingleTypeReference(char[] source, long pos, int kind) {
 	super(source, pos);
 	isCompletionNode = true;
+	this.kind = kind;
 }
 public void aboutToResolve(Scope scope) {
 	getTypeBinding(scope);
@@ -55,8 +65,31 @@ protected TypeBinding getTypeBinding(Scope scope) {
 		return super.getTypeBinding(scope);
 	}
 }
+public boolean isClass(){
+	return this.kind == K_CLASS;
+}
+public boolean isInterface(){
+	return this.kind == K_INTERFACE;
+}
+public boolean isException(){
+	return this.kind == K_EXCEPTION;
+}
 public StringBuffer printExpression(int indent, StringBuffer output){
-	return output.append("<CompleteOnType:").append(token).append('>'); //$NON-NLS-1$
+	switch (this.kind) {
+		case K_CLASS :
+			output.append("<CompleteOnClass:");//$NON-NLS-1$
+			break;
+		case K_INTERFACE :
+			output.append("<CompleteOnInterface:");//$NON-NLS-1$
+			break;
+		case K_EXCEPTION :
+			output.append("<CompleteOnException:");//$NON-NLS-1$
+			break;
+		default :
+			output.append("<CompleteOnType:");//$NON-NLS-1$
+			break;
+	}
+	return output.append(token).append('>');
 }
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
     if (this.fieldTypeCompletionNode != null) {

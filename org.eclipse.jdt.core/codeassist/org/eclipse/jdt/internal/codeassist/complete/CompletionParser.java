@@ -3061,13 +3061,28 @@ public NameReference createQualifiedAssistNameReference(char[][] previousIdentif
 public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
-			return new CompletionOnQualifiedExceptionReference(previousIdentifiers, assistName, positions);
+			return new CompletionOnQualifiedTypeReference(
+					previousIdentifiers,
+					assistName,
+					positions,
+					CompletionOnQualifiedTypeReference.K_EXCEPTION);
 		case K_NEXT_TYPEREF_IS_CLASS :
-			return new CompletionOnQualifiedClassReference(previousIdentifiers, assistName, positions);
+			return new CompletionOnQualifiedTypeReference(
+					previousIdentifiers,
+					assistName,
+					positions,
+					CompletionOnQualifiedTypeReference.K_CLASS);
 		case K_NEXT_TYPEREF_IS_INTERFACE :
-			return new CompletionOnQualifiedInterfaceReference(previousIdentifiers, assistName, positions);
+			return new CompletionOnQualifiedTypeReference(
+					previousIdentifiers,
+					assistName,
+					positions,
+					CompletionOnQualifiedTypeReference.K_INTERFACE);
 		default :
-			return new CompletionOnQualifiedTypeReference(previousIdentifiers, assistName, positions); 
+			return new CompletionOnQualifiedTypeReference(
+					previousIdentifiers,
+					assistName,
+					positions); 
 	}
 }
 public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] assistName, TypeReference[] assistTypeArguments, long[] positions) {
@@ -3196,11 +3211,11 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 public TypeReference createSingleAssistTypeReference(char[] assistName, long position) {
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
-			return new CompletionOnExceptionReference(assistName, position) ;
+			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_EXCEPTION) ;
 		case K_NEXT_TYPEREF_IS_CLASS :
-			return new CompletionOnClassReference(assistName, position);
+			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_CLASS);
 		case K_NEXT_TYPEREF_IS_INTERFACE :
-			return new CompletionOnInterfaceReference(assistName, position);
+			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_INTERFACE);
 		default :
 			return new CompletionOnSingleTypeReference(assistName, position); 
 	}

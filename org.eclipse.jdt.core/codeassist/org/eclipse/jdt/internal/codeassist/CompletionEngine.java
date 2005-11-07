@@ -772,12 +772,14 @@ public final class CompletionEngine
 
 		} else if (astNode instanceof CompletionOnSingleTypeReference) {
 
-			this.completionToken = ((CompletionOnSingleTypeReference) astNode).token;
+			CompletionOnSingleTypeReference singleRef = (CompletionOnSingleTypeReference) astNode;
+			
+			this.completionToken = singleRef.token;
 
-			this.assistNodeIsClass = astNode instanceof CompletionOnClassReference;
-			this.assistNodeIsException = astNode instanceof CompletionOnExceptionReference;
-			this.assistNodeIsInterface = astNode instanceof CompletionOnInterfaceReference;
-			this.assistNodeIsConstructor = ((CompletionOnSingleTypeReference) astNode).isConstructorType;
+			this.assistNodeIsClass = singleRef.isClass();
+			this.assistNodeIsException = singleRef.isException();
+			this.assistNodeIsInterface = singleRef.isInterface();
+			this.assistNodeIsConstructor = singleRef.isConstructorType;
 
 			// can be the start of a qualified type name
 			if (qualifiedBinding == null) {
@@ -905,12 +907,13 @@ public final class CompletionEngine
 
 			this.insideQualifiedReference = true;
 			
-			this.assistNodeIsClass = astNode instanceof CompletionOnQualifiedClassReference;
-			this.assistNodeIsException = astNode instanceof CompletionOnQualifiedExceptionReference;
-			this.assistNodeIsInterface = astNode instanceof CompletionOnQualifiedInterfaceReference;
-			
 			CompletionOnQualifiedTypeReference ref =
 				(CompletionOnQualifiedTypeReference) astNode;
+			
+			this.assistNodeIsClass = ref.isClass();
+			this.assistNodeIsException = ref.isException();
+			this.assistNodeIsInterface = ref.isInterface();
+			
 			this.completionToken = ref.completionIdentifier;
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
 
