@@ -24701,6 +24701,26 @@ public void test867() {
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 		"----------\n");	
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113950
+public void test870() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public interface I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public abstract class A<T> implements I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls) { }\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class C<T> extends A<List<T>> { }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
