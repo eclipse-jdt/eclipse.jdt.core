@@ -102,6 +102,7 @@ public void appendForwardReferencesFrom(Label otherLabel) {
 				mergedForwardReferences[indexInMerge++] = value2;
 			}
 		}
+		mergedForwardReferences[indexInMerge++] = value1;
 	}
 	for (; j < max2; j++) {
 		mergedForwardReferences[indexInMerge++] = otherLabel.forwardReferences[j];

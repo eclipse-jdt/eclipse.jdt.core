@@ -24,7 +24,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_NUMBERS = new int[] { 33 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -1343,6 +1343,153 @@ public void test032() {
 			"}",
 		},
 		"true");
+}
+public void test033() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	interface IActionSetContributionItem {\n" + 
+				"		String getActionSetId();\n" + 
+				"	}\n" + 
+				"	public interface IAction {\n" + 
+				"	}\n" + 
+				"	interface IContributionItem {\n" + 
+				"		String getId();\n" + 
+				"		boolean isSeparator();\n" + 
+				"		boolean isGroupMarker();\n" + 
+				"	}\n" + 
+				"    public static void findInsertionPoint(String startId,\n" + 
+				"            String sortId, IContributionItem[] items) {\n" + 
+				"        // Find the reference item.\n" + 
+				"        try {\n" + 
+				"	        int insertIndex = 0;\n" + 
+				"	        while (insertIndex < items.length) {\n" + 
+				"	            if (startId.equals(items[insertIndex].getId()))\n" + 
+				"	                break;\n" + 
+				"	            ++insertIndex;\n" + 
+				"	        }\n" + 
+				"	        if (insertIndex >= items.length)\n" + 
+				"	            return;\n" + 
+				"	\n" + 
+				"	        int compareMetric = 0;\n" + 
+				"	\n" + 
+				"	        // Find the insertion point for the new item.\n" + 
+				"	        // We do this by iterating through all of the previous\n" + 
+				"	        // action set contributions define within the current group.\n" + 
+				"	        for (int nX = insertIndex + 1; nX < items.length; nX++) {\n" + 
+				"	            IContributionItem item = items[nX];\n" + 
+				"	            if (item.isSeparator() || item.isGroupMarker()) {\n" + 
+				"	                // Fix for bug report 18357\n" + 
+				"	                break;\n" + 
+				"	            }\n" + 
+				"	            if (item instanceof IActionSetContributionItem) {\n" + 
+				"	                if (sortId != null) {\n" + 
+				"	                    String testId = ((IActionSetContributionItem) item)\n" + 
+				"	                            .getActionSetId();\n" + 
+				"	                    if (sortId.compareTo(testId) < compareMetric)\n" + 
+				"	                        break;\n" + 
+				"	                }\n" + 
+				"	                insertIndex = nX;\n" + 
+				"	            } else {\n" + 
+				"	                break;\n" + 
+				"	            }\n" + 
+				"	        }\n" + 
+				"	    } catch(Exception e) {}\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		findInsertionPoint(\"\", \"\", null);\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");
+	String expectedOutput =
+		"  public static void findInsertionPoint(java.lang.String startId, java.lang.String sortId, X.IContributionItem[] items);\n" + 
+		"      0  iconst_0\n" + 
+		"      1  istore_3 [insertIndex]\n" + 
+		"      2  goto 26\n" + 
+		"      5  aload_0 [startId]\n" + 
+		"      6  aload_2 [items]\n" + 
+		"      7  iload_3 [insertIndex]\n" + 
+		"      8  aaload\n" + 
+		"      9  invokeinterface X$IContributionItem.getId() : java.lang.String [16] [nargs: 1]\n" + 
+		"     14  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [22]\n" + 
+		"     17  ifeq 23\n" + 
+		"     20  goto 32\n" + 
+		"     23  iinc 3 1 [insertIndex]\n" + 
+		"     26  iload_3 [insertIndex]\n" + 
+		"     27  aload_2 [items]\n" + 
+		"     28  arraylength\n" + 
+		"     29  if_icmplt 5\n" + 
+		"     32  iload_3 [insertIndex]\n" + 
+		"     33  aload_2 [items]\n" + 
+		"     34  arraylength\n" + 
+		"     35  if_icmplt 39\n" + 
+		"     38  return\n" + 
+		"     39  iconst_0\n" + 
+		"     40  istore 4 [compareMetric]\n" + 
+		"     42  iload_3 [insertIndex]\n" + 
+		"     43  iconst_1\n" + 
+		"     44  iadd\n" + 
+		"     45  istore 5 [nX]\n" + 
+		"     47  goto 129\n" + 
+		"     50  aload_2 [items]\n" + 
+		"     51  iload 5 [nX]\n" + 
+		"     53  aaload\n" + 
+		"     54  astore 6 [item]\n" + 
+		"     56  aload 6 [item]\n" + 
+		"     58  invokeinterface X$IContributionItem.isSeparator() : boolean [28] [nargs: 1]\n" + 
+		"     63  ifne 140\n" + 
+		"     66  aload 6 [item]\n" + 
+		"     68  invokeinterface X$IContributionItem.isGroupMarker() : boolean [32] [nargs: 1]\n" + 
+		"     73  ifeq 79\n" + 
+		"     76  goto 140\n" + 
+		"     79  aload 6 [item]\n" + 
+		"     81  instanceof X$IActionSetContributionItem [35]\n" + 
+		"     84  ifeq 140\n" + 
+		"     87  aload_1 [sortId]\n" + 
+		"     88  ifnull 117\n" + 
+		"     91  aload 6 [item]\n" + 
+		"     93  checkcast X$IActionSetContributionItem [35]\n" + 
+		"     96  invokeinterface X$IActionSetContributionItem.getActionSetId() : java.lang.String [37] [nargs: 1]\n" + 
+		"    101  astore 7 [testId]\n" + 
+		"    103  aload_1 [sortId]\n" + 
+		"    104  aload 7 [testId]\n" + 
+		"    106  invokevirtual java.lang.String.compareTo(java.lang.String) : int [40]\n" + 
+		"    109  iload 4 [compareMetric]\n" + 
+		"    111  if_icmpge 117\n" + 
+		"    114  goto 140\n" + 
+		"    117  iload 5 [nX]\n" + 
+		"    119  istore_3 [insertIndex]\n" + 
+		"    120  goto 126\n" + 
+		"    123  goto 140\n" + 
+		"    126  iinc 5 1 [nX]\n" + 
+		"    129  iload 5 [nX]\n" + 
+		"    131  aload_2 [items]\n" + 
+		"    132  arraylength\n" + 
+		"    133  if_icmplt 50\n" + 
+		"    136  goto 140\n" + 
+		"    139  astore_3\n" + 
+		"    140  return\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
 }
 public static Class testClass() {
 	return TryStatementTest.class;
