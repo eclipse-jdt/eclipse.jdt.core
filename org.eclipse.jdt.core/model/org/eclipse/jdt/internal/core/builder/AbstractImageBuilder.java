@@ -237,7 +237,12 @@ protected void compile(SourceFile[] units) {
  *  notify the ICompilationParticipants of the pre-build event 
  *  @return a map that maps source units to problems encountered during the prebuild process.
  */
-private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
+private  Map notifyCompilationParticipants(
+		ICompilationUnit[] sourceUnits, 
+		Set newFiles, 
+		Set deletedFiles, 
+		Map extraDependencies,
+		int round) {
 	List cps = JavaCore
 			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT,
 					javaBuilder.javaProject );
@@ -256,7 +261,8 @@ private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set n
 	}
 	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files, 
 			javaBuilder.javaProject,
-			!javaBuilder.nameEnvironment.isIncrementalBuild);
+			!javaBuilder.nameEnvironment.isIncrementalBuild, 
+			round);
 
 	java.util.Iterator it = cps.iterator();
 	Map ifiles2problems = new HashMap();
@@ -296,7 +302,7 @@ private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set n
 		Set newFiles_2 = new HashSet();
 		Set deletedFiles_2 = new HashSet();
 		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
-		final Map newFiles2Problems = notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies );
+		final Map newFiles2Problems = notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies, round+1 );
 		newFiles.addAll( newFiles_2 );
 		deletedFiles.addAll( deletedFiles_2 );
 		
@@ -481,7 +487,7 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 		Set newFiles = new HashSet();
 		Set deletedFiles = new HashSet();
 		extraDependencyMap = new HashMap();
-		Map units2Problems = notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap );
+		Map units2Problems = notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap, 0 );
 
 		// update units array with the new & deleted files
 		units = updateSourceUnits( units, newFiles, deletedFiles );

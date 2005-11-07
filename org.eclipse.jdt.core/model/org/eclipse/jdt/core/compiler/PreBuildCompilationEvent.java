@@ -28,13 +28,23 @@ public class PreBuildCompilationEvent extends CompilationParticipantEvent {
 	 * @param files - IFile[] of the files about to be compiled
 	 * @param jp - the IJavaProject for the IFiles[] being compiled
 	 * @param isFullBuild <code>true</code> to indicate a full build, build after a clean.
+	 * @param round the current round number, 0-based. 
 	 */
-	public PreBuildCompilationEvent( IFile[] files, IJavaProject jp, boolean isFullBuild ) 
+	public PreBuildCompilationEvent( IFile[] files, IJavaProject jp, boolean isFullBuild, int round ) 
 	{ 
 		super( jp );
 		_files = files;
 		_isFullBuild = isFullBuild;
+		_round = round; 
 	}
+	
+	/**
+	 * Within a build, compilation pariticpants will be repeatedly invoked until no
+	 * generated files are reported. This indicates the number of times the 
+	 * participant has been invoked within the same build. Number is 0-based.
+	 * @return the current round number with the build.
+	 */
+	public int getRound(){ return _round; }
 	
 	/**
 	 * @return -  IFile[] containing the files about to be compiled
@@ -57,5 +67,7 @@ public class PreBuildCompilationEvent extends CompilationParticipantEvent {
 	private IFile[] _files;
 	
 	private final boolean _isFullBuild;
+	
+	private final int _round;
 	
 }
