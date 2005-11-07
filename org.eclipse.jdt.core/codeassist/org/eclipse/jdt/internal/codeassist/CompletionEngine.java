@@ -1180,6 +1180,14 @@ public final class CompletionEngine
 					}
 				}
 			}
+		} else if(astNode instanceof CompletionOnBrankStatementLabel) {
+			if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+				CompletionOnBrankStatementLabel label = (CompletionOnBrankStatementLabel) astNode;
+				
+				this.completionToken = label.label;
+				
+				this.findLabels(this.completionToken, label.possibleLabels);
+			}
 		// Completion on Javadoc nodes
 		} else if ((astNode.bits & ASTNode.InsideJavadoc) != 0) {
 			if (astNode instanceof CompletionOnJavadocSingleTypeReference) {
@@ -4093,6 +4101,36 @@ public final class CompletionEngine
 			addUninterestingBindings(((FieldDeclaration)parent).binding);
 		} 
 	}
+	
+	private void findLabels(char[] label, char[][] choices) {
+		if(choices == null || choices.length == 0) return;
+		
+		int length = label.length;
+		for (int i = 0; i < choices.length; i++) {
+			if (length <= choices[i].length
+				&& CharOperation.prefixEquals(label, choices[i], false /* ignore case */
+			)){
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForCaseMatching(label, choices[i]);
+				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+				
+				this.noProposal = false;
+				if(!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
+					proposal.setName(choices[i]);
+					proposal.setCompletion(choices[i]);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+		}
+	}
+	
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
 	private void findLocalMethodDeclarations(
 		char[] methodName,

@@ -910,13 +910,17 @@ EmptyStatement ::= ';'
 /.$putCase consumeEmptyStatement(); $break ./
 /:$readableName EmptyStatement:/
 
-LabeledStatement ::= 'Identifier' ':' Statement
+LabeledStatement ::= Label ':' Statement
 /.$putCase consumeStatementLabel() ; $break ./
 /:$readableName LabeledStatement:/
 
-LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
+LabeledStatementNoShortIf ::= Label ':' StatementNoShortIf
 /.$putCase consumeStatementLabel() ; $break ./
 /:$readableName LabeledStatement:/
+
+Label ::= 'Identifier'
+/.$putCase consumeLabel() ; $break ./
+/:$readableName Label:/
 
 ExpressionStatement ::= StatementExpression ';'
 /. $putCase consumeExpressionStatement(); $break ./

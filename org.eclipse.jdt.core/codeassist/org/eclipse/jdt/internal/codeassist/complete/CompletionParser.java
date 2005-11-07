@@ -68,7 +68,10 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_PARAMETERIZED_ALLOCATION = COMPLETION_PARSER + 31;
 	protected static final int K_PARAMETERIZED_CAST = COMPLETION_PARSER + 32;
 	protected static final int K_BETWEEN_ANNOTATION_NAME_AND_RPAREN = COMPLETION_PARSER + 33;
-
+	protected static final int K_INSIDE_BREAK_STATEMENT = COMPLETION_PARSER + 34;
+	protected static final int K_INSIDE_CONTINUE_STATEMENT = COMPLETION_PARSER + 35;
+	protected static final int K_LABEL = COMPLETION_PARSER + 36;
+	
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] VALUE = new char[]{'v', 'a', 'l', 'u', 'e'};
 	
@@ -125,6 +128,10 @@ public class CompletionParser extends AssistParser {
 	static final int NO = 0;
 	static final int NEXTTOKEN = 1;
 	static final int YES = 2;
+	
+	protected static final int LabelStackIncrement = 10;
+	char[][] labelStack = new char[LabelStackIncrement][];
+	int labelPtr = -1;
 	
 	boolean isAlreadyAttached;
 public CompletionParser(ProblemReporter problemReporter) {
@@ -1249,6 +1256,45 @@ private boolean checkInvocation() {
 	}
 	return false;
 }
+private boolean checkLabelStatement() {
+	if(isInsideMethod() || isInsideFieldInitialization()) {
+	
+		int kind = this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+		if(kind != K_INSIDE_BREAK_STATEMENT && kind != K_INSIDE_CONTINUE_STATEMENT) return false;
+	
+		if (indexOfAssistIdentifier() != 0) return false;
+		
+		char[][] labels = new char[this.labelPtr + 1][];
+		int labelCount = 0;
+		
+		int labelKind = kind;
+		int index = 1;
+		while(labelKind != 0 && labelKind != K_METHOD_DELIMITER) {
+			labelKind = this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, index);
+			if(labelKind == K_LABEL) {
+				int ptr = this.topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, index);
+				labels[labelCount++] = this.labelStack[ptr];
+			}
+			index++;
+		}
+		System.arraycopy(labels, 0, labels = new char[labelCount][], 0, labelCount);
+		
+		long position = this.identifierPositionStack[this.identifierPtr];
+		CompletionOnBrankStatementLabel statementLabel =
+			new CompletionOnBrankStatementLabel(
+					kind == K_INSIDE_BREAK_STATEMENT ? CompletionOnBrankStatementLabel.BREAK : CompletionOnBrankStatementLabel.CONTINUE,
+					this.identifierStack[this.identifierPtr--],
+					(int) (position >>> 32),
+					(int)position,
+					labels);
+		
+		this.assistNode = statementLabel;
+		this.lastCheckPoint = this.assistNode.sourceEnd + 1;
+		this.isOrphanCompletionNode = true;
+		return true;
+	}
+	return false;
+}
 /**
  * Checks if the completion is on a member access (ie. in an identifier following a dot).
  * Returns whether we found a completion node.
@@ -1517,6 +1563,7 @@ public void completionIdentifierCheck(){
 	if (checkInvocation()) return;
 
 	if (checkParemeterizedType()) return;
+	if (checkLabelStatement()) return;
 	if (checkNameCompletion()) return;
 }
 protected void consumeArrayCreationExpressionWithInitializer() {
@@ -2248,6 +2295,11 @@ protected void consumeAnnotationName() {
 	
 	this.lastCheckPoint = markerAnnotation.sourceEnd + 1;
 }
+protected void consumeLabel() {
+	super.consumeLabel();
+	this.pushOnLabelStack(this.identifierStack[this.identifierPtr]);
+	this.pushOnElementStack(K_LABEL, this.labelPtr);
+}
 protected void consumeMarkerAnnotation() {
 	this.popElement(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN);
 	super.consumeMarkerAnnotation();
@@ -2321,6 +2373,10 @@ protected void consumeRestoreDiet() {
 protected void consumeSingleMemberAnnotation() {
 	this.popElement(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN);
 	super.consumeSingleMemberAnnotation();
+}
+protected void consumeStatementLabel() {
+	this.popElement(K_LABEL);
+	super.consumeStatementLabel();
 }
 protected void consumeStatementSwitch() {
 	super.consumeStatementSwitch();
@@ -2642,6 +2698,16 @@ protected void consumeToken(int token) {
 							popElement(K_INSIDE_ASSERT_STATEMENT);
 						}
 						break;
+					case K_INSIDE_BREAK_STATEMENT:
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_BREAK_STATEMENT);
+						}
+						break;
+					case K_INSIDE_CONTINUE_STATEMENT:
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_CONTINUE_STATEMENT);
+						}
+						break;
 				}
 				break;
 			case TokenNamereturn:
@@ -2771,6 +2837,12 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameextends:
 				pushOnElementStack(K_EXTENDS_KEYWORD);
+				break;
+			case TokenNamebreak:
+				pushOnElementStack(K_INSIDE_BREAK_STATEMENT, bracketDepth);
+				break;
+			case TokenNamecontinue:
+				pushOnElementStack(K_INSIDE_CONTINUE_STATEMENT, bracketDepth);
 				break;
 		}
 	} else {
@@ -3201,10 +3273,12 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 }
 public void initialize() {
 	super.initialize();
+	this.labelPtr = -1;
 	this.initializeForBlockStatements();
 }
 public void initialize(boolean initializeNLS) {
 	super.initialize(initializeNLS);
+	this.labelPtr = -1;
 	this.initializeForBlockStatements();
 }
 /*
@@ -3351,6 +3425,18 @@ protected void prepareForBlockStatements() {
 	this.realBlockStack[this.realBlockPtr = 1] = 0;
 
 	this.initializeForBlockStatements();
+}
+protected void pushOnLabelStack(char[] label){
+	if (this.labelPtr < -1) return;
+	
+	int stackLength = this.labelStack.length;
+	if (++this.labelPtr >= stackLength) {
+		System.arraycopy(
+			this.labelStack, 0,
+			this.labelStack = new char[stackLength + LabelStackIncrement][], 0,
+			stackLength);
+	}
+	this.labelStack[this.labelPtr] = label;
 }
 /**
  * Creates a completion on member access node and push it
