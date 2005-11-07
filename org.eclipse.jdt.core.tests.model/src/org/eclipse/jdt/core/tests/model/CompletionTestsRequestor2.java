@@ -31,6 +31,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean showParameterNames;
 	private boolean showUniqueKeys;
 	private boolean showPositions;
+	private boolean shortContext;
 	
 	public boolean fDebug = false;
 
@@ -44,9 +45,13 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(showParamNames, showUniqueKeys, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions) {
+		this(showParamNames, showUniqueKeys, showPositions, true);
+	}
+	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext) {
 		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
 		this.showPositions = showPositions;
+		this.shortContext = shortContext;
 	}
 	public void acceptContext(CompletionContext cc) {
 		this.context = cc;
@@ -68,6 +73,28 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		
 		StringBuffer buffer = new StringBuffer();
 		
+		if(!this.shortContext) {
+			buffer.append("completion offset=");
+			buffer.append(context.getOffset());
+			buffer.append('\n');
+			
+			buffer.append("completion range=[");
+			buffer.append(context.getTokenStart());
+			buffer.append(", ");
+			buffer.append(context.getTokenEnd());
+			buffer.append("]\n");
+			
+			char[] token = context.getToken();
+			buffer.append("completion token=");
+			if(token == null) {
+				buffer.append("null");
+			} else {
+				buffer.append('\"');
+				buffer.append(token);
+				buffer.append('\"');
+			}
+			buffer.append('\n');
+		}
 		char[][] expectedTypesSignatures = this.context.getExpectedTypesSignatures();
 		buffer.append("expectedTypesSignatures=");
 		if(expectedTypesSignatures == null) {

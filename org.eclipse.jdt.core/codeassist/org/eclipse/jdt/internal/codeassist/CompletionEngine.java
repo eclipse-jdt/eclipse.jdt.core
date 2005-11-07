@@ -646,7 +646,11 @@ public final class CompletionEngine
 		}
 	}
 		
-	private void buildContext(ASTNode astNode) {
+	private void buildContext(
+			ASTNode astNode,
+			ASTNode astNodeParent,
+			Binding qualifiedBinding,
+			Scope scope) {
 		CompletionContext context = new CompletionContext();
 		
 		// build expected types context
@@ -662,10 +666,43 @@ public final class CompletionEngine
 			context.setExpectedTypesKeys(expKeys);
 		}
 		
+		context.setOffset(this.actualCompletionPosition + 1);
+		
 		// Set javadoc info
 		if (astNode instanceof CompletionOnJavadoc) {
 			this.assistNodeInJavadoc = ((CompletionOnJavadoc)astNode).getCompletionFlags();
 			context.setJavadoc(this.assistNodeInJavadoc);
+		}
+		
+		if (!(astNode instanceof CompletionOnJavadoc)) {
+			CompletionScanner scanner = (CompletionScanner)this.parser.scanner;
+			context.setToken(scanner.completionIdentifier);
+			context.setTokenRange(
+					scanner.completedIdentifierStart,
+					scanner.completedIdentifierEnd,
+					scanner.endOfEmptyToken);
+		} else if(astNode instanceof CompletionOnJavadocTag) {
+			CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
+			context.setToken(CharOperation.concat(new char[]{'@'}, javadocTag.token));
+			context.setTokenRange(
+					javadocTag.tagSourceStart,
+					javadocTag.tagSourceEnd,
+					((CompletionScanner)this.parser.javadocParser.scanner).endOfEmptyToken);
+		} else {
+			CompletionScanner scanner = (CompletionScanner)this.parser.javadocParser.scanner;
+			context.setToken(scanner.completionIdentifier);
+			context.setTokenRange(
+					scanner.completedIdentifierStart,
+					scanner.completedIdentifierEnd,
+					scanner.endOfEmptyToken);
+		}
+		
+		
+		//TODO add support for string literal
+		context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
+		
+		if(DEBUG) {
+			System.out.println(context.toString());
 		}
 		this.requestor.acceptContext(context);
 	}
@@ -680,9 +717,9 @@ public final class CompletionEngine
 			if(!isValidParent(astNodeParent, astNode, scope)) return false;
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
-
-		buildContext(astNode);
-
+		
+		buildContext(astNode, astNodeParent, qualifiedBinding, scope);
+		
 		if (astNode instanceof CompletionOnFieldType) {
 
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
@@ -1564,7 +1601,7 @@ public final class CompletionEngine
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					contextAccepted = true;
-					this.requestor.acceptContext(new CompletionContext());
+					this.buildContext(parsedUnit.currentPackage, null, null, null);
 					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 						findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					}
@@ -1585,7 +1622,7 @@ public final class CompletionEngine
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
 								contextAccepted = true;
-								this.requestor.acceptContext(new CompletionContext());
+								this.buildContext(importReference, null, null, null);
 								
 								setSourceRange(
 									importReference.sourceStart,
@@ -1632,7 +1669,7 @@ public final class CompletionEngine
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
 							contextAccepted = true;
-							this.requestor.acceptContext(new CompletionContext());
+							this.buildContext(importReference, null, null, null);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;

@@ -26,6 +26,8 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 		public String proposals;
 		public String context;
 		public int cursorLocation;
+		public int tokenStart;
+		public int tokenEnd;
 	}
 	Hashtable oldOptions;
 	ICompilationUnit wc = null;
@@ -39,12 +41,33 @@ protected CompletionResult complete(String path, String source, String completeB
 	return this.complete(path, source, false, completeBehind);
 }
 protected CompletionResult complete(String path, String source, boolean showPositions, String completeBehind) throws JavaModelException {
+	return this.complete(path,source,showPositions, completeBehind, null, null);
+}
+protected CompletionResult complete(String path, String source, boolean showPositions, String completeBehind, String tokenStartBehind, String token) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, showPositions);
 	String str = this.wc.getSource();
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	int tokenStart = -1;
+	int tokenEnd = -1;
+	if(tokenStartBehind != null && token != null) {
+		tokenStart = str.lastIndexOf(tokenStartBehind) + tokenStartBehind.length();
+		tokenEnd = tokenStart + token.length() - 1;
+	}
 	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	CompletionResult result =  new CompletionResult();
+	result.proposals = requestor.getResults();
+	result.context = requestor.getContext();
+	result.cursorLocation = cursorLocation;
+	result.tokenStart = tokenStart;
+	result.tokenEnd = tokenEnd;
+	return result;
+}
+protected CompletionResult contextComplete(ICompilationUnit cu, int cursorLocation) throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();

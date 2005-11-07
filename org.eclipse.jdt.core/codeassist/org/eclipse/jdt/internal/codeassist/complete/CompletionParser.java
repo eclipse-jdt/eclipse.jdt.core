@@ -1039,19 +1039,16 @@ private boolean checkKeyword() {
 			char[][] keywords = new char[Keywords.COUNT][];
 			int count = 0;
 			if(unit.typeCount == 0
-				&& lastModifiers == ClassFileConstants.AccDefault
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.IMPORT)) {
+				&& lastModifiers == ClassFileConstants.AccDefault) {
 				keywords[count++] = Keywords.IMPORT;
 			}
 			if(unit.typeCount == 0
 				&& unit.importCount == 0
 				&& lastModifiers == ClassFileConstants.AccDefault
-				&& compilationUnit.currentPackage == null
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PACKAGE)) {
+				&& compilationUnit.currentPackage == null) {
 				keywords[count++] = Keywords.PACKAGE;
 			}
-			if((lastModifiers & ClassFileConstants.AccPublic) == 0
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PUBLIC)) {
+			if((lastModifiers & ClassFileConstants.AccPublic) == 0) {
 				boolean hasNoPublicType = true;
 				for (int i = 0; i < unit.typeCount; i++) {
 					if((unit.types[i].typeDeclaration.modifiers & ClassFileConstants.AccPublic) != 0) {
@@ -1063,20 +1060,17 @@ private boolean checkKeyword() {
 				}
 			}
 			if((lastModifiers & ClassFileConstants.AccAbstract) == 0
-				&& (lastModifiers & ClassFileConstants.AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.ABSTRACT)) {
+				&& (lastModifiers & ClassFileConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
 			if((lastModifiers & ClassFileConstants.AccAbstract) == 0
-				&& (lastModifiers & ClassFileConstants.AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.FINAL)) {
+				&& (lastModifiers & ClassFileConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.FINAL;
 			}
-			if(CharOperation.prefixEquals(identifierStack[ptr], Keywords.CLASS)) {
-				keywords[count++] = Keywords.CLASS;
-			}
-			if((lastModifiers & ClassFileConstants.AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.INTERFACE)) {
+			
+			keywords[count++] = Keywords.CLASS;
+			
+			if((lastModifiers & ClassFileConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.INTERFACE;
 			}
 			if(count != 0) {
@@ -2195,8 +2189,7 @@ protected void consumeMethodHeaderRightParen() {
 				/* filter out cases where scanner is still inside type header */
 				if (!recoveredMethod.foundOpeningBrace) {
 					AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
-					if(method.thrownExceptions == null
-						&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.THROWS)) {
+					if(method.thrownExceptions == null) {
 						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
 							identifierStack[ptr],
 							identifierPositionStack[ptr],

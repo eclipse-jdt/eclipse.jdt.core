@@ -267,13 +267,14 @@ public void test0009(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -297,13 +298,14 @@ public void test0010(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -332,7 +334,7 @@ public void test0011(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
+		"package p;\n" + 
 		"import <CompleteOnImport:abst>;\n";
 
 	checkDietParse(
@@ -429,13 +431,14 @@ public void test0014(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2035,12 +2038,12 @@ public void test0047(){
 	String completeBehind = "ext";
 	int cursorLocation = str.lastIndexOf("ext") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:ext>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2089,12 +2092,12 @@ public void test0049(){
 	String completeBehind = "ext";
 	int cursorLocation = str.lastIndexOf("ext") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:ext>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2579,12 +2582,12 @@ public void test0060(){
 	String completeBehind = "impl";
 	int cursorLocation = str.lastIndexOf("impl") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:impl>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:impl>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2633,12 +2636,12 @@ public void test0062(){
 	String completeBehind = "impl";
 	int cursorLocation = str.lastIndexOf("impl") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:impl>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:impl>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3343,12 +3346,12 @@ public void test0083(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:int>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:int>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3370,12 +3373,12 @@ public void test0084(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:int>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:int>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3452,12 +3455,13 @@ public void test0087(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"package p;\n";
+		"package p;\n" + 
+		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3480,12 +3484,13 @@ public void test0088(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import p;\n";
+		"import p;\n" + 
+		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3508,14 +3513,15 @@ public void test0089(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pac>;\n" + 
+		"class X {\n" + 
+		"  X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -4712,12 +4718,12 @@ public void test0114(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:fin>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4739,12 +4745,12 @@ public void test0115(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:fin>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6025,12 +6031,12 @@ public void test0153(){
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pub>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pub>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6080,14 +6086,15 @@ public void test0155(){
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pub>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pub>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -6302,12 +6309,12 @@ public void test0162(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6329,12 +6336,12 @@ public void test0163(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6356,12 +6363,12 @@ public void test0164(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6384,14 +6391,15 @@ public void test0165(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pro>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -6606,12 +6614,12 @@ public void test0172(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6633,12 +6641,12 @@ public void test0173(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6660,12 +6668,12 @@ public void test0174(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6688,14 +6696,15 @@ public void test0175(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pri>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -7941,13 +7950,14 @@ public void test0202(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7972,13 +7982,14 @@ public void test0203(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8108,13 +8119,14 @@ public void test0207(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:abst>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n";
+		"package p;\n" + 
+		"import yyy;\n" + 
+		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9749,12 +9761,12 @@ public void test0241(){
 	String completeBehind = "ext";
 	int cursorLocation = str.lastIndexOf("ext") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:ext>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9805,12 +9817,12 @@ public void test0243(){
 	String completeBehind = "ext";
 	int cursorLocation = str.lastIndexOf("ext") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:ext>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10306,12 +10318,12 @@ public void test0254(){
 	String completeBehind = "impl";
 	int cursorLocation = str.lastIndexOf("impl") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:impl>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:impl>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10362,12 +10374,12 @@ public void test0256(){
 	String completeBehind = "impl";
 	int cursorLocation = str.lastIndexOf("impl") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:impl>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:impl>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11093,12 +11105,12 @@ public void test0277(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:int>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:int>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11121,12 +11133,12 @@ public void test0278(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:int>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:int>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11206,12 +11218,13 @@ public void test0281(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"package p;\n";
+		"package p;\n" + 
+		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11226,7 +11239,7 @@ public void test0281(){
 /*
  * Test for 'package' keyword.
  */
-public void test282(){
+public void test0282(){
 	String str =
 		"#\n" +
 		"import p;" +
@@ -11235,12 +11248,13 @@ public void test282(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import p;\n";
+		"import p;\n" + 
+		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11264,14 +11278,15 @@ public void test0283(){
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pac>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pac>;\n" + 
+		"class X {\n" + 
+		"  X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -12493,12 +12508,12 @@ public void test0308(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:fin>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12521,12 +12536,12 @@ public void test0309(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:fin>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13845,12 +13860,12 @@ public void test0347(){
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pub>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pub>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13902,14 +13917,15 @@ public void test0349(){
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pub>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pub>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -14131,12 +14147,12 @@ public void test0356(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14159,12 +14175,12 @@ public void test0357(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14187,12 +14203,12 @@ public void test0358(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pro>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14216,14 +14232,15 @@ public void test0359(){
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pro>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pro>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -14445,12 +14462,12 @@ public void test0366(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14473,12 +14490,12 @@ public void test0367(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14501,12 +14518,12 @@ public void test0368(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"";
+		"import <CompleteOnKeyword:pri>;\n";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14530,14 +14547,15 @@ public void test0369(){
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:pri>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
+		"import <CompleteOnKeyword:pri>;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
