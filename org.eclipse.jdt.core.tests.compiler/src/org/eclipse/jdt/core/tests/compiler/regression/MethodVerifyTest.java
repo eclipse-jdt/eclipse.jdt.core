@@ -4425,4 +4425,136 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	public void test075() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A { <T, S extends J & I<T>> void foo() { } }\n" +
+				"class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + // fails, name clash only shows up when Override is removed
+				"class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + // fails, name clash only shows up when Override is removed
+				"class D extends A { @Override <T3, S3 extends J & I<T3>> void foo() { } }\n" +
+				"class E extends A { @Override <T4, S4 extends I<T4> & J> void foo() { } }\n" +
+				"interface I<TT> {}\n" +
+				"interface J {}"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 2)\n" + 
+			"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+			"	                                                              ^^^^^\n" + 
+			"The method foo() of type B must override a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\n" + 
+			"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+			"	                                                              ^^^^^\n" + 
+			"Name clash: The method foo() of type B has the same erasure as foo() of type A but does not override it\n" + 
+			"----------\n" + 
+			"3. WARNING in A.java (at line 3)\n" + 
+			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+			"	                                                  ^\n" + 
+			"I is a raw type. References to generic type I<TT> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 3)\n" + 
+			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+			"	                                                          ^^^^^\n" + 
+			"The method foo() of type C must override a superclass method\n" + 
+			"----------\n" + 
+			"5. ERROR in A.java (at line 3)\n" + 
+			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+			"	                                                          ^^^^^\n" + 
+			"Name clash: The method foo() of type C has the same erasure as foo() of type A but does not override it\n" + 
+			"----------\n"
+			// A.java:2: method does not override a method from its superclass
+			// A.java:3: method does not override a method from its superclass
+		);
+		this.runConformTest(
+			// there is no name clash in this case AND no override error - there would be if the annotation was present
+			new String[] {
+				"A.java",
+				"class A<U> { <S extends J> void foo(U u, S s) { } }\n" +
+				"class B<V> extends A<V> { <S1 extends K> void foo(V v, S1 s) { } }\n" +
+				"interface J {}\n" +
+				"interface K extends J {}"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A<U> { <T, S extends J & I<T>> void foo(U u, T t, S s) { } }\n" +
+				"class B<V> extends A<V> { @Override <T1, S1 extends K & I<T1>> void foo(V v, T1 t, S1 s) { } }\n" +
+				"interface I<TT> {}\n" +
+				"interface J {}\n" +
+				"interface K extends J {}"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 2)\r\n" + 
+			"	class B<V> extends A<V> { @Override <T1, S1 extends K & I<T1>> void foo(V v, T1 t, S1 s) { } }\r\n" + 
+			"	                                                                    ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(V, T1, S1) of type B<V> must override a superclass method\n" + 
+			"----------\n"
+			// A.java:2: method does not override a method from its superclass
+		);
+	}
+	public void test076() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {\n" +
+				"	<T, S extends J & I<S>> void foo(S s) { }\n" +
+				"	<T, S extends I<T> & J > void foo(S s) { }\n" +
+				"}\n" +
+				"interface I<TT> {}\n" +
+				"interface J {}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A {\n" +
+				"	<T, S extends J & I<T>> void foo() { }\n" +
+				"	<T, S extends I<T> & J> void foo() { }\n" +
+				"}\n" +
+				"interface I<TT> {}\n" +
+				"interface J {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 2)\r\n" + 
+			"	<T, S extends J & I<T>> void foo() { }\r\n" + 
+			"	                             ^^^^^\n" + 
+			"Duplicate method foo() in type A\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 3)\r\n" + 
+			"	<T, S extends I<T> & J> void foo() { }\r\n" + 
+			"	                             ^^^^^\n" + 
+			"Duplicate method foo() in type A\n" + 
+			"----------\n"
+			// <T,S>foo() is already defined in A
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A {\n" +
+				"	<T, S extends J & I<T>> void foo() { }\n" +
+				"	<T, S extends I<T> & K> void foo() { }\n" +
+				"}\n" +
+				"interface I<TT> {}\n" +
+				"interface J {}\n" +
+				"interface K extends J {}"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 2)\r\n" + 
+			"	<T, S extends J & I<T>> void foo() { }\r\n" + 
+			"	                             ^^^^^\n" + 
+			"Duplicate method foo() in type A\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 3)\r\n" + 
+			"	<T, S extends I<T> & K> void foo() { }\r\n" + 
+			"	                             ^^^^^\n" + 
+			"Duplicate method foo() in type A\n" + 
+			"----------\n"
+			// name clash: <T,S>foo() and <T,S>foo() have the same erasure
+		);
+	}
 }
