@@ -1220,16 +1220,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return units;
 	}
 	
-	private int getNumberNonNulls(final ICompilationUnit[] units){
-		int counter = 0;
-		for(ICompilationUnit unit : units ){
-			if( unit != null )
-				counter ++;
-		}
-		return counter;
-	}
-	
-	
 	/**
 	 * Build <code>ICompilationUnit</code> from the files with annotations in this environment.
 	 * If a compilation unit cannot be created from a file, the file will be 
@@ -1240,22 +1230,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			return;
 		_units = createICUsFrom(_filesWithAnnotation);
 		
-		// drop files that doesn't have an ICompilationUnit from the list 
-		// and shrink the list of ICompilationUnits.
-		final int actualLen = getNumberNonNulls(_units);
-		if(actualLen != _filesWithAnnotation.length ){
-			final IFile[] newFiles = new IFile[actualLen];
-			final ICompilationUnit[] newUnits = new ICompilationUnit[actualLen];
-			int newIndex = 0;
-			for( int i=0; i<_filesWithAnnotation.length ; i++ ){
-				if( _units[i] != null ){
-					newFiles[newIndex] = _filesWithAnnotation[i];
-					newUnits[newIndex] = _units[i];
-					newIndex ++;
-				}
-			}
-			_filesWithAnnotation = newFiles;
-			_units = newUnits;
-		}
+	
 	}
 }

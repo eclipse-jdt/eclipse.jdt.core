@@ -77,6 +77,11 @@ import com.sun.mirror.util.Types;
  */
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
 {
+	static{
+		final AST ast = AST.newAST(AST.JLS3);
+		EMPTY_AST_UNIT = ast.newCompilationUnit();
+	}
+	public static final CompilationUnit EMPTY_AST_UNIT;
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	public static final CompilationUnit[] NO_AST_UNITs = new CompilationUnit[0];
 	public static final String[] NO_KEYS = new String[0];
@@ -649,8 +654,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		{	
 			CompilationUnit[] domUnits = new CompilationUnit[len];
 			CompilationUnitsRequestor(){
-				for( int i=0; i<len; i++ )
-					domUnits[i] = null;
+				for( int i=0; i<len; i++ ){
+					// make sure we will not get any null.
+					// setting it to an empty unit will guarantee that if the 
+					// creation failed, the apt dispatch will do the cleanup work properly.
+					domUnits[i] = EMPTY_AST_UNIT;;
+				}
 			}
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				for( int i=0; i<len; i++ ){
@@ -685,10 +694,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		class CompilationUnitRequestor extends ASTRequestor
 		{	
-			CompilationUnit domUnit = null;
+			CompilationUnit domUnit = EMPTY_AST_UNIT;
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				if( source == compilationUnit )
-					domUnit = ast;			}
+					domUnit = ast;			
+			}
 		}
 		
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();

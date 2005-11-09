@@ -208,7 +208,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				processorEnv = ProcessorEnvImpl
 					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _javaProject);
 			}
-			_result = runAPT(_factories, processorEnv);
+			if( processorEnv == null )
+				_result =  EMPTY_APT_RESULT;
+			else
+				_result = runAPT(_factories, processorEnv);
 		}
 	}
 	
@@ -307,14 +310,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile, //$NON-NLS-1$ //$NON-NLS-2$ 
 									processorEnv); 
 						}
-						processor.process();
-						addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
+						processor.process();						
 					}
 				}
 	
 				if (annotationDecls.isEmpty())
 					break;
 			}
+			addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 			
 			if( ! annotationDecls.isEmpty() )
 				; // TODO: (theodora) log unclaimed annotations.
@@ -468,15 +471,13 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final List<ICompilationUnit> unitsForFiles = new ArrayList<ICompilationUnit>();
 		final APTResult result = runAPT(factories, processorEnv, filesWithMissingType, unitsForFiles, 0);
 	
-		//APTResult lastResult = result;
 		if( processorEnv.getPhase() == Phase.BUILD )
 		{	
 			boolean generatedTypes = result.hasGeneratedTypes();
 			int internalRound = 1;
 			while( generatedTypes && !filesWithMissingType.isEmpty() ){
 				// compile all generated files and try to satisfy the missing generated types.
-				//recompileGeneratedFiles(result.getNewFiles());
-				
+							
 				final int numFiles = filesWithMissingType.size();
 				assert numFiles == unitsForFiles.size() :
 					"size mismatch"; //$NON-NLS-1$			
