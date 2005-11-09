@@ -24064,7 +24064,6 @@ public void test787() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
-// TODO (kent) reenable once addressed
 public void test788() {
 	this.runConformTest(
 		new String[] {
