@@ -5518,8 +5518,8 @@ public void resetForProblemClinit(ClassFile targetClassFile) {
 private final void resizeByteArray() {
 	int length = bCodeStream.length;
 	int requiredSize = length + length;
-	if (classFileOffset > requiredSize) {
-		// must be sure to grow by enough
+	if (classFileOffset >= requiredSize) {
+		// must be sure to grow enough
 		requiredSize = classFileOffset + length;
 	}
 	System.arraycopy(bCodeStream, 0, bCodeStream = new byte[requiredSize], 0, length);
