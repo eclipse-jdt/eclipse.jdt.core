@@ -687,27 +687,34 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return null;
 	}
 	protected String getURLContents(String docUrlValue, String encoding) throws JavaModelException {
+		InputStream stream = null;
 		try {
 			URL docUrl = new URL(docUrlValue);
 			URLConnection connection = docUrl.openConnection();
+			connection.setUseCaches(false);
 			String contentEncoding = connection.getContentEncoding();
+			stream = connection.getInputStream();
+			char[] contents = null;
 			if (contentEncoding != null) {
-				InputStream stream = docUrl.openStream();
-				char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, contentEncoding);
-				if (contents != null) {
-					return String.valueOf(contents);
-				}
+				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, contentEncoding);
 			} else {
-				InputStream stream = docUrl.openStream();
-				char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
-				if (contents != null) {
-					return String.valueOf(contents);
-				}
+				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
+			}
+			if (contents != null) {
+				return String.valueOf(contents);
 			}
  		} catch (MalformedURLException e) {
  			// ignore
 		} catch (IOException e) {
 			// ignore
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 		}
 		return null;
 	}
