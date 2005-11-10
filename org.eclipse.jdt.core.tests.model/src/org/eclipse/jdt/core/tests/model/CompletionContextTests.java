@@ -3377,4 +3377,30 @@ public void test0127() throws JavaModelException {
 		"expectedTypesKeys={Ljava/lang/String;}",
 		result.context);
 }
+public void test0128() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0127/X.java",
+		"package test0127;\n" + 
+		"public class X {\n" + 
+		"  String s0 = \"\n" +
+		"  String s = \"ZZZZ\"\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ\"");
+	int tokenEnd = tokenStart + "\"ZZZZ\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("\"ZZZZ\"") + "\"ZZZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
 }

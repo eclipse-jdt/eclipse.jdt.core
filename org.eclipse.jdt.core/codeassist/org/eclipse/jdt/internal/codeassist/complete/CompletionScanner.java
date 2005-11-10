@@ -433,14 +433,45 @@ public int getNextToken() throws InvalidInputException {
 							/**** \r and \n are not valid in string literals ****/
 							if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
 								if (isUnicode) {
-									this.currentPosition -= 5;
-									while(this.source[this.currentPosition] != '\\') {
-										this.currentPosition--;
+									int start = this.currentPosition - 5;
+									while(this.source[start] != '\\') {
+										start--;
+									}
+									if(this.startPosition <= this.cursorLocation
+											&& this.cursorLocation <= this.currentPosition-1) {
+										this.currentPosition = start;
+										// complete inside a string literal
+										return TokenNameStringLiteral;
+									}
+									start = this.currentPosition;
+									for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+										if (this.currentPosition >= this.eofPosition) {
+											this.currentPosition = start;
+											break;
+										}
+										if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+											isUnicode = true;
+											getNextUnicodeChar();
+										} else {
+											isUnicode = false;
+										}
+										if (!isUnicode && this.currentCharacter == '\n') {
+											this.currentPosition--; // set current position on new line character
+											break;
+										}
+										if (this.currentCharacter == '\"') {
+											throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+										}
 									}
 								} else {
 									this.currentPosition--; // set current position on new line character
+									if(this.startPosition <= this.cursorLocation
+											&& this.cursorLocation <= this.currentPosition-1) {
+										// complete inside a string literal
+										return TokenNameStringLiteral;
+									}
 								}
-								return TokenNameStringLiteral;
+								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
 							}
 							if (this.currentCharacter == '\\') {
 								if (this.unicodeAsBackSlash) {
@@ -483,7 +514,12 @@ public int getNextToken() throws InvalidInputException {
 						}
 					} catch (IndexOutOfBoundsException e) {
 						this.currentPosition--;
-						return TokenNameStringLiteral;
+						if(this.startPosition <= this.cursorLocation
+							&& this.cursorLocation < this.currentPosition) {
+							// complete inside a string literal
+							return TokenNameStringLiteral;
+						}
+						throw new InvalidInputException(UNTERMINATED_STRING);
 					} catch (InvalidInputException e) {
 						if (e.getMessage().equals(INVALID_ESCAPE)) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
@@ -501,6 +537,8 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
+//					if (this.startPosition <= this.cursorLocation && this.cursorLocation <= this.currentPosition-1){
+//					}
 					return TokenNameStringLiteral;
 				case '/' :
 					{
