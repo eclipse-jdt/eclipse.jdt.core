@@ -309,6 +309,7 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 		}
 		previous = src[i];
 	}
+	boolean containsEmptyTask = false;
 	for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
 		// retrieve message start and end positions
 		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
@@ -337,8 +338,12 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 			if (end == -1)
 				end = max_value;
 		}
-		if (msgStart == end)
-			continue; // empty
+		if (msgStart == end) {
+			// if the description is empty, we might want to see if two tags are not sharing the same message
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
+			containsEmptyTask = true;
+			continue;
+		}
 		// trim the message
 		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
 			end--;
@@ -351,6 +356,19 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 		char[] message = new char[messageLength];
 		System.arraycopy(src, msgStart, message, 0, messageLength);
 		this.foundTaskMessages[i] = message;
+	}
+	if (containsEmptyTask) {
+		for (int i = foundTaskIndex, max = this.foundTaskCount; i < max; i++) {
+			if (this.foundTaskMessages[i].length == 0) {
+				loop: for (int j = i + 1; j < max; j++) {
+					if (this.foundTaskMessages[j].length != 0) {
+						this.foundTaskMessages[i] = this.foundTaskMessages[j];
+						this.foundTaskPositions[i][1] = this.foundTaskPositions[j][1];
+						break loop;
+					}
+				}
+			}
+		}
 	}
 }
 
