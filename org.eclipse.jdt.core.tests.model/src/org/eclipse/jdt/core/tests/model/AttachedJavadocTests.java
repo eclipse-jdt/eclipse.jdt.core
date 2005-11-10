@@ -103,6 +103,8 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("AttachedJavadocProject"); //$NON-NLS-1$
+		this.root = null;
+		this.project = null;
 		super.tearDownSuite();
 	}
 
