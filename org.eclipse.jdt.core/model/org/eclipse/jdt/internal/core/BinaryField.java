@@ -125,9 +125,9 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) thro
 	IType declaringType = this.getDeclaringType();
 	IPackageFragment pack= declaringType.getPackageFragment();
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(declaringType.getTypeQualifiedName('.')).append(JavadocConstants.HTML_EXTENSION);
-	if (monitor.isCanceled()) throw new OperationCanceledException();
+	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	String contents = getURLContents(String.valueOf(pathBuffer), encoding);
-	if (monitor.isCanceled()) throw new OperationCanceledException();
+	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 	int indexAnchor = contents.indexOf(
 			JavadocConstants.ANCHOR_PREFIX_START + this.getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
