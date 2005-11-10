@@ -697,9 +697,11 @@ public final class CompletionEngine
 					scanner.endOfEmptyToken);
 		}
 		
-		
-		//TODO add support for string literal
-		context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
+		if(astNode instanceof CompletionOnStringLiteral) {
+			context.setTokenKind(CompletionContext.TOKEN_KIND_STRING_LITERAL);
+		} else {
+			context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
+		}
 		
 		if(DEBUG) {
 			System.out.println(context.toString());
@@ -1722,7 +1724,10 @@ public final class CompletionEngine
 			if(this.noProposal && this.problem != null) {
 				if(!contextAccepted) {
 					contextAccepted = true;
-					this.requestor.acceptContext(new CompletionContext());
+					CompletionContext context = new CompletionContext();
+					context.setOffset(completionPosition);
+					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
+					this.requestor.acceptContext(context);
 				}
 				this.requestor.completionFailure(this.problem);
 				if(DEBUG) {
@@ -1764,7 +1769,10 @@ public final class CompletionEngine
 			reset();
 			if(!contextAccepted) {
 				contextAccepted = true;
-				this.requestor.acceptContext(new CompletionContext());
+				CompletionContext context = new CompletionContext();
+				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
+				context.setOffset(completionPosition);
+				this.requestor.acceptContext(context);
 			}
 			this.requestor.endReporting();
 		}

@@ -9040,4 +9040,177 @@ public void test0158(){
 			expectedReplacedSource,
 			"full ast");
 }
+public void test0159() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ\";\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ\"";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0160() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \\u0022ZZ\\u005AZZ\\u0022;\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZ\\u005A";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\\u0022ZZ\\u005AZZ\\u0022";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0161() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"AAAAA\" + \"ZZZZZ\";\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = (\"AAAAA\" + <CompletionOnString:\"ZZZ\">);\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ\"";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0162() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0163() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0164() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"\\u005AZZZZ\\u000D\\u0022" +
+		"}\n"; 
+
+	String completeBehind = "\\u005AZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"\\u005AZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

@@ -94,6 +94,17 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append('\"');
 			}
 			buffer.append('\n');
+			
+			buffer.append("completion token kind=");
+			int tokenKind = context.getTokenKind();
+			if(tokenKind == CompletionContext.TOKEN_KIND_STRING_LITERAL) {
+				buffer.append("TOKEN_KIND_STRING_LITERAL");
+			} else if(tokenKind == CompletionContext.TOKEN_KIND_NAME) {
+				buffer.append("TOKEN_KIND_NAME");
+			} else {
+				buffer.append("TOKEN_KIND_UNKNOWN");
+			}
+			buffer.append('\n');
 		}
 		char[][] expectedTypesSignatures = this.context.getExpectedTypesSignatures();
 		buffer.append("expectedTypesSignatures=");

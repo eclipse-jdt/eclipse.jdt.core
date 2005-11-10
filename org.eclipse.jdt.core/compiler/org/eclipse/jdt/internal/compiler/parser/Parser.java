@@ -6871,14 +6871,14 @@ protected void consumeToken(int type) {
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
 			if (this.recordStringLiterals && this.checkExternalizeStrings) {
-				stringLiteral = new StringLiteral(
+				stringLiteral = this.createStringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 
 					this.scanner.currentPosition - 1,
 					this.scanner.getLineNumber(this.scanner.startPosition));
 				this.compilationUnit.recordStringLiteral(stringLiteral);
 			} else {
-				stringLiteral = new StringLiteral(
+				stringLiteral = this.createStringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 
 					this.scanner.currentPosition - 1,
@@ -7428,6 +7428,9 @@ protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, i
 
 protected LocalDeclaration createLocalDeclaration(char[] localDeclarationName, int sourceStart, int sourceEnd) {
 	return new LocalDeclaration(localDeclarationName, sourceStart, sourceEnd);
+}
+protected StringLiteral createStringLiteral(char[] token, int start, int end, int lineNumber) {
+	return new StringLiteral(token, start, end, lineNumber);
 }
 protected RecoveredType currentRecoveryType() {
 	if(this.currentElement != null) {

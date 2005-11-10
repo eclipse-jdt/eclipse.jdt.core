@@ -68,6 +68,7 @@ public void test0001() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -92,6 +93,7 @@ public void test0002() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -116,6 +118,7 @@ public void test0003() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -140,6 +143,7 @@ public void test0004() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -164,6 +168,7 @@ public void test0005() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -188,6 +193,7 @@ public void test0006() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -212,6 +218,7 @@ public void test0007() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -236,6 +243,7 @@ public void test0008() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -262,6 +270,7 @@ public void test0009() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -288,6 +297,7 @@ public void test0010() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -314,6 +324,7 @@ public void test0011() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -340,6 +351,7 @@ public void test0012() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -363,6 +375,7 @@ public void test0013() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -386,6 +399,7 @@ public void test0014() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -409,6 +423,7 @@ public void test0015() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -432,6 +447,7 @@ public void test0016() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -465,6 +481,7 @@ public void test0017() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -498,6 +515,7 @@ public void test0018() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -531,6 +549,7 @@ public void test0019() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -564,6 +583,7 @@ public void test0020() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -590,6 +610,7 @@ public void test0021() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -616,6 +637,7 @@ public void test0022() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -642,6 +664,7 @@ public void test0023() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -668,6 +691,7 @@ public void test0024() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -695,6 +719,7 @@ public void test0025() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -724,6 +749,7 @@ public void test0026() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -751,6 +777,7 @@ public void test0027() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -778,6 +805,7 @@ public void test0028() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -808,6 +836,7 @@ public void test0029() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -840,6 +869,7 @@ public void test0030() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -870,6 +900,7 @@ public void test0031() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -900,6 +931,7 @@ public void test0032() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -923,6 +955,7 @@ public void test0033() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -946,6 +979,7 @@ public void test0034() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -969,6 +1003,7 @@ public void test0035() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -992,6 +1027,7 @@ public void test0036() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1019,6 +1055,7 @@ public void test0037() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1046,6 +1083,7 @@ public void test0038() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1073,6 +1111,7 @@ public void test0039() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1100,6 +1139,7 @@ public void test0040() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1127,6 +1167,7 @@ public void test0041() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1154,6 +1195,7 @@ public void test0042() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1181,6 +1223,7 @@ public void test0043() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1208,6 +1251,7 @@ public void test0044() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1233,6 +1277,7 @@ public void test0045() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1258,6 +1303,7 @@ public void test0046() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1283,6 +1329,7 @@ public void test0047() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1308,6 +1355,7 @@ public void test0048() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1332,6 +1380,7 @@ public void test0049() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1356,6 +1405,7 @@ public void test0050() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1380,6 +1430,7 @@ public void test0051() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1404,6 +1455,7 @@ public void test0052() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1428,6 +1480,7 @@ public void test0053() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1452,6 +1505,7 @@ public void test0054() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1476,6 +1530,7 @@ public void test0055() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1500,6 +1555,7 @@ public void test0056() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1524,6 +1580,7 @@ public void test0057() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1548,6 +1605,7 @@ public void test0058() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1572,6 +1630,7 @@ public void test0059() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1596,6 +1655,7 @@ public void test0060() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1619,6 +1679,7 @@ public void test0061() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1642,6 +1703,7 @@ public void test0062() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1665,6 +1727,7 @@ public void test0063() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1688,6 +1751,7 @@ public void test0064() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1711,6 +1775,7 @@ public void test0065() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1734,6 +1799,7 @@ public void test0066() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1757,6 +1823,7 @@ public void test0067() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1780,6 +1847,7 @@ public void test0068() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1807,6 +1875,7 @@ public void test0069() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1834,6 +1903,7 @@ public void test0070() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1861,6 +1931,7 @@ public void test0071() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1888,6 +1959,7 @@ public void test0072() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1911,6 +1983,7 @@ public void test0073() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1934,6 +2007,7 @@ public void test0074() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1957,6 +2031,7 @@ public void test0075() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -1980,6 +2055,7 @@ public void test0076() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2003,6 +2079,7 @@ public void test0077() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2026,6 +2103,7 @@ public void test0078() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2049,6 +2127,7 @@ public void test0079() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2072,6 +2151,7 @@ public void test0080() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2096,6 +2176,7 @@ public void test0081() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2120,6 +2201,7 @@ public void test0082() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2144,6 +2226,7 @@ public void test0083() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2168,6 +2251,7 @@ public void test0084() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2192,6 +2276,7 @@ public void test0085() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2216,6 +2301,7 @@ public void test0086() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2240,6 +2326,7 @@ public void test0087() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2264,6 +2351,7 @@ public void test0088() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2290,6 +2378,7 @@ public void test0089() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2316,6 +2405,7 @@ public void test0090() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2342,6 +2432,7 @@ public void test0091() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2368,6 +2459,7 @@ public void test0092() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2394,6 +2486,7 @@ public void test0093() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2420,6 +2513,7 @@ public void test0094() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2446,6 +2540,7 @@ public void test0095() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2472,6 +2567,7 @@ public void test0096() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2499,6 +2595,7 @@ public void test0097() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2526,6 +2623,7 @@ public void test0098() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2553,6 +2651,7 @@ public void test0099() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2580,6 +2679,7 @@ public void test0100() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2607,6 +2707,7 @@ public void test0101() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2634,6 +2735,7 @@ public void test0102() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2661,6 +2763,7 @@ public void test0103() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={I}\n" +
 		"expectedTypesKeys={I}",
 		result.context);
@@ -2688,6 +2791,7 @@ public void test0104() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2712,6 +2816,7 @@ public void test0105() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2736,6 +2841,7 @@ public void test0106() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2760,6 +2866,7 @@ public void test0107() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2784,6 +2891,7 @@ public void test0108() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2808,6 +2916,7 @@ public void test0109() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2832,6 +2941,7 @@ public void test0110() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2856,6 +2966,7 @@ public void test0111() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2880,6 +2991,7 @@ public void test0112() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}",
 		result.context);
@@ -2906,6 +3018,7 @@ public void test0113() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2932,6 +3045,7 @@ public void test0114() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2958,6 +3072,7 @@ public void test0115() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
 		result.context);
@@ -2984,8 +3099,282 @@ public void test0116() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null",
+		result.context);
+}
+public void test0117() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0117/X.java",
+		"package test0117;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ\"");
+	int tokenEnd = tokenStart + "\"ZZZZ\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0118() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0118/X.java",
+		"package test0118;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ\"");
+	int tokenEnd = tokenStart + "\"ZZZZ\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0119() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0119/X.java",
+		"package test0119;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ\"");
+	int tokenEnd = tokenStart + "\"ZZZZ\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0120() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0120/X.java",
+		"package test0120;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ\"");
+	int tokenEnd = tokenStart + "".length() - 1;
+	int cursorLocation = str.lastIndexOf("\"ZZZZ") + "".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0121() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0121/X.java",
+		"package test0121;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int cursorLocation = str.lastIndexOf("\"ZZZZ\"") + "\"ZZZZ\"".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=[-1, -1]\n" +
+		"completion token=null\n" +
+		"completion token kind=TOKEN_KIND_UNKNOWN\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
+		result.context);
+}
+public void test0122() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0122/X.java",
+		"package test0122;\n" + 
+		"public class X {\n" + 
+		"  String s = \"\";\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"\"");
+	int tokenEnd = tokenStart + "\"\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("\"\"") + "\"".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0123() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0123/X.java",
+		"package test0123;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ");
+	int tokenEnd = tokenStart + "\"ZZZZ".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0124() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0124/X.java",
+		"package test0124;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ");
+	int tokenEnd = tokenStart + "\"ZZZZ".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"ZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0125() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0125/X.java",
+		"package test0125;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ");
+	int tokenEnd = tokenStart + "\"ZZZZ".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0126() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0126/X.java",
+		"package test0126;\n" + 
+		"public class X {\n" + 
+		"  String s = \"ZZZZ\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"ZZZZ");
+	int tokenEnd = tokenStart + "".length() - 1;
+	int cursorLocation = str.lastIndexOf("\"ZZZZ") + "".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
+		result.context);
+}
+public void test0127() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0127/X.java",
+		"package test0127;\n" + 
+		"public class X {\n" + 
+		"  String s = \"\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"");
+	int tokenEnd = tokenStart + "\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("\"") + "\"".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}",
 		result.context);
 }
 }

@@ -3216,7 +3216,64 @@ public TypeReference createSingleAssistTypeReference(char[] assistName, long pos
 public TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position) {
 	return this.createSingleAssistTypeReference(assistName, position);
 }
-
+protected StringLiteral createStringLiteral(char[] token, int start, int end, int lineNumber) {
+	if (start <= this.cursorLocation && this.cursorLocation <= end){
+		char[] source = this.scanner.source;
+		
+		int contentStart = start;
+		int contentEnd = end;
+		
+		// " could be as unicode \u0022
+		int pos = contentStart;
+		if(source[pos] == '\"') {
+			contentStart = pos + 1;
+		} else if(source[pos] == '\\' && source[pos+1] == 'u') {
+			pos += 2;
+			while (source[pos] == 'u') {
+				pos++;
+			}
+			if(source[pos] == 0 && source[pos + 1] == 0 && source[pos + 2] == 2 && source[pos + 3] == 2) {
+				contentStart = pos + 4;
+			}
+		}
+		
+		pos = contentEnd;
+		if(source[pos] == '\"') {
+			contentEnd = pos - 1;
+		} else if(source.length > 5 && source[pos-4] == 'u') {
+			if(source[pos - 3] == 0 && source[pos - 2] == 0 && source[pos - 1] == 2 && source[pos] == 2) {
+				pos -= 5;
+				while (pos > -1 && source[pos] == 'u') {
+					pos--;
+				}
+				if(pos > -1 && source[pos] == '\\') {
+					contentEnd = pos - 1;
+				} 
+			}
+		}
+		
+		if(contentEnd < start) {
+			contentEnd = end;
+		}
+		
+		if(this.cursorLocation != end || end == contentEnd) {
+			CompletionOnStringLiteral stringLiteral = new CompletionOnStringLiteral(
+					token,
+					start,
+					end,
+					contentStart, 
+					contentEnd,
+					lineNumber);
+			
+			this.assistNode = stringLiteral;
+			this.restartRecovery = true;
+			this.lastCheckPoint = end;
+			
+			return stringLiteral;
+		}
+	}
+	return super.createStringLiteral(token, start, end, lineNumber);
+}
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;

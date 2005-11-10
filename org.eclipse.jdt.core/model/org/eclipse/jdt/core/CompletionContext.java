@@ -24,6 +24,12 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
 public final class CompletionContext extends InternalCompletionContext {
 
 	/**
+	 * The completion token is unknown.
+	 * @since 3.2
+	 */
+	public static final int TOKEN_KIND_UNKNOWN = 0;
+	
+	/**
 	 * The completion token is a name.
 	 * @since 3.2
 	 */

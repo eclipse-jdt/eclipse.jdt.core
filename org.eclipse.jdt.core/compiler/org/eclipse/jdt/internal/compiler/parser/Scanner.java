@@ -430,7 +430,7 @@ public final String getCurrentTokenString() {
 		this.startPosition, 
 		this.currentPosition - this.startPosition); 
 }
-public final char[] getCurrentTokenSourceString() {
+public char[] getCurrentTokenSourceString() {
 	//return the token REAL source (aka unicodes are precomputed).
 	//REMOVE the two " that are at the beginning and the end.
 
