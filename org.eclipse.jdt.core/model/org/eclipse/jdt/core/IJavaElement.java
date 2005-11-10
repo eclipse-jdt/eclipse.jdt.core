@@ -13,6 +13,7 @@ package org.eclipse.jdt.core;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
@@ -157,6 +158,33 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 2.0
 	 */
 	IJavaElement getAncestor(int ancestorType);
+	
+	/**
+	 * <p>Returns the Javadoc as an html source if this element has an attached javadoc,
+	 * null otherwise.</p> 
+	 * <p>This should be used only for binary elements. Source elements will always return null.
+	 * The encoding used to read the javadoc is the one defined by the content type of the
+	 * file. If none is defined, then the specified encoding will be used as the default encoding.</p>
+	 * 
+	 * <p>The html is extracted from the attached javadoc and provided as is. No
+	 * transformation or validation is done.</p>
+	 *
+	 * <p>If the default encoding is set to null, the platform encoding is used.</p>
+	 * 
+	 * <p>NOTE: This API is subject to change before the 3.2 release.</p>
+	 * 
+	 * @param monitor the given progress monitor
+	 * @param defaultEncoding the given default encoding
+	 * @exception JavaModelException if:<ul>
+	 *  <li>this element does not exist</li>
+	 *  <li>retrieving the attached javadoc fails (timed-out, invalid URL, ...)
+	 *  <li>the format of the javadoc doesn't match expected standards (different anchors,...)</li>
+	 *  </ul>
+	 * @return the extracted javadoc from the attached javadoc, null if none
+	 * @see IClasspathAttribute#JAVADOC_LOCATION_ATTRIBUTE_NAME
+	 * @since 3.2
+	 */
+	String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException;	
 
 	/**
 	 * Returns the resource that corresponds directly to this element,

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -386,5 +385,81 @@ protected void toStringName(StringBuffer buffer, int flags) {
 		buffer.append("#"); //$NON-NLS-1$
 		buffer.append(this.occurrenceCount);
 	}
+}
+public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+	URL baseLocation= getJavadocBaseLocation();
+	if (baseLocation == null) {
+		return null;
+	}
+	StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+
+	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
+		pathBuffer.append('/');
+	}
+	IType declaringType = this.getDeclaringType();
+	IPackageFragment pack= declaringType.getPackageFragment();
+	String typeQualifiedName = declaringType.getTypeQualifiedName('.');
+	typeQualifiedName = typeQualifiedName.replace('$', '.');
+	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
+	
+	String methodName = this.getElementName();
+	if (this.isConstructor()) {
+		methodName = typeQualifiedName;
+	}
+	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false);
+	if (declaringType.isMember()) {
+		int depth = 0;
+		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
+		// might need to remove a part of the signature corresponding to the synthetic argument
+		final IJavaProject javaProject = declaringType.getJavaProject();
+		char[][] typeNames = CharOperation.splitOn('.', typeQualifiedName.toCharArray());
+		if (!Flags.isStatic(declaringType.getFlags())) depth++;
+		StringBuffer typeName = new StringBuffer();
+		for (int i = 0, max = typeNames.length; i < max; i++) {
+			if (typeName.length() == 0) {
+				typeName.append(typeNames[i]);
+			} else {
+				typeName.append('.').append(typeNames[i]);
+			}
+			IType resolvedType = javaProject.findType(packageFragmentName, String.valueOf(typeName));
+			if (resolvedType != null && resolvedType.isMember() && !Flags.isStatic(resolvedType.getFlags())) depth++;
+		}
+		if (depth != 0) {
+			int indexOfOpeningParen = anchor.indexOf('(');
+			if (indexOfOpeningParen == -1) return null;
+			int index = indexOfOpeningParen;
+			indexOfOpeningParen++;
+			for (int i = 0; i < depth; i++) {
+				int indexOfComma = anchor.indexOf(',', index);
+				if (indexOfComma != -1) {
+					index = indexOfComma + 2;
+				}
+			}
+			anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
+		}
+	}
+	if (monitor.isCanceled()) throw new OperationCanceledException();
+	final String contents = getURLContents(String.valueOf(pathBuffer), encoding);
+	if (monitor.isCanceled()) throw new OperationCanceledException();
+	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
+	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
+	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	int indexOfNextMethod = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
+	// find bottom
+	int indexOfBottom = -1;
+	if (this.isConstructor()) {
+		indexOfBottom = contents.indexOf(JavadocConstants.METHOD_DETAIL, indexOfEndLink);
+		if (indexOfBottom == -1) {
+			indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+		}
+	} else {
+		indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+	}
+	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	indexOfNextMethod = Math.min(indexOfNextMethod, indexOfBottom);
+	if (indexOfNextMethod == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextMethod);
 }
 }

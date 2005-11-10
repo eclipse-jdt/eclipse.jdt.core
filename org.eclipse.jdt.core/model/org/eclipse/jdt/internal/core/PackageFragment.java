@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -20,14 +21,18 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IParent;
+import org.eclipse.jdt.core.ISourceManipulation;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -429,5 +434,27 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 			buffer.append(" (...)"); //$NON-NLS-1$
 		}
 	}
+}
+/*
+ * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
+ */
+public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+	URL baseLocation= getJavadocBaseLocation();
+	if (baseLocation == null) {
+		return null;
+	}
+	StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+
+	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
+		pathBuffer.append('/');
+	}
+	String packPath= this.getElementName().replace('.', '/');
+	pathBuffer.append(packPath).append('/').append(JavadocConstants.PACKAGE_FILE_NAME);
+	
+	if (monitor.isCanceled()) throw new OperationCanceledException();
+	final String contents = getURLContents(String.valueOf(pathBuffer), encoding);
+	if (monitor.isCanceled()) throw new OperationCanceledException();
+	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	return contents;
 }
 }

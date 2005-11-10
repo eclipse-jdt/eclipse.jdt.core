@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,6 +34,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IJavaElement
  */
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
+//	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 
 	public static final char JEM_ESCAPE = '\\';
 	public static final char JEM_JAVAPROJECT = '=';
@@ -155,6 +161,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Puts the newly created element info in the given map.
 	 */
 	protected abstract void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException;
+	
 	/**
 	 * @see IJavaElement
 	 */
@@ -611,5 +618,97 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected void toStringName(StringBuffer buffer) {
 		buffer.append(getElementName());
+	}
+	
+	protected URL getJavadocBaseLocation() throws JavaModelException {
+		IPackageFragmentRoot root= (IPackageFragmentRoot) this.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root == null) {
+			return null;
+		}
+
+		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+			IClasspathEntry entry= root.getRawClasspathEntry();
+			if (entry == null) {
+				return null;
+			}
+			if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+				entry= getRealClasspathEntry(root.getJavaProject(), entry.getPath(), root.getPath());
+				if (entry == null) {
+					return null;
+				}
+			}
+			return getLibraryJavadocLocation(entry);
+		}
+		return null;
+	}
+	
+	private static IClasspathEntry getRealClasspathEntry(IJavaProject jproject, IPath containerPath, IPath libPath) throws JavaModelException {
+		IClasspathContainer container= JavaCore.getClasspathContainer(containerPath, jproject);
+		if (container != null) {
+			IClasspathEntry[] entries= container.getClasspathEntries();
+			for (int i= 0; i < entries.length; i++) {
+				IClasspathEntry curr= entries[i];
+				IClasspathEntry resolved= JavaCore.getResolvedClasspathEntry(curr);
+				if (resolved != null && libPath.equals(resolved.getPath())) {
+					return curr; // return the real entry
+				}
+			}
+		}
+		return null; // not found
+	}
+	
+	public static URL getLibraryJavadocLocation(IClasspathEntry entry) throws JavaModelException {
+		switch(entry.getEntryKind()) {
+			case IClasspathEntry.CPE_LIBRARY :
+			case IClasspathEntry.CPE_VARIABLE :
+				break;
+			default :
+				throw new IllegalArgumentException("Entry must be of kind CPE_LIBRARY or CPE_VARIABLE"); //$NON-NLS-1$
+		}
+		
+		IClasspathAttribute[] extraAttributes= entry.getExtraAttributes();
+		for (int i= 0; i < extraAttributes.length; i++) {
+			IClasspathAttribute attrib= extraAttributes[i];
+			if (IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
+				try {
+					return new URL(attrib.getValue());
+				} catch (MalformedURLException e) {
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC));
+				}
+			}
+		}
+		return null;
+	}
+	
+	/*
+	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
+	 */
+	public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+		return null;
+	}
+	protected String getURLContents(String docUrlValue, String encoding) throws JavaModelException {
+		try {
+			URL docUrl = new URL(docUrlValue);
+			URLConnection connection = docUrl.openConnection();
+			String contentEncoding = connection.getContentEncoding();
+			if (contentEncoding != null) {
+				InputStream stream = docUrl.openStream();
+				char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, contentEncoding);
+				if (contents != null) {
+					return String.valueOf(contents);
+				}
+			} else {
+				InputStream stream = docUrl.openStream();
+				char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
+				if (contents != null) {
+					return String.valueOf(contents);
+				}
+			}
+ 		} catch (MalformedURLException e) {
+ 			// ignore
+		} catch (IOException e) {
+			// ignore
+		}
+		return null;
 	}
 }

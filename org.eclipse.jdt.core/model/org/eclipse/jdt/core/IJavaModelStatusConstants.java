@@ -306,5 +306,18 @@ public interface IJavaModelStatusConstants {
 	 * Status constant indicating that a compiler option is invalid.
 	 * @since 3.1
 	 */
-//	public static final int INVALID_COMPILER_OPTION = 1007;	
+//	public static final int INVALID_COMPILER_OPTION = 1007;
+	/**
+	 * <p>Status constant indicating that the attached javadoc content cannot be retrieved due to multiple reasons:
+	 * invalid url, timed-out,...</p>
+	 * 
+	 * @since 3.2
+	 */
+	public static final int CANNOT_RETRIEVE_ATTACHED_JAVADOC = 1008;
+	/**
+	 * <p>Status constant indicating that the attached javadoc content format is unrecognized.</p>
+	 * 
+	 * @since 3.2
+	 */
+	public static final int UNRECOGNIZED_JAVADOC_FORMAT = 1009;
 }
