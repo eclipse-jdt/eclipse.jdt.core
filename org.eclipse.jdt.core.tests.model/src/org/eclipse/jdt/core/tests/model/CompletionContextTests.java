@@ -413,7 +413,7 @@ public void test0015() throws JavaModelException {
 		"expectedTypesKeys=null",
 		result.context);
 }
-public void _test0016() throws JavaModelException {
+public void test0016() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0016/X.java",
@@ -2294,7 +2294,7 @@ public void test0089() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0090() throws JavaModelException {
+public void test0090() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0090/X.java",
@@ -2316,8 +2316,8 @@ public void _test0090() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0091() throws JavaModelException {
@@ -2346,7 +2346,7 @@ public void test0091() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0092() throws JavaModelException {
+public void test0092() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0092/X.java",
@@ -2368,8 +2368,8 @@ public void _test0092() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0093() throws JavaModelException {
@@ -2398,7 +2398,7 @@ public void test0093() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0094() throws JavaModelException {
+public void test0094() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0094/X.java",
@@ -2420,8 +2420,8 @@ public void _test0094() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0095() throws JavaModelException {
@@ -2450,7 +2450,7 @@ public void test0095() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0096() throws JavaModelException {
+public void test0096() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0096/X.java",
@@ -2472,8 +2472,8 @@ public void _test0096() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0097() throws JavaModelException {
@@ -2503,7 +2503,7 @@ public void test0097() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0098() throws JavaModelException {
+public void test0098() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0098/X.java",
@@ -2526,8 +2526,8 @@ public void _test0098() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0099() throws JavaModelException {
@@ -2557,7 +2557,7 @@ public void test0099() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0100() throws JavaModelException {
+public void test0100() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0100/X.java",
@@ -2580,8 +2580,8 @@ public void _test0100() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0101() throws JavaModelException {
@@ -2611,7 +2611,7 @@ public void test0101() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0102() throws JavaModelException {
+public void test0102() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0102/X.java",
@@ -2634,8 +2634,8 @@ public void _test0102() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0103() throws JavaModelException {
@@ -2665,7 +2665,7 @@ public void test0103() throws JavaModelException {
 		"expectedTypesKeys={I}",
 		result.context);
 }
-public void _test0104() throws JavaModelException {
+public void test0104() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0104/X.java",
@@ -2688,8 +2688,8 @@ public void _test0104() throws JavaModelException {
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"\"\n" +
-		"expectedTypesSignatures={I}\n" +
-		"expectedTypesKeys={I}",
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
 		result.context);
 }
 public void test0105() throws JavaModelException {
