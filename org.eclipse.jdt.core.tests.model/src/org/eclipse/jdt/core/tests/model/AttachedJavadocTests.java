@@ -103,7 +103,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("AttachedJavadocProject"); //$NON-NLS-1$
-		super.tearDown();
+		super.tearDownSuite();
 	}
 
 	// test javadoc for a package fragment
@@ -230,7 +230,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	}
 	
 	// test archive doc
-	public void test010() throws JavaModelException {
+	public void _test010() throws JavaModelException {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
@@ -256,7 +256,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
 						&& entry.getContentKind() == IPackageFragmentRoot.K_BINARY
 						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
-					entries[i] = JavaCore.newLibraryEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), new IClasspathAttribute[] { attribute}, entry.isExported());
+					entries[i] = JavaCore.newLibraryEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), new IClasspathAttribute[] { attribute }, entry.isExported());
 				}
 			}
 			this.project.setRawClasspath(entries, null);

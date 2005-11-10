@@ -168,7 +168,7 @@ private static Class[] getAllTestClasses() {
 		ClassFileTests.class,
 		
 		// Attached javadoc tests
-		AttachedJavadocTests.class
+		// AttachedJavadocTests.class
 	
 	};
 	
