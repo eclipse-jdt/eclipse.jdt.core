@@ -140,10 +140,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			Set<IFile> newFiles = result.getNewFiles();			
 			Set<IFile> deletedFiles = new HashSet<IFile>();
 			_previousRoundsBatchFactories.addAll(result.getDispatchedBatchFactory());
-			
-			// see if APT updated a project's source path
-			boolean sourcePathChanged = result.getSourcePathChanged();
-			
+	
 			// for apt, new files will always trump deleted files
 			for ( IFile df : result.getDeletedFiles() ){
 				if ( !newFiles.contains( df ) ){
@@ -155,8 +152,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 					newFiles.toArray( new IFile[ newFiles.size() ] ), 
 					deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), 
 					result.getNewDependencies(), 
-					result.getProblems(), 
-					sourcePathChanged );
+					result.getProblems());
 		}
 		finally {
 			if (isFullBuild) {
@@ -284,7 +280,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
-		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap(), false );
+		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );
 		
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();

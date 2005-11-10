@@ -98,9 +98,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	private final FilerImpl _filer;
 	private boolean _isClosed = false;
 
-	/** true indicates that the source path for the project was modified during this APT dispatch */
-	private boolean _sourcePathChanged;
-	
 	/**
 	 * Set of strings that indicate new type dependencies introduced on the file
 	 * each string is a fully-qualified type name.
@@ -917,12 +914,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * @return - the extra type dependencies for the files under compilation
 	 */
 	public Map<IFile, Set<String>> getTypeDependencies()  { return _typeDependencies; }
-	
-	/** true value indicates that the source path for the project changed during this APT dispatch */
-	public boolean getSourcePathChanged() { return _sourcePathChanged; }
-
-	/** true value indicates that the source path for the project changed during this APT dispatch */
-	public void setSourcePathChanged( boolean b ) { _sourcePathChanged = b; }
 	
 	/**
 	 * Switch to batch processing mode. 

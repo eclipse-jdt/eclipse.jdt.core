@@ -192,7 +192,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 										 Collections.<AnnotationProcessorFactory>emptySet(),
 										 Collections.<IFile, Set<String>>emptyMap(),
 										 Collections.<IFile, List<IProblem>>emptyMap(), 
-										 false, false );
+										 false );
 		}
 		else
 		{
@@ -207,11 +207,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			{
 				processorEnv = ProcessorEnvImpl
 					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _javaProject);
-			}
-			if( processorEnv == null )
-				_result =  EMPTY_APT_RESULT;
-			else
-				_result = runAPT(_factories, processorEnv);
+			}			
+			_result = runAPT(_factories, processorEnv);
 		}
 	}
 	
@@ -608,7 +605,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 
 											  processorEnv.getProblems(), 
-											  processorEnv.getSourcePathChanged(),
 											  processorEnv.hasGeneratedClassFiles() || processorEnv.hasGeneratedSourceFiles());
 			processorEnv.close();
 			return result;

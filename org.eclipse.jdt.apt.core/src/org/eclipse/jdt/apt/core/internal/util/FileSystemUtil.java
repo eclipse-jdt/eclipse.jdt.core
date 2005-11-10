@@ -49,17 +49,13 @@ public final class FileSystemUtil
                     succeed = parent.mkdirs();
             }
         }
-    }
-    
-    /**
-     * Eclipse doesn't seem 
-     * @param target
-     */
-    public static void makeDerivedParentFolders (IContainer folder) throws CoreException {
-		if (!folder.exists()) {
-			makeDerivedParentFolders(folder.getParent());
-			((IFolder) folder).create(true, true, null);
-			folder.setDerived(true);
+    }    
+  
+    public static void makeDerivedParentFolders (IContainer container) throws CoreException {
+		if ((container instanceof IFolder) && !container.exists()) {
+			makeDerivedParentFolders(container.getParent());
+			((IFolder) container).create(true, true, null);
+			container.setDerived(true);
 		}
     }
     

@@ -357,9 +357,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 			
 			// make sure generated source folder exists in the project.  This is necessary
 			// for reconcile-time type-generation to work
-			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( project.getProject() );
-			gfm.ensureGeneratedSourceFolder( null /* progress monitor */ );
-			
+			GeneratedFileManager.getGeneratedFileManager( project.getProject() );
 			
 			_classesJarFile = TestUtil.createAndAddAnnotationJar( project );
 

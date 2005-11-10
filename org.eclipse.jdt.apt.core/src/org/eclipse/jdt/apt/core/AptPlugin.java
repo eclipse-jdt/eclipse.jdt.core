@@ -14,9 +14,18 @@ package org.eclipse.jdt.apt.core;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedResourceChangeListener;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.BundleContext;
 
 public class AptPlugin extends Plugin {
@@ -44,6 +53,27 @@ public class AptPlugin extends Plugin {
 		checkToolsJar();
 		AptConfig.initialize();
 		AnnotationProcessorFactoryLoader.getLoader();
+		// register resource-changed listener
+		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
+		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.addResourceChangeListener( new GeneratedResourceChangeListener(), mask );
+	
+		final IWorkspaceRoot root = workspace.getRoot();
+		if(root != null){
+			final IProject[] projects = root.getProjects();
+			try{
+				for( IProject proj : projects ){
+					if( proj.hasNature(JavaCore.NATURE_ID) && proj.exists() && 
+						proj.isOpen() && AptConfig.isEnabled(JavaCore.create( proj ))){
+						final GeneratedFileManager mgr = GeneratedFileManager.getGeneratedFileManager(proj);
+						mgr.ensureGeneratedSourceFolder(null);
+					}
+				}
+			}
+			catch( JavaModelException e) { e.printStackTrace(); }
+		}
+		if( DEBUG )
+			trace("addded listener"); //$NON-NLS-1$
 	}
 
 	/**
@@ -124,6 +154,11 @@ public class AptPlugin extends Plugin {
 	private void initDebugTracing() {		
 		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
 		if(option != null) DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
+	}
+	
+	public static void trace(final String msg){
+		if(DEBUG)
+			System.err.println("[ " + Thread.currentThread().getName() + " ] " + msg );  //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public static boolean DEBUG = false;

@@ -366,18 +366,10 @@ public class AptBuilderTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
-
-		// build this again.  The first build would have caused a classpath change by adding in the 
-		// generated-src dir, and a classpath change causes a full build 
-		fullBuild( project.getFullPath() );
-		expectingNoProblems();
-		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
-
 		
 		// touch A - make sure its public shape changes.
 		env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			modifiedCode );
-		
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		expectingCompiledClasses(new String[]{"p1.A", "p1.A"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

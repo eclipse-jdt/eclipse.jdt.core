@@ -32,10 +32,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -102,6 +99,46 @@ public class GeneratedFileManager {
 		new WeakHashMap<IProject, GeneratedFileManager>();
 	
 	/**
+	 * map from IFile of parent file to Set <IFile>of generated files
+	 */
+	private Map<IFile, Set<IFile>> _parentFile2GeneratedFiles = new HashMap();
+
+	/**
+	 * map from IFile of generated file to Set <IFile>of parent files
+	 */
+	private Map<IFile, Set<IFile>> _generatedFile2ParentFiles = new HashMap();
+	
+	/**
+	 * Map from a the working copy of a generated file to its *open* parents.  Note that
+	 * the set of parent files are only those parent files that have an open editor.
+	 * This set should be a subset for a correpsonding entry in the _generatedFile2Parents map.
+	 */
+	private Map<ICompilationUnit, Set<IFile>> _generatedWorkingCopy2OpenParentFiles = new HashMap();
+	
+	/**
+	 * Map from type name to the working copy in memory of that type name
+	 * 
+	 * Map<String, ICompilationUnit>
+	 */
+	private Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap();	
+
+	/**
+	 * The folder where generated source files are placed.  This will be null until
+	 * the folder is actually created and the project's source path is updated to 
+	 * include the folder. 
+	 */
+	private IFolder _generatedSourceFolder;
+	
+	private String _generatedSourceFolderName;
+	
+	private final IProject _project;
+	
+	private final IJavaProject _javaProject;
+	
+	private static boolean _initialized = false;
+	
+	
+	/**
 	 * Construction can only take place from within 
 	 * the factory method, getGeneratedFileManager().
 	 */
@@ -124,19 +161,26 @@ public class GeneratedFileManager {
 		// get generated source dir from config 
 		// default value is set in org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer
 		_generatedSourceFolderName = AptConfig.getString( _javaProject, AptPreferenceConstants.APT_GENSRCDIR);
+		// properly initialize the GeneratedFileManager if project path is up-to-date and the generated 
+		// source folder is there.
+		final IFolder folder = project.getFolder(_generatedSourceFolderName);
+		if(folder.exists()){
+			boolean uptodate = false;
+			try{
+				uptodate = isProjectClassPathUpToDate(_javaProject, folder.getFullPath(), null);
+			}catch(JavaModelException e){
+				e.printStackTrace();
+			}
+			if( uptodate )
+				_generatedSourceFolder = folder;
+		}	
 	}
 
 	private static void init()
 	{
 		_initialized = true;
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		
-		// register resource-changed listener
-		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
-		workspace.addResourceChangeListener( new ResourceChangedListener(), mask );
-		
 		// register element-changed listener
-		mask = ElementChangedEvent.POST_CHANGE;
+		int mask = ElementChangedEvent.POST_CHANGE;
 		JavaCore.addElementChangedListener( new ElementChangedListener(), mask );
 	}
 	
@@ -194,7 +238,10 @@ public class GeneratedFileManager {
 	throws CoreException
 	{
 		try{
-			boolean updatededSourcePath = ensureGeneratedSourceFolder( progressMonitor );
+			if( !isGeneratedSourceFolderConfigured() ){
+				AptPlugin.log(null, "Generated source folder not configured type generated for " + typeName + " failed"); //$NON-NLS-1$ //$NON-NLS-2$
+				return null;
+			}
 			final IFolder genFolder = getGeneratedSourceFolder();
 			IPackageFragmentRoot genFragRoot = null;
 			IPackageFragmentRoot[] roots = _javaProject.getAllPackageFragmentRoots();
@@ -277,6 +324,9 @@ public class GeneratedFileManager {
 						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
 						throw new CoreException(status);
 					}
+					if( AptPlugin.DEBUG )
+						AptPlugin.trace("generated " + typeName ); //$NON-NLS-1$
+					newUnit.save(progressMonitor, true);
 				}
 			}			
 			file.setDerived(true);
@@ -288,13 +338,13 @@ public class GeneratedFileManager {
 			if( parentFile != null ){
 				addEntryToFileMaps( parentFile, file );
 			}
-			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
+			return new FileGenerationResult(file, contentsDiffer);
 		}
 		catch(Exception e){
-			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$
+			AptPlugin.log(e, "(2)failed to generate type " + typeName); //$NON-NLS-1$
 			e.printStackTrace();
 		}
-		IStatus status = AptPlugin.createStatus(new IllegalStateException("Failed to generate type " + typeName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
+		IStatus status = AptPlugin.createStatus(new IllegalStateException("(3)Failed to generate type " + typeName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
 		throw new CoreException(status);
 	}	
 	
@@ -319,8 +369,7 @@ public class GeneratedFileManager {
 	 * 
 	 * @return The FileGenerationResult.  This will return null if the generated source folder
 	 * is not configured.
-	 * 
-	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
+	 *
 	 */
 	public  FileGenerationResult generateFileDuringReconcile(
 			ICompilationUnit parentCompilationUnit, String typeName,
@@ -361,7 +410,7 @@ public class GeneratedFileManager {
 				
 				// TODO:  pass in correct flag for source-patch changed.  This is probably not going to matter.  Per 103183, we will either 
 				// disable reconcile-time generation, or do it without any modifications, so we shouldn't have to worry about this.   
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), true, false);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), true);
 			}
 			else
 			{
@@ -370,7 +419,7 @@ public class GeneratedFileManager {
 				//  Update working copy's buffer with the contents of the type 
 				// 
 				boolean modified = updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified, false);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified);
 			}
 			
 			return result;
@@ -379,7 +428,7 @@ public class GeneratedFileManager {
 		{
 			AptPlugin.log(jme, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		} 
-		return new FileGenerationResult((IFile)workingCopy.getResource(), true, false);
+		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
 	}
 
 	
@@ -425,7 +474,6 @@ public class GeneratedFileManager {
 	 * @return true if it is the generated source folder, false otherwise.  
 	 * 
 	 * @see #getGeneratedSourceFolder()
-	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
 	 */
 	public boolean isGeneratedSourceFolder( IFolder folder )
 	{
@@ -551,6 +599,7 @@ public class GeneratedFileManager {
 		
 		if ( delete ){
 			final IFolder genFolder = getGeneratedSourceFolder();
+			assert genFolder != null : "Generated folder == null"; //$NON-NLS-1$
 			IContainer parent = generatedFile.getParent();
 			generatedFile.delete(true, true, progressMonitor);
 			// not deleting the generated source folder and only 
@@ -744,39 +793,50 @@ public class GeneratedFileManager {
 	 *  and it will take a java model lock if the project's source paths need to be updated.
 	 *  Care should be taken when calling this method to ensure that locking behavior is correct.    
 	 *  
-	 *  @param progressMonitor the progress monitor.  This can be null. 
+	 *  <em>
+	 *  The only time that it is save to call this method is either we are explicitly fixing the 
+	 *  classpath during a <code>ICompilationParitcipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT</code> 
+	 *  or during a resource change event. Since resource change event only occur before or after a build 
+	 *  but never during one, the classpath will be updated at the correct time.
+	 *  </em> 
 	 *  
-	 *  @return true if the generatedSourceFolder is added to the project's classpath entries,
-	 *  false if it is not added to the project's classpath entries.  
+	 *  
+	 *  @param progressMonitor the progress monitor.  This can be null. 
 	 *  
 	 *  @see #getGeneratedSourceFolder()
 	 *  @see #isGeneratedSourceFolderConfigured()
 	 */
-	public boolean ensureGeneratedSourceFolder( IProgressMonitor progressMonitor )
-		throws CoreException
-	{
+	public boolean ensureGeneratedSourceFolder( IProgressMonitor progressMonitor ){
 		synchronized( this )
 		{
 			if ( _generatedSourceFolder != null )
 				return false;
 		}
-		
-		// don't take any locks in while creating the folder, since we are doing file-system operations
+		// don't take any locks while creating the folder, since we are doing file-system operations
 		IFolder srcFolder = getGeneratedSourceFolder();
-		srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
-		if (!srcFolder.exists()) {
-			FileSystemUtil.makeDerivedParentFolders(srcFolder);
-		}
+		try{ 
+			srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
+			if (!srcFolder.exists()) {
+				FileSystemUtil.makeDerivedParentFolders(srcFolder);
+			}
+				
+			//
+			// make sure __generated_src dir is on the cp if not already
+			//
+			updateProjectClasspath( _javaProject, srcFolder, progressMonitor );
 			
-		//
-		// make sure __generated_src dir is on the cp if not already
-		//
-		boolean addedToSourcePath = updateProjectClasspath( _javaProject, srcFolder, progressMonitor );
+			if(AptPlugin.DEBUG)
+				AptPlugin.trace("Added directory " + srcFolder.getName() + " and updated classpath" ); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		catch(CoreException e){						
+			e.printStackTrace();
+			AptPlugin.log(e, "Failed to create generated source directory"); //$NON-NLS-1$
+		}
 		
 		synchronized ( this )
 		{
 			_generatedSourceFolder = srcFolder;
-			return addedToSourcePath;
+			return true;
 		}
 	}
 	
@@ -785,7 +845,6 @@ public class GeneratedFileManager {
 	 * 
 	 * @see #getGeneratedSourceFolder()
 	 * @see #getGeneratedSourceFolderName()
-	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
 	 */
 	public boolean isGeneratedSourceFolderConfigured()
 	{
@@ -810,8 +869,7 @@ public class GeneratedFileManager {
 	 * @throws JavaModelException
 	 * 
 	 * @see #getGeneratedSourceFolder()
-	 * @see #isGeneratedSourceFolderConfigured()
-	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
+	 * @see #isGeneratedSourceFolderConfigured()	
 	 */
 	public IPath getGeneratedSourceFolderOutputLocation()
 		 throws JavaModelException 
@@ -1129,6 +1187,20 @@ public class GeneratedFileManager {
 		return null;
 	}
 	
+	private boolean isProjectClassPathUpToDate(IJavaProject jp, IPath path, IProgressMonitor progressMonitor)
+		throws JavaModelException
+	{
+		IClasspathEntry[] cp = jp.getRawClasspath();
+		for (int i = 0; i < cp.length; i++) 
+		{
+			if (cp[i].getPath().equals( path )) 
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * returns true if we updated the classpath, false otherwise
 	 */
@@ -1136,16 +1208,8 @@ public class GeneratedFileManager {
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
-		boolean found = false;
 		IPath path = folder.getFullPath();
-		for (int i = 0; i < cp.length; i++) 
-		{
-			if (cp[i].getPath().equals( path )) 
-			{
-				found = true;
-				break;
-			}
-		}
+		boolean found = isProjectClassPathUpToDate(jp, path, progressMonitor);
 		
 		if (!found) 
 		{
@@ -1209,7 +1273,7 @@ public class GeneratedFileManager {
 	 */
 	public static void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
-	{
+	{	
 		IClasspathEntry[] cp = jp.getRawClasspath();
 
 		IPath workspaceRelativePath = folder.getFullPath();
@@ -1368,17 +1432,28 @@ public class GeneratedFileManager {
 	
 	/**
 	 *  Invoked when the generated source folder has been deleted.  This will 
-	 *  flush any in-memory state tracking generated files. 
+	 *  flush any in-memory state tracking generated files and clean up the project classpath.
+	 *  
+	 *  Note: this should only be called within a resource change event to ensure that the classpath
+	 *  is correct during any build. Resource change event never occurs during a build.
 	 */
-	public void generatedSourceFolderDeleted()
+	public void generatedSourceFolderDeleted(final boolean projectDeleted)
 	{
-		// jdt-core will remove the generated source folder from the java 
-		// project's classpath, so we'll just clean out our maps. 
 		projectClean( false );
-		synchronized( this )
-		{
+		
+		IFolder srcFolder;
+		synchronized(this){
+			srcFolder = getGeneratedSourceFolder();
 			_generatedSourceFolder = null;
 		}
+		
+		try{
+			if( !projectDeleted )
+				removeFromProjectClasspath( _javaProject, srcFolder, null );
+		}catch(JavaModelException e){
+			AptPlugin.log( e, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
+		}
+		
 	}
 	
 	/**
@@ -1415,29 +1490,20 @@ public class GeneratedFileManager {
 	}
 	
 	/**
-	 *  Will return an IFolder corresponding to the generated source folder name.  The result
-	 *  IFolder may not exist and may not necessarily be on the java project's classpath. 
-	 *  To ensure that the generated source folder is created and added to as source path
-	 *  to the project, call ensureGeneratedSourceFolder().
-	 *  
-	 *   @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
-	 *   @see #isGeneratedSourceFolderConfigured()
-	 *   @see #getGeneratedSourceFolderName()
+	 * @return get the generated source folder. May return null if
+	 * creation has failed, the folder has been deleted or has not been created.
 	 */
-	public synchronized IFolder getGeneratedSourceFolder()
-	{
-		//
-		// don't set _generatedSourceFolder in here, let that happen in 
-		// ensureGeneratedSourceFolder. we use a non-null _generatedSourceFolder 
-		// as an indicator that as an indicator that the folder has been created
-		// and added to the project's source path.
-		//
-			
-		if ( _generatedSourceFolder != null)
-			return _generatedSourceFolder;
-		else
-			// OK to call getFolder while holding a lock.  getFolder() doesn't take any locks - Mike K.
-			return _project.getFolder( _generatedSourceFolderName );
+	public IFolder getGeneratedSourceFolder(){
+		IFolder srcFolder;
+		final String folderName;
+		synchronized (this) {
+			srcFolder = _generatedSourceFolder;
+			folderName = getGeneratedSourceFolderName();
+		}
+		if(srcFolder != null)
+			return srcFolder;
+		
+		return _project.getFolder( folderName );
 	}
 	
 	/**
@@ -1445,7 +1511,6 @@ public class GeneratedFileManager {
 	 * to the project root.
 	 * 
 	 * @see #getGeneratedSourceFolder()
-	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
 	 * @see #isGeneratedSourceFolderConfigured()
 	 */
 	public synchronized String getGeneratedSourceFolderName() 
@@ -1467,17 +1532,13 @@ public class GeneratedFileManager {
 	 * 
 	 * @see #getGeneratedSourceFolder()
 	 * @see #getGeneratedSourceFolderName()
-	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
 	 * @see #isGeneratedSourceFolderConfigured()
 	 */
-	public void setGeneratedSourceFolderName( String s ) 
+	private void setGeneratedSourceFolderName( String s ) 
 	{
-		synchronized( this )
-		{
-			// bail if they specify null, empty-string or don't change the name of the source folder
-			if ( s == null || s.length() == 0 || s.equals( _generatedSourceFolderName ) )
-				return;
-		}
+		// bail if they specify null, empty-string or don't change the name of the source folder
+		if ( s == null || s.length() == 0 || s.equals( getGeneratedSourceFolderName() ) )
+			return;
 		
 		projectClean( true );
 
@@ -1487,7 +1548,6 @@ public class GeneratedFileManager {
 			_generatedSourceFolderName = s;
 			// save _generatedSrcFolder off to avoid race conditions
 			srcFolder = _generatedSourceFolder;
-			_generatedSourceFolder = null;
 		}
 		
 		// delete generatedSourceFolder
@@ -1495,55 +1555,19 @@ public class GeneratedFileManager {
 		{
 			try
 			{
-				removeFromProjectClasspath( _javaProject, srcFolder, null );
-				if ( srcFolder.exists() )
-					srcFolder.delete( true,false, null );
+				if ( srcFolder.exists() ){
+					// this will cause a resource change event, and we will actually clean up the reference
+					// then. Until then, _generatedSourceFolderName and _generatedSourceFolder.getName() 
+					// will be different. -theodora
+					srcFolder.delete( true, false, null );
+				}
 			}
 			catch( CoreException ce )
 			{
 				AptPlugin.log( ce, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 			}
 		}
+		else
+			ensureGeneratedSourceFolder(null);
 	}
-	
-	/**
-	 * map from IFile of parent file to Set <IFile>of generated files
-	 */
-	private Map<IFile, Set<IFile>> _parentFile2GeneratedFiles = new HashMap();
-
-	/**
-	 * map from IFile of generated file to Set <IFile>of parent files
-	 */
-	private Map<IFile, Set<IFile>> _generatedFile2ParentFiles = new HashMap();
-	
-	/**
-	 * Map from a the working copy of a generated file to its *open* parents.  Note that
-	 * the set of parent files are only those parent files that have an open editor.
-	 * This set should be a subset for a correpsonding entry in the _generatedFile2Parents map.
-	 */
-	private Map<ICompilationUnit, Set<IFile>> _generatedWorkingCopy2OpenParentFiles = new HashMap();
-	
-	/**
-	 * Map from type name to the working copy in memory of that type name
-	 * 
-	 * Map<String, ICompilationUnit>
-	 */
-	private Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap();	
-
-	/**
-	 * The folder where generated source files are placed.  This will be null until
-	 * the folder is actually created and the project's source path is updated to 
-	 * include the folder. 
-	 */
-	private IFolder _generatedSourceFolder;
-	
-	private String _generatedSourceFolderName;
-	
-	private final IProject _project;
-	
-	private final IJavaProject _javaProject;
-	
-	
-	private static boolean _initialized = false;
-	
 }

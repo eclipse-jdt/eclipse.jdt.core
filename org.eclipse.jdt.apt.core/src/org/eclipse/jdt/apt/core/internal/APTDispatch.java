@@ -121,7 +121,6 @@ public class APTDispatch
 			_newDependencies = Collections.emptyMap();
 			_newProblems = Collections.emptyMap();
 			_dispatchedBatchFactories = Collections.emptySet();
-			_sourcePathChanged = false;
 			_hasGeneratedTypes = false;
 		}
 		APTResult( 
@@ -129,8 +128,7 @@ public class APTDispatch
 				Set<IFile> deletedFiles,
 				Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 				Map<IFile, Set<String>> deps, 
-				Map<IFile, List<IProblem>> problems, 
-				boolean sourcePathChanged,
+				Map<IFile, List<IProblem>> problems,
 				boolean hasGeneratedTypes)
 		{
 			_newFiles = newFiles;
@@ -138,7 +136,6 @@ public class APTDispatch
 			_deletedFiles = deletedFiles;
 			_newProblems = problems;
 			_dispatchedBatchFactories = dispatchedBatchFactories;
-			_sourcePathChanged = sourcePathChanged;
 			_hasGeneratedTypes = hasGeneratedTypes;
 		}
 		
@@ -147,7 +144,6 @@ public class APTDispatch
 		private final Map<IFile, Set<String>> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
 		private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
-		private boolean _sourcePathChanged;
 		private boolean _hasGeneratedTypes;
 		private boolean _mutable = true;
 		
@@ -166,7 +162,6 @@ public class APTDispatch
 			_newProblems.remove(file);
 		}
 		
-		boolean getSourcePathChanged() { return _sourcePathChanged; }
 		boolean hasGeneratedTypes(){ return _hasGeneratedTypes; }
 		
 		void setReadOnly(){
@@ -185,8 +180,8 @@ public class APTDispatch
 			_dispatchedBatchFactories.addAll(otherResult._dispatchedBatchFactories);
 			mergeMaps(_newDependencies, otherResult._newDependencies);
 			mergeMaps(_newProblems, otherResult._newProblems);
-			_sourcePathChanged |= otherResult._sourcePathChanged;
 			_hasGeneratedTypes |= otherResult._hasGeneratedTypes;
+			_dispatchedBatchFactories.addAll(otherResult._dispatchedBatchFactories);
 		}
 		
 		/**

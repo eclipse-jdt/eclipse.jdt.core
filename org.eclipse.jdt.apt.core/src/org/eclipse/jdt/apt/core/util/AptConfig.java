@@ -411,6 +411,9 @@ public class AptConfig {
 	 * @return
 	 */
 	public static boolean isEnabled(IJavaProject jproject) {
+		// TODO: Walter have a fix for this problem.
+		if( jproject == null )
+			return true;
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
 	}
 	
