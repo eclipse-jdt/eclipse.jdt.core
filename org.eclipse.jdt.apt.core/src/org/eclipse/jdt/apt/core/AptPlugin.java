@@ -63,6 +63,8 @@ public class AptPlugin extends Plugin {
 			final IProject[] projects = root.getProjects();
 			try{
 				for( IProject proj : projects ){
+					if(DEBUG)
+						trace("updating project " + proj.getName() ); //$NON-NLS-1$
 					if( proj.hasNature(JavaCore.NATURE_ID) && proj.exists() && 
 						proj.isOpen() && AptConfig.isEnabled(JavaCore.create( proj ))){
 						final GeneratedFileManager mgr = GeneratedFileManager.getGeneratedFileManager(proj);

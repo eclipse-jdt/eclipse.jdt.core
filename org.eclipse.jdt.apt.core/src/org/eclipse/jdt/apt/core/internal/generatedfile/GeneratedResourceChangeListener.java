@@ -39,7 +39,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			try
 			{ 
 				if( AptPlugin.DEBUG )
-					System.err.println("[ thread= " + Thread.currentThread().getName() + " ] ---- got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
+					AptPlugin.trace("[ thread= " + Thread.currentThread().getName() + " ] ---- got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
 				final PreBuildVisitor visitor = new PreBuildVisitor();
 				event.getDelta().accept( visitor );
 				addGeneratedSrcFolderTo(visitor.getProjectsThatNeedGenSrcFolder());
@@ -72,11 +72,6 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			final GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(proj);
 			if(AptConfig.isEnabled(JavaCore.create(proj)))
 				gfm.ensureGeneratedSourceFolder(null);
-			/*if( gfm.ensureGeneratedSourceFolder(null) )
-				System.err.println("updated classpath");
-			else
-				System.err.println("no-op");
-			*/
 		}
 
 	}
@@ -85,6 +80,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	{
 		// projects that we need to add the generated source folder to.
 		private final Set<IProject> _addGenFolderTo = new HashSet<IProject>();
+		// any projects that is closed or about to be deleted
 		private final Set<IProject> _removedProjects = new HashSet<IProject>();
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
@@ -115,7 +111,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 						_addGenFolderTo.add(project);
 					}
 				}
-				else if( r instanceof IProject ){
+				else if( r instanceof IProject ){	
 					_removedProjects.add((IProject)r);
 				}
 			}

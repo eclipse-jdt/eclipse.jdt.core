@@ -532,6 +532,9 @@ public class AptConfig {
     	if (dirString == null) {
     		throw new IllegalArgumentException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
     	}
+    	if( AptPlugin.DEBUG ){
+    		AptPlugin.trace("setting gen src dir to " + dirString + " for " + jproject.getElementName() );  //$NON-NLS-1$//$NON-NLS-2$
+    	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
     }
 	

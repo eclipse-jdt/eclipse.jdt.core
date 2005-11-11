@@ -167,7 +167,7 @@ public class GeneratedFileManager {
 		if(folder.exists()){
 			boolean uptodate = false;
 			try{
-				uptodate = isProjectClassPathUpToDate(_javaProject, folder.getFullPath(), null);
+				uptodate = isProjectClassPathUpToDate(_javaProject, null, folder.getFullPath(), null);
 			}catch(JavaModelException e){
 				e.printStackTrace();
 			}
@@ -807,14 +807,42 @@ public class GeneratedFileManager {
 	 *  @see #isGeneratedSourceFolderConfigured()
 	 */
 	public boolean ensureGeneratedSourceFolder( IProgressMonitor progressMonitor ){
+		boolean reset = false;
+		IFolder curSrcFolder = null;
 		synchronized( this )
 		{
-			if ( _generatedSourceFolder != null )
+			if( _generatedSourceFolderName == null )
 				return false;
+			if( _generatedSourceFolder != null ){
+				final IPath srcFolderPath = _generatedSourceFolder.getProjectRelativePath();
+				
+	
+				if( !_generatedSourceFolderName.equals( srcFolderPath.toString()) ){
+					reset = true;
+					curSrcFolder = _generatedSourceFolder;
+					_generatedSourceFolder = null;
+				}
+				else
+					return false;
+			}
+	
 		}
-		// don't take any locks while creating the folder, since we are doing file-system operations
-		IFolder srcFolder = getGeneratedSourceFolder();
-		try{ 
+		IFolder srcFolder = null;
+		try{
+			if( reset ){
+				// the generated source folder and the generated source folder name is not
+				// lining up.
+				removeFromProjectClasspath(_javaProject, curSrcFolder, progressMonitor );
+				if ( curSrcFolder.exists() ){
+					if( AptPlugin.DEBUG )
+						AptPlugin.trace("deleting gen src dir " + curSrcFolder.getName() ); //$NON-NLS-1$
+					curSrcFolder.delete( true, false, null );
+				}
+			}
+				
+			// don't take any locks while creating the folder, since we are doing file-system operations
+			srcFolder = getGeneratedSourceFolder();
+		 
 			srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
 			if (!srcFolder.exists()) {
 				FileSystemUtil.makeDerivedParentFolders(srcFolder);
@@ -1187,10 +1215,15 @@ public class GeneratedFileManager {
 		return null;
 	}
 	
-	private boolean isProjectClassPathUpToDate(IJavaProject jp, IPath path, IProgressMonitor progressMonitor)
+	private static boolean isProjectClassPathUpToDate(		
+			IJavaProject jp,
+			IClasspathEntry[] cp,
+			IPath path, 
+			IProgressMonitor progressMonitor)
 		throws JavaModelException
-	{
-		IClasspathEntry[] cp = jp.getRawClasspath();
+	{	
+		if( cp == null )
+			cp = jp.getRawClasspath();
 		for (int i = 0; i < cp.length; i++) 
 		{
 			if (cp[i].getPath().equals( path )) 
@@ -1209,7 +1242,7 @@ public class GeneratedFileManager {
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
 		IPath path = folder.getFullPath();
-		boolean found = isProjectClassPathUpToDate(jp, path, progressMonitor);
+		boolean found = isProjectClassPathUpToDate(jp, cp, path, progressMonitor);
 		
 		if (!found) 
 		{
@@ -1273,54 +1306,61 @@ public class GeneratedFileManager {
 	 */
 	public static void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
-	{	
+	{			
 		IClasspathEntry[] cp = jp.getRawClasspath();
-
 		IPath workspaceRelativePath = folder.getFullPath();
-		IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
-
-		// remove entries that are for the specified folder, account for 
-		// multiple entries, and clean up any exclusion entries to the 
-		// folder being removed.
-		int j = 0;
-		for ( int i=0; i<cp.length; i++ )
-		{
-			if (! cp[i].getPath().equals( workspaceRelativePath ) )
+		boolean found = isProjectClassPathUpToDate(jp, cp, workspaceRelativePath, progressMonitor);
+		
+		if( found ){			
+			IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
+	
+			// remove entries that are for the specified folder, account for 
+			// multiple entries, and clean up any exclusion entries to the 
+			// folder being removed.
+			int j = 0;
+			for ( int i=0; i<cp.length; i++ )
 			{
-			
-				// see if we added the generated source dir as an exclusion pattern to some other entry
-				IPath[] oldExclusions = cp[i].getExclusionPatterns();
-				int m = 0;
-				for ( int k = 0; k < oldExclusions.length; k++ )
+				if (! cp[i].getPath().equals( workspaceRelativePath ) )
 				{
-					if ( !oldExclusions[k].equals( projectRelativePath ) )
+				
+					// see if we added the generated source dir as an exclusion pattern to some other entry
+					IPath[] oldExclusions = cp[i].getExclusionPatterns();
+					int m = 0;
+					for ( int k = 0; k < oldExclusions.length; k++ )
 					{
-						oldExclusions[m] = oldExclusions[k];
-						m++;
+						if ( !oldExclusions[k].equals( projectRelativePath ) )
+						{
+							oldExclusions[m] = oldExclusions[k];
+							m++;
+						}
 					}
+					
+					if ( oldExclusions.length == m )
+					{
+						// no exclusions changed, so we do't need to create a new entry
+						cp[j] = cp[i];
+					}
+					else
+					{
+						// we've removed some exclusion, so create a new entry
+						IPath[] newExclusions = new IPath[ m ];
+						System.arraycopy( oldExclusions, 0, newExclusions, 0, m );
+						cp[j] = JavaCore.newSourceEntry( cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes() );
+					}
+					
+					j++;
 				}
-				
-				if ( oldExclusions.length == m )
-				{
-					// no exclusions changed, so we do't need to create a new entry
-					cp[j] = cp[i];
-				}
-				else
-				{
-					// we've removed some exclusion, so create a new entry
-					IPath[] newExclusions = new IPath[ m ];
-					System.arraycopy( oldExclusions, 0, newExclusions, 0, m );
-					cp[j] = JavaCore.newSourceEntry( cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes() );
-				}
-				
-				j++;
+			}
+			
+			// now copy updated classpath entries into new array
+			IClasspathEntry[] newCp = new IClasspathEntry[ j ];
+			System.arraycopy( cp, 0, newCp, 0, j);
+			jp.setRawClasspath( newCp, progressMonitor );
+			
+			if( AptPlugin.DEBUG ){
+				AptPlugin.trace("removed " + workspaceRelativePath + " from classpath"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		
-		// now copy updated classpath entries into new array
-		IClasspathEntry[] newCp = new IClasspathEntry[ j ];
-		System.arraycopy( cp, 0, newCp, 0, j);
-		jp.setRawClasspath( newCp, progressMonitor );
 	}
 	
 	/**
@@ -1446,10 +1486,13 @@ public class GeneratedFileManager {
 			srcFolder = getGeneratedSourceFolder();
 			_generatedSourceFolder = null;
 		}
+		if(AptPlugin.DEBUG)
+			AptPlugin.trace("nulled out gen src dir " + srcFolder.getName() ); //$NON-NLS-1$
 		
 		try{
-			if( !projectDeleted )
+			if( !projectDeleted ){
 				removeFromProjectClasspath( _javaProject, srcFolder, null );
+			}
 		}catch(JavaModelException e){
 			AptPlugin.log( e, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 		}
@@ -1545,29 +1588,16 @@ public class GeneratedFileManager {
 		IFolder srcFolder;
 		synchronized ( this )
 		{
+			// We are not going to delete any directories or change the classpath
+			// since this could happen during a build. 
+			// see ensureGeneratedSourceFolder() 
 			_generatedSourceFolderName = s;
 			// save _generatedSrcFolder off to avoid race conditions
 			srcFolder = _generatedSourceFolder;
 		}
 		
 		// delete generatedSourceFolder
-		if ( srcFolder != null )
-		{
-			try
-			{
-				if ( srcFolder.exists() ){
-					// this will cause a resource change event, and we will actually clean up the reference
-					// then. Until then, _generatedSourceFolderName and _generatedSourceFolder.getName() 
-					// will be different. -theodora
-					srcFolder.delete( true, false, null );
-				}
-			}
-			catch( CoreException ce )
-			{
-				AptPlugin.log( ce, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
-			}
-		}
-		else
+		if( srcFolder == null )
 			ensureGeneratedSourceFolder(null);
 	}
 }
