@@ -2680,6 +2680,11 @@ protected void consumeEnterVariable() {
 			(AbstractVariableDeclaration) this.astStack[this.astPtr]; 
 		declaration.declarationSourceStart = previousVariable.declarationSourceStart;
 		declaration.modifiers = previousVariable.modifiers;
+		final Annotation[] annotations = previousVariable.annotations;
+		if (annotations != null) {
+			final int annotationsLength = annotations.length;
+			System.arraycopy(annotations, 0, declaration.annotations = new Annotation[annotationsLength], 0, annotationsLength);
+		}
 	}
 
 	if (extendedDimension == 0) {

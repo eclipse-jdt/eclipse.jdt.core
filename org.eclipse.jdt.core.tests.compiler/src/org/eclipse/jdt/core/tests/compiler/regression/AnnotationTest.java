@@ -5738,4 +5738,48 @@ public class AnnotationTest extends AbstractComparableTest {
     		},
     		"");
     }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    public void test180() {
+    	this.runConformTest(
+    		new String[] {
+    			"X.java",
+    			"import java.lang.reflect.Field;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"  @Deprecated public static Object x, y, z;\n" + 
+    			"\n" + 
+    			"  public static void main(String[] args) {\n" + 
+    			"    Class c = X.class;\n" + 
+    			"    int counter = 0;\n" + 
+    			"    for (Field f : c.getFields()) {\n" + 
+    			"      counter += f.getDeclaredAnnotations().length;\n" + 
+    			"    }\n" + 
+    			"    System.out.print(counter);\n" + 
+    			"  }\n" + 
+    			"}"
+    		},
+    		"3");
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    public void test181() {
+    	this.runConformTest(
+    		new String[] {
+    			"X.java",
+    			"import java.lang.reflect.Field;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"  public static Object x, y, z;\n" + 
+    			"\n" + 
+    			"  public static void main(String[] args) {\n" + 
+    			"    Class c = X.class;\n" + 
+    			"    int counter = 0;\n" + 
+    			"    for (Field f : c.getFields()) {\n" + 
+    			"      counter += f.getDeclaredAnnotations().length;\n" + 
+    			"    }\n" + 
+    			"    System.out.print(counter);\n" + 
+    			"  }\n" + 
+    			"}"
+    		},
+    		"0");
+    }
 }
