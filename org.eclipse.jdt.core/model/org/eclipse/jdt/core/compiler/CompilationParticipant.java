@@ -28,7 +28,35 @@ import org.eclipse.jdt.core.IJavaProject;
  * @since 3.2
  */
 public abstract class CompilationParticipant {
-	
+
+public static int READY_FOR_BUILD = 1;
+public static int NEEDS_FULL_BUILD = 2;
+
+/**
+ * Informs this participant that a build is about to start and provides
+ * the opportunity for the participant to create missing source folders
+ * for generated source files.
+ * Only sent to participants interested in the project.
+ * <p>
+ * Default is to return <code>READY_FOR_BUILD</code>.
+ * </p>
+ * @param project the project about to build
+ * @return READY_FOR_BUILD or NEEDS_FULL_BUILD
+ */
+public int buildStarting(IJavaProject project) {
+	return READY_FOR_BUILD;
+}
+
+/**
+ * Informs this participant that a clean is about to start and provides
+ * the opportunity for the participant to delete generated source files.
+ * Only sent to participants interested in the project.
+ * @param project the project about to be cleaned
+ */
+public void cleanStarting(IJavaProject project) {
+	// do nothing by default
+}
+
 /**
  * Returns whether this participant is active for a given project.
  * <p>
