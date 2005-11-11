@@ -984,7 +984,7 @@ protected void toStringName(StringBuffer buffer) {
 	else
 		buffer.append("<anonymous>"); //$NON-NLS-1$
 }
-public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
@@ -1000,7 +1000,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) thro
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer), encoding);
+	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);

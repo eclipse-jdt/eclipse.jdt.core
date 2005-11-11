@@ -438,7 +438,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 /*
  * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
  */
-public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
@@ -452,7 +452,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) thro
 	pathBuffer.append(packPath).append('/').append(JavadocConstants.PACKAGE_FILE_NAME);
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer), encoding);
+	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 	return contents;

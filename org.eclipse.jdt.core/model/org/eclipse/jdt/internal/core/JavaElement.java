@@ -683,10 +683,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/*
 	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
 	 */
-	public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+	public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 		return null;
 	}
-	protected String getURLContents(String docUrlValue, String encoding) throws JavaModelException {
+	protected String getURLContents(String docUrlValue, String defaultEncoding) throws JavaModelException {
 		InputStream stream = null;
 		try {
 			URL docUrl = new URL(docUrlValue);
@@ -698,7 +698,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			if (contentEncoding != null) {
 				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, contentEncoding);
 			} else {
-				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
+				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, defaultEncoding);
 			}
 			if (contents != null) {
 				return String.valueOf(contents);
