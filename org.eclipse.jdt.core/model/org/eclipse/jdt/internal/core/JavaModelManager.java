@@ -193,6 +193,8 @@ public class JavaModelManager implements ISaveParticipant {
 				
 		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
 			CompilationParticipant[] participants = getRegisteredParticipants();
+			if (participants == NO_PARTICPANTS)
+				return null;
 			int length = participants.length;
 			CompilationParticipant[] result = new CompilationParticipant[length];
 			int index = 0;
