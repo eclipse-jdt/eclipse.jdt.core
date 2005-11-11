@@ -102,6 +102,10 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
+		if (this.javaBuilder.participants != null)
+			for (int i = this.javaBuilder.participants.length; --i >= 0;)
+				this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
+
 		ArrayList visited = new ArrayList(sourceLocations.length);
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			notifier.subTask(Messages.build_cleaningOutput); 

@@ -33,7 +33,7 @@ public static int READY_FOR_BUILD = 1;
 public static int NEEDS_FULL_BUILD = 2;
 
 /**
- * Informs this participant that a build is about to start and provides
+ * Notifies this participant that a build is about to start and provides
  * the opportunity for the participant to create missing source folders
  * for generated source files.
  * Only sent to participants interested in the project.
@@ -48,7 +48,7 @@ public int buildStarting(IJavaProject project) {
 }
 
 /**
- * Informs this participant that a clean is about to start and provides
+ * Notifies this participant that a clean is about to start and provides
  * the opportunity for the participant to delete generated source files.
  * Only sent to participants interested in the project.
  * @param project the project about to be cleaned

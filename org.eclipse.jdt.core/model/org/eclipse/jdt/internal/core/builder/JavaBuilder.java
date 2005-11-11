@@ -14,7 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -28,6 +28,7 @@ public class JavaBuilder extends IncrementalProjectBuilder {
 IProject currentProject;
 JavaProject javaProject;
 IWorkspaceRoot workspaceRoot;
+CompilationParticipant[] participants;
 NameEnvironment nameEnvironment;
 SimpleLookupTable binaryLocationsPerProject; // maps a project to its binary resources (output folders, class folders, zip/jar files)
 State lastState;
@@ -129,7 +130,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	boolean ok = false;
 	try {
 		notifier.checkCancel();
-		initializeBuilder();
+		kind = initializeBuilder(kind);
 
 		if (isWorthBuilding()) {
 			if (kind == FULL_BUILD) {
@@ -239,7 +240,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	try {
 		notifier.checkCancel();
 
-		initializeBuilder();
+		initializeBuilder(CLEAN_BUILD);
 		if (DEBUG)
 			System.out.println("Clearing last state as part of clean : " + lastState); //$NON-NLS-1$
 		clearLastState();
@@ -260,6 +261,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 }
 
 private void cleanup() {
+	this.participants = null;
 	this.nameEnvironment = null;
 	this.binaryLocationsPerProject = null;
 	this.lastState = null;
@@ -480,9 +482,16 @@ private boolean hasStructuralDelta() {
 	return false;
 }
 
-private void initializeBuilder() throws CoreException {
+private int initializeBuilder(int kind) throws CoreException {
 	this.javaProject = (JavaProject) JavaCore.create(currentProject);
 	this.workspaceRoot = currentProject.getWorkspace().getRoot();
+
+	// cache the known participants for this project
+	this.participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(this.javaProject);
+	if (this.participants != null)
+		for (int i = this.participants.length; --i >= 0;)
+			if (this.participants[i].buildStarting(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
+				kind = FULL_BUILD;
 
 	// Flush the existing external files cache if this is the beginning of a build cycle
 	String projectName = currentProject.getName();
@@ -520,6 +529,7 @@ private void initializeBuilder() throws CoreException {
 				extraResourceFileFilters[--fileCount] = f;
 		}
 	}
+	return kind;
 }
 
 private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throws CoreException {
