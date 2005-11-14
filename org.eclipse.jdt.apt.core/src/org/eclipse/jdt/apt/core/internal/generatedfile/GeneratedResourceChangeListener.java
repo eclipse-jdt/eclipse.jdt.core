@@ -107,8 +107,13 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 					IFolder f = (IFolder) r;
 					if ( gfm.isGeneratedSourceFolder( f ) ){
 						// all deletion occurs before any add (adding the generated source directory)
-						gfm.generatedSourceFolderDeleted(_removedProjects.contains(project));
-						_addGenFolderTo.add(project);
+						if( !_removedProjects.contains(project) ){							
+							gfm.generatedSourceFolderDeleted();
+							_addGenFolderTo.add(project);
+						}
+						// if the project is already closed or in the process of being
+						// deleted, will ignore this deletion since we cannot correct 
+						// the classpath anyways.
 					}
 				}
 				else if( r instanceof IProject ){	
@@ -117,9 +122,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			}
 			else if( r instanceof IProject ){
 				final IProject proj = (IProject)delta.getResource();		
-				if( proj.isOpen() && proj.exists() && proj.hasNature(JavaCore.NATURE_ID) ){
+				if( canUpdate(proj) ){
 					_addGenFolderTo.add(proj);
-				}
+				}				
 				else
 					_removedProjects.add(proj);
 			}
@@ -130,6 +135,12 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		Set<IProject> getProjectsThatNeedGenSrcFolder(){
 			_addGenFolderTo.removeAll(_removedProjects);
 			return _addGenFolderTo;
+		}
+		
+		private boolean canUpdate(IProject proj)
+			throws CoreException
+		{
+			return proj.isOpen() && proj.exists() && proj.hasNature(JavaCore.NATURE_ID);
 		}
 	}
 }

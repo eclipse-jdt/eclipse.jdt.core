@@ -36,7 +36,6 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -239,8 +238,7 @@ public class GeneratedFileManager {
 	{
 		try{
 			if( !isGeneratedSourceFolderConfigured() ){
-				AptPlugin.log(null, "Generated source folder not configured type generated for " + typeName + " failed"); //$NON-NLS-1$ //$NON-NLS-2$
-				return null;
+				throw new IllegalStateException("Generated source folder not configured type generated for " + typeName + " failed"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			final IFolder genFolder = getGeneratedSourceFolder();
 			IPackageFragmentRoot genFragRoot = null;
@@ -270,10 +268,7 @@ public class GeneratedFileManager {
 			createFoldersForPackage(pkgName, genFolder);
 			IPackageFragment pkgFrag = genFragRoot.createPackageFragment(pkgName, true, progressMonitor);
 			if( pkgFrag == null ){
-				IStatus status = AptPlugin.createStatus(
-						new IllegalStateException("failed to locate package '" + pkgName + "'"),  //$NON-NLS-1$ //$NON-NLS-2$
-						"Failure generating file");  //$NON-NLS-1$
-				throw new CoreException(status);
+				throw new IllegalStateException("failed to locate package '" + pkgName + "'");  //$NON-NLS-1$ //$NON-NLS-2$
 			}			
 			final String cuName = typeSimpleName + ".java"; //$NON-NLS-1$
 			
@@ -310,8 +305,8 @@ public class GeneratedFileManager {
 					// so that UI will pick up the change.
 					IBuffer buffer = unit.getBuffer();
 					if (buffer == null){
-						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to update unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
-						throw new CoreException(status);
+						throw new IllegalStateException("Unable to update unit for " + cuName); //$NON-NLS-1$
+						
 					}
 					buffer.setContents(contents.toCharArray());
 					buffer.save(progressMonitor, true);
@@ -321,8 +316,7 @@ public class GeneratedFileManager {
 					newUnit = pkgFrag.createCompilationUnit(cuName, contents, true,
 							progressMonitor);
 					if( newUnit == null ) {				
-						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
-						throw new CoreException(status);
+						throw new IllegalStateException("Unable to create unit for " + cuName); //$NON-NLS-1$
 					}
 					if( AptPlugin.DEBUG )
 						AptPlugin.trace("generated " + typeName ); //$NON-NLS-1$
@@ -340,12 +334,11 @@ public class GeneratedFileManager {
 			}
 			return new FileGenerationResult(file, contentsDiffer);
 		}
-		catch(Exception e){
+		catch(Throwable e){
 			AptPlugin.log(e, "(2)failed to generate type " + typeName); //$NON-NLS-1$
 			e.printStackTrace();
 		}
-		IStatus status = AptPlugin.createStatus(new IllegalStateException("(3)Failed to generate type " + typeName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
-		throw new CoreException(status);
+		return null; // something failed. The catch block have already logged the error.
 	}	
 	
 		
@@ -1477,7 +1470,7 @@ public class GeneratedFileManager {
 	 *  Note: this should only be called within a resource change event to ensure that the classpath
 	 *  is correct during any build. Resource change event never occurs during a build.
 	 */
-	public void generatedSourceFolderDeleted(final boolean projectDeleted)
+	public void generatedSourceFolderDeleted()
 	{
 		projectClean( false );
 		
@@ -1489,10 +1482,8 @@ public class GeneratedFileManager {
 		if(AptPlugin.DEBUG)
 			AptPlugin.trace("nulled out gen src dir " + srcFolder.getName() ); //$NON-NLS-1$
 		
-		try{
-			if( !projectDeleted ){
-				removeFromProjectClasspath( _javaProject, srcFolder, null );
-			}
+		try{			
+			removeFromProjectClasspath( _javaProject, srcFolder, null );		
 		}catch(JavaModelException e){
 			AptPlugin.log( e, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 		}

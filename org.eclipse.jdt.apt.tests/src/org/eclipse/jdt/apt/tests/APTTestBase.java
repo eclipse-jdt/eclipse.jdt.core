@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.tests.builder.Tests;
@@ -66,6 +67,13 @@ public abstract class APTTestBase extends Tests{
 		
 		AptConfig.setEnabled(null, true);
 		TestUtil.createAndAddAnnotationJar( env.getJavaProject( projectPath ) );
+	}
+	
+	protected void tearDown()
+		throws Exception
+	{
+		AptPlugin.trace("Tearing down " + getProjectName() );
+		super.tearDown();
 	}
 	
 	public String getProjectName()
