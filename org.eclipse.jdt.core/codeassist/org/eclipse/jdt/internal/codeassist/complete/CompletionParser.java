@@ -3279,6 +3279,10 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 	this.cursorLocation = cursorLoc;
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 	completionScanner.completionIdentifier = null;
+	completionScanner.completedTokenFound = false;
+	completionScanner.completedIdentifierStart = 0;
+	completionScanner.completedIdentifierEnd = -1;
+	completionScanner.whitespacesBeforeCompletedTokenFound = false;
 	completionScanner.cursorLocation = cursorLoc;
 	return this.dietParse(sourceUnit, compilationResult);
 }
@@ -3467,11 +3471,28 @@ protected boolean isInsideReturn(){
 	}
 	return false;
 }
+protected boolean moveRecoveryCheckpoint() {
+	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
+	boolean completedTokenFound = completionScanner.completedTokenFound;
+	int start = completionScanner.completedIdentifierStart;
+	int end = completionScanner.completedIdentifierEnd;
+	boolean whitespacesAlreadyProposed = completionScanner.whitespacesBeforeCompletedTokenFound;
+	boolean result = super.moveRecoveryCheckpoint();
+	completionScanner.completedTokenFound = completedTokenFound;
+	completionScanner.completedIdentifierStart = start;
+	completionScanner.completedIdentifierEnd = end;
+	completionScanner.whitespacesBeforeCompletedTokenFound = whitespacesAlreadyProposed;
+	return result;
+}
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 	completionScanner.completionIdentifier = null;
+	completionScanner.completedTokenFound = false;
+	completionScanner.completedIdentifierStart = 0;
+	completionScanner.completedIdentifierEnd = -1;
+	completionScanner.whitespacesBeforeCompletedTokenFound = false;
 	completionScanner.cursorLocation = cursorLoc;
 	return this.parse(sourceUnit, compilationResult);
 }
@@ -3657,7 +3678,12 @@ protected boolean resumeAfterRecovery() {
 	return super.resumeAfterRecovery();
 }
 public void setAssistIdentifier(char[] assistIdent){
-	((CompletionScanner)scanner).completionIdentifier = assistIdent;
+	CompletionScanner completionScanner = (CompletionScanner)scanner;
+	completionScanner.completionIdentifier = assistIdent;
+	if(assistIdent == null) {
+		completionScanner.completedTokenFound = false;
+		completionScanner.whitespacesBeforeCompletedTokenFound = false;
+	}
 }
 public  String toString() {
 	String s = ""; //$NON-NLS-1$

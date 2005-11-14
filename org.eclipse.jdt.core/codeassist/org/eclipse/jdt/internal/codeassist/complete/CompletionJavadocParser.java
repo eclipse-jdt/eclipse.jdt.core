@@ -66,13 +66,17 @@ public class CompletionJavadocParser extends JavadocParser {
 		this.cursorLocation = ((CompletionParser)sourceParser).cursorLocation;
 		CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 		completionScanner.cursorLocation = this.cursorLocation;
-		completionScanner.completionIdentifier = null;
 		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
 		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr];
 		if (this.javadocStart <= this.cursorLocation && this.cursorLocation <= this.javadocEnd) {
 			if (CompletionEngine.DEBUG) {
 				System.out.println("COMPLETION in Javadoc:"); //$NON-NLS-1$
 			}
+			completionScanner.completionIdentifier = null;
+			completionScanner.completedTokenFound = false;
+			completionScanner.completedIdentifierStart = 0;
+			completionScanner.completedIdentifierEnd = -1;
+			completionScanner.whitespacesBeforeCompletedTokenFound = false;
 			this.firstTagPosition = 1;
 			super.checkDeprecation(commentPtr);
 		} else {
@@ -449,14 +453,7 @@ public class CompletionJavadocParser extends JavadocParser {
 			char[] name = null;
 			CompletionScanner completionScanner = (CompletionScanner) this.scanner;
 			boolean isTypeParam = false;
-			if (this.identifierPtr < 0) {
-				// workaround, empty token should set an empty identifier by scanner and so identifierPtr should be == 0
-				if (completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
-					namePosition = completionScanner.completedIdentifierStart;
-					startPosition = completionScanner.completedIdentifierStart;
-					endPosition = completionScanner.completedIdentifierEnd;
-				}
-			} else {
+			if (this.identifierPtr >= 0) {
 				char[] identifier = null;
 				switch (this.identifierPtr) {
 					case 2:

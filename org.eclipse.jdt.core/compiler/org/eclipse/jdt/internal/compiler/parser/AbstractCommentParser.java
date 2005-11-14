@@ -697,8 +697,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		boolean isCompletionParser = (this.kind & COMPLETION_PARSER) != 0;
 		if (token != TerminalTokens.TokenNameWHITESPACE) {
 			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(start, this.scanner.getCurrentTokenEndPosition());
-			if (!isCompletionParser) this.scanner.currentPosition = start;
-			this.index = start;
+			if (!isCompletionParser) {
+				this.scanner.currentPosition = start;
+				this.index = start;
+			}
 			this.currentTokenType = -1;
 			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 			return false;
@@ -761,8 +763,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 						else
 							this.sourceParser.problemReporter().javadocInvalidParamTagName(start, end);
-					this.scanner.currentPosition = start;
-					this.index = start;
+					if (!isCompletionParser) {
+						this.scanner.currentPosition = start;
+						this.index = start;
+					}
 					this.currentTokenType = -1;
 					this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 					return false;
@@ -785,8 +789,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// if not valid fall through next case to report error
 					case TerminalTokens.TokenNameEOF:
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
-						this.scanner.currentPosition = start;
-						this.index = start;
+						if (!isCompletionParser) {
+							this.scanner.currentPosition = start;
+							this.index = start;
+						}
 						this.currentTokenType = -1;
 						this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 						return false;
@@ -826,8 +832,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// if not valid fall through next case to report error
 					case TerminalTokens.TokenNameEOF:
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
-						this.scanner.currentPosition = start;
-						this.index = start;
+						if (!isCompletionParser) {
+							this.scanner.currentPosition = start;
+							this.index = start;
+						}
 						this.currentTokenType = -1;
 						this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 						return false;
