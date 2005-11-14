@@ -4601,7 +4601,7 @@ public final class CompletionEngine
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
-			currentType = notInJavadoc ? currentType.superclass() : null;
+			currentType = currentType.superclass();
 		}
 	}
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){

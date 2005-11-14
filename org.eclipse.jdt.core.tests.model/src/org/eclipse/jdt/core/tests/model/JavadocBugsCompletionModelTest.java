@@ -26,7 +26,7 @@ public JavadocBugsCompletionModelTest(String name) {
 }
 
 static {
-//	TESTS_NAMES = new String[] { "testBug68757" };
+//	TESTS_NAMES = new String[] { "testBug22043a" };
 //	TESTS_NUMBERS = new int[] { 114341 };
 }
 public static Test suite() {
@@ -116,7 +116,7 @@ public void testBug22043a() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * Complete after thisIsAMethod:\n" + 
+		" * Complete after 'thisIsAMethod':\n" + 
 		" * 	@see #thisIsAMethod(S\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
@@ -124,7 +124,7 @@ public void testBug22043a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod", 2); // 2nd occurence
 	assertResults(
-		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DICENUNR+"}"
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+R_DICENNRNS+"}"
 	);
 }
 
@@ -132,7 +132,7 @@ public void testBug22043b() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * Complete after thisIsAMethod(:\n" + 
+		" * Complete after 'thisIsAMethod(':\n" + 
 		" * 	@see #thisIsAMethod(S\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
@@ -301,6 +301,17 @@ public void testBug86112() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "#", 0); // empty token
 	assertSortedResults(
+		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DICNRNS+"}\n" + 
+		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DICNRNS+"}\n" + 
+		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DICNRNS+"}\n" + 
+		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNS+"}\n" + 
 		"Terminator[METHOD_REF<CONSTRUCTOR>]{Terminator(), Ljavadoc.bugs.Terminator;, ()V, Terminator, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -421,7 +432,7 @@ public void testBug114341a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Secondary.Mem");
 	assertSortedResults(
-		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+"49}\n" + 
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
@@ -475,7 +486,7 @@ public void testBug114341d() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.Secondary.Mem");
 	assertSortedResults(
-		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+"49}\n" + 
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
@@ -513,6 +524,57 @@ public void testBug114341f() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Mem");
 	assertSortedResults(
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+
+/**
+ * Bug 115662: [javadoc][assist] range of the qualified type completion in javadoc text isn't corect
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=115662"
+ */
+public void testBug115662a() throws JavaModelException {
+	String source =
+		"package bugs.b115662;\n" + 
+		"/**\n" + 
+		" * {@link #to\n" + 
+		" */\n" + 
+		"public class Tests {\n" + 
+		"	int toto;\n" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "to");
+	assertSortedResults(
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"toto[FIELD_REF]{toto, Lbugs.b115662.Tests;, I, toto, null, "+this.positions+R_DICNRNS+"}"
+	);
+}
+
+public void testBug115662b() throws JavaModelException {
+	String source =
+		"package bugs.b115662;\n" + 
+		"/**\n" + 
+		" * {@link #toString()\n" + 
+		" */\n" + 
+		"public class Tests {\n" + 
+		"	int toto;\n" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "to");
+	assertSortedResults(
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNS+"}\n" + 
+		"toto[FIELD_REF]{toto, Lbugs.b115662.Tests;, I, toto, null, "+this.positions+R_DICNRNS+"}"
+	);
+}
+
+public void testBug115662c() throws JavaModelException {
+	String source =
+		"package bugs.b115662;\n" + 
+		"/**\n" + 
+		" * {@link #toString()\n" + 
+		" */\n" + 
+		"public class Tests {\n" + 
+		"	int toto;\n" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "toString");
+	assertSortedResults(
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICENNRNS+"}"
 	);
 }
 }
