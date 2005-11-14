@@ -1601,6 +1601,8 @@ public abstract class Scope
 					return binding;
 			}
 			if (problemField != null) return problemField;
+			if (binding != null && binding.problemId() != NotFound)
+				return binding; // answer the better problem binding
 			return new ProblemBinding(name, enclosingSourceType(), NotFound);
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
