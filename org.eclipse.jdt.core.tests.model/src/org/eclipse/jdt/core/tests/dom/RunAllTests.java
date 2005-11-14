@@ -34,6 +34,7 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.dom.CompatibilityRulesTests.class,
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
+		org.eclipse.jdt.core.tests.dom.ASTPositionsTest.class,
 	};
 }
 public static Test suite() {
