@@ -22,6 +22,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -556,6 +557,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (needToUpdateDependents){
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
+	}
+	protected ISchedulingRule getSchedulingRule() {
+		return null; // no lock taken while setting the classpath
 	}
 	/*
 	 * Returns the source attachment flag for the delta between the 2 give source paths.
