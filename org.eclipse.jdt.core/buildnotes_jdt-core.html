@@ -52,6 +52,27 @@ Eclipse SDK 3.2M4 - ?th November 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>
+Due to bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110964">110964</a> fix,
+some javadoc compiler options default value have been changed.
+<pre>
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS:
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS__DEPRECATED_REF
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS__NOT_VISIBLE_REF
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY
+	- old default value = "private"
+	- new default value = "public"
+JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY
+	- old default value = "private"
+	- new default value = "public"
+</pre>
+</li>
 <li>Added new API for org.eclipse.jdt.core.dom.CompilationUnit:
 <pre>
 	/**
