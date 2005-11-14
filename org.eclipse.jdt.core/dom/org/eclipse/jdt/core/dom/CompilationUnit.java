@@ -609,6 +609,44 @@ public class CompilationUnit extends ASTNode {
 	public List imports() {
 		return this.imports;
 	}
+
+	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the first leading comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of first leading comment or -1 if node has no associated
+	 * 	comment before its start position.
+	 * @since 3.2
+	 */
+	public int firstLeadingCommentIndex(ASTNode node) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.commentMapper == null || node.getAST() != getAST()) {
+			return -1;
+		}
+		return this.commentMapper.firstLeadingCommentIndex(node);
+	}
+
+	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the last trailing comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of last trailing comment or -1 if node has no
+	 * 	associated comment after its end position.
+	 * @since 3.2
+	 */
+	public int lastTrailingCommentIndex(ASTNode node) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.commentMapper == null || node.getAST() != getAST()) {
+			return -1;
+		}
+		return this.commentMapper.lastTrailingCommentIndex(node);
+	}
 	
 	/**
 	 * Initializes the internal comment mapper with the given

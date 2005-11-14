@@ -113,8 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug84049"));
-		suite.addTest(new ASTConverterJavadocTest("testBug108622"));
+		suite.addTest(new ASTConverterJavadocTest("testBug113108"));
 		return suite;
 	}
 
@@ -3069,6 +3068,122 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
 			javadocStart = methodJavadoc.getStartPosition();
 			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+		}
+	}
+
+	/**
+	 * Bug 113108: [API][comments] CompilationUnit.getNodeComments(ASTNode)
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113108"
+	 */
+	public void testBug113108a() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
+			"package javadoc.b113108;\n" + 
+			"/** C0 */\n" +
+			"public class Test {\n" + 
+			"	/* C1 */\n" + 
+			"	/** C2 */\n" + 
+			"	// C3\n" + 
+			"	public void foo() {\n" + 
+			"		/* C4 */\n" + 
+			"	}\n" + 
+			"	/* C5 */\n" + 
+			"	/** C6 */\n" + 
+			"	// C7\n" + 
+			"}"
+			);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify  method javadoc
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
+			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			int javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+			// Verify method first leading and last trailing comment
+			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
+			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
+			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
+			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
+		}
+	}
+	public void testBug113108b() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
+			"package javadoc.b113108;\n" + 
+			"/** C0 */\n" +
+			"public class Test {\n" + 
+			"	/** C1 */\n" + 
+			"	// C2\n" + 
+			"	/* C3 */\n" + 
+			"	public void foo() {\n" + 
+			"		// C4\n" + 
+			"	}\n" + 
+			"	/** C5 */\n" + 
+			"	/// C6\n" + 
+			"	/* C7 */\n" + 
+			"}"
+			);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify  method javadoc
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
+			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			int javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+			// Verify method first leading and last trailing comment
+			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
+			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
+			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
+			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
+		}
+	}
+	public void testBug113108c() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
+			"package javadoc.b113108;\n" + 
+			"/** C0 */\n" +
+			"public class Test {\n" + 
+			"	// C1\n" + 
+			"	/* C2 */\n" + 
+			"	/** C3 */\n" + 
+			"	public void foo() {\n" + 
+			"		/** C4 */\n" + 
+			"	}\n" + 
+			"	// C5\n" + 
+			"	/* C6 */\n" + 
+			"	/** C7 */\n" + 
+			"}"
+			);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify  method javadoc
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Invalid method name", "foo", methodDeclaration.getName().toString());
+			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			int javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+			// Verify method first leading and last trailing comment
+			int index = compilUnit.firstLeadingCommentIndex(methodDeclaration);
+			assertEquals("Invalid first leading comment for "+methodDeclaration, 1, index);
+			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
+			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
 		}
 	}
 }

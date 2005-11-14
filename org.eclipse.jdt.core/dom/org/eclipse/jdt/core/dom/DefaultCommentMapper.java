@@ -29,10 +29,10 @@ class DefaultCommentMapper {
 	// extended nodes storage
 	int leadingPtr;
 	ASTNode[] leadingNodes;
-	int[][] leadingIndexes;
+	long[] leadingIndexes;
 	int trailingPtr, lastTrailingPtr;
 	ASTNode[] trailingNodes;
-	int[][] trailingIndexes;
+	long[] trailingIndexes;
 	static final int STORAGE_INCREMENT = 16;
 
 	/**
@@ -110,48 +110,6 @@ class DefaultCommentMapper {
 	}
 
 	/**
-	 * Return all leading comments of a given node.
-	 * @param node
-	 * @return an array of Comment or null if there's no leading comment
-	 */
-	Comment[] getLeadingComments(ASTNode node) {
-		if (this.leadingPtr >= 0) {
-			int[] range = null;
-			for (int i=0; range==null && i<=this.leadingPtr; i++) {
-				if (this.leadingNodes[i] == node) range = this.leadingIndexes[i];
-			}
-			if (range != null) {
-				int length = range[1]-range[0]+1;
-				Comment[] leadComments = new Comment[length];
-				System.arraycopy(this.comments, range[0], leadComments, 0, length);
-				return  leadComments;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Return all trailing comments of a given node.
-	 * @param node
-	 * @return an array of Comment or null if there's no trailing comment
-	 */
-	Comment[] getTrailingComments(ASTNode node) {
-		if (this.trailingPtr >= 0) {
-			int[] range = null;
-			for (int i=0; range==null && i<=this.trailingPtr; i++) {
-				if (this.trailingNodes[i] == node) range = this.trailingIndexes[i];
-			}
-			if (range != null) {
-				int length = range[1]-range[0]+1;
-				Comment[] trailComments = new Comment[length];
-				System.arraycopy(this.comments, range[0], trailComments, 0, length);
-				return  trailComments;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Returns the extended start position of the given node. Unlike
 	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()},
 	 * the extended source range may include comments and whitespace
@@ -165,12 +123,12 @@ class DefaultCommentMapper {
 	 */
 	public int getExtendedStartPosition(ASTNode node) {
 		if (this.leadingPtr >= 0) {
-			int[] range = null;
-			for (int i=0; range==null && i<=this.leadingPtr; i++) {
+			long range = -1;
+			for (int i=0; range<0 && i<=this.leadingPtr; i++) {
 				if (this.leadingNodes[i] == node) range = this.leadingIndexes[i];
 			}
-			if (range != null) {
-				return  this.comments[range[0]].getStartPosition() ;
+			if (range >= 0) {
+				return  this.comments[(int)(range>>32)].getStartPosition() ;
 			}
 		}
 		return node.getStartPosition();
@@ -182,12 +140,12 @@ class DefaultCommentMapper {
 	public int getExtendedEnd(ASTNode node) {
 		int end = node.getStartPosition() + node.getLength();
 		if (this.trailingPtr >= 0) {
-			int[] range = null;
-			for (int i=0; range==null && i<=this.trailingPtr; i++) {
+			long range = -1;
+			for (int i=0; range<0 && i<=this.trailingPtr; i++) {
 				if (this.trailingNodes[i] == node) range = this.trailingIndexes[i];
 			}
-			if (range != null) {
-				Comment lastComment = this.comments[range[1]];
+			if (range >= 0) {
+				Comment lastComment = this.comments[(int) range];
 				end = lastComment.getStartPosition() + lastComment.getLength();
 			}
 		}
@@ -209,6 +167,40 @@ class DefaultCommentMapper {
 	 */
 	public int getExtendedLength(ASTNode node) {
 		return getExtendedEnd(node) - getExtendedStartPosition(node) + 1;
+	}
+
+	/**
+	 * Return index of first leading comment of a given node.
+	 * 
+	 * @param node
+	 * @return index of first leading comment or -1 if node has no leading comment
+	 */
+	int firstLeadingCommentIndex(ASTNode node) {
+		if (this.leadingPtr >= 0) {
+			for (int i=0; i<=this.leadingPtr; i++) {
+				if (this.leadingNodes[i] == node) {
+					return (int) (this.leadingIndexes[i]>>32);
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Return index of last trailing comment of a given node.
+	 * 
+	 * @param node
+	 * @return index of last trailing comment or -1 if node has no trailing comment
+	 */
+	int lastTrailingCommentIndex(ASTNode node) {
+		if (this.trailingPtr >= 0) {
+			for (int i=0; i<=this.trailingPtr; i++) {
+				if (this.trailingNodes[i] == node) {
+					return (int) this.trailingIndexes[i];
+				}
+			}
+		}
+		return -1;
 	}
 
 	/*
@@ -245,13 +237,13 @@ class DefaultCommentMapper {
 		int leadingCount = this.leadingPtr + 1;
 		if (leadingCount > 0 && leadingCount < this.leadingIndexes.length) {
 			System.arraycopy(this.leadingNodes, 0, this.leadingNodes = new ASTNode[leadingCount], 0, leadingCount);
-			System.arraycopy(this.leadingIndexes, 0, this.leadingIndexes= new int[leadingCount][], 0, leadingCount);
+			System.arraycopy(this.leadingIndexes, 0, this.leadingIndexes= new long[leadingCount], 0, leadingCount);
 		}
 		
 		// Reduce trailing arrays if necessary
 		if (this.trailingPtr >= 0) {
 			// remove last remaining unresolved nodes
-			while (this.trailingIndexes[this.trailingPtr][0] == -1) {
+			while (this.trailingIndexes[this.trailingPtr] == -1) {
 				this.trailingPtr--;
 				if (this.trailingPtr < 0) {
 					this.trailingIndexes = null;
@@ -264,7 +256,7 @@ class DefaultCommentMapper {
 			int trailingCount = this.trailingPtr + 1;
 			if (trailingCount > 0 && trailingCount < this.trailingIndexes.length) {
 				System.arraycopy(this.trailingNodes, 0, this.trailingNodes = new ASTNode[trailingCount], 0, trailingCount);
-				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes= new int[trailingCount][], 0, trailingCount);
+				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes= new long[trailingCount], 0, trailingCount);
 			}
 		}
 	}
@@ -374,14 +366,14 @@ class DefaultCommentMapper {
 			if (startIdx <= endIdx) {
 				if (++this.leadingPtr == 0) {
 					this.leadingNodes = new ASTNode[STORAGE_INCREMENT];
-					this.leadingIndexes = new int[STORAGE_INCREMENT][];
+					this.leadingIndexes = new long[STORAGE_INCREMENT];
 				} else if (this.leadingPtr == this.leadingNodes.length) {
 					int newLength = (this.leadingPtr*3/2)+STORAGE_INCREMENT;
 					System.arraycopy(this.leadingNodes, 0, this.leadingNodes = new ASTNode[newLength], 0, this.leadingPtr);
-					System.arraycopy(this.leadingIndexes, 0, this.leadingIndexes = new int[newLength][], 0, this.leadingPtr);
+					System.arraycopy(this.leadingIndexes, 0, this.leadingIndexes = new long[newLength], 0, this.leadingPtr);
 				}
 				this.leadingNodes[this.leadingPtr] = node;
-				this.leadingIndexes[this.leadingPtr] = new int[] { startIdx, endIdx };
+				this.leadingIndexes[this.leadingPtr] = (((long)startIdx)<<32) + endIdx;
 				extended = this.comments[endIdx].getStartPosition();
 			}
 		}
@@ -416,15 +408,15 @@ class DefaultCommentMapper {
 			// special case for last child of its parent
 			if (++this.trailingPtr == 0) {
 				this.trailingNodes = new ASTNode[STORAGE_INCREMENT];
-				this.trailingIndexes = new int[STORAGE_INCREMENT][];
+				this.trailingIndexes = new long[STORAGE_INCREMENT];
 				this.lastTrailingPtr = -1;
 			} else if (this.trailingPtr == this.trailingNodes.length) {
 				int newLength = (this.trailingPtr*3/2)+STORAGE_INCREMENT;
 				System.arraycopy(this.trailingNodes, 0, this.trailingNodes = new ASTNode[newLength], 0, this.trailingPtr);
-				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes = new int[newLength][], 0, this.trailingPtr);
+				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes = new long[newLength], 0, this.trailingPtr);
 			}
 			this.trailingNodes[this.trailingPtr] = node;
-			this.trailingIndexes[this.trailingPtr] = new int[] { -1, -1 };
+			this.trailingIndexes[this.trailingPtr] = -1;
 			return nodeEnd;
 		}
 		int extended = nodeEnd;
@@ -504,15 +496,15 @@ class DefaultCommentMapper {
 			// Store trailing comments indexes
 			if (++this.trailingPtr == 0) {
 				this.trailingNodes = new ASTNode[STORAGE_INCREMENT];
-				this.trailingIndexes = new int[STORAGE_INCREMENT][];
+				this.trailingIndexes = new long[STORAGE_INCREMENT];
 				this.lastTrailingPtr = -1;
 			} else if (this.trailingPtr == this.trailingNodes.length) {
 				int newLength = (this.trailingPtr*3/2)+STORAGE_INCREMENT;
 				System.arraycopy(this.trailingNodes, 0, this.trailingNodes = new ASTNode[newLength], 0, this.trailingPtr);
-				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes = new int[newLength][], 0, this.trailingPtr);
+				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes = new long[newLength], 0, this.trailingPtr);
 			}
 			this.trailingNodes[this.trailingPtr] = node;
-			int[] nodeRange = new int[] { startIdx, endIdx };
+			long nodeRange = (((long)startIdx)<<32) + endIdx;
 			this.trailingIndexes[this.trailingPtr] = nodeRange;
 			// Compute new extended end
 			extended = this.comments[endIdx].getStartPosition()+this.comments[endIdx].getLength()-1;
@@ -520,8 +512,8 @@ class DefaultCommentMapper {
 			ASTNode previousNode = node;
 			int ptr = this.trailingPtr - 1; // children extended end were stored before
 			while (ptr >= 0) {
-				int[] range = this.trailingIndexes[ptr];
-				if (range[0] != -1 || range[1] != -1) break; // there's no more unresolved nodes
+				long range = this.trailingIndexes[ptr];
+				if (range != -1) break; // there's no more unresolved nodes
 				ASTNode unresolved = this.trailingNodes[ptr];
 				if (previousNode != unresolved.getParent()) break; // we're no longer in node ancestor hierarchy
 				this.trailingIndexes[ptr] = nodeRange;
