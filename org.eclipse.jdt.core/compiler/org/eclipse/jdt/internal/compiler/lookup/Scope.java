@@ -1631,6 +1631,8 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 					return binding;
 			}
 			if (problemField != null) return problemField;
+			if (binding != null && binding.problemId() != ProblemReasons.NotFound)
+				return binding; // answer the better problem binding
 			return new ProblemBinding(name, enclosingSourceType(), ProblemReasons.NotFound);
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
