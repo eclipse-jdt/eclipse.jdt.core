@@ -182,7 +182,7 @@ public class JavaModelManager implements ISaveParticipant {
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
-	static final CompilationParticipant[] NO_PARTICPANTS = new CompilationParticipant[0];
+	static final CompilationParticipant[] NO_PARTICIPANTS = new CompilationParticipant[0];
 	
 	public class CompilationParticipants {
 	
@@ -193,7 +193,7 @@ public class JavaModelManager implements ISaveParticipant {
 				
 		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
 			CompilationParticipant[] participants = getRegisteredParticipants();
-			if (participants == NO_PARTICPANTS)
+			if (participants == NO_PARTICIPANTS)
 				return null;
 			int length = participants.length;
 			CompilationParticipant[] result = new CompilationParticipant[length];
@@ -243,7 +243,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			int size = participants.size();
 			if (size == 0)
-				return this.registeredParticipants = NO_PARTICPANTS;
+				return this.registeredParticipants = NO_PARTICIPANTS;
 			this.registeredParticipants = new CompilationParticipant[size];
 			participants.toArray(this.registeredParticipants);
 			return this.registeredParticipants;
