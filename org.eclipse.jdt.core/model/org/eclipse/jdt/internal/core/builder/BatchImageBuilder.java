@@ -103,7 +103,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
 		if (this.javaBuilder.participants != null)
-			for (int i = this.javaBuilder.participants.length; --i >= 0;)
+			for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
 				this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
 
 		ArrayList visited = new ArrayList(sourceLocations.length);

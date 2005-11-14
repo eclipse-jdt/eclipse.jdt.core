@@ -489,7 +489,7 @@ private int initializeBuilder(int kind) throws CoreException {
 	// cache the known participants for this project
 	this.participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(this.javaProject);
 	if (this.participants != null)
-		for (int i = this.participants.length; --i >= 0;)
+		for (int i = 0, l = this.participants.length; i < l; i++)
 			if (this.participants[i].buildStarting(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
 				kind = FULL_BUILD;
 
