@@ -30,7 +30,7 @@ public class AptPreferenceConstants {
 	
 	static {
 		Map<String,String> options = new HashMap<String,String>();
-		options.put(AptPreferenceConstants.APT_ENABLED, "true"); //$NON-NLS-1$
+		options.put(AptPreferenceConstants.APT_ENABLED, "false"); //$NON-NLS-1$
 		options.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
 		options.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$
 		DEFAULT_OPTIONS_MAP = Collections.unmodifiableMap(options);

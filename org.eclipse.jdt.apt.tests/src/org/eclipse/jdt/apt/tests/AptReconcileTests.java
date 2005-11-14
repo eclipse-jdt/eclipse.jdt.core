@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -346,14 +347,14 @@ public class AptReconcileTests extends ModifyingResourceTests
 	{
 		try 
 		{
-			super.setUp();
-
+			super.setUp();			
 			this._problemRequestor = new ProblemRequestor();
 
 			final IJavaProject project = createJavaProject( TEST_PROJECT,
 					new String[] { "src" }, new String[] { "JCL15_LIB" },
 					"bin", "1.5" );
 			project.getProject().refreshLocal( IResource.DEPTH_INFINITE, null );
+			AptConfig.setEnabled(project, true);
 			
 			// make sure generated source folder exists in the project.  This is necessary
 			// for reconcile-time type-generation to work

@@ -15,8 +15,6 @@ import java.io.File;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -28,13 +26,11 @@ import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnot
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.builder.Tests;
-import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * 
  */
-public class FactoryLoaderTests extends Tests {
+public class FactoryLoaderTests extends APTTestBase {
 	
 	private File _extJar; // external annotation jar
 	private IPath _extVarJar; // external annotation jar, as a classpath-var-relative path
@@ -54,18 +50,7 @@ public class FactoryLoaderTests extends Tests {
 		super.setUp();
 		
 		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
-		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
-
-		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
-		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-
-		TestUtil.createAndAddAnnotationJar( env
-			.getJavaProject( projectPath ) );
+		IPath projectPath = env.getProject( getProjectName() ).getFullPath(); //$NON-NLS-1$
 		
 		_extJar = TestUtil.createAndAddExternalAnnotationJar(
 				env.getJavaProject( projectPath ));
@@ -89,18 +74,7 @@ public class FactoryLoaderTests extends Tests {
 		code = ColorTestCodeExample.CODE;
 		env.addClass(srcRoot, ColorTestCodeExample.CODE_PACKAGE, ColorTestCodeExample.CODE_CLASS_NAME, code);
 	}
-	
-	public static String getProjectName() {
-		return FactoryLoaderTests.class.getName() + "Project"; //$NON-NLS-1$
-	}
 
-	public IPath getSourcePath() {
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
-		IPath srcRoot = srcFolder.getFullPath();
-		return srcRoot;
-	}
-	
 	public void testExternalJarLoader() throws Exception {
 		LoaderTestAnnotationProcessor.clearLoaded();
 		IProject project = env.getProject( getProjectName() );

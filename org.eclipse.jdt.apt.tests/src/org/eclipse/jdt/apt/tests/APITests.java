@@ -17,8 +17,6 @@ import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -32,12 +30,10 @@ import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcesso
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
-import org.eclipse.jdt.core.tests.builder.Tests;
-import org.eclipse.jdt.core.tests.util.Util;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
-public class APITests extends Tests {
+public class APITests extends APTTestBase {
 	
 	private class LogListener implements ILogListener {
 		private final List<IStatus> _messages = new ArrayList<IStatus>();
@@ -71,20 +67,6 @@ public class APITests extends Tests {
 		
 		_logListener = new LogListener();
 		AptPlugin.getPlugin().getLog().addLogListener(_logListener);
-		
-		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
-		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
-
-		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
-		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-
-		TestUtil.createAndAddAnnotationJar( env
-			.getJavaProject( projectPath ) );
 	}
 	
 	@Override
@@ -92,17 +74,6 @@ public class APITests extends Tests {
 		super.tearDown();
 		AptPlugin.getPlugin().getLog().removeLogListener(_logListener);
 		_logListener = null;
-	}
-
-	public static String getProjectName() {
-		return APITests.class.getName() + "Project"; //$NON-NLS-1$
-	}
-
-	public IPath getSourcePath() {
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
-		IPath srcRoot = srcFolder.getFullPath();
-		return srcRoot;
 	}
 	
 	public void testAptUtil() throws Exception {

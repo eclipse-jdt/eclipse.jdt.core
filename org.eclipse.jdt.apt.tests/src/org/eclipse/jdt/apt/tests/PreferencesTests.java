@@ -19,9 +19,6 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -29,10 +26,8 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Tests;
-import org.eclipse.jdt.core.tests.util.Util;
 
-public class PreferencesTests extends Tests {
+public class PreferencesTests extends APTTestBase {
 	
 	public PreferencesTests(final String name) {
 		super( name );
@@ -40,36 +35,7 @@ public class PreferencesTests extends Tests {
 
 	public static Test suite() {
 		return new TestSuite( PreferencesTests.class );
-	}
-
-	public void setUp() throws Exception {
-		super.setUp();
-		
-		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
-		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
-
-		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
-		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-
-		TestUtil.createAndAddAnnotationJar( env
-			.getJavaProject( projectPath ) );
-	}
-	
-	public static String getProjectName() {
-		return PreferencesTests.class.getName() + "Project"; //$NON-NLS-1$
-	}
-
-	public IPath getSourcePath() {
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
-		IPath srcRoot = srcFolder.getFullPath();
-		return srcRoot;
-	}
+	}	
 	
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode

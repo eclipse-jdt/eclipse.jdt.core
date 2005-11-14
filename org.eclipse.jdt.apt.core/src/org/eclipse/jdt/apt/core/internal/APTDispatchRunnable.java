@@ -245,6 +245,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				final ICompilationUnit unit = processorEnv.getICompilationUnitForFile(file);
 				assert unit != null : "cannot locate ICompilationUnit for file " + file.getName(); //$NON-NLS-1$
 				unitsForFilesWithMissingType.add(unit);
+				if( AptPlugin.DEBUG )
+					AptPlugin.trace(unit.getElementName() + " has missing type " + problem.getMessage() ); //$NON-NLS-1$
 				break;
 			}
 		}	
@@ -692,26 +694,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		}
 		return deletedFiles;
 	}
-	
-	/**
-	 * invoking annotation processors respecting apt semantics.
-	 */
-	private static void checkAnnotations(
-			final List<AnnotationProcessorFactory> factories,
-			final Map<String, AnnotationTypeDeclaration> declarations,
-			final ProcessorEnvImpl env) {
-		for (int i = 0, size = factories.size(); i < size; i++) {
-			final AnnotationProcessorFactory factory = factories.get(i);
-			final Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(
-					factory, declarations);
-			final AnnotationProcessor processor = factory.getProcessorFor(
-					factoryDecls, env);
-			processor.process();
-			if (declarations.isEmpty())
-				return;
-		}
-		// log unclaimed annotations.
-	}	
 
 	/**
 	 * @return the set of {@link AnnotationTypeDeclaration} that {@link #factory} supports or null

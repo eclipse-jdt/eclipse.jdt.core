@@ -17,10 +17,9 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class AnnotationValueConversionTests extends Tests 
+public class AnnotationValueConversionTests extends APTTestBase 
 {
 	private int counter = 0;
 	private String projectName = null;
@@ -30,10 +29,6 @@ public class AnnotationValueConversionTests extends Tests
 
 	public static Test suite() {
 		return new TestSuite( AnnotationValueConversionTests.class );
-	}
-	
-	public String getProjectName() {
-		return projectName;
 	}
 	
 	public String getUniqueProjectName(){

@@ -20,10 +20,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.builder.Problem;
-import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class AptBuilderTests extends Tests
+public class AptBuilderTests extends APTTestBase
 {
 
 	public AptBuilderTests(String name)
@@ -41,28 +40,10 @@ public class AptBuilderTests extends Tests
 		super.setUp();
 		
 		//
-		// create a project with a source directory named "src"
-		// project will be deleted by super-class's tearDown() method
-		//
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
-		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
-
-		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
-		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-
-		TestUtil.createAndAddAnnotationJar( env
-			.getJavaProject( projectPath ) );
-		
-		
-		//
 		// project will be deleted by super-class's tearDown() method
 		// create a project with a src directory as the project root directory
 		//
-		projectPath = env.addProject( getProjectName_ProjectRootAsSrcDir(), "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( getProjectName_ProjectRootAsSrcDir(), "1.5" );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		fullBuild( projectPath );
 
@@ -72,11 +53,6 @@ public class AptBuilderTests extends Tests
 		TestUtil.createAndAddAnnotationJar( env
 			.getJavaProject( projectPath ) );
 		
-	}
-	
-	public static String getProjectName()
-	{
-		return AptBuilderTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public static String getProjectName_ProjectRootAsSrcDir()

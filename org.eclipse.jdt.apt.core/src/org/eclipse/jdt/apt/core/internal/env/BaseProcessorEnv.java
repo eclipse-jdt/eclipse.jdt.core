@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
@@ -708,7 +709,9 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		p.setFocalPosition( 0 );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
-		
+		if( AptPlugin.DEBUG ){
+			AptPlugin.trace("created DOM AST for " + compilationUnit.getElementName() ); //$NON-NLS-1$
+		}
 		return requestor.domUnit;
 	}
 	

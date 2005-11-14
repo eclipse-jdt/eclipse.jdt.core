@@ -46,6 +46,7 @@ public class RegressionTests extends Tests {
 	public void setUp() throws Exception
 	{
 		super.setUp();
+		AptConfig.setEnabled(null, true);
 	}
 	
 	/**

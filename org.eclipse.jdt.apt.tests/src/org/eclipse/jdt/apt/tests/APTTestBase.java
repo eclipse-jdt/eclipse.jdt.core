@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -51,15 +52,19 @@ public abstract class APTTestBase extends Tests{
 		env.resetWorkspace();
 
 		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
+		final String projectName = getProjectName();
+		if( projectName == null )
+			throw new IllegalStateException();
+		IPath projectPath = env.addProject( getProjectName(), "1.5" );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
+		//fullBuild( projectPath );
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
 		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
 		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-
+		
+		AptConfig.setEnabled(null, true);
 		TestUtil.createAndAddAnnotationJar( env.getJavaProject( projectPath ) );
 	}
 	
