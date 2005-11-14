@@ -2039,7 +2039,7 @@ public final class JavaCore extends Plugin {
 	 *    Set the minimum visibility level for Javadoc tag problems. Below this level problems will be ignored.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"
 	 *     - possible values:   { "public", "protected", "default", "private" }
-	 *     - default:           "private"
+	 *     - default:           "public"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags
 	 *    When enabled, the compiler will signal unbound or unexpected reference tags in Javadoc.
@@ -2050,7 +2050,7 @@ public final class JavaCore extends Plugin {
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
 	 *     - possible values:   { "disabled", "enabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags with Deprecated References
 	 *    Specify whether the compiler will report deprecated references used in Javadoc tags.
@@ -2058,7 +2058,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags with Not Visible References
 	 *    Specify whether the compiler will report non-visible references used in Javadoc tags.
@@ -2066,7 +2066,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Tags
 	 *    This is the generic control for the severity of Javadoc missing tag problems.
@@ -2082,7 +2082,7 @@ public final class JavaCore extends Plugin {
 	 *    Set the minimum visibility level for Javadoc missing tag problems. Below this level problems will be ignored.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"
 	 *     - possible values:   { "public", "protected", "default", "private" }
-	 *     - default:           "private"
+	 *     - default:           "public"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Tags on Overriding Methods
 	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
