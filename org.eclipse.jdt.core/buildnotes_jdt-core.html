@@ -55,6 +55,26 @@ What's new in this drop</h2>
 <li>Added new API for org.eclipse.jdt.core.dom.CompilationUnit:
 <pre>
 	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the first leading comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of first leading comment or -1 if node has
+	 *	no associated comment before its start position.
+	 * @since 3.2
+	 */
+	public int firstLeadingCommentIndex(ASTNode node)
+	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the last trailing comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of last trailing comment or -1 if node has
+	 * 	no associated comment after its end position.
+	 * @since 3.2
+	 */
+	public int lastTrailingCommentIndex(ASTNode node)
+	/**
 	 * Returns the column number corresponding to the given source character
 	 * position in the original source string. Column number are zero-based. 
 	 * Return zero if it is beyond the valid range.
@@ -97,6 +117,11 @@ http://www.eclipse.org/jdt/core/tools/jdtcoretools/update-site/<br>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113108">113108</a>
+[API][comments] CompilationUnit.getNodeComments(ASTNode)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110964">110964</a>
+[javadoc] Change compiler default options to have minimum javadoc warnings
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116028">116028</a>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112843">112843</a>
 Cut blocked by background build
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114115">114115</a>
