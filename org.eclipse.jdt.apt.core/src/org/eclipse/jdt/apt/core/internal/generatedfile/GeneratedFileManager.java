@@ -271,7 +271,7 @@ public class GeneratedFileManager {
 			if( genFragRoot == null ){
 				StringBuilder sb = new StringBuilder();
 				for (IPackageFragmentRoot root : roots) {
-					sb.append(root).append(" "); //$NON-NLS-1$
+					sb.append(root.getPath()).append(" "); //$NON-NLS-1$
 				}
 				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName() + ". Roots: " + sb.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
