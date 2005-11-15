@@ -29,7 +29,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testBug100772_ProjectScope";
-//	TESTS_NAMES = new String[] { "testPreProcessingResourceChangedListener03" };
+//	TESTS_NAMES = new String[] { "testFindLineSeparator04" };
 //	TESTS_NUMBERS = new int[] { 100772 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 }
@@ -288,6 +288,73 @@ public void testCreatePkgHandleInDifferentProject() throws CoreException {
 		);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for a compilation unit.
+ */
+public void testFindLineSeparator01() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals("\n", cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for a compilation unit.
+ */
+public void testFindLineSeparator02() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			"public class X {\r\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals("\r\n", cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for an empty compilation unit.
+ */
+public void testFindLineSeparator03() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			""
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals(System.getProperty("line.separator"), cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for a package fragment
+ */
+public void testFindLineSeparator04() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p");
+		IPackageFragment pkg = getPackage("/P/p");
+		assertEquals(System.getProperty("line.separator"), pkg.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
 	}
 }
 
