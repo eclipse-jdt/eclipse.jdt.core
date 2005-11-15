@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -167,42 +169,72 @@ public int getNumberOfParameters() {
  * Look for source attachment information to retrieve the actual parameter names as stated in source.
  */
 public String[] getParameterNames() throws JavaModelException {
-	if (this.parameterNames == null) {
+	if (this.parameterNames != null) 
+		return this.parameterNames;
 
-		// force source mapping if not already done
-		IType type = (IType) getParent();
-		SourceMapper mapper = getSourceMapper();
-		if (mapper != null) {
-			char[][] paramNames = mapper.getMethodParameterNames(this);
-			
-			// map source and try to find parameter names
-			if(paramNames == null) {
-				char[] source = mapper.findSource(type);
-				if (source != null){
-					mapper.mapSource(type, source);
-				}
-				paramNames = mapper.getMethodParameterNames(this);
+	// force source mapping if not already done
+	IType type = (IType) getParent();
+	SourceMapper mapper = getSourceMapper();
+	if (mapper != null) {
+		char[][] paramNames = mapper.getMethodParameterNames(this);
+		
+		// map source and try to find parameter names
+		if(paramNames == null) {
+			char[] source = mapper.findSource(type);
+			if (source != null){
+				mapper.mapSource(type, source);
 			}
-			
-			// if parameter names exist, convert parameter names to String array
-			if(paramNames != null) {
-				this.parameterNames = new String[paramNames.length];
-				for (int i = 0; i < paramNames.length; i++) {
-					this.parameterNames[i] = new String(paramNames[i]);
-				}
-			}
+			paramNames = mapper.getMethodParameterNames(this);
 		}
-		// if still no parameter names, produce fake ones
-		if (this.parameterNames == null) {
-			IBinaryMethod info = (IBinaryMethod) getElementInfo();
-			int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-			this.parameterNames = new String[paramCount];
-			for (int i = 0; i < paramCount; i++) {
-				this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
+		
+		// if parameter names exist, convert parameter names to String array
+		if(paramNames != null) {
+			this.parameterNames = new String[paramNames.length];
+			for (int i = 0; i < paramNames.length; i++) {
+				this.parameterNames[i] = new String(paramNames[i]);
+			}
+			return this.parameterNames;
+		}
+	}
+	
+	// try to see if we can retrieve the names from the attached javadoc
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+	if (paramCount != 0) {
+		String javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
+		if (javadoc != null) {
+			final int indexOfOpenParen = javadoc.indexOf('(');
+			if (indexOfOpenParen != -1) {
+				final int indexOfClosingParen = javadoc.indexOf(')', indexOfOpenParen);
+				if (indexOfClosingParen != -1) {
+					final char[] paramsSource =
+						CharOperation.replace(
+							javadoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
+							"&nbsp;".toCharArray(), //$NON-NLS-1$
+							new char[] {' '});
+					final StringTokenizer tokenizer = new StringTokenizer(String.valueOf(paramsSource), ", \n\r"); //$NON-NLS-1$
+					int index = 0;
+					final ArrayList paramNames = new ArrayList(paramCount);
+					while (tokenizer.hasMoreTokens()) {
+						final String token = tokenizer.nextToken();
+						if ((index & 1) != 0) {
+							// if odd then this is a parameter name
+							paramNames.add(token);
+						}
+						index++;
+					}
+					if (!paramNames.isEmpty()) {
+						this.parameterNames = new String[paramNames.size()];
+						paramNames.toArray(this.parameterNames);
+						return this.parameterNames;
+					}
+				}
 			}
 		}
 	}
-	return this.parameterNames;
+
+	// if still no parameter names, produce fake ones
+	return this.parameterNames = getRawParameterNames(paramCount);
 }
 /*
  * @see IMethod
@@ -240,6 +272,19 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 	char[][] typeParams = Signature.getTypeParameters(dotBasedSignature);
 	return CharOperation.toStrings(typeParams);
+}
+
+public String[] getRawParameterNames() throws JavaModelException {
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+	return getRawParameterNames(paramCount);
+}
+private String[] getRawParameterNames(int paramCount) {
+	String[] result = new String[paramCount];
+	for (int i = 0; i < paramCount; i++) {
+		result[i] = "arg" + i; //$NON-NLS-1$
+	}
+	return result;
 }
 
 /*

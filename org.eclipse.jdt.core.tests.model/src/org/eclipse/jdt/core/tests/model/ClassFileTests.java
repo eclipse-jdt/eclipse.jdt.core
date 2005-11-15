@@ -32,7 +32,7 @@ public ClassFileTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "testGetChildrenForCategory01"};
+//	TESTS_NAMES = new String[] { "testParameterNames01"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -267,6 +267,38 @@ public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
 		type.getSuperInterfaceTypeSignatures());
 }
 
+/*
+ * Ensures that the parameter names of a binary method with source attached are correct.
+ */
+public void testParameterNames01() throws CoreException {
+	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	String[] parameterNames = method.getParameterNames();
+	assertStringsEqual(
+		"Unexpected parameter names", 
+		"key\n" + 
+		"value\n",
+		parameterNames);
+}
+
+/*
+ * Ensures that the parameter names of a binary method without source attached are correct.
+ */
+public void testParameterNames02() throws CoreException {
+	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
+	try {
+		attachSource(this.jarRoot, null, null);
+		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		String[] parameterNames = method.getParameterNames();
+		assertStringsEqual(
+			"Unexpected parameter names", 
+			"arg0\n" + 
+			"arg1\n",
+			parameterNames);
+	} finally {
+		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
+	}
+}
+
 /**
  * Ensure that the type parameter signatures of a binary type are correct.
  */
@@ -336,6 +368,38 @@ public void testParameterTypeSignatures6() throws JavaModelException {
 		"K:Ljava.lang.Object;\n" + 
 		"V:Ljava.lang.Object;\n",
 		method.getTypeParameterSignatures());
+}
+
+/*
+ * Ensures that the raw parameter names of a binary method with source attached are correct.
+ */
+public void testRawParameterNames01() throws CoreException {
+	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	String[] parameterNames = method.getRawParameterNames();
+	assertStringsEqual(
+		"Unexpected parameter names", 
+		"arg0\n" + 
+		"arg1\n",
+		parameterNames);
+}
+
+/*
+ * Ensures that the raw parameter names of a binary method without source attached are correct.
+ */
+public void testRawParameterNames02() throws CoreException {
+	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
+	try {
+		attachSource(this.jarRoot, null, null);
+		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		String[] parameterNames = method.getParameterNames();
+		assertStringsEqual(
+			"Unexpected parameter names", 
+			"arg0\n" + 
+			"arg1\n",
+			parameterNames);
+	} finally {
+		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
+	}
 }
 
 /*
