@@ -150,12 +150,12 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertTrue(method.exists());
 		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-//		String[] paramNames = method.getParameterNames();
-//		assertNotNull(paramNames);
-//		assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
-//		assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
-//		assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
-//		assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	// for a constructor
@@ -169,10 +169,10 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertTrue(method.exists());
 		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-//		String[] paramNames = method.getParameterNames();
-//		assertNotNull(paramNames);
-//		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
-//		assertEquals("Wrong name for first param", "i", paramNames[0]);		 //$NON-NLS-1$ //$NON-NLS-2$
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "i", paramNames[0]);		 //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	// for a member type
@@ -196,10 +196,10 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertTrue(method.exists());
 		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-//		String[] paramNames = method.getParameterNames();
-//		assertNotNull(paramNames);
-//		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
-//		assertEquals("Wrong name for first param", "f", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "f", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	// for a method foo2
