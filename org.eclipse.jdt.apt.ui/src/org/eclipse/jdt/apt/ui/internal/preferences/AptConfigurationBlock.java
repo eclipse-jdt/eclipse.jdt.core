@@ -12,6 +12,8 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +21,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
-import org.eclipse.jdt.apt.core.util.AptConfig.ProcessorOptionsParser;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
@@ -53,16 +56,17 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
  * Preference pane for most APT (Java annotation processing) settings.
  * @see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
  * for the conceptual source of some of this code.
+ * <p>
+ * 
  */
 public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
-	private static final Key KEY_APTENABLED= getAptCoreKey(AptPreferenceConstants.APT_ENABLED);
-	private static final Key KEY_GENSRCDIR= getAptCoreKey(AptPreferenceConstants.APT_GENSRCDIR);
-	private static final Key KEY_PROCESSOROPTIONS= getAptCoreKey(AptPreferenceConstants.APT_PROCESSOROPTIONS);
+	private static final Key KEY_APTENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_ENABLED);
+	private static final Key KEY_GENSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENSRCDIR);
 	
 	private static Key[] getAllKeys() {
 		return new Key[] {
-				KEY_APTENABLED, KEY_GENSRCDIR, KEY_PROCESSOROPTIONS
+				KEY_APTENABLED, KEY_GENSRCDIR
 		};	
 	}
 	
@@ -78,6 +82,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	
 	private PixelConverter fPixelConverter;
 	private Composite fBlockControl;
+	
+	private Map<String, String> fOriginalProcOptions; // cache of saved values
 	
 	/**
 	 * Event handler for Processor Options list control.
@@ -264,7 +270,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		gdLabel.horizontalSpan= 2;
 		gdLabel.widthHint= fPixelConverter.convertWidthInCharsToPixels(60);
 		description.setLayoutData(gdLabel);
-
+		
 		Dialog.applyDialogFont(fBlockControl);
 		
 		validateSettings(null, null, null);
@@ -272,6 +278,55 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		return fBlockControl;
 	}
 	
+	@Override
+	protected void cacheOriginalValues() {
+		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
+	}
+
+	protected void initContents() {
+		loadProcessorOptions(fJProj);
+	}
+
+	@Override
+	protected void saveSettings() {
+		List<ProcessorOption> elements;
+		if ((fJProj != null) && !fBlockControl.isEnabled()) {
+			// We're in a project properties pane but the entire configuration 
+			// block control is disabled.  That means the per-project settings checkbox 
+			// is unchecked.  To save that state, we'll clear the proc options map.
+			elements = Collections.<ProcessorOption>emptyList();
+		}
+		else {
+			elements = getListElements();
+		}
+		saveProcessorOptions(elements);
+		super.saveSettings();
+	}
+
+	/**
+	 * Check whether any processor options have changed, as well as
+	 * any of the settings tracked in the "normal" way (as Keys).
+	 */
+	@Override
+	protected boolean settingsChanged(IScopeContext currContext) {
+		Map<String, String> savedProcOptions = new HashMap<String, String>(fOriginalProcOptions);
+		for (ProcessorOption o : getListElements()) {
+			final String savedVal = savedProcOptions.get(o.key);
+			if (savedVal != null && savedVal.equals(o.value)) {
+				savedProcOptions.remove(o.key);
+			}
+			else {
+				// found an unsaved option in the list
+				return true;
+			}
+		}
+		if (!savedProcOptions.isEmpty()) {
+			// found a saved option that has been removed
+			return true;
+		}
+		return super.settingsChanged(currContext);
+	}
+
 	/**
 	 * Call after updating key values, to warn user if new values are invalid.
 	 * @param changedKey may be null, e.g. if called from createContents.
@@ -339,64 +394,60 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fAptEnabledField.setSelection(aptEnabled);
 		String str= getValue(KEY_GENSRCDIR);
 		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
-		str= getValue(KEY_PROCESSOROPTIONS);
-		unpackProcessorOptions(str);
 	}	
 	
 	/**
 	 * Update the values stored in the keys based on the UI.
 	 */
 	protected final void updateModel(DialogField field) {
-		String newVal = null;
-		Key key = null;
 		
 		if (field == fAptEnabledField) {
-			key = KEY_APTENABLED;
-			newVal = String.valueOf(fAptEnabledField.isSelected());
+			String newVal = String.valueOf(fAptEnabledField.isSelected());
+			setValue(KEY_APTENABLED, newVal);
 		} else if (field == fGenSrcDirField) {
-			key = KEY_GENSRCDIR;
-			newVal = fGenSrcDirField.getText();
-		} else if (field == fProcessorOptionsField) {
-			key = KEY_PROCESSOROPTIONS;
-			newVal = packProcessorOptions();
-		}
-		if (key != null) {
-			String oldVal = setValue(key, newVal);
-			validateSettings(key, oldVal, newVal);
-		}
+			String newVal = fGenSrcDirField.getText();
+			setValue(KEY_GENSRCDIR, newVal);
+		} 
+		validateSettings(null, null, null); // params are ignored
 	}
 
 	/**
-	 * @return all the options, packaged as an apt-style command line ("-Afoo=bar -Abaz=quux").
-	 * If there are no options, return null.
+	 * Save the contents of the options list.
 	 */
-	private String packProcessorOptions() {
-		List<ProcessorOption> elements = getListElements();
+	private void saveProcessorOptions(List<ProcessorOption> elements) {
 		Map<String, String> map = new LinkedHashMap<String, String>(elements.size());
 		for (ProcessorOption o : elements) {
 			map.put(o.key, o.value);
 		}
-		return AptConfig.serializeProcessorOptions(map);
+		AptConfig.setProcessorOptions(map, fJProj);
 	}
 
 	/**
-	 * Set the processor options list contents by parsing an apt-style
-	 * command line ("-Afoo=bar -Abaz=quux")
-	 * @param str may be null
+	 * Set the processor options list contents
 	 */
-	private void unpackProcessorOptions(String str) {
+	private void loadProcessorOptions(IJavaProject jproj) {
 		List<ProcessorOption> options= new ArrayList<ProcessorOption>();
-		if (str != null) {
-			ProcessorOptionsParser parser = new ProcessorOptionsParser(str);
-			Map<String, String> parsedOptions = parser.parse();
-			for (Map.Entry<String, String> entry : parsedOptions.entrySet()) {
-				ProcessorOption o = new ProcessorOption();
-				o.key = entry.getKey();
-				o.value = entry.getValue();
-				options.add(o);
-			}
+		Map<String, String> parsedOptions = AptConfig.getRawProcessorOptions(jproj);
+		for (Map.Entry<String, String> entry : parsedOptions.entrySet()) {
+			ProcessorOption o = new ProcessorOption();
+			o.key = entry.getKey();
+			o.value = entry.getValue();
+			options.add(o);
 		}
 		fProcessorOptionsField.setElements(options);
+	}
+
+	@Override
+	public void performDefaults() {
+		if (fJProj != null) {
+			// If project-specific, load workspace settings
+			loadProcessorOptions(null);
+		}
+		else {
+			// If workspace, load "factory default," which is empty.
+			fProcessorOptionsField.removeAllElements();
+		}
+		super.performDefaults();
 	}
 
 }

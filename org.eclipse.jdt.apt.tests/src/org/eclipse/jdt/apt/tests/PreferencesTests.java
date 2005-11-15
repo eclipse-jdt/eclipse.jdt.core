@@ -13,6 +13,7 @@
 package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -104,17 +105,52 @@ public class PreferencesTests extends APTTestBase {
 		
 		// aptEnabled
 		AptConfig.setEnabled(jproj, false);
+		AptConfig.setEnabled(null, true);
 		assertFalse(AptConfig.isEnabled(jproj));
-		AptConfig.setEnabled(jproj, true);
-		assertTrue(AptConfig.isEnabled(jproj));
+		assertTrue(AptConfig.isEnabled(null));
+		AptConfig.setEnabled(null, true);
+		AptConfig.setEnabled(jproj, false);
+		assertFalse(AptConfig.isEnabled(jproj));
+		assertTrue(AptConfig.isEnabled(null));
 		
 		// processorOptions
+		Map<String, String> wkspOpts = new HashMap<String, String>(3);
+		wkspOpts.put("b", "bVal");
+		wkspOpts.put("another option", "and\\more \"punctuation!\"");
+		AptConfig.setProcessorOptions(wkspOpts, null);
+		Map<String, String> retrievedWkspOpts = AptConfig.getRawProcessorOptions(null);
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+				wkspOpts.equals(retrievedWkspOpts));
+
+		Map<String, String> projOpts = new HashMap<String, String>(3);
+		projOpts.put("a", "aVal");
+		projOpts.put("with spaces", "value also has spaces");
+		projOpts.put("foo", "bar");
+		AptConfig.setProcessorOptions(projOpts, jproj);
+		Map<String, String> retrievedProjOpts = AptConfig.getRawProcessorOptions(jproj);
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+				projOpts.equals(retrievedProjOpts));
+
+		wkspOpts.clear();
+		wkspOpts.put("noodle", "nubble");
+		wkspOpts.put("spoo/mack", "wumpus");
+		AptConfig.setProcessorOptions(wkspOpts, null);
+		retrievedWkspOpts = AptConfig.getRawProcessorOptions(null);
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+				wkspOpts.equals(retrievedWkspOpts));
+
+		projOpts.clear();
+		projOpts.put("smurf", "more smurfs\\=bad");
+		projOpts.put("baz/quack", "quux");
+		AptConfig.setProcessorOptions(projOpts, jproj);
+		retrievedProjOpts = AptConfig.getRawProcessorOptions(jproj);
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+				projOpts.equals(retrievedProjOpts));
+
 		AptConfig.addProcessorOption(jproj, "foo", "bar");
 		AptConfig.addProcessorOption(jproj, "space", "\"text with spaces\"");
 		AptConfig.addProcessorOption(jproj, "quux", null);
 		AptConfig.addProcessorOption(jproj, "quux", null); // adding twice should have no effect
-		AptConfig.addProcessorOption(jproj, "", null); // should gracefully do nothing
-		AptConfig.addProcessorOption(jproj, null, "spud"); // should gracefully do nothing
 		Map<String, String> options = AptConfig.getProcessorOptions(jproj);
 		String val = options.get("foo");
 		assertEquals(val, "bar");
@@ -127,9 +163,15 @@ public class PreferencesTests extends APTTestBase {
 		assertFalse(options.containsKey("foo"));
 		assertTrue(options.containsKey("quux"));
 		AptConfig.removeProcessorOption(jproj, "quux");
-		AptConfig.removeProcessorOption(jproj, null);
-		AptConfig.removeProcessorOption(jproj, "");
 		AptConfig.removeProcessorOption(jproj, "anOptionThatDoesn'tExist");
+		
+		AptConfig.addProcessorOption(null, "workspace option", "corresponding value");
+		AptConfig.addProcessorOption(null, "foo", "whatever");
+		AptConfig.removeProcessorOption(null, "foo");
+		options = AptConfig.getProcessorOptions(null);
+		assertFalse(options.containsKey("foo"));
+		assertTrue(options.containsKey("workspace option"));
+		AptConfig.removeProcessorOption(null, "workspace option");
 	}
 	
 	/**

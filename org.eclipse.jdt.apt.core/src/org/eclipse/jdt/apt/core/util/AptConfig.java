@@ -13,14 +13,15 @@ package org.eclipse.jdt.apt.core.util;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -59,56 +60,44 @@ public class AptConfig {
      * @param jproj a project, or null to set the option workspace-wide.
      * @param val can be null (equivalent to -Akey).  This does not mean
      * remove the key; for that functionality, @see #removeProcessorOption(IJavaProject, String).
-     * @return the old value, or null if the option was not previously set.
      */
-    public static String addProcessorOption(IJavaProject jproj, String key, String val) {
+    public static void addProcessorOption(IJavaProject jproj, String key, String val) {
     	if (key == null || key.length() < 1) {
-    		return null;
+    		throw new IllegalArgumentException();
     	}
-    	String old;
-    	IEclipsePreferences node;
-    	synchronized (AptConfig.class) {
-	    	Map<String, String> options = getRawProcessorOptions(jproj);
-	    	old = options.get(key);
-	    	options.put(key, val);
-	    	String serializedOptions = serializeProcessorOptions(options);
-			IScopeContext context = (null != jproj) ? 
-					new ProjectScope(jproj.getProject()) : new InstanceScope();
-			node = context.getNode(AptPlugin.PLUGIN_ID);
-			node.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
-    	}
-    	// Do the flush outside of the synchronized block to avoid deadlock:
-    	// flush causes a file write, which will block if the workspace is locked.
-    	flushPreference(AptPreferenceConstants.APT_PROCESSOROPTIONS, node);
-    	return old;
+		IScopeContext context = (null != jproj) ? 
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
+		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
+				AptPreferenceConstants.APT_PROCESSOROPTIONS);
+		String nonNullVal = val == null ? AptPreferenceConstants.APT_NULLVALUE : val;
+		node.put(key, nonNullVal);
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			AptPlugin.log(e, "Unable to save annotation processor option" + key); //$NON-NLS-1$
+		}
     }
 	
 	/**
      * Remove an option from the list of processor options.
-     * This method is not synchronized.  If two threads simultaneously try 
-     * to modify the processor options, one of the requests may be ignored.
      * @param jproj a project, or null to remove the option workspace-wide.
      * @param key must be a nonempty string.  It should only include the key;
      * that is, it should not start with "-A".
-     * @return the old value, or null if the option was not previously set.
      */
-    public static String removeProcessorOption(IJavaProject jproj, String key) {
-    	String old;
-    	IEclipsePreferences node;
-    	synchronized (AptConfig.class) {
-	    	Map<String, String> options = getRawProcessorOptions(jproj);
-	    	old = options.get(key);
-	    	options.remove(key);
-	    	String serializedOptions = serializeProcessorOptions(options);
-			IScopeContext context = (null != jproj) ? 
-					new ProjectScope(jproj.getProject()) : new InstanceScope();
-			node = context.getNode(AptPlugin.PLUGIN_ID);
-			node.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    public static void removeProcessorOption(IJavaProject jproj, String key) {
+    	if (key == null || key.length() < 1) {
+    		throw new IllegalArgumentException();
     	}
-    	// Do the flush outside of the synchronized block to avoid deadlock:
-    	// flush causes a file write, which will block if the workspace is locked.
-    	flushPreference(AptPreferenceConstants.APT_PROCESSOROPTIONS, node);
-    	return old;
+    	IScopeContext context = (null != jproj) ? 
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
+		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
+				AptPreferenceConstants.APT_PROCESSOROPTIONS);
+		node.remove(key);
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			AptPlugin.log(e, "Unable to save annotation processor option" + key); //$NON-NLS-1$
+		}
     }
     
 	/**
@@ -202,6 +191,41 @@ public class AptConfig {
     	
     	return options;
     }
+    
+    /**
+     * Set all the processor options in one call.  This will delete any
+     * options that are not passed in, so callers who do not wish to
+     * destroy pre-existing options should use addProcessorOption() instead.
+     * @param options a map of keys to values.  The keys should not include
+     * any automatic options (@see #isAutomaticProcessorOption(String)),
+     * and the "-A" should not be included.  That is, to perform the
+     * equivalent of the apt command line "-Afoo=bar", use the key "foo"
+     * and the value "bar".  Keys cannot contain spaces; values can
+     * contain anything at all.  Keys cannot be null, but values can be.
+     */
+    public static void setProcessorOptions(Map<String, String> options, IJavaProject jproj) {
+		IScopeContext context = (null != jproj) ? 
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
+
+    	// TODO: this call is needed only for backwards compatibility with
+	    // settings files previous to 2005.11.13.  At some point it should be
+	    // removed.
+    	removeOldStyleSettings(context);
+
+		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
+				AptPreferenceConstants.APT_PROCESSOROPTIONS);
+		try {
+			node.clear();
+			for (Entry<String, String> option : options.entrySet()) {
+				String nonNullVal = option.getValue() == null ? 
+						AptPreferenceConstants.APT_NULLVALUE : option.getValue();
+				node.put(option.getKey(), nonNullVal);
+			}
+			node.flush();
+		} catch (BackingStoreException e) {
+			AptPlugin.log(e, "Unable to save annotation processor options"); //$NON-NLS-1$
+		}
+    }
 
     /**
      * Is the named option automatically generated in getProcessorOptions(),
@@ -235,17 +259,62 @@ public class AptConfig {
      * method returns only the options that are persisted to the preference
      * store and that are displayed in the configuration GUI.
      * 
-     * The implementation of this at present relies on persisting all the options
-     * in one string that is the equivalent of the apt command line, e.g.,
-     * "-Afoo=bar -Aquux=baz", and then parsing the string into a map in this
-     * routine. 
-     * 
      * @param jproj a project, or null to query the workspace-wide setting.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
      * The value part of a pair may be null (equivalent to "-Akey").
      * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
      */
 	public static Map<String, String> getRawProcessorOptions(IJavaProject jproj) {
+		Map<String, String> options = new HashMap<String, String>();
+		
+	    // TODO: this code is needed only for backwards compatibility with
+	    // settings files previous to 2005.11.13.  At some point it should be
+	    // removed.
+		// If an old-style setting exists, add it into the mix for backward
+		// compatibility.
+		options.putAll(getOldStyleRawProcessorOptions(jproj));
+		
+		// Fall back from project to workspace scope on an all-or-nothing basis,
+		// not value by value.  (Never fall back to default scope; there are no
+		// default processor options.)
+		IScopeContext[] contexts;
+		if (jproj != null) {
+			contexts = new IScopeContext[] { 
+					new ProjectScope(jproj.getProject()), new InstanceScope() };
+		}
+		else {
+			contexts = new IScopeContext[] { new InstanceScope() };
+		}
+		for (IScopeContext context : contexts) {
+			IEclipsePreferences prefs = context.getNode(AptPlugin.PLUGIN_ID);
+			if (prefs != null) {
+				try {
+					IEclipsePreferences procOptionsNode = context.getNode(
+							AptPlugin.PLUGIN_ID + "/" + AptPreferenceConstants.APT_PROCESSOROPTIONS); //$NON-NLS-1$
+					if (procOptionsNode != null) {
+						for (String key : procOptionsNode.keys()) {
+							String nonNullVal = procOptionsNode.get(key, null);
+							String val = AptPreferenceConstants.APT_NULLVALUE.equals(nonNullVal) ?
+									null : nonNullVal;
+							options.put(key, val);
+						}
+					}
+				} catch (BackingStoreException e) {
+					AptPlugin.log(e, "Unable to load annotation processor options"); //$NON-NLS-1$
+				}
+				break;
+			}
+		}
+		return options;
+	}
+    
+	/**
+     * TODO: this code is needed only for backwards compatibility with
+     * settings files previous to 2005.11.13.  At some point it should be
+     * removed.
+     * Get the processor options as an APT-style string ("-Afoo=bar -Abaz=quux")
+	 */
+	private static Map<String, String> getOldStyleRawProcessorOptions(IJavaProject jproj) {
 		Map<String, String> options;
 		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
     	if (null == allOptions) {
@@ -257,14 +326,17 @@ public class AptConfig {
     	}
 		return options;
 	}
-    
     /**
+     * TODO: this code is needed only for backwards compatibility with
+     * settings files previous to 2005.11.13.  At some point it should be
+     * removed.
+     *   
      * Used to parse an apt-style command line string into a map of key/value
      * pairs.
      * Parsing ignores errors and simply tries to gobble up as many well-formed
      * pairs as it can find.
      */
-    public static class ProcessorOptionsParser {
+    private static class ProcessorOptionsParser {
     	final String _s;
     	int _start; // everything before this is already parsed.
     	boolean _hasVal; // does the last key found have a value token?
@@ -276,7 +348,7 @@ public class AptConfig {
     	}
     	
      	public Map<String, String> parse() {
-        	Map<String, String> options = new LinkedHashMap<String, String>();
+        	Map<String, String> options = new HashMap<String, String>();
         	String key;
         	while (null != (key = parseKey())) {
        			options.put(key, parseVal());
@@ -381,6 +453,18 @@ public class AptConfig {
     		return new String(_s.substring(start, end));
     	}
     }
+    
+    /**
+     * TODO: this code is needed only for backwards compatibility with
+     * settings files previous to 2005.11.13.  At some point it should be
+     * removed.
+     * Delete the key that saves annotation processor options as a single
+     * command-line-type string ("-Afoo=bar -Abaz=quux").
+     */
+    private static void removeOldStyleSettings(IScopeContext context) {
+		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
+		node.remove(AptPreferenceConstants.APT_PROCESSOROPTIONS);
+    }
 
     /**
      * Flush unsaved preferences and perform any other config-related shutdown.
@@ -411,10 +495,6 @@ public class AptConfig {
 	 * @return
 	 */
 	public static boolean isEnabled(IJavaProject jproject) {
-		// TODO: Walter have a fix for this problem.
-		if( jproject == null )
-			return false;
-	
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
 	}
 	
@@ -427,13 +507,16 @@ public class AptConfig {
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
 	
-	private static boolean getBoolean(IJavaProject jproject, String optionName) {
+	private static boolean getBoolean(IJavaProject jproj, String optionName) {
 		IPreferencesService service = Platform.getPreferencesService();
-		// Don't need to do this, because it's the default-default already:
-		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
-
-		ProjectScope projScope = new ProjectScope(jproject.getProject());
-		IScopeContext[] contexts = new IScopeContext[] { projScope };
+		IScopeContext[] contexts;
+		if (jproj != null) {
+			contexts = new IScopeContext[] { 
+					new ProjectScope(jproj.getProject()), new InstanceScope(), new DefaultScope() };
+		}
+		else {
+			contexts = new IScopeContext[] { new InstanceScope(), new DefaultScope() };
+		}
 		return service.getBoolean(
 				AptPlugin.PLUGIN_ID, 
 				optionName, 
@@ -498,22 +581,26 @@ public class AptConfig {
 	/**
 	 * Helper method to get a single preference setting, e.g., APT_GENSRCDIR.    
 	 * This is a different level of abstraction than the processor -A settings!
-	 * The -A settings are all contained within one single preference setting, 
+	 * The -A settings are all contained under one single preference node, 
 	 * APT_PROCESSOROPTIONS.  Use @see #getProcessorOptions(IJavaProject) to 
 	 * get the -A settings; use @see #getOptions(IJavaProject) to get all the 
 	 * preference settings as a map; and use this helper method to get a single 
 	 * preference setting.
 	 * 
-	 * @param jproject the project, or null for workspace.
+	 * @param jproj the project, or null for workspace.
 	 * @param optionName a preference constant from @see AptPreferenceConstants.
 	 * @return
 	 */
-    public static String getString(IJavaProject jproject, String optionName) {
+    public static String getString(IJavaProject jproj, String optionName) {
 		IPreferencesService service = Platform.getPreferencesService();
-		// Don't need to do this, because it's the default-default already:
-		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
-		ProjectScope projScope = new ProjectScope(jproject.getProject());
-		IScopeContext[] contexts = new IScopeContext[] { projScope };
+		IScopeContext[] contexts;
+		if (jproj != null) {
+			contexts = new IScopeContext[] { 
+					new ProjectScope(jproj.getProject()), new InstanceScope(), new DefaultScope() };
+		}
+		else {
+			contexts = new IScopeContext[] { new InstanceScope(), new DefaultScope() };
+		}
 		return service.getString(
 				AptPlugin.PLUGIN_ID, 
 				optionName, 
@@ -533,36 +620,7 @@ public class AptConfig {
     	if (dirString == null) {
     		throw new IllegalArgumentException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
     	}
-    	if( AptPlugin.DEBUG ){
-    		AptPlugin.trace("setting gen src dir to " + dirString + " for " + jproject.getElementName() );  //$NON-NLS-1$//$NON-NLS-2$
-    	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
-    }
-	
-    /**
-     * Save processor (-A) options as a string.  Option key/val pairs will be
-     * serialized as -Akey=val, and key/null pairs as -Akey.  Options are
-     * space-delimited.  The result resembles the apt command line.
-     * @param options a map containing zero or more key/value or key/null pairs.
-     */
-    public static String serializeProcessorOptions(Map<String, String> options) {
-    	StringBuilder sb = new StringBuilder();
-    	boolean firstEntry = true;
-    	for (Map.Entry<String, String> entry : options.entrySet()) {
-    		if (firstEntry) {
-    			firstEntry = false;
-        		sb.append("-A"); //$NON-NLS-1$
-    		}
-    		else {
-    			sb.append(" -A"); //$NON-NLS-1$
-    		}
-    		sb.append(entry.getKey());
-    		if (entry.getValue() != null) {
-    			sb.append("="); //$NON-NLS-1$
-    			sb.append(entry.getValue());
-    		}
-    	}
-    	return sb.toString();
     }
 	
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {

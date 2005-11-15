@@ -25,7 +25,7 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 	private BaseConfigurationBlock fConfigurationBlock;
 
 	protected Control createPreferenceContent(Composite composite) {
-		return getConfigurationBlock().createContents(composite);
+		return getConfigurationBlock().createPreferenceContent(composite);
 	}
 	
 	@Override

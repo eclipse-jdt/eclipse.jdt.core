@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -32,7 +33,6 @@ import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.ui.util.CoreUtility;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.CheckedListDialogField;
@@ -43,8 +43,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
 import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
@@ -396,9 +394,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
 		
-		cacheOriginalValues();
-		initListContents();
-
 		// Register a change listener on the checkboxes
 		CheckboxTableViewer tableViewer = (CheckboxTableViewer)fFactoryPathList.getTableViewer();
 		tableViewer.addCheckStateListener(new ICheckStateListener() {
@@ -407,16 +402,11 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			}
 		});
 
-		//TODO: enable help
-		//PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.BUILD_PATH_BLOCK);				
 		return fBlockControl;
 	}
-
-	/**
-	 * (Re-)initialize the contents of the list control to the currently saved factory path.
-	 * This relies on the cached values being correct (@see #cacheOriginalValues()).
-	 */
-	private void initListContents() {
+	
+	@Override
+	protected void initContents() {
 		fFactoryPathList.removeAllElements();
 		for (FactoryPathEntry originalFpe : fOriginalPath) {
 			// clone, because we may later modify it and we want to compare with the original.
@@ -425,19 +415,21 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			fFactoryPathList.setChecked(fpe, fpe._attr.isEnabled());
 		}
 	}
-	
+
 	/**
 	 * Save reference copies of the settings, so we can see if anything changed.
 	 * This must stay in sync with the actual saved values for the rebuild logic
 	 * to work; so be sure to call this any time you save (eg in performApply()).
 	 */
-	private void cacheOriginalValues() {
+	@Override
+	protected void cacheOriginalValues() {
 		IFactoryPath ifp = AptConfig.getFactoryPath(fJProj);
 		// we'll risk this downcast because we're such good buddies with apt.core.
 		FactoryPath fp = (FactoryPath)ifp;
 		Map<FactoryContainer, FactoryPath.Attributes> path = fp.getAllContainers();
 		fOriginalPath = FactoryPathEntry.pathListFromMap(path);
 		fOriginallyProjectSpecific = AptConfig.hasProjectSpecificFactoryPath(fJProj);
+		super.cacheOriginalValues();
 	}
 	
 	/*
@@ -655,7 +647,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		// TODO: validate that all the specified factory containers exist?
 	}
 	
-	private void saveSettings() {
+	protected void saveSettings() {
 		List<FactoryPathEntry> containers;
 		if ((fJProj != null) && !fBlockControl.isEnabled()) {
 			// We're in a project properties pane but the entire configuration 
@@ -679,6 +671,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			final String message = Messages.FactoryPathConfigurationBlock_unableToSaveFactorypath_message;
 			ExceptionHandler.handle(e, fBlockControl.getShell(), title, message);
 		}
+		
+		super.saveSettings();
 	}
 	
 	/**
@@ -701,58 +695,11 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 	
 	/**
-	 * If there are changed settings, save them and ask user whether to rebuild.
-	 * This is called by performOk() and performApply().
-	 * @param container null when called from performApply().
-	 */
-	protected boolean processChanges(IWorkbenchPreferenceContainer container) {
-		if (!settingsChanged()) {
-			return true;
-		}
-		
-		int response= 1; // "NO" rebuild unless we put up the dialog.
-		String[] strings= getFullBuildDialogStrings(fProject == null);
-		if (strings != null) {
-			MessageDialog dialog= new MessageDialog(
-					getShell(), 
-					strings[0], 
-					null, 
-					strings[1], 
-					MessageDialog.QUESTION, 
-					new String[] { 
-						IDialogConstants.YES_LABEL, 
-						IDialogConstants.NO_LABEL, 
-						IDialogConstants.CANCEL_LABEL 
-					}, 
-					2);
-			response= dialog.open();
-		}
-		if (response == 0 || response == 1) { // "YES" or "NO" - either way, save.
-			saveSettings();
-			if (container == null) {
-				// we're doing an Apply, so update the reference values.
-				cacheOriginalValues();
-			}
-		}
-		if (response == 0) { // "YES", rebuild
-			if (container != null) {
-				// build after dialog exits
-				container.registerUpdateJob(CoreUtility.getBuildJob(fProject));
-			} else {
-				// build immediately
-				CoreUtility.getBuildJob(fProject).schedule();
-			}
-		} else if (response != 1) { // "CANCEL" - no save, no rebuild.
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * @return true if settings or project-specificness changed since
 	 * the pane was launched - that is, if there is anything to save.
 	 */
-	private boolean settingsChanged() {
+	@Override
+	protected boolean settingsChanged(IScopeContext currContext) {
 		boolean isProjectSpecific= (fJProj != null) && fBlockControl.getEnabled();
 		if (fOriginallyProjectSpecific ^ isProjectSpecific) {
 			// the project-specificness changed.
