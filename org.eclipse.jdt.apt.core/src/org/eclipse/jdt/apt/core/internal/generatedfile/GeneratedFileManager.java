@@ -269,7 +269,11 @@ public class GeneratedFileManager {
 				}
 			}
 			if( genFragRoot == null ){
-				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName()); //$NON-NLS-1$
+				StringBuilder sb = new StringBuilder();
+				for (IPackageFragmentRoot root : roots) {
+					sb.append(root).append(" "); //$NON-NLS-1$
+				}
+				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName() + ". Roots: " + sb.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			if( typeName.indexOf('/') != -1 )
 				typeName = typeName.replace('/', '.');
@@ -1122,7 +1126,7 @@ public class GeneratedFileManager {
 			if (parents == null)
 				throw new RuntimeException(" parents is null and it shouldn't be"); //$NON-NLS-1$
 			if (!parents.contains(parentFile))
-				throw new RuntimeException("parents set does not contain parent"); //$NON-NLS-1$
+				throw new RuntimeException("parents set does not contain parent. Parent: " + parentFile + ". Child: " + generatedFile); //$NON-NLS-1$ //$NON-NLS-2$
 
 			parents.remove(parentFile);
 		}

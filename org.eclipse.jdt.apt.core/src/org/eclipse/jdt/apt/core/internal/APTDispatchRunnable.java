@@ -543,11 +543,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		
 			final IFile[] files = processorEnv.getFiles();
 			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( processorEnv.getJavaProject().getProject() );
-			final Set<IFile> lastGeneratedFiles = new HashSet<IFile>();
-			for( int i=0, len=files.length; i<len; i++ ){
-				final Set<IFile> genFiles = gfm.getGeneratedFilesForParent( files[i] );
-				if( genFiles != null )
-					lastGeneratedFiles.addAll(genFiles);
+			final Map<IFile,Set<IFile>> lastGeneratedFiles = new HashMap<IFile,Set<IFile>>();
+			for( IFile parentIFile : files ){
+				lastGeneratedFiles.put(parentIFile, gfm.getGeneratedFilesForParent(parentIFile));
 			}
 			
 			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(factories, processorEnv);
@@ -575,34 +573,30 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				}
 			}
 
-			final Set<IFile> allGeneratedFiles = new HashSet<IFile>();
-			Set<IFile> modifiedFiles = new HashSet<IFile>();
-			Map<IFile, Boolean> filesMap = processorEnv.getGeneratedFiles();
-			for (Map.Entry<IFile, Boolean> entry : filesMap.entrySet()) {
-				allGeneratedFiles.add(entry.getKey());
-				if (entry.getValue()) {
-					modifiedFiles.add(entry.getKey());
-				}
-			}
+			final Map<IFile, Set<IFile>> allGeneratedFiles = processorEnv.getAllGeneratedFiles();
+			final Set<IFile> modifiedGeneratedFiles = processorEnv.getModifiedGeneratedFiles();
 			
 			// any files that were generated for this parent on the last
 			// run, but are no longer generated should be removed
 			
 			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
 			Set<IFile> allDeletedFiles = new HashSet<IFile>();
-			for( int i=0, len=files.length; i<len; i++ ){
+			for( IFile file : files ){
+				Set<IFile> generatedFiles = allGeneratedFiles.get(file);
+				if (generatedFiles == null)
+					generatedFiles = Collections.emptySet();
 				final Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( 
-							files[i], 
+							file, 
 							processorEnv.getCompilationUnit(), 
-							lastGeneratedFiles, 
-							allGeneratedFiles, 
+							lastGeneratedFiles.get(file), 
+							generatedFiles, 
 							gfm,
 							processorEnv);
 				if(deletedFiles != null )
 					allDeletedFiles.addAll(deletedFiles);		
 			}		
 			
-			APTResult result = new APTResult( modifiedFiles, 
+			APTResult result = new APTResult( modifiedGeneratedFiles, 
 											  allDeletedFiles, 
 											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 
@@ -662,9 +656,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 		// make a copy into an array to avoid concurrent modification exceptions
 		IFile[] files = lastGeneratedFiles.toArray( new IFile[ lastGeneratedFiles.size() ] );
-		for ( int i = 0; i< files.length; i++ )
+		for ( IFile f : files )
 		{
-			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
 				if ( AptPlugin.DEBUG ) 

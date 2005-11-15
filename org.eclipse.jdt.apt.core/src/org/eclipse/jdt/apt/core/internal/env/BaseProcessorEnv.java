@@ -338,7 +338,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     // does not generated dependencies
     public TypeDeclaration getTypeDeclaration(String name)
     {	
-    	if( name == null ) return null;
+    	if( name == null || name.length() == 0 ) return null;
 		// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )

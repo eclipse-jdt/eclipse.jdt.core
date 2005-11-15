@@ -91,9 +91,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     private ICompilationUnit _unit;       
     private Map<IFile, List<IProblem>> _allProblems;
     
-	// Stores the generated java files and whether or not they were modified. In this case,
-	// new files will be considered "modified".
-    private Map<IFile, Boolean> _generatedFiles = new HashMap<IFile, Boolean>();
+	// Stores the generated java files from parent to child
+    private Map<IFile, Set<IFile>> _allGeneratedFiles = new HashMap<IFile, Set<IFile>>();
+    private Set<IFile> _modifiedGeneratedFiles = new HashSet<IFile>();
 	private Set<AnnotationProcessorListener> _listeners = null;
 	private final FilerImpl _filer;
 	private boolean _isClosed = false;
@@ -406,26 +406,30 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	}
 
 	public void addGeneratedFile( IFile f, boolean contentsChanged ) {		
-		if( _generatedFiles.containsKey(f) ){
-			// Could have generated the same file twice during one build.
-			// The first time, contentsChanged = true, second time, if the file
-			// is identical, contentsChanged will be false. 
-			// Overall during this process, the file has been changed.
-			boolean curValue = _generatedFiles.get(f);
-			contentsChanged |= curValue;
+		// Add first to the map of parent -> child
+		IFile parent = getFile();
+		Set<IFile> children = _allGeneratedFiles.get(parent);
+		if (children == null) {
+			children = new HashSet<IFile>();
+			_allGeneratedFiles.put(parent, children);
 		}
+		children.add(f);
 		
-		_generatedFiles.put( f, contentsChanged );
+		if (contentsChanged)
+			_modifiedGeneratedFiles.add(f);
 	}
 
     public ICompilationUnit getCompilationUnit(){ return _unit; }
-    public Map<IFile, Boolean> getGeneratedFiles(){ return _generatedFiles; }
+    
+    public Map<IFile, Set<IFile>> getAllGeneratedFiles(){ return _allGeneratedFiles; }
+    
+    public Set<IFile> getModifiedGeneratedFiles() { return _modifiedGeneratedFiles; }
 
 	/**
 	 * @return true iff source files has been generated.
 	 *         Always return false when this environment is closed.
 	 */
-	public boolean hasGeneratedSourceFiles(){ return !_generatedFiles.isEmpty();  }
+	public boolean hasGeneratedSourceFiles(){ return !_allGeneratedFiles.isEmpty();  }
 
 	/**
 	 * @return true iff class files has been generated.
@@ -514,7 +518,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	_units = null;
     	_allProblems = null;
         _modelCompUnit2astCompUnit.clear();		
-		_generatedFiles = null;
+		_allGeneratedFiles = null;
+		_modifiedGeneratedFiles = null;
 		if(_listeners != null)
 			_listeners.clear();
 		_isClosed = true;

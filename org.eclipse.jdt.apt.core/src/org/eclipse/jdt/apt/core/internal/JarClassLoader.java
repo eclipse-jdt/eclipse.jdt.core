@@ -37,7 +37,6 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 public class JarClassLoader extends ClassLoader {
 	
 	private final List<File> _files;
-	private final ClassLoader _parent;
 	
 	// This can be nulled out periodically when the classloader is closed
 	private List<JarFile> _jars;
@@ -47,7 +46,6 @@ public class JarClassLoader extends ClassLoader {
 	public JarClassLoader(List<File> jarFiles, final ClassLoader parent) {
 		super(parent);
 		_files = jarFiles;
-		_parent = parent;
 		open();
 	}
 	
@@ -91,13 +89,31 @@ public class JarClassLoader extends ClassLoader {
 		open();
 		try {
 			byte[] b = loadClassData(name);
-			if (b == null)
+			if (b == null) {
 				throw new ClassNotFoundException("Could not find class " + name); //$NON-NLS-1$
-			return defineClass(name, b, 0, b.length);
+			}
+			Class<?> clazz = defineClass(name, b, 0, b.length);
+			// Define the package if necessary
+			String pkgName = getPackageName(name);
+			if (pkgName != null) {
+				Package pkg = getPackage(pkgName);
+				if (pkg == null) {
+					definePackage(pkgName, null, null, null, null, null, null, null);
+				}
+			}
+			return clazz;
 		}
 		finally {
 			close();
 		}
+	}
+	
+	private String getPackageName(String fullyQualifiedName) {
+		int index = fullyQualifiedName.lastIndexOf('.');
+		if (index != -1) {
+			return fullyQualifiedName.substring(0, index);
+		}
+		return null;
 	}
 	
 	// returns null if no class found
@@ -126,7 +142,7 @@ public class JarClassLoader extends ClassLoader {
 	
 	@Override
 	public synchronized InputStream getResourceAsStream(String name) {
-		InputStream input = _parent.getResourceAsStream(name);
+		InputStream input = getParent().getResourceAsStream(name);
 		if (input != null)
 			return input;
 		open();
@@ -167,9 +183,10 @@ public class JarClassLoader extends ClassLoader {
 	public Enumeration<URL> getResources(String name) throws IOException {
 		throw new UnsupportedOperationException("getResources() not implemented"); //$NON-NLS-1$
 	}
-
 	
 	private class JarCLInputStream extends InputStream {
+		
+		private boolean _closed = false;
 		
 		private final InputStream _input;
 		
@@ -180,9 +197,14 @@ public class JarClassLoader extends ClassLoader {
 
 		@Override
 		public void close() throws IOException {
+ 			if (_closed) {
+				// NOOP
+				return;
+			}
 			try {
 				super.close();
 				_input.close();
+				_closed = true;
 			}
 			finally {
 				JarClassLoader.this.close();
