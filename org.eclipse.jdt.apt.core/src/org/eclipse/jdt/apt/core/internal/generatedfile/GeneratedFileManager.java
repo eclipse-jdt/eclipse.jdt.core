@@ -37,6 +37,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
@@ -145,17 +147,34 @@ public class GeneratedFileManager {
 		_project = project;
 		_javaProject = JavaCore.create( _project );
 		
-		// register a preference listener so that we can watch for changes to the gen src dir
-		ProjectScope projScope = new ProjectScope(project);
+		// register a preference listener so that we can watch for changes 
+		// to the gen src dir at the project scope...
+		IScopeContext projScope = new ProjectScope(project);
 		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
-		IPreferenceChangeListener listener = new IPreferenceChangeListener() {
+		IPreferenceChangeListener projListener = new IPreferenceChangeListener() {
 			public void preferenceChange(PreferenceChangeEvent event) {
 				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
 					setGeneratedSourceFolderName( (String)event.getNewValue() );
 				}
 			}
 		};
-		projPrefs.addPreferenceChangeListener(listener);
+		projPrefs.addPreferenceChangeListener(projListener);
+		
+		// ...and at the workspace scope.
+		// Note we check all projects, even those that have project-specific
+		// settings, when the workspace setting changes.  For projects with
+		// project-specific settings, the value of the setting won't change 
+		// so the request will be ignored.
+		IScopeContext wkspScope = new InstanceScope();
+		IEclipsePreferences wkspPrefs = wkspScope.getNode(AptPlugin.PLUGIN_ID);
+		IPreferenceChangeListener wkspListener = new IPreferenceChangeListener() {
+			public void preferenceChange(PreferenceChangeEvent event) {
+				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
+					setGeneratedSourceFolderName( AptConfig.getGenSrcDir(_javaProject) );
+				}
+			}
+		};
+		wkspPrefs.addPreferenceChangeListener(wkspListener);
 		
 		// get generated source dir from config 
 		// default value is set in org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer
