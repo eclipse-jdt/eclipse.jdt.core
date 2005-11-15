@@ -216,8 +216,8 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			ArrayList participants = new ArrayList();
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
-			if (extension == null) 
-				return null;
+			if (extension == null)
+				return this.registeredParticipants = NO_PARTICIPANTS;
 			IExtension[] extensions = extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++) {
 				// for all extensions of this point...
