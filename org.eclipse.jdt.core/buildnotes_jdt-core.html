@@ -52,9 +52,9 @@ Eclipse SDK 3.2M4 - ?th November 2005
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> DOM type bindings for generics got adjusted. As observed in bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115662">115662</a>,
-there were situations where a reference to a generic type from within itself would expose the generic type binding, instead of a parameterized type
-binding (using its own type parameters as type arguments). This is now corrected, clients should ensure they did not rely on the previous inconsistency.
+<li> DOM type bindings for generics got adjusted. There were situations where a reference to a generic type from within itself would expose the declared 
+generic type binding, instead of a parameterized type binding (using its own type parameters as type arguments). This is now corrected, clients should 
+ensure they did not rely on the previous inconsistency (note: no change was required from direct JDT dependents).
 </li>
 </ul>
 
