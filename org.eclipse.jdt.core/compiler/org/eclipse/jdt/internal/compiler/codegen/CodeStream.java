@@ -900,7 +900,7 @@ final public void dup2_x2() {
 	bCodeStream[classFileOffset++] = OPC_dup2_x2;
 }
 public void exitUserScope(BlockScope currentScope) {
-	// mark all the scope's locals as loosing their definite assignment
+	// mark all the scope's locals as losing their definite assignment
 
 	if (!generateLocalVariableTableAttributes)
 		return;
@@ -911,7 +911,7 @@ public void exitUserScope(BlockScope currentScope) {
 		if (visibleLocal.declaringScope != currentScope) // left currentScope
 			break;
 
-		// there maybe some some preserved locals never initialized
+		// there may be some preserved locals never initialized
 		if (visibleLocal.initializationCount > 0){
 			visibleLocal.recordInitializationEndPC(position);
 		}
