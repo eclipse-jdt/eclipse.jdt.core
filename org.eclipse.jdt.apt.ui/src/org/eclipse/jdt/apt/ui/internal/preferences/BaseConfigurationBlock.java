@@ -170,6 +170,7 @@ public abstract class BaseConfigurationBlock {
 	private static final String SETTINGS_EXPANDED= "expanded"; //$NON-NLS-1$
 
 	protected final Key[] fAllKeys;
+	private boolean fOriginallyHadProjectSettings; // updated in cacheOriginalValues
 	private Map<Key, String> fDisabledProjectSettings; // null when project specific settings are turned off
 	protected IScopeContext[] fLookupOrder;
 	protected final IWorkingCopyManager fManager;
@@ -188,6 +189,8 @@ public abstract class BaseConfigurationBlock {
 
 	private IWorkbenchPreferenceContainer fContainer;
 	private Shell fShell;
+
+	private Control fBlockControl;
 	
 	protected static Key getKey(String plugin, String name) {
 		return new Key(plugin, name);
@@ -222,7 +225,7 @@ public abstract class BaseConfigurationBlock {
 		}
 		
 		testIfOptionsComplete(keys);
-		if (fProject == null || hasProjectSpecificOptions(fProject)) {
+		if (fProject == null || hasProjectSpecificOptionsNoCache(fProject)) {
 			fDisabledProjectSettings= null;
 		} else {
 			fDisabledProjectSettings= new IdentityHashMap<Key, String>();
@@ -361,12 +364,12 @@ public abstract class BaseConfigurationBlock {
 	 * Called from BasePreferencePage#createPreferenceContent.
 	 */
 	public final Control createPreferenceContent(Composite parent) {
-		Control control = createContents(parent);
-		if (control != null) {
+		fBlockControl = createContents(parent);
+		if (fBlockControl != null) {
 			cacheOriginalValues();
 			initContents();
 		}
-		return control;
+		return fBlockControl;
 	}
 
 	/**
@@ -384,7 +387,7 @@ public abstract class BaseConfigurationBlock {
 	 * values, for later comparison to see if anything changed.
 	 */
 	protected void cacheOriginalValues() {
-		// Base method does nothing.
+		fOriginallyHadProjectSettings= hasProjectSpecificOptionsNoCache(fProject);
 	}
 
 	/**
@@ -582,19 +585,6 @@ public abstract class BaseConfigurationBlock {
 		return key.getStoredValue(fLookupOrder, false, fManager);
 	}
 	
-	public final boolean hasProjectSpecificOptions(IProject project) {
-		if (project != null) {
-			IScopeContext projectContext= new ProjectScope(project);
-			Key[] allKeys= fAllKeys;
-			for (int i= 0; i < allKeys.length; i++) {
-				if (allKeys[i].getStoredValue(projectContext, fManager) != null) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	/**
 	 * TODO: this method is a workaround for Bugzilla 111144 and 106111.  When
 	 * 111144 is fixed, remove this method and call hasProjectSpecificOptions() 
@@ -681,10 +671,22 @@ public abstract class BaseConfigurationBlock {
 	 * If there are changed settings, save them and ask user whether to rebuild.
 	 * This is called by performOk() and performApply().
 	 * @param container null when called from performApply().
+	 * @return false to abort exiting the preference pane.
 	 */
 	protected boolean processChanges(IWorkbenchPreferenceContainer container) {
-		IScopeContext currContext= fLookupOrder[0];
-		if (!settingsChanged(currContext)) {
+		
+		boolean projectSpecificnessChanged = false;
+		boolean isProjectSpecific= (fProject != null) && fBlockControl.getEnabled();
+		if (fOriginallyHadProjectSettings ^ isProjectSpecific) {
+			// the project-specificness changed.
+			projectSpecificnessChanged= true;
+		} else if ((fProject != null) && !isProjectSpecific) {
+			// no project specific data, and there never was, and this
+			// is a project preferences pane, so nothing could have changed.
+			return true;
+		}
+
+		if (!projectSpecificnessChanged && !settingsChanged(fLookupOrder[0])) {
 			return true;
 		}
 		

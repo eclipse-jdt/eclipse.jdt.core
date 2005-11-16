@@ -199,13 +199,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	private List<FactoryPathEntry> fOriginalPath;
 	
-	/**
-	 * True if the pref pane is for a project and project-specific
-	 * settings were enabled when the pane was initialized.
-	 * Use this to see if anything changed at save time.
-	 */
-	private boolean fOriginallyProjectSpecific;
-	
 	private final IJavaProject fJProj;
 
 	/** 
@@ -406,6 +399,11 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 	
 	@Override
+	public boolean hasProjectSpecificOptionsNoCache(IProject project) {
+		return (project == null) ? false : AptConfig.hasProjectSpecificFactoryPath(JavaCore.create(project));
+	}
+
+	@Override
 	protected void initContents() {
 		fFactoryPathList.removeAllElements();
 		for (FactoryPathEntry originalFpe : fOriginalPath) {
@@ -428,7 +426,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		FactoryPath fp = (FactoryPath)ifp;
 		Map<FactoryContainer, FactoryPath.Attributes> path = fp.getAllContainers();
 		fOriginalPath = FactoryPathEntry.pathListFromMap(path);
-		fOriginallyProjectSpecific = AptConfig.hasProjectSpecificFactoryPath(fJProj);
 		super.cacheOriginalValues();
 	}
 	
@@ -700,14 +697,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	@Override
 	protected boolean settingsChanged(IScopeContext currContext) {
-		boolean isProjectSpecific= (fJProj != null) && fBlockControl.getEnabled();
-		if (fOriginallyProjectSpecific ^ isProjectSpecific) {
-			// the project-specificness changed.
-			return true;
-		} else if ((fJProj != null) && !isProjectSpecific) {
-			// no project specific data, and there never was, so nothing could have changed.
-			return false;
-		}
 		if (fOriginalPath == null) {
 			// shouldn't happen, but just in case it does, consider it a change.
 			return true;

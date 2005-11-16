@@ -280,6 +280,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	
 	@Override
 	protected void cacheOriginalValues() {
+		super.cacheOriginalValues();
 		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
 	}
 

@@ -11,11 +11,8 @@
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.AptUIPlugin;
 import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
@@ -48,11 +45,6 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 		super.createControl(parent);
 	}
 
-	protected boolean hasProjectSpecificOptions(IProject project) {
-		useProjectSettings();
-		return (project == null) ? false : AptConfig.hasProjectSpecificFactoryPath(JavaCore.create(project));
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage#getPreferencePageID()
 	 */
