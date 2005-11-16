@@ -911,13 +911,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(exceptionTableEntry.getHandlerPC()),
 					new String(catchType)
 				}));
-			writeNewLine(buffer, lineSeparator, 0);
 		}
 		final ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 		final int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
 			int tabNumberForLineAttribute = tabNumber + 2;
-			dumpTab(tabNumberForLineAttribute, buffer);
+			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute);
 			buffer.append(Messages.disassembler_linenumberattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
@@ -974,7 +973,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(index),
 					new String(returnClassName(typeName, '.', mode))
 				}));
-		} 
+		}
 		final ILocalVariableTypeTableAttribute localVariableTypeAttribute= (ILocalVariableTypeTableAttribute) getAttribute(IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE, codeAttribute);
 		final int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
 		if (localVariableTypeTableLength != 0) {
