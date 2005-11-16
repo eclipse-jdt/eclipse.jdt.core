@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
-	// TODO (olivier) enable code in test004/005/007 once 41421 is fixed
 	static {
 //		TESTS_NAMES = new String[] { "testRootPath13" };
 //		TESTS_NUMBERS = new int[] { 10 };
