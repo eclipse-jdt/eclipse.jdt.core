@@ -14,6 +14,8 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.File;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.JavaCore;
 
 /**
@@ -31,7 +33,15 @@ public class VarJarFactoryContainer extends JarFactoryContainer {
 	public VarJarFactoryContainer(IPath jarPath) {
 		_id = jarPath.toString();
 		IPath resolved = JavaCore.getResolvedVariablePath(jarPath);
-		_jarFile = resolved.toFile();
+		if (null != resolved) {
+			_jarFile = resolved.toFile();
+		}
+		else {
+			_jarFile = null;
+			IStatus s = AptPlugin.createWarningStatus(
+				null, "The factorypath entry " + _id + " could not be resolved"); //$NON-NLS-1$ //$NON-NLS-2$
+			AptPlugin.log(s);
+		}
 	}
 
 	@Override
