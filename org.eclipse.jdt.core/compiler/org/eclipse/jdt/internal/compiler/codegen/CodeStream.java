@@ -2171,87 +2171,219 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 	}
 }
 public void generateBoxingConversion(int unboxedTypeID) {
-	switch (unboxedTypeID) {
-		case T_byte :
-			// invokestatic: Byte.valueOf(byte)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangByteConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.byteByteSignature);
-			break;
-		case T_short :
-			// invokestatic: Short.valueOf(short)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangShortConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.shortShortSignature);
-			break;
-		case T_char :
-			// invokestatic: Character.valueOf(char)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangCharacterConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.charCharacterSignature);
-			break;
-		case T_int :
-			// invokestatic: Integer.valueOf(int)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangIntegerConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.IntIntegerSignature);
-			break;
-		case T_long :
-			// invokestatic: Long.valueOf(long)
-			this.invoke(
-				OPC_invokestatic,
-				2, // argCount
-				1, // return type size
-				ConstantPool.JavaLangLongConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.longLongSignature);
-			break;
-		case T_float :
-			// invokestatic: Float.valueOf(float)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangFloatConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.floatFloatSignature);
-			break;
-		case T_double :
-			// invokestatic: Double.valueOf(double)
-			this.invoke(
-				OPC_invokestatic,
-				2, // argCount
-				1, // return type size
-				ConstantPool.JavaLangDoubleConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.doubleDoubleSignature);
-			break;
-		case T_boolean :
-			// invokestatic: Boolean.valueOf(boolean)
-			this.invoke(
-				OPC_invokestatic,
-				1, // argCount
-				1, // return type size
-				ConstantPool.JavaLangBooleanConstantPoolName,
-				ConstantPool.ValueOf,
-				ConstantPool.booleanBooleanSignature);
-	}
+    switch (unboxedTypeID) {
+        case T_byte :
+            if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+    			if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Byte.valueOf(byte)"); //$NON-NLS-1$
+               // invokestatic: Byte.valueOf(byte)
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangByteConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.byteByteSignature);
+            } else {
+               // new Byte( byte )
+    			if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Byte(byte)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x1();
+                swap();
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangByteConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.ByteConstrSignature);
+            }       
+            break;
+        case T_short :
+            if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
+                // invokestatic: Short.valueOf(short)
+    			if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Short.valueOf(short)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangShortConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.shortShortSignature);
+            } else {
+                // new Short(short)
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Short(short)"); //$NON-NLS-1$
+            	newWrapperFor(unboxedTypeID);                
+                dup_x1();
+                swap();             
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangShortConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.ShortConstrSignature);     
+            }
+            break;
+        case T_char :
+            if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
+                // invokestatic: Character.valueOf(char)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Character.valueOf(char)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangCharacterConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.charCharacterSignature);
+            } else {
+                // new Char( char )
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Character(char)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x1();
+                swap();
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangCharacterConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.CharConstrSignature);
+            }       
+            break;
+        case T_int :             
+            if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+                // invokestatic: Integer.valueOf(int)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Integer.valueOf(int)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangIntegerConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.IntIntegerSignature);
+            } else {
+                // new Integer(int)
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Integer(int)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x1();
+                swap();             
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangIntegerConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.IntConstrSignature);
+            }
+            break;
+        case T_long :
+            if (this.targetLevel >= ClassFileConstants.JDK1_5) { 
+                // invokestatic: Long.valueOf(long)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Long.valueOf(long)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    2, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangLongConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.longLongSignature);
+            } else {
+                // new Long( long )
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Long(long)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x2();
+                dup_x2();
+                pop();
+                this.invoke(
+                    OPC_invokespecial,
+                    2, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangLongConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.LongConstrSignature);
+            }                   
+            break;
+        case T_float :
+            if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
+                // invokestatic: Float.valueOf(float)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Float.valueOf(float)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangFloatConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.floatFloatSignature);
+            } else {
+                // new Float(float)
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Float(float)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x1();
+                swap();             
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangFloatConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.FloatConstrSignature);
+            }       
+            break;
+        case T_double :
+            if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) { 
+                // invokestatic: Double.valueOf(double)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Double.valueOf(double)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    2, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangDoubleConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.doubleDoubleSignature);
+            } else {
+                // new Double( double )
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Double(double)"); //$NON-NLS-1$
+            	newWrapperFor(unboxedTypeID);                
+                dup_x2();
+                dup_x2();
+                pop();
+                
+                this.invoke(
+                    OPC_invokespecial,
+                    2, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangDoubleConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.DoubleConstrSignature);
+            }       
+            
+            break;  
+        case T_boolean :
+            if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
+                // invokestatic: Boolean.valueOf(boolean)
+            	if (DEBUG) System.out.println(position + "\t\tinvokestatic java.lang.Boolean.valueOf(boolean)"); //$NON-NLS-1$
+                this.invoke(
+                    OPC_invokestatic,
+                    1, // argCount
+                    1, // return type size
+                    ConstantPool.JavaLangBooleanConstantPoolName,
+                    ConstantPool.ValueOf,
+                    ConstantPool.booleanBooleanSignature);
+            } else {
+                // new Boolean(boolean)
+            	if (DEBUG) System.out.println(position + "\t\tinvokespecial java.lang.Boolean(boolean)"); //$NON-NLS-1$
+                newWrapperFor(unboxedTypeID);
+                dup_x1();
+                swap();             
+                this.invoke(
+                    OPC_invokespecial,
+                    1, // argCount
+                    0, // return type size
+                    ConstantPool.JavaLangBooleanConstantPoolName,
+                    ConstantPool.Init,
+                    ConstantPool.BooleanConstrSignature);
+            }
+    }
 }
 public void generateUnboxingConversion(int unboxedTypeID) {
 	switch (unboxedTypeID) {
