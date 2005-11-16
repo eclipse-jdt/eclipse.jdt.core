@@ -641,6 +641,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				versionNumber = JavaCore.VERSION_1_4;
 			} else if (minorVersion == 0 && majorVersion == 49) {
 				versionNumber = JavaCore.VERSION_1_5;
+			} else if (minorVersion == 0 && majorVersion == 50) {
+				versionNumber = JavaCore.VERSION_1_6;
 			}
 			buffer.append(
 				Messages.bind(Messages.classfileformat_versiondetails,
@@ -872,8 +874,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		}
 		final int exceptionTableLength = codeAttribute.getExceptionTableLength();
+		boolean isFirstAttribute = true;
 		if (exceptionTableLength != 0) {
 			final int tabNumberForExceptionAttribute = tabNumber + 2;
+			isFirstAttribute = false;
 			dumpTab(tabNumberForExceptionAttribute, buffer);
 			final IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Messages.disassembler_exceptiontableheader); 
@@ -916,7 +920,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
 			int tabNumberForLineAttribute = tabNumber + 2;
-			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute);
+			if (!isFirstAttribute) {
+				writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute);
+			} else {
+				dumpTab(tabNumberForLineAttribute, buffer);
+				isFirstAttribute = false;
+			}
 			buffer.append(Messages.disassembler_linenumberattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
@@ -938,7 +947,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (localVariableAttributeLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
-			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
+			if (!isFirstAttribute) {
+				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
+			} else {
+				isFirstAttribute = false;
+				dumpTab(tabNumberForLocalVariableAttribute, buffer);
+			}
 			buffer.append(Messages.disassembler_localvariabletableattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
@@ -978,7 +992,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
 		if (localVariableTypeTableLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
-			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
+			if (!isFirstAttribute) {
+				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
+			} else {
+				isFirstAttribute = false;
+				dumpTab(tabNumberForLocalVariableAttribute, buffer);
+			}
 			buffer.append(Messages.disassembler_localvariabletypetableattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			ILocalVariableTypeTableEntry[] localVariableTypeTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
@@ -1020,11 +1039,36 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			for (int i = 0; i < length; i++) {
 				IClassFileAttribute attribute = attributes[i];
 				if (CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.STACK_MAP_TABLE)) {
-					disassemble((StackMapTableAttribute) attribute, buffer, lineSeparator, tabNumber + 1, mode);
+					IStackMapTableAttribute stackMapTableAttribute = (IStackMapTableAttribute) attribute;
+					if (!isFirstAttribute) {
+						writeNewLine(buffer, lineSeparator, tabNumber + 2);
+					} else {
+						isFirstAttribute = false;
+						dumpTab(tabNumber + 1, buffer);
+					}
+					int numberOfEntries = stackMapTableAttribute.getNumberOfEntries();
+					buffer.append(Messages.bind(Messages.disassembler_stackmaptableattributeheader, Integer.toString(numberOfEntries)));
+					if (numberOfEntries != 0) {
+						writeNewLine(buffer, lineSeparator, tabNumber + 3);
+						final IStackMapFrame[] stackMapFrames = stackMapTableAttribute.getStackMapFrame();
+						for (int j = 0; j < numberOfEntries; j++) {
+							disassemble(stackMapFrames[j], buffer, lineSeparator, tabNumber + 2, mode);
+						}
+					}
 				} else if (attribute != lineNumberAttribute
 						&& attribute != localVariableAttribute
 						&& attribute != localVariableTypeAttribute) {
-					disassemble(attribute, buffer, lineSeparator, tabNumber + 1);
+					if (!isFirstAttribute) {
+						writeNewLine(buffer, lineSeparator, tabNumber + 2);
+					} else {
+						isFirstAttribute = false;
+						dumpTab(tabNumber + 1, buffer);
+					}
+					buffer.append(Messages.bind(Messages.disassembler_genericattributeheader,
+						new String[] {
+							new String(attribute.getAttributeName()),
+							Long.toString(attribute.getAttributeLength())
+						}));
 				}
 			}
 		}		
@@ -1491,20 +1535,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IParameterAnnotation[] parameterAnnotations = runtimeVisibleParameterAnnotationsAttribute.getParameterAnnotations();
 		for (int i = 0, max = parameterAnnotations.length; i < max; i++) {
 			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1);
-		}
-	}
-
-
-	private void disassemble(IStackMapTableAttribute attribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		int numberOfEntries = attribute.getNumberOfEntries();
-		buffer.append(Messages.bind(Messages.disassembler_stackmaptableattributeheader, Integer.toString(numberOfEntries)));
-		if (numberOfEntries != 0) {
-			writeNewLine(buffer, lineSeparator, tabNumber + 2);
-			final IStackMapFrame[] stackMapFrames = attribute.getStackMapFrame();
-			for (int i = 0; i < numberOfEntries; i++) {
-				disassemble(stackMapFrames[i], buffer, lineSeparator, tabNumber + 2, mode);
-			}
 		}
 	}
 
