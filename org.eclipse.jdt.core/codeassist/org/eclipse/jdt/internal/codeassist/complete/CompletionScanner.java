@@ -36,9 +36,6 @@ public class CompletionScanner extends Scanner {
 	public int completedIdentifierStart = 0;
 	public int completedIdentifierEnd = -1;
 	public int unicodeCharSize;
-	
-	public boolean whitespacesBeforeCompletedTokenFound = false;
-	public boolean completedTokenFound = false;
 
 	public static final char[] EmptyCompletionIdentifier = {};
 	
@@ -137,12 +134,9 @@ public int getNextToken() throws InvalidInputException {
 					}
 					if (this.currentPosition > this.eofPosition) {
 						/* might be completing at eof (e.g. behind a dot) */
-						if (!this.completedTokenFound && 
+						if (this.completionIdentifier == null && 
 							this.startPosition == this.cursorLocation + 1){
 							this.currentPosition = this.startPosition; // for being detected as empty free identifier
-							this.completedTokenFound = true;
-							this.completedIdentifierStart = this.startPosition;
-							this.completedIdentifierEnd = this.currentPosition - 1;
 							return TokenNameIdentifier;
 						}	
 						return TokenNameEOF;
@@ -167,24 +161,12 @@ public int getNextToken() throws InvalidInputException {
 				}
 				/* completion requesting strictly inside blanks */
 				if ((whiteStart != this.currentPosition)
-						//&& (previousToken == TokenNameDOT)
-						&& (!this.completedTokenFound)
-						&& (whiteStart <= this.cursorLocation+1)
-						&& (this.cursorLocation < this.startPosition)
-						&& !Character.isJavaIdentifierStart(this.currentCharacter)){
-
-					if (this.tokenizeWhiteSpace && hasWhiteSpaces && !this.whitespacesBeforeCompletedTokenFound) {
-						// reposition scanner in case we are interested by spaces as tokens
-						this.currentPosition-=offset;
-						this.startPosition = whiteStart;
-						this.whitespacesBeforeCompletedTokenFound = true;
-						return TokenNameWHITESPACE;
-					}
+					//&& (previousToken == TokenNameDOT)
+					&& (this.completionIdentifier == null)
+					&& (whiteStart <= this.cursorLocation+1)
+					&& (this.cursorLocation < this.startPosition)
+					&& !Character.isJavaIdentifierStart(this.currentCharacter)){
 					this.currentPosition = this.startPosition; // for next token read
-					this.completedTokenFound = true;
-					this.completedIdentifierStart = this.startPosition;
-					this.completedIdentifierEnd = this.currentPosition - 1;
-					this.whitespacesBeforeCompletedTokenFound = false;
 					return TokenNameIdentifier;
 				}
 			} while (isWhiteSpace);
@@ -197,7 +179,7 @@ public int getNextToken() throws InvalidInputException {
 			//little trick to get out in the middle of a source computation
 			if (this.currentPosition > this.eofPosition){
 				/* might be completing at eof (e.g. behind a dot) */
-				if (!this.completedTokenFound  && 
+				if (this.completionIdentifier == null && 
 					this.startPosition == this.cursorLocation + 1){
 					// compute end of empty identifier.
 					// if the empty identifier is at the start of a next token the end of
@@ -205,9 +187,6 @@ public int getNextToken() throws InvalidInputException {
 				 	while(getNextCharAsJavaIdentifierPart()){/*empty*/}
 				 	this.endOfEmptyToken = this.currentPosition - 1;
 					this.currentPosition = this.startPosition; // for being detected as empty free identifier
-					this.completedTokenFound = true;
-					this.completedIdentifierStart = this.startPosition;
-					this.completedIdentifierEnd = this.currentPosition - 1;
 					return TokenNameIdentifier;
 				}				
 				return TokenNameEOF;
@@ -457,9 +436,6 @@ public int getNextToken() throws InvalidInputException {
 											&& this.cursorLocation <= this.currentPosition-1) {
 										this.currentPosition = start;
 										// complete inside a string literal
-										this.completedTokenFound = true;
-										this.completedIdentifierStart = this.startPosition;
-										this.completedIdentifierEnd = this.currentPosition - 1;
 										return TokenNameStringLiteral;
 									}
 									start = this.currentPosition;
@@ -487,9 +463,6 @@ public int getNextToken() throws InvalidInputException {
 									if(this.startPosition <= this.cursorLocation
 											&& this.cursorLocation <= this.currentPosition-1) {
 										// complete inside a string literal
-										this.completedTokenFound = true;
-										this.completedIdentifierStart = this.startPosition;
-										this.completedIdentifierEnd = this.currentPosition - 1;
 										return TokenNameStringLiteral;
 									}
 								}
@@ -539,9 +512,6 @@ public int getNextToken() throws InvalidInputException {
 						if(this.startPosition <= this.cursorLocation
 							&& this.cursorLocation < this.currentPosition) {
 							// complete inside a string literal
-							this.completedTokenFound = true;
-							this.completedIdentifierStart = this.startPosition;
-							this.completedIdentifierEnd = this.currentPosition - 1;
 							return TokenNameStringLiteral;
 						}
 						throw new InvalidInputException(UNTERMINATED_STRING);
@@ -561,11 +531,6 @@ public int getNextToken() throws InvalidInputException {
 
 						}
 						throw e; // rethrow
-					}
-					if (this.startPosition <= this.cursorLocation && this.cursorLocation <= this.currentPosition-1){
-						this.completedTokenFound = true;
-						this.completedIdentifierStart = this.startPosition;
-						this.completedIdentifierEnd = this.currentPosition - 1;
 					}
 					return TokenNameStringLiteral;
 				case '/' :
@@ -824,12 +789,9 @@ public int getNextToken() throws InvalidInputException {
 		}
 	}
 	/* might be completing at very end of file (e.g. behind a dot) */
-	if (!this.completedTokenFound && 
+	if (this.completionIdentifier == null && 
 		this.startPosition == this.cursorLocation + 1){
 		this.currentPosition = this.startPosition; // for being detected as empty free identifier
-		this.completedTokenFound = true;
-		this.completedIdentifierStart = this.startPosition;
-		this.completedIdentifierEnd = this.currentPosition - 1;
 		return TokenNameIdentifier;
 	}
 	return TokenNameEOF;
@@ -844,14 +806,6 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
 	}
 }
-public void resetTo(int begin, int end) {
-	super.resetTo(begin, end);
-	if(this.completedTokenFound && this.completedIdentifierStart >= begin) {
-		this.completedTokenFound = false;
-		this.whitespacesBeforeCompletedTokenFound = false;
-	}
-}
-
 ///*
 // * In case we actually read a keyword, but the cursor is located inside,
 // * we pretend we read an identifier.
@@ -861,17 +815,10 @@ public int scanIdentifierOrKeyword() {
 	int id = super.scanIdentifierOrKeyword();
 
 	// convert completed keyword into an identifier
-	if (this.startPosition <= this.cursorLocation+1 
+	if (id != TokenNameIdentifier
+		&& this.startPosition <= this.cursorLocation+1 
 		&& this.cursorLocation < this.currentPosition){
-		if(!this.completedTokenFound) {
-			this.completedTokenFound = true;
-			this.completedIdentifierStart = this.startPosition;
-			this.completedIdentifierEnd = this.currentPosition - 1;
-			return TokenNameIdentifier;
-		} else if(this.completedIdentifierStart == this.startPosition
-				&& this.completedIdentifierEnd == this.currentPosition - 1) {
-				return TokenNameIdentifier;
-		}
+		return TokenNameIdentifier;
 	}
 	return id;
 }

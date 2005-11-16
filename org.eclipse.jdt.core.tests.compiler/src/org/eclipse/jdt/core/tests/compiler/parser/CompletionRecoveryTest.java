@@ -625,7 +625,7 @@ public void test14() {
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
-		NONE,
+		"",
 		// expectedReplacedSource:
 		NONE,
 		// test name
@@ -656,7 +656,7 @@ public void test15() {
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
-		NONE,
+		"",
 		// expectedReplacedSource:
 		NONE,
 		// test name

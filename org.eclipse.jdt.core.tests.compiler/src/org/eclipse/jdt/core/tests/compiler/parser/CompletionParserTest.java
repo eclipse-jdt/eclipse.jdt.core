@@ -8615,4 +8615,35 @@ public void test016(){
 		expectedReplacedSource,
 		testName); 
 }
+
+public void test017(){
+	String str = 
+		"public class Bar {\n" +
+		"  String s;\n" + 
+		"  /**/\n" + 
+		"}\n";
+
+	String testName = "";
+	String completeBehind = "/**/";
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	int cursorLocation = str.lastIndexOf("/**/") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+		"public class Bar {\n" + 
+		"  String s;\n" + 
+		"  <CompleteOnType:>;\n" + 
+		"  public Bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
 }

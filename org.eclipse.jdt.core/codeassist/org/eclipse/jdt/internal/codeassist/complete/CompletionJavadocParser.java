@@ -73,10 +73,6 @@ public class CompletionJavadocParser extends JavadocParser {
 				System.out.println("COMPLETION in Javadoc:"); //$NON-NLS-1$
 			}
 			completionScanner.completionIdentifier = null;
-			completionScanner.completedTokenFound = false;
-			completionScanner.completedIdentifierStart = 0;
-			completionScanner.completedIdentifierEnd = -1;
-			completionScanner.whitespacesBeforeCompletedTokenFound = false;
 			this.firstTagPosition = 1;
 			super.checkDeprecation(commentPtr);
 		} else {
@@ -461,7 +457,14 @@ public class CompletionJavadocParser extends JavadocParser {
 			char[] name = null;
 			CompletionScanner completionScanner = (CompletionScanner) this.scanner;
 			boolean isTypeParam = false;
-			if (this.identifierPtr >= 0) {
+			if (this.identifierPtr < 0) {
+				// workaround, empty token should set an empty identifier by scanner and so identifierPtr should be == 0
+				if (completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
+					namePosition = completionScanner.completedIdentifierStart;
+					startPosition = completionScanner.completedIdentifierStart;
+					endPosition = completionScanner.completedIdentifierEnd;
+				}
+			} else {
 				char[] identifier = null;
 				switch (this.identifierPtr) {
 					case 2:
