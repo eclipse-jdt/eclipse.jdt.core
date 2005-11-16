@@ -131,7 +131,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 		if (this.binding != null && this.binding.isValidBinding()) {
 			FieldBinding originalBinding = this.binding.original();
-			if (originalBinding != this.binding) {
+			if (originalBinding != this.binding && originalBinding.type != this.binding.type) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 

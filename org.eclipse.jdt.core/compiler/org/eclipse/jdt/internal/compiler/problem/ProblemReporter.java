@@ -5427,7 +5427,8 @@ public void unsafeCast(CastExpression castExpression, Scope scope) {
 	TypeBinding erasedLeaf = erasedCastType.leafComponentType();
 	int dim = erasedCastType.dimensions();
 	if (erasedLeaf.isGenericType()) {
-		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, erasedLeaf.enclosingType());
+		ReferenceBinding leafEnclosing = scope.environment().convertToParameterizedType(erasedLeaf.enclosingType());
+		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, leafEnclosing);
 		if (dim > 0) erasedCastType = scope.environment().createArrayType(erasedCastType, dim);
 	}	
 	this.handle(

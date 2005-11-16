@@ -145,7 +145,7 @@ public class BlockScope extends Scope {
 	 */
 	public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 
-		if (enclosingSourceType() != binding.declaringClass)
+		if (enclosingReceiverType() != binding.declaringClass)
 			return false;
 
 		MethodScope methodScope = methodScope();

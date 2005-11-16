@@ -65,7 +65,7 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 /* Answer true if the receiver is visible to the receiverType and the invocationType.
 */
 
-public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBinding invocationType) {
+public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
 	if (invocationType == this && invocationType == receiverType) return true;
@@ -83,12 +83,10 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBindin
 		ReferenceBinding currentType = invocationType;
 		ReferenceBinding declaringClass = enclosingType(); // protected types always have an enclosing one
 		if (declaringClass == invocationType) return true;
-
-		ReferenceBinding declaringErasure = (ReferenceBinding) declaringClass.erasure();
 		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
 		//int depth = 0;
 		do {
-			if (currentType.findSuperTypeWithSameErasure(declaringErasure) != null) return true;
+			if (currentType.findSuperTypeWithSameErasure(declaringClass) != null) return true;
 			//depth++;
 			currentType = currentType.enclosingType();
 		} while (currentType != null);

@@ -130,7 +130,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
 					if (match != null){
 						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-						if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+						if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
 							unchecked = true;
 					}
 				} 
@@ -148,7 +148,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
 					if (match != null){
 						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-						if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+						if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
 							unchecked = true;
 					}
 				}

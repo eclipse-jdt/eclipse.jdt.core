@@ -527,9 +527,7 @@ public abstract class Expression extends Statement {
 		}
 		if (match != null && (
 				castType.isBoundParameterizedType() 
-				|| castType.isGenericType() 
-				|| 	expressionType.isBoundParameterizedType() 
-				|| expressionType.isGenericType())) {
+				|| 	expressionType.isBoundParameterizedType())) {
 			
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 

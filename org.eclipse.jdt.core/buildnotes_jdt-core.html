@@ -42,6 +42,26 @@
   </tr>
 </table>
 
+<a name="v_623"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - ?th November 2005
+<br>Project org.eclipse.jdt.core v_623
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_623">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> DOM type bindings for generics got adjusted. As observed in bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115662">115662</a>,
+there were situations where a reference to a generic type from within itself would expose the generic type binding, instead of a parameterized type
+binding (using its own type parameters as type arguments). This is now corrected, clients should ensure they did not rely on the previous inconsistency.
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107788">107788</a>
+[1.5][compiler] Invalid diagnostic with inner generic class
+
 <a name="v_622"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>

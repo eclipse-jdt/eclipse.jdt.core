@@ -212,7 +212,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		// Update match regarding declaring class type arguments
 		if (constructorBinding.declaringClass.isParameterizedType() || constructorBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)constructorBinding.declaringClass;
-			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
+			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments() || parameterizedBinding.isParameterizedWithOwnVariables()) {
 				// special case for constructor pattern which defines arguments but no type
 				// in this case, we only use refined accuracy for constructor
 			} else if (this.pattern.hasTypeArguments() && !this.pattern.hasConstructorArguments()) {
@@ -235,7 +235,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
 				// special case for constructor pattern which defines arguments but no type
 				updateMatch(parameterizedBinding, new char[][][] {this.pattern.constructorArguments}, this.pattern.hasTypeParameters(), 0, locator);
-			} else {
+			} else if (!parameterizedBinding.isParameterizedWithOwnVariables()) {
 				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
 		} else if (this.pattern.hasTypeArguments()) {

@@ -298,7 +298,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeRawType() {
 		if (this.typeBinding == null) return;
-		this.typeBinding = this.environment.createRawType((ReferenceBinding) this.typeBinding, this.typeBinding.enclosingType());
+		this.typeBinding = this.environment.convertToRawType(this.typeBinding);
 	}
 	public void consumeSecondaryType(char[] simpleTypeName) {
 		if (this.parsedUnit == null) return;

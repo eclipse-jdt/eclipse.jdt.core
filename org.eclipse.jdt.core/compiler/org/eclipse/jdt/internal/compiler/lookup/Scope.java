@@ -40,10 +40,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 	public final static int AUTOBOX_COMPATIBLE = 1;
 	public final static int VARARGS_COMPATIBLE = 2;
 
-	public int kind;
-	public Scope parent;
-
-   /* Answer an int describing the relationship between the given types.
+	/* Answer an int describing the relationship between the given types.
 	*
 	* 		NotRelated 
 	* 		EqualOrMoreSpecific : left is compatible with right
@@ -56,7 +53,6 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			return MoreGeneric;
 		return NotRelated;
 	}
-	
 	public static TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
 		int length = name.length;
@@ -118,6 +114,76 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return null;
 	}
+
+   // 5.1.10
+	public static ReferenceBinding[] greaterLowerBound(ReferenceBinding[] types) {
+		if (types == null) return null;
+		int length = types.length;
+		if (length == 0) return null;
+		ReferenceBinding[] result = types;
+		int removed = 0;
+		for (int i = 0; i < length; i++) {
+			ReferenceBinding iType = result[i];
+			if (iType == null) continue;
+			for (int j = 0; j < length; j++) {
+				if (i == j) continue;
+				ReferenceBinding jType = result[j];
+				if (jType == null) continue;
+				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
+					if (result == types) { // defensive copy
+						System.arraycopy(result, 0, result = new ReferenceBinding[length], 0, length);
+					}
+					result[j] = null;
+					removed ++;
+				}
+			}
+		}
+		if (removed == 0) return result;
+		if (length == removed) return null;
+		ReferenceBinding[] trimmedResult = new ReferenceBinding[length - removed];
+		for (int i = 0, index = 0; i < length; i++) {
+			ReferenceBinding iType = result[i];
+			if (iType != null) {
+				trimmedResult[index++] = iType;
+			}
+		}
+		return trimmedResult;
+	}
+	
+	// 5.1.10
+	public static TypeBinding[] greaterLowerBound(TypeBinding[] types) {
+		if (types == null) return null;
+		int length = types.length;
+		if (length == 0) return null;
+		TypeBinding[] result = types;
+		int removed = 0;
+		for (int i = 0; i < length; i++) {
+			TypeBinding iType = result[i];
+			if (iType == null) continue;
+			for (int j = 0; j < length; j++) {
+				if (i == j) continue;
+				TypeBinding jType = result[j];
+				if (jType == null) continue;
+				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
+					if (result == types) { // defensive copy
+						System.arraycopy(result, 0, result = new TypeBinding[length], 0, length);
+					}
+					result[j] = null;
+					removed ++;
+				}
+			}
+		}
+		if (removed == 0) return result;
+		if (length == removed) return null;
+		TypeBinding[] trimmedResult = new TypeBinding[length - removed];
+		for (int i = 0, index = 0; i < length; i++) {
+			TypeBinding iType = result[i];
+			if (iType != null) {
+				trimmedResult[index++] = iType;
+			}
+		}
+		return trimmedResult;
+	}
 	
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
@@ -175,18 +241,18 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-						if (substitutedEnclosing != null) {
-							//if (!(substitutedEnclosing instanceof SourceTypeBinding)) break identicalVariables;
-							if (substitutedEnclosing != originalEnclosing) break identicalVariables;						
-						}
-						if (originalParameterizedType.type.isBinaryBinding()) break identicalVariables; // generic binary is never used as is, see 85262
-						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-						for (int i = 0, length = originalVariables.length; i < length; i++) {
-							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-						}
-						return originalParameterizedType.type;
-					}
+//					identicalVariables: { // if substituted with original variables, then answer the generic type itself
+//						if (substitutedEnclosing != null) {
+//							//if (!(substitutedEnclosing instanceof SourceTypeBinding)) break identicalVariables;
+//							if (substitutedEnclosing != originalEnclosing) break identicalVariables;						
+//						}
+//						if (originalParameterizedType.type.isBinaryBinding()) break identicalVariables; // generic binary is never used as is, see 85262
+//						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
+//						for (int i = 0, length = originalVariables.length; i < length; i++) {
+//							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
+//						}
+//						return originalParameterizedType.type;
+//					}
 					return originalParameterizedType.environment.createParameterizedType(
 							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
 				}
@@ -244,10 +310,10 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
 				originalArguments = originalReferenceType.typeVariables();
 				substitutedArguments = substitute(substitution, originalArguments);
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
-				}
-				break;
+//				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
+//				}
+//				break;
 		}
 		return originalType;
 	}	
@@ -274,10 +340,14 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 	    return substitutedTypes;
 	}
 
+	public int kind;
+
+	public Scope parent;	
+
 	protected Scope(int kind, Scope parent) {
 		this.kind = kind;
 		this.parent = parent;
-	}
+	}	
 
 	/*
 	 * Boxing primitive
@@ -286,7 +356,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		if (type.isBaseType())
 			return environment().computeBoxingType(type);
 		return type;
-	}	
+	}
 
 	public final ClassScope classScope() {
 		Scope scope = this;
@@ -296,8 +366,8 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			scope = scope.parent;
 		} while (scope != null);
 		return null;
-	}	
-
+	}
+	
 	public final CompilationUnitScope compilationUnitScope() {
 		Scope lastScope = null;
 		Scope scope = this;
@@ -307,7 +377,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		} while (scope != null);
 		return (CompilationUnitScope) lastScope;
 	}
-
+	
 	/**
 	 * Finds the most specific compiler options
 	 */
@@ -315,7 +385,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 
 		return compilationUnitScope().environment.globalOptions;
 	}
-	
+
 	/**
 	 * Internal use only
 	 * Given a method, returns null if arguments cannot be converted to parameters.
@@ -519,7 +589,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		// do not cache obvious invalid types
 		return new ArrayBinding(type, dimension, environment());
 	}
-	
+
 	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
 		// do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5)
@@ -573,7 +643,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return null; // may answer null if no type around
 	}
-
+	
 	public final MethodScope enclosingMethodScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {
@@ -582,6 +652,18 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		return null; // may answer null if no method around
 	}
 
+	/* Answer the scope receiver type (could be parameterized)
+	*/
+	public final ReferenceBinding enclosingReceiverType() {
+		Scope scope = this;
+		do {
+			if (scope instanceof ClassScope) {
+				return environment().convertToParameterizedType(((ClassScope) scope).referenceContext.binding);
+			}
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
+	}
 	/**
 	 * Returns the immediately enclosing reference context, starting from current scope parent.
 	 * If starting on a class, it will skip current class. If starting on unitScope, returns null.
@@ -600,8 +682,8 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return null;
 	}
-	
-	/* Answer the receiver's enclosing source type.
+
+	/* Answer the scope enclosing source type (could be generic)
 	*/
 	public final SourceTypeBinding enclosingSourceType() {
 		Scope scope = this;
@@ -612,6 +694,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		} while (scope != null);
 		return null;
 	}
+
 	public final LookupEnvironment environment() {
 		Scope scope, unitScope = this;
 		while ((scope = unitScope.parent) != null)
@@ -691,15 +774,15 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		if ((enclosingType.tagBits & TagBits.HasNoMemberTypes) != 0)
 			return null; // know it has no member types (nor inherited member types)
 
-		SourceTypeBinding enclosingSourceType = enclosingSourceType();
+		ReferenceBinding enclosingReceiverType = enclosingReceiverType();
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
 			unitScope.recordTypeReference(memberType);
-			if (enclosingSourceType == null
+			if (enclosingReceiverType == null
 				? memberType.canBeSeenBy(getCurrentPackage())
-				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
+				: memberType.canBeSeenBy(enclosingType, enclosingReceiverType))
 					return memberType;
 			return new ProblemReferenceBinding(typeName, memberType, ProblemReasons.NotVisible);
 		}
@@ -877,13 +960,13 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			return new ProblemFieldBinding(notVisibleField, currentType, fieldName, ProblemReasons.NotVisible);
 		return null;
 	}
-
+	
 	// Internal use only
 	public ReferenceBinding findMemberType(char[] typeName, ReferenceBinding enclosingType) {
 		if ((enclosingType.tagBits & TagBits.HasNoMemberTypes) != 0)
 			return null; // know it has no member types (nor inherited member types)
 
-		SourceTypeBinding enclosingSourceType = enclosingSourceType();
+		ReferenceBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordReference(enclosingType, typeName);
@@ -1255,7 +1338,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			? mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite)
 			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
 	}
-	
+
 	// Internal use only
 	public MethodBinding findMethodForArray(
 		ArrayBinding receiverType,
@@ -1461,9 +1544,9 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							break;
 						case CLASS_SCOPE :
 							ClassScope classScope = (ClassScope) scope;
-							SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+							ReferenceBinding receiverType = classScope.enclosingReceiverType();
 							if (!insideTypeAnnotation) {
-								FieldBinding fieldBinding = classScope.findField(enclosingType, name, invocationSite, needResolve);
+								FieldBinding fieldBinding = classScope.findField(receiverType, name, invocationSite, needResolve);
 								// Use next line instead if willing to enable protected access accross inner types
 								// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
 								
@@ -1499,13 +1582,13 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 														ProblemReasons.NonStaticReferenceInStaticContext);
 											}
 										}
-										if (enclosingType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+										if (receiverType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 											// found a valid field in the 'immediate' scope (ie. not inherited)
 											// OR in 1.4 mode (inherited shadows enclosing)
 											if (foundField == null) {
 												if (depth > 0){
 													invocationSite.setDepth(depth);
-													invocationSite.setActualReceiverType(enclosingType);
+													invocationSite.setActualReceiverType(receiverType);
 												}
 												// return the fieldBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
 												return insideProblem == null ? fieldBinding : insideProblem;
@@ -1525,7 +1608,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 									if (foundField == null || (foundField.problemId() == ProblemReasons.NotVisible && fieldBinding.problemId() != ProblemReasons.NotVisible)) {
 										// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
 										foundDepth = depth;
-										foundActualReceiverType = enclosingType;
+										foundActualReceiverType = receiverType;
 										foundInsideProblem = insideProblem;
 										foundField = fieldBinding;
 									}
@@ -1533,7 +1616,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							}
 							insideTypeAnnotation = false;
 							depth++;
-							insideStaticContext |= enclosingType.isStatic();
+							insideStaticContext |= receiverType.isStatic();
 							// 1EX5I8Z - accessing outer fields within a constructor call is permitted
 							// in order to do so, we change the flag as we exit from the type, not the method
 							// itself, because the class scope is used to retrieve the fields.
@@ -1754,7 +1837,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			throw e;
 		}			
 	}
-
+	
 	/* API
 	 *	
 	 *	Answer the method binding that corresponds to selector, argumentTypes.
@@ -1790,7 +1873,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 					break;
 				case CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) scope;
-					SourceTypeBinding receiverType = classScope.referenceContext.binding;
+					ReferenceBinding receiverType = classScope.enclosingReceiverType();
 					if (!insideTypeAnnotation) {
 						boolean isExactMatch = true;
 						// retrieve an exact visible match (if possible)
@@ -2010,7 +2093,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	}
-
+	
 	public final ReferenceBinding getJavaIoSerializable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_IO_SERIALIZABLE);
 		ReferenceBinding type = environment().getType(JAVA_IO_SERIALIZABLE);
@@ -2019,7 +2102,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_IO_SERIALIZABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-	
+
 	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ANNOTATION_ANNOTATION);
@@ -2028,7 +2111,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_LANG_ANNOTATION_ANNOTATION, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-	
+
 	public final ReferenceBinding getJavaLangAssertionError() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ASSERTIONERROR);
@@ -2036,7 +2119,6 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_LANG_ASSERTIONERROR, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-
 	public final ReferenceBinding getJavaLangClass() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLASS);
 		ReferenceBinding type = environment().getType(JAVA_LANG_CLASS);
@@ -2071,6 +2153,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_LANG_ITERABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
+
 	public final ReferenceBinding getJavaLangObject() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_OBJECT);
 		ReferenceBinding type = environment().getType(JAVA_LANG_OBJECT);
@@ -2079,7 +2162,6 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-
 	public final ReferenceBinding getJavaLangString() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_STRING);
 		ReferenceBinding type = environment().getType(JAVA_LANG_STRING);
@@ -2097,6 +2179,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		problemReporter().isClassPathCorrect(JAVA_LANG_THROWABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
+
 	public final ReferenceBinding getJavaUtilIterator() {
 		compilationUnitScope().recordQualifiedReference(JAVA_UTIL_ITERATOR);
 		ReferenceBinding type = environment().getType(JAVA_UTIL_ITERATOR);
@@ -2319,7 +2402,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return typeBinding;
 	}
-
+	
 	/* Internal use only 
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask) {
@@ -2541,7 +2624,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		}
 		return foundType;
 	}
-
+	
 	// Added for code assist... NOT Public API
 	// DO NOT USE to resolve import references since this method assumes 'A.B' is relative to a single type import of 'p1.A'
 	// when it may actually mean the type B in the package A
@@ -2608,76 +2691,6 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			}
 		}
 		return qualifiedType;
-	}
-	
-	// 5.1.10
-	public static TypeBinding[] greaterLowerBound(TypeBinding[] types) {
-		if (types == null) return null;
-		int length = types.length;
-		if (length == 0) return null;
-		TypeBinding[] result = types;
-		int removed = 0;
-		for (int i = 0; i < length; i++) {
-			TypeBinding iType = result[i];
-			if (iType == null) continue;
-			for (int j = 0; j < length; j++) {
-				if (i == j) continue;
-				TypeBinding jType = result[j];
-				if (jType == null) continue;
-				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
-					if (result == types) { // defensive copy
-						System.arraycopy(result, 0, result = new TypeBinding[length], 0, length);
-					}
-					result[j] = null;
-					removed ++;
-				}
-			}
-		}
-		if (removed == 0) return result;
-		if (length == removed) return null;
-		TypeBinding[] trimmedResult = new TypeBinding[length - removed];
-		for (int i = 0, index = 0; i < length; i++) {
-			TypeBinding iType = result[i];
-			if (iType != null) {
-				trimmedResult[index++] = iType;
-			}
-		}
-		return trimmedResult;
-	}
-	
-	// 5.1.10
-	public static ReferenceBinding[] greaterLowerBound(ReferenceBinding[] types) {
-		if (types == null) return null;
-		int length = types.length;
-		if (length == 0) return null;
-		ReferenceBinding[] result = types;
-		int removed = 0;
-		for (int i = 0; i < length; i++) {
-			ReferenceBinding iType = result[i];
-			if (iType == null) continue;
-			for (int j = 0; j < length; j++) {
-				if (i == j) continue;
-				ReferenceBinding jType = result[j];
-				if (jType == null) continue;
-				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
-					if (result == types) { // defensive copy
-						System.arraycopy(result, 0, result = new ReferenceBinding[length], 0, length);
-					}
-					result[j] = null;
-					removed ++;
-				}
-			}
-		}
-		if (removed == 0) return result;
-		if (length == removed) return null;
-		ReferenceBinding[] trimmedResult = new ReferenceBinding[length - removed];
-		for (int i = 0, index = 0; i < length; i++) {
-			ReferenceBinding iType = result[i];
-			if (iType != null) {
-				trimmedResult[index++] = iType;
-			}
-		}
-		return trimmedResult;
 	}	
 
 	/**

@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 119 };
+//		TESTS_NUMBERS = new int[] { 871 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -22725,10 +22725,10 @@ public void test743() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	@Override public Nested<B> getNested3() { // sub\n" + 
-		"	                           ^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with TestGeneric3<B>.getNested3()\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	return this;//3\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" + 
 		"----------\n");
 }
 public void test744() {
@@ -26902,6 +26902,103 @@ public void test870() {
 			"	}\n" + 
 			"\n" + 
 			"	public class C<T> extends A<List<T>> { }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107788
+public void test871() {
+	this.runConformTest(
+		new String[] {
+			"Lister.java",
+			"interface Lister<BeanT, PropT, PackT> {\n" + 
+			"	void endPacking(PackT p, BeanT b, Accessor<BeanT, PropT> acc);\n" + 
+			"\n" + 
+			"	static class IDRefs<BeanT, PropT> implements\n" + 
+			"			Lister<BeanT, PropT, IDRefs<BeanT, PropT>.Pack> {\n" + 
+			"		public void endPacking(Pack p, BeanT b, Accessor<BeanT, PropT> acc) {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		private class Pack {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Accessor<BeanT, PropT> {\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test872() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.io.PrintStream;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void foo1(){\n" + 
+			"		M1<X> m = new M1<X>();\n" + 
+			"		M1<X>.N1<X> n = m.new N1<X>();\n" + 
+			"	}\n" + 
+			"	static class M1<T> {\n" + 
+			"		class N1<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo2(){\n" + 
+			"		M2<X> m = new M2<X>();\n" + 
+			"		M2<X>.N2<X> n = m.new N2<X>();\n" + 
+			"	}\n" + 
+			"	class M2<T> {\n" + 
+			"		class N2<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo3(){\n" + 
+			"		M3<X> m = new M3<X>();\n" + 
+			"		M3<X>.N3<X> n = m.new N3<X>();\n" + 
+			"	}\n" + 
+			"	class M3<T> {\n" + 
+			"		static class N3<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo4(){\n" + 
+			"		M4<X> m = new M4<X>();\n" + 
+			"		M4<X>.N4<X> n = m.new N4<X>();\n" + 
+			"	}\n" + 
+			"	static class M4<T> {\n" + 
+			"		static class N4<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	M3<X>.N3<X> n = m.new N3<X>();\n" + 
+		"	^^^^^^^^\n" + 
+		"The member type X.M3<X>.N3 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 25)\n" + 
+		"	static class N3<U> {\n" + 
+		"	             ^^\n" + 
+		"The member type N3 cannot be declared static; static types can only be declared in static or top level types\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 30)\n" + 
+		"	M4<X>.N4<X> n = m.new N4<X>();\n" + 
+		"	^^^^^^^^\n" + 
+		"The member type X.M4<X>.N4 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" + 
+		"----------\n");
+}
+public void test873() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X<T> {\n" + 
+			"    static class XMap {\n" + 
+			"        XEntry[] table;\n" + 
+			"        static class XEntry {}    \n" + 
+			"        void foo() {\n" + 
+			"            XEntry e = table[0];\n" + 
+			"        }	\n" + 
+			"    }        \n" + 
 			"}\n",
 		},
 		"");

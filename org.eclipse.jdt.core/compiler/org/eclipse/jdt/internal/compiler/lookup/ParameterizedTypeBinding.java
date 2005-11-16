@@ -35,6 +35,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
+//		if (enclosingType != null && enclosingType.isGenericType()) {
+//			RuntimeException e = new RuntimeException("PARAM TYPE with GENERIC ENCLOSING");
+//			e.printStackTrace();
+//			throw e;
+//		}
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this);

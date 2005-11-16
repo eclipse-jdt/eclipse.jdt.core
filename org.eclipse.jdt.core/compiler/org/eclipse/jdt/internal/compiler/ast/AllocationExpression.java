@@ -236,7 +236,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		constant = NotAConstant;
 		if (this.type == null) {
 			// initialization of an enum constant
-			this.resolvedType = scope.enclosingSourceType();
+			this.resolvedType = scope.enclosingReceiverType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 			checkParameterizedAllocation: {

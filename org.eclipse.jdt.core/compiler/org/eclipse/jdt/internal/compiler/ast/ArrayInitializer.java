@@ -141,7 +141,7 @@ public class ArrayInitializer extends Expression {
 		// allow new List<?>[5]
 		if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
 			TypeBinding leafComponentType = expectedType.leafComponentType();
-			if (leafComponentType.isBoundParameterizedType() || leafComponentType.isGenericType() || leafComponentType.isTypeVariable()) {
+			if (leafComponentType.isBoundParameterizedType() || leafComponentType.isTypeVariable()) {
 			    scope.problemReporter().illegalGenericArray(leafComponentType, this);
 			}
 		}

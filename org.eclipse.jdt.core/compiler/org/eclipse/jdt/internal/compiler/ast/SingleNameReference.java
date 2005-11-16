@@ -215,8 +215,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			return;				
 		if ((bits & Binding.FIELD) != 0 && this.binding != null && this.binding.isValidBinding()) {
 			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
-			FieldBinding originalBinding = ((FieldBinding)this.binding).original();
-			if (originalBinding != this.binding) {
+			FieldBinding field = (FieldBinding) this.binding;
+			FieldBinding originalBinding = field.original();
+			if (originalBinding != field && originalBinding.type != field.type) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 

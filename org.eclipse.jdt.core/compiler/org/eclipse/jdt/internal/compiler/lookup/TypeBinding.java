@@ -244,6 +244,26 @@ public boolean isParameterizedType() {
 }
 
 /**
+ * Returns true if the type is parameterized using its own type variables as arguments
+ */
+public boolean isParameterizedWithOwnVariables() {
+	if (this.kind() != Binding.PARAMETERIZED_TYPE) return false;
+	ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) this;
+	if (paramType.arguments == null) return false;
+	TypeVariableBinding[] variables = this.erasure().typeVariables();
+	for (int i = 0, length = variables.length; i < length; i++) {
+		if (variables[i] != paramType.arguments[i]) return false;
+	}
+	ReferenceBinding enclosing = paramType.enclosingType();
+	if (enclosing != null 
+			&& enclosing.erasure().isGenericType()
+			&& !enclosing.isParameterizedWithOwnVariables()) {
+		return false;
+	}
+	return true;
+}
+
+/**
  * Returns true if the two types are statically known to be different at compile-time,
  * e.g. a type variable is not provably known to be distinct from another type
  */
@@ -615,7 +635,6 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 		return false;
 
 	while (compatible.isRawType()) {
-		if (targetType.isGenericType()) return true;
 		if (targetType.isBoundParameterizedType()) return true;
 
 		if (compatible.isStatic()) break;

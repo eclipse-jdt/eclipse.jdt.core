@@ -113,7 +113,7 @@ public class ThisReference extends Reference {
 		if (!this.isImplicitThis() &&!checkAccess(scope.methodScope())) {
 			return null;
 		}
-		return this.resolvedType = scope.enclosingSourceType();
+		return this.resolvedType = scope.enclosingReceiverType();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

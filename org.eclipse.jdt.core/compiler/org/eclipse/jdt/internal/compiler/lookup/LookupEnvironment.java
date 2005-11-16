@@ -352,6 +352,29 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 	return packageBinding;
 }
 
+/**
+ * Convert a given source type into a parameterized form if generic.
+ * generic X<E> --> param X<E>
+ */
+public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
+	if (originalType != null) {
+		boolean isGeneric = originalType.isGenericType();
+		ReferenceBinding originalEnclosingType = originalType.enclosingType();
+		ReferenceBinding convertedEnclosingType = originalEnclosingType;
+		boolean needToConvert = isGeneric;
+		if (originalEnclosingType != null) {
+			convertedEnclosingType = originalType.isStatic() 
+				? (ReferenceBinding) convertToRawType(originalEnclosingType) 
+				: convertToParameterizedType(originalEnclosingType);
+			needToConvert |= originalEnclosingType != convertedEnclosingType;
+		}
+		if (needToConvert) {
+			return createParameterizedType(originalType, isGeneric ? originalType.typeVariables() : null, convertedEnclosingType);
+		}
+	}
+	return originalType;
+}
+
 public TypeBinding convertToRawType(TypeBinding type) {
 
 	int dimension;
@@ -391,29 +414,22 @@ public TypeBinding convertToRawType(TypeBinding type) {
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
 		ReferenceBinding convertedEnclosing;
-		switch (originalEnclosing.kind()) {
-			case Binding.GENERIC_TYPE :
-			case Binding.PARAMETERIZED_TYPE :
-				if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
-					convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
-				} else {
-					convertedEnclosing = originalEnclosing;
-				}
-				break;
-			case Binding.RAW_TYPE :
-				needToConvert |= !((ReferenceBinding)originalType).isStatic();
-			default :
-				convertedEnclosing = originalEnclosing;
-				break;
+		if (originalEnclosing.kind() == Binding.RAW_TYPE) {
+			needToConvert |= !((ReferenceBinding)originalType).isStatic();
+			convertedEnclosing = originalEnclosing;
+		} else if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
+			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+		} else {
+//		} else if (originalEnclosing instanceof SourceTypeBinding){
+			convertedEnclosing = convertToParameterizedType(originalEnclosing);
+//		} else {
+//			convertedEnclosing = originalEnclosing;
 		}
 		ReferenceBinding originalGeneric = (ReferenceBinding) originalType.erasure();
 		if (needToConvert) {
 			convertedType = createRawType(originalGeneric, convertedEnclosing);
 		} else if (originalEnclosing != convertedEnclosing) {
-			if (originalGeneric.isStatic())
-				convertedType = createParameterizedType(originalGeneric, null, convertedEnclosing);
-			else 
-				convertedType = createRawType(originalGeneric, convertedEnclosing);
+			convertedType = createParameterizedType(originalGeneric, null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}

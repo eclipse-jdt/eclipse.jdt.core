@@ -317,7 +317,7 @@ public class QualifiedNameReference extends NameReference {
 		}
 		if (field != null) {
 			FieldBinding originalBinding = field.original();
-			if (originalBinding != field) {
+			if (originalBinding != field && originalBinding.type != field.type) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
@@ -887,7 +887,7 @@ public class QualifiedNameReference extends NameReference {
 		// field and/or local are done before type lookups
 		// the only available value for the restrictiveFlag BEFORE
 		// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField 
-		this.actualReceiverType = scope.enclosingSourceType();
+		this.actualReceiverType = scope.enclosingReceiverType();
 		constant = Constant.NotAConstant;
 		if ((this.codegenBinding = this.binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {

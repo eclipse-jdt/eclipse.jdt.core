@@ -256,7 +256,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				return;
 			}
 			methodScope.isConstructorCall = true;
-			ReferenceBinding receiverType = scope.enclosingSourceType();
+			ReferenceBinding receiverType = scope.enclosingReceiverType();
 			if (accessMode != This)
 				receiverType = receiverType.superclass();
 

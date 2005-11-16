@@ -363,7 +363,7 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		// Update match regarding declaring class type arguments
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)methodBinding.declaringClass;
-			if (!this.pattern.hasTypeArguments() && this.pattern.hasMethodArguments()) {
+			if (!this.pattern.hasTypeArguments() && this.pattern.hasMethodArguments() || parameterizedBinding.isParameterizedWithOwnVariables()) {
 				// special case for pattern which defines method arguments but not its declaring type
 				// in this case, we do not refine accuracy using declaring type arguments...!
 			} else {
@@ -387,7 +387,9 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		isParameterized = true;
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)methodBinding.declaringClass;
-			updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+			if (!parameterizedBinding.isParameterizedWithOwnVariables()) {
+				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+			}
 		} else if (this.pattern.hasTypeArguments()) {
 			match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}

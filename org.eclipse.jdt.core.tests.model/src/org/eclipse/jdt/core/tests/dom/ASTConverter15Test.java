@@ -1264,19 +1264,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertEquals("Wrong name", "X", typeBinding2.getName());
+		assertEquals("Wrong name", "X<T>", typeBinding2.getName());
 		assertEquals("Wrong isArray", false, typeBinding2.isArray());
 		assertEquals("Wrong isAnnotation", false, typeBinding2.isAnnotation());
 		assertEquals("Wrong isAnonymous", false, typeBinding2.isAnonymous());
 		assertEquals("Wrong isClass", true, typeBinding2.isClass());
 		assertEquals("Wrong isEnum", false, typeBinding2.isEnum());
 		assertEquals("Wrong isInterface", false, typeBinding2.isInterface());
-		assertEquals("Wrong isGenericType", true, typeBinding2.isGenericType());
+		assertEquals("Wrong isGenericType", false, typeBinding2.isGenericType());
 		assertEquals("Wrong isLocal", false, typeBinding2.isLocal());
 		assertEquals("Wrong isMember", false, typeBinding2.isMember());
 		assertEquals("Wrong isNested", false, typeBinding2.isNested());
 		assertEquals("Wrong isNullType", false, typeBinding2.isNullType());
-		assertEquals("Wrong isParameterizedType", false, typeBinding2.isParameterizedType());
+		assertEquals("Wrong isParameterizedType", true, typeBinding2.isParameterizedType());
 		assertEquals("Wrong isPrimitive", false, typeBinding2.isPrimitive());
 		assertEquals("Wrong isRawType", false, typeBinding2.isRawType());
 		assertEquals("Wrong isTopLevel", true, typeBinding2.isTopLevel());
@@ -1284,8 +1284,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isTypeVariable", false, typeBinding2.isTypeVariable());
 		assertEquals("Wrong isWildcardType", false, typeBinding2.isWildcardType());
 		typeParameters = typeBinding2.getTypeParameters();
-		assertEquals("Wrong size", 1, typeParameters.length);
-		assertEquals("Wrong name", "T", typeParameters[0].getName());
+		assertEquals("Wrong size", 0, typeParameters.length);
 	}
 	
 	/**
