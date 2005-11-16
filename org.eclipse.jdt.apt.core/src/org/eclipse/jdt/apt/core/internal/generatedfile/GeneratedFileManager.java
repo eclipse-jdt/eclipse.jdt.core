@@ -73,7 +73,7 @@ import org.eclipse.jdt.core.dom.AST;
  * The file maps have entries added when a file is generated during a build.  
  * The file maps & working-copy maps haven entries added added when a file
  * is added during a reconcile.  There are various entry-points to keep the
- * maps up-to-date with respect to life-cycle events on the parent & generated files.
+ * maps up-to-date withspect to life-cycle events on the parent & generated files.
  * (e.g., parentFileDeleted(), ).
  *
  * SYNCHRONIZATION NOTES (IMPORTANT)
@@ -288,11 +288,18 @@ public class GeneratedFileManager {
 				pkgName = typeName.substring(0, separatorIndex);
 				typeSimpleName = typeName.substring(separatorIndex + 1, typeName.length());
 			}
-			createFoldersForPackage(pkgName, genFolder);
+			
+			// NOTE: Do NOT ever create any type of resource (files, folders) through the
+			// resource API. The resource change event will not go out until the build
+			// is completed. Instead always go through the JavaModel. -theodora
+			final Set<IContainer> newFolders = getNewPackageFolders(pkgName, genFolder);
 			IPackageFragment pkgFrag = genFragRoot.createPackageFragment(pkgName, true, progressMonitor);
 			if( pkgFrag == null ){
 				throw new IllegalStateException("failed to locate package '" + pkgName + "'");  //$NON-NLS-1$ //$NON-NLS-2$
 			}			
+			// mark all newly create folders as derived.			
+			markNewFoldersAsDerived((IContainer)pkgFrag.getResource(), newFolders);
+			
 			final String cuName = typeSimpleName + ".java"; //$NON-NLS-1$
 			
 			ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
@@ -358,8 +365,7 @@ public class GeneratedFileManager {
 			return new FileGenerationResult(file, contentsDiffer);
 		}
 		catch(Throwable e){
-			AptPlugin.log(e, "(2)failed to generate type " + typeName); //$NON-NLS-1$
-			e.printStackTrace();
+			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$			
 		}
 		return null; // something failed. The catch block have already logged the error.
 	}	
@@ -768,6 +774,41 @@ public class GeneratedFileManager {
 		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$		
 		IFile file = folder.getFile( fileName );
 		return file;
+	}
+	
+	private void markNewFoldersAsDerived(IContainer folder, Set<IContainer> newFolders)
+		throws CoreException
+	{
+		while(folder != null){
+			if( newFolders.contains(folder) ){
+				folder.setDerived(true);
+			}
+			folder = folder.getParent();
+		}
+	}
+	
+	private Set<IContainer> getNewPackageFolders(String pkgName, IFolder parent )
+	{
+		StringBuilder buffer = new StringBuilder();
+		Set<IContainer> newFolders = new HashSet<IContainer>();
+	    for( int i=0, len=pkgName.length(); i<len; i++ ){
+	    	final char c = pkgName.charAt(i);
+	    	if( c != '.')
+	    		buffer.append(c);
+	    	// create a folder when we see a dot or when we are at the end.
+	    	if( c == '.' || i == len - 1){
+	    		if( buffer.length() > 0 ){
+	    			final IFolder folder = parent.getFolder(buffer.toString());
+	    			if( !folder.exists()){
+	    				newFolders.add(folder);
+	    			}
+	    			parent = folder;
+	    			// reset the buffer
+	    			buffer.setLength(0);
+	    		}
+	    	}
+	    }
+	    return newFolders;
 	}
 	
 	/**
@@ -1599,7 +1640,7 @@ public class GeneratedFileManager {
 		
 		projectClean( true );
 
-		IFolder srcFolder;
+		final IFolder srcFolder;
 		synchronized ( this )
 		{
 			// We are not going to delete any directories or change the classpath
@@ -1609,9 +1650,37 @@ public class GeneratedFileManager {
 			// save _generatedSrcFolder off to avoid race conditions
 			srcFolder = _generatedSourceFolder;
 		}
-		
-		// delete generatedSourceFolder
-		if( srcFolder == null )
+		/*
+		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+            public void run(IProgressMonitor monitor)
+            {		
+            	if( srcFolder != null ){
+	            	try{
+	            		srcFolder.delete(true, false, null);
+	            	}catch(CoreException e){
+	            		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
+	            	}catch(OperationCanceledException cancel){
+	            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
+	            	}
+            	}
+            	
+            	try{
+            		ensureGeneratedSourceFolder(null);
+            	}
+            	catch(OperationCanceledException cancel){
+            		AptPlugin.log(cancel, "ensureGeneratedSourceFolder() operation got cancelled"); //$NON-NLS-1$
+            		// something bad will likely to happen.
+            	}
+            };
+        };
+        IWorkspace ws = _javaProject.getProject().getWorkspace();
+        try{
+        	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
+        }catch(CoreException e){
+    		AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
+    	}
+    	*/
+		if(srcFolder == null)
 			ensureGeneratedSourceFolder(null);
 	}
 }
