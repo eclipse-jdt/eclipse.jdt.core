@@ -313,8 +313,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 			} else if (this.target.equals(CompilerOptions.VERSION_1_4)) {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-			} else if (this.target.equals(CompilerOptions.VERSION_1_5)) {
+			} else if (this.target.equals(CompilerOptions.VERSION_1_5)
+					|| this.target.equals("5.0") //$NON-NLS-1$
+					|| this.target.equals("5")) { //$NON-NLS-1$
 				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				this.target = CompilerOptions.VERSION_1_5;
 			} else {
 	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownTarget", this.target), Project.MSG_WARN); //$NON-NLS-1$
 			}
@@ -331,8 +334,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 			} else if (source.equals(CompilerOptions.VERSION_1_4)) {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-			} else if (source.equals(CompilerOptions.VERSION_1_5)) {
+			} else if (source.equals(CompilerOptions.VERSION_1_5)
+					|| source.equals("5.0") //$NON-NLS-1$
+					|| source.equals("5")) { //$NON-NLS-1$
 				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+				source = CompilerOptions.VERSION_1_5;
 			} else {
 	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownSource", source), Project.MSG_WARN); //$NON-NLS-1$
 			}
