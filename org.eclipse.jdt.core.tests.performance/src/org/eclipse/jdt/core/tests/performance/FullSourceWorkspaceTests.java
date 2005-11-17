@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
@@ -41,6 +42,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
+	final static boolean PRINT = "true".equals(System.getProperty("print"));
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	
 	// Garbage collect constants
@@ -51,6 +53,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Workspace variables
 	protected static TestingEnvironment ENV = null;
 	protected static IJavaProject[] ALL_PROJECTS;
+	protected static IJavaProject JDT_CORE_PROJECT;
+	protected static ICompilationUnit PARSER_WORKING_COPY;
 	
 	// Index variables
 	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
@@ -61,13 +65,38 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static List TESTS_NAME_LIST;
 
 	// Tests counters
-	protected final static int MEASURES_COUNT = 10;
+	protected final static int MEASURES_COUNT;
+	static {
+		String measures = System.getProperty("measures", "10");
+		int count = 10;
+		try {
+			count = Integer.parseInt(measures);
+			if (count < 0 || count > 20) {
+				System.out.println("INFO: Measures parameter ("+count+") is ignored as it is an invalid value! (should be between 0 and 20)");
+				count = 10;
+			} else if (count != 10) {
+				System.err.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
+			}
+		}
+		catch (NumberFormatException nfe) {
+			// use default value
+			System.out.println("INFO: Specified 'measures' VM argument (="+measures+") is ignored as it is not an integer (0-20)!");
+		}
+		MEASURES_COUNT = count;
+	}
 
 	// Scenario information
 	String scenarioReadableName, scenarioShortName;
 	StringBuffer scenarioComment;
 	static Map SCENARII_COMMENT = new HashMap();
 	
+	// Project
+	final static String BIG_PROJECT_NAME = "BigProject";
+	static JavaProject BIG_PROJECT;
+
+	// Time measuring
+	long startMeasuring, testDuration;
+
 	/**
 	 * Variable used for log files.
 	 * Log files are used in conjonction with {@link JdtCorePerformanceMeter} class.
@@ -79,53 +108,19 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * 
 	 */
 	// Store directory where to put files
+	private final static File INVALID_DIR = new File("Invalid");
 	protected static File LOG_DIR;
 	// Types of statistic which can be stored.
 	protected final static String[] LOG_TYPES = { "cpu", "elapsed" };
 	// Main version which is logged
-	protected final static String LOG_VERSION = "_v31_"; // TODO (frederic) see whether this could be computed automatically
-	// Standard deviation threshold. Statistic should not be take into account when it's reached
-	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
-
-	/**
-	 * @param name
-	 */
-	public FullSourceWorkspaceTests(String name) {
-		super(name);
+	protected final static String LOG_VERSION;
+	static {
+		String version = Main.bind("compiler.version");
+		LOG_VERSION = "v_"+version.substring(version.indexOf('.')+1, version.indexOf(','));
 	}
-
-	/**
-	 * Create test suite for a given TestCase class.
-	 * 
-	 * Use this method for all JDT/Core performance test using full source workspace.
-	 * All test count is computed to know when tests are about to be finished.
-	 *
-	 * It also init log dir to create log file if specified
-	 * @see #initLogDir()
-	 * 
-	 * @param testClass TestCase test class
-	 * @return test suite
-	 */
-	protected static Test buildSuite(Class testClass) {
-
-		// Create tests
-		TestSuite suite = new TestSuite(testClass.getName());
-		List tests = buildTestsList(testClass);
-		int size = tests.size();
-		TESTS_NAME_LIST = new ArrayList(size);
-		for (int i=0; i<size; i++) {
-			FullSourceWorkspaceTests test = (FullSourceWorkspaceTests)tests.get(i);
-			suite.addTest(test);
-			TESTS_NAME_LIST.add(test.getName());
-		}
-		ALL_TESTS_COUNT += suite.testCount();
-
-		// Init log dir
-		initLogDir();
-		
-		// Return created tests
-		return suite;
-	}
+	// Patch version currently applied: may be null!
+	protected final static String PATCH_ID = System.getProperty("patch");
+	protected static String RUN_ID;
 
 	/**
 	 * Initialize log directory.
@@ -141,22 +136,107 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected static void initLogDir() {
 		String logDir = System.getProperty("logDir");
+		File dir = null;
 		if (logDir != null) {
-			File dir = new File(logDir);
+			// Verify that parent log dir is valid if exist
+			dir = new File(logDir);
 			if (dir.exists()) {
-				if (dir.isDirectory()) {
-					LOG_DIR = dir;
-				} else {
+				if (!dir.isDirectory()) {
 					System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+					dir = INVALID_DIR;
 				}
 			} else {
-				if (dir.mkdir()) {
-					LOG_DIR = dir;
-				} else {
+				// Create parent dir if necessary
+				int n=0;
+				boolean created = false;
+				while (!created && n<3) {
+					created = dir.mkdir();
+					if (!created) {
+						dir = dir.getParentFile();
+					}
+					n++;
+				}
+				if (!created) {
 					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+					dir = INVALID_DIR;
+				}
+			}
+			
+			// Create Log dir
+			String[] subdirs = (PATCH_ID == null) 
+				? new String[] {LOG_VERSION, RUN_ID }
+				: new String[] {LOG_VERSION, PATCH_ID, RUN_ID };
+			for (int i=0; i<subdirs.length; i++) {
+				dir = new File(dir, subdirs[i]);
+				if (dir.exists()) {
+					if (!dir.isDirectory()) {
+						System.err.println(dir.getPath()+" is not a valid directory. Log files will NOT be written!");
+						dir= INVALID_DIR;
+						break;
+					}
+				} else if (!dir.mkdir()) {
+					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+					dir = INVALID_DIR;
+					break;
 				}
 			}
 		}
+		LOG_DIR = dir;
+	}
+
+	// Standard deviation threshold. Statistic should not be take into account when it's reached
+	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
+
+	/**
+	 * @param name
+	 */
+	public FullSourceWorkspaceTests(String name) {
+		super(name);
+	}
+
+	protected static String suiteTypeShortName(Class testClass) {
+		String className = testClass.getName();
+		int startIndex = className.indexOf("FullSourceWorkspace");
+		int endIndex = className.lastIndexOf("Test");
+		if (startIndex < 0) return null;
+		startIndex += "FullSourceWorkspace".length();
+		return className.substring(startIndex, endIndex);
+	}
+
+	/**
+	 * Create test suite for a given TestCase class.
+	 * 
+	 * Use this method for all JDT/Core performance test using full source workspace.
+	 * All test count is computed to know when tests are about to be finished.
+	 *
+	 * @param testClass TestCase test class
+	 * @return test suite
+	 */
+	static Test buildSuite(Class testClass) {
+
+		// Create tests
+		String className = testClass.getName();
+		TestSuite suite = new TestSuite(className);
+		List tests = buildTestsList(testClass);
+		int size = tests.size();
+		TESTS_NAME_LIST = new ArrayList(size);
+		for (int i=0; i<size; i++) {
+			FullSourceWorkspaceTests test = (FullSourceWorkspaceTests)tests.get(i);
+			suite.addTest(test);
+			TESTS_NAME_LIST.add(test.getName());
+		}
+		ALL_TESTS_COUNT += suite.testCount();
+		
+		// Init log dir if necessary
+		if (LOG_DIR == null) {
+			if (RUN_ID == null) {
+				RUN_ID = suiteTypeShortName(testClass);
+			}
+			initLogDir();
+		}
+		
+		// Return created tests
+		return suite;
 	}
 
 	/**
@@ -169,11 +249,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * This method does nothing if log files directory has not been initialized
 	 * (which should be the case most of times and especially while running nightly/integration build performance tests).
 	 */
-	protected static void createPrintStream(String className, PrintStream[] logStreams, int count, String prefix) {
+	static void createPrintStream(Class testClass, PrintStream[] logStreams, int count, String prefix) {
 		if (LOG_DIR != null) {
-			String testTypeName = className.substring(className.indexOf("FullSourceWorkspace")+"FullSourceWorkspace".length(), className.lastIndexOf("Test"));
 			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
-				File logFile = new File(LOG_DIR, "Perfs"+testTypeName+LOG_VERSION+LOG_TYPES[i]+".log");
+				String suiteTypeName = suiteTypeShortName(testClass);
+				File logFile = new File(LOG_DIR, suiteTypeName+'_'+LOG_TYPES[i]+".log");
 				try {
 					boolean fileExist = logFile.exists();
 					logStreams[i] = new PrintStream(new FileOutputStream(logFile, true));
@@ -208,7 +288,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			free = Runtime.getRuntime().freeMemory();
 			System.gc();
 			delta = Runtime.getRuntime().freeMemory() - free;
-			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
+//			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
 			try {
 				Thread.sleep(TIME_GC);
 			} catch (InterruptedException e) {
@@ -353,6 +433,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		
 		// Increment test position
 		TEST_POSITION++;
+		
+		// Print test name while debugging
+		if (PRINT) {
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Running "+getName()+"...");
+		}
+
+		// Time measuring
+		this.testDuration = 0;
 	}
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -395,6 +484,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	public void tagAsSummary(String shortName, Dimension[] dimensions, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
 		if (fingerprint) super.tagAsSummary(shortName, dimensions);
+	}
+	public void startMeasuring() {
+		super.startMeasuring();
+		this.startMeasuring = System.currentTimeMillis();
+	}
+	public void stopMeasuring() {
+		super.stopMeasuring();
+		this.testDuration += System.currentTimeMillis() - this.startMeasuring;
+	}
+	public void commitMeasurements() {
+		System.out.println("	Test duration = "+this.testDuration+"ms");
+		super.commitMeasurements();
 	}
 	/**
 	 * Override super implementation to:
@@ -462,8 +563,22 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
+			String projectName = ALL_PROJECTS[i].getElementName();
+			if (JavaCore.PLUGIN_ID.equals(projectName)) {
+				JDT_CORE_PROJECT = ALL_PROJECTS[i];
+			} else if (BIG_PROJECT_NAME.equals(projectName)) {
+				BIG_PROJECT = (JavaProject) ALL_PROJECTS[i];
+			}
 			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
+			// Make Big project dependent from jdt.core one
+//			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
+//			int bpeLength = bigProjectEntries.length;
+//			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
+//			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
 		}
+		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
+		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
+		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
 		if (DEBUG) System.out.println("done!");
 	}
 
@@ -879,7 +994,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
 			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
-		
+
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE); 
 		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
