@@ -31,13 +31,11 @@ public InclusionPatternsTests(String name) {
 	super(name);
 }
 
+static {
+//	TESTS_NAMES = new String[] { "testSearchWithIncludedPackage2" };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(InclusionPatternsTests.class.getName());
-		suite.addTest(new InclusionPatternsTests("testNestedSourceFolder4"));
-		return suite;
-	}
-	return new Suite(InclusionPatternsTests.class);
+	return buildTestSuite(InclusionPatternsTests.class);
 }
 protected void setClasspath(String[] sourceFoldersAndInclusionPatterns) throws JavaModelException {
 	this.project.setRawClasspath(createClasspath(sourceFoldersAndInclusionPatterns, true/*inclusion*/, false/*no exclusion*/), null);

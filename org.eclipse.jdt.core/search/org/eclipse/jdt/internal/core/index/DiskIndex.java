@@ -488,7 +488,7 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 
 		// rename file by deleting previous index file & renaming temp one
 		File old = getIndexFile();
-		if (!old.delete()) {
+		if (old.exists() && !old.delete()) {
 			if (DEBUG)
 				System.out.println("mergeWith - Failed to delete " + this.fileName); //$NON-NLS-1$
 			throw new IOException("Failed to delete index file " + this.fileName); //$NON-NLS-1$
