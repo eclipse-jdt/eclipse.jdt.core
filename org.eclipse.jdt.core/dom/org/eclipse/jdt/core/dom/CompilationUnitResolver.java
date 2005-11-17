@@ -661,6 +661,10 @@ class CompilationUnitResolver extends Compiler {
 			beginToCompile(sourceUnits, bindingKeys);
 			// process all units (some more could be injected in the loop by the lookup environment)
 			for (; i < this.totalUnits; i++) {
+				if (this.requestedSources.size() == 0 && this.requestedKeys.size() == 0)
+					// no need to keep resolving if no more ASTs and no more binding keys are needed
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=114935
+					break;
 				unit = this.unitsToProcess[i];
 				try {
 					char[] fileName = unit.compilationResult.getFileName();

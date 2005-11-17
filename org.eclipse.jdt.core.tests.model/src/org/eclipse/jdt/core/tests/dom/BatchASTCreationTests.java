@@ -91,7 +91,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test069" };
+//		TESTS_NAMES = new String[] { "test070" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1568,4 +1568,31 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			resolver.getFoundKeys());
 	}
 
+	/*
+	 * Ensures that unrequested compilation units are not resolved
+	 * (regression test for bug 114935 ASTParser.createASTs parses more CUs then required)
+	 */
+	public void test070() throws CoreException {
+		MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X extends /*start*/Y/*end*/ {\n" +
+			"}",
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  static final int CONST = 2 + 3;\n" +
+			"}",
+		});
+		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
+		TestASTRequestor requestor = new TestASTRequestor();
+		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
+		
+		// get the binding for Y
+		Type y = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
+		ITypeBinding yBinding = y.resolveBinding();
+		
+		// ensure that the fields for Y are not resolved
+		assertEquals("Field's constant should not be resolved", null, yBinding.getDeclaredFields()[0].getConstantValue());
+	}
 }
