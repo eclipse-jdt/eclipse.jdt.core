@@ -7399,11 +7399,11 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("No result", result); //$NON-NLS-1$
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(0)); //$NON-NLS-1$
+		assertEquals("Wrong line number", 1, compilationUnit.getLineNumber(0)); //$NON-NLS-1$
 		// ensure that last character is on the last line
-		assertEquals("Wrong line number", 3, compilationUnit.lineNumber(source.length - 1)); //$NON-NLS-1$
+		assertEquals("Wrong line number", 3, compilationUnit.getLineNumber(source.length - 1)); //$NON-NLS-1$
 		// source.length is beyond the size of the compilation unit source
-		assertEquals("Wrong line number", 1, compilationUnit.lineNumber(source.length)); //$NON-NLS-1$
+		assertEquals("Wrong line number", -1, compilationUnit.getLineNumber(source.length)); //$NON-NLS-1$
 	}
 		
 	/**

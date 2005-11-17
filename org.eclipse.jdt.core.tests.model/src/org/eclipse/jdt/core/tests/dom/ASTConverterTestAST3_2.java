@@ -1496,7 +1496,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		SimpleName name = methodDeclaration.getName();
-		assertEquals("wrong line number", 3, compilationUnit.lineNumber(name.getStartPosition()));
+		assertEquals("wrong line number", 3, compilationUnit.getLineNumber(name.getStartPosition()));
 	}
 
 	/**

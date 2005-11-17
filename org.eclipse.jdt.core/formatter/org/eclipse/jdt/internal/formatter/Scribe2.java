@@ -542,14 +542,14 @@ public class Scribe2 {
 				return comment1.getStartPosition() - comment2.getStartPosition();
 			}
 		});
-		final int lineNumber = this.unit.lineNumber(sourceStart);
+		final int lineNumber = this.unit.getLineNumber(sourceStart);
 		if (index < 0) {
 			index = -index - 1;
 			final int commentLength = this.comments.size();
 			for (int i = index; i < commentLength; i++) {
 				Comment currentComment = (Comment) comments.get(i);
 				final int start = currentComment.getStartPosition();
-				if (this.unit.lineNumber(start) == lineNumber) {
+				if (this.unit.getLineNumber(start) == lineNumber) {
 					if (currentComment.isLineComment()) {
 						return CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, start) != -1;
 					}
