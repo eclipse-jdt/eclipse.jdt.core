@@ -20,6 +20,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.content.IContentTypeManager.ContentTypeChangeEvent;
+import org.eclipse.core.runtime.content.IContentTypeManager.IContentTypeChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -59,7 +61,7 @@ import org.xml.sax.SAXException;
  * The single instance of <code>JavaModelManager</code> is available from
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
-public class JavaModelManager implements ISaveParticipant { 	
+public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener { 	
  
 	/**
 	 * Unique handle onto the JavaModel
@@ -2587,6 +2589,9 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			};
 			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
+			
+			// Listen to content-type changes
+			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
 
 			// retrieve variable values
 			loadVariablesAndContainers();
@@ -2652,6 +2657,9 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(this.deltaState);
 		workspace.removeSaveParticipant(javaCore);
+		
+		// Stop listening to content-type changes
+		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
 	
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
@@ -2908,5 +2916,10 @@ public class JavaModelManager implements ISaveParticipant {
 			return false;
 		variablePut(variableName, newPath);
 		return true;
+	}
+
+	public void contentTypeChanged(ContentTypeChangeEvent event) {
+		Util.resetJavaLikeExtensions();
+		
 	}
 }

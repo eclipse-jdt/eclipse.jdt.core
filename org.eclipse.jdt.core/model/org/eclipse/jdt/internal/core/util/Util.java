@@ -73,6 +73,7 @@ public class Util {
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private static char[][] JAVA_LIKE_EXTENSIONS;
+	public static boolean ENABLE_JAVA_LIKE_EXTENSIONS = false;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -739,7 +740,7 @@ public class Util {
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
 			// TODO (jerome) reenable once JDT UI supports other file extensions (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
-			if (true)
+			if (!ENABLE_JAVA_LIKE_EXTENSIONS)
 				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java};
 			else {
 				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
@@ -1782,6 +1783,13 @@ public class Util {
 		if (hasTrailingSeparator)
 			result[offset++] = '/';
 		return new String(result);
+	}
+	
+	/*
+	 * Resets the list of Java-like extensions after a change in content-type.
+	 */
+	public static void resetJavaLikeExtensions() {
+		JAVA_LIKE_EXTENSIONS = null;
 	}
 	
 	/**

@@ -90,6 +90,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -2490,6 +2491,19 @@ public final class JavaCore extends Plugin {
 	}
 	
 	/**
+	 * Returns the list of known Java-like extensions.
+	 * Java like extension are defined in the {@link org.eclipse.core.runtime.Platform#getContentTypeManager() 
+	 * content type manager} for the org.eclipse.jdt.core.javaSource content type.
+	 * Note that the ".java" extension is always defined as a Java like extension.
+	 * 
+	 * @return the list of known Java-like extensions.
+	 * @since 3.2
+	 */
+	public static String[] getJavaLikeExtensions() {
+		return CharOperation.toStrings(Util.getJavaLikeExtensions());
+	}
+	
+	/**
 	 * Helper method for returning one option value only. Equivalent to <code>(String)JavaCore.getOptions().get(optionName)</code>
 	 * Note that it may answer <code>null</code> if this option does not exist.
 	 * <p>
@@ -2842,6 +2856,17 @@ public final class JavaCore extends Plugin {
 		job.setPriority(Job.SHORT);
 		job.schedule(2000);	 // wait for the startup activity to calm down
 		
+	}
+	
+	/**
+	 * Returns whether the given file name's extension is a Java-like extension.
+	 * 
+	 * @return whether the given file name's extension is a Java-like extension
+	 * @see #getJavaLikeExtensions()
+	 * @since 3.2
+	 */
+	public static boolean isJavaLikeFileName(String fileName) {
+		return Util.isJavaLikeFileName(fileName);
 	}
 	
 	/**
@@ -3793,6 +3818,18 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(listener);
 	}
 
+	/**
+	 * Removes the file extension from the given file name, if it has a Java-like file
+	 * extension. Otherwise the file name itself is returned.
+	 * 
+	 * @param fileName the name of a file
+	 * @return the fileName without the Java-like extension
+	 * @since 3.2
+	 */
+	public static String removeJavaLikeExtension(String fileName) {
+		return Util.getNameWithoutJavaLikeExtension(fileName);
+	}
+	
 	/**
 	 * Removes the given pre-processing resource changed listener.
 	 * <p>

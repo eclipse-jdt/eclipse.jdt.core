@@ -169,6 +169,9 @@ private static Class[] getAllTestClasses() {
 		
 		// Class file tests
 		ClassFileTests.class,
+		
+		// Java-like extensions tests
+		JavaLikeExtensionsTests.class,
 	};
 	
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

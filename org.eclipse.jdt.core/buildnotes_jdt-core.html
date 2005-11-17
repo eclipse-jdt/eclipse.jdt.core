@@ -56,10 +56,16 @@ What's new in this drop</h2>
 generic type binding, instead of a parameterized type binding (using its own type parameters as type arguments). This is now corrected, clients should 
 ensure they did not rely on the previous inconsistency (note: no change was required from direct JDT dependents).
 </li>
+<li>Added APIs <code>JavaCore#getJavaLikeExtensions(), isJavaLikeFileName(String), and removeJavaLikeExtension(String)</code>
+     to get the available Java-like extensions (from the Java source content-type), checking if a file is a Java-like file, and removing
+     the Java-like extension from a file name.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80472">80472</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115067">115067</a>
+Util#getJavaLikeExtensions should become API
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80472">80472</a>
 Binding of parameterized return type List&lt;E&gt; subList(...) should not be generic binding
 
 
