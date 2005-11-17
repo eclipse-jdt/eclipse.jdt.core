@@ -362,132 +362,88 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+		char[] tagName = this.scanner.getCurrentIdentifierSource();
 	
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
-		char pc = peekChar();
-		boolean validTag = false;
-		switch (token) {
-			case TerminalTokens.TokenNameIdentifier:
-			case TerminalTokens.TokenNamereturn:
-			case TerminalTokens.TokenNamethrows:
-			case TerminalTokens.TokenNameabstract:
-			case TerminalTokens.TokenNameassert:
-			case TerminalTokens.TokenNameboolean:
-			case TerminalTokens.TokenNamebreak:
-			case TerminalTokens.TokenNamebyte:
-			case TerminalTokens.TokenNamecase:
-			case TerminalTokens.TokenNamecatch:
-			case TerminalTokens.TokenNamechar:
-			case TerminalTokens.TokenNameclass:
-			case TerminalTokens.TokenNamecontinue:
-			case TerminalTokens.TokenNamedefault:
-			case TerminalTokens.TokenNamedo:
-			case TerminalTokens.TokenNamedouble:
-			case TerminalTokens.TokenNameelse:
-			case TerminalTokens.TokenNameextends:
-			case TerminalTokens.TokenNamefalse:
-			case TerminalTokens.TokenNamefinal:
-			case TerminalTokens.TokenNamefinally:
-			case TerminalTokens.TokenNamefloat:
-			case TerminalTokens.TokenNamefor:
-			case TerminalTokens.TokenNameif:
-			case TerminalTokens.TokenNameimplements:
-			case TerminalTokens.TokenNameimport:
-			case TerminalTokens.TokenNameinstanceof:
-			case TerminalTokens.TokenNameint:
-			case TerminalTokens.TokenNameinterface:
-			case TerminalTokens.TokenNamelong:
-			case TerminalTokens.TokenNamenative:
-			case TerminalTokens.TokenNamenew:
-			case TerminalTokens.TokenNamenull:
-			case TerminalTokens.TokenNamepackage:
-			case TerminalTokens.TokenNameprivate:
-			case TerminalTokens.TokenNameprotected:
-			case TerminalTokens.TokenNamepublic:
-			case TerminalTokens.TokenNameshort:
-			case TerminalTokens.TokenNamestatic:
-			case TerminalTokens.TokenNamestrictfp:
-			case TerminalTokens.TokenNamesuper:
-			case TerminalTokens.TokenNameswitch:
-			case TerminalTokens.TokenNamesynchronized:
-			case TerminalTokens.TokenNamethis:
-			case TerminalTokens.TokenNamethrow:
-			case TerminalTokens.TokenNametransient:
-			case TerminalTokens.TokenNametrue:
-			case TerminalTokens.TokenNametry:
-			case TerminalTokens.TokenNamevoid:
-			case TerminalTokens.TokenNamevolatile:
-			case TerminalTokens.TokenNamewhile:
-				validTag= true;
-		}
-		tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
-			// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
-			switch (pc) {
-				case '}':
-				case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
-					break tagNameToken;
-				case '!':
-				case '#':
-				case '%':
-				case '&':
-				case '\'':
-				case '"':
-				case ':':
-				case '<':
-				case '>':
-					validTag = false;
-					// fall thru next case to read character and resynch scanner
-				case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
-					readChar();
-					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-					this.scanner.currentPosition = this.index;
-					break;
-				default:
-					if (pc == ' ' || Character.isWhitespace(pc)) break tagNameToken;
-					token = readTokenAndConsume();
-					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-					break;
+		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
+			boolean validTag = true;
+			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
+				int length = tagName.length;
+				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
+				switch (this.scanner.currentCharacter) {
+					case '}':
+					case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
+						break tagNameToken;
+					case '!':
+					case '#':
+					case '%':
+					case '&':
+					case '\'':
+					case '"':
+					case ':':
+					case '<':
+					case '>':
+					case '@':
+						validTag = false;
+						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+						this.index = this.scanner.currentPosition;
+						break;
+					case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
+						System.arraycopy(tagName, 0, tagName = new char[length+1], 0, length);
+						tagName[length] = this.scanner.currentCharacter;
+						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+						this.index = this.scanner.currentPosition;
+						break;
+					default:
+						if (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter)) {
+							break tagNameToken;
+						}
+						token = readTokenAndConsume();
+						char[] ident = this.scanner.getCurrentIdentifierSource();
+						System.arraycopy(tagName, 0, tagName = new char[length+ident.length], 0, length);
+						System.arraycopy(ident, 0, tagName, length, ident.length);
+						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+						break;
+				}
+				this.scanner.getNextChar();
 			}
-			pc = peekChar();
+			if (!validTag) {
+				if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+				return false;
+			}
 		}
-		if (!validTag) {
-			this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
-			return false;
-		}
-		int length = this.tagSourceEnd-this.tagSourceStart+1;
+		int length = tagName.length;
 		if (length == 0) return false; // may happen for some parser (completion for example)
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
-
+	
 		// Decide which parse to perform depending on tag name
 		this.tagValue = NO_TAG_VALUE;
-		char firstChar = this.source[this.tagSourceStart];
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
-				switch (firstChar) {
+				switch (tagName[0]) {
 					case 'c':
-						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
 							this.tagValue = TAG_CATEGORY_VALUE;
 							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
 						}
 						break;
 					case 'd':
-						if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName)) {
 							this.deprecated = true;
 							valid = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
 						}
 						break;
 					case 'e':
-						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName)) {
 							this.tagValue = TAG_EXCEPTION_VALUE;
 							valid = parseThrows();
 						}
 						break;
 					case 'i':
-						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName)) {
 							// inhibits inherited flag when tags have been already stored
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
 							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
@@ -501,7 +457,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'l':
-						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName)) {
 							this.tagValue = TAG_LINK_VALUE;
 							if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
 								valid= parseReference();
@@ -512,7 +468,7 @@ public class JavadocParser extends AbstractCommentParser {
 								if (this.sourceParser != null)
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 							}
-						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();
@@ -524,13 +480,13 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'p':
-						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
 							this.tagValue = TAG_PARAM_VALUE;
 							valid = parseParam();
 						}
 						break;
 					case 's':
-						if (length == TAG_SEE_LENGTH && this.source[this.tagSourceStart+1] == TAG_SEE[1] &&  this.source[this.tagSourceEnd] == TAG_SEE[2]) {
+						if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName)) {
 							if (this.inlineTagStarted) {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 								// Cannot have @see inside inline comment
@@ -544,7 +500,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'v':
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();

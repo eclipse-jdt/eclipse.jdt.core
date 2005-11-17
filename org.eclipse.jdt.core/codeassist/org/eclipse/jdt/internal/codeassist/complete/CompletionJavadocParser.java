@@ -457,22 +457,15 @@ public class CompletionJavadocParser extends JavadocParser {
 			char[] name = null;
 			CompletionScanner completionScanner = (CompletionScanner) this.scanner;
 			boolean isTypeParam = false;
-			if (this.identifierPtr < 0) {
-				// workaround, empty token should set an empty identifier by scanner and so identifierPtr should be == 0
-				if (completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
-					namePosition = completionScanner.completedIdentifierStart;
-					startPosition = completionScanner.completedIdentifierStart;
-					endPosition = completionScanner.completedIdentifierEnd;
-				}
-			} else {
+			if (this.identifierPtr >= 0) {
 				char[] identifier = null;
 				switch (this.identifierPtr) {
 					case 2:
-						if (!valid && completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
+						if (!valid && completionScanner.completionIdentifier != null && completionScanner.completionIdentifier.length == 0) {
 							valid = pushParamName(true);
 						}
 					case 1:
-						isTypeParam = true;
+						isTypeParam = this.identifierStack[0][0] == '<';
 						identifier = this.identifierStack[1];
 						namePosition = this.identifierPositionStack[1];
 						break;
@@ -776,15 +769,13 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#readTokenAndConsume()
-	 * TODO (frederic) remove when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=114115 will be fixed
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#readToken()
 	 */
-	protected int readTokenAndConsume() throws InvalidInputException {
-		int token = super.readTokenAndConsume();
-		if (token == TerminalTokens.TokenNameIdentifier) {
-			if (this.scanner.currentPosition == this.scanner.startPosition) {
-				this.scanner.getCurrentIdentifierSource();
-			}
+	protected int readToken() throws InvalidInputException {
+		int token = super.readToken();
+		if (token == TerminalTokens.TokenNameIdentifier && this.scanner.currentPosition == this.scanner.startPosition) {
+			// Scanner is looping on empty token => read it... 
+			this.scanner.getCurrentIdentifierSource();
 		}
 		return token;
 	}

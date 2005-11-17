@@ -351,38 +351,47 @@ class DocCommentParser extends AbstractCommentParser {
 		int token = readTokenAndConsume();
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+		char[] tagName = this.scanner.getCurrentIdentifierSource();
 
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
-		int tk = token;
-		char pc = peekChar();
-		tagNameToken: while (tk != TerminalTokens.TokenNameEOF) {
-			this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-			token = tk;
-			// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
-			switch (pc) {
-				case '}':
-				case '!':
-				case '#':
-				case '%':
-				case '&':
-				case '\'':
-				case '"':
-				case ':':
-				// case '-': allowed in tag names as this character is often used in doclets (bug 68087)
-				case '<':
-				case '>':
-				case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
-					break tagNameToken;
-				default:
-					if (pc == ' ' || Character.isWhitespace(pc)) break tagNameToken;
+		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
+			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
+				int length = tagName.length;
+				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
+				switch (this.scanner.currentCharacter) {
+					case '}':
+					case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
+					case '!':
+					case '#':
+					case '%':
+					case '&':
+					case '\'':
+					case '"':
+					case ':':
+					case '<':
+					case '>':
+						break tagNameToken;
+					case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
+						System.arraycopy(tagName, 0, tagName = new char[length+1], 0, length);
+						tagName[length] = this.scanner.currentCharacter;
+						break;
+					default:
+						if (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter)) {
+							break tagNameToken;
+						}
+						token = readTokenAndConsume();
+						char[] ident = this.scanner.getCurrentIdentifierSource();
+						System.arraycopy(tagName, 0, tagName = new char[length+ident.length], 0, length);
+						System.arraycopy(ident, 0, tagName, length, ident.length);
+						break;
+				}
+				this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+				this.scanner.getNextChar();
+				this.index = this.scanner.currentPosition;
 			}
-			tk = readTokenAndConsume();
-			pc = peekChar();
 		}
-		int length = this.tagSourceEnd-this.tagSourceStart+1;
-		char[] tag = new char[length];
-		System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+		int length = tagName.length;
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
 		this.tagSourceStart = previousPosition;
@@ -392,9 +401,18 @@ class DocCommentParser extends AbstractCommentParser {
 		boolean valid = true;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
-				switch (tag[0]) {
+				switch (tagName[0]) {
+					case 'c':
+						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
+							this.tagValue = TAG_CATEGORY_VALUE;
+							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+						break;
 					case 'd':
-						if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+						if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName)) {
 							this.deprecated = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
 						} else {
@@ -403,7 +421,7 @@ class DocCommentParser extends AbstractCommentParser {
 						createTag();
 					break;
 					case 'i':
-						if (CharOperation.equals(tag, TAG_INHERITDOC)) {
+						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName)) {
 							// inhibits inherited flag when tags have been already stored
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
 							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
@@ -419,7 +437,7 @@ class DocCommentParser extends AbstractCommentParser {
 						createTag();
 					break;
 					case 'p':
-						if (CharOperation.equals(tag, TAG_PARAM)) {
+						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
 							this.tagValue = TAG_PARAM_VALUE;
 							valid = parseParam();
 						} else {
@@ -428,7 +446,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'e':
-						if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName)) {
 							this.tagValue = TAG_EXCEPTION_VALUE;
 							valid = parseThrows();
 						} else {
@@ -437,7 +455,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 's':
-						if (CharOperation.equals(tag, TAG_SEE)) {
+						if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName)) {
 							this.tagValue = TAG_SEE_VALUE;
 							if (this.inlineTagStarted) {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
@@ -452,9 +470,9 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'l':
-						if (CharOperation.equals(tag, TAG_LINK)) {
+						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName)) {
 							this.tagValue = TAG_LINK_VALUE;
-						} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
+						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
 						}
 						if (this.tagValue != NO_TAG_VALUE)  {
@@ -471,7 +489,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'v':
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && CharOperation.equals(tag, TAG_VALUE)) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();

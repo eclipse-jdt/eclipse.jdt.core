@@ -690,12 +690,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		int end = this.tagSourceEnd;
 		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
 		this.scanner.tokenizeWhiteSpace = true;
-//		this.scanner.tokenizeLineSeparator = true;
 		
 		// Verify that there are whitespaces after tag
-		int token = readToken();
 		boolean isCompletionParser = (this.kind & COMPLETION_PARSER) != 0;
-		if (token != TerminalTokens.TokenNameWHITESPACE) {
+		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
 			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(start, this.scanner.getCurrentTokenEndPosition());
 			if (!isCompletionParser) {
 				this.scanner.currentPosition = start;
@@ -713,6 +711,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		boolean isTypeParam = false;
 		boolean valid = true, empty = true;
 		boolean mayBeGeneric = this.sourceLevel >= ClassFileConstants.JDK1_5;
+		int token = -1;
 		nextToken: while (true) {
 			this.currentTokenType = -1;
 			try {
