@@ -50,6 +50,8 @@ public static Test suite() {
 	standardTests.add(ConditionalExpressionTest.class);
 	standardTests.add(ExternalizeStringLiteralsTest.class);
 	standardTests.add(NonFatalErrorTest.class);
+	standardTests.add(FlowAnalysisTest.class);
+	
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
 		standardTests.add(JavadocTest.ALL_CLASSES.get(i));
