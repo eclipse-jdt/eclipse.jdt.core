@@ -560,9 +560,8 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.2
 	 */
 	 public int getPosition(int line, int column) {
-		if (this.lineEndTable == null) return -2;
-		final int length = this.lineEndTable.length;
-		if (length == 0) return -2;
+		final int length;
+		if (this.lineEndTable == null || ((length = this.lineEndTable.length) == 0)) return -2;
 		if (line < 1 || column < 0) return -1;
 		if (line == 1) {
 			final int endOfLine = this.lineEndTable[0];
@@ -750,12 +749,8 @@ public class CompilationUnit extends ASTNode {
 	 * @see ASTParser
 	 */
 	public int getLineNumber(int position) {
-		if (this.lineEndTable == null) return -2;
-		int length = this.lineEndTable.length;
-		if (length == 0) {
-			// no line number info
-			return -2;
-		}
+		final int length;
+		if (this.lineEndTable == null || ((length = this.lineEndTable.length) == 0)) return -2;
 		int low = 0;
 		if (position < 0) {
 			// position illegal 
