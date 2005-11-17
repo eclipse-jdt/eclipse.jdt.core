@@ -237,7 +237,7 @@ public class CompilationUnit extends ASTNode {
 	 * 
 	 * @param position a 0-based character position, possibly
 	 *   negative or out of range
-	 * @return the 0-based coloumn number, or <code>-1</code> if the character
+	 * @return the 0-based column number, or <code>-1</code> if the character
 	 *    position does not correspond to a source line in the original
 	 *    source file or <code>-2</code> if column number information is unknown for this
 	 *    compilation unit
