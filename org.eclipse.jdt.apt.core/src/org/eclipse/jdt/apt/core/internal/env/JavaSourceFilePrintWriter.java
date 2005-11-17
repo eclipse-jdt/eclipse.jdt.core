@@ -34,36 +34,39 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	
     public void close()
     {
-    	String contents = _sw.toString();
-        super.close();
-        GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(_env.getProject());
-        Phase phase = _env.getPhase();
-	
-        if ( phase == Phase.RECONCILE )
-        {
-        	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
-            FileGenerationResult result  = gfm.generateFileDuringReconcile( 
-                parentCompilationUnit, _typeName, contents, parentCompilationUnit.getOwner(), null, null );
-			if ( result != null )
-				_env.addGeneratedFile(result.getFile(), result.isModified());
-        }
-        else if ( phase == Phase.BUILD)	
-        {
-        	try {
-				FileGenerationResult result = gfm.generateFileDuringBuild( 
+    	
+    	try {
+	    	String contents = _sw.toString();
+	        super.close();
+	        GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(_env.getProject());
+	        Phase phase = _env.getPhase();
+		
+	        FileGenerationResult result = null;
+	        if ( phase == Phase.RECONCILE )
+	        {
+	        	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
+	            result  = gfm.generateFileDuringReconcile( 
+	                parentCompilationUnit, _typeName, contents, parentCompilationUnit.getOwner(), null, null );
+	        }
+	        else if ( phase == Phase.BUILD)	
+	        {
+				result = gfm.generateFileDuringBuild( 
 						_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );
-				if( result != null ){		
-					_env.addGeneratedFile( result.getFile(), result.isModified());
-				}
-        	}
-        	catch (CoreException ce) {
-        		AptPlugin.log(ce, "Failure generating file"); //$NON-NLS-1$
-        	}
-        }
-        else
-        {
-            assert false : "Unexpected phase value: " + phase ; //$NON-NLS-1$
-        }
+	        }
+	        else
+	        {
+	            throw new IllegalStateException( "Unexpected phase value: " + phase ); //$NON-NLS-1$
+	        }
+	        if (result != null) {
+	        	_env.addGeneratedFile(result.getFile(), result.isModified());
+	        	if (result.hasSourcepathChanged()) {
+	        		_env.setSourcePathChanged(true);
+	        	}
+	        }
+    	}
+    	catch (CoreException ce) {
+    		AptPlugin.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
+    	}
     }
 			
 	

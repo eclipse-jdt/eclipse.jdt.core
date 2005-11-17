@@ -73,7 +73,7 @@ import org.eclipse.jdt.core.dom.AST;
  * The file maps have entries added when a file is generated during a build.  
  * The file maps & working-copy maps haven entries added added when a file
  * is added during a reconcile.  There are various entry-points to keep the
- * maps up-to-date withspect to life-cycle events on the parent & generated files.
+ * maps up-to-date with respect to life-cycle events on the parent & generated files.
  * (e.g., parentFileDeleted(), ).
  *
  * SYNCHRONIZATION NOTES (IMPORTANT)
@@ -256,9 +256,8 @@ public class GeneratedFileManager {
 	throws CoreException
 	{
 		try{
-			if( !isGeneratedSourceFolderConfigured() ){
-				throw new IllegalStateException("Generated source folder not configured type generated for " + typeName + " failed"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			final boolean sourcepathUpdated = ensureGeneratedSourceFolder(progressMonitor);
+			
 			final IFolder genFolder = getGeneratedSourceFolder();
 			IPackageFragmentRoot genFragRoot = null;
 			IPackageFragmentRoot[] roots = _javaProject.getAllPackageFragmentRoots();
@@ -273,6 +272,14 @@ public class GeneratedFileManager {
 				for (IPackageFragmentRoot root : roots) {
 					sb.append(root.getPath()).append(" "); //$NON-NLS-1$
 				}
+				
+				System.out.println("*** start of classpath ***");
+				IClasspathEntry[] cp = _javaProject.getRawClasspath();
+				for (IClasspathEntry c : cp) {
+					System.out.println(c);
+				}
+				System.out.println("*** end of classpath ***");
+				
 				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName() + ". Roots: " + sb.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			if( typeName.indexOf('/') != -1 )
@@ -362,10 +369,11 @@ public class GeneratedFileManager {
 			if( parentFile != null ){
 				addEntryToFileMaps( parentFile, file );
 			}
-			return new FileGenerationResult(file, contentsDiffer);
+			return new FileGenerationResult(file, contentsDiffer, sourcepathUpdated);
 		}
 		catch(Throwable e){
-			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$			
+			AptPlugin.log(e, "(2)failed to generate type " + typeName); //$NON-NLS-1$
+			e.printStackTrace();
 		}
 		return null; // something failed. The catch block have already logged the error.
 	}	
@@ -397,15 +405,14 @@ public class GeneratedFileManager {
 			ICompilationUnit parentCompilationUnit, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
+	
+	throws CoreException
 	{	
 		
 		if (!GENERATE_TYPE_DURING_RECONCILE)
 			return null;
 		
-		// type-generation during reconcile only works if the generated source
-		// folder is created and added to the project's source path. 
-		if ( ! isGeneratedSourceFolderConfigured() )
-			return null;
+		final boolean sourcepathUpdated = ensureGeneratedSourceFolder(progressMonitor);
 		
 		ICompilationUnit workingCopy = null;
 		FileGenerationResult result = null;
@@ -432,7 +439,7 @@ public class GeneratedFileManager {
 				
 				// TODO:  pass in correct flag for source-patch changed.  This is probably not going to matter.  Per 103183, we will either 
 				// disable reconcile-time generation, or do it without any modifications, so we shouldn't have to worry about this.   
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), true);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), true, sourcepathUpdated);
 			}
 			else
 			{
@@ -441,7 +448,7 @@ public class GeneratedFileManager {
 				//  Update working copy's buffer with the contents of the type 
 				// 
 				boolean modified = updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified, sourcepathUpdated);
 			}
 			
 			return result;
@@ -450,7 +457,7 @@ public class GeneratedFileManager {
 		{
 			AptPlugin.log(jme, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		} 
-		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
+		return new FileGenerationResult((IFile)workingCopy.getResource(), true, sourcepathUpdated);
 	}
 
 	
@@ -657,7 +664,7 @@ public class GeneratedFileManager {
 	 * @throws JavaModelException
 	 */
 	public boolean deleteGeneratedTypeInMemory(IFile generatedFile, ICompilationUnit parentWorkingCopy, IProgressMonitor progressMonitor )
-		throws JavaModelException
+		throws JavaModelException, CoreException
 	{		
 		if( !GENERATE_TYPE_DURING_RECONCILE )
 			return false;
@@ -864,23 +871,23 @@ public class GeneratedFileManager {
 	 *  @see #isGeneratedSourceFolderConfigured()
 	 */
 	public boolean ensureGeneratedSourceFolder( IProgressMonitor progressMonitor ){
+		
 		boolean reset = false;
 		IFolder curSrcFolder = null;
 		synchronized( this )
 		{
-			if( _generatedSourceFolderName == null )
-				return false;
 			if( _generatedSourceFolder != null ){
 				final IPath srcFolderPath = _generatedSourceFolder.getProjectRelativePath();
 				
-	
 				if( !_generatedSourceFolderName.equals( srcFolderPath.toString()) ){
 					reset = true;
 					curSrcFolder = _generatedSourceFolder;
 					_generatedSourceFolder = null;
 				}
-				else
-					return false;
+				else {
+					if (_javaProject.isOnClasspath(_generatedSourceFolder))
+						return false;
+				}
 			}
 	
 		}
@@ -922,22 +929,6 @@ public class GeneratedFileManager {
 		{
 			_generatedSourceFolder = srcFolder;
 			return true;
-		}
-	}
-	
-	/** 
-	 * @return true if the generated source folder has been created and added to the project's source path, false otherwise
-	 * 
-	 * @see #getGeneratedSourceFolder()
-	 * @see #getGeneratedSourceFolderName()
-	 */
-	public boolean isGeneratedSourceFolderConfigured()
-	{
-		// if _generatedSourceFolder is non-null, then it has been
-		// created and added to the project's classpath
-		synchronized( this )
-		{
-			return ( _generatedSourceFolder != null );
 		}
 	}
 	
@@ -1294,7 +1285,7 @@ public class GeneratedFileManager {
 	/**
 	 * returns true if we updated the classpath, false otherwise
 	 */
-	private boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	private static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
@@ -1522,8 +1513,6 @@ public class GeneratedFileManager {
 			MANAGERS_MAP.remove( _project );
 		}
 		
-		// TODO:  eventually make this true.  Right now, the resource tree is locked 
-		// when we get the project-deleted event, so we can't delete any files.
 		projectClean( false );
 	}
 	
@@ -1640,7 +1629,7 @@ public class GeneratedFileManager {
 		
 		projectClean( true );
 
-		final IFolder srcFolder;
+		IFolder srcFolder;
 		synchronized ( this )
 		{
 			// We are not going to delete any directories or change the classpath
@@ -1650,37 +1639,9 @@ public class GeneratedFileManager {
 			// save _generatedSrcFolder off to avoid race conditions
 			srcFolder = _generatedSourceFolder;
 		}
-		/*
-		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-            public void run(IProgressMonitor monitor)
-            {		
-            	if( srcFolder != null ){
-	            	try{
-	            		srcFolder.delete(true, false, null);
-	            	}catch(CoreException e){
-	            		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
-	            	}catch(OperationCanceledException cancel){
-	            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
-	            	}
-            	}
-            	
-            	try{
-            		ensureGeneratedSourceFolder(null);
-            	}
-            	catch(OperationCanceledException cancel){
-            		AptPlugin.log(cancel, "ensureGeneratedSourceFolder() operation got cancelled"); //$NON-NLS-1$
-            		// something bad will likely to happen.
-            	}
-            };
-        };
-        IWorkspace ws = _javaProject.getProject().getWorkspace();
-        try{
-        	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
-        }catch(CoreException e){
-    		AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
-    	}
-    	*/
-		if(srcFolder == null)
+		
+		// delete generatedSourceFolder
+		if( srcFolder == null )
 			ensureGeneratedSourceFolder(null);
 	}
 }

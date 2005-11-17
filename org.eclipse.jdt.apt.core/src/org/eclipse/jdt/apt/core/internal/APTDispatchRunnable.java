@@ -192,6 +192,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 										 Collections.<AnnotationProcessorFactory>emptySet(),
 										 Collections.<IFile, Set<String>>emptyMap(),
 										 Collections.<IFile, List<IProblem>>emptyMap(), 
+										 false,
 										 false );
 		}
 		else
@@ -601,6 +602,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 
 											  processorEnv.getProblems(), 
+											  processorEnv.getSourcePathChanged(),
 											  processorEnv.hasGeneratedClassFiles() || processorEnv.hasGeneratedSourceFiles());
 			processorEnv.close();
 			return result;
