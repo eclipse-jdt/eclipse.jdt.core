@@ -269,18 +269,16 @@ public class GeneratedFileManager {
 			}
 			if( genFragRoot == null ){
 				StringBuilder sb = new StringBuilder();
-				for (IPackageFragmentRoot root : roots) {
-					sb.append(root.getPath()).append(" "); //$NON-NLS-1$
-				}
 				
-				System.out.println("*** start of classpath ***");
+				sb.append("*** start of classpath ***\n"); //$NON-NLS-1$
 				IClasspathEntry[] cp = _javaProject.getRawClasspath();
 				for (IClasspathEntry c : cp) {
-					System.out.println(c);
+					sb.append(c).append("\n"); //$NON-NLS-1$
 				}
-				System.out.println("*** end of classpath ***");
+				sb.append("*** end of classpath ***"); //$NON-NLS-1$
 				
-				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName() + ". Roots: " + sb.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IllegalStateException("failed to locate package fragment root for " +  //$NON-NLS-1$
+						genFolder.getName() + ". classpath:\n" + sb.toString()); //$NON-NLS-1$ 
 			}
 			if( typeName.indexOf('/') != -1 )
 				typeName = typeName.replace('/', '.');
