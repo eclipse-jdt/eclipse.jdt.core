@@ -81,15 +81,12 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -2752,110 +2749,103 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
-		Job job = new Job(Messages.javamodel_initialization) {
-			protected IStatus run(IProgressMonitor progressMonitor) {
-				// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
-				SearchEngine engine = new SearchEngine();
-				IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
-				try {
-					engine.searchAllTypeNames(
-						null,
-						"!@$#!@".toCharArray(), //$NON-NLS-1$
-						SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-						IJavaSearchConstants.CLASS,
-						scope, 
-						new TypeNameRequestor() {
-							public void acceptType(
-								int modifiers,
-								char[] packageName,
-								char[] simpleTypeName,
-								char[][] enclosingTypeNames,
-								String path) {
-								// no type to accept
-							}
-						},
-						// will not activate index query caches if indexes are not ready, since it would take to long
-						// to wait until indexes are fully rebuild
-						IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 99) // 99% of the time is spent in the dummy search
-					); 
-				} catch (JavaModelException e) {
-					// /search failed: ignore
-				} catch (OperationCanceledException e) {
-					if (progressMonitor != null && progressMonitor.isCanceled())
-						throw e;
-					// else indexes were not ready: catch the exception so that jars are still refreshed
-				}
-				
-				// check if the build state version number has changed since last session
-				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
-				QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				String versionNumber = null;
-				try {
-					versionNumber = root.getPersistentProperty(qName);
-				} catch (CoreException e) {
-					// could not read version number: consider it is new
-				}
-				final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-				String newVersionNumber = Byte.toString(State.VERSION);
-				if (!newVersionNumber.equals(versionNumber)) {
-					// build state version number has changed: touch every projects to force a rebuild
-					if (JavaBuilder.DEBUG)
-						System.out.println("Build state version number has changed"); //$NON-NLS-1$
-					IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-						public void run(IProgressMonitor progressMonitor2) throws CoreException {
-							IJavaProject[] projects = null;
-							try {
-								projects = model.getJavaProjects();
-							} catch (JavaModelException e) {
-								// could not get Java projects: ignore
-							}
-							if (projects != null) {
-								for (int i = 0, length = projects.length; i < length; i++) {
-									IJavaProject project = projects[i];
-									try {
-										if (JavaBuilder.DEBUG)
-											System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
-										project.getProject().touch(progressMonitor2);
-									} catch (CoreException e) {
-										// could not touch this project: ignore
-									}
+		try {
+			if (monitor != null) monitor.beginTask(Messages.javamodel_initialization, 100);
+			// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
+			SearchEngine engine = new SearchEngine();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+			try {
+				engine.searchAllTypeNames(
+					null,
+					"!@$#!@".toCharArray(), //$NON-NLS-1$
+					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+					IJavaSearchConstants.CLASS,
+					scope, 
+					new TypeNameRequestor() {
+						public void acceptType(
+							int modifiers,
+							char[] packageName,
+							char[] simpleTypeName,
+							char[][] enclosingTypeNames,
+							String path) {
+							// no type to accept
+						}
+					},
+					// will not activate index query caches if indexes are not ready, since it would take to long
+					// to wait until indexes are fully rebuild
+					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+					monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
+				); 
+			} catch (JavaModelException e) {
+				// /search failed: ignore
+			} catch (OperationCanceledException e) {
+				if (monitor != null && monitor.isCanceled())
+					throw e;
+				// else indexes were not ready: catch the exception so that jars are still refreshed
+			}
+			
+			// check if the build state version number has changed since last session
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			String versionNumber = null;
+			try {
+				versionNumber = root.getPersistentProperty(qName);
+			} catch (CoreException e) {
+				// could not read version number: consider it is new
+			}
+			final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			String newVersionNumber = Byte.toString(State.VERSION);
+			if (!newVersionNumber.equals(versionNumber)) {
+				// build state version number has changed: touch every projects to force a rebuild
+				if (JavaBuilder.DEBUG)
+					System.out.println("Build state version number has changed"); //$NON-NLS-1$
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor progressMonitor2) throws CoreException {
+						IJavaProject[] projects = null;
+						try {
+							projects = model.getJavaProjects();
+						} catch (JavaModelException e) {
+							// could not get Java projects: ignore
+						}
+						if (projects != null) {
+							for (int i = 0, length = projects.length; i < length; i++) {
+								IJavaProject project = projects[i];
+								try {
+									if (JavaBuilder.DEBUG)
+										System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+									project.getProject().touch(progressMonitor2);
+								} catch (CoreException e) {
+									// could not touch this project: ignore
 								}
 							}
 						}
-					};
-					try {
-						ResourcesPlugin.getWorkspace().run(runnable, progressMonitor);
-					} catch (CoreException e) {
-						// could not touch all projects
 					}
-					try {
-						root.setPersistentProperty(qName, newVersionNumber);
-					} catch (CoreException e) {
-						Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
-					}
-				}
-				
-				// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+				};
 				try {
-					model.refreshExternalArchives(
-						null/*refresh all projects*/, 
-						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1) // 1% of the time is spent in jar refresh
-					);
-				} catch (JavaModelException e) {
-					// refreshing failed: ignore
+					ResourcesPlugin.getWorkspace().run(runnable, monitor);
+				} catch (CoreException e) {
+					// could not touch all projects
 				}
-				
-				return Status.OK_STATUS;
+				try {
+					root.setPersistentProperty(qName, newVersionNumber);
+				} catch (CoreException e) {
+					Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
+				}
 			}
-			public boolean belongsTo(Object family) {
-				return PLUGIN_ID.equals(family);
+			
+			// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+			try {
+				model.refreshExternalArchives(
+					null/*refresh all projects*/, 
+					monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
+				);
+			} catch (JavaModelException e) {
+				// refreshing failed: ignore
 			}
-		};
-		job.setPriority(Job.SHORT);
-		job.schedule(2000);	 // wait for the startup activity to calm down
-		
+		} finally {
+			if (monitor != null) monitor.done();
+		}
 	}
 	
 	/**
