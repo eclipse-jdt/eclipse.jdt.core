@@ -545,12 +545,12 @@ public class CompilationUnit extends ASTNode {
 	 * Given a line number and column number, returns the corresponding 
 	 * position in the original source string.
 	 * Returns -2 if no line number information is available for this
-	 * compilation unit or the requested line number is less than one. 
+	 * compilation unit. 
 	 * Returns the total size of the source string if <code>line</code>
 	 * is greater than the actual number lines in the unit.
 	 * Returns -1 if <code>column</code> is less than 0,  
 	 * or the position of the last character of the line if <code>column</code>
-	 * is beyond the legal range. 
+	 * is beyond the legal range, or the given line number is less than one. 
 	 * 
 	 * @param line the one-based line number
 	 * @param column the zero-based column number
@@ -561,9 +561,9 @@ public class CompilationUnit extends ASTNode {
 	 */
 	 public int getPosition(int line, int column) {
 		if (this.lineEndTable == null) return -2;
-		if (line < 1 || column < 0) return -1;
 		final int length = this.lineEndTable.length;
 		if (length == 0) return -2;
+		if (line < 1 || column < 0) return -1;
 		if (line == 1) {
 			final int endOfLine = this.lineEndTable[0];
 			return column > endOfLine ? -1 : column;			
