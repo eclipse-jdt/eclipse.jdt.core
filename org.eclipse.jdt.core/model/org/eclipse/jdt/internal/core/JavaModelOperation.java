@@ -398,7 +398,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns null if no such attribute is found.
 	 */
 	protected Object getAttribute(Object key) {
-		ArrayList stack = this.getCurrentOperationStack();
+		ArrayList stack = getCurrentOperationStack();
 		if (stack.size() == 0) return null;
 		JavaModelOperation topLevelOp = (JavaModelOperation)stack.get(0);
 		if (topLevelOp.attributes == null) {
@@ -420,7 +420,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns the stack of operations running in the current thread.
 	 * Returns an empty stack if no operations are currently running in this thread. 
 	 */
-	protected ArrayList getCurrentOperationStack() {
+	protected static ArrayList getCurrentOperationStack() {
 		ArrayList stack = (ArrayList)operationStacks.get();
 		if (stack == null) {
 			stack = new ArrayList();
@@ -557,7 +557,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected boolean isTopLevelOperation() {
 		ArrayList stack;
 		return 
-			(stack = this.getCurrentOperationStack()).size() > 0
+			(stack = getCurrentOperationStack()).size() > 0
 			&& stack.get(0) == this;
 	}
 	/*
@@ -814,7 +814,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Registers the given attribute at the given key with the top level operation.
 	 */
 	protected void setAttribute(Object key, Object attribute) {
-		JavaModelOperation topLevelOp = (JavaModelOperation)this.getCurrentOperationStack().get(0);
+		JavaModelOperation topLevelOp = (JavaModelOperation) getCurrentOperationStack().get(0);
 		if (topLevelOp.attributes == null) {
 			topLevelOp.attributes = new HashMap();
 		}
