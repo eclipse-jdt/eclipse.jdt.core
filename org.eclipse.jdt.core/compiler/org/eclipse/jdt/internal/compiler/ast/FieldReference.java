@@ -393,8 +393,9 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		Constant fieldConstant = binding.constant();
 		if (fieldConstant != null) {
-			if (isImplicit || (reference instanceof QualifiedNameReference
-					&& binding == ((QualifiedNameReference)reference).binding)) {
+			if (isImplicit 
+					|| (reference instanceof QualifiedNameReference
+						&& binding == ((QualifiedNameReference)reference).binding)) {
 				return fieldConstant;
 			}
 			return NotAConstant;
@@ -414,8 +415,9 @@ public class FieldReference extends Reference implements InvocationSite {
 				? typeDecl.staticInitializerScope
 				: typeDecl.initializerScope); 
 
-		if (isImplicit || (reference instanceof QualifiedNameReference
-				&& binding == ((QualifiedNameReference)reference).binding)) {
+		if (isImplicit 
+				|| (reference instanceof QualifiedNameReference
+					&& binding == ((QualifiedNameReference)reference).binding)) {
 			return binding.constant();
 		}
 		return NotAConstant;
