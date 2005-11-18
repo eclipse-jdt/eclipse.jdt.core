@@ -1052,7 +1052,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						writeNewLine(buffer, lineSeparator, tabNumber + 3);
 						final IStackMapFrame[] stackMapFrames = stackMapTableAttribute.getStackMapFrame();
 						for (int j = 0; j < numberOfEntries; j++) {
-							disassemble(stackMapFrames[j], buffer, lineSeparator, tabNumber + 2, mode);
+							disassemble(stackMapFrames[j], buffer, lineSeparator, tabNumber + 3, mode);
 						}
 					}
 				} else if (attribute != lineNumberAttribute
