@@ -91,7 +91,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test070" };
+//		TESTS_NAMES = new String[] { "test071" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1594,5 +1594,38 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		
 		// ensure that the fields for Y are not resolved
 		assertBindingsEqual("", yBinding.getDeclaredFields());
+	}
+
+	/*
+	 * Ensures that unrequested compilation units are not resolved
+	 * (regression test for bug 117018 IVariableBinding#getConstantValue() could be lazy resolved)
+	 */
+	public void test071() throws CoreException {
+		final MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X extends /*start*/Y/*end*/ {\n" +
+			"}",
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  static final int CONST = 2 + 3;\n" +
+			"}",
+		});
+		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
+		class Requestor extends TestASTRequestor {
+			Object constantValue = null;
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				super.acceptAST(source, ast);
+				Type y = (Type) findNode(ast, markerInfos[0]);
+				ITypeBinding typeBinding = y.resolveBinding();
+				IVariableBinding fieldBinding = typeBinding.getDeclaredFields()[0];
+				this.constantValue = fieldBinding.getConstantValue();
+			}
+		}
+		Requestor requestor = new Requestor();
+		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
+		
+		assertEquals("Unexpected constant value", new Integer(5), requestor.constantValue);
 	}
 }
