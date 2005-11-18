@@ -125,7 +125,7 @@ public class QualifiedNameReference extends NameReference {
 		}
 
 		if (isCompound) {
-			if (binding == lastFieldBinding
+			if (otherBindingsCount == 0
 				&& lastFieldBinding.isBlankFinal()
 				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)
 				&& (!flowInfo.isDefinitelyAssigned(lastFieldBinding))) {
@@ -134,20 +134,22 @@ public class QualifiedNameReference extends NameReference {
 					this);
 			}
 			TypeBinding lastReceiverType;
-			if (lastFieldBinding == binding){
-				lastReceiverType = this.actualReceiverType;
-			} else if (otherBindingsCount == 1){
-				lastReceiverType = ((VariableBinding)this.binding).type;
-			} else {
-				lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
+			switch (otherBindingsCount) {
+				case 0 :
+					lastReceiverType = this.actualReceiverType;
+					break;
+				case 1 :
+					lastReceiverType = ((VariableBinding)this.binding).type;
+					break;
+				default:
+					lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
+					break;
 			}
 			manageSyntheticAccessIfNecessary(
 				currentScope,
 				lastFieldBinding,
 				lastReceiverType,
-				lastFieldBinding == binding
-					? 0 
-					: otherBindingsCount, 
+				otherBindingsCount, 
 				flowInfo);
 		}
 		
@@ -181,12 +183,16 @@ public class QualifiedNameReference extends NameReference {
 		}
 		// equivalent to valuesRequired[maxOtherBindings]
 		TypeBinding lastReceiverType;
-		if (lastFieldBinding == binding){
-			lastReceiverType = this.actualReceiverType;
-		} else if (otherBindingsCount == 1){
-			lastReceiverType = ((VariableBinding)this.binding).type;
-		} else {
-			lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
+		switch (otherBindingsCount) {
+			case 0 :
+				lastReceiverType = this.actualReceiverType;
+				break;
+			case 1 :
+				lastReceiverType = ((VariableBinding)this.binding).type;
+				break;
+			default :
+				lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
+				break;
 		}
 		manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, lastReceiverType, -1 /*write-access*/, flowInfo);
 
@@ -807,7 +813,7 @@ public class QualifiedNameReference extends NameReference {
 				return;
 			}
 		} else if (fieldBinding.isProtected()){
-		    int depth = fieldBinding == binding 
+		    int depth = (index == 0 || (index < 0 && this.otherDepths == null))
 		    		? (bits & DepthMASK) >> DepthSHIFT 
 		    		 : otherDepths[index < 0 ? otherDepths.length-1 : index-1];
 			
@@ -830,7 +836,7 @@ public class QualifiedNameReference extends NameReference {
 				&& !fieldBinding.isConstantValue()) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
-					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(index <= 1 &&  indexOfFirstFieldBinding == 1 && fieldBinding.isStatic()))
 					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope)) {
 	
