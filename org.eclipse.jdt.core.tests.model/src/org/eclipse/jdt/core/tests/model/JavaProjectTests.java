@@ -32,39 +32,13 @@ public class JavaProjectTests extends ModifyingResourceTests {
 public JavaProjectTests(String name) {
 	super(name);
 }
-protected void assertResources(String message, String expected, IResource[] resources) {
-	// sort in alphabetical order
-	Util.Comparer comparer = new Util.Comparer() {
-		public int compare(Object a, Object b) {
-			IResource resourceA = (IResource)a;
-			IResource resourceB = (IResource)b;
-			return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());
-		}
-	};
-	Util.sort(resources, comparer);
-	
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = resources.length; i < length; i++) {
-		buffer.append(resources[i].getFullPath());
-		if (i != length-1) {
-			buffer.append("\n");
-		}
-	}
-
-	String actual = buffer.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
-	}
-	
-	assertEquals(message, expected, actual);
-}
 public static Test suite() {
 	
 	if (false) {
 		String className = JavaProjectTests.class.getName();
 		System.err.println("WARNING: only a subset of "+className+" tests will be run...");
 		TestSuite suite = new Suite(className);
-		suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
+		suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
 		return suite;
 	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
@@ -146,8 +120,12 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 	// get resources of source package fragment root at project level
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources", 3, resources.length); // .classpath and .project files + .settings folder
-	assertTrue("resource should be an IFile",  resources[0] instanceof IFile);
+	assertResourceNamesEqual(
+		"unexpected non Java resources",
+		".classpath\n" + 
+		".project\n" + 
+		".settings",
+		resources);
 	IFile resource = (IFile)resources[0];
 	IPath newPath = root.getUnderlyingResource().getFullPath().append("TestNonJavaResource.abc");
 	try {
@@ -159,13 +137,13 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 		
 		// ensure the new resource is present
 		resources = root.getNonJavaResources();
-		assertResources(
+		assertResourcesEqual(
 			"incorrect non java resources", 
 			"/JavaProjectTests/.classpath\n" +
 			"/JavaProjectTests/.project\n" +
 			"/JavaProjectTests/.settings\n" +
 			"/JavaProjectTests/TestNonJavaResource.abc",
-			(IResource[])resources);
+			resources);
 	} finally {
 		// clean up
 		deleteResource(resource.getWorkspace().getRoot().getFile(newPath));
@@ -335,7 +313,7 @@ public void _testExtraJavaLikeExtension2() throws CoreException {
 		createFile("/P/pack/X.txt", "");
 		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
 		IPackageFragment pkg = getPackage("/P/pack");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources of package pack", 
 			"X.txt",
 			pkg.getNonJavaResources());
@@ -501,11 +479,11 @@ public void testGetClasspathOnClosedProject() throws CoreException {
 public void testGetNonJavaResources1() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
-		assertResources(
+		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
 			"/P/.project",
-			(IResource[])project.getNonJavaResources());
+			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -517,11 +495,11 @@ public void testGetNonJavaResources1() throws CoreException {
 public void testGetNonJavaResources2() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
-		assertResources(
+		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
 			"/P/.project",
-			(IResource[])project.getNonJavaResources());
+			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -533,11 +511,11 @@ public void testGetNonJavaResources3() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		this.createFolder("/P/p1");
-		assertResources(
+		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
 			"/P/.project",
-			(IResource[])project.getNonJavaResources());
+			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -550,12 +528,12 @@ public void testGetNonJavaResources4() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P");
 		this.createFolder("/P/x.y");
-		assertResources(
+		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" + 
 			"/P/.project\n" + 
 			"/P/x.y",
-			(IResource[])project.getNonJavaResources());
+			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -746,10 +724,10 @@ public void testPackageFragmentPackageInfoClass() throws CoreException {
 		IPackageFragment pkg = getPackage("/P/p1");
 		pkg.open(null);
 		createFile("/P/p1/package-info.class", "");
-		assertResources(
+		assertResourceNamesEqual(
 			"Unexpected resources of /P/p1",
 			"",
-			(IResource[]) pkg.getNonJavaResources());
+			pkg.getNonJavaResources());
 	} finally {
 		deleteProject("P");
 	}
@@ -796,12 +774,20 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	// source package fragment root with resources
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 1)", 3, resources.length); // .classpath and .project files + .settings folder
+	assertResourceNamesEqual(
+		"unexpected non java resoures (test case 1)", 
+		".classpath\n" + 
+		".project\n" + 
+		".settings",
+		resources);
 
 	// source package fragment root without resources
  	root = getPackageFragmentRoot("JavaProjectSrcTests", "src");
 	resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 2)", 0, resources.length);
+	assertResourceNamesEqual(
+		"unexpected non java resoures (test case 2)", 
+		"",
+		resources);
 
 	// zip package fragment root with resources
 	// TO DO
@@ -809,7 +795,10 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	// zip package fragment root without resources
 	root = getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 4)", 0, resources.length);
+	assertResourceNamesEqual(
+		"unexpected non java resoures (test case 4)", 
+		"",
+		resources);
 }
 /**
  * Test raw entry inference performance for package fragment root

@@ -273,7 +273,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
 	
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
-		this.sortResources(resources);
+		sortResources(resources);
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = resources.length; i < length; i++){
+			IResource resource = (IResource)resources[i];
+			buffer.append(resource == null ? "<null>" : resource.getFullPath().toString());
+			if (i != length-1)buffer.append("\n");
+		}
+		if (!expected.equals(buffer.toString())) {
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+			System.out.println(this.endChar);
+		}
+		assertEquals(
+			message,
+			expected,
+			buffer.toString()
+		);
+	}
+	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
+		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = resources.length; i < length; i++){
 			IResource resource = (IResource)resources[i];
@@ -2049,8 +2067,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			public int compare(Object a, Object b) {
 				IResource resourceA = (IResource)a;
 				IResource resourceB = (IResource)b;
-				return resourceA.getName().compareTo(resourceB.getName());
-			}
+				return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			}
 		};
 		Util.sort(resources, comparer);
 	}

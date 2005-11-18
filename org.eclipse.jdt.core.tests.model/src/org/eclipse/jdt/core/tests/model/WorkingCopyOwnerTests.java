@@ -676,7 +676,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		try {
 			cu = getCompilationUnit("P/X.java");
 			cu.becomeWorkingCopy(null, null);
-			assertResourcesEqual(
+			assertResourceNamesEqual(
 				"Unexpected resource",
 				"X.java",
 				new Object[] {cu.getCorrespondingResource()});

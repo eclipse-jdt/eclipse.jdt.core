@@ -80,7 +80,7 @@ public void testAddInclusionOnCompilationUnit() throws CoreException {
 		"A.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		pkg.getNonJavaResources());
@@ -110,7 +110,7 @@ public void testAddInclusionOnFolderUnderProject() throws CoreException {
 			"doc [in <project root> [in P1]]",
 			root.getChildren());
 		
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-java resources of project",
 			".classpath\n" +
 			".project",
@@ -143,7 +143,7 @@ public void testAddInclusionOnPackage() throws CoreException {
 		"p [in src [in P]]",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		root.getNonJavaResources());
@@ -208,7 +208,7 @@ public void testCreateIncludedCompilationUnit() throws CoreException {
 		"A.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		pkg.getNonJavaResources());
@@ -236,7 +236,7 @@ public void testCreateIncludedPackage() throws CoreException {
 		"p [in src [in P]]",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		root.getNonJavaResources());
@@ -271,7 +271,7 @@ public void testCreateResourceIncludedCompilationUnit() throws CoreException {
 		"A.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		pkg.getNonJavaResources());
@@ -308,7 +308,7 @@ public void testCreateResourceIncludedCompilationUnit2() throws CoreException {
 		"A.java [in p1.p2.p3 [in src [in P]]]",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		pkg.getNonJavaResources());
@@ -336,7 +336,7 @@ public void testCreateResourceIncludedPackage() throws CoreException {
 		"p [in src [in P]]",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
 		root.getNonJavaResources());
@@ -367,7 +367,7 @@ public void testCreateResourceIncludedPackage2() throws CoreException {
 		"p1.p2.p3 [in src [in P]]",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p1",
 		root.getNonJavaResources());
@@ -470,7 +470,7 @@ public void testNestedSourceFolder1() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "**/A.java", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
 	IPackageFragmentRoot root1 = getPackageFragmentRoot("/P/src1");
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources for /P/src1",
 		"",
 		root1.getNonJavaResources());
@@ -603,7 +603,7 @@ public void testRemoveInclusionOnCompilationUnit() throws CoreException {
 		"",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"A.java",
 		pkg.getNonJavaResources());
@@ -633,7 +633,7 @@ public void testRemoveInclusionOnPackage() throws CoreException {
 		"<default> [in src [in P]]",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p",
 		root.getNonJavaResources());
@@ -670,7 +670,7 @@ public void testRenameIncludedCompilationUnit() throws CoreException {
 		"",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"B.java",
 		pkg.getNonJavaResources());
@@ -701,7 +701,7 @@ public void testRenameIncludedPackage1() throws CoreException {
 		"",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"q",
 		root.getNonJavaResources());
@@ -738,7 +738,7 @@ public void testRenameIncludedPackage2() throws CoreException {
 		"",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"q",
 		root.getNonJavaResources());
@@ -775,7 +775,7 @@ public void testRenameResourceIncludedCompilationUnit() throws CoreException {
 		"",
 		pkg.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"B.java",
 		pkg.getNonJavaResources());
@@ -807,7 +807,7 @@ public void testRenameResourceIncludedPackage() throws CoreException {
 		"",
 		root.getChildren());
 		
-	assertResourcesEqual(
+	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"q",
 		root.getNonJavaResources());

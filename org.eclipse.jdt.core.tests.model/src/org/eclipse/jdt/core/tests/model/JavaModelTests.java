@@ -422,26 +422,26 @@ public void testGetNonJavaResources() throws CoreException {
 		IJavaModel model = this.getJavaModel();
 
 		this.createJavaProject("JP", new String[]{}, "");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources",
 			"",
 			model.getNonJavaResources());
 
 		this.createProject("SP1");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP1",
 			"SP1",
 			model.getNonJavaResources());
 		
 		this.createProject("SP2");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP2",
 			"SP1\n" +
 			"SP2",
 			model.getNonJavaResources());
 
 		this.deleteProject("SP1");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after deletion of SP1",
 			"SP2",
 			model.getNonJavaResources());
