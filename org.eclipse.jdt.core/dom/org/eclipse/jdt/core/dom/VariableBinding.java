@@ -46,9 +46,8 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.0
 	 */
 	public Object getConstantValue() {
-		if (!this.binding.isConstantValue()) return null;
 		Constant c = this.binding.constant();
-		if (c == null) return null;
+		if (c == null || c == Constant.NotAConstant) return null;
 		switch (c.typeID()) {
 			case TypeIds.T_boolean:
 				return Boolean.valueOf(c.booleanValue());

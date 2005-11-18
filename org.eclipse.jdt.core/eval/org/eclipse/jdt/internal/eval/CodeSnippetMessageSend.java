@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -198,7 +199,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
 
-	this.constant = NotAConstant;
+	this.constant = Constant.NotAConstant;
 	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
 		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
@@ -267,12 +268,12 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (this.evaluationContext.declaringTypeName != null) {
 				this.delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
 				if (this.delegateThis == null){ // if not found then internal error, field should have been found
-					this.constant = NotAConstant;
+					this.constant = Constant.NotAConstant;
 					scope.problemReporter().invalidMethod(this, this.binding);
 					return null;
 				}
 			} else {
-				this.constant = NotAConstant;
+				this.constant = Constant.NotAConstant;
 				scope.problemReporter().invalidMethod(this, this.binding);
 				return null;
 			}

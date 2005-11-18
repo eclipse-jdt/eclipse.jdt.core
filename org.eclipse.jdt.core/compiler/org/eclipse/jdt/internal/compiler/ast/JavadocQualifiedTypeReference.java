@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
@@ -51,7 +52,7 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (resolvedType != null) // is a shared type reference which was already resolved
 			return resolvedType.isValidBinding() ? resolvedType : null; // already reported error
 

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class InstanceOfExpression extends OperatorExpression {
@@ -73,7 +74,7 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		TypeBinding expressionType = expression.resolveType(scope);
 		TypeBinding checkedType = type.resolveType(scope, true /* check bounds*/);
 		if (expressionType == null || checkedType == null)

@@ -92,7 +92,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		// something to initialize?
 		if (initialization != null) {
 			// initialize to constant value?
-			if ((inlinedValue = initialization.constant) != NotAConstant) {
+			if ((inlinedValue = initialization.constant) != Constant.NotAConstant) {
 				// forget initializing unused or final locals set to constant value (final ones are inlined)
 				if (binding.resolvedPosition != -1) { // may need to preserve variable
 					int initPC = codeStream.position;
@@ -176,7 +176,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			}
 			this.binding = new LocalVariableBinding(this, variableType, modifiers, false);
 			scope.addLocalVariable(binding);
-			this.binding.setConstant(NotAConstant);
+			this.binding.setConstant(Constant.NotAConstant);
 			// allow to recursivelly target the binding....
 			// the correct constant is harmed if correctly computed at the end of this method
 		}
@@ -235,7 +235,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				binding.setConstant(
 					binding.isFinal()
 						? initialization.constant.castTo((variableType.id << 4) + initialization.constant.typeID())
-						: NotAConstant);
+						: Constant.NotAConstant);
 			}
 		}
 		// only resolve annotation at the end, for constant to be positionned before (96991)

@@ -210,7 +210,7 @@ public abstract class Annotation extends Expression {
 	
 	public TypeBinding resolveType(BlockScope scope) {
 		
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
 		if (typeBinding == null)

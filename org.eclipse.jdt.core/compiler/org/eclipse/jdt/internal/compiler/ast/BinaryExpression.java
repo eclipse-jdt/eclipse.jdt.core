@@ -711,7 +711,7 @@ public class BinaryExpression extends OperatorExpression {
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 > x
-			if ((left.constant != NotAConstant) && (left.constant.intValue() == 0)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.intValue() == 0)) {
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -733,7 +733,7 @@ public class BinaryExpression extends OperatorExpression {
 				return;
 			}
 			// x > 0
-			if ((right.constant != NotAConstant) && (right.constant.intValue() == 0)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -825,7 +825,7 @@ public class BinaryExpression extends OperatorExpression {
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 >= x
-			if ((left.constant != NotAConstant) && (left.constant.intValue() == 0)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.intValue() == 0)) {
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -847,7 +847,7 @@ public class BinaryExpression extends OperatorExpression {
 				return;
 			}
 			// x >= 0
-			if ((right.constant != NotAConstant) && (right.constant.intValue() == 0)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -939,7 +939,7 @@ public class BinaryExpression extends OperatorExpression {
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 < x
-			if ((left.constant != NotAConstant) && (left.constant.intValue() == 0)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.intValue() == 0)) {
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -960,7 +960,7 @@ public class BinaryExpression extends OperatorExpression {
 				return;
 			}
 			// x < 0
-			if ((right.constant != NotAConstant) && (right.constant.intValue() == 0)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -1049,7 +1049,7 @@ public class BinaryExpression extends OperatorExpression {
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
 			// 0 <= x
-			if ((left.constant != NotAConstant) && (left.constant.intValue() == 0)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.intValue() == 0)) {
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -1071,7 +1071,7 @@ public class BinaryExpression extends OperatorExpression {
 				return;
 			}
 			// x <= 0
-			if ((right.constant != NotAConstant) && (right.constant.intValue() == 0)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -1161,7 +1161,7 @@ public class BinaryExpression extends OperatorExpression {
 			
 		Constant condConst;
 		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
-			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> & x
 					left.generateOptimizedBoolean(
@@ -1211,7 +1211,7 @@ public class BinaryExpression extends OperatorExpression {
 				}
 				return;
 			}
-			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x & <something equivalent to true>
 					if ((bits & OnlyValueRequired) != 0) {
@@ -1299,7 +1299,7 @@ public class BinaryExpression extends OperatorExpression {
 			
 		Constant condConst;
 		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
-			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> | x
 					left.generateOptimizedBoolean(
@@ -1348,7 +1348,7 @@ public class BinaryExpression extends OperatorExpression {
 				}
 				return;
 			}
-			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x | <something equivalent to true>
 					Label internalFalseLabel = new Label(codeStream);
@@ -1435,7 +1435,7 @@ public class BinaryExpression extends OperatorExpression {
 			
 		Constant condConst;
 		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
-			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> ^ x
 					left.generateOptimizedBoolean(
@@ -1471,7 +1471,7 @@ public class BinaryExpression extends OperatorExpression {
 				}
 				return;
 			}
-			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x ^ <something equivalent to true>
 					left.generateOptimizedBoolean(
@@ -1545,7 +1545,7 @@ public class BinaryExpression extends OperatorExpression {
 
 		if ((((bits & OperatorMASK) >> OperatorSHIFT) == PLUS)
 			&& ((bits & ReturnTypeIDMASK) == T_JavaLangString)) {
-			if (constant != NotAConstant) {
+			if (constant != Constant.NotAConstant) {
 				codeStream.generateConstant(constant, implicitConversion);
 				codeStream.invokeStringConcatenationAppendForType(implicitConversion & COMPILE_TYPE_MASK);
 			} else {
@@ -1579,7 +1579,7 @@ public class BinaryExpression extends OperatorExpression {
 
 		if ((((bits & OperatorMASK) >> OperatorSHIFT) == PLUS)
 			&& ((bits & ReturnTypeIDMASK) == T_JavaLangString)) {
-			if (constant != NotAConstant) {
+			if (constant != Constant.NotAConstant) {
 				codeStream.newStringContatenation(); // new: java.lang.StringBuffer
 				codeStream.dup();
 				codeStream.ldc(constant.stringValue());
@@ -1617,19 +1617,19 @@ public class BinaryExpression extends OperatorExpression {
 					return;
 			case AND_AND :
 				Constant cst;
-				if ((cst = left.optimizedBooleanConstant()) != NotAConstant) {
+				if ((cst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 					if (cst.booleanValue() == false) { // left is equivalent to false
 						optimizedBooleanConstant = cst; // constant(false)
 						return;
 					} else { //left is equivalent to true
-						if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
+						if ((cst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 							optimizedBooleanConstant = cst;
 							// the conditional result is equivalent to the right conditional value
 						}
 						return;
 					}
 				}
-				if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
+				if ((cst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 					if (cst.booleanValue() == false) { // right is equivalent to false
 						optimizedBooleanConstant = cst; // constant(false)
 					}
@@ -1639,18 +1639,18 @@ public class BinaryExpression extends OperatorExpression {
 				if ((leftId != T_boolean) || (rightId != T_boolean))
 					return;
 			case OR_OR :
-				if ((cst = left.optimizedBooleanConstant()) != NotAConstant) {
+				if ((cst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 					if (cst.booleanValue() == true) { // left is equivalent to true
 						optimizedBooleanConstant = cst; // constant(true)
 						return;
 					} else { //left is equivalent to false
-						if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
+						if ((cst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 							optimizedBooleanConstant = cst;
 						}
 						return;
 					}
 				}
-				if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
+				if ((cst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 					if (cst.booleanValue() == true) { // right is equivalent to true
 						optimizedBooleanConstant = cst; // constant(true)
 					}

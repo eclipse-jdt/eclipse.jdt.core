@@ -52,10 +52,10 @@ public class DoStatement extends Statement {
 				currentScope);
 
 		Constant cst = condition.constant;
-		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		cst = condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		int previousMode = flowInfo.reachMode();
 				

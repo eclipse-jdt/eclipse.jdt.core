@@ -147,7 +147,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	TypeBinding tb = super.resolveType(scope);
 	if (constant == FORMAT_ERROR) {
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		scope.problemReporter().constantOutOfFormat(this);
 		this.resolvedType = null;
 		return null;

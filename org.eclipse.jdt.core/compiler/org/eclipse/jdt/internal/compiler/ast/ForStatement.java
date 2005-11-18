@@ -74,12 +74,12 @@ public class ForStatement extends Statement {
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 
 		Constant cst = this.condition == null ? null : this.condition.constant;
-		boolean isConditionTrue = cst == null || (cst != NotAConstant && cst.booleanValue() == true);
-		boolean isConditionFalse = cst != null && (cst != NotAConstant && cst.booleanValue() == false);
+		boolean isConditionTrue = cst == null || (cst != Constant.NotAConstant && cst.booleanValue() == true);
+		boolean isConditionFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
 
 		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst == null ||  (cst != NotAConstant && cst.booleanValue() == true);
-		boolean isConditionOptimizedFalse = cst != null && (cst != NotAConstant && cst.booleanValue() == false);
+		boolean isConditionOptimizedTrue = cst == null ||  (cst != Constant.NotAConstant && cst.booleanValue() == true);
+		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
 		
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
@@ -196,7 +196,7 @@ public class ForStatement extends Statement {
 		}
 		// jump over the actionBlock
 		if ((condition != null)
-			&& (condition.constant == NotAConstant)
+			&& (condition.constant == Constant.NotAConstant)
 			&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
 			int jumpPC = codeStream.position;
 			codeStream.goto_(conditionLabel);
@@ -232,7 +232,7 @@ public class ForStatement extends Statement {
 
 		// generate the condition
 		conditionLabel.place();
-		if ((condition != null) && (condition.constant == NotAConstant)) {
+		if ((condition != null) && (condition.constant == Constant.NotAConstant)) {
 			condition.generateOptimizedBoolean(scope, codeStream, actionLabel, null, true);
 		} else {
 			if (continueLabel != null) {

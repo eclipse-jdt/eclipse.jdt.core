@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class AllocationExpression extends Expression implements InvocationSite {
@@ -233,7 +234,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (this.type == null) {
 			// initialization of an enum constant
 			this.resolvedType = scope.enclosingReceiverType();

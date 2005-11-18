@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompoundAssignment extends Assignment implements OperatorIds {
@@ -94,7 +95,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (!(this.lhs instanceof Reference) || this.lhs.isThis()) {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;

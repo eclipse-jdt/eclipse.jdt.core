@@ -76,7 +76,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					MethodScope methodScope = currentScope.methodScope();
 					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 					if (fieldBinding.isStatic()
-							&& this.constant == NotAConstant
+							&& this.constant == Constant.NotAConstant
 							&& !methodScope.isStatic
 							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
 							&& methodScope.isInsideInitializerOrConstructor()) {
@@ -141,7 +141,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					MethodScope methodScope = currentScope.methodScope();
 					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 					if (fieldBinding.isStatic()
-							&& this.constant == NotAConstant
+							&& this.constant == Constant.NotAConstant
 							&& !methodScope.isStatic
 							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
 							&& methodScope.isInsideInitializerOrConstructor()) {
@@ -184,11 +184,11 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			// must check for the static status....
 			if (methodScope.isStatic) {
 				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
-				this.constant = NotAConstant;
+				this.constant = Constant.NotAConstant;
 				return fieldBinding.type;
 			}
 		}
-		this.constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
+		this.constant = fieldBinding.constant();
 	
 		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssigned) !=0))
 			scope.problemReporter().deprecatedField(fieldBinding, this);
@@ -248,7 +248,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if ((operation.right instanceof SingleNameReference)
 					&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 					&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
-					&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
+					&& (operation.left.constant != Constant.NotAConstant) // exclude non constant expressions, since could have side-effect
 					&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
 					&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 				// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
@@ -285,7 +285,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				if (localBinding.resolvedPosition != -1) {
 					assignment.expression.generateCode(currentScope, codeStream, true);
 				} else {
-					if (assignment.expression.constant != NotAConstant) {
+					if (assignment.expression.constant != Constant.NotAConstant) {
 						// assigning an unused local to a constant value = no actual assignment is necessary
 						if (valueRequired) {
 							codeStream.generateConstant(assignment.expression.constant, assignment.implicitConversion);
@@ -327,7 +327,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	}
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			if (valueRequired) {
 				codeStream.generateConstant(constant, implicitConversion);
 			}
@@ -335,10 +335,11 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			switch (bits & RestrictiveFlagMASK) {
 				case Binding.FIELD : // reading a field
 					FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
-					if (fieldBinding.isConstantValue()) {
+					Constant fieldConstant = fieldBinding.constant();
+					if (fieldConstant != Constant.NotAConstant) {
 						// directly use inlined value for constant fields
 						if (valueRequired) {
-							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
+							codeStream.generateConstant(fieldConstant, implicitConversion);
 						}
 					} else {
 						if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -458,7 +459,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						codeStream.store(localBinding, false);
 						return;
 					case T_int :
-						if (((assignConstant = expression.constant) != NotAConstant) 
+						if (((assignConstant = expression.constant) != Constant.NotAConstant) 
 							&& (assignConstant.typeID() != T_float) // only for integral types
 							&& (assignConstant.typeID() != T_double)
 							&& ((increment = assignConstant.intValue()) == (short) increment)) { // 16 bits value
@@ -623,7 +624,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 		if (!flowInfo.isReachable()) return;
 		//If inlinable field, forget the access emulation, the code gen will directly target it
-		if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) return;
+		if (((bits & DepthMASK) == 0) || (constant != Constant.NotAConstant)) return;
 	
 		if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
@@ -634,7 +635,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		if (!flowInfo.isReachable()) return;
 	
 		//If inlinable field, forget the access emulation, the code gen will directly target it
-		if (constant != NotAConstant)
+		if (constant != Constant.NotAConstant)
 			return;
 	
 		if ((bits & Binding.FIELD) != 0) {
@@ -660,7 +661,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if (fieldBinding.declaringClass != this.actualReceiverType
 					&& !this.actualReceiverType.isArrayType()
 					&& fieldBinding.declaringClass != null // array.length
-					&& !fieldBinding.isConstantValue()) {
+					&& fieldBinding.constant() == Constant.NotAConstant) {
 				CompilerOptions options = currentScope.compilerOptions();
 				if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
@@ -721,7 +722,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 								if (fieldType != null) 
 									fieldType = fieldType.capture(scope, this.sourceEnd); // perform capture conversion if read access
 							} else {
-								constant = NotAConstant;
+								constant = Constant.NotAConstant;
 							}
 							return this.resolvedType = fieldType;
 						}

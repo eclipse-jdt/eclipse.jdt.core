@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -50,7 +51,7 @@ public class SuperReference extends ThisReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (!checkAccess(scope.methodScope()))
 			return null;
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();

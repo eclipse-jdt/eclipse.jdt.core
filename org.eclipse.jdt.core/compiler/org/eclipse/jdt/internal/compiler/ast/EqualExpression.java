@@ -56,7 +56,7 @@ public class EqualExpression extends BinaryExpression {
 	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-			if ((left.constant != NotAConstant) && (left.constant.typeID() == T_boolean)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.typeID() == T_boolean)) {
 				if (left.constant.booleanValue()) { //  true == anything
 					//  this is equivalent to the right argument inits 
 					return right.analyseCode(currentScope, flowContext, flowInfo);
@@ -65,7 +65,7 @@ public class EqualExpression extends BinaryExpression {
 					return right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
 			}
-			if ((right.constant != NotAConstant) && (right.constant.typeID() == T_boolean)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
 				if (right.constant.booleanValue()) { //  anything == true
 					//  this is equivalent to the right argument inits 
 					return left.analyseCode(currentScope, flowContext, flowInfo);
@@ -78,7 +78,7 @@ public class EqualExpression extends BinaryExpression {
 				currentScope, flowContext, 
 				left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).unconditionalInits();
 		} else { //NOT_EQUAL :
-			if ((left.constant != NotAConstant) && (left.constant.typeID() == T_boolean)) {
+			if ((left.constant != Constant.NotAConstant) && (left.constant.typeID() == T_boolean)) {
 				if (!left.constant.booleanValue()) { //  false != anything
 					//  this is equivalent to the right argument inits 
 					return right.analyseCode(currentScope, flowContext, flowInfo);
@@ -87,7 +87,7 @@ public class EqualExpression extends BinaryExpression {
 					return right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
 			}
-			if ((right.constant != NotAConstant) && (right.constant.typeID() == T_boolean)) {
+			if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
 				if (!right.constant.booleanValue()) { //  anything != false
 					//  this is equivalent to the right argument inits 
 					return left.analyseCode(currentScope, flowContext, flowInfo);
@@ -103,7 +103,7 @@ public class EqualExpression extends BinaryExpression {
 	}
 	
 	public final void computeConstant(TypeBinding leftType, TypeBinding rightType) {
-		if ((this.left.constant != NotAConstant) && (this.right.constant != NotAConstant)) {
+		if ((this.left.constant != Constant.NotAConstant) && (this.right.constant != Constant.NotAConstant)) {
 			this.constant =
 				Constant.computeConstantOperationEQUAL_EQUAL(
 					left.constant,
@@ -113,7 +113,7 @@ public class EqualExpression extends BinaryExpression {
 			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT_EQUAL)
 				constant = Constant.fromValue(!constant.booleanValue());
 		} else {
-			this.constant = NotAConstant;
+			this.constant = Constant.NotAConstant;
 			// no optimization for null == null
 		}
 	}
@@ -126,7 +126,7 @@ public class EqualExpression extends BinaryExpression {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			int pc = codeStream.position;
 			if (valueRequired) 
 				codeStream.generateConstant(constant, implicitConversion);
@@ -198,12 +198,12 @@ public class EqualExpression extends BinaryExpression {
 	public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
 	
 		// optimized cases: true == x, false == x
-		if (left.constant != NotAConstant) {
+		if (left.constant != Constant.NotAConstant) {
 			boolean inline = left.constant.booleanValue();
 			right.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
 			return;
 		} // optimized cases: x == true, x == false
-		if (right.constant != NotAConstant) {
+		if (right.constant != Constant.NotAConstant) {
 			boolean inline = right.constant.booleanValue();
 			left.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
 			return;
@@ -237,7 +237,7 @@ public class EqualExpression extends BinaryExpression {
 	
 		int pc = codeStream.position;
 		Constant inline;
-		if ((inline = right.constant) != NotAConstant) {
+		if ((inline = right.constant) != Constant.NotAConstant) {
 			// optimized case: x == 0
 			if ((((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_int) && (inline.intValue() == 0)) {
 				left.generateCode(currentScope, codeStream, valueRequired);
@@ -260,7 +260,7 @@ public class EqualExpression extends BinaryExpression {
 				return;
 			}
 		}
-		if ((inline = left.constant) != NotAConstant) {
+		if ((inline = left.constant) != Constant.NotAConstant) {
 			// optimized case: 0 == x
 			if ((((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_int)
 				&& (inline.intValue() == 0)) {
@@ -416,7 +416,7 @@ public class EqualExpression extends BinaryExpression {
 	
 		// always return BooleanBinding
 		if (originalLeftType == null || originalRightType == null){
-			constant = NotAConstant;		
+			constant = Constant.NotAConstant;		
 			return null;
 		}
 	
@@ -471,7 +471,7 @@ public class EqualExpression extends BinaryExpression {
 			if ((rightType.id == T_JavaLangString) && (leftType.id == T_JavaLangString)) {
 				computeConstant(leftType, rightType);
 			} else {
-				constant = NotAConstant;
+				constant = Constant.NotAConstant;
 			}
 			TypeBinding objectType = scope.getJavaLangObject();
 			left.computeConversion(scope, objectType, leftType);
@@ -490,7 +490,7 @@ public class EqualExpression extends BinaryExpression {
 			}
 			return this.resolvedType = BooleanBinding;
 		}
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		scope.problemReporter().notCompatibleTypesError(this, leftType, rightType);
 		return null;
 	}

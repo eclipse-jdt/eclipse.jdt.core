@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -120,7 +121,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.
-	this.constant = NotAConstant;
+	this.constant = Constant.NotAConstant;
 	this.resolvedType = this.type.resolveType(scope, true /* check bounds*/); // will check for null after args are resolved
 
 	// buffering the arguments' types

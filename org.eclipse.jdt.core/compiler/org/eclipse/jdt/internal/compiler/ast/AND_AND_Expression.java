@@ -29,8 +29,8 @@ public class AND_AND_Expression extends BinaryExpression {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
 		Constant cst = this.left.optimizedBooleanConstant();
-		boolean isLeftOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isLeftOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isLeftOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isLeftOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		if (isLeftOptimizedTrue) {
 			// TRUE && anything
@@ -81,7 +81,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			return;
 		}
 		Constant cst = right.constant;
-		if (cst != NotAConstant) {
+		if (cst != Constant.NotAConstant) {
 			// <expr> && true --> <expr>
 			if (cst.booleanValue() == true) {
 				this.left.generateCode(currentScope, codeStream, valueRequired);
@@ -101,11 +101,11 @@ public class AND_AND_Expression extends BinaryExpression {
 		
 		Label falseLabel = new Label(codeStream), endLabel;
 		cst = left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsConst = cst != Constant.NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
 
 		cst = right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsConst = cst != Constant.NotAConstant;
 		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
 
 		generateOperands : {
@@ -184,7 +184,7 @@ public class AND_AND_Expression extends BinaryExpression {
 
 		// <expr> && true --> <expr>
 		Constant cst = right.constant;
-		if (cst != NotAConstant && cst.booleanValue() == true) {
+		if (cst != Constant.NotAConstant && cst.booleanValue() == true) {
 			int pc = codeStream.position;
 			this.left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			if (mergedInitStateIndex != -1) {
@@ -194,11 +194,11 @@ public class AND_AND_Expression extends BinaryExpression {
 			return;
 		}
 		cst = left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsConst = cst != Constant.NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
 
 		cst = right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsConst = cst != Constant.NotAConstant;
 		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
 
 		// default case

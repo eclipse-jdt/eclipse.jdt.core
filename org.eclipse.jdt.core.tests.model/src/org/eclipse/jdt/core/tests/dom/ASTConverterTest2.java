@@ -4844,7 +4844,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, fields.length);
 		IVariableBinding variableBinding = fields[0];
 		Object constantValue = variableBinding.getConstantValue();
-		assertNull("Got a constant value", constantValue);
+		assertNotNull("Missing constant", constantValue);
 	}
 	
 	/**

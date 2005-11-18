@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ArrayInitializer extends Expression {
@@ -54,7 +55,7 @@ public class ArrayInitializer extends Expression {
 			int elementsTypeID = binding.dimensions > 1 ? -1 : binding.leafComponentType.id;
 			for (int i = 0; i < expressionLength; i++) {
 				Expression expr;
-				if ((expr = expressions[i]).constant != NotAConstant) {
+				if ((expr = expressions[i]).constant != Constant.NotAConstant) {
 					switch (elementsTypeID) { // filter out initializations to default values
 						case T_int :
 						case T_short :
@@ -136,7 +137,7 @@ public class ArrayInitializer extends Expression {
 	
 		// this method is recursive... (the test on isArrayType is the stop case)
 	
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		
 		// allow new List<?>[5]
 		if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7

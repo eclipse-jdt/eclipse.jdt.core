@@ -618,7 +618,7 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		boolean valueRequired) {
 
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			// generate a constant expression
 			int pc = codeStream.position;
 			codeStream.generateConstant(constant, implicitConversion);
@@ -704,7 +704,7 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		int typeID) {
 
-		if (typeID == T_JavaLangString && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
+		if (typeID == T_JavaLangString && this.constant != Constant.NotAConstant && this.constant.stringValue().length() == 0) {
 			return; // optimize str + ""
 		}
 		generateCode(blockScope, codeStream, true);
@@ -733,7 +733,7 @@ public abstract class Expression extends Statement {
 				return;
 			case T_JavaLangString :
 			case T_null :
-				if (constant != NotAConstant) {
+				if (constant != Constant.NotAConstant) {
 					String stringValue = constant.stringValue();
 					if (stringValue.length() == 0) {  // optimize ""+<str> 
 						codeStream.invokeStringConcatenationDefaultConstructor();
@@ -786,7 +786,7 @@ public abstract class Expression extends Statement {
 	
 	public int nullStatus(FlowInfo flowInfo) {
 		
-		if (this.constant != null && this.constant != NotAConstant)
+		if (this.constant != null && this.constant != Constant.NotAConstant)
 			return FlowInfo.NON_NULL; // constant expression cannot be null
 		
 		LocalVariableBinding local = localVariableBinding();

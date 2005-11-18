@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -141,11 +140,6 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	// add its fields
 	FieldBinding[] fields = typeBinding.fields;
 	if ((fields != null) && (fields != NoFields)) {
-		for (int i = 0, max = fields.length; i < max; i++) {
-			if (fields[i].constant() == null) {
-				FieldReference.getConstantFor(fields[i], null, false, null);
-			}
-		}
 		classFile.addFieldInfos();
 	} else {
 		// we have to set the number of fields to be equals to 0

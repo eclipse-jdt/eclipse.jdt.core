@@ -35,7 +35,7 @@ public class CaseStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		if (constantExpression != null) {
-			if (!this.isEnumConstant && constantExpression.constant == NotAConstant) {
+			if (!this.isEnumConstant && constantExpression.constant == Constant.NotAConstant) {
 				currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
 			}
 			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
@@ -94,7 +94,7 @@ public class CaseStatement extends Statement {
 	
 			// on error the last default will be the selected one ...	
 			switchStatement.defaultCase = this;
-			return NotAConstant;
+			return Constant.NotAConstant;
 		}
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
@@ -103,7 +103,7 @@ public class CaseStatement extends Statement {
 			((SingleNameReference) constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionType);
 		}
 		TypeBinding caseType = constantExpression.resolveType(scope);
-		if (caseType == null || switchExpressionType == null) return NotAConstant;
+		if (caseType == null || switchExpressionType == null) return Constant.NotAConstant;
 		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
 				|| caseType.isCompatibleWith(switchExpressionType)) {
 			if (caseType.isEnum()) {
@@ -127,7 +127,7 @@ public class CaseStatement extends Statement {
 			return constantExpression.constant;
 		}
 		scope.problemReporter().typeMismatchError(caseType, switchExpressionType, constantExpression);
-		return NotAConstant;
+		return Constant.NotAConstant;
 	}
 
 

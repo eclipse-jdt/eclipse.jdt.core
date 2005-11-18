@@ -317,7 +317,7 @@ public class CastExpression extends Expression {
 	
 		int pc = codeStream.position;
 		boolean needRuntimeCheckcast = (this.bits & GenerateCheckcast) != 0;
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			if (valueRequired || needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
@@ -378,7 +378,7 @@ public class CastExpression extends Expression {
 			case T_JavaLangBoolean :
 				return this.expression.optimizedBooleanConstant();
 		}
-		return NotAConstant;
+		return Constant.NotAConstant;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

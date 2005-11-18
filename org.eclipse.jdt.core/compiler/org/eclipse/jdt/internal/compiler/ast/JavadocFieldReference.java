@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocFieldReference extends FieldReference {
@@ -39,7 +40,7 @@ public class JavadocFieldReference extends FieldReference {
 	 */
 	protected TypeBinding internalResolveType(Scope scope) {
 
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.receiver == null) {
 			this.receiverType = scope.enclosingSourceType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {

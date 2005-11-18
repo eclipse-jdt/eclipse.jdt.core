@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocImplicitTypeReference extends TypeReference {
@@ -34,7 +35,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
 	protected TypeBinding getTypeBinding(Scope scope) {
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		return this.resolvedType = scope.enclosingSourceType();
 	}
 
@@ -58,7 +59,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.resolvedType != null) // is a shared type reference which was already resolved
 			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 

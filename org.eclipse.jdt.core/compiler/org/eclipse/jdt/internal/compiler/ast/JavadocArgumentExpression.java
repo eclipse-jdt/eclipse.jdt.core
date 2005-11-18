@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocArgumentExpression extends Expression {
@@ -31,7 +32,7 @@ public class JavadocArgumentExpression extends Expression {
 	 * Resolves type on a Block or Class scope.
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.resolvedType != null) // is a shared type reference which was already resolved
 			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 

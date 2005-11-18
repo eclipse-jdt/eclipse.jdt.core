@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -108,12 +109,12 @@ public class MemberValuePair extends ASTNode {
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
 							for (int i =0, max = expressions.length; i < max; i++) {
-								if (expressions[i].constant == NotAConstant) {
+								if (expressions[i].constant == Constant.NotAConstant) {
 									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i]);
 								}
 							}
 						}
-					} else if (this.value.constant == NotAConstant) {
+					} else if (this.value.constant == Constant.NotAConstant) {
 						scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value);
 					}
 					break checkAnnotationMethodType;

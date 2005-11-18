@@ -12,16 +12,12 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
 public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
-
-	//some global provision for the hierarchy
-	public final static Constant NotAConstant = Constant.NotAConstant;
 
 	// storage for internal flags (32 bits)						BIT USAGE
 	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)

@@ -134,11 +134,6 @@ public class ClassFile
 		// add its fields
 		FieldBinding[] fields = typeBinding.fields;
 		if ((fields != null) && (fields != NoFields)) {
-			for (int i = 0, max = fields.length; i < max; i++) {
-				if (fields[i].constant() == null) {
-					FieldReference.getConstantFor(fields[i], null, false, null);
-				}
-			}
 			classFile.addFieldInfos();
 		} else {
 			// we have to set the number of fields to be equals to 0
@@ -680,7 +675,8 @@ public class ClassFile
 		int attributesNumber = 0;
 		// 4.7.2 only static constant fields get a ConstantAttribute
 		// Generate the constantValueAttribute
-		if (fieldBinding.isConstantValue()){
+		Constant fieldConstant = fieldBinding.constant();
+		if (fieldConstant != Constant.NotAConstant){
 			if (contentsOffset + 8 >= contents.length) {
 				resizeContents(8);
 			}
@@ -696,7 +692,6 @@ public class ClassFile
 			contents[contentsOffset++] = 2;
 			attributesNumber++;
 			// Need to add the constant_value_index
-			Constant fieldConstant = fieldBinding.constant();
 			switch (fieldConstant.typeID()) {
 				case T_boolean :
 					int booleanValueIndex =
