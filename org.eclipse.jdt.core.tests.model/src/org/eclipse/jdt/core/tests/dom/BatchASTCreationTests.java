@@ -1593,6 +1593,6 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		ITypeBinding yBinding = y.resolveBinding();
 		
 		// ensure that the fields for Y are not resolved
-		assertEquals("Field's constant should not be resolved", null, yBinding.getDeclaredFields()[0].getConstantValue());
+		assertBindingsEqual("", yBinding.getDeclaredFields());
 	}
 }

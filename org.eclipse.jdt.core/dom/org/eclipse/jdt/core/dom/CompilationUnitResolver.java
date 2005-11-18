@@ -661,60 +661,70 @@ class CompilationUnitResolver extends Compiler {
 			beginToCompile(sourceUnits, bindingKeys);
 			// process all units (some more could be injected in the loop by the lookup environment)
 			for (; i < this.totalUnits; i++) {
-				if (this.requestedSources.size() == 0 && this.requestedKeys.size() == 0)
+				if (this.requestedSources.size() == 0 && this.requestedKeys.size() == 0) {
 					// no need to keep resolving if no more ASTs and no more binding keys are needed
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=114935
+					// cleanup remaining units
+					for (; i < this.totalUnits; i++) {
+						this.unitsToProcess[i].cleanUp();
+						this.unitsToProcess[i] = null;
+					}
 					break;
+				}
 				unit = this.unitsToProcess[i];
 				try {
-					char[] fileName = unit.compilationResult.getFileName();
-					
-					// only process requested units
-					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
-						super.process(unit, i); // this.process(...) is optimized to not process already known units
+					super.process(unit, i); // this.process(...) is optimized to not process already known units
 
-						// requested AST
-						ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
-						if (source != null) {
-							// convert AST
-							CompilationResult compilationResult = unit.compilationResult;
-							org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
-							char[] contents = sourceUnit.getContents();
-							AST ast = AST.newAST(apiLevel);
-							ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-							ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, this.monitor);
-							BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
-							ast.setBindingResolver(resolver);
-							converter.setAST(ast);
-							CompilationUnit compilationUnit = converter.convert(unit, contents);
-							compilationUnit.setJavaElement(source);
-							compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
-							ast.setDefaultNodeFlag(0);
-							ast.setOriginalModificationCount(ast.modificationCount());
-							
-							// pass it to requestor
-							astRequestor.acceptAST(source, compilationUnit);
-							
-							worked(1);
-						} 
+					// requested AST
+					char[] fileName = unit.compilationResult.getFileName();					
+					ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
+					if (source != null) {
+						// convert AST
+						CompilationResult compilationResult = unit.compilationResult;
+						org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
+						char[] contents = sourceUnit.getContents();
+						AST ast = AST.newAST(apiLevel);
+						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
+						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, this.monitor);
+						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
+						ast.setBindingResolver(resolver);
+						converter.setAST(ast);
+						CompilationUnit compilationUnit = converter.convert(unit, contents);
+						compilationUnit.setJavaElement(source);
+						compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
+						ast.setDefaultNodeFlag(0);
+						ast.setOriginalModificationCount(ast.modificationCount());
 						
-						// requested binding
-						Object key = this.requestedKeys.get(fileName);
-						if (key instanceof BindingKeyResolver) {
-							reportBinding(key, astRequestor, owner, unit);
+						// pass it to requestor
+						astRequestor.acceptAST(source, compilationUnit);
+						
+						worked(1);
+					} 
+					
+					// requested binding
+					Object key = this.requestedKeys.get(fileName);
+					if (key instanceof BindingKeyResolver) {
+						reportBinding(key, astRequestor, owner, unit);
+						worked(1);
+					} else if (key instanceof ArrayList) {
+						Iterator iterator = ((ArrayList) key).iterator();
+						while (iterator.hasNext()) {
+							reportBinding(iterator.next(), astRequestor, owner, unit);
 							worked(1);
-						} else if (key instanceof ArrayList) {
-							Iterator iterator = ((ArrayList) key).iterator();
-							while (iterator.hasNext()) {
-								reportBinding(iterator.next(), astRequestor, owner, unit);
-								worked(1);
-							}
 						}
+					}
+					
+					// remove at the end so that we don't resolve twice if a source and a key for the same file name have been requested
+					this.requestedSources.removeKey(fileName);
+					this.requestedKeys.removeKey(fileName);
 						
-						// remove at the end so that we don't resolve twice if a source and a key for the same file name have been requested
-						this.requestedSources.removeKey(fileName);
-						this.requestedKeys.removeKey(fileName);
+/*	Code used to fault in types and resolve which is no longer necessary as all questions asked to forward references are
+ * lazily resolved.
+ * Code used to be:
+					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
+					   ...
 					} else {
+
 						if (unit.scope != null)
 							unit.scope.faultInTypes();// still force resolution of signatures, so clients can query DOM AST
 				
@@ -725,7 +735,7 @@ class CompilationUnitResolver extends Compiler {
 						
 						// note that if this has a performance penalty on clients, the above code should be removed
 						// the following patch would workaround bug 111822:
-/*
+
 Index: FieldReference.java
 ===================================================================
 RCS file: /cvsroot/eclipse/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ast/FieldReference.java,v
@@ -750,7 +760,6 @@ diff -u -r1.87 FieldReference.java
  
  		fieldDecl.resolve(originalField.isStatic() //side effect on binding 
 */					
-					}
 				} finally {
 					// cleanup compilation unit result
 					unit.cleanUp();
