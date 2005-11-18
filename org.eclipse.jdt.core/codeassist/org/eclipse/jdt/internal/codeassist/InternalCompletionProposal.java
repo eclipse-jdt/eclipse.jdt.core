@@ -96,12 +96,7 @@ public class InternalCompletionProposal {
 			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
 			type = this.nameLookup.findType(new String(tName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
 			if(type instanceof BinaryType){
-				if(((BinaryType)type).getSourceMapper() != null) {
-					this.completionEngine.typeCache.put(tName, type);
-				} else {
-					this.completionEngine.typeCache.put(tName, NO_ATTACHED_SOURCE);
-					type = null;
-				}
+				this.completionEngine.typeCache.put(tName, type);
 			} else {
 				type = null;
 			}

@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -11219,5 +11221,38 @@ public void testLabel6() throws JavaModelException {
 	assertResults(
 			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
+}
+public void testParameterNames1() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/Test.java",
+		"package p;"+
+		"public class Test {\n" + 
+		"  void foo(doctest.X x) {\n" + 
+		"    x.fo\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	addLibrary(
+			"Completion", 
+			"tmpDoc.jar",
+			null,
+			"tmpDocDoc.zip",
+			false);
+	
+	CompletionTestsRequestor2 requestor;
+	try {
+		requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "x.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		removeLibrary("Completion", "tmpDoc.jar");
+	}
 }
 }

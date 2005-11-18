@@ -237,10 +237,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
 			null,
 			null,
+			new IClasspathAttribute[0],
 			exported
 		);
 	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
+		addLibraryEntry(
+			project,
+			path,
+			srcAttachmentPath,
+			srcAttachmentPathRoot,
+			accessibleFiles,
+			nonAccessibleFiles,
+			new IClasspathAttribute[0],
+			exported
+		);
+	}
+	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
@@ -249,7 +262,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
 			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
-			new IClasspathAttribute[0], 
+			extraAttributes, 
 			exported);
 		project.setRawClasspath(entries, null);
 	}
