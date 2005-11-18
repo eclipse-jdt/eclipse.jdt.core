@@ -40,6 +40,21 @@ public class ASTPositionsTest extends ConverterTestSetup {
 		return buildTestSuite(ASTPositionsTest.class);
 	}
 	
+	private void sanityCheck(final String contents, CompilationUnit compilationUnit) {
+		for (int i = 0, max = contents.length(); i < max; i++) {
+    		final int lineNumber = compilationUnit.getLineNumber(i);
+    		assertTrue("Wrong value for char at " + i, lineNumber >= 1);
+    		final int columnNumber = compilationUnit.getColumnNumber(i);
+    		assertTrue("Wrong value for char at " + i, columnNumber >= 0);
+    		final int position = compilationUnit.getPosition(lineNumber, columnNumber);
+    		assertTrue("Wrong value for char at i", position >= 0);
+    		if (position == 0) {
+    			assertEquals("Only true for first character", 0, i);
+    		}
+			assertEquals("Wrong char", contents.charAt(i), contents.charAt(position));
+    	}
+	}
+	
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {
@@ -73,21 +88,6 @@ public class ASTPositionsTest extends ConverterTestSetup {
     	sanityCheck(contents, compilationUnit);
 	}
 
-	private void sanityCheck(final String contents, CompilationUnit compilationUnit) {
-		for (int i = 0, max = contents.length(); i < max; i++) {
-    		final int lineNumber = compilationUnit.getLineNumber(i);
-    		assertTrue("Wrong value for char at " + i, lineNumber >= 1);
-    		final int columnNumber = compilationUnit.getColumnNumber(i);
-    		assertTrue("Wrong value for char at " + i, columnNumber >= 0);
-    		final int position = compilationUnit.getPosition(lineNumber, columnNumber);
-    		assertTrue("Wrong value for char at i", position >= 0);
-    		if (position == 0) {
-    			assertEquals("Only true for first character", 0, i);
-    		}
-			assertEquals("Wrong char", contents.charAt(i), contents.charAt(position));
-    	}
-	}
-	
 	public void test002() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
