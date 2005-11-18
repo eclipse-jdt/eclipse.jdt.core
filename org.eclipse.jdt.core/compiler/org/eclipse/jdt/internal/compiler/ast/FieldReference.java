@@ -489,7 +489,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				&& !this.binding.isConstantValue()) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
-					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(receiver.isImplicitThis() && this.codegenBinding.isStatic()))
 					&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields
 				|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 	

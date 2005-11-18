@@ -207,7 +207,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			&& !this.actualReceiverType.isArrayType()) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(receiver.isImplicitThis() && this.codegenBinding.isStatic()))
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 
