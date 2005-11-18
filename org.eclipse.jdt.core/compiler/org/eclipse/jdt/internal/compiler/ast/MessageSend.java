@@ -296,18 +296,13 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
-			if(actualReceiverType instanceof ReferenceBinding) {
-				// record any selector match, for clients who may still need hint about possible method match
-				int resolvedCount = 0;
-				for (int i = 0; i < length; i++)
-					if (argumentTypes[i] != null)
-						resolvedCount++;
-				TypeBinding[] knownArgs = new TypeBinding[resolvedCount];
+			if (actualReceiverType instanceof ReferenceBinding) {
+				//  record a best guess, for clients who need hint about possible method match
+				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;)
-					if (argumentTypes[i] != null)
-						knownArgs[--resolvedCount] = argumentTypes[i];
-				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, knownArgs, this);
-			}			
+					pseudoArgs[i] = argumentTypes[i] == null ? actualReceiverType : argumentTypes[i]; // replace args with errors with receiver
+				this.binding = scope.findMethod((ReferenceBinding) actualReceiverType, selector, pseudoArgs, this);
+			}
 			return null;
 		}
 	}
