@@ -119,4 +119,34 @@ public class ASTPositionsTest extends ConverterTestSetup {
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	sanityCheck(contents, compilationUnit);
 	}
+	
+	public void test004() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"package pack1;\npublic class X {}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+       	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+       	CompilationUnit compilationUnit = (CompilationUnit) node;
+       	sanityCheck(contents, compilationUnit);
+		assertEquals(1, compilationUnit.getLineNumber(0));
+	}
+	
+	public void test005() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"package pack1;public class X {}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+       	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+       	CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertEquals(1, compilationUnit.getLineNumber(0));
+       	sanityCheck(contents, compilationUnit);
+	}
+
+
 }

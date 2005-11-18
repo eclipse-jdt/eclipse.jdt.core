@@ -245,8 +245,7 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.2
 	 */
 	public int getColumnNumber(final int position) {
-		int length;
-		if (this.lineEndTable == null || ((length = this.lineEndTable.length) == 0)) return -2;
+		if (this.lineEndTable == null) return -2;
 		final int line = getLineNumber(position);
 		if (line == -1) {
 			return -1;
@@ -255,6 +254,8 @@ public class CompilationUnit extends ASTNode {
 			if (position >= getStartPosition() + getLength()) return -1;
 			return position;
 		}
+		// length is different from 0
+		int length = this.lineEndTable.length;
 		// -1 to for one-based to zero-based conversion.
 		// -1, again, to get previous line.
 		final int previousLineOffset = this.lineEndTable[line - 2];
@@ -560,9 +561,13 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.2
 	 */
 	 public int getPosition(int line, int column) {
-		int length;
-		if (this.lineEndTable == null || ((length = this.lineEndTable.length) == 0)) return -2;
+		if (this.lineEndTable == null) return -2;
 		if (line < 1 || column < 0) return -1;
+		int length;
+		if ((length = this.lineEndTable.length) == 0) {
+			if (line != 1) return -1;
+			return column >= getStartPosition() + getLength() ? -1 : column;
+		}
 		if (line == 1) {
 			final int endOfLine = this.lineEndTable[0];
 			return column > endOfLine ? -1 : column;			
@@ -749,8 +754,14 @@ public class CompilationUnit extends ASTNode {
 	 * @see ASTParser
 	 */
 	public int getLineNumber(int position) {
+		if (this.lineEndTable == null) return -2;
 		int length;
-		if (this.lineEndTable == null || ((length = this.lineEndTable.length) == 0)) return -2;
+		if ((length = this.lineEndTable.length) == 0) {
+			if (position >= getStartPosition() + getLength()) {
+				return -1;
+			}
+			return 1;
+		}
 		int low = 0;
 		if (position < 0) {
 			// position illegal 
