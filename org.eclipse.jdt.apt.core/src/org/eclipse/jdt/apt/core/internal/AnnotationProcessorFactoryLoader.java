@@ -40,6 +40,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -185,10 +186,11 @@ public class AnnotationProcessorFactoryLoader {
 		// Lazy construction because we assume most changes won't affect any projects.
 		private Set<IJavaProject> _affected = null;
 		
-		private void constructAffected() {
+		private void addAffected(Set<IJavaProject> projects) {
 			if (_affected == null) {
 				 _affected = new HashSet<IJavaProject>(5);
 			}
+			_affected.addAll(projects);
 		}
 		
 		/**
@@ -216,9 +218,12 @@ public class AnnotationProcessorFactoryLoader {
 			// If the resource is a factory path file, then the project it
 			// belongs to is affected.
 			IResource res = delta.getResource();
+			if (res == null) {
+				return true;
+			}
+			IProject proj = res.getProject();
 			if (FactoryPathUtil.isFactoryPathFile(res)) {
-				constructAffected();
-				_affected.add(JavaCore.create(res.getProject()));
+				addAffected(Collections.singleton(JavaCore.create(proj)));
 				return true;
 			}
 			// If the resource is a jar file named in at least one factory
@@ -226,24 +231,35 @@ public class AnnotationProcessorFactoryLoader {
 			if (res.getType() != IResource.FILE) {
 				return true;
 			}
-			IPath resPath = res.getFullPath();
-			String ext = resPath.getFileExtension();
-			if (JAR_EXTENSION.equals(ext)) {
-				// Lookup key is the canonical path of the resource
-				String key = null;
-				try {
-					key = res.getLocation().toFile().getCanonicalPath();
-				} catch (IOException e) {
-					// if we can't figure out its canonical path, just ignore it.
-					e.printStackTrace();
-					return true;
+			IPath relativePath = res.getFullPath();
+			String ext = relativePath.getFileExtension();
+			try {
+				if (JAR_EXTENSION.equals(ext)) {
+					IPath absolutePath = res.getLocation();
+					if (absolutePath == null) {
+						// Jar file within a deleted project.  In this case getLocation() 
+						// returns null, so we can't get a canonical path.  Bounce every
+						// factory path that contains anything resembling this jar.
+						for (Entry<String, Set<IJavaProject>> entry : _container2Project.entrySet()) {
+							IPath jarPath = new Path(entry.getKey());
+							if (relativePath.lastSegment().equals(jarPath.lastSegment())) {
+								addAffected(entry.getValue());
+							}
+						}
+					}
+					else {
+						// Lookup key is the canonical path of the resource
+						String key = null;
+						key = absolutePath.toFile().getCanonicalPath();
+						Set<IJavaProject> projects = _container2Project.get(key);
+						if (projects != null) {
+							addAffected(projects);
+						}
+					}
 				}
-				Set<IJavaProject> projects = _container2Project.get(key);
-				if (projects == null) {
-					return true;
-				}
-				constructAffected();
-				_affected.addAll(projects);
+			} catch (Exception e) {
+				AptPlugin.log(e, 
+					"Couldn't determine whether any factory paths were affected by change to resource " + res.getName()); //$NON-NLS-1$
 			}
 			return true;
 		}
