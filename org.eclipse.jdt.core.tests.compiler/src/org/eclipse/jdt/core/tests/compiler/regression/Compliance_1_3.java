@@ -3489,4 +3489,87 @@ public void test102() {
 		},
 		"X$2");
 }
+public void test103() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"		System.out.print(X.class);\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"class X");
+		
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String actualOutput = null;
+	try {
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		assertTrue("IOException", false);
+	}
+	
+	String expectedOutput = 
+		"// Compiled from X.java (version 1.1 : 45.3, super bit)\n" + 
+		"public class X {\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/Class;\n" + 
+		"  static synthetic java.lang.Class class$0;\n" + 
+		"  \n" + 
+		"  // Method descriptor #9 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  public X();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [11]\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 1]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #18 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [19]\n" + 
+		"     3  getstatic X.class$0 : java.lang.Class [25]\n" + 
+		"     6  dup\n" + 
+		"     7  ifnonnull 35\n" + 
+		"    10  pop\n" + 
+		"    11  ldc <String \"X\"> [27]\n" + 
+		"    13  invokestatic java.lang.Class.forName(java.lang.String) : java.lang.Class [28]\n" + 
+		"    16  dup\n" + 
+		"    17  putstatic X.class$0 : java.lang.Class [25]\n" + 
+		"    20  goto 35\n" + 
+		"    23  new java.lang.NoClassDefFoundError [34]\n" + 
+		"    26  dup_x1\n" + 
+		"    27  swap\n" + 
+		"    28  invokevirtual java.lang.Throwable.getMessage() : java.lang.String [36]\n" + 
+		"    31  invokespecial java.lang.NoClassDefFoundError(java.lang.String) [42]\n" + 
+		"    34  athrow\n" + 
+		"    35  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [45]\n" + 
+		"    38  return\n" + 
+		"      Exception Table:\n" + 
+		"        [pc: 11, pc: 16] -> 23 when : java.lang.ClassNotFoundException\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 38, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 39] local: args index: 0 type: java.lang.String[]\n" + 
+		"}";
+		
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
 }
