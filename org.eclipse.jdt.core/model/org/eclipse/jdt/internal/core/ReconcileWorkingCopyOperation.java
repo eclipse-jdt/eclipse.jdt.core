@@ -79,7 +79,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (this.problems != null) {
 			try {
 				problemRequestor.beginReporting();
-				for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
+				for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
 					CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
 					if (categorizedProblems == null) continue;
 					for (int i = 0, length = categorizedProblems.length; i < length; i++) {
