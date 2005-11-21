@@ -155,12 +155,14 @@ public ICompilationUnit getWorkingCopy() {
 
 /**
  * Resets the AST carried by this context.
- * A compilation participant that modifies the buffer of the working copy,
- * or that modifies another entity that would result in different bindings for the AST
- * is expected to reset the AST on this context, so that other participants
+ * A compilation participant that modifies another entity that would result in different bindings 
+ * for the AST is expected to reset the AST on this context, so that other participants
  * don't get a stale AST.
  * <p>
- * Note that resetting the AST will not restart the reconcile process. Only further 
+ * Note that participants are not expected to modify the buffer of the working copy
+ * being reconciled during the reconcile process.
+ * </p><p>
+ * Note also that resetting the AST will not restart the reconcile process. Only further 
  * participants will see the new AST.
  * </p>
  */
