@@ -18,10 +18,14 @@ import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * A compilation participant is notified of events occuring during the compilation process.
- * These events are the result of a build action, a clean action, a reconcile operation (for a working copy), etc.
+ * The compilation process not only involves generating .class files (i.e. building), it also involve
+ * cleaning the output dierectory, reconciling a working copy, etc.
+ * So the notified events are the result of a build action, a clean action, a reconcile operation 
+ * (for a working copy), etc.
  * <p>
  * Clients wishing to participate in the compilation process must suclass this class, and implement
- * {@link #isActive(IJavaProject)}, {@link #reconcile(ReconcileContext)}, etc.
+ * {@link #isActive(IJavaProject)}, {@link #buildStarting(IJavaProject)}, 
+ * {@link #reconcile(ReconcileContext)}, etc.
 * </p><p>
  * This class is intended to be subclassed by clients.
  * </p>

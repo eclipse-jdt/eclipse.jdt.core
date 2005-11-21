@@ -93,7 +93,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * The progress monitor passed into this operation
 	 */
-	protected IProgressMonitor progressMonitor= null;
+	public IProgressMonitor progressMonitor= null;
 	/**
 	 * A flag indicating whether this operation is nested.
 	 */

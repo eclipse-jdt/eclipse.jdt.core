@@ -20,7 +20,10 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
 
 /**
@@ -67,6 +70,12 @@ public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit
  * Returns <code>null</code> if the current state of the working copy
  * doesn't allow the AST to be created (e.g. if the working copy's content 
  * cannot be parsed).
+ * <p>
+ * If the requested AST level is different from the {@link #getASTLevel() current AST level}
+ * or if binding resolutions is requested when no {@link #isResolvingBindings() binding resolution}
+ * was requested when reconciling, then a different AST is created. Note that this AST does not 
+ * become the current AST and it is only valid for the requestor.
+ * </p>
  * 
  * @param astLevel the level of AST requested
  * @param resolveBindings whether the bindings in the returned AST should be resolved
@@ -78,25 +87,43 @@ public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit
  * <li> The working copy does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  */
-// TODO do we really want individual astLevel for participants ? or should they implicitly get the one from ongoing reconcile operation ?
 public org.eclipse.jdt.core.dom.CompilationUnit getAST(int astLevel, boolean resolveBindings) throws JavaModelException {
-	if (this.operation.astLevel < astLevel) {
-		this.operation.astLevel = astLevel;
-		this.operation.ast = null; // force the AST to be re-created since the ast level was insufficient the first time
+	if (this.operation.astLevel != astLevel || !this.operation.resolveBindings & resolveBindings) {
+		// create AST (optionally resolving bindings)
+		ASTParser parser = ASTParser.newParser(astLevel);
+		parser.setCompilerOptions(workingCopy.getJavaProject().getOptions(true));
+		if (resolveBindings && JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
+			parser.setResolveBindings(true);
+		parser.setSource(workingCopy);
+		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);		
 	}
-	if (!this.operation.resolveBindings & resolveBindings) {
-		this.operation.resolveBindings = true;
-		this.operation.ast = null; // force the AST to be re-created since bindings were not computed the first time
-	}
-	org.eclipse.jdt.core.dom.CompilationUnit result = this.operation.makeConsistent(this.workingCopy, null/*don't report problems to the working copy's problem requestor*/);
-	if (result == null)
-		result = this.operation.createAST(this.workingCopy);
-	return result;
+	return this.operation.makeConsistent(this.workingCopy, null/*don't report problems to the working copy's problem requestor*/);
+}
+
+/**
+ * Returns the AST level requested by the reconcile operation.
+ * It is either {@link ICompilationUnit#NO_AST}, or one of the JLS constants defined on {@link AST}.
+ * 
+ * @return the AST level requested by the reconcile operation
+ */
+public int getASTLevel() {
+	return this.operation.astLevel;
+}
+
+/**
+ * Returns whether the reconcile operation is resolving bindings.
+ * 
+ * @return whether the reconcile operation is resolving bindings
+ */
+public boolean isResolvingBindings() {
+	return this.operation.resolveBindings;
 }
 
 /**
  * Returns the delta describing the change to the working copy being reconciled.
  * Returns <code>null</code> if there is no change.
+ * Note that the delta's AST is not yet positionnned at this stage. Use {@link #getAST(int, boolean)}
+ * to get the current AST.
  *
  * @return the delta describing the change, or <code>null</code> if none
  */
@@ -132,6 +159,10 @@ public ICompilationUnit getWorkingCopy() {
  * or that modifies another entity that would result in different bindings for the AST
  * is expected to reset the AST on this context, so that other participants
  * don't get a stale AST.
+ * <p>
+ * Note that resetting the AST will not restart the reconcile process. Only further 
+ * participants will see the new AST.
+ * </p>
  */
 public void resetAST() {
 	this.operation.ast = null;
@@ -143,6 +174,10 @@ public void resetAST() {
  * Sets the problems to be reported to the problem requestor of the reconcile operation
  * for the given marker type.
  * <code>null</code> indicates that no problems need to be reported.
+ * <p>
+ * Using this functionality, a participant that resolves problems for a given marker type 
+ * can hide those problems since they don't exist any longer.
+ * </p>
  * 
  * @param markerType the marker type of the given problems
  * @param problems  the problems to be reported to the problem requestor of the reconcile operation,

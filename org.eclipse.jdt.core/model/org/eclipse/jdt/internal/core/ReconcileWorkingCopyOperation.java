@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -46,19 +45,6 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		this.astLevel = astLevel;
 		this.forceProblemDetection = forceProblemDetection;
 		this.workingCopyOwner = workingCopyOwner;
-	}
-	
-	public org.eclipse.jdt.core.dom.CompilationUnit createAST(CompilationUnit workingCopy) {
-		if (this.astLevel != ICompilationUnit.NO_AST) {
-			// create AST (optionally resolving bindings)
-			ASTParser parser = ASTParser.newParser(this.astLevel);
-			parser.setCompilerOptions(workingCopy.getJavaProject().getOptions(true));
-			if (this.resolveBindings && JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
-				parser.setResolveBindings(true);
-			parser.setSource(workingCopy);
-			return this.ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(ReconcileWorkingCopyOperation.this.progressMonitor);
-		}
-		return this.ast;
 	}
 	
 	/**

@@ -1901,7 +1901,7 @@ public void testReconcileParticipant04() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
 	assertSame(
 		"Unexpected participant delta",
 		participant.ast,
