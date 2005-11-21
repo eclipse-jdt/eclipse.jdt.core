@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 199, 200, 201 };
+//		TESTS_NUMBERS = new int[] { 203 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -6127,4 +6127,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(modifier1, "@Ann", source);
 		checkSourceRange(modifier2, "final", source);
     }
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80472
+	 */
+	public void test0203() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "class X<T> {\n" + 
+				"        X<T> list= this;\n" + 
+				"        X<? super T> list2= this;\n" + 
+				"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	List fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	Expression initializer = fragment.getInitializer();
+    	ITypeBinding typeBinding = initializer.resolveTypeBinding();
+    	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
+
+    	node = getASTNode(compilationUnit, 0, 1);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	fieldDeclaration = (FieldDeclaration) node;
+    	fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	fragment = (VariableDeclarationFragment) fragments.get(0);
+    	initializer = fragment.getInitializer();
+    	typeBinding = initializer.resolveTypeBinding();
+    	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
+	}	
 }
