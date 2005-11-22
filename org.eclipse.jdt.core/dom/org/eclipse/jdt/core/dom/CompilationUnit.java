@@ -724,7 +724,7 @@ public class CompilationUnit extends ASTNode {
 	 *    position does not correspond to a source line in the original
 	 *    source file or if line number information is not known for this
 	 *    compilation unit
-	 * @deprecated Use getLineNumber(int) instead.
+	 * @deprecated Use getLineNumber(int) instead. Be careful to handle the negative values.
 	 * @see ASTParser
 	 * @see #getLineNumber(int) 
 	 */
