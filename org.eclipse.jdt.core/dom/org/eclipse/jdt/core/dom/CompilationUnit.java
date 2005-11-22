@@ -752,6 +752,7 @@ public class CompilationUnit extends ASTNode {
 	 *    source file or <code>-2</code> if line number information is not known for this
 	 *    compilation unit
 	 * @see ASTParser
+	 * @since 3.2
 	 */
 	public int getLineNumber(int position) {
 		if (this.lineEndTable == null) return -2;
