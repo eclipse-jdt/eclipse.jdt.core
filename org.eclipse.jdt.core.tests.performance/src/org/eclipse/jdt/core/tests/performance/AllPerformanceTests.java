@@ -21,8 +21,8 @@ import junit.framework.Test;
  */
 public class AllPerformanceTests extends junit.framework.TestCase {
 
-	final static String LENGTH = System.getProperty("length", "0");
 	final static boolean ADD = System.getProperty("add", "false").equals("true");
+	final static String RUN_ID = System.getProperty("runID");
 
 	/**
 	 * Define performance tests classes to be run.
@@ -33,32 +33,21 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			FullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceASTTests.class,
 			FullSourceWorkspaceTypeHierarchyTests.class,
-			NameLookupTests2.class
+			FullSourceWorkspaceModelTests.class,
+			FullSourceWorkspaceCompletionTests.class,
 		};
 	}
 
 	/**
 	 * Additional test class(es).
 	 * 
-	 * Classes put in this list will be run only if "additional" VM parameter is added
+	 * Classes put in this list will be run only if "add" VM parameter is added
 	 * while running JUnit test suite.
 	 * 
-	 * This parameter is an integer to specify position where this additional classes
-	 * list has to be added in main list {@link #getAllTestClasses()}.
-	 * 
-	 * For example, set VM parameter -Dadditional=2 will result to run following list of classes:
-	 *		- FullSourceWorkspaceSearchTests
-	 *		- FullSourceWorkspaceBuildTests
-	 *		- FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
-	 *		- FullSourceWorkspaceASTTests
-	 *		- FullSourceWorkspaceTypeHierarchyTests
-	 *		- NameLookupTests2
-	 *
 	 * @see #ADD
 	 */
 	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
-			FullSourceWorkspaceCompletionTests.class
 		};
 	}
 	
@@ -85,27 +74,49 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 
 		// Get test suites subset
 		int length = testSuites.length;
-		if (ADD) {
-			try {
-				Class[] complete = getAdditionalTestClasses();
-				int completeLength = complete.length;
-				Class[] newSuites = new Class[length+completeLength];
-				System.arraycopy(testSuites, 0, newSuites, 0, length);
-				System.arraycopy(complete, 0, newSuites, length, completeLength);
-				testSuites = newSuites;
-				length = testSuites.length;
-			} catch (NumberFormatException e1) {
-				// do nothing
+		if (RUN_ID != null) {
+			Class[] subSetSuites = new Class[length];
+			int count = 0;
+			for (int i = 0; i < length; i++) {
+				String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
+				if (RUN_ID.indexOf(name.charAt(0)) >= 0) {
+					subSetSuites[count++] = testSuites[i];
+				}
 			}
+			System.arraycopy(subSetSuites, 0, testSuites = new Class[count], 0, count);
+			length = count;
+		}
+
+		// Get test suites subset
+		if (ADD) {
+			Class[] complete = getAdditionalTestClasses();
+			int completeLength = complete.length;
+			Class[] newSuites = new Class[length+completeLength];
+			System.arraycopy(testSuites, 0, newSuites, 0, length);
+			System.arraycopy(complete, 0, newSuites, length, completeLength);
+			testSuites = newSuites;
+			length = testSuites.length;
 		}
 
 		// Get suite acronym
+		if (length == 0) {
+			System.err.println("There's no performances suites to run!!!");
+			return perfSuite;
+		}
 		String suitesAcronym = "";
-		for (int i = 0; i < length; i++) {
-			String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
-			if (name != null) {
-				suitesAcronym += name.substring(0, 1);
+		if (RUN_ID == null) {
+			for (int i = 0; i < length; i++) {
+				String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
+				if (name != null) {
+					char firstChar = name.charAt(0);
+					if (suitesAcronym.indexOf(firstChar) >= 0) {
+						System.out.println("WARNING: Duplicate letter in RUN_ID for test suite: "+name);
+					}
+					suitesAcronym += firstChar;
+				}
 			}
+		} else {
+			suitesAcronym = RUN_ID;
 		}
 		FullSourceWorkspaceTests.RUN_ID = suitesAcronym; //.toLowerCase();
 		

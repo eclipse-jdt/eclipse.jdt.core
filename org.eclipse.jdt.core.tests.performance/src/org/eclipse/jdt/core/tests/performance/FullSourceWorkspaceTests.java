@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
@@ -41,6 +42,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
+	final static boolean PRINT = "true".equals(System.getProperty("print"));
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	
 	// Garbage collect constants
@@ -51,6 +53,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Workspace variables
 	protected static TestingEnvironment ENV = null;
 	protected static IJavaProject[] ALL_PROJECTS;
+	protected static IJavaProject JDT_CORE_PROJECT;
+	protected static ICompilationUnit PARSER_WORKING_COPY;
 	
 	// Index variables
 	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
@@ -61,13 +65,38 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static List TESTS_NAME_LIST;
 
 	// Tests counters
-	protected final static int MEASURES_COUNT = 10;
+	protected final static int MEASURES_COUNT;
+	static {
+		String measures = System.getProperty("measures", "10");
+		int count = 10;
+		try {
+			count = Integer.parseInt(measures);
+			if (count < 0 || count > 20) {
+				System.out.println("INFO: Measures parameter ("+count+") is ignored as it is an invalid value! (should be between 0 and 20)");
+				count = 10;
+			} else if (count != 10) {
+				System.err.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
+			}
+		}
+		catch (NumberFormatException nfe) {
+			// use default value
+			System.out.println("INFO: Specified 'measures' VM argument (="+measures+") is ignored as it is not an integer (0-20)!");
+		}
+		MEASURES_COUNT = count;
+	}
 
 	// Scenario information
 	String scenarioReadableName, scenarioShortName;
 	StringBuffer scenarioComment;
 	static Map SCENARII_COMMENT = new HashMap();
 	
+	// Project
+	final static String BIG_PROJECT_NAME = "BigProject";
+	static JavaProject BIG_PROJECT;
+
+	// Time measuring
+	long startMeasuring, testDuration;
+
 	/**
 	 * Variable used for log files.
 	 * Log files are used in conjonction with {@link JdtCorePerformanceMeter} class.
@@ -113,7 +142,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			dir = new File(logDir);
 			if (dir.exists()) {
 				if (!dir.isDirectory()) {
-					System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+					System.err.println(logDir+" is not a valid directory, log files will NOT be written!");
 					dir = INVALID_DIR;
 				}
 			} else {
@@ -128,7 +157,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					n++;
 				}
 				if (!created) {
-					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+					System.err.println("Cannot create "+logDir+", log files will NOT be written!");
 					dir = INVALID_DIR;
 				}
 			}
@@ -141,12 +170,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				dir = new File(dir, subdirs[i]);
 				if (dir.exists()) {
 					if (!dir.isDirectory()) {
-						System.err.println(dir.getPath()+" is not a valid directory. Log files will NOT be written!");
+						System.err.println(dir.getPath()+" is not a valid directory, log files will NOT be written!");
 						dir= INVALID_DIR;
 						break;
 					}
-				} else if (!dir.mkdir()) {
-					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+				} else if (!dir.mkdirs()) {
+					System.err.println("Cannot create "+dir.getPath()+", log files will NOT be written!");
 					dir = INVALID_DIR;
 					break;
 				}
@@ -259,7 +288,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			free = Runtime.getRuntime().freeMemory();
 			System.gc();
 			delta = Runtime.getRuntime().freeMemory() - free;
-			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
+//			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
 			try {
 				Thread.sleep(TIME_GC);
 			} catch (InterruptedException e) {
@@ -404,6 +433,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		
 		// Increment test position
 		TEST_POSITION++;
+		
+		// Print test name while debugging
+		if (PRINT) {
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Running "+getName()+"...");
+		}
+
+		// Time measuring
+		this.testDuration = 0;
 	}
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -446,6 +484,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	public void tagAsSummary(String shortName, Dimension[] dimensions, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
 		if (fingerprint) super.tagAsSummary(shortName, dimensions);
+	}
+	public void startMeasuring() {
+		super.startMeasuring();
+		this.startMeasuring = System.currentTimeMillis();
+	}
+	public void stopMeasuring() {
+		super.stopMeasuring();
+		this.testDuration += System.currentTimeMillis() - this.startMeasuring;
+	}
+	public void commitMeasurements() {
+		System.out.println("	Test duration = "+this.testDuration+"ms");
+		super.commitMeasurements();
 	}
 	/**
 	 * Override super implementation to:
@@ -513,8 +563,22 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
+			String projectName = ALL_PROJECTS[i].getElementName();
+			if (JavaCore.PLUGIN_ID.equals(projectName)) {
+				JDT_CORE_PROJECT = ALL_PROJECTS[i];
+			} else if (BIG_PROJECT_NAME.equals(projectName)) {
+				BIG_PROJECT = (JavaProject) ALL_PROJECTS[i];
+			}
 			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
+			// Make Big project dependent from jdt.core one
+//			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
+//			int bpeLength = bigProjectEntries.length;
+//			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
+//			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
 		}
+		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
+		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
+		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
 		if (DEBUG) System.out.println("done!");
 	}
 

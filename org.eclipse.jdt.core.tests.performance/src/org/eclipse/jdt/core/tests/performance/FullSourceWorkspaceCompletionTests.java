@@ -23,10 +23,12 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	// Counters
 	private static final int WARMUP_COUNT = 10;
 	private static final int ITERATION_COUNT = 40;
-	int proposalCount = 0;
+	static int[] PROPOSAL_COUNTS;
+	static int TESTS_COUNT = 0;
+	static int TESTS_LENGTH = 0;
+	static int COMPLETIONS_COUNT = 0;
 
 	// Log files
-	private static int TESTS_COUNT = 0;
 	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	public FullSourceWorkspaceCompletionTests(String name) {
@@ -36,6 +38,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	public static Test suite() {
 		Test suite = buildSuite(testClass());
 		TESTS_COUNT = suite.countTestCases();
+		PROPOSAL_COUNTS = new int[TESTS_COUNT];
 		createPrintStream(testClass(), LOG_STREAMS, TESTS_COUNT, "Complete");
 		return suite;
 	}
@@ -45,27 +48,38 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.performance.FullSourceWorkspaceTests#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+		COMPLETIONS_COUNT = 0;
+	}
+
+	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less
-        TESTS_COUNT--;
+		TESTS_COUNT--;
 
-        // Log perf result
-        if (LOG_DIR != null) {
-            logPerfResult(LOG_STREAMS, TESTS_COUNT);
-        }
-        
+		// Log perf result
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
+
 		// Print statistics
-        if (TESTS_COUNT == 0) {
+		if (TESTS_COUNT == 0) {
 			System.out.println("-------------------------------------");
 			System.out.println("Completion performance test statistics:");
 			NumberFormat intFormat = NumberFormat.getIntegerInstance();
-			System.out.println("  - "+intFormat.format(ITERATION_COUNT*MEASURES_COUNT)+" completions have been performed");
-			System.out.println("  - "+intFormat.format(this.proposalCount)+" proposals have been done");
+			System.out.println("  - "+intFormat.format(COMPLETIONS_COUNT)+" completions have been performed");
+			System.out.println("  - following proposals have been done:");
+			for (int i=0; i<TESTS_LENGTH; i++) {
+				System.out.println("  	+ test "+i+": "+intFormat.format(PROPOSAL_COUNTS[i])+" proposals");
+			}
 			System.out.println("-------------------------------------\n");
-        }
+		}
 		
 		// Call super at the end as it close print streams
 		super.tearDown();
@@ -73,7 +87,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	
 	private class TestCompletionRequestor extends CompletionRequestor {
 		public void accept(CompletionProposal proposal) {
-			proposalCount++;
+			PROPOSAL_COUNTS[TESTS_LENGTH-TESTS_COUNT]++;
 		}
 	}
 
@@ -143,6 +157,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			startMeasuring();
 			for (int j = 0; j < iterationCount; j++) {
 				unit.codeComplete(completionIndex, requestor);
+				COMPLETIONS_COUNT++;
 			}
 			stopMeasuring();
 		}
