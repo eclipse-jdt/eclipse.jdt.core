@@ -29,8 +29,6 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
     // Log files
     private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
-	static int[] COUNTERS = new int[1];
-	
 	/**
 	 * @param name
 	 */
@@ -38,9 +36,9 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		super(name);
 	}
 
-//	static {
-//		TESTS_NAMES = new String[] { "testPerfAllTypes" };
-//	}
+	static {
+//		TESTS_NAMES = new String[] { "testPerfClassWithPotentialSubinterfaces" };
+	}
 	public static Test suite() {
         Test suite = buildSuite(testClass());
         TESTS_COUNT = suite.countTestCases();
@@ -70,16 +68,6 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		// Log perf result
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
-		}
-		
-		// Print statistics
-		if (TESTS_COUNT == 0) {
-			// Print statistics
-			System.out.println("-------------------------------------");
-			System.out.println("Type Hierarchy test statistics:");
-			NumberFormat intFormat = NumberFormat.getIntegerInstance();
-			System.out.println("  - "+intFormat.format(COUNTERS[0])+" all types found.");
-			System.out.println("-------------------------------------\n");
 		}
 		
 		// Call super at the end as it close print streams
@@ -121,7 +109,47 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		commitMeasurements();
 		assertPerformance();
 
-		// Store counter
-		COUNTERS[0] = length;
+		// Print statistics
+		if (TESTS_COUNT == 0) {
+			// Print statistics
+			System.out.println("-------------------------------------");
+			System.out.println("Type Hierarchy test statistics:");
+			NumberFormat intFormat = NumberFormat.getIntegerInstance();
+			System.out.println("  - "+intFormat.format(length)+" all types found.");
+			System.out.println("-------------------------------------\n");
+		}
+		
 	}
+	
+	/*
+	 * A direct subclass of org.eclipse.jface.text.templates.TemplateVariableResolver is called Collection.
+	 * Collection is also an interface that is the root of a deep hierarchy in java.util.
+	 * This test proves that the interface and all its potential subtypes are not injected while computing
+	 * the hierarchy.
+	 * (test for bug 108820 Index based type hierarchy should not consider interfaces in index when focus is a class)
+	 */
+	public void testPerfClassWithPotentialSubinterfaces() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("org.eclipse.text", "org.eclipse.jface.text.templates", "TemplateVariableResolver.java");
+		assertNotNull("TemplateVariableResolver not found!", unit);
+
+		// Warm up
+		IType type = 	unit.getType("TemplateVariableResolver");
+		type.newTypeHierarchy(null);
+
+		// Clean memory
+		runGc();
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+			type.newTypeHierarchy(null);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+
+	}
+
 }

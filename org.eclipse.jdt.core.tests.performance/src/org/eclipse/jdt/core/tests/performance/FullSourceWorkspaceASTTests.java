@@ -19,7 +19,6 @@ import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.QualifiedName;
 
 /**
  */
@@ -41,7 +40,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-		TESTS_PREFIX = "testPerfDom";
+//		TESTS_PREFIX = "testDomAstCreationJLS2";
 	}
 
 	public static Test suite() {

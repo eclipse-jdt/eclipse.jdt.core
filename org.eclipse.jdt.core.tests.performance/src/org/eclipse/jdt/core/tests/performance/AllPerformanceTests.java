@@ -41,20 +41,9 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 	/**
 	 * Additional test class(es).
 	 * 
-	 * Classes put in this list will be run only if "additional" VM parameter is added
+	 * Classes put in this list will be run only if "add" VM parameter is added
 	 * while running JUnit test suite.
 	 * 
-	 * This parameter is an integer to specify position where this additional classes
-	 * list has to be added in main list {@link #getAllTestClasses()}.
-	 * 
-	 * For example, set VM parameter -Dadditional=2 will result to run following list of classes:
-	 *		- FullSourceWorkspaceSearchTests
-	 *		- FullSourceWorkspaceBuildTests
-	 *		- FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
-	 *		- FullSourceWorkspaceASTTests
-	 *		- FullSourceWorkspaceTypeHierarchyTests
-	 *		- NameLookupTests2
-	 *
 	 * @see #ADD
 	 */
 	public static Class[] getAdditionalTestClasses() {

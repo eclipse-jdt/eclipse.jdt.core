@@ -16,7 +16,6 @@ import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 
-
 /**
  */
 public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests {
@@ -62,15 +61,15 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less
-	    TESTS_COUNT--;
+		TESTS_COUNT--;
 
 		// Log perf result
-	    if (LOG_DIR != null) {
-	        logPerfResult(LOG_STREAMS, TESTS_COUNT);
-	    }
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
 
 		// Print statistics
-	    if (TESTS_COUNT == 0) {
+		if (TESTS_COUNT == 0) {
 			System.out.println("-------------------------------------");
 			System.out.println("Completion performance test statistics:");
 			NumberFormat intFormat = NumberFormat.getIntegerInstance();
@@ -80,7 +79,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				System.out.println("  	+ test "+i+": "+intFormat.format(PROPOSAL_COUNTS[i])+" proposals");
 			}
 			System.out.println("-------------------------------------\n");
-	    }
+		}
 		
 		// Call super at the end as it close print streams
 		super.tearDown();

@@ -271,7 +271,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		}
 	}
 
-
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */

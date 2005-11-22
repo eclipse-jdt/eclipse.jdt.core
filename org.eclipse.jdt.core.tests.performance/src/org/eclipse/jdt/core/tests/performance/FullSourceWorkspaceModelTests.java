@@ -33,11 +33,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.IJavaElementRequestor;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.*;
 
 /**
  */
@@ -288,21 +284,6 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 }
 
 /**
- * Clean last category table cache
- * @param type Tells whether previous search was a type search or not
- */
-protected void cleanCategoryTableCache(boolean type) throws CoreException {
-//		long time = System.currentTimeMillis();
-//	if (type) {
-//		search("foo", FIELD, DECLARATIONS);
-//	} else {
-//		search("Foo", TYPE, DECLARATIONS);
-//	}
-//		if (DEBUG) System.out.println("Time to clean category table cache: "+(System.currentTimeMillis()-time));
-	super.runGc();
-}
-
-/**
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#createJavaProject(String, String[], String[], String[][], String[][], String[], String[][], String[][], boolean[], String, String[], String[][], String[][], String)
  */
 protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String projectOutput, final String compliance) throws CoreException {
@@ -371,10 +352,6 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 	return project.newNameLookup((WorkingCopyOwner)null);
 }
 
-protected void resetCounters() {
-	// do nothing
-}
-
 /**
  * Performance tests for model: Find known type in name lookup.
  * 
@@ -382,7 +359,7 @@ protected void resetCounters() {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>KnownType", true); // put in fingerprint
+	tagAsSummary("Model>NameLookup>Find>KnownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -399,7 +376,6 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 	}
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -422,7 +398,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>SecondaryType", true); // put in fingerprint
+	tagAsSummary("Model>NameLookup>Find>SecondaryType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -430,20 +406,17 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".TestSecondary";
-//	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
 	if (WARMUP_COUNT > 0) {
 		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
-			if (LOG_VERSION.compareTo("v_620") > 0) {
+			if (LOG_VERSION.compareTo("v_622") > 0) {
 				assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 			}
 		}
 	}
-//	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = false;
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -466,7 +439,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindUnknownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>UnknownType", true); // put in fingerprint
+	tagAsSummary("Model>NameLookup>Find>UnknownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -474,7 +447,6 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
-//	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
 	if (WARMUP_COUNT > 0) {
 		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
@@ -482,10 +454,8 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
 			assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
 		}
 	}
-//	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = false;
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -508,7 +478,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>KnownType", true); // put in fingerprint
+	tagAsSummary("Model>Project>Find>KnownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -524,7 +494,6 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	}
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -546,7 +515,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownMemberType() throws CoreException {
-	tagAsSummary("Model>Project>Find>MemberType", true); // put in fingerprint
+	tagAsSummary("Model>Project>Find>MemberType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -565,7 +534,6 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	}
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -587,7 +555,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>Project>Find>SecondaryType", true); // put in fingerprint
+	tagAsSummary("Model>Project>Find>SecondaryType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -602,7 +570,6 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
 	}
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -624,7 +591,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindUnknownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>UnknownType", true); // put in fingerprint
+	tagAsSummary("Model>Project>Find>UnknownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -640,7 +607,6 @@ public void testPerfProjectFindUnknownType() throws CoreException {
 	}
 
 	// Measures
-	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -660,7 +626,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
  * to reconcile with is the same as the current contents.
  */
 public void testPerfReconcile() throws CoreException {
-	tagAsSummary("Model>Reconcile>Parser", true); // put in fingerprint
+	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -678,13 +644,7 @@ public void testPerfReconcile() throws CoreException {
 			}
 		}
 
-		// Set trace ON
-//		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
-//		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//		JavaModelManager.VERBOSE = true;
-
 		// Measures
-		resetCounters();
 		int iterations = 2;
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
@@ -710,7 +670,7 @@ public void testPerfReconcile() throws CoreException {
  * to reconcile with is the same as the current contents.
  */
 public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
-	tagAsSummary("Model>Reconcile>Parser", true); // put in fingerprint
+	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -729,14 +689,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 			}
 		}
 
-		// Set trace ON
-//		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
-//		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
-//		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//		JavaModelManager.VERBOSE = true;
-
 		// Measures
-		resetCounters();
 		int iterations = 2;
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();

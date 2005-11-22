@@ -142,7 +142,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			dir = new File(logDir);
 			if (dir.exists()) {
 				if (!dir.isDirectory()) {
-					System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+					System.err.println(logDir+" is not a valid directory, log files will NOT be written!");
 					dir = INVALID_DIR;
 				}
 			} else {
@@ -157,7 +157,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					n++;
 				}
 				if (!created) {
-					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+					System.err.println("Cannot create "+logDir+", log files will NOT be written!");
 					dir = INVALID_DIR;
 				}
 			}
@@ -170,12 +170,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				dir = new File(dir, subdirs[i]);
 				if (dir.exists()) {
 					if (!dir.isDirectory()) {
-						System.err.println(dir.getPath()+" is not a valid directory. Log files will NOT be written!");
+						System.err.println(dir.getPath()+" is not a valid directory, log files will NOT be written!");
 						dir= INVALID_DIR;
 						break;
 					}
-				} else if (!dir.mkdir()) {
-					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+				} else if (!dir.mkdirs()) {
+					System.err.println("Cannot create "+dir.getPath()+", log files will NOT be written!");
 					dir = INVALID_DIR;
 					break;
 				}

@@ -89,7 +89,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
 		}
-		
+
 		// Print statistics
 		if (TESTS_COUNT == 0) {
 			System.out.println("-------------------------------------");
