@@ -2983,10 +2983,10 @@ public class AnnotationTest extends AbstractComparableTest {
 		
 		String expectedOutput = 
 			"  Inner classes:\n" + 
-			"    [inner class info: #30 X$MyAnon, outer class info: #2 X\n" + 
-			"     inner name: #68 MyAnon, accessflags: 9737 public abstract static ],\n" + 
-			"    [inner class info: #70 X$I, outer class info: #2 X\n" + 
-			"     inner name: #71 I, accessflags: 1545 public abstract static ]"; 
+			"    [inner class info: #28 X$MyAnon, outer class info: #2 X\n" + 
+			"     inner name: #66 MyAnon, accessflags: 9737 public abstract static ],\n" + 
+			"    [inner class info: #68 X$I, outer class info: #2 X\n" + 
+			"     inner name: #69 I, accessflags: 1545 public abstract static ]\n"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
