@@ -14,6 +14,8 @@
 
 package org.eclipse.jdt.core.compiler;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -62,6 +64,50 @@ public void cleanStarting(IJavaProject project) {
 }
 
 /**
+ * Configures this participant, optionally changing the order of participation in the
+ * given list.
+ * <ul>
+ * <li>A participant that modifies code is expected to move itself in the first position:
+ * <pre>
+ * participants.remove(this);
+ * participants.add(0, this);
+ * </pre>
+ *  </li>
+ * <li>A participant that wants to ensure that all participants that modify code
+ * have run before itself should move itself in the last position. 
+ * <pre>
+ * participants.remove(this);
+ * participants.add(this);
+ * </pre>
+ * For example, a participant that creates problems and that wants to ensure 
+ * that its view of the world is not going to be modified should move itself in the
+ * last position.</li>
+ * <li>A participant that wants to run after a given
+ * participant should move itself after the given participant.
+ * <pre>
+ * CompilationParticipant otherParticipant = ...
+ * participants.remove(this);
+ * participants.add(participants.indexOf(otherParticipant)+1, this);
+ * </pre> 
+ * </li>
+ * </ul>
+ * <p>
+ * This method is called exactly once.
+ * </p>
+ * <p>
+ * Default is to do nothing.
+ * </p>
+ * <p>
+ * This method is not expected to be called by clients.
+ * </p>
+ * 
+ * @param participants the list of all <code>CompilationParticipant</code>s.
+ */
+public void configure(List participants) {
+	// do nothing by default
+}
+
+/**
  * Returns whether this participant is active for a given project.
  * <p>
  * Default is to return <code>false</code>.
@@ -85,7 +131,6 @@ public boolean isActive(IJavaProject project) {
  * </p>
  * @param context the reconcile context to act on
   */
-// TODO specify whether clients can call this method
 public void reconcile(ReconcileContext context) {
 	// do nothing by default
 }

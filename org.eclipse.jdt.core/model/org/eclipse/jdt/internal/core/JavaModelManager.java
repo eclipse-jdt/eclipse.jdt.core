@@ -216,7 +216,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.registeredParticipants != null) {
 				return this.registeredParticipants;
 			}
-			ArrayList participants = new ArrayList();
+			final ArrayList participants = new ArrayList();
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
 			if (extension == null)
 				return this.registeredParticipants = NO_PARTICIPANTS;
@@ -226,29 +226,47 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				for(int j = 0; j < extensions.length; j++) {
 					IConfigurationElement [] configElements = extensions[j].getConfigurationElements();
 					// for all config elements named "compilationParticipant"
-					for(int k = 0; k < configElements.length; k++){
-						String elementName = configElements[k].getName();
+					for(int k = 0; k < configElements.length; k++) {
+						final IConfigurationElement configElement = configElements[k];
+						String elementName =configElement.getName();
 						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
 							continue;
 						}
-						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ 
-							if (execExt instanceof CompilationParticipant){
-								participants.add(execExt);
+						Platform.run(new ISafeRunnable() {
+							public void handleException(Throwable exception) {
+								Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
 							}
-						} catch(CoreException e) {
-							// executable extension could not be created: ignore this participant
-							Util.log(e, "Unexpected exception trying to instanciate compilation participant"); //$NON-NLS-1$
-						}
+							public void run() throws Exception {
+								Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
+								if (execExt instanceof CompilationParticipant) {
+									participants.add(execExt);
+								}
+							}
+						});
 					}
 				}
 			}
 			int size = participants.size();
 			if (size == 0)
 				return this.registeredParticipants = NO_PARTICIPANTS;
-			this.registeredParticipants = new CompilationParticipant[size];
-			participants.toArray(this.registeredParticipants);
-			return this.registeredParticipants;
+			CompilationParticipant[] result = new CompilationParticipant[size];
+			participants.toArray(result);
+			for (int i = 0; i < size; i++) {
+				final CompilationParticipant participant = result[i];
+				Platform.run(new ISafeRunnable() {
+					public void handleException(Throwable exception) {
+						Util.log(exception, "Exception occurred while configuring compilation participant"); //$NON-NLS-1$
+					}
+					public void run() throws Exception {
+						participant.configure(participants);
+					}
+				});
+			}
+			size = participants.size();
+			if (size != result.length)
+				result = new CompilationParticipant[size];
+			participants.toArray(result);
+			return this.registeredParticipants = result;
 		}
 	}
 			
