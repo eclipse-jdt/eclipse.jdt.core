@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.performance;
 import java.lang.reflect.*;
 import org.eclipse.jdt.core.tests.junit.extension.PerformanceTestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.model.NameLookupTests2;
 import junit.framework.Test;
 
 /**
@@ -54,23 +53,20 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 	/**
 	 * Build test suite.
 	 * All classes suite method are called and bundle to main test suite.
-	 * 
-	 * @see FullSourceWorkspaceSearchTests
-	 * @see FullSourceWorkspaceBuildTests
-	 * @see FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
-	 * @see FullSourceWorkspaceASTTests
-	 * @see FullSourceWorkspaceTypeHierarchyTests
-	 * @see NameLookupTests2
 	 */
 	public static Test suite() {
 		PerformanceTestSuite perfSuite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		Class[] testSuites = getAllTestClasses();
 
-		// Reset subsets of tests (after having test classes loaded
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NUMBERS = null;
-		TestCase.TESTS_RANGE = null;
+		// Cannot run performance tests if one of subset static fields is not null
+		// (this may modify tests run order and make stored results invalid)
+		if (TestCase.TESTS_NAMES != null ||
+			TestCase.TESTS_PREFIX != null ||
+			TestCase.TESTS_NUMBERS != null ||
+			TestCase.TESTS_RANGE != null) {
+			System.err.println("Cannot run performance tests as there are defined subsets which may alter tests order!");
+			return perfSuite;
+		}
 
 		// Get test suites subset
 		int length = testSuites.length;
