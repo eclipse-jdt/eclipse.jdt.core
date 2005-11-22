@@ -101,6 +101,10 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
+		try {
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {
+		}
 		this.deleteProject("AttachedJavadocProject"); //$NON-NLS-1$
 		this.root = null;
 		this.project = null;
