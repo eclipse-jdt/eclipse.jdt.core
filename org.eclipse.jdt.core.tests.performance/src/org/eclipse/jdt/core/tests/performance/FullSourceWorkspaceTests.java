@@ -75,7 +75,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				System.out.println("INFO: Measures parameter ("+count+") is ignored as it is an invalid value! (should be between 0 and 20)");
 				count = 10;
 			} else if (count != 10) {
-				System.err.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
+				System.out.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
 			}
 		}
 		catch (NumberFormatException nfe) {
@@ -434,11 +434,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Increment test position
 		TEST_POSITION++;
 		
-		// Print test name while debugging
-		if (PRINT) {
-			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("Running "+getName()+"...");
-		}
+		// Print test name
+		System.out.println("--------------------------------------------------------------------------------");
+		System.out.println("Running "+this.scenarioShortName+'.'+getName()+"...");
 
 		// Time measuring
 		this.testDuration = 0;
