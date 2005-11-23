@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.BufferManager;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 
 /**
@@ -65,6 +67,37 @@ public abstract class WorkingCopyOwner {
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
 
 		return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
+	}
+	
+	/**
+	 * Returns a new working copy with the given name using this working copy owner to 
+	 * create its buffer. This working copy doesn't belong to any package, thus its 
+	 * parent is always <code>null</code> and it cannot be resolved in any way.
+	 * Problems are never reported and a DOM AST created using this working copy
+	 * will not have bindings resolved.
+	 * <p>
+	 * When the working copy instance is created, an ADDED IJavaElementDelta is 
+	 * reported on this working copy.
+	 * </p><p>
+	 * Once done with the working copy, users of this method must discard it using 
+	 * {@link ICompilationUnit#discardWorkingCopy()}.
+	 * </p><p>
+	 * Note that when such working copy is committed, only its buffer is saved (
+	 * see {@link IBuffer#save(IProgressMonitor, boolean)}) but no resource is created.
+	 * </p><p>
+	 * This method is not intended to be overriden by clients.
+	 * </p>
+	 * @param monitor a progress monitor used to report progress while opening this 
+	 *   working copy or <code>null</code> if no progress should be reported 
+	 * @throws JavaModelException if the contents of this working copy can
+	 *   not be determined. 
+	 * @return a new working copy
+	 * @since 3.2
+	 */
+	public final ICompilationUnit newWorkingCopy(String name, IProgressMonitor monitor) throws JavaModelException {
+		CompilationUnit result = new CompilationUnit(null/*no parent*/, name, this);
+		result.becomeWorkingCopy(null/*no problems*/, monitor);
+		return result;
 	}
 
 }

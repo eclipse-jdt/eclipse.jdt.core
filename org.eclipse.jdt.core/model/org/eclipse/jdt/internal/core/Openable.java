@@ -469,12 +469,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  * Find enclosing package fragment root if any
  */
 public PackageFragmentRoot getPackageFragmentRoot() {
-	IJavaElement current = this;
-	do {
-		if (current instanceof PackageFragmentRoot) return (PackageFragmentRoot)current;
-		current = current.getParent();
-	} while(current != null);
-	return null;
+	return (PackageFragmentRoot) getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 }
 
 }

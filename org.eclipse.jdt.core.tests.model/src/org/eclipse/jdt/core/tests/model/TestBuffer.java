@@ -23,6 +23,7 @@ public class TestBuffer implements IBuffer {
 		IOpenable owner;
 		ArrayList changeListeners;
 		char[] contents = null;
+		boolean hasUnsavedChanges = false;
 		public TestBuffer(IOpenable owner) {
 			this.owner = owner;
 		}
@@ -42,12 +43,14 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#append(char[])
 		 */
 		public void append(char[] text) {
+			this.hasUnsavedChanges = true;
 		}
 
 		/*
 		 * @see IBuffer#append(String)
 		 */
 		public void append(String text) {
+			this.hasUnsavedChanges = true;
 		}
 
 		/*
@@ -119,7 +122,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#hasUnsavedChanges()
 		 */
 		public boolean hasUnsavedChanges() {
-			return false;
+			return this.hasUnsavedChanges;
 		}
 
 		/*
@@ -152,32 +155,37 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#replace(int, int, char[])
 		 */
 		public void replace(int position, int length, char[] text) {
+			this.hasUnsavedChanges = true;
 		}
 
 		/*
 		 * @see IBuffer#replace(int, int, String)
 		 */
 		public void replace(int position, int length, String text) {
+			this.hasUnsavedChanges = true;
 		}
 
 		/*
 		 * @see IBuffer#save(IProgressMonitor, boolean)
 		 */
 		public void save(IProgressMonitor progress, boolean force) {
+			this.hasUnsavedChanges = false;
 		}
 
 		/*
 		 * @see IBuffer#setContents(char[])
 		 */
 		public void setContents(char[] characters) {
-			contents = characters;
+			this.contents = characters;
+			this.hasUnsavedChanges = true;
 		}
 
 		/*
 		 * @see IBuffer#setContents(String)
 		 */
 		public void setContents(String characters) {
-			contents = characters.toCharArray();
+			this.contents = characters.toCharArray();
+			this.hasUnsavedChanges = true;
 		}
 
 }

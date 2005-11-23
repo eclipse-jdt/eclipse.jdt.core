@@ -458,11 +458,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns the Java Model this operation is operating in.
 	 */
 	public IJavaModel getJavaModel() {
-		if (elementsToProcess == null || elementsToProcess.length == 0) {
-			return getParentElement().getJavaModel();
-		} else {
-			return elementsToProcess[0].getJavaModel();
-		}
+		return JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 	protected IPath[] getNestedFolders(IPackageFragmentRoot root) throws JavaModelException {
 		IPath rootPath = root.getPath();

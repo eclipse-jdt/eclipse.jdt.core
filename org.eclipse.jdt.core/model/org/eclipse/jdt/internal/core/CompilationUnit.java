@@ -46,7 +46,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
  * Constructs a handle to a compilation unit with the given name in the
  * specified package for the specified owner
  */
-protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
+public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
 	super(parent);
 	this.name = name;
 	this.owner = owner;
@@ -123,9 +123,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		problems = null;
 	}
 	
-	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive() && JavaProject.hasJavaNature(project.getProject());
+	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive() && project != null && JavaProject.hasJavaNature(project.getProject());
 	IProblemFactory problemFactory = new DefaultProblemFactory();
-	Map options = project.getOptions(true);
+	Map options = project == null ? JavaCore.getOptions() : project.getOptions(true);
 	if (!computeProblems) {
 		// disable task tags checking to speed up parsing
 		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
@@ -612,8 +612,8 @@ public char[] getContents() {
  * @see IJavaElement#getCorrespondingResource()
  */
 public IResource getCorrespondingResource() throws JavaModelException {
-	IPackageFragmentRoot root= (IPackageFragmentRoot)getParent().getParent();
-	if (root.isArchive()) {
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root == null || root.isArchive()) {
 		return null;
 	} else {
 		return getUnderlyingResource();
@@ -762,6 +762,7 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
  */
 public char[][] getPackageName() {
 	PackageFragment packageFragment = (PackageFragment) getParent();
+	if (packageFragment == null) return CharOperation.NO_CHAR_CHAR;
 	return Util.toCharArrays(packageFragment.names);
 }
 
@@ -769,11 +770,12 @@ public char[][] getPackageName() {
  * @see IJavaElement#getPath()
  */
 public IPath getPath() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root == null) return new Path(getElementName()); // working copy not in workspace
 	if (root.isArchive()) {
 		return root.getPath();
 	} else {
-		return this.getParent().getPath().append(this.getElementName());
+		return getParent().getPath().append(getElementName());
 	}
 }
 /*
@@ -800,11 +802,12 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
  * @see IJavaElement#getResource()
  */
 public IResource getResource() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root == null) return null; // working copy not in workspace
 	if (root.isArchive()) {
 		return root.getResource();
 	} else {
-		return ((IContainer)this.getParent().getResource()).getFile(new Path(this.getElementName()));
+		return ((IContainer) getParent().getResource()).getFile(new Path(getElementName()));
 	}
 }
 /**
@@ -908,7 +911,9 @@ public boolean hasResourceChanged() {
 	// timestamp
 	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 	if (info == null) return false;
-	return ((CompilationUnitElementInfo)info).timestamp != getResource().getModificationStamp();
+	IResource resource = getResource();
+	if (resource == null) return false;
+	return ((CompilationUnitElementInfo)info).timestamp != resource.getModificationStamp();
 }
 /**
  * @see IWorkingCopy#isBasedOn(IResource)
@@ -936,6 +941,7 @@ protected boolean isSourceElement() {
 }
 protected IStatus validateCompilationUnit(IResource resource) {
 	IPackageFragmentRoot root = getPackageFragmentRoot();
+	// root never null as validation is not done for working copies
 	try {
 		if (root.getKind() != IPackageFragmentRoot.K_SOURCE) 
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, root);

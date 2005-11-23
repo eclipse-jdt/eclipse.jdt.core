@@ -341,6 +341,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(message, expected, actual);
 	}
+	protected void assertExceptionEquals(String message, String expected, JavaModelException exception) {
+		String actual = exception == null ? "<null>" : exception.getStatus().getMessage();
+		if (!expected.equals(actual)) {
+			if (this.displayName) System.out.println(getName()+" actual result is:");
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
+		}
+		assertEquals(message, expected, actual);
+	}
 	protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 		String actual = hierarchy.toString();
 		if (!expected.equals(actual)) {
