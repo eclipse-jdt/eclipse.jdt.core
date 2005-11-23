@@ -4456,4 +4456,30 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH"
 		);
 	}
+
+	/**
+	 * @test Bug 114539: [search] Internal error when refactoring code with errors
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
+	 */
+	public void testBug114539() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
+			"package b114539;\n" + 
+			"public class Foo {\n" + 
+			"	int bar=Bar.FOO;\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b114539/Bar.java",
+			"package b114539;\n" + 
+			"public class Bar {\n" + 
+			"	private static final int FOO=0;\n" + 
+			"}\n"
+		);
+		IField field = this.workingCopies[1].getType("Bar").getField("FOO");
+		search(field, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b114539/Foo.java b114539.Foo.bar [FOO] POTENTIAL_MATCH"
+		);
+	}
 }
