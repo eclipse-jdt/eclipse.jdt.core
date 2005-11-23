@@ -100,7 +100,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			String completeBehind,
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
-		this.complete(
+		complete(false, // do NOT put result in fingerprint
 				testName,
 				projectName,
 				packageName,
@@ -112,6 +112,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				iterationCount);
 	}
 	private void complete(
+			boolean fingerprint,
 			String testName,
 			String projectName,
 			String packageName,
@@ -122,7 +123,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
 		
-		tagAsSummary(testName, false); // do NOT put in fingerprint
+		tagAsSummary(testName, fingerprint);
 		
 		waitUntilIndexesReady();
 		
@@ -169,7 +170,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	}
 	
 	public void testCompleteMethodDeclaration() throws JavaModelException {
-		this.complete(
+		complete(
 				"Completion>Method>Declaration",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -180,18 +181,19 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteMemberAccess() throws JavaModelException {
-		this.complete(
+		complete(true, // put in fingerprint
 				"Completion>Member>Access",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
 				"SourceType.java",
 				"this.",
 				"this.",
+				null,
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
 	public void testCompleteTypeReference() throws JavaModelException {
-		this.complete(
+		complete(
 				"Completion>Type>Reference",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -202,7 +204,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteEmptyName() throws JavaModelException {
-		this.complete(
+		complete(
 				"Completion>Name>Empty",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -213,18 +215,19 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteName() throws JavaModelException {
-		this.complete(
+		complete(true, // put result in fingerprint
 				"Completion>Name",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
 				"SourceType.java",
 				"params.add",
 				"p",
+				null,
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
 	public void testCompleteEmptyNameWithoutTypes() throws JavaModelException {
-		this.complete(
+		complete(false, // do NOT put result in fingerprint
 				"Completion>Name>Empty>No Type",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -236,7 +239,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteNameWithoutTypes() throws JavaModelException {
-		this.complete(
+		complete(false, // do NOT put result in fingerprint
 				"Completion>Name>No Type",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -248,7 +251,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteEmptyNameWithoutMethods() throws JavaModelException {
-		this.complete(
+		complete(false, // do NOT put result in fingerprint
 				"Completion>Name>Empty>No Method",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -260,7 +263,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				ITERATION_COUNT);
 	}
 	public void testCompleteNameWithoutMethods() throws JavaModelException {
-		this.complete(
+		complete(false, // do NOT put result in fingerprint
 				"Completion>Name>No Method",
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",

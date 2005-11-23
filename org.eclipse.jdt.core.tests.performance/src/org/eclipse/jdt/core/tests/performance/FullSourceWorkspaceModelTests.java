@@ -43,10 +43,10 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	static int TESTS_COUNT = 0;
 	private final static int WARMUP_COUNT = 1; // 30;
 	private final static int ITERATIONS_COUNT = 30;
-	private final static int LINUX_FOLDERS_COUNT = 200;
-	private final static int FOLDERS_COUNT = 100;
-	private final static int LINUX_PACKAGES_COUNT = 200;
-	private final static int PACKAGES_COUNT = 20;
+//	private final static int LINUX_FOLDERS_COUNT = 200;
+	private final static int FOLDERS_COUNT = 200;
+//	private final static int LINUX_PACKAGES_COUNT = 200;
+	private final static int PACKAGES_COUNT = 200;
 	static int TESTS_LENGTH;
 
 	// Log file streams
@@ -94,11 +94,11 @@ protected void setUp() throws Exception {
 	this.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 	if (BIG_PROJECT == null) {
 		long start = System.currentTimeMillis();
-		if (DEBUG) {
-			System.out.print("Big project does not exist => create it...");
+		if (PRINT) {
+			System.out.print("	Big project does not exist => create it...");
 		}
 		setUpBigProject();
-		if (DEBUG) {
+		if (PRINT) {
 			System.out.println("done ("+(System.currentTimeMillis()-start)+" ms)");
 		}
 	} else if (BIG_PROJECT_TYPE_PATH == null) {
@@ -109,26 +109,26 @@ private void setUpBigProject() throws CoreException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
+//		boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
 		// setup projects with several source folders and several packages per source folder
-		final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
-		final String[] sourceFolders = new String[rootLength];
-		for (int i = 0; i < rootLength; i++) {
+//		final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
+		final String[] sourceFolders = new String[/*rootLength*/FOLDERS_COUNT];
+		for (int i = 0; i < /*rootLength*/FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
 		}
 		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
-		int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
-		for (int i = 0; i < rootLength; i++) {
-			for (int j = 0; j < packLength; j++) {
+//		int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
+		for (int i = 0; i < /*rootLength*/FOLDERS_COUNT; i++) {
+			for (int j = 0; j < /*packLength*/PACKAGES_COUNT; j++) {
 				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
 			}
 		}
 		ENV.addProject(BIG_PROJECT_NAME);
 		BIG_PROJECT = (JavaProject) createJavaProject("BigProject", sourceFolders, "bin", "1.4");
 		BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
-		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (rootLength-1) + "/org/eclipse/jdt/core/tests" + (rootLength-1) + "/performance" + (packLength-1) + "/TestBigProject.java");
+		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (/*rootLength*/FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (/*rootLength*/FOLDERS_COUNT-1) + "/performance" + (/*packLength*/PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-		String content = "package org.eclipse.jdt.core.tests" + (rootLength-1) + ".performance" + (packLength-1) + ";\n" +
+		String content = "package org.eclipse.jdt.core.tests" + (/*rootLength*/FOLDERS_COUNT-1) + ".performance" + (/*packLength*/PACKAGES_COUNT-1) + ";\n" +
 			"public class TestBigProject {\n" +
 			"	class Level1 {\n" +
 			"		class Level2 {\n" +
@@ -160,10 +160,10 @@ private void setUpBigProject() throws CoreException {
 }
 private void setUpBigProjectInfo() {
 	// Set up type path
-	boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
-	final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
-	int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
-	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (rootLength-1) + "/org/eclipse/jdt/core/tests" + (rootLength-1) + "/performance" + (packLength-1) + "/TestBigProject.java");
+//	boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
+//	final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
+//	int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
+	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (/*rootLength*/FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (/*rootLength*/FOLDERS_COUNT-1) + "/performance" + (/*packLength*/PACKAGES_COUNT-1) + "/TestBigProject.java");
 
 	// Set up working copy
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -410,7 +410,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
-			if (LOG_VERSION.compareTo("v_622") > 0) {
+			if (LOG_VERSION.compareTo("v_623") > 0) {
 				assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 			}
 		}
