@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -212,22 +210,19 @@ public String[] getParameterNames() throws JavaModelException {
 							javadoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
 							"&nbsp;".toCharArray(), //$NON-NLS-1$
 							new char[] {' '});
-					final StringTokenizer tokenizer = new StringTokenizer(String.valueOf(paramsSource), ", \n\r"); //$NON-NLS-1$
-					int index = 0;
-					final ArrayList paramNames = new ArrayList(paramCount);
-					while (tokenizer.hasMoreTokens()) {
-						final String token = tokenizer.nextToken();
-						if ((index & 1) != 0) {
-							// if odd then this is a parameter name
-							paramNames.add(token);
+					final char[][] params = CharOperation.splitOn(',', paramsSource);
+					final int paramsLength = params.length;
+					this.parameterNames = new String[paramsLength];
+					for (int i = 0; i < paramsLength; i++) {
+						final char[] param = params[i];
+						int indexOfSpace = CharOperation.lastIndexOf(' ', param);
+						if (indexOfSpace != -1) {
+							this.parameterNames[i] = String.valueOf(param, indexOfSpace + 1, param.length - indexOfSpace -1);
+						} else {
+							this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
 						}
-						index++;
 					}
-					if (!paramNames.isEmpty()) {
-						this.parameterNames = new String[paramNames.size()];
-						paramNames.toArray(this.parameterNames);
-						return this.parameterNames;
-					}
+					return this.parameterNames;
 				}
 			}
 		}
