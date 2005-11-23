@@ -4962,8 +4962,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				} else if (!wasACase) {
 					this.scribe.printNewLine();
 				}
+				this.scribe.printComment();
 			}
-		}		
+		}
 		
 		if ((wasACase || wasAStatement) && this.preferences.indent_switchstatements_compare_to_cases) {
 			this.scribe.unIndent();

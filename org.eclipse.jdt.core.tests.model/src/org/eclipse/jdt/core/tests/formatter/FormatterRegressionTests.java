@@ -53,7 +53,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 608 } ;
+//		TESTS_NUMBERS = new int[] { 609 } ;
 	}
 	public static Test suite() {
 		return buildTestSuite(FormatterRegressionTests.class);
@@ -8570,5 +8570,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test608", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=116858
+	public void test609() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.indent_switchstatements_compare_to_cases = true;
+		preferences.indent_switchstatements_compare_to_switch = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test609", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
