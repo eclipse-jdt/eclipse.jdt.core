@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 620 };
+//		TESTS_NUMBERS =  new int[] { 623 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6956,6 +6956,59 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 					} catch(IllegalArgumentException e) {
 						assertTrue("Should not happen", false);
 					}
+					return false;
+				}
+			});
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=116573
+	 */
+	public void _test0623() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"class X {\n" + 
+				"        X(boolean x, String y, String z) {}\n" + 
+				"        X(int x, String y) {}\n" + 
+				"        X(String x) {\n" + 
+				"                this(first, second);\n" + 
+				"        }\n" + 
+				"        void test() {\n" + 
+				"                new X(first, second);\n" + 
+				"        }\n" + 
+				"        class Z extends X {\n" + 
+				"                public Z() {\n" + 
+				"                        super(first, second);\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedOutput =
+				"first cannot be resolved\n" + 
+				"second cannot be resolved\n" + 
+				"first cannot be resolved\n" + 
+				"second cannot be resolved\n" + 
+				"first cannot be resolved\n" + 
+				"second cannot be resolved";
+			assertProblemsSize(unit, 6, expectedOutput);
+			unit.accept(new ASTVisitor() {
+				public boolean visit(ConstructorInvocation constructorInvocation) {
+					assertNotNull("No binding", constructorInvocation.resolveConstructorBinding());
+					return false;
+				}
+				public boolean visit(ClassInstanceCreation classInstanceCreation) {
+					assertNotNull("No binding", classInstanceCreation.resolveConstructorBinding());
 					return false;
 				}
 			});
