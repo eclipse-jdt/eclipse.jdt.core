@@ -1240,29 +1240,29 @@ public abstract class Constant implements TypeIds, OperatorIds {
 			break;
 			case T_JavaLangString :
 				switch (rightId){
-					case T_char :	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_float:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_double:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_byte:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_short:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_char :	return Constant.fromValue(left.stringValue() + String.valueOf(right.charValue()));
+					case T_float:	return Constant.fromValue(left.stringValue() + String.valueOf(right.floatValue()));
+					case T_double:	return Constant.fromValue(left.stringValue() + String.valueOf(right.doubleValue()));
+					case T_byte:	return Constant.fromValue(left.stringValue() + String.valueOf(right.byteValue()));
+					case T_short:	return Constant.fromValue(left.stringValue() + String.valueOf(right.shortValue()));
+					case T_int:		return Constant.fromValue(left.stringValue() + String.valueOf(right.intValue()));
+					case T_long:	return Constant.fromValue(left.stringValue() + String.valueOf(right.longValue()));
 					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-					case T_boolean:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_boolean:	return Constant.fromValue(left.stringValue() + right.booleanValue());
 				}
 			break;	
-			case T_null :
-				switch (rightId){
-					case T_char :	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_float:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_double:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_byte:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_short:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-				}
-				
+//			case T_null :
+//				switch (rightId){
+//					case T_char :	return Constant.fromValue(left.stringValue() + String.valueOf(right.charValue()));
+//					case T_float:	return Constant.fromValue(left.stringValue() + String.valueOf(right.floatValue()));
+//					case T_double:	return Constant.fromValue(left.stringValue() + String.valueOf(right.doubleValue()));
+//					case T_byte:	return Constant.fromValue(left.stringValue() + String.valueOf(right.byteValue()));
+//					case T_short:	return Constant.fromValue(left.stringValue() + String.valueOf(right.shortValue()));
+//					case T_int:		return Constant.fromValue(left.stringValue() + String.valueOf(right.intValue()));
+//					case T_long:	return Constant.fromValue(left.stringValue() + String.valueOf(right.longValue()));
+//					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+//					case T_boolean:	return Constant.fromValue(left.stringValue() + right.booleanValue());
+//				}				
 			}
 		
 		return NotAConstant;

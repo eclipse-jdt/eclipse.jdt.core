@@ -1374,6 +1374,33 @@ public void test016() {
 		assertTrue(false);
 	}		
 }
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=117495
+public void test017() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"		int x = 2;\n" + 
+			"       System.out.println(\"n: \"+(x > 1  ? 2 : 1.0));\n" +
+			"    }\n" +
+			"}",
+		},
+		"n: 2.0");
+}
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=117495
+public void test018() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"		System.out.println(\"n: \"+(true ? 2 : 1.0));\n" +
+			"    }\n" +
+			"}",
+		},
+		"n: 2.0");
+}
 public static Class testClass() {
 	return ConstantTest.class;
 }
