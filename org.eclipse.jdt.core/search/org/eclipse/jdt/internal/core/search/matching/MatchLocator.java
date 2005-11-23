@@ -1471,7 +1471,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		reportMatching(unit, mustResolve);
 	} catch (AbortCompilation e) {
 		// could not resolve: report inaccurate matches
-		reportMatching(unit, true); // was partially resolved
+		reportMatching(unit, false); // do not resolve when cu has errors
 		if (!(e instanceof AbortCompilationUnit)) {
 			// problem with class path
 			throw e;
