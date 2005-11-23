@@ -188,7 +188,15 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			final CompilationParticipant participant = participants[i];
 			Platform.run(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
-					Util.log(exception, "Exception occurred in pre-reconcile participant"); //$NON-NLS-1$
+					if (exception instanceof Error) {
+						throw (Error) exception; // errors are not supposed to be caught
+					} else if (exception instanceof OperationCanceledException)
+						throw (OperationCanceledException) exception;
+					else if (exception instanceof UnsupportedOperationException) {
+						// might want to disable participant as it tried to modify the buffer of the working copy being reconciled
+						Util.log(exception, "Reconcile participant attempted to modify the buffer of the working copy being reconciled"); //$NON-NLS-1$
+					} else
+						Util.log(exception, "Exception occurred in reconcile participant"); //$NON-NLS-1$
 				}
 				public void run() throws Exception {
 					participant.reconcile(context);

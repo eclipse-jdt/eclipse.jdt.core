@@ -6,9 +6,7 @@
          <meta.schema plugin="org.eclipse.jdt.core" id="compilationParticipant" name="Compilation Participants"/>
       </appInfo>
       <documentation>
-         This extension point allows clients to participate in the compilation process
-         by receiving notifications at various stages of build and reconcile, via a
-         org.eclipse.jdt.core.compiler.CompilationParticipant.
+         This extension point allows clients to participate in the compilation process by receiving notifications at various stages of build and reconcile, via a org.eclipse.jdt.core.compiler.CompilationParticipant.
       </documentation>
    </annotation>
 
@@ -45,12 +43,57 @@
    </element>
 
    <element name="compilationParticipant">
+      <annotation>
+         <documentation>
+            definition of a compilation participant. This definition allows to order participants. Participants are run by group. The group of participants that modify the environment is run first, then te group of participants that create problems is run, finally the group of other participants is run. Inside each group, participants are ordered using their &apos;requires&apos; attributes. If a &apos;requires&apos; attribute point to a participant that doesn&apos;t belong to the group, it is ignored.
+         </documentation>
+      </annotation>
       <complexType>
+         <sequence>
+            <element ref="requires" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  the class that implements this compilation participant.
-         This class must implement a public subclass of &lt;code&gt;org.eclipse.jdt.core.compiler.CompilationParticipant&lt;/code&gt; with a public 0-argument constructor.
+                  the class that implements this compilation participant. This class must implement a public subclass of &lt;code&gt;org.eclipse.jdt.core.compiler.CompilationParticipant&lt;/code&gt; with a public 0-argument constructor.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a unique identifier for this participant
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="modifiesEnvironment" type="boolean">
+            <annotation>
+               <documentation>
+                  optionally specify whether this compilation participant modifies the environment, thus affecting binding resolution. If not specified, false is assumed.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="createsProblems" type="boolean">
+            <annotation>
+               <documentation>
+                  optionally specifies whether this compilation participant creates problems. If not specified, false is assumed.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="requires">
+      <annotation>
+         <documentation>
+            a participant that is required to run this compilation participant
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
                </documentation>
             </annotation>
          </attribute>

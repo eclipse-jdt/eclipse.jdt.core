@@ -155,16 +155,14 @@ public ICompilationUnit getWorkingCopy() {
 
 /**
  * Resets the AST carried by this context.
- * A compilation participant that modifies the buffer of the working copy,
- * or that modifies another entity that would result in different bindings for the AST
- * is expected to reset the AST on this context, so that other participants
- * don't get a stale AST.
+ * A compilation participant that modifies the environment that would result in different 
+ * bindings for the AST is expected to reset the AST on this context, so that other 
+ * participants don't get a stale AST.
  * <p>
  * Note that resetting the AST will not restart the reconcile process. Only further 
  * participants will see the new AST. Thus participants running before the one that
- * resets the AST will have a stale view of the AST and its problems. See 
- * {@link CompilationParticipant#configure(java.util.List)} to order the
- * participants.
+ * resets the AST will have a stale view of the AST and its problems. Use 
+ * the compilation participant extension point to order the participants.
  * </p>
  */
 public void resetAST() {

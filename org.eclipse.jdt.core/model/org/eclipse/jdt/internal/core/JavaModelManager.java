@@ -216,15 +216,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.registeredParticipants != null) {
 				return this.registeredParticipants;
 			}
-			final ArrayList participants = new ArrayList();
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
 			if (extension == null)
 				return this.registeredParticipants = NO_PARTICIPANTS;
+			final HashMap modifyingEnv = new HashMap();
+			final HashMap creatingProblems = new HashMap();
+			final HashMap others = new HashMap();
 			IExtension[] extensions = extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++) {
 				// for all extensions of this point...
 				for(int j = 0; j < extensions.length; j++) {
-					IConfigurationElement [] configElements = extensions[j].getConfigurationElements();
+					IConfigurationElement[] configElements = extensions[j].getConfigurationElements();
 					// for all config elements named "compilationParticipant"
 					for(int k = 0; k < configElements.length; k++) {
 						final IConfigurationElement configElement = configElements[k];
@@ -239,34 +241,49 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							public void run() throws Exception {
 								Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
 								if (execExt instanceof CompilationParticipant) {
-									participants.add(execExt);
+									if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
+										modifyingEnv.put(configElement, execExt);
+									else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
+										creatingProblems.put(configElement, execExt);
+									else
+										others.put(configElement, execExt);
 								}
 							}
 						});
 					}
 				}
 			}
-			int size = participants.size();
+			int size = modifyingEnv.size() + creatingProblems.size() + others.size();
 			if (size == 0)
 				return this.registeredParticipants = NO_PARTICIPANTS;
 			CompilationParticipant[] result = new CompilationParticipant[size];
-			participants.toArray(result);
-			for (int i = 0; i < size; i++) {
-				final CompilationParticipant participant = result[i];
-				Platform.run(new ISafeRunnable() {
-					public void handleException(Throwable exception) {
-						Util.log(exception, "Exception occurred while configuring compilation participant"); //$NON-NLS-1$
-					}
-					public void run() throws Exception {
-						participant.configure(participants);
-					}
-				});
-			}
-			size = participants.size();
-			if (size != result.length)
-				result = new CompilationParticipant[size];
-			participants.toArray(result);
+			int index = 0;
+			index = sortParticipants(modifyingEnv, result, index);
+			index = sortParticipants(creatingProblems, result, index);
+			index = sortParticipants(others, result, index);
 			return this.registeredParticipants = result;
+		}
+		
+		private int sortParticipants(HashMap group, CompilationParticipant[] participants, int index) {
+			int size = group.size();
+			if (size == 0) return index;
+			Object[] elements = group.keySet().toArray();
+			Util.sort(elements, new Util.Comparer() {
+				public int compare(Object a, Object b) {
+					String id = ((IConfigurationElement) a).getAttribute("id"); //$NON-NLS-1$
+					if (id == null) return -1;
+					IConfigurationElement[] requiredElements = ((IConfigurationElement) b).getChildren("requires"); //$NON-NLS-1$
+					for (int i = 0, length = requiredElements.length; i < length; i++) {
+						IConfigurationElement required = requiredElements[i];
+						if (id.equals(required.getAttribute("id"))) //$NON-NLS-1$
+							return 1;
+					}
+					return -1;
+				}
+			});
+			for (int i = 0; i < size; i++)
+				participants[index+i] = (CompilationParticipant) group.get(elements[i]);
+			return index + size;
 		}
 	}
 			
