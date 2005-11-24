@@ -1794,11 +1794,21 @@ public abstract class Scope
 								if (!isExactMatch) {
 									MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 									if (compatibleMethod == null) {
-										if (foundMethod == null || foundMethod.problemId() == NotVisible)
+										// likely not a match in the first place, 2 cases are possible
+										// first is when methodBinding was found thru inheritance starting from an nested type - in this case do not want to search outer scope
+										// second is when normal search turned up only this selector match so NotFound is expected
+										// except in 1.5 when static import methods can match correctly
+										if (foundMethod == null || foundMethod.problemId() == NotVisible) {
+											if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 && !receiverType.isNestedType()) {
+												foundFuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
+												break; // need to search for static import method matches
+											}
 											// inherited mismatch is reported directly, not looking at enclosing matches
 											return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
-										// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-										fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+										} else {
+											// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
+											fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+										}
 									} else if (!compatibleMethod.isValidBinding()) {
 										fuzzyProblem = compatibleMethod;
 									} else {
@@ -1887,13 +1897,6 @@ public abstract class Scope
 			scope = scope.parent;
 		}
 
-		if (foundFuzzyProblem != null)
-			return foundFuzzyProblem;
-		if (foundInsideProblem != null)
-			return foundInsideProblem;
-		if (foundMethod != null)
-			return foundMethod;
-
 		if (insideStaticContext && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			// at this point the scope is a compilation unit scope & need to check for imported static methods
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
@@ -1978,6 +1981,14 @@ public abstract class Scope
 				return foundMethod;
 			}
 		}
+
+		if (foundFuzzyProblem != null)
+			return foundFuzzyProblem;
+		if (foundInsideProblem != null)
+			return foundInsideProblem;
+		if (foundMethod != null)
+			return foundMethod;
+
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
 
