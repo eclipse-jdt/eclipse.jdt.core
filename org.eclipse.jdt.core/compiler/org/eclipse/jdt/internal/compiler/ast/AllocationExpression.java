@@ -299,7 +299,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 					TypeBinding[] pseudoArgs = new TypeBinding[length];
 					for (int i = length; --i >= 0;)
 						pseudoArgs[i] = argumentTypes[i] == null ? this.resolvedType : argumentTypes[i]; // replace args with errors with receiver
-					this.binding = scope.getConstructor((ReferenceBinding) this.resolvedType, pseudoArgs, this);
+					this.binding = scope.findMethod((ReferenceBinding) this.resolvedType, TypeConstants.INIT, pseudoArgs, this);
 				}
 				return this.resolvedType;
 			}

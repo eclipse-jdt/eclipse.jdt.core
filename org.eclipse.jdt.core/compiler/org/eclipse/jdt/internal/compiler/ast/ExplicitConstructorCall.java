@@ -318,6 +318,11 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					}
 				}
 				if (argHasError) {
+					// record a best guess, for clients who need hint about possible contructor match
+					TypeBinding[] pseudoArgs = new TypeBinding[length];
+					for (int i = length; --i >= 0;)
+						pseudoArgs[i] = argumentTypes[i] == null ? receiverType : argumentTypes[i]; // replace args with errors with receiver
+					this.binding = scope.findMethod(receiverType, TypeConstants.INIT, pseudoArgs, this);
 					return;
 				}
 			} else if (receiverType.erasure().id == T_JavaLangEnum) {
