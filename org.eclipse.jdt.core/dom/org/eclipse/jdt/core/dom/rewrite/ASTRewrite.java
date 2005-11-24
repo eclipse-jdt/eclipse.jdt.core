@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 
 /**
- * Infrastucture for modifying code by describing changes to AST nodes.
+ * Infrastructure for modifying code by describing changes to AST nodes.
  * The AST rewriter collects descriptions of modifications to nodes and
  * translates these descriptions into text edits that can then be applied to
  * the original source. The key thing is that this is all done without actually
@@ -320,7 +320,7 @@ public class ASTRewrite {
 		if (node == null || property == null) {
 			throw new IllegalArgumentException();
 		}
-		validateIsInsideAST(node);
+		validateIsCorrectAST(node);
 		validatePropertyType(property, value);
 
 		NodeRewriteEvent nodeEvent= this.eventStore.getNodeEvent(node, property, true);
@@ -375,11 +375,13 @@ public class ASTRewrite {
 		return new TrackedNodePosition(group, node);
 	}	
 			
-	private void validateIsInsideAST(ASTNode node) {
+	private void validateIsExistingNode(ASTNode node) {
 		if (node.getStartPosition() == -1) {
 			throw new IllegalArgumentException("Node is not an existing node"); //$NON-NLS-1$
 		}
+	}
 	
+	private void validateIsCorrectAST(ASTNode node) {
 		if (node.getAST() != getAST()) {
 			throw new IllegalArgumentException("Node is not inside the AST"); //$NON-NLS-1$
 		}
@@ -469,7 +471,8 @@ public class ASTRewrite {
 		if (node == null) {
 			throw new IllegalArgumentException();
 		}
-		validateIsInsideAST(node);
+		validateIsExistingNode(node);
+		validateIsCorrectAST(node);
 		CopySourceInfo info= getRewriteEventStore().markAsCopySource(node.getParent(), node.getLocationInParent(), node, isMove);
 	
 		ASTNode placeholder= getNodeStore().newPlaceholderNode(node.getNodeType());
