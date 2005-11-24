@@ -75,7 +75,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				System.out.println("INFO: Measures parameter ("+count+") is ignored as it is an invalid value! (should be between 0 and 20)");
 				count = 10;
 			} else if (count != 10) {
-				System.err.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
+				System.out.println("WARNING: Measures count has been changed while running this test = "+count+" instead of 10 normally!");
 			}
 		}
 		catch (NumberFormatException nfe) {
@@ -434,11 +434,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Increment test position
 		TEST_POSITION++;
 		
-		// Print test name while debugging
-		if (PRINT) {
-			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("Running "+getName()+"...");
-		}
+		// Print test name
+		System.out.println("--------------------------------------------------------------------------------");
+		System.out.println("Running "+this.scenarioReadableName+"...");
 
 		// Time measuring
 		this.testDuration = 0;
@@ -537,7 +535,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
-			if (DEBUG) System.out.print("Unzipping "+fullSourceZipPath+"...");
+			long start = System.currentTimeMillis();
+			if (PRINT) {
+				System.out.println("Unzipping "+fullSourceZipPath);
+				System.out.print("	in "+targetWorkspacePath+"...");
+			}
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
 		
 			workspace.run(new IWorkspaceRunnable() {
@@ -553,13 +555,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					}
 				}
 			}, null);
-			if (DEBUG) System.out.println("done!");
+			if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 		}
 		String jdkLib = Util.getJavaClassLibs()[0];
 		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
 		
 		// workaround bug 73253 Project references not set on project open 
-		if (DEBUG) System.out.print("Set projects classpaths...");
+		long start = System.currentTimeMillis();
+		if (PRINT) System.out.print("Set projects classpaths...");
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
@@ -579,7 +582,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
 		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
 		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
-		if (DEBUG) System.out.println("done!");
+		if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	}
 
 	/*

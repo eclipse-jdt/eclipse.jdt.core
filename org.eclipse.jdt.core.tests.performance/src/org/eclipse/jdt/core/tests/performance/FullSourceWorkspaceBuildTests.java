@@ -66,7 +66,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	static {
 //		TESTS_PREFIX = "testPerfBatch";
-//		TESTS_NAMES = new String[] { "testFullBuildAllWarning" };
+//		TESTS_NAMES = new String[] { "testBatchCompilerAllWarnings" };
 	}
 
 	public static Test suite() {
