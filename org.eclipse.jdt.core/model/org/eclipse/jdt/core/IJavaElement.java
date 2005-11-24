@@ -169,7 +169,8 @@ public interface IJavaElement extends IAdaptable {
 	 * <p>The html is extracted from the attached javadoc and provided as is. No
 	 * transformation or validation is done.</p>
 	 *
-	 * <p>If the default encoding is set to null, the platform encoding is used.</p>
+	 * <p>If the default encoding is set to null, the default encoding of the project is used. If
+	 * the default encoding of the project is not supported, then the platform encoding is used.</p>
 	 * 
 	 * <p>NOTE: This API is subject to change before the 3.2 release.</p>
 	 * 

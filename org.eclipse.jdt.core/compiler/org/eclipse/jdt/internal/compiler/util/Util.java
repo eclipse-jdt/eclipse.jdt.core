@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -188,9 +189,14 @@ public class Util implements SuffixConstants {
 	public static char[] getInputStreamAsCharArray(InputStream stream, int length, String encoding)
 		throws IOException {
 		InputStreamReader reader = null;
-		reader = encoding == null
-					? new InputStreamReader(stream)
-					: new InputStreamReader(stream, encoding);
+		try {
+			reader = encoding == null
+						? new InputStreamReader(stream)
+						: new InputStreamReader(stream, encoding);
+		} catch (UnsupportedEncodingException e) {
+			// encoding is not supported
+			reader =  new InputStreamReader(stream);
+		}
 		char[] contents;
 		if (length == -1) {
 			contents = CharOperation.NO_CHAR;

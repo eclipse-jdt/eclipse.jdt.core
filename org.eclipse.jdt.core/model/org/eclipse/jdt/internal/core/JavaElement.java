@@ -681,25 +681,32 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	}
 	
 	/*
-	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
+	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor, String)
 	 */
 	public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 		return null;
 	}
+	/*
+	 * We don't use getContentEncoding() on the URL connection, because it might leave open streams behind.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117890 
+	 * 
+	 */
 	protected String getURLContents(String docUrlValue, String defaultEncoding) throws JavaModelException {
 		InputStream stream = null;
 		try {
 			URL docUrl = new URL(docUrlValue);
 			URLConnection connection = docUrl.openConnection();
 			connection.setUseCaches(false);
-			String contentEncoding = connection.getContentEncoding();
 			stream = connection.getInputStream();
-			char[] contents = null;
-			if (contentEncoding != null) {
-				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, contentEncoding);
-			} else {
-				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, defaultEncoding);
+			String encoding = defaultEncoding;
+			try {
+				if (encoding == null) {
+					encoding = this.getJavaProject().getProject().getDefaultCharset();
+				}
+			} catch (CoreException e) {
+				// ignore
 			}
+			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
 			if (contents != null) {
 				return String.valueOf(contents);
 			}
