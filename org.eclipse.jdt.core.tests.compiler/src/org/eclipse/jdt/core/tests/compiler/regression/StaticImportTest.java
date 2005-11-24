@@ -1276,5 +1276,60 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"");
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=117861
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"Bug.java",
+				"import static java.lang.String.format;\n" +
+				"public class Bug extends p.TestCase {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String msg = \"test\";\n" + 
+				"		System.out.print(format(msg));\n" + 
+				"		System.out.print(format(msg, 1, 2));\n" +
+				"	}\n" + 
+				"}\n",
+				"p/TestCase.java",
+				"package p;\n" + 
+				"public class TestCase {\n" + 
+				"	static String format(String message, Object expected, Object actual) {return null;}\n" + 
+				"}\n"
+			},
+			"testtest");
+		this.runNegativeTest(
+			new String[] {
+				"C.java",
+				"class A {\n" + 
+				"	static class B { void foo(Object o, String s) {} }\n" + 
+				"	void foo(int i) {}\n" + 
+				"}\n" +
+				"class C extends A.B {\n" +
+				"	void test() { foo(1); }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 6)\r\n" + 
+			"	void test() { foo(1); }\r\n" + 
+			"	              ^^^\n" + 
+			"The method foo(Object, String) in the type A.B is not applicable for the arguments (int)\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+				"  void foo(int i, long j) {}\n" + 
+				"  class B {\n" + 
+				"    void foo() { foo(1, 1); }\n" + 
+				"  }\n" + 
+				"}",
+			}, 
+			"----------\n" + 
+			"1. ERROR in A.java (at line 4)\n" + 
+			"	void foo() { foo(1, 1); }\n" + 
+			"	             ^^^\n" + 
+			"The method foo() in the type A.B is not applicable for the arguments (int, int)\n" + 
+			"----------\n"
+		);
+	}
 }
