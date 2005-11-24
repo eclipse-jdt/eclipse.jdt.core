@@ -44,17 +44,45 @@ public static Test suite() {
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//	TESTS_PREFIX =  "testBug110060";
-//	TESTS_NAMES = new String[] { "testBug113671" };
-//	TESTS_NUMBERS = new int[] { 114539 };
+//	TESTS_PREFIX =  "testBug110336";
+//	TESTS_NAMES = new String[] { "testBug110336e" };
+//	TESTS_NUMBERS = new int[] { 79267 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
-	public void acceptSearchMatch(SearchMatch match) throws CoreException {
-		super.acceptSearchMatch(match);
-		matches.add(match);
+	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+		super.acceptSearchMatch(searchMatch);
+		matches.add(searchMatch);
+	}
+}
+class TypeReferencesCollector extends JavaSearchResultCollector {
+
+	protected IJavaElement getElement(SearchMatch searchMatch) {
+		IJavaElement element = super.getElement(searchMatch);
+		IJavaElement localElement = null;
+		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) match;
+		localElement = typeRefMatch.getLocalElement();
+		if (localElement != null) {
+			return localElement;
+		}
+		return element;
+	}
+	protected void writeLine() throws CoreException {
+		super.writeLine();
+		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) this.match;
+		IJavaElement[] others = typeRefMatch.getOtherElements();
+		int length = others==null ? 0 : others.length;
+		if (length > 0) {
+			line.append("+[");
+			for (int i=0; i<length; i++) {
+				IJavaElement other = others[i];
+				if (i>0) line.append(',');
+				line.append(other.getElementName());
+			}
+			line.append(']');
+		}
 	}
 }
 
@@ -5268,7 +5296,6 @@ public void testBug110060_FieldPattern05() throws CoreException {
  * @test Bug 114539: [search] Internal error when refactoring code with errors
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
  */
-// Types search
 public void testBug114539() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
@@ -5285,9 +5312,213 @@ public void testBug114539() throws CoreException {
 	);
 	IField field = this.workingCopies[1].getType("Bar").getField("FOO");
 	search(field, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b114539/Foo.java b114539.Foo.bar [FOO] POTENTIAL_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110336: [plan][search] Should optionaly return the local variable for type reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110336"
+ */
+public void testBug110336a() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	<TP extends Test> void method(Class<Test> clazz) {\n" + 
+		"		Test localVar1 = new Test();\n" + 
+		"		Class<Test> localVar2 = new Class<Test>();\n" + 
+		"		localVar1.method(localVar2);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]",
+		collector
+	);
+}
+public void testBug110336b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	void method1(Test methodParam) {\n" + 
+		"		Test localVar1 = new Test(){\n" + 
+		"			Class c = Test.class;\n" + 
+		"			<TP extends Test> void foo(){\n" + 
+		"				Test o = (Test) null;\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}	\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().TP [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test).methodParam [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test).localVar1 [Test]",
+		collector
+	);
+}
+public void testBug110336c() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test<TP extends X> {\n" + 
+		"	X x;\n" + 
+		"\n" + 
+		"}\n" + 
+		"class X {}\n"
+	);
+	IType type = this.workingCopies[0].getType("X");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.TP [X]\n" + 
+		"src/b110336/Test.java b110336.Test.x [X]",
+		collector
+	);
+}
+public void testBug110336d() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	Test a1Test = null, b1Test = new Test(), c1Test;\n" + 
+		"	Test a2Test = new Test(), b2Test, c2Test = null;\n" + 
+		"	Test a3Test, b3Test = null, c3Test = new Test();\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" + 
+		"src/b110336/Test.java b110336.Test.b1Test [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a2Test [Test]+[b2Test,c2Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a2Test [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a3Test [Test]+[b3Test,c3Test]\n" + 
+		"src/b110336/Test.java b110336.Test.c3Test [Test]",
+		collector
+	);
+}
+public void testBug110336e() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv9 [Test]",
+		collector
+	);
+}
+public void testBug110336f() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test extends Exception {\n" + 
+		"        void foo(Test test1) { // <- no local element\n" + 
+		"                Test test2; // <- local element\n" + 
+		"                try {\n" + 
+		"                        throw new Test();\n" + 
+		"                }\n" + 
+		"                catch (Test test4) { // <- no local element\n" + 
+		"                }\n" + 
+		"                for(Test test3;;) {} // <- local element\n" + 
+		"        }\n" + 
+		"\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test4 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test3 [Test]",
+		collector
+	);
+}
+public void testBug110336g() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	{\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv9 [Test]",
+		collector
+	);
+}
+public void testBug110336h() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	static {\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
+		collector
 	);
 }
 }

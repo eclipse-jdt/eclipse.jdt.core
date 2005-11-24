@@ -45,6 +45,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * Collects results as a string.
 	 */
 	public static class JavaSearchResultCollector extends SearchRequestor {
+		protected SearchMatch match;
 		public StringBuffer results = new StringBuffer(), line;
 		public boolean showAccuracy;
 		public boolean showContext;
@@ -54,11 +55,22 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		public boolean showProject;
 		public boolean showSynthetic;
 		public int count = 0;
-		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 			count++;
+			this.match = searchMatch;
+			writeLine();
+			writeLineToResult();
+		}
+		protected void writeLineToResult() {
+			if (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential) {
+				if (results.length() > 0) results.append("\n");
+				results.append(line);
+			}
+		}
+		protected void writeLine() throws CoreException {
 			try {
 				IResource resource = match.getResource();
-				IJavaElement element = (IJavaElement) match.getElement();
+				IJavaElement element = getElement(match);
 				line = new StringBuffer(getPathString(resource, element));
 				if (this.showProject) {
 					IProject project = element.getJavaProject().getProject();
@@ -104,6 +116,24 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 					line.append(".");
 					line.append(localVar.getElementName());
 					unit = (ICompilationUnit)localVar.getAncestor(IJavaElement.COMPILATION_UNIT);
+				} else if (element instanceof ITypeParameter) {
+					line.append(" ");
+					ITypeParameter typeParam = (ITypeParameter)element;
+					IJavaElement parent = typeParam.getParent();
+					if (parent instanceof IType) {
+						IType type = (IType)parent;
+						append(type);
+						unit = type.getCompilationUnit();
+					} else if (parent instanceof IMethod) {
+						IMethod method = (IMethod)parent;
+						append(method);
+						unit = method.getCompilationUnit();
+					} else {
+						line.append("<Unexpected kind of parent for type parameter>");
+						unit = (ICompilationUnit)typeParam.getAncestor(IJavaElement.COMPILATION_UNIT);
+					}
+					line.append(".");
+					line.append(typeParam.getElementName());
 				} else if (element instanceof IImportDeclaration) {
 					IImportDeclaration importDeclaration = (IImportDeclaration)element;
 					unit = (ICompilationUnit)importDeclaration.getAncestor(IJavaElement.COMPILATION_UNIT);
@@ -180,16 +210,12 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 						}
 					}
 				}
-				if (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential) {
-					if (results.length() > 0) results.append("\n");
-					results.append(line);
-				}
 			} catch (JavaModelException e) {
 				results.append("\n");
 				results.append(e.toString());
 			}
 		}
-		private void append(IField field) throws JavaModelException {
+		protected void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());
 			line.append(".");
 			line.append(field.getElementName());
@@ -287,6 +313,9 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 				line.append("#");
 				line.append(((SourceRefElement)type).occurrenceCount);
 			}
+		}
+		protected IJavaElement getElement(SearchMatch searchMatch) {
+			return (IJavaElement) searchMatch.getElement();
 		}
 		protected String getPathString(IResource resource, IJavaElement element) {
 			String pathString;

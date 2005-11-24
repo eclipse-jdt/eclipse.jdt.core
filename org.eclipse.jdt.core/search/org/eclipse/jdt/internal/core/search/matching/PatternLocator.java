@@ -391,6 +391,18 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		locator.report(match);
 	}
 }
+/**
+ * Reports the match of the given reference. Also provide a local element to eventually report in match.
+ */
+protected void matchReportReference(ASTNode reference, IJavaElement element, IJavaElement localElement, IJavaElement[] otherElements, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	matchReportReference(reference, element, elementBinding, accuracy, locator);
+}
+/**
+ * Reports the match of the given reference. Also provide a scope to look for potential other elements.
+ */
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, Scope scope, int accuracy, MatchLocator locator) throws CoreException {
+	matchReportReference(reference, element, elementBinding, accuracy, locator);
+}
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
     return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length);
 }
