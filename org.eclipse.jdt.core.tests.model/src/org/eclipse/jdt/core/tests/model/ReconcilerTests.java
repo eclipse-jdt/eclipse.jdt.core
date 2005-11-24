@@ -92,7 +92,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-// TESTS_NAMES = new String[] { "testReconcileParticipant05", "testReconcileParticipant06" };
+// TESTS_NAMES = new String[] { "testTypeWithDollarName" };
 // Numbers of tests to run: "test<number>" will be run for each number of this array
 //TESTS_NUMBERS = new int[] { 114338 };
 // Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2361,6 +2361,36 @@ public void testTypeParameterWithBound() throws CoreException {
 		if (workingCopy1 != null) {
 			workingCopy1.discardWorkingCopy();
 		}
+	}
+}
+/*
+ * Ensures that a working copy with a type with a dollar name can be reconciled without errors.
+ * (regression test for bug 117121 Can't create class called A$B in eclipse)
+ */
+public void testTypeWithDollarName() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	try {
+		String contents =
+			"package p1;\n" +
+			"public class Y$Z {\n" +
+			"}";
+		createFile(
+			"/Reconciler/src/p1/Y$Z.java", 
+			contents
+		);
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y$Z.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteFile("/Reconciler/src/p1/Y$Z.java");
 	}
 }
 /*
