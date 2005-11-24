@@ -43,9 +43,7 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	static int TESTS_COUNT = 0;
 	private final static int WARMUP_COUNT = 1; // 30;
 	private final static int ITERATIONS_COUNT = 30;
-//	private final static int LINUX_FOLDERS_COUNT = 200;
 	private final static int FOLDERS_COUNT = 200;
-//	private final static int LINUX_PACKAGES_COUNT = 200;
 	private final static int PACKAGES_COUNT = 200;
 	static int TESTS_LENGTH;
 
@@ -198,14 +196,6 @@ protected void tearDown() throws Exception {
 //		NumberFormat intFormat = NumberFormat.getIntegerInstance();
 		System.out.println("-------------------------------------\n");
 	}
-
-	// DEBUG
-//	int iterations = (TESTS_COUNT == 2 || TESTS_COUNT == 1) ? 2 : ITERATIONS_COUNT;
-//	System.out.println("	- NameLookup statistics ("+MEASURES_COUNT+" x "+iterations+" iterations):	");
-//	System.out.println("		+ time in findSecondaryTypes  : "+NameLookup.timeSpentInFindSecondaryTypes);
-//	System.out.println("		+ secondary types found       : "+NameLookup.countSecondaryTypesFound);
-//	System.out.println("		+ secondary types NOT found   : "+NameLookup.countSecondaryTypesNotFound);
-
 	super.tearDown();
 }
 /**
@@ -785,8 +775,6 @@ public void testPerfSeekPackageFragments() throws CoreException {
 }
 
 protected void resetCounters() {
-//	NameLookup.timeSpentInFindSecondaryTypes = 0;
-//	NameLookup.countSecondaryTypesFound = 0;
-//	NameLookup.countSecondaryTypesNotFound = 0;
+	// do nothing
 }
 }
