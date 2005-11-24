@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	static {
-//		TESTS_NAMES = new String[] { "testRootPath13" };
+//		TESTS_NAMES = new String[] { "test010" };
 //		TESTS_NUMBERS = new int[] { 10 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -101,8 +101,6 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
-		waitForAutoBuild();
-		waitUntilIndexesReady();
 		this.deleteProject("AttachedJavadocProject"); //$NON-NLS-1$
 		this.root = null;
 		this.project = null;

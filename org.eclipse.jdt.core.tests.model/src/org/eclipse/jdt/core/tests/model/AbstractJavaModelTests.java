@@ -1128,17 +1128,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		CoreException lastException = null;
 		try {
 			resource.delete(true, null);
+			return;
 		} catch (CoreException e) {
 			lastException = e;
 			// just print for info
-			System.out.println(e.getMessage());
+			System.out.println(e.getMessage() + " [" + resource.getFullPath() + "]");
 		} catch (IllegalArgumentException iae) {
 			// just print for info
-			System.out.println(iae.getMessage());
+			System.out.println(iae.getMessage() + " [" + resource.getFullPath() + "]");
 		}
-		int retryCount = 60; // wait 1 minute at most
-		while (resource.isAccessible() && --retryCount >= 0) {
+		int retryCount = 0; // wait 1 minute at most
+		while (resource.isAccessible() && ++retryCount <= 60) {
+			System.out.println("Running GC and waiting 1s...");
 			try {
+				System.gc();
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
@@ -1147,14 +1150,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			} catch (CoreException e) {
 				lastException = e;
 				// just print for info
-				System.out.println("Retry "+retryCount+": "+ e.getMessage());
+				System.out.println("Retry "+retryCount+": "+ e.getMessage() + " [" + resource.getFullPath() + "]");
 			} catch (IllegalArgumentException iae) {
 				// just print for info
-				System.out.println("Retry "+retryCount+": "+ iae.getMessage());
+				System.out.println("Retry "+retryCount+": "+ iae.getMessage() + " [" + resource.getFullPath() + "]");
 			}
 		}
-		if (!resource.isAccessible()) return;
-		System.err.println("Failed to delete " + resource.getFullPath());
+		if (!resource.isAccessible()) {
+			System.out.println("Succeed to delete resource [" + resource.getFullPath() + "]");
+			return;
+		}
+		System.err.println("Failed to delete resource [" + resource.getFullPath() + "]");
 		if (lastException != null) {
 			throw lastException;
 		}
