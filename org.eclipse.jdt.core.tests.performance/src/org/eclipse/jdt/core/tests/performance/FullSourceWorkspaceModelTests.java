@@ -103,25 +103,25 @@ private void setUpBigProject() throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		long start = System.currentTimeMillis();
-		if (PRINT) System.out.println("Create project "+BIG_PROJECT_NAME+":");
+		if (PRINT) System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
 
 		// setup projects with several source folders and several packages per source folder
 		final String[] sourceFolders = new String[FOLDERS_COUNT];
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
 		}
-		if (PRINT) System.out.print("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
+		if (PRINT) System.out.println("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
 		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
-			if (PRINT && ((i+1)%10)==0) System.out.print("		+ folder src"+i+"...");
+			if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
 			long top = System.currentTimeMillis();
 			for (int j = 0; j < PACKAGES_COUNT; j++) {
 				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
 			}
-			if (PRINT && ((i+1)%10)==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
+			if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
 		}
 		if (PRINT) {
-			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+			System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
 			start = System.currentTimeMillis();
 			System.out.print("	- add project to full source workspace...");
 		}

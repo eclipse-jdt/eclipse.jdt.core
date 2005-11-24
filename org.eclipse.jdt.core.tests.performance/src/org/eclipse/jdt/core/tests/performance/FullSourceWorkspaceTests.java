@@ -536,7 +536,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
-			if (DEBUG) System.out.print("Unzipping "+fullSourceZipPath+"...");
+			long start = System.currentTimeMillis();
+			if (PRINT) {
+				System.out.println("Unzipping "+fullSourceZipPath);
+				System.out.print("	in "+targetWorkspacePath+"...");
+			}
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
 		
 			workspace.run(new IWorkspaceRunnable() {
@@ -552,13 +556,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					}
 				}
 			}, null);
-			if (DEBUG) System.out.println("done!");
+			if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 		}
 		String jdkLib = Util.getJavaClassLibs()[0];
 		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
 		
 		// workaround bug 73253 Project references not set on project open 
-		if (DEBUG) System.out.print("Set projects classpaths...");
+		long start = System.currentTimeMillis();
+		if (PRINT) System.out.print("Set projects classpaths...");
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
@@ -578,7 +583,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
 		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
 		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
-		if (DEBUG) System.out.println("done!");
+		if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	}
 
 	/*
