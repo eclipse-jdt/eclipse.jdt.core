@@ -43,6 +43,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	final static boolean PRINT = "true".equals(System.getProperty("print"));
+	final static boolean CLEAN_WKSP = "true".equals(System.getProperty("cleanWksp"));
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	
 	// Garbage collect constants
@@ -436,7 +437,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		
 		// Print test name
 		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("Running "+this.scenarioShortName+'.'+getName()+"...");
+		System.out.println("Running "+this.scenarioReadableName+"...");
 
 		// Time measuring
 		this.testDuration = 0;
@@ -506,7 +507,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected void tearDown() throws Exception {
 		ALL_TESTS_COUNT--;
 		if (ALL_TESTS_COUNT == 0) {
-			ENV.resetWorkspace();
+			if (CLEAN_WKSP) ENV.resetWorkspace();
 			JavaCore.setOptions(INITIAL_OPTIONS);
 		}
 		super.tearDown();

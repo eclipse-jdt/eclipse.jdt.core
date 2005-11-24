@@ -93,14 +93,7 @@ protected void setUp() throws Exception {
 	this.resultCollector = new JavaSearchResultCollector();
 	this.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 	if (BIG_PROJECT == null) {
-		long start = System.currentTimeMillis();
-		if (PRINT) {
-			System.out.print("	Big project does not exist => create it...");
-		}
 		setUpBigProject();
-		if (PRINT) {
-			System.out.println("done ("+(System.currentTimeMillis()-start)+" ms)");
-		}
 	} else if (BIG_PROJECT_TYPE_PATH == null) {
 		setUpBigProjectInfo();
 	}
@@ -109,26 +102,40 @@ private void setUpBigProject() throws CoreException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-//		boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
+		long start = System.currentTimeMillis();
+		if (PRINT) System.out.println("Create project "+BIG_PROJECT_NAME+":");
+
 		// setup projects with several source folders and several packages per source folder
-//		final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
-		final String[] sourceFolders = new String[/*rootLength*/FOLDERS_COUNT];
-		for (int i = 0; i < /*rootLength*/FOLDERS_COUNT; i++) {
+		final String[] sourceFolders = new String[FOLDERS_COUNT];
+		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
 		}
+		if (PRINT) System.out.print("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
 		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
-//		int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
-		for (int i = 0; i < /*rootLength*/FOLDERS_COUNT; i++) {
-			for (int j = 0; j < /*packLength*/PACKAGES_COUNT; j++) {
+		for (int i = 0; i < FOLDERS_COUNT; i++) {
+			if (PRINT && ((i+1)%10)==0) System.out.print("		+ folder src"+i+"...");
+			long top = System.currentTimeMillis();
+			for (int j = 0; j < PACKAGES_COUNT; j++) {
 				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
 			}
+			if (PRINT && ((i+1)%10)==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
+		}
+		if (PRINT) {
+			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+			start = System.currentTimeMillis();
+			System.out.print("	- add project to full source workspace...");
 		}
 		ENV.addProject(BIG_PROJECT_NAME);
-		BIG_PROJECT = (JavaProject) createJavaProject("BigProject", sourceFolders, "bin", "1.4");
+		BIG_PROJECT = (JavaProject) createJavaProject(BIG_PROJECT_NAME, sourceFolders, "bin", "1.4");
 		BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
-		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (/*rootLength*/FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (/*rootLength*/FOLDERS_COUNT-1) + "/performance" + (/*packLength*/PACKAGES_COUNT-1) + "/TestBigProject.java");
+		if (PRINT) {
+			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+			start = System.currentTimeMillis();
+			System.out.print("	- Create compilation unit with secondary type...");
+		}
+		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-		String content = "package org.eclipse.jdt.core.tests" + (/*rootLength*/FOLDERS_COUNT-1) + ".performance" + (/*packLength*/PACKAGES_COUNT-1) + ";\n" +
+		String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT-1) + ".performance" + (PACKAGES_COUNT-1) + ";\n" +
 			"public class TestBigProject {\n" +
 			"	class Level1 {\n" +
 			"		class Level2 {\n" +
@@ -153,6 +160,9 @@ private void setUpBigProject() throws CoreException {
 			"class TestSecondary {}\n";
 		file.create(new ByteArrayInputStream(content.getBytes()), true, null);
 		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
+		if (PRINT) {
+			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		}
 	} finally {
 		// do not delete project
 	}
@@ -160,10 +170,7 @@ private void setUpBigProject() throws CoreException {
 }
 private void setUpBigProjectInfo() {
 	// Set up type path
-//	boolean linux = "linux".equals(System.getProperty("osgi.os", "?"));
-//	final int rootLength = linux ? LINUX_FOLDERS_COUNT : FOLDERS_COUNT;
-//	int packLength = linux ? LINUX_PACKAGES_COUNT : PACKAGES_COUNT;
-	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (/*rootLength*/FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (/*rootLength*/FOLDERS_COUNT-1) + "/performance" + (/*packLength*/PACKAGES_COUNT-1) + "/TestBigProject.java");
+	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 
 	// Set up working copy
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -183,7 +190,7 @@ protected void tearDown() throws Exception {
 	if (LOG_DIR != null) {
 		logPerfResult(LOG_STREAMS, TESTS_COUNT);
 	}
-	
+
 	// Print statistics
 	if (TESTS_COUNT == 0) {
 		System.out.println("-------------------------------------");
@@ -191,6 +198,14 @@ protected void tearDown() throws Exception {
 //		NumberFormat intFormat = NumberFormat.getIntegerInstance();
 		System.out.println("-------------------------------------\n");
 	}
+
+	// DEBUG
+//	int iterations = (TESTS_COUNT == 2 || TESTS_COUNT == 1) ? 2 : ITERATIONS_COUNT;
+//	System.out.println("	- NameLookup statistics ("+MEASURES_COUNT+" x "+iterations+" iterations):	");
+//	System.out.println("		+ time in findSecondaryTypes  : "+NameLookup.timeSpentInFindSecondaryTypes);
+//	System.out.println("		+ secondary types found       : "+NameLookup.countSecondaryTypesFound);
+//	System.out.println("		+ secondary types NOT found   : "+NameLookup.countSecondaryTypesNotFound);
+
 	super.tearDown();
 }
 /**
@@ -376,6 +391,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -417,6 +433,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -456,6 +473,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -494,6 +512,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -534,6 +553,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -570,6 +590,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -607,6 +628,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
 	}
 
 	// Measures
+	resetCounters();
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -645,6 +667,7 @@ public void testPerfReconcile() throws CoreException {
 		}
 
 		// Measures
+		resetCounters();
 		int iterations = 2;
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
@@ -691,6 +714,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 
 		// Measures
 		int iterations = 2;
+		resetCounters();
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
 			startMeasuring();
@@ -747,6 +771,7 @@ public void testPerfSeekPackageFragments() throws CoreException {
 	
 	// measure performance
 	requestor.pkgs = null;
+	resetCounters();
 	for (int i = 0; i < MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
@@ -757,5 +782,11 @@ public void testPerfSeekPackageFragments() throws CoreException {
 	}
 	commitMeasurements();
 	assertPerformance();
+}
+
+protected void resetCounters() {
+//	NameLookup.timeSpentInFindSecondaryTypes = 0;
+//	NameLookup.countSecondaryTypesFound = 0;
+//	NameLookup.countSecondaryTypesNotFound = 0;
 }
 }
