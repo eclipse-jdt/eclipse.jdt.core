@@ -16,13 +16,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ISourceReference;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.DOMFinder;
@@ -157,6 +150,12 @@ public IJavaElement getHandleUpdatingCountFromMemento(MementoTokenizer memento, 
 	if (!memento.hasMoreTokens()) return this;
 	String token = memento.nextToken();
 	return getHandleFromMemento(token, memento, owner);
+}
+/*
+ * @see IMember#getOccurrenceCount()
+ */
+public int getOccurrenceCount() {
+	return this.occurrenceCount;
 }
 /**
  * Return the first instance of IOpenable in the hierarchy of this

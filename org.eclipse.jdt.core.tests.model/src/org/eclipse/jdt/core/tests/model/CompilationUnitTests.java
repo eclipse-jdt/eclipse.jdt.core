@@ -722,6 +722,20 @@ public void testGetPrimary() {
 	assertEquals("Primary for a compilation unit should be the same", this.cu, primary);
 	
 }
+/*
+ * Ensures that the occurrence count for an initializer is correct
+ */
+public void testGetOccurrenceCount01() {
+	IInitializer initializer = this.cu.getType("X").getInitializer(2);
+	assertEquals("Unexpected occurrence count", 2, initializer.getOccurrenceCount());
+}
+/*
+ * Ensures that the occurrence count for an anonymous type is correct
+ */
+public void testGetOccurrenceCount02() {
+	IType type = this.cu.getType("X").getMethod("foo", new String[]{"QY;"}).getType("", 3);
+	assertEquals("Unexpected occurrence count", 3, type.getOccurrenceCount());
+}
 /**
  * Ensures that correct number of package declarations with the correct names
  * exist a compilation unit.

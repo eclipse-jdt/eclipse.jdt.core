@@ -102,6 +102,25 @@ ISourceRange getJavadocRange() throws JavaModelException;
  */
 ISourceRange getNameRange() throws JavaModelException;
 /**
+ * Returns the position relative to the order this member is defined in the source.
+ * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).
+ * <p>
+ * Two members m1 and m2 that are equal (e.g. 2 fields with the same name in 
+ * the same type) can be distinguished using their occurrence counts. If member 
+ * m1 appears first in the source, it will have an occurrence count of 1. If member 
+ * m2 appears right after member m1, it will have an occurrence count of 2.
+ * </p><p>
+ * The occurrence count can be used to distinguish initializers inside a type
+ * or anonymous types inside a method.
+ * </p><p>
+ * This is a handle-only method.  The member may or may not be present.
+ * </p>
+ * 
+ * @return the position relative to the order this member is defined in the source
+ * @since 3.2
+ */
+int getOccurrenceCount();
+/**
  * Returns the local or anonymous type declared in this source member with the given simple name and/or
  * with the specified position relative to the order they are defined in the source.
  * The name is empty if it is an anonymous type.
