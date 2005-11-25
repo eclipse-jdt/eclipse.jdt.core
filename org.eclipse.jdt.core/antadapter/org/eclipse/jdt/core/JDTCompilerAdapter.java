@@ -444,7 +444,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	 * check the compiler arguments.
 	 * Extract from files specified using @, lines marked with ADAPTER_PREFIX
 	 * These lines specify information that needs to be interpreted by us.
-	 * @param args
+	 * @param args compiler arguments to process
 	 */
 	private void checkCompilerArgs(String[] args) {
 		for (int i = 0; i < args.length; i++) {
@@ -510,8 +510,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	
 	/**
 	 * Copy the classpath to the command line with access rules included.
-	 * @param cmd
-	 * @param classpath
+	 * @param cmd the given command line
+	 * @param classpath the given classpath entry
 	 */
 	private void createClasspathArgument(Commandline cmd, Path classpath) {
 		Argument arg = cmd.createArgument();
@@ -556,6 +556,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	 * Modified from base class, Logs the compilation parameters, adds the files 
 	 * to compile and logs the &quot;niceSourceList&quot;
 	 * Appends encoding information at the end of arguments
+	 * 
+	 * @param cmd the given command line
 	 */
 	protected void logAndAddFilesToCompile(Commandline cmd) {
 		attributes.log("Compilation " + cmd.describeArguments(), //$NON-NLS-1$
