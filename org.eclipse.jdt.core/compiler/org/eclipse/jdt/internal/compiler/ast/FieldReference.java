@@ -166,19 +166,22 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		}
 	} else {
 		boolean isStatic = this.codegenBinding.isStatic();
+		boolean isThisReceiver = this.receiver instanceof ThisReference;
 		Constant fieldConstant = this.codegenBinding.constant();
 		if (fieldConstant != Constant.NotAConstant) {
-			receiver.generateCode(currentScope, codeStream, !isStatic);
-			if (!isStatic){
-				codeStream.invokeObjectGetClass();
-				codeStream.pop();
+			if (!isThisReceiver) {
+				receiver.generateCode(currentScope, codeStream, !isStatic);
+				if (!isStatic){
+					codeStream.invokeObjectGetClass();
+					codeStream.pop();
+				}
 			}
 			if (valueRequired) {
 				codeStream.generateConstant(fieldConstant, implicitConversion);
 			}
 		} else {
-			receiver.generateCode(currentScope, codeStream, !isStatic);
-			if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+			if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+				receiver.generateCode(currentScope, codeStream, !isStatic);
 				if (this.codegenBinding.declaringClass == null) { // array length
 					codeStream.arraylength();
 					if (valueRequired) {
@@ -213,9 +216,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					}
 				}
 			} else {
-				if (!isStatic){
-					if (!(this.receiver instanceof ThisReference)) codeStream.invokeObjectGetClass(); // perform null check
-					codeStream.pop();
+				if (!isThisReceiver) {
+					receiver.generateCode(currentScope, codeStream, !isStatic);				
+					if (!isStatic){
+						codeStream.invokeObjectGetClass(); // perform null check
+						codeStream.pop();
+					}
 				}
 			}
 		}

@@ -86,14 +86,12 @@ public class BinaryExpression extends OperatorExpression {
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		Label falseLabel, endLabel;
 		if (constant != Constant.NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		bits |= OnlyValueRequired;
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
 			case PLUS :
 				switch (bits & ReturnTypeIDMASK) {
@@ -295,33 +293,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 						break;
 					case T_boolean : // logical and
-						generateOptimizedLogicalAnd(
-							currentScope,
-							codeStream,
-							null,
-							(falseLabel = new Label(codeStream)),
-							valueRequired);
-						/* improving code gen for such a case: boolean b = i < 0 && false;
-						 * since the label has never been used, we have the inlined value on the stack. */
-						if (falseLabel.hasForwardReferences()) {
-							if (valueRequired) {
-								codeStream.iconst_1();
-								if ((bits & IsReturnedValue) != 0) {
-									codeStream.generateImplicitConversion(this.implicitConversion);
-									codeStream.generateReturnBytecode(this);
-									falseLabel.place();
-									codeStream.iconst_0();
-								} else {
-									codeStream.goto_(endLabel = new Label(codeStream));
-									codeStream.decrStackSize(1);
-									falseLabel.place();
-									codeStream.iconst_0();
-									endLabel.place();
-								}
-							} else {
-								falseLabel.place();
-							}
-						}
+						generateLogicalAnd(currentScope, codeStream, valueRequired);
+						break;
 				}
 				break;
 			case OR :
@@ -367,33 +340,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 						break;
 					case T_boolean : // logical or
-						generateOptimizedLogicalOr(
-							currentScope,
-							codeStream,
-							null,
-							(falseLabel = new Label(codeStream)),
-							valueRequired);
-						/* improving code gen for such a case: boolean b = i < 0 || true;
-						 * since the label has never been used, we have the inlined value on the stack. */
-						if (falseLabel.hasForwardReferences()) {
-							if (valueRequired) {
-								codeStream.iconst_1();
-								if ((bits & IsReturnedValue) != 0) {
-									codeStream.generateImplicitConversion(this.implicitConversion);
-									codeStream.generateReturnBytecode(this);
-									falseLabel.place();
-									codeStream.iconst_0();
-								} else {
-									codeStream.goto_(endLabel = new Label(codeStream));
-									codeStream.decrStackSize(1);
-									falseLabel.place();
-									codeStream.iconst_0();
-									endLabel.place();
-								}
-							} else {
-								falseLabel.place();
-							}
-						}
+						generateLogicalOr(currentScope, codeStream, valueRequired);
+						break;
 				}
 				break;
 			case XOR :
@@ -439,33 +387,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 						break;
 					case T_boolean :
-						generateOptimizedLogicalXor(
-							currentScope,
-							codeStream,
-							null,
-							(falseLabel = new Label(codeStream)),
-							valueRequired);
-						/* improving code gen for such a case: boolean b = i < 0 ^ bool;
-						 * since the label has never been used, we have the inlined value on the stack. */
-						if (falseLabel.hasForwardReferences()) {
-							if (valueRequired) {
-								codeStream.iconst_1();
-								if ((bits & IsReturnedValue) != 0) {
-									codeStream.generateImplicitConversion(this.implicitConversion);
-									codeStream.generateReturnBytecode(this);
-									falseLabel.place();
-									codeStream.iconst_0();
-								} else {
-									codeStream.goto_(endLabel = new Label(codeStream));
-									codeStream.decrStackSize(1);
-									falseLabel.place();
-									codeStream.iconst_0();
-									endLabel.place();
-								}
-							} else {
-								falseLabel.place();
-							}
-						}
+						generateLogicalXor(currentScope, 	codeStream, valueRequired);
+						break;
 				}
 				break;
 			case LEFT_SHIFT :
@@ -514,6 +437,7 @@ public class BinaryExpression extends OperatorExpression {
 				}
 				break;
 			case GREATER :
+				Label falseLabel, endLabel;
 				generateOptimizedGreaterThan(
 					currentScope,
 					codeStream,
@@ -1152,6 +1076,167 @@ public class BinaryExpression extends OperatorExpression {
 	/**
 	 * Boolean generation for &
 	 */
+	public void generateLogicalAnd(
+		BlockScope currentScope,
+		CodeStream codeStream,
+		boolean valueRequired) {
+			
+		Constant condConst;
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// <something equivalent to true> & x
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, valueRequired);
+				} else {
+					// <something equivalent to false> & x
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_0();
+					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+				}
+				return;
+			} 
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// x & <something equivalent to true>
+					left.generateCode(currentScope, codeStream, valueRequired);
+					right.generateCode(currentScope, codeStream, false);
+				} else {
+					// x & <something equivalent to false>
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_0();
+					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+				}
+				return;
+			}
+		}
+		// default case
+		left.generateCode(currentScope, codeStream, valueRequired);
+		right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.iand();
+		}
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+	}
+	
+	/**
+	 * Boolean generation for |
+	 */
+	public void generateLogicalOr(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+			
+		Constant condConst;
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// <something equivalent to true> | x
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_1();
+					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+				} else {
+					// <something equivalent to false> | x
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, valueRequired);
+				}
+				return;
+			}
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// x | <something equivalent to true>
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_1();
+					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+				} else {
+					// x | <something equivalent to false>
+					left.generateCode(currentScope, codeStream, valueRequired);
+					right.generateCode(currentScope, codeStream, false);
+				}
+				return;
+			}
+		}
+		// default case
+		left.generateCode(currentScope, codeStream, valueRequired);
+		right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.ior();
+		}
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+	}
+	
+	/**
+	 * Boolean generation for ^
+	 */
+	public void generateLogicalXor(BlockScope currentScope,	CodeStream codeStream, boolean valueRequired) {
+			
+		Constant condConst;
+		if ((left.implicitConversion & COMPILE_TYPE_MASK) == T_boolean) {
+			if ((condConst = left.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// <something equivalent to true> ^ x
+					left.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_1();
+					}
+					right.generateCode(currentScope, codeStream, valueRequired);
+					if (valueRequired) {
+						codeStream.ixor(); // negate
+						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+					}
+				} else {
+					// <something equivalent to false> ^ x
+					left.generateCode(currentScope, codeStream, false);
+					right.generateCode(currentScope, codeStream, valueRequired);
+				}
+				return;
+			}
+			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
+				if (condConst.booleanValue() == true) {
+					// x ^ <something equivalent to true>
+					left.generateCode(currentScope, codeStream, valueRequired);
+					right.generateCode(currentScope, codeStream, false);
+					if (valueRequired) {
+						codeStream.iconst_1();
+						codeStream.ixor(); // negate
+						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+					}
+				} else {
+					// x ^ <something equivalent to false>
+					left.generateCode(currentScope, codeStream, valueRequired);
+					right.generateCode(currentScope, codeStream, false);
+				}
+				return;
+			}
+		}
+		// default case
+		left.generateCode(currentScope, codeStream, valueRequired);
+		right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.ixor();
+		}
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
+	}	
+	
+	/**
+	 * Boolean generation for &
+	 */
 	public void generateOptimizedLogicalAnd(
 		BlockScope currentScope,
 		CodeStream codeStream,
@@ -1170,16 +1255,12 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequired) != 0) {
-						right.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						right.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					right.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 				} else {
 					// <something equivalent to false> & x
 					left.generateOptimizedBoolean(
@@ -1188,22 +1269,16 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					Label internalTrueLabel = new Label(codeStream);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
 						trueLabel,
 						falseLabel,
 						false);
-					internalTrueLabel.place();
 					if (valueRequired) {
-						if ((bits & OnlyValueRequired) != 0) {
-							codeStream.iconst_0();
-						} else {
-							if (falseLabel != null) {
-								// implicit falling through the TRUE case
-								codeStream.goto_(falseLabel);
-							}
+						if (falseLabel != null) {
+							// implicit falling through the TRUE case
+							codeStream.goto_(falseLabel);
 						}
 					}
 					// reposition the endPC
@@ -1214,16 +1289,12 @@ public class BinaryExpression extends OperatorExpression {
 			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x & <something equivalent to true>
-					if ((bits & OnlyValueRequired) != 0) {
-						left.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						left.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					left.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1247,13 +1318,9 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 					if (valueRequired) {
-						if ((bits & OnlyValueRequired) != 0) {
-							codeStream.iconst_0();
-						} else {
-							if (falseLabel != null) {
-								// implicit falling through the TRUE case
-								codeStream.goto_(falseLabel);
-							}
+						if (falseLabel != null) {
+							// implicit falling through the TRUE case
+							codeStream.goto_(falseLabel);
 						}
 					}
 					// reposition the endPC
@@ -1267,19 +1334,17 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.iand();
-			if ((bits & OnlyValueRequired) == 0) {
-				if (falseLabel == null) {
-					if (trueLabel != null) {
-						// implicit falling through the FALSE case
-						codeStream.ifne(trueLabel);
-					}
+			if (falseLabel == null) {
+				if (trueLabel != null) {
+					// implicit falling through the FALSE case
+					codeStream.ifne(trueLabel);
+				}
+			} else {
+				// implicit falling through the TRUE case
+				if (trueLabel == null) {
+					codeStream.ifeq(falseLabel);
 				} else {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.ifeq(falseLabel);
-					} else {
-						// no implicit fall through TRUE/FALSE --> should never occur
-					}
+					// no implicit fall through TRUE/FALSE --> should never occur
 				}
 			}
 		}
@@ -1317,12 +1382,8 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 					internalFalseLabel.place();
 					if (valueRequired) {
-						if ((bits & OnlyValueRequired) != 0) {
-							codeStream.iconst_1();
-						} else {
-							if (trueLabel != null) {
-								codeStream.goto_(trueLabel);
-							}
+						if (trueLabel != null) {
+							codeStream.goto_(trueLabel);
 						}
 					}
 					// reposition the endPC
@@ -1335,16 +1396,12 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequired) != 0) {
-						right.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						right.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					right.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 				}
 				return;
 			}
@@ -1366,28 +1423,20 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 					if (valueRequired) {
-						if ((bits & OnlyValueRequired) != 0) {
-							codeStream.iconst_1();
-						} else {
-							if (trueLabel != null) {
-								codeStream.goto_(trueLabel);
-							}
+						if (trueLabel != null) {
+							codeStream.goto_(trueLabel);
 						}
 					}
 					// reposition the endPC
 					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				} else {
 					// x | <something equivalent to false>
-					if ((bits & OnlyValueRequired) != 0) {
-						left.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						left.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					left.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1403,19 +1452,17 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.ior();
-			if ((bits & OnlyValueRequired) == 0) {
-				if (falseLabel == null) {
-					if (trueLabel != null) {
-						// implicit falling through the FALSE case
-						codeStream.ifne(trueLabel);
-					}
+			if (falseLabel == null) {
+				if (trueLabel != null) {
+					// implicit falling through the FALSE case
+					codeStream.ifne(trueLabel);
+				}
+			} else {
+				// implicit falling through the TRUE case
+				if (trueLabel == null) {
+					codeStream.ifeq(falseLabel);
 				} else {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.ifeq(falseLabel);
-					} else {
-						// no implicit fall through TRUE/FALSE --> should never occur
-					}
+					// no implicit fall through TRUE/FALSE --> should never occur
 				}
 			}
 		}
@@ -1447,7 +1494,7 @@ public class BinaryExpression extends OperatorExpression {
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
-						falseLabel,
+						falseLabel, // negating
 						trueLabel,
 						valueRequired);
 				} else {
@@ -1458,16 +1505,12 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequired) != 0) {
-						right.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						right.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					right.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 				}
 				return;
 			}
@@ -1477,7 +1520,7 @@ public class BinaryExpression extends OperatorExpression {
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
-						falseLabel,
+						falseLabel, // negating
 						trueLabel,
 						valueRequired);
 					right.generateOptimizedBoolean(
@@ -1488,16 +1531,12 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 				} else {
 					// x ^ <something equivalent to false>
-					if ((bits & OnlyValueRequired) != 0) {
-						left.generateCode(currentScope, codeStream, valueRequired);
-					} else {
-						left.generateOptimizedBoolean(
-							currentScope,
-							codeStream,
-							trueLabel,
-							falseLabel,
-							valueRequired);
-					}
+					left.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						trueLabel,
+						falseLabel,
+						valueRequired);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1513,19 +1552,17 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.ixor();
-			if ((bits & OnlyValueRequired) == 0) {
-				if (falseLabel == null) {
-					if (trueLabel != null) {
-						// implicit falling through the FALSE case
-						codeStream.ifne(trueLabel);
-					}
+			if (falseLabel == null) {
+				if (trueLabel != null) {
+					// implicit falling through the FALSE case
+					codeStream.ifne(trueLabel);
+				}
+			} else {
+				// implicit falling through the TRUE case
+				if (trueLabel == null) {
+					codeStream.ifeq(falseLabel);
 				} else {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.ifeq(falseLabel);
-					} else {
-						// no implicit fall through TRUE/FALSE --> should never occur
-					}
+					// no implicit fall through TRUE/FALSE --> should never occur
 				}
 			}
 		}

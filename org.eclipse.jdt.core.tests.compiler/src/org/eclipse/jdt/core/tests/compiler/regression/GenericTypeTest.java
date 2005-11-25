@@ -14781,22 +14781,22 @@ public void test500(){
 		this.runConformTest(
 			new String[] {
 				"X.java",
-			"class XA {}\n" + 
-			"interface XB {\n" + 
-			"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
-			"}\n" + 
-			"class XAB extends XA implements XB {}\n" + 
-			"\n" + 
-			"public class X <E extends XA&XB> {\n" + 
-			"	E e;\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"	  System.out.print(new X<XAB>().e.CONST);\n" + 
-			"	  new X<XAB>().foo();\n" + 
-			"  }\n" + 
-			"  public void foo() {\n" + 
-			"    System.out.print(this.e.CONST);\n" + 
-			"  }\n" + 
-			"}\n",
+				"class XA {}\n" + 
+				"interface XB {\n" + 
+				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+				"}\n" + 
+				"class XAB extends XA implements XB {}\n" + 
+				"\n" + 
+				"public class X <E extends XA&XB> {\n" + 
+				"	E e;\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"	  System.out.print(new X<XAB>().e.CONST);\n" + 
+				"	  new X<XAB>().foo();\n" + 
+				"  }\n" + 
+				"  public void foo() {\n" + 
+				"    System.out.print(this.e.CONST);\n" + 
+				"  }\n" + 
+				"}\n",
 			},
 			"SUCCESSSUCCESS");		
 		String expectedOutput =
@@ -14848,19 +14848,16 @@ public void test500(){
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"     3  aload_0 [this]\n" + 
-			"     4  getfield X.e : XA [29]\n" + 
-			"     7  pop\n" + 
-			"     8  getstatic XB.CONST : XB [48]\n" + 
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"    14  return\n" + 
+			"     3  getstatic XB.CONST : XB [48]\n" + 
+			"     6  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
-			"        [pc: 14, line: 15]\n" + 
+			"        [pc: 9, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n" + 
 			"}";
 		
 		try {
@@ -15067,21 +15064,18 @@ public void test500(){
 			"     5  invokespecial X$1(X) [30]\n" + 
 			"     8  invokevirtual X$1.run() : void [33]\n" + 
 			"    11  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
-			"    14  aload_0 [this]\n" + 
-			"    15  getfield X.e : XA [42]\n" + 
-			"    18  pop\n" + 
-			"    19  getstatic XB.CONST : XB [44]\n" + 
-			"    22  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [50]\n" + 
-			"    25  return\n" + 
+			"    14  getstatic XB.CONST : XB [42]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [48]\n" + 
+			"    20  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 13]\n" + 
 			"        [pc: 8, line: 17]\n" + 
 			"        [pc: 11, line: 18]\n" + 
-			"        [pc: 25, line: 19]\n" + 
+			"        [pc: 20, line: 19]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: X<E>\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X<E>\n" + 
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #28 X$1, outer class info: #0\n" + 
