@@ -11,10 +11,16 @@
 package org.eclipse.jdt.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.tools.ant.BuildException;
@@ -24,10 +30,14 @@ import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Commandline.Argument;
 import org.apache.tools.ant.util.JavaEnvUtils;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Ant 1.5 compiler adapter for the Eclipse Java compiler. This adapter permits the
@@ -43,9 +53,16 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
+	private static final char[] SEPARATOR_CHARS = new char[] { '/', '\\' };
+	private static final char[] ADAPTER_PREFIX = "#ADAPTER#".toCharArray(); //$NON-NLS-1$
+	private static final char[] ADAPTER_ENCODING = "ENCODING#".toCharArray(); //$NON-NLS-1$
+	private static final char[] ADAPTER_ACCESS = "ACCESS#".toCharArray(); //$NON-NLS-1$
 	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
 	String logFileName;
 	Map customDefaultOptions;
+	private Map fileEncodings = null;
+	private Map dirEncodings = null;
+	private List accessRules = null;
 	
 	/**
 	 * Performs a compile using the JDT batch compiler
@@ -78,6 +95,14 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	protected Commandline setupJavacCommand() throws BuildException {
 		Commandline cmd = new Commandline();
 		this.customDefaultOptions = new CompilerOptions().getMap();
+		
+		Class javacClass = Javac.class;
+		
+		/*
+		 * Read in the compiler arguments first since we might need to modify
+		 * the classpath if any access rules were specified
+		 */
+		String [] compilerArgs = processCompilerArguments(javacClass);
 
 		/*
 		 * This option is used to never exit at the end of the ant task. 
@@ -115,7 +140,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         
         // retrieve the method getSourcepath() using reflect
         // This is done to improve the compatibility to ant 1.5
-        Class javacClass = Javac.class;
         Method getSourcepathMethod = null;
         try {
 	        getSourcepathMethod = javacClass.getMethod("getSourcepath", null); //$NON-NLS-1$
@@ -142,7 +166,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * Set the classpath for the Eclipse compiler.
 		 */
 		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
-		cmd.createArgument().setPath(classpath);
+		createClasspathArgument(cmd, classpath);
 
         final String javaVersion = JavaEnvUtils.getJavaVersion();
 		String memoryParameterPrefix = javaVersion.equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
@@ -213,26 +237,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
 			this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
         }
-        
-       // retrieve the method getCurrentCompilerArgs() using reflect
-        // This is done to improve the compatibility to ant 1.5
-        Method getCurrentCompilerArgsMethod = null;
-        try {
-	        getCurrentCompilerArgsMethod = javacClass.getMethod("getCurrentCompilerArgs", null); //$NON-NLS-1$
-        } catch(NoSuchMethodException e) {
-        	// if not found, then we cannot use this method (ant 1.5)
-        	// debug level is only available with ant 1.5.x
-        }
- 	    String[] compilerArgs = null;
-        if (getCurrentCompilerArgsMethod != null) {
-			try {
-				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, null);
-			} catch (IllegalAccessException e) {
-				// should never happen
-			} catch (InvocationTargetException e) {
-				// should never happen
-			}
-    	}
     	
 		/*
 		 * Handle the nowarn option. If none, then we generate all warnings.
@@ -407,6 +411,216 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         return cmd;
 	}
 	
+	/**
+	 * Get the compiler arguments
+	 * @param javacClass
+	 * @return String[] the array of arguments
+	 */
+	private String[] processCompilerArguments(Class javacClass) {
+		// retrieve the method getCurrentCompilerArgs() using reflect
+		// This is done to improve the compatibility to ant 1.5
+		Method getCurrentCompilerArgsMethod = null;
+		try {
+			getCurrentCompilerArgsMethod = javacClass.getMethod("getCurrentCompilerArgs", null); //$NON-NLS-1$
+		} catch (NoSuchMethodException e) {
+			// if not found, then we cannot use this method (ant 1.5)
+			// debug level is only available with ant 1.5.x
+		}
+		String[] compilerArgs = null;
+		if (getCurrentCompilerArgsMethod != null) {
+			try {
+				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, null);
+			} catch (IllegalAccessException e) {
+				// should never happen
+			} catch (InvocationTargetException e) {
+				// should never happen
+			}
+		}
+		//check the compiler arguments for anything requiring extra processing
+		if (compilerArgs != null) checkCompilerArgs(compilerArgs);
+		return compilerArgs;
+	}
+	/**
+	 * check the compiler arguments.
+	 * Extract from files specified using @, lines marked with ADAPTER_PREFIX
+	 * These lines specify information that needs to be interpreted by us.
+	 * @param args
+	 */
+	private void checkCompilerArgs(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].charAt(0) == '@') {
+				try {
+					char[] content = Util.getFileCharContent(new File(args[i].substring(1)), null);
+					int offset = 0;
+					int prefixLength = ADAPTER_PREFIX.length;
+					while ((offset = CharOperation.indexOf(ADAPTER_PREFIX, content, true, offset)) > -1) {
+						int start = offset + prefixLength;
+						int end = CharOperation.indexOf('\n', content, start);
+						if (end == -1)
+							end = content.length;
+						while (CharOperation.isWhitespace(content[end])) {
+							end--;
+						}
+						
+						// end is inclusive, but in the API end is exclusive 
+						CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, end + 1);
+						if (CharOperation.equals(ADAPTER_ENCODING, content, start, start + ADAPTER_ENCODING.length)) {
+							// file or folder level custom encoding
+							start += ADAPTER_ENCODING.length;
+							int encodeStart = CharOperation.lastIndexOf('[', content, start, end);
+							if (start < encodeStart && encodeStart < end) {
+								boolean isFile = CharOperation.equals(SuffixConstants.SUFFIX_java, content, encodeStart - 5, encodeStart, false);
+
+								String str = String.valueOf(content, start, encodeStart - start);
+								String enc = String.valueOf(content, encodeStart, end - encodeStart + 1);
+								if (isFile) {
+									if (fileEncodings == null)
+										fileEncodings = new HashMap();
+									//use File to translate the string into a path with the correct File.seperator
+									fileEncodings.put(str, enc);
+								} else {
+									if (dirEncodings == null)
+										dirEncodings = new HashMap();
+									dirEncodings.put(str, enc);
+								}
+							}
+						} else if (CharOperation.equals(ADAPTER_ACCESS, content, start, start + ADAPTER_ACCESS.length)) {
+							// access rules for the classpath
+							start += ADAPTER_ACCESS.length;
+							int accessStart = CharOperation.indexOf('[', content, start, end);
+							if (start < accessStart && accessStart < end) {
+								String path = String.valueOf(content, start, accessStart - start);
+								String access = String.valueOf(content, accessStart, end - accessStart + 1);
+								if (accessRules == null)
+									accessRules = new ArrayList();
+								accessRules.add(path);
+								accessRules.add(access);
+							}
+						}
+						offset = end;
+					}
+				} catch (IOException e) {
+					//ignore
+				}
+			}
+		}
+
+	}
+	
+	/**
+	 * Copy the classpath to the command line with access rules included.
+	 * @param cmd
+	 * @param classpath
+	 */
+	private void createClasspathArgument(Commandline cmd, Path classpath) {
+		Argument arg = cmd.createArgument();
+		final String[] pathElements = classpath.list();
+
+		// empty path return empty string
+		if (pathElements.length == 0) {
+			arg.setValue(""); //$NON-NLS-1$
+			return;
+		}
+
+		// no access rules, can set the path directly
+		if (accessRules == null) {
+			arg.setPath(classpath);
+			return;
+		}
+
+		int rulesLength = accessRules.size();
+		String[] rules = (String[]) accessRules.toArray(new String[rulesLength]);
+		int nextRule = 0;
+		final StringBuffer result = new StringBuffer();
+
+		//access rules are expected in the same order as the classpath, but there could
+		//be elements in the classpath not in the access rules or access rules not in the classpath
+		for (int i = 0; i < pathElements.length; i++) {
+			if (i > 0)
+				result.append(File.pathSeparatorChar);
+			result.append(pathElements[i]);
+			//the rules list is [path, rule, path, rule, ...]
+			for (int j = nextRule; j < rulesLength; j += 2) {
+				if (pathElements[i].endsWith(rules[j])) {
+					result.append(rules[j + 1]);
+					nextRule = j + 2;
+					break;
+				}
+			}
+		}
+
+		arg.setValue(result.toString());
+	}
+	/**
+	 * Modified from base class, Logs the compilation parameters, adds the files 
+	 * to compile and logs the &quot;niceSourceList&quot;
+	 * Appends encoding information at the end of arguments
+	 */
+	protected void logAndAddFilesToCompile(Commandline cmd) {
+		attributes.log("Compilation " + cmd.describeArguments(), //$NON-NLS-1$
+				Project.MSG_VERBOSE);
+
+		StringBuffer niceSourceList = new StringBuffer("File"); //$NON-NLS-1$
+		if (compileList.length != 1) {
+			niceSourceList.append("s"); //$NON-NLS-1$
+		}
+		niceSourceList.append(" to be compiled:"); //$NON-NLS-1$
+		niceSourceList.append(lSep);
+
+		String[] encodedFiles = null, encodedDirs = null;
+		int encodedFilesLength = 0, encodedDirsLength = 0;
+		if (fileEncodings != null) {
+			encodedFilesLength = fileEncodings.size();
+			encodedFiles = new String[encodedFilesLength];
+			fileEncodings.keySet().toArray(encodedFiles);
+		}
+		if (dirEncodings != null) {
+			encodedDirsLength = dirEncodings.size();
+			encodedDirs = new String[encodedDirsLength];
+			dirEncodings.keySet().toArray(encodedDirs);
+			//we need the directories sorted, longest first,since sub directories can
+			//override encodings for their parent directories
+			Comparator comparator = new Comparator() {
+				public int compare(Object o1, Object o2) {
+					return ((String) o2).length() - ((String) o1).length();
+				}
+			};
+			Arrays.sort(encodedDirs, comparator);
+		}
+
+		for (int i = 0; i < compileList.length; i++) {
+			String arg = compileList[i].getAbsolutePath();
+			boolean encoded = false;
+			if (encodedFiles != null) {
+				//check for file level custom encoding
+				for (int j = 0; j < encodedFilesLength; j++) {
+					if (arg.endsWith(encodedFiles[j])) {
+						//found encoding, remove it from the list to speed things up next time around
+						arg = arg + (String) fileEncodings.get(encodedFiles[j]);
+						if (j < encodedFilesLength - 1) {
+							System.arraycopy(encodedFiles, j + 1, encodedFiles, j, encodedFilesLength - j - 1);
+						}
+						encodedFiles[--encodedFilesLength] = null;
+						encoded = true;
+						break;
+					}
+				}
+			}
+			if (!encoded && encodedDirs != null) {
+				//check folder level custom encoding
+				for (int j = 0; j < encodedDirsLength; j++) {
+					if (arg.lastIndexOf(encodedDirs[j]) != -1) {
+						arg = arg + (String) dirEncodings.get(encodedDirs[j]);
+						break;
+					}
+				}
+			}
+			cmd.createArgument().setValue(arg);
+			niceSourceList.append("    " + arg + lSep); //$NON-NLS-1$
+		}
+
+		attributes.log(niceSourceList.toString(), Project.MSG_VERBOSE);
+	}
     /**
      * Emulation of extdirs feature in java >= 1.2.
      * This method adds all files in the given
