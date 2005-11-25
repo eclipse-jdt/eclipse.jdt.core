@@ -2115,6 +2115,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						case readyToCloseOrOtherEntry:
 							state = readyToCloseOrOtherEntry;
 							addNewEntry(InsideClasspath, InsideSourcepath, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
+							currentRuleSpecs.clear();
 							break;
 						case rulesReadyToClose:
 							state = rulesNeedAnotherRule;
