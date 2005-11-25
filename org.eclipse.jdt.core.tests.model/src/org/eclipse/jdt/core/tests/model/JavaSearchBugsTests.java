@@ -2844,6 +2844,9 @@ public void testBug92944_TYPE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -2906,6 +2909,9 @@ public void testBug92944_CLASS() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -2963,6 +2969,9 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -3023,6 +3032,9 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -4482,6 +4494,22 @@ public void testBug100772_ProjectScope_Complex04() throws CoreException {
 		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 108088: [search] Inaccurate search match for method invocations with literal arguments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108088"
+ */
+public void testBug108088() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b108088", "Test108088.java");
+	IType type = unit.getType("A108088");
+	IMethod method = type.getMethod("subroutine", new String[] { "F" });
+	SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES, EXACT_RULE);
+	assertNotNull("Pattern should not be null", pattern);
+	search(pattern, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b108088/B108088.java void b108088.B108088.doit(A108088, String) [subroutine(1.2f)] EXACT_MATCH"
 	);
 }
 

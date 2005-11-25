@@ -2401,6 +2401,7 @@ public class DeltaProcessor {
 						break;
 					case IResourceDelta.REMOVED :
 						indexManager.remove(Util.relativePath(file.getFullPath(), 1/*remove project segment*/), file.getProject().getFullPath());
+						this.manager.removeFromSecondaryTypesCache(file);
 						break;
 				}
 		}

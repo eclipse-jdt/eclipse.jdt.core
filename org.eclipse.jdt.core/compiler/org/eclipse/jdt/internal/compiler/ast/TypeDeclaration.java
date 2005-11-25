@@ -1326,4 +1326,11 @@ public class TypeDeclaration
 			maxFieldCount = outerMostType.maxFieldCount; // down
 		}
 	}	
+
+	/**
+	 * Returns whether the type is a secondary one or not.
+	 */
+	public boolean isSecondary() {
+		return (this.bits & IsSecondaryType) != 0;
+	}
 }

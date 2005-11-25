@@ -34,10 +34,12 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -816,6 +818,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		public IEclipsePreferences preferences;
 		public Hashtable options;
+		public HashMap secondaryTypes;
 		
 		public PerProjectInfo(IProject project) {
 
@@ -1425,7 +1428,88 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	    return null; // break cycle
 	}
-	
+
+	/**
+	 * Get all secondary types for a project and store result in per project info cache.
+	 * 
+	 * @param project Project we want get secondary types from
+	 * @return HashMap Table of secondary type names->path for given project
+	 */
+	public HashMap getSecondaryTypes(IJavaProject project) throws JavaModelException {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.getSecondaryTypesPaths("); //$NON-NLS-1$
+			buffer.append(project.getElementName());
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+
+		PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project.getProject());
+		if (projectInfo.secondaryTypes != null) return projectInfo.secondaryTypes;
+		final HashMap secondaryTypePaths = new HashMap(3);
+
+		IRestrictedAccessTypeRequestor nameRequestor = new IRestrictedAccessTypeRequestor() {
+			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+				String key = packageName==null ? "" : new String(packageName); //$NON-NLS-1$
+				HashMap types = (HashMap) secondaryTypePaths.get(key);
+				if (types == null) {
+					types = new HashMap();
+				}
+				types.put(new String(simpleTypeName), path);
+				secondaryTypePaths.put(key, types);
+			}
+		};
+
+		// Build scope using prereq projects but only source folders
+		IPackageFragmentRoot[] allRoots = project.getAllPackageFragmentRoots();
+		int length = allRoots.length, size = 0;
+		IPackageFragmentRoot[] allSourceFolders = new IPackageFragmentRoot[length];
+		for (int i=0; i<length; i++) {
+			if (allRoots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
+				allSourceFolders[size++] = allRoots[i];
+			}
+		}
+		if (size < length) {
+			System.arraycopy(allSourceFolders, 0, allSourceFolders = new IPackageFragmentRoot[size], 0, size);
+		}
+			
+		// Search all secondary types on scope
+		new BasicSearchEngine().searchAllSecondaryTypeNames(allSourceFolders, nameRequestor);
+		if (VERBOSE) {
+			System.out.print(Thread.currentThread() + " -> secondary paths: ");  //$NON-NLS-1$
+			if (secondaryTypePaths == null) {
+				System.out.println(" NONE"); //$NON-NLS-1$
+			} else {
+				System.out.println();
+				Iterator keys = secondaryTypePaths.keySet().iterator();
+				while (keys.hasNext()) {
+					String qualifiedName = (String) keys.next();
+					Util.verbose("		- "+qualifiedName+'-'+secondaryTypePaths.get(qualifiedName) ); //$NON-NLS-1$
+				}
+			}
+		}
+		
+		// Build types from paths
+		Iterator packages = secondaryTypePaths.keySet().iterator();
+		while (packages.hasNext()) {
+			String packName = (String) packages.next();
+			HashMap types = (HashMap) secondaryTypePaths.get(packName);
+			Iterator names = types.keySet().iterator();
+			while (names.hasNext()) {
+				String typeName = (String) names.next();
+				String path = (String) types.get(typeName);
+				if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(path)) {
+					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
+					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
+					IType type = unit.getType(typeName);
+					types.put(typeName, type); // replace stored path with type itself
+				}
+			}
+		}
+		
+		// Store result in per project info cache
+		return (projectInfo.secondaryTypes = secondaryTypePaths);
+	}
+
 	/**
 	 * Returns the temporary cache for newly opened elements for the current thread.
 	 * Creates it if not already created.
@@ -2283,7 +2367,71 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// used by tests to simulate a startup
 		MANAGER = new JavaModelManager();
 	}
-	
+
+	/**
+	 * Remove a file from its project secondary types cache.
+	 * 
+	 * @param file File to remove
+	 */
+	public void removeFromSecondaryTypesCache(IFile file) {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.removeSecondaryTypePaths("); //$NON-NLS-1$
+			buffer.append(file.getName());
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+		if (file != null) {
+			PerProjectInfo projectInfo = getPerProjectInfo(file.getProject(), false);
+			if (projectInfo != null && projectInfo.secondaryTypes != null) {
+				if (VERBOSE) {
+					Util.verbose("-> remove file from cache of project: "+file.getProject().getName()); //$NON-NLS-1$
+				}
+				Iterator packages = projectInfo.secondaryTypes.keySet().iterator();
+				while (packages.hasNext()) {
+					String packName = (String) packages.next();
+					HashMap types = (HashMap) projectInfo.secondaryTypes.get(packName);
+					Iterator names = types.keySet().iterator();
+					while (names.hasNext()) {
+						String typeName = (String) names.next();
+						IType type = (IType) types.get(typeName);
+						if (file == type.getResource()) {
+							types.remove(typeName);
+							if (types.size() == 0) {
+								projectInfo.secondaryTypes.remove(packName);
+							}
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Reset secondary types cache for a project got from given path.
+	 * 
+	 * @param path Path of file containing a secondary type
+	 */
+	public void resetSecondaryTypesCache(String path) {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.resetSecondaryTypePaths("); //$NON-NLS-1$
+			buffer.append(path);
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+		IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = wRoot.findMember(path);
+		if (resource != null) {
+			PerProjectInfo projectInfo = getPerProjectInfo(resource.getProject(), false);
+			if (projectInfo != null) {
+				if (VERBOSE) {
+					Util.verbose("-> reset cache for project: "+resource.getProject().getName()); //$NON-NLS-1$
+				}
+				projectInfo.secondaryTypes = null;
+			}
+		}
+	}
+
 	/*
 	 * Resets the temporary cache for newly created elements to null.
 	 */

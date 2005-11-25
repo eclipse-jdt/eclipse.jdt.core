@@ -137,7 +137,7 @@ private void enterAnnotationType(TypeInfo typeInfo) {
 	} else {
 		typeNames = this.enclosingTypeNames();
 	}
-	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames);
+	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.secondary);
 	this.pushTypeName(typeInfo.name);	
 }
 
@@ -170,7 +170,7 @@ private void enterClass(TypeInfo typeInfo) {
 			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.bounds == null ? CharOperation.NO_CHAR_CHAR : typeParameterInfo.bounds);
 		}
 	}
-	this.indexer.addClassDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superclass, typeInfo.superinterfaces, typeParameterSignatures);
+	this.indexer.addClassDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superclass, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
 	this.pushTypeName(typeInfo.name);
 }
 /**
@@ -199,7 +199,7 @@ private void enterEnum(TypeInfo typeInfo) {
 	} else {
 		typeNames = this.enclosingTypeNames();
 	}
-	this.indexer.addEnumDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces);
+	this.indexer.addEnumDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeInfo.secondary);
 	this.pushTypeName(typeInfo.name);	
 }
 /**
@@ -237,7 +237,7 @@ private void enterInterface(TypeInfo typeInfo) {
 			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.bounds);
 		}
 	}
-	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures);
+	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
 	this.pushTypeName(typeInfo.name);	
 }
 /**

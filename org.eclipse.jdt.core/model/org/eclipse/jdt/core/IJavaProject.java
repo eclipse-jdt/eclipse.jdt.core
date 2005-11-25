@@ -185,11 +185,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A in package x.y should have a 
 	 * the fully qualified name "x.y.A.B".
 	 * 
-	 * Note that in order to be found, a type name (or its toplevel enclosing
-	 * type name) must match its corresponding compilation unit name. As a 
-	 * consequence, secondary types cannot be found using this functionality.
-	 * Secondary types can however be explicitely accessed through their enclosing
-	 * unit or found by the <code>SearchEngine</code>.
+	 * Secondary types are found since version 3.2.
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
 	 * @exception JavaModelException if this project does not exist or if an
@@ -209,11 +205,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * If the returned type is part of a compilation unit, its owner is the given
 	 * owner.
 	 * 
-	 * Note that in order to be found, a type name (or its toplevel enclosing
-	 * type name) must match its corresponding compilation unit name. As a 
-	 * consequence, secondary types cannot be found using this functionality.
-	 * Secondary types can however be explicitely accessed through their enclosing
-	 * unit or found by the <code>SearchEngine</code>.
+	 * Secondary types are found since version 3.2.
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
 	 * @param owner the owner of the returned type's compilation unit
@@ -234,11 +226,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A should have the 
 	 * type qualified name "A.B".
 	 * 
-	 * Note that in order to be found, a type name (or its toplevel enclosing
-	 * type name) must match its corresponding compilation unit name. As a 
-	 * consequence, secondary types cannot be found using this functionality.
-	 * Secondary types can however be explicitely accessed through their enclosing
-	 * unit or found by the <code>SearchEngine</code>.
+	 * Secondary types are found since version 3.2.
 	 * 
 	 * @param packageName the given package name
 	 * @param typeQualifiedName the given type qualified name
@@ -262,11 +250,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * If the returned type is part of a compilation unit, its owner is the given
 	 * owner.
 	 * 
-	 * Note that in order to be found, a type name (or its toplevel enclosing
-	 * type name) must match its corresponding compilation unit name. As a 
-	 * consequence, secondary types cannot be found using this functionality.
-	 * Secondary types can however be explicitely accessed through their enclosing
-	 * unit or found by the <code>SearchEngine</code>.
+	 * Secondary types are found since version 3.2.
 	 * 
 	 * @param packageName the given package name
 	 * @param typeQualifiedName the given type qualified name

@@ -36,6 +36,7 @@ public interface IIndexConstants {
 	char CLASS_AND_ENUM_SUFFIX = IJavaSearchConstants.CLASS_AND_ENUM;
 	char CLASS_AND_INTERFACE_SUFFIX = IJavaSearchConstants.CLASS_AND_INTERFACE;
 	char SEPARATOR= '/';
+	char SECONDARY_SUFFIX = 'S';
 
 	char[] ONE_STAR = new char[] {'*'};
 	char[][] ONE_STAR_CHAR = new char[][] {ONE_STAR};

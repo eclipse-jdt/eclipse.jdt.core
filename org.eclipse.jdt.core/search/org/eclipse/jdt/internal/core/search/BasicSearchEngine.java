@@ -71,7 +71,7 @@ public class BasicSearchEngine {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#SearchEngine(ICompilationUnit[]) for detailed comment.
+	 * @see SearchEngine#SearchEngine(ICompilationUnit[]) for detailed comment.
 	 */
 	public BasicSearchEngine(ICompilationUnit[] workingCopies) {
 		this.workingCopies = workingCopies;
@@ -87,35 +87,35 @@ public class BasicSearchEngine {
 		}
 	}
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#SearchEngine(WorkingCopyOwner) for detailed comment.
+	 * @see SearchEngine#SearchEngine(WorkingCopyOwner) for detailed comment.
 	 */
 	public BasicSearchEngine(WorkingCopyOwner workingCopyOwner) {
 		this.workingCopyOwner = workingCopyOwner;
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#createHierarchyScope(IType) for detailed comment.
+	 * @see SearchEngine#createHierarchyScope(IType) for detailed comment.
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModelException {
 		return createHierarchyScope(type, DefaultWorkingCopyOwner.PRIMARY);
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#createHierarchyScope(IType,WorkingCopyOwner) for detailed comment.
+	 * @see SearchEngine#createHierarchyScope(IType,WorkingCopyOwner) for detailed comment.
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type, WorkingCopyOwner owner) throws JavaModelException {
 		return new HierarchyScope(type, owner);
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]) for detailed comment.
+	 * @see SearchEngine#createJavaSearchScope(IJavaElement[]) for detailed comment.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
 		return createJavaSearchScope(elements, true);
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[], boolean) for detailed comment.
+	 * @see SearchEngine#createJavaSearchScope(IJavaElement[], boolean) for detailed comment.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
 		int includeMask = IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SYSTEM_LIBRARIES;
@@ -126,7 +126,7 @@ public class BasicSearchEngine {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[], int) for detailed comment.
+	 * @see SearchEngine#createJavaSearchScope(IJavaElement[], int) for detailed comment.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
 		JavaSearchScope scope = new JavaSearchScope();
@@ -149,9 +149,7 @@ public class BasicSearchEngine {
 	}
 	
 	/**
-	 * Returns a Java search scope with the workspace as the only limit.
-	 *
-	 * @return a new workspace scope
+	 * @see SearchEngine#createWorkspaceScope() for detailed comment.
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
 		return JavaModelManager.getJavaModelManager().getWorkspaceScope();
@@ -165,7 +163,7 @@ public class BasicSearchEngine {
 	 * @param scope the search result has to be limited to the given scope
 	 * @param requestor a callback object to which each match is reported
 	 */
-	public void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
+	void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 		/* initialize progress monitor */
@@ -231,7 +229,7 @@ public class BasicSearchEngine {
 	/**
 	 * @param matchRule
 	 */
-	private String getMatchRuleString(final int matchRule) {
+	public static String getMatchRuleString(final int matchRule) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i=1; i<=8; i++) {
 			int bit = matchRule & (1<<(i-1));
@@ -266,6 +264,39 @@ public class BasicSearchEngine {
 		return buffer.toString();
 	}
 
+	/**
+	 * Return kind of search corresponding to given value.
+	 * 
+	 * @param searchFor
+	 */
+	public static String getSearchForString(final int searchFor) {
+		switch (searchFor) {
+			case IJavaSearchConstants.TYPE:
+				return ("TYPE"); //$NON-NLS-1$
+			case IJavaSearchConstants.METHOD:
+				return ("METHOD"); //$NON-NLS-1$
+			case IJavaSearchConstants.PACKAGE:
+				return ("PACKAGE"); //$NON-NLS-1$
+			case IJavaSearchConstants.CONSTRUCTOR:
+				return ("CONSTRUCTOR"); //$NON-NLS-1$
+			case IJavaSearchConstants.FIELD:
+				return ("FIELD"); //$NON-NLS-1$
+			case IJavaSearchConstants.CLASS:
+				return ("CLASS"); //$NON-NLS-1$
+			case IJavaSearchConstants.INTERFACE:
+				return ("INTERFACE"); //$NON-NLS-1$
+			case IJavaSearchConstants.ENUM:
+				return ("ENUM"); //$NON-NLS-1$
+			case IJavaSearchConstants.ANNOTATION_TYPE:
+				return ("ANNOTATION_TYPE"); //$NON-NLS-1$
+			case IJavaSearchConstants.CLASS_AND_ENUM:
+				return ("CLASS_AND_ENUM"); //$NON-NLS-1$
+			case IJavaSearchConstants.CLASS_AND_INTERFACE:
+				return ("CLASS_AND_INTERFACE"); //$NON-NLS-1$
+		}
+		return "UNKNOWN"; //$NON-NLS-1$
+	}
+
 	private Parser getParser() {
 		if (this.parser == null) {
 			this.compilerOptions = new CompilerOptions(JavaCore.getOptions());
@@ -279,10 +310,8 @@ public class BasicSearchEngine {
 		return this.parser;
 	}
 	
-	/**
+	/*
 	 * Returns the underlying resource of the given element.
-	 * @param element an IJavaElement
-	 * @return an IResource
 	 */
 	private IResource getResource(IJavaElement element) {
 		if (element instanceof IMember) {
@@ -354,10 +383,8 @@ public class BasicSearchEngine {
 		return result;
 	}
 	
-	/**
+	/*
 	 * Returns the list of working copies used to do the search on the given Java element.
-	 * @param element an IJavaElement
-	 * @return an array of ICompilationUnit
 	 */
 	private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 		if (element instanceof IMember) {
@@ -685,6 +712,88 @@ public class BasicSearchEngine {
 				progressMonitor.done();
 			}
 		}
+	}
+
+	/**
+	 * Searches for all top-level types and member types in the given scope.
+	 * The search can be selecting specific types (given a package or a type name
+	 * prefix and match modes). 
+	 * 
+	 */
+	public void searchAllSecondaryTypeNames(IPackageFragmentRoot[] sourceFolders, final IRestrictedAccessTypeRequestor nameRequestor)  throws JavaModelException {
+
+		if (VERBOSE) {
+			Util.verbose("BasicSearchEngine.searchAllSecondaryTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer(" -> source folders: "); //$NON-NLS-1$
+			int length = sourceFolders.length;
+			for (int i=0; i<length; i++) {
+				if (i==0) {
+					buffer.append('[');
+				} else {
+					buffer.append(',');
+				}
+				buffer.append(sourceFolders[i].getElementName());
+			}
+			buffer.append(']');
+			Util.verbose(buffer.toString());
+		}
+
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		final TypeDeclarationPattern pattern = new SecondaryTypeDeclarationPattern();
+		
+		final HashSet workingCopyPaths = new HashSet();
+		ICompilationUnit[] copies = getWorkingCopies();
+		if (copies != null) {
+			for (int i = 0, length = copies.length; i < length; i++) {
+				ICompilationUnit workingCopy = copies[i];
+				workingCopyPaths.add(workingCopy.getPath().toString());
+			}
+		}
+
+		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
+			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
+				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
+				if (record.secondary) {
+					AccessRestriction accessRestriction = null;
+					if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
+							&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
+						if (access != null) {
+							// Compute document relative path
+							int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
+							int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
+							char[] path = new char[pkgLength+nameLength];
+							int pos = 0;
+							if (pkgLength > 0) {
+								System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
+								CharOperation.replace(path, '.', '/');
+								path[pkgLength-1] = '/';
+								pos += pkgLength;
+							}
+							if (nameLength > 0) {
+								System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+								pos += nameLength;
+							}
+							// Update access restriction if path is not empty
+							if (pos > 0) {
+								accessRestriction = access.getViolatedRestriction(path);
+							}
+						}
+						nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					}
+				}
+				return true;
+			}
+		};
+	
+		// add type names from indexes
+		indexManager.performConcurrentJob(
+			new PatternSearchJob(
+				pattern, 
+				getDefaultSearchParticipant(), // Java search only
+				createJavaSearchScope(sourceFolders), 
+				searchRequestor),
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);	
 	}
 
 	/**

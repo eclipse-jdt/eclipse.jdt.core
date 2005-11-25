@@ -32,7 +32,7 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	public final static int Bit10= 0x200; 					// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
 	public final static int Bit11 = 0x400; 					// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
-	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) 
+	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) | is secondary type (type decl)
 	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
 	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
@@ -118,7 +118,8 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	public static final int IsAnonymousType = Bit10; // used to test for anonymous 
 	public static final int IsMemberType = Bit11; // local member do not know it is local at parse time (need to look at binding)
 	public static final int HasAbstractMethods = Bit12; // used to promote abstract enums
-	
+	public static final int IsSecondaryType = Bit13; // used to test for secondary
+
 	// for type, method and field declarations 
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 

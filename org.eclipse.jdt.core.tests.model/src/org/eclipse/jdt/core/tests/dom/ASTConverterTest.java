@@ -32,9 +32,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 	public ASTConverterTest(String name) {
 		super(name);
 	}
+
 	static {
-//		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 618 };
+//		TESTS_NUMBERS = new int[] { 356 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTest.class);
@@ -8868,14 +8868,14 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
 		ITypeBinding binding = type.resolveBinding();
-		assertNull(binding);
+		assertNotNull("Binding should NOT be null for type: "+type, binding);
 	}
 	
 	/**

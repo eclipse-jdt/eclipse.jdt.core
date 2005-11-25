@@ -11,26 +11,150 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.internal.core.SourceType;
+
+
 /**
  * Test retrieving types by their name.
  */
 public class ClassNameTests extends ModifyingResourceTests {
 
+	static IJavaProject TEST_PROJECT;
+	final static int SF_LENGTH = 5;
+	static int TESTS_COUNT;
 
 	public ClassNameTests(String name) {
 		super(name);
 	}
-	
+
+	static {
+//		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
+//		TESTS_NAMES = new String[] { "testReconcileMultipleProject" };
+//		TESTS_PREFIX = "testReconcile";
+	}
+	public static Test suite() {
+		Test suite = buildTestSuite(ClassNameTests.class);
+		TESTS_COUNT = suite.countTestCases();
+		return suite;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUp()
+	 */
+	protected void setUp() throws Exception {
+		if (org.eclipse.jdt.internal.core.NameLookup.VERBOSE || org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE) {
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Running test "+getName()+"...");
+		}
+		super.setUp();
+		if (TEST_PROJECT == null) {
+			String[] sourceFolders = new String[SF_LENGTH];
+			for (int i=0; i<SF_LENGTH; i++) {
+				sourceFolders[i] = "src" + i;
+			}
+			TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL_LIB"}, "bin");
+			createFolder("/TestProject/src0/org/eclipse/jdt/core/test0");
+			createFile(
+				"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java", 
+				"package org.eclipse.jdt.core.test0;\n" +
+				"public class Foo {\n" +
+				"	class InFoo {}\n" +
+				"}\n" +
+				"class Secondary {\n" +
+				"	class InSecondary {}\n" +
+				"}\n"
+			);
+			createFile(
+				"/TestProject/src1/Foo.java", 
+				"public class Foo {\n" +
+				"	class InFoo {}\n" +
+				"}\n" +
+				"class Secondary {\n" +
+				"	class InSecondary {}\n" +
+				"}\n"
+			);
+			int length = SF_LENGTH - 1;
+			createFolder("/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length);
+			createFile(
+				"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Foo.java", 
+				"package org.eclipse.jdt.core.test"+length+";\n" +
+				"public class Foo {\n" +
+				"}\n" +
+				"class Secondary {\n" +
+				"}\n"
+			);
+			createFile(
+				"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Test.java", 
+				"package org.eclipse.jdt.core.test"+length+";\n" +
+				"public class Test {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Secondary s = new Secondary();\n" +
+				"	}\n" +
+				"}\n"
+			);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+		TESTS_COUNT--;
+		if (TEST_PROJECT != null && TESTS_COUNT == 0) {
+			deleteResource(TEST_PROJECT.getProject());
+		}
+		super.tearDown();
+	}
+
+	protected void assertTypeFound(String typeName, String expectedResult) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(typeName);
+		assertTrue("type "+typeName+" should exist!", type != null && type.exists());
+		assertEquals("Expected type "+typeName+" NOT found!",
+			expectedResult,
+			((SourceType)type).toStringWithAncestors()
+		);
+	}
+	protected void assertTypeFound(String packageName, String typeName, String expectedResult) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(packageName, typeName);
+		assertTrue("type "+typeName+" should exist!", type != null && type.exists());
+		assertEquals("Expected type "+typeName+" NOT found!",
+			expectedResult,
+			((SourceType)type).toStringWithAncestors()
+		);
+	}
+
+	protected void assertTypeNotFound(String typeName) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(typeName);
+		assertNotNull("type "+typeName+" should NOT be null!", type);
+		assertFalse("type "+typeName+" should NOT exist!", type.exists());
+	}
+	protected void assertTypeNotFound(String packageName, String typeName) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(packageName, typeName);
+		assertNotNull("type "+typeName+" should NOT be null!", type);
+		assertFalse("type "+typeName+" should NOT exist!", type.exists());
+	}
+
+	protected void assertTypeUnknown(String typeName) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(typeName);
+		assertNull("type "+typeName+" should NOT be found!", type);
+	}
+	protected void assertTypeUnknown(String packageName, String typeName) throws JavaModelException {
+		assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
+		IType type = TEST_PROJECT.findType(packageName, typeName);
+		assertNull("type "+typeName+" should NOT be found!", type);
+	}
+
 	/**
 	 * Tests that a type in a jar with a name ending with $ can be retrieved.
 	 */
@@ -945,13 +1069,274 @@ public class ClassNameTests extends ModifyingResourceTests {
 		}
 	}
 
-	public static Test suite() {
-		TestSuite suite = new Suite(ClassNameTests.class.getName());
-		suite.addTest(new ClassNameTests("testClassNameWithDollar"));
-		suite.addTest(new ClassNameTests("testFindTypeWithDot"));
-		suite.addTest(new ClassNameTests("testSearchTypeNameInJars"));
-		return suite;
+	/**
+	 * Bug 36032: JavaProject.findType() fails to find second type in source file
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=36032"
+	 */
+	public void testFindSecondaryType_Exist01() throws JavaModelException, CoreException {
+		int length = SF_LENGTH - 1;
+		assertTypeFound(
+			"org.eclipse.jdt.core.test"+length+".Foo",
+			"Foo [in Foo.java [in org.eclipse.jdt.core.test"+length+" [in src"+length+" [in TestProject]]]]"
+		);
 	}
+	public void testFindSecondaryType_Exist02() throws JavaModelException, CoreException {
+		int length = SF_LENGTH - 1;
+		assertTypeFound(
+			"org.eclipse.jdt.core.test"+length+".Secondary",
+			"Secondary [in Foo.java [in org.eclipse.jdt.core.test"+length+" [in src"+length+" [in TestProject]]]]"
+		);
+	}
+	public void testFindSecondaryType_Exist03() throws JavaModelException, CoreException {
+		assertTypeFound(
+			"org.eclipse.jdt.core.test0.Foo.InFoo",
+			"InFoo [in Foo [in Foo.java [in org.eclipse.jdt.core.test0 [in src0 [in TestProject]]]]]"
+		);
+	}
+	public void testFindSecondaryType_Exist04() throws JavaModelException, CoreException {
+		assertTypeFound(
+			"org.eclipse.jdt.core.test0.Secondary.InSecondary",
+			"InSecondary [in Secondary [in Foo.java [in org.eclipse.jdt.core.test0 [in src0 [in TestProject]]]]]"
+		);
+	}
+	public void testFindSecondaryType_Exist05() throws JavaModelException, CoreException {
+		assertTypeFound(
+			"Foo",
+			"Foo [in Foo.java [in <default> [in src1 [in TestProject]]]]"
+		);
+	}
+	public void testFindSecondaryType_Exist06() throws JavaModelException, CoreException {
+		assertTypeFound(
+			"Secondary",
+			"Secondary [in Foo.java [in <default> [in src1 [in TestProject]]]]"
+		);
+	}
+	// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=72179
+	public void testFindSecondaryType_Bug72179() throws JavaModelException, CoreException {
+		try {
+			IJavaProject javaProject = createJavaProject("P", new String[] {""}, "");
+			createFolder("/P/p1");
+			createFile(
+				"/P/p1/jc.java", 
+				"package p1;\n" +
+				"class jc008{}\n" +
+				"class jc009{}\n" +
+				"class jc010 extends jc009 {\n" +
+				"	jc008 a;\n" +
+				"}\n"
+			);
+			IType type = javaProject.findType("p1", "jc008");
+			assertTrue("type 'jc008' should exist!", type != null && type.exists());
+			assertEquals("Expected type 'jc008' NOT found!",
+				"class jc008 [in jc.java [in p1 [in <project root> [in P]]]]",
+				type.toString()
+			);
+			type = javaProject.findType("p1", "jc009");
+			assertTrue("type 'jc009' should exist!", type != null && type.exists());
+			assertEquals("Expected type 'jc009' NOT found!",
+				"class jc009 [in jc.java [in p1 [in <project root> [in P]]]]",
+				type.toString()
+			);
+			type = javaProject.findType("p1", "jc010");
+			assertTrue("type 'jc010' should exist!", type != null && type.exists());
+			assertEquals("Expected type 'jc010' NOT found!",
+				"class jc010 [in jc.java [in p1 [in <project root> [in P]]]]\n" +
+				"  jc008 a",
+				type.toString()
+			);
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testFindSecondaryType_NotFound01() throws JavaModelException, CoreException {
+		assertTypeUnknown("test.Foo");
+	}
+	public void testFindSecondaryType_NotFound02() throws JavaModelException, CoreException {
+		assertTypeUnknown("InFoo");
+	}
+	public void testFindSecondaryType_NotFound03() throws JavaModelException, CoreException {
+		assertTypeUnknown("InSecondary");
+	}
+	public void testFindSecondaryType_NotFound04() throws JavaModelException, CoreException {
+		assertTypeUnknown("Foo.inFoo");
+	}
+	public void testFindSecondaryType_NotFound05() throws JavaModelException, CoreException {
+		assertTypeUnknown("Secondary.inBar");
+	}
+	public void testFindSecondaryType_Unknown01() throws JavaModelException, CoreException {
+		assertTypeUnknown("Unknown");
+	}
+	public void testFindSecondaryType_Unknown02() throws JavaModelException, CoreException {
+		assertTypeUnknown("Foo.Unknown");
+	}
+	public void testFindSecondaryType_Unknown03() throws JavaModelException, CoreException {
+		assertTypeUnknown("org.eclipse.jdt.core.test.Unknown");
+	}
+	public void testReconcileSingleProject01() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+			String source = 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new SFoo().foo();\n" + 
+				"	}\n" + 
+				"}\n";
+			this.createFile(
+				"/P/Foo.java", 
+				"class SFoo { void foo() {} }\n"
+			);
+			this.createFile(
+				"/P/Test.java", 
+				source
+			);
+			ProblemRequestor problemRequestor =  new ProblemRequestor();
+			workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+			problemRequestor.initialize(source.toCharArray());
+			workingCopy.getBuffer().setContents(source);
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (problemRequestor.problemCount > 0) {
+				assertEquals("Working copy should NOT have any problem!", "", problemRequestor.problems.toString());
+			}
 
+			// Add new secondary type
+			this.createFile(
+				"/P/Bar.java", 
+				"class SBar{ void bar() {} }\n"
+			);
+			waitUntilIndexesReady();
+			source = 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new SFoo().foo();\n" + 
+				"		new SBar().bar();\n" + 
+				"	}\n" + 
+				"}\n";
+			problemRequestor.initialize(source.toCharArray());
+			workingCopy.getBuffer().setContents(source);
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (problemRequestor.problemCount > 0) {
+				assertEquals("Working copy should NOT have any problem!", "", problemRequestor.problems.toString());
+			}
+		} finally {
+			if (workingCopy != null) workingCopy.discardWorkingCopy();
+			deleteProject("P");
+		}
+	}
+	public void testReconcileSingleProject02() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+			String source = 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new SFoo().foo();\n" + 
+				"		new SBar().bar();\n" + 
+				"	}\n" + 
+				"}\n";
+			createFile(
+				"/P/Foo.java", 
+				"class SFoo { void foo() {} }\n"
+			);
+			createFile(
+				"/P/Test.java", 
+				source
+			);
+			createFile(
+				"/P/Bar.java", 
+				"class SBar{ void bar() {} }\n"
+			);
+			ProblemRequestor problemRequestor =  new ProblemRequestor();
+			workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+			problemRequestor.initialize(source.toCharArray());
+			workingCopy.getBuffer().setContents(source);
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (problemRequestor.problemCount > 0) {
+				assertEquals("Working copy should NOT have any problem!", "", problemRequestor.problems.toString());
+			}
 
+			// Delete secondary type => should get a problem
+			waitUntilIndexesReady();
+			deleteFile("/P/Bar.java");
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			assertEquals("Working copy should not find secondary type 'Bar'!", 1, problemRequestor.problemCount);
+			assertEquals("Working copy should have problem!",
+				"----------\n" +
+				"----------\n" +
+				"----------\n" +
+				"1. ERROR in /P/Test.java (at line 4)\r\n" +
+				"	new SBar().bar();\r\n" +
+				"	    ^^^^\n" +
+				"SBar cannot be resolved to a type\n" +
+				"----------\n",
+				problemRequestor.problems.toString()
+			);
+
+			// Fix the problem
+			source = 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new SFoo().foo();\n" + 
+				"	}\n" + 
+				"}\n";
+			problemRequestor.initialize(source.toCharArray());
+			workingCopy.getBuffer().setContents(source);
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (problemRequestor.problemCount > 0) {
+				assertEquals("Working copy should NOT have any problem!", "", problemRequestor.problems.toString());
+			}
+		} finally {
+			if (workingCopy != null) workingCopy.discardWorkingCopy();
+			deleteProject("P");
+		}
+	}
+	public void testReconcileMultipleProject() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			// Create first project
+			createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P1/test");
+			createFile(
+				"/P1/test/Foo.java", 
+				"package test;\n" +
+				"class Secondary{ void foo() {} }\n"
+			);
+			createFile(
+				"/P1/test/Test1.java", 
+				"package test;\n" +
+				"public class Test1 {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Secondary().foo();\n" + 
+				"	}\n" + 
+				"}\n"
+			);
+
+			// Create second project
+			createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+			String source2 = 
+				"package test;\n" +
+				"public class Test2 {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Secondary().foo();\n" + 
+				"	}\n" + 
+				"}\n";
+			createFolder("/P2/test");
+			createFile(
+				"/P2/test/Test2.java", 
+				source2
+			);
+			ProblemRequestor problemRequestor =  new ProblemRequestor();
+			workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+			problemRequestor.initialize(source2.toCharArray());
+			workingCopy.getBuffer().setContents(source2);
+			workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (problemRequestor.problemCount > 0) {
+				assertEquals("Working copy should NOT have any problem!", "", problemRequestor.problems.toString());
+			}
+		} finally {
+			if (workingCopy != null) workingCopy.discardWorkingCopy();
+			deleteProject("P1");
+			deleteProject("P2");
+		}
+	}
 }

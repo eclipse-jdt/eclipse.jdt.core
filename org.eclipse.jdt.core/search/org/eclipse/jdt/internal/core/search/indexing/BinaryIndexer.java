@@ -496,16 +496,16 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			switch (TypeDeclaration.kind(modifiers)) {
 				case TypeDeclaration.CLASS_DECL :
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
-					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures);
+					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
 					break;
 				case TypeDeclaration.INTERFACE_DECL :
-					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures);
+					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures, false);
 					break;
 				case TypeDeclaration.ENUM_DECL :
-					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces);
+					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, false);
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
-					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames);
+					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
 					break;
 			}			
 	

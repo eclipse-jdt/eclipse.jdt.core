@@ -32,8 +32,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 368, 369 };
+//		TESTS_NUMBERS = new int[] { 356 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterAST3Test.class);
@@ -8699,14 +8698,27 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
 		Type type = variableDeclarationStatement.getType();
 		ITypeBinding binding = type.resolveBinding();
-		assertNull(binding);
+		assertNotNull("Binding should NOT be null for type: "+type, binding);
+
+		// Verify that class instance creation has a null binding
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Expect only one fragment for VariableDeclarationStatement: "+variableDeclarationStatement, 1, fragments.size());
+		node = (ASTNode) fragments.get(0);
+		assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, node.getNodeType()); //$NON-NLS-1$
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+		Expression initializer = fragment.getInitializer();
+		assertEquals("Expect a class instance creation for initializer: "+initializer, ASTNode.CLASS_INSTANCE_CREATION, initializer.getNodeType()); //$NON-NLS-1$
+		ClassInstanceCreation instanceCreation = (ClassInstanceCreation) initializer;
+		type = instanceCreation.getType();
+		binding = type.resolveBinding();
+		assertNull("Binding should BE null for type: "+type, binding);
 	}
 	
 	/**

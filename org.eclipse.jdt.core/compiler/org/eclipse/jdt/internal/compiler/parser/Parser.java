@@ -1109,6 +1109,14 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 		// remove the position of the '@' token as we don't have modifiers
 		annotationTypeDeclaration.declarationSourceStart = atPosition;
 	}
+
+	// Store secondary info
+	if ((annotationTypeDeclaration.bits & ASTNode.IsMemberType) == 0 && (annotationTypeDeclaration.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(annotationTypeDeclaration.name, this.compilationUnit.getMainTypeName())) {
+			annotationTypeDeclaration.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -1873,6 +1881,14 @@ protected void consumeClassHeaderName1() {
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}
+
+	// Store secondary info
+	if ((typeDecl.bits & ASTNode.IsMemberType) == 0 && (typeDecl.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(typeDecl.name, this.compilationUnit.getMainTypeName())) {
+			typeDecl.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -2745,7 +2761,15 @@ protected void consumeEnumConstantHeaderName() {
    enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
    enumConstant.modifiers = this.intStack[this.intPtr--];
    enumConstant.declarationSourceStart = enumConstant.modifiersSourceStart;
-   // consume annotations
+
+	// Store secondary info
+	if ((enumConstant.bits & ASTNode.IsMemberType) == 0 && (enumConstant.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(enumConstant.name, this.compilationUnit.getMainTypeName())) {
+			enumConstant.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
+	// consume annotations
    int length;
    if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
       System.arraycopy(
@@ -3456,6 +3480,14 @@ protected void consumeInterfaceHeaderName1() {
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}
+
+	// Store secondary info
+	if ((typeDecl.bits & ASTNode.IsMemberType) == 0 && (typeDecl.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(typeDecl.name, this.compilationUnit.getMainTypeName())) {
+			typeDecl.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {

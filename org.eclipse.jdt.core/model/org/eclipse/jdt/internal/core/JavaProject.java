@@ -1151,7 +1151,7 @@ public class JavaProject
 		}
 		return new IPackageFragmentRoot[] {};
 	}
-	
+
 	/**
 	 * @see IJavaProject#findType(String)
 	 */
@@ -1184,6 +1184,13 @@ public class JavaProject
 	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
 		
 		NameLookup lookup = newNameLookup(owner);
+		return findType(fullyQualifiedName, lookup);
+	}
+
+	/*
+	 * Internal findType with instanciated name lookup
+	 */
+	IType findType(String fullyQualifiedName, NameLookup lookup) throws JavaModelException {
 		IType type = lookup.findType(
 			fullyQualifiedName,
 			false,
@@ -1192,7 +1199,7 @@ public class JavaProject
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
 			if (lastDot == -1) return null;
-			type = this.findType(fullyQualifiedName.substring(0, lastDot));
+			type = findType(fullyQualifiedName.substring(0, lastDot), lookup);
 			if (type != null) {
 				type = type.getType(fullyQualifiedName.substring(lastDot+1));
 				if (!type.exists()) {

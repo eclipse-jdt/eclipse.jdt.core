@@ -31,6 +31,7 @@ public char[][] enclosingTypeNames;
 // set to TYPE_SUFFIX for matching both classes and interfaces
 public char typeSuffix; 
 public int modifiers;
+public boolean secondary = false;
 
 protected static char[][] CATEGORIES = { TYPE_DECL };
 
@@ -81,9 +82,11 @@ void rehash() {
 
 /*
  * Create index key for type declaration pattern:
- *		key = typeName / packageName / enclosingTypeName / typeSuffix modifiers
+ *		key = typeName / packageName / enclosingTypeName / modifiers
+ * or for secondary types
+ *		key = typeName / packageName / enclosingTypeName / modifiers / 'S'
  */
-public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames) { //, char typeSuffix) {
+public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, boolean secondary) { //, char typeSuffix) {
 	int typeNameLength = typeName == null ? 0 : typeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
 	int enclosingNamesLength = 0;
@@ -95,7 +98,9 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 
-	char[] result = new char[typeNameLength + packageLength + enclosingNamesLength + 4];
+	int resultLength = typeNameLength + packageLength + enclosingNamesLength + 4;
+	if (secondary) resultLength += 2;
+	char[] result = new char[resultLength];
 	int pos = 0;
 	if (typeNameLength > 0) {
 		System.arraycopy(typeName, 0, result, pos, typeNameLength);
@@ -119,6 +124,10 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 	}
 	result[pos++] = SEPARATOR;
 	result[pos] = (char) modifiers;
+	if (secondary) {
+		result[++pos] = SEPARATOR;
+		result[++pos] = 'S';
+	}
 	return result;
 }
 
@@ -170,7 +179,10 @@ public void decodeIndexKey(char[] key) {
 		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
 	}
 
-	decodeModifiers(key[key.length - 1]);
+	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
+	this.secondary = slash > 0;
+	int last = this.secondary ? slash : key.length;
+	decodeModifiers(key[last-1]);
 }
 protected void decodeModifiers(char value) {
 	this.modifiers = value; // implicit cast to int type
