@@ -1360,16 +1360,85 @@ public static final boolean equals(char[] first, char[] second) {
  * @since 3.0
  */
 public static final boolean equals(char[] first, char[] second, int secondStart, int secondEnd) {
+	return equals(first, second, secondStart, secondEnd, true);
+}
+/**
+ * <p>Answers true if the first array is identical character by character to a portion of the second array
+ * delimited from position secondStart (inclusive) to secondEnd(exclusive), otherwise false. The equality could be either 
+ * case sensitive or case insensitive according to the value of the <code>isCaseSensitive</code> parameter.
+ * </p>
+ * <p>For example:</p>
+ * <ol>
+ * <li><pre>
+ *    first = null
+ *    second = null
+ *    secondStart = 0
+ *    secondEnd = 0
+ *    isCaseSensitive = false
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { }
+ *    second = null
+ *    secondStart = 0
+ *    secondEnd = 0
+ *    isCaseSensitive = false
+ *    result => false
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    second = { 'a' }
+ *    secondStart = 0
+ *    secondEnd = 1
+ *    isCaseSensitive = true
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    second = { 'A' }
+ *    secondStart = 0
+ *    secondEnd = 1
+ *    isCaseSensitive = true
+ *    result => false
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    second = { 'A' }
+ *    secondStart = 0
+ *    secondEnd = 1
+ *    isCaseSensitive = false
+ *    result => true
+ * </pre>
+ * </li>
+ * </ol>
+ * @param first the first array
+ * @param second the second array
+ * @param secondStart inclusive start position in the second array to compare
+ * @param secondEnd exclusive end position in the second array to compare
+ * @param isCaseSensitive check whether or not the equality should be case sensitive
+ * @return true if the first array is identical character by character to fragment of second array ranging from secondStart to secondEnd-1, otherwise false
+ * @since 3.2
+ */
+public static final boolean equals(char[] first, char[] second, int secondStart, int secondEnd, boolean isCaseSensitive) {
 	if (first == second)
 		return true;
 	if (first == null || second == null)
 		return false;
 	if (first.length != secondEnd - secondStart)
 		return false;
-
-	for (int i = first.length; --i >= 0;)
-		if (first[i] != second[i+secondStart])
-			return false;
+	if (isCaseSensitive) {
+		for (int i = first.length; --i >= 0;)
+			if (first[i] != second[i+secondStart])
+				return false;
+	} else {
+		for (int i = first.length; --i >= 0;)
+			if (Character.toLowerCase(first[i]) != Character.toLowerCase(second[i+secondStart]))
+				return false;
+	}
 	return true;
 }
 
@@ -2586,7 +2655,7 @@ public static final void replace(
 }
 
 /**
- * Replace all occurrence of characters to be replaced with the remplacement character in the
+ * Replace all occurrences of characters to be replaced with the remplacement character in the
  * given array.
  * <br>
  * <br>
@@ -2608,12 +2677,41 @@ public static final void replace(
  * @since 3.1
  */
 public static final void replace(char[] array, char[] toBeReplaced, char replacementChar) {
-	for (int i = array.length; --i >= 0;)
+	replace(array, toBeReplaced, replacementChar, 0, array.length);
+}
+
+/**
+ * Replace all occurrences of characters to be replaced with the remplacement character in the
+ * given array from the start position (inclusive) to the end position (exclusive).
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' }
+ *    toBeReplaced = { 'b', 'c' }
+ *    replacementChar = 'a'
+ *    start = 4
+ *    end = 8
+ *    result => No returned value, but array is now equals to { 'a' , 'b', 'b', 'c', 'a', 'a', 'a', 'a' }
+ * </pre>
+ * </li>
+ * </ol>
+ * 
+ * @param array the given array
+ * @param toBeReplaced characters to be replaced
+ * @param replacementChar the replacement character
+ * @param start the given start position (inclusive)
+ * @param end  the given end position (exclusive)
+ * @throws NullPointerException if arrays are null.
+ * @since 3.2
+ */
+public static final void replace(char[] array, char[] toBeReplaced, char replacementChar, int start, int end) {
+	for (int i = end; --i >= start;)
 		for (int j = toBeReplaced.length; --j >= 0;)
 			if (array[i] == toBeReplaced[j])
 				array[i] = replacementChar;
 }
-
 /**
  * Answers a new array of characters with substitutions. No side-effect is operated on the original
  * array, in case no substitution happened, then the result is the same as the
