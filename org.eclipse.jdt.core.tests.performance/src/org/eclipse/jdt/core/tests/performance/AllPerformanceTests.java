@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.performance;
 
 import java.lang.reflect.*;
+import java.text.NumberFormat;
+
 import org.eclipse.jdt.core.tests.junit.extension.PerformanceTestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import junit.framework.Test;
@@ -22,6 +24,8 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 
 	final static boolean ADD = System.getProperty("add", "false").equals("true");
 	final static String RUN_ID = System.getProperty("runID");
+	final static long MAX_MEM = 256L * 1024 * 1024;
+	final static long TOTAL_MEM = MAX_MEM;
 
 	/**
 	 * Define performance tests classes to be run.
@@ -58,14 +62,91 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		PerformanceTestSuite perfSuite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		Class[] testSuites = getAllTestClasses();
 
-		// Cannot run performance tests if one of subset static fields is not null
+		// Display warning if one of subset static fields is not null
 		// (this may modify tests run order and make stored results invalid)
-		if (TestCase.TESTS_NAMES != null ||
-			TestCase.TESTS_PREFIX != null ||
-			TestCase.TESTS_NUMBERS != null ||
-			TestCase.TESTS_RANGE != null) {
-			System.err.println("Cannot run performance tests as there are defined subsets which may alter tests order!");
-			return perfSuite;
+		StringBuffer buffer = null;
+		if (TestCase.TESTS_NAMES != null) {
+			buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- following subset is still defined and may alter tests order:\n");
+			buffer.append("		+ TESTS_NAMES = new String[] { ");
+			int length = TestCase.TESTS_NAMES.length;
+			for (int i=0; i<length; i++) {
+				if (i>0) buffer.append(',');
+				buffer.append('"');
+				buffer.append(TestCase.TESTS_NAMES[i]);
+				buffer.append('"');
+			}
+			buffer.append(" };\n");
+		}
+		if (TestCase.TESTS_PREFIX != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_PREFIX = ");
+			buffer.append('"');
+			buffer.append(TestCase.TESTS_PREFIX);
+			buffer.append('"');
+			buffer.append(";\n");
+		}
+		if (TestCase.TESTS_NUMBERS != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_NUMBERS = new int[] { ");
+			int length = TestCase.TESTS_NUMBERS.length;
+			for (int i=0; i<length; i++) {
+				if (i>0) buffer.append(',');
+				buffer.append(TestCase.TESTS_NUMBERS[i]);
+			}
+			buffer.append(" };\n");
+		}
+		if (TestCase.TESTS_RANGE != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_RANGE = new int[] { ");
+			buffer.append(TestCase.TESTS_RANGE[0]);
+			buffer.append(',');
+			buffer.append(TestCase.TESTS_RANGE[1]);
+			buffer.append(";\n");
+		}
+		
+		// Verify VM memory arguments: should be -Xmx256M -Xms256M
+		NumberFormat floatFormat = NumberFormat.getNumberInstance();
+		floatFormat.setMaximumFractionDigits(1);
+		long maxMem = Runtime.getRuntime().maxMemory(); // -Xmx
+		boolean tooMuch = false;
+		if (maxMem < (MAX_MEM*0.98) || (tooMuch = maxMem > (MAX_MEM*1.02))) {
+			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- ");
+			buffer.append(tooMuch ? "too much " : "not enough ");
+			buffer.append("max memory allocated (");
+			buffer.append(floatFormat.format(((maxMem/1024.0)/1024.0)));
+			buffer.append("M)!\n");
+			buffer.append("		=> -Xmx");
+			buffer.append(floatFormat.format(((MAX_MEM/1024.0)/1024.0)));
+			buffer.append("M should have been specified.\n");
+		}
+		long totalMem = Runtime.getRuntime().totalMemory(); // -Xms
+		tooMuch = false;
+		if (totalMem < (TOTAL_MEM*0.98)|| (tooMuch = totalMem > (TOTAL_MEM*1.02))) {
+			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- ");
+			buffer.append(tooMuch ? "too much " : "not enough ");
+			buffer.append("total memory allocated (");
+			buffer.append(floatFormat.format(((totalMem/1024.0)/1024.0)));
+			buffer.append("M)!\n");
+			buffer.append("		=> -Xms");
+			buffer.append(floatFormat.format(((MAX_MEM/1024.0)/1024.0)));
+			buffer.append("M should have been specified.\n");
+		}
+		
+		// Display warning message if any
+		if (buffer != null) {
+			System.err.println(buffer.toString());
 		}
 
 		// Get test suites subset
