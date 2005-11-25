@@ -95,6 +95,68 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>
 	 * +R_INLINE_TAG<br>= 82 */
 	protected static final int R_DICUNREETIT = R_DICUNREET+R_INLINE_TAG;
+	
+	// Store all relevance values in array
+	private static final int[] RELEVANCES = {
+		JAVADOC_RELEVANCE,
+		R_DIUNR,
+		R_DICNR,
+		R_DICQNR,
+		R_DICUNR,
+		R_DICENNR,
+		R_DICENQNR,
+		R_DICENUNR,
+		R_DICNRNS,
+		R_DICENNRNS,
+		R_DICNRE,
+		R_DICUNRE,
+		R_DICENNRE,
+		R_DICENUNRE,
+		R_DICNREET,
+		R_DICUNREET,
+		R_DICNREEET,
+		R_DICUNREEET,
+		R_DICENNREEET,
+		R_DICENUNREEET,
+		JAVADOC_RELEVANCE_IT,
+		R_DICNRIT,
+		R_DICUNRIT,
+		R_DICENNRIT,
+		R_DICENUNRIT,
+		R_DICNRNSIT,
+		R_DICNREETIT,
+		R_DICUNREETIT,
+	};
+	private static final String[] RELEVANCES_NAMES = {
+		"JAVADOC_RELEVANCE",
+		"R_DIUNR",
+		"R_DICNR",
+		"R_DICQNR",
+		"R_DICUNR",
+		"R_DICENNR",
+		"R_DICENQNR",
+		"R_DICENUNR",
+		"R_DICNRNS",
+		"R_DICENNRNS",
+		"R_DICNRE",
+		"R_DICUNRE",
+		"R_DICENNRE",
+		"R_DICENUNRE",
+		"R_DICNREET",
+		"R_DICUNREET",
+		"R_DICNREEET",
+		"R_DICUNREEET",
+		"R_DICENNREEET",
+		"R_DICENUNREEET",
+		"JAVADOC_RELEVANCE_IT",
+		"R_DICNRIT",
+		"R_DICUNRIT",
+		"R_DICENNRIT",
+		"R_DICENUNRIT",
+		"R_DICNRNSIT",
+		"R_DICNREETIT",
+		"R_DICUNREETIT",
+	};
 
 	// Write file contants
 	protected static final String WRITE_DIR = System.getProperty("writeDir");
@@ -299,23 +361,19 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 				while (toDisplay.charAt(closeBracket+i) != '}') i++;
 				try {
 					int relevance = Integer.parseInt(toDisplay.substring(closeBracket, closeBracket+i));
-					switch (relevance) {
-						case JAVADOC_RELEVANCE:
-							buffer.append("JAVADOC_RELEVANCE+\"");
-							break;
-						case JAVADOC_RELEVANCE+R_INLINE_TAG:
-							buffer.append("(JAVADOC_RELEVANCE+R_INLINE_TAG)+\"");
-							break;
-						default:
-							if (relevance >= 55) {
-								buffer.append("("+(relevance-R_INLINE_TAG)+"+R_INLINE_TAG)+\"");
-							} else {
-								buffer.append('"');
-								buffer.append(relevance);
-							}
-							break;
+					int length = RELEVANCES.length;
+					boolean found = false;
+					for (int r=0; !found && r<length; r++) {
+						if (RELEVANCES[r] == relevance) {
+							buffer.append(RELEVANCES_NAMES[r]);
+							buffer.append("+\"");
+							found = true;
+						}
 					}
-//					buffer.append('}');
+					if (!found) {
+						buffer.append('"');
+						buffer.append(relevance);
+					}
 					closeBracket += i;
 				}
 				catch (NumberFormatException nfe) {

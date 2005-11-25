@@ -947,7 +947,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					if ((iToken % 2) == 0) { // cannot leave on a dot
 						switch (parserKind) {
 							case COMPLETION_PARSER:
-								return syntaxRecoverQualifiedName();
+								return syntaxRecoverQualifiedName(primitiveToken);
 							case DOM_PARSER:
 								if (this.currentTokenType != -1) {
 									// Reset position: we want to rescan last token
@@ -1339,7 +1339,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Entry point for recovery on invalid syntax
 	 */
-	protected Object syntaxRecoverQualifiedName() throws InvalidInputException {
+	protected Object syntaxRecoverQualifiedName(int primitiveToken) throws InvalidInputException {
 		// do nothing, just an entry point for recovery
 		return null;
 	}
@@ -1418,7 +1418,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Verify that end of the line only contains space characters or end of comment.
 	 * Note that end of comment may be preceeding by several contiguous '*' chars.
 	 */
-	private boolean verifyEndLine(int textPosition) {
+	protected boolean verifyEndLine(int textPosition) {
 		boolean domParser = (this.kind & DOM_PARSER) != 0;
 		// Special case for inline tag
 		if (this.inlineTagStarted) {
@@ -1482,7 +1482,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * 	3- are the end of comment (several contiguous star ('*') characters may be
 	 * 	    found before the last slash ('/') character).
 	 */
-	private boolean verifySpaceOrEndComment() {
+	protected boolean verifySpaceOrEndComment() {
 		int startPosition = this.index;
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();

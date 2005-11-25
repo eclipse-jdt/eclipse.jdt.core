@@ -783,7 +783,11 @@ public class CompletionJavadocParser extends JavadocParser {
 	/* 
 	 * Recover syntax on invalid qualified name.
 	 */
-	protected Object syntaxRecoverQualifiedName() throws InvalidInputException {
+	protected Object syntaxRecoverQualifiedName(int primitiveToken) throws InvalidInputException {
+		if (this.cursorLocation == ((int)this.identifierPositionStack[this.identifierPtr])) {
+			// special case of completion just before the dot.
+			return createTypeReference(primitiveToken);
+		}
 		int idLength = this.identifierLengthStack[this.identifierLengthPtr--];
 		char[][] tokens = new char[idLength][];
 		int startPtr = this.identifierPtr-idLength+1;
@@ -889,4 +893,17 @@ public class CompletionJavadocParser extends JavadocParser {
 			getCompletionJavadoc().completionNode = (Expression) completionNode;
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#verifySpaceOrEndComment()
+	 */
+	protected boolean verifySpaceOrEndComment() {
+		CompletionScanner completionScanner = (CompletionScanner) this.scanner;
+		if (completionScanner.completionIdentifier != null && completionScanner.completedIdentifierStart <= this.cursorLocation && this.cursorLocation <= completionScanner.completedIdentifierEnd) {
+			// if we're on completion location do not verify end...
+			return true;
+		}
+		return super.verifySpaceOrEndComment();
+	}
+	
 }

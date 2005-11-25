@@ -27,7 +27,7 @@ public JavadocBugsCompletionModelTest(String name) {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug22043a" };
-//	TESTS_NUMBERS = new int[] { 114341 };
+//	TESTS_NUMBERS = new int[] { 117183 };
 }
 public static Test suite() {
 	return buildTestSuite(JavadocBugsCompletionModelTest.class);
@@ -575,6 +575,87 @@ public void testBug115662c() throws JavaModelException {
 	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "toString");
 	assertSortedResults(
 		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICENNRNS+"}"
+	);
+}
+
+/**
+ * Bug 117183: [javadoc][assist] range of the qualified type completion in javadoc text isn't corect
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=117183"
+ */
+public void testBug117183a() throws JavaModelException {
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestBugs.java", 
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * Completion inside reference Reference#A_STATIC_FIELD.\n" + 
+			" * Try to complete wherever inside A_STATIC_FIELD gives no proposal!\n" + 
+			" */\n" + 
+			"public class BasicTestBugs {\n" + 
+			"}\n",
+		"/Completion/src/javadoc/bugs/Reference.java", 
+			"package javadoc.bugs;\n" + 
+			"public class Reference {\n" + 
+			"	public static int A_STATIC_FIELD = 0;\n" + 
+			"}\n"
+	};
+	completeInJavadoc(sources, true, "Reference#A_");
+	assertSortedResults(
+		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}"
+	);
+}
+public void testBug117183b() throws JavaModelException {
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestBugs.java", 
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * Completion inside reference Reference#A_STATIC_FIELD.\n" + 
+			" * Try to complete wherever inside A_STATIC_FIELD gives no proposal!\n" + 
+			" */\n" + 
+			"public class BasicTestBugs {\n" + 
+			"}\n",
+		"/Completion/src/javadoc/bugs/Reference.java", 
+			"package javadoc.bugs;\n" + 
+			"public class Reference {\n" + 
+			"	public static int A_STATIC_FIELD = 0;\n" + 
+			"}\n"
+	};
+	completeInJavadoc(sources, true, "Reference#A_STATIC_FIELD");
+	assertSortedResults(
+		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}\n" + 
+		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}"
+	);
+}
+public void testBug117183c() throws JavaModelException {
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestBugs.java", 
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * Completion after Obj|\n" + 
+			" */\n" + 
+			"class Y {\n" + 
+			"}\n"
+	};
+	completeInJavadoc(sources, true, "Obj");
+	assertSortedResults(
+		"Object[JAVADOC_TYPE_REF]{{@link Object }, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug117183d() throws JavaModelException {
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestBugs.java", 
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * Completion after Str.\n" + 
+			" */\n" + 
+			"class Y {\n" + 
+			"}\n"
+	};
+	completeInJavadoc(sources, true, "Str");
+	assertSortedResults(
+		"String[JAVADOC_TYPE_REF]{{@link String }, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
 }
