@@ -463,8 +463,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 						}
 						
 						// end is inclusive, but in the API end is exclusive 
-						CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, end + 1);
 						if (CharOperation.equals(ADAPTER_ENCODING, content, start, start + ADAPTER_ENCODING.length)) {
+							CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, end + 1);
 							// file or folder level custom encoding
 							start += ADAPTER_ENCODING.length;
 							int encodeStart = CharOperation.lastIndexOf('[', content, start, end);
@@ -488,6 +488,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 							// access rules for the classpath
 							start += ADAPTER_ACCESS.length;
 							int accessStart = CharOperation.indexOf('[', content, start, end);
+							CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, accessStart + 1);
 							if (start < accessStart && accessStart < end) {
 								String path = String.valueOf(content, start, accessStart - start);
 								String access = String.valueOf(content, accessStart, end - accessStart + 1);
