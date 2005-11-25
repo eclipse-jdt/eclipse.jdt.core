@@ -2090,7 +2090,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
  * Visit the given field declaration and report the nodes that match exactly the
  * search pattern (ie. the ones in the matching nodes set)
  */
-protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJavaElement parent, IJavaElement[] otherElements, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
+protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFields, TypeDeclaration type, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
 	IJavaElement enclosingElement = null;
 	if (accuracy > -1) {
 		enclosingElement = createHandle(field, type, parent);
@@ -2136,6 +2136,18 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 						for (int i = 0, l = nodes.length; i < l; i++) {
 							ASTNode node = nodes[i];
 							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							int length = otherFields== null ? 0 : otherFields.length;
+							IJavaElement[] otherElements = null;
+							if (length > 0) {
+								int size = 0;
+								while (size<length && otherFields[size] != null) {
+									size++;
+								}
+								otherElements = new IJavaElement[size];
+								for (int j=0; j<size; j++) {
+									otherElements[j] = createHandle(otherFields[j], type, parent);
+								}
+							}
 							this.patternLocator.matchReportReference(node, enclosingElement, null, otherElements, field.binding, level.intValue(), this);
 						}
 					}
@@ -2266,9 +2278,10 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	FieldDeclaration[] fields = type.fields;
 	if (fields != null) {
 		if (nodeSet.matchingNodes.elementSize == 0) return;	// end as all matching nodes were reported
-		IJavaElement[] otherElements = null;
+		FieldDeclaration[] otherFields = null;
 		int first = -1;
-		for (int i = 0, l = fields.length; i < l; i++) {
+		int length = fields.length;
+		for (int i = 0; i < length; i++) {
 			FieldDeclaration field = fields[i];
 			boolean last = field.endPart2Position == 0 || field.declarationEnd == field.endPart2Position;
 			// Store first index of multiple field declaration
@@ -2281,29 +2294,26 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			if (first >= 0) {
 				// Create handle for all multiple fields except first one as it would be returned through the match
 				if (i > first) {
-					if (otherElements == null) {
-						otherElements = new IJavaElement[] { createHandle(field, type, enclosingElement) };
-					} else {
-						int length = otherElements.length;
-						System.arraycopy(otherElements, 0, otherElements = new IJavaElement[length+1], 0, length);
-						otherElements[length] = createHandle(field, type, enclosingElement);
+					if (otherFields == null) {
+						otherFields = new FieldDeclaration[length-i];
 					}
+					otherFields[i-1-first] = field;
 				}
 				// On last field, report match with all other elements
 				if (last) {
 					for (int j=first; j<=i; j++) {
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(fields[j]);
 						int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
-						reportMatching(fields[j], type, enclosingElement, otherElements, value, typeInHierarchy, nodeSet);
+						reportMatching(fields[j], otherFields, type, enclosingElement, value, typeInHierarchy, nodeSet);
 					}
 					first = -1;
-					otherElements = null;
+					otherFields = null;
 				}
 			} else {
 				// Single field, report normally
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(field);
 				int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
-				reportMatching(field, type, enclosingElement, null, value, typeInHierarchy, nodeSet);
+				reportMatching(field, null, type, enclosingElement, value, typeInHierarchy, nodeSet);
 			}
 		}
 	}
