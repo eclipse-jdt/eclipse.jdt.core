@@ -488,7 +488,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 							// access rules for the classpath
 							start += ADAPTER_ACCESS.length;
 							int accessStart = CharOperation.indexOf('[', content, start, end);
-							CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, accessStart + 1);
+							CharOperation.replace(content, SEPARATOR_CHARS, File.separatorChar, start, accessStart);
 							if (start < accessStart && accessStart < end) {
 								String path = String.valueOf(content, start, accessStart - start);
 								String access = String.valueOf(content, accessStart, end - accessStart + 1);
