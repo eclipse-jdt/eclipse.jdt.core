@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.SourceType;
-
 
 /**
  * Test retrieving types by their name.
@@ -1269,7 +1269,7 @@ public class ClassNameTests extends ModifyingResourceTests {
 				"	    ^^^^\n" +
 				"SBar cannot be resolved to a type\n" +
 				"----------\n",
-				problemRequestor.problems.toString()
+				Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString())
 			);
 
 			// Fix the problem
