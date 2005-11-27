@@ -528,7 +528,7 @@ public void testBug114341f() throws JavaModelException {
 }
 
 /**
- * Bug 115662: [javadoc][assist] range of the qualified type completion in javadoc text isn't corect
+ * Bug 115662: [javadoc][assist] link completion in types
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=115662"
  */
 public void testBug115662a() throws JavaModelException {
@@ -569,7 +569,7 @@ public void testBug115662c() throws JavaModelException {
 		"/**\n" + 
 		" * {@link #toString()\n" + 
 		" */\n" + 
-		"public class Tests {\n" + 
+		"public class Test {\n" + 
 		"	int toto;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b115662/Test.java", source, true, "toString");
@@ -579,7 +579,7 @@ public void testBug115662c() throws JavaModelException {
 }
 
 /**
- * Bug 117183: [javadoc][assist] range of the qualified type completion in javadoc text isn't corect
+ * Bug 117183: [javadoc][assist] No completion in text when cursor location is followed by a '.'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=117183"
  */
 public void testBug117183a() throws JavaModelException {
@@ -655,6 +655,24 @@ public void testBug117183d() throws JavaModelException {
 	completeInJavadoc(sources, true, "Str");
 	assertSortedResults(
 		"String[JAVADOC_TYPE_REF]{{@link String }, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+
+/**
+ * Bug 118105: [javadoc][assist] Hang with 100% CPU during code assist on comment
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118105"
+ */
+public void testBug118105() throws JavaModelException {
+	String source =
+		"package bugs.b118105;\n" + 
+		"/**\n" + 
+		" * Some words here {@link Str.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118105/BasicTestBugs.java", source, true, "Str");
+	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }

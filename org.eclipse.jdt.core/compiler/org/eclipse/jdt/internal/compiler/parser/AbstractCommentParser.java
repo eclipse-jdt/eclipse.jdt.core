@@ -942,11 +942,17 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 				default :
 					if (iToken == 0) {
+						if (this.identifierPtr>=0) {
+							this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+						}
 						return null;
 					}
 					if ((iToken % 2) == 0) { // cannot leave on a dot
 						switch (parserKind) {
 							case COMPLETION_PARSER:
+								if (this.identifierPtr>=0) {
+									this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+								}
 								return syntaxRecoverQualifiedName(primitiveToken);
 							case DOM_PARSER:
 								if (this.currentTokenType != -1) {
@@ -968,7 +974,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.scanner.currentPosition = this.tokenPreviousPosition;
 			this.currentTokenType = -1;
 		}
-		this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+		if (this.identifierPtr>=0) {
+			this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+		}
 		return createTypeReference(primitiveToken);
 	}
 
@@ -1080,8 +1088,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Reset position at the end of type reference
-			this.index = this.lastIdentifierEndPosition+1;
-			this.scanner.currentPosition = this.index;
+			if (this.lastIdentifierEndPosition > this.javadocStart) {
+				this.index = this.lastIdentifierEndPosition+1;
+				this.scanner.currentPosition = this.index;
+			}
 			this.currentTokenType = -1;
 
 			// In case of @value, we have an invalid reference (only static field refs are valid for this tag)
