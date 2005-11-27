@@ -1264,8 +1264,8 @@ public class ClassNameTests extends ModifyingResourceTests {
 				"----------\n" +
 				"----------\n" +
 				"----------\n" +
-				"1. ERROR in /P/Test.java (at line 4)\r\n" +
-				"	new SBar().bar();\r\n" +
+				"1. ERROR in /P/Test.java (at line 4)\n" +
+				"	new SBar().bar();\n" +
 				"	    ^^^^\n" +
 				"SBar cannot be resolved to a type\n" +
 				"----------\n",
