@@ -56,7 +56,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -297,7 +296,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             binding = ((AbstractTypeDeclaration)node).resolveBinding();
             break;
         case ASTNode.SINGLE_VARIABLE_DECLARATION:
-            binding = ((SingleVariableDeclaration)node).resolveBinding();
+        	binding = null;
             break;
         case ASTNode.PACKAGE_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
