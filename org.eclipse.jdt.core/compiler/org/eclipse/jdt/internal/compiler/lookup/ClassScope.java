@@ -32,7 +32,7 @@ public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
 	public TypeReference superTypeReference;
 
-	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
+	public final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(CLASS_SCOPE, parent);

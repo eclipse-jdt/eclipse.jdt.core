@@ -2329,6 +2329,8 @@ public final class CompletionEngine
 			FieldBinding field = fields[f];
 
 			if (field.isSynthetic())	continue next;
+			
+			if (field.name == ClassScope.IncompleteHierarchy) continue next;
 
 			if (onlyStaticFields && !field.isStatic()) continue next;
 

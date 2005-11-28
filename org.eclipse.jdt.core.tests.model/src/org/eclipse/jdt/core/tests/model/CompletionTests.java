@@ -38,7 +38,7 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 static {
-//	TESTS_NAMES = new String[] { "testCamelCaseType1"};
+//	TESTS_NAMES = new String[] { "testInconsistentHierarchy1"};
 }
 public static Test suite() {
 	return buildTestSuite(CompletionTests.class);
@@ -11254,5 +11254,26 @@ public void testParameterNames1() throws CoreException, IOException {
 	} finally {
 		removeLibrary("Completion", "tmpDoc.jar");
 	}
+}
+public void testInconsistentHierarchy1() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/Test.java",
+		"package p;"+
+		"public class Test extends Unknown {\n" + 
+		"  void foo() {\n" + 
+		"    this.has\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+		requestor.getResults());
 }
 }
