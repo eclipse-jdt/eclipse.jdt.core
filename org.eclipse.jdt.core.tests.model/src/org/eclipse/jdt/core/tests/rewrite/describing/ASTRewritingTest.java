@@ -114,11 +114,19 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 	
 	protected String evaluateRewrite(ICompilationUnit cu, ASTRewrite rewrite) throws Exception {
-		Document document= new Document(cu.getSource());
-		TextEdit res= rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));
+		Document document1= new Document(cu.getSource());
+		TextEdit res= rewrite.rewriteAST(document1, cu.getJavaProject().getOptions(true));
+		res.apply(document1);
+		String content1= document1.get();
 		
-		res.apply(document);
-		return document.get();
+		Document document2= new Document(cu.getSource());
+		TextEdit res2= rewrite.rewriteAST();
+		res2.apply(document2);
+		String content2= document2.get();
+		
+		assertEquals(content1, content2);
+		
+		return content1;
 	}
 	
 	

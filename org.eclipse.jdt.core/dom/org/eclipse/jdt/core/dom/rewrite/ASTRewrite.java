@@ -13,26 +13,28 @@ package org.eclipse.jdt.core.dom.rewrite;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
-
-import org.eclipse.jface.text.IDocument;
-
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
+import org.eclipse.jdt.internal.core.dom.rewrite.LineInformation;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
 
 /**
  * Infrastructure for modifying code by describing changes to AST nodes.
@@ -60,16 +62,14 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  * ASTRewrite rewriter = ASTRewrite.create(ast);
  * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
  * ITrackedNodePosition tdLocation = rewriter.track(td);
- * ListRewriter lrw = rewriter.getListRewrite(cu,
- *                       CompilationUnit.IMPORTS_PROPERTY);
+ * ListRewriter lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
  * lrw.insertLast(id, null);
  * TextEdit edits = rewriter.rewriteAST(document, null);
  * UndoEdit undo = edits.apply(document);
- * assert "import java.util.List;\nimport java.util.Set;\nclass X {}"
- *   .equals(doc.get().toCharArray());
+ * assert "import java.util.List;\nimport java.util.Set;\nclass X {}".equals(doc.get().toCharArray());
  * // tdLocation.getStartPosition() and tdLocation.getLength()
  * // are new source range for "class X {}" in doc.get()
- * </pre>
+ * </pre> 
  * <p>
  * This class is not intended to be subclassed.
  * </p>
@@ -172,21 +172,86 @@ public class ASTRewrite {
 		if (document == null) {
 			throw new IllegalArgumentException();
 		}
-		TextEdit result= new MultiTextEdit();
 		
 		ASTNode rootNode= getRootNode();
-		if (rootNode != null) {
-			//validateASTNotModified(rootNode);
-			
-			TargetSourceRangeComputer sourceRangeComputer= getExtendedSourceRangeComputer();
-			
-			this.eventStore.prepareMovedNodes(sourceRangeComputer);
-
-			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, sourceRangeComputer);
-			rootNode.accept(visitor); // throws IllegalArgumentException
-			
-			this.eventStore.revertMovedNodes();
+		if (rootNode == null) {
+			return new MultiTextEdit(); // no changes
 		}
+			
+		char[] content= document.get().toCharArray();
+		LineInformation lineInfo= LineInformation.create(document);
+		String lineDelim= TextUtilities.getDefaultLineDelimiter(document);
+		
+		return internalRewriteAST(content, lineInfo, lineDelim, options, rootNode);
+	}
+	
+	/**
+	 * Converts all modifications recorded by this rewriter into an object representing the the corresponding text
+	 * edits to the source of a {@link ICompilationUnit} from which the AST was created from.
+	 * The compilation unit itself is not modified.
+	 * <p>
+	 * Important: This API can only be used if the modified AST has been created from a
+	 * {@link ICompilationUnit}. That means {@link ASTParser#setSource(ICompilationUnit)}
+	 * has been used when initializing the {@link ASTParser}. A {@link IllegalArgumentException} is thrown
+	 * otherwise. Use {@link #rewriteAST(IDocument, Map)} for all ASTs not created from a {@link ICompilationUnit}.
+	 * </p>
+	 * <p>
+	 * For nodes in the original that are being replaced or deleted,
+	 * this rewriter computes the adjusted source ranges
+	 * by calling <code>getTargetSourceRangeComputer().computeSourceRange(node)</code>.
+	 * </p>
+	 * <p>
+	 * Calling this methods does not discard the modifications
+	 * on record. Subsequence modifications are added to the ones
+	 * already on record. If this method is called again later,
+	 * the resulting text edit object will accurately reflect
+	 * the net cumulative affect of all those changes.
+	 * </p>
+	 * 
+	 * @return text edit object describing the changes to the
+	 * document corresponding to the changes recorded by this rewriter
+	 * @throws JavaModelException A {@link JavaModelException} is thrown when
+	 * the underlying compilation units buffer could not be accessed.
+	 * @throws IllegalArgumentException An {@link IllegalArgumentException}
+	 * is thrown if the document passed does not correspond to the AST that is rewritten.
+	 * 
+	 * @since 3.2
+	 */
+	public TextEdit rewriteAST() throws JavaModelException, IllegalArgumentException {
+		ASTNode rootNode= getRootNode();
+		if (rootNode == null) {
+			return new MultiTextEdit(); // no changes
+		}
+		
+		ASTNode root= rootNode.getRoot();
+		if (!(root instanceof CompilationUnit)) {
+			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
+		}
+		CompilationUnit astRoot= (CompilationUnit) root;
+		if (!(astRoot.getJavaElement() instanceof ICompilationUnit)) {
+			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
+		}
+		ICompilationUnit cu= (ICompilationUnit) astRoot.getJavaElement();
+		
+		char[] content= cu.getBuffer().getCharacters();
+		LineInformation lineInfo= LineInformation.create(astRoot);
+		String lineDelim= cu.findRecommendedLineSeparator();
+		Map options= cu.getJavaProject().getOptions(true);
+		
+		return internalRewriteAST(content, lineInfo, lineDelim, options, rootNode);
+	}
+	
+	private TextEdit internalRewriteAST(char[] content, LineInformation lineInfo, String lineDelim, Map options, ASTNode rootNode) {
+		TextEdit result= new MultiTextEdit();
+		//validateASTNotModified(rootNode);
+		
+		TargetSourceRangeComputer sourceRangeComputer= getExtendedSourceRangeComputer();
+		this.eventStore.prepareMovedNodes(sourceRangeComputer);
+		
+		ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, options, sourceRangeComputer);
+		rootNode.accept(visitor); // throws IllegalArgumentException
+		
+		this.eventStore.revertMovedNodes();
 		return result;
 	}
 	
@@ -534,7 +599,7 @@ public class ASTRewrite {
 	
 	/**
 	 * Sets a custom target source range computer for this AST rewriter. This is advanced feature to modify how
-	 * comments are assotiated with nodes, which should be done only in special cases.
+	 * comments are associated with nodes, which should be done only in special cases.
 	 * 
 	 * @param computer a target source range computer,
 	 * or <code>null</code> to restore the default value of

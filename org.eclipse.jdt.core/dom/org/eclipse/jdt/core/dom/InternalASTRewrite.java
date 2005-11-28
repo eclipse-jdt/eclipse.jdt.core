@@ -17,11 +17,13 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
+import org.eclipse.jdt.internal.core.dom.rewrite.LineInformation;
 import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
@@ -82,7 +84,11 @@ class InternalASTRewrite extends NodeEventHandler {
 					return new SourceRange(extendedStartPosition, extendedLength);
 				}
 			};
-			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, xsrComputer);
+			char[] content= document.get().toCharArray();
+			LineInformation lineInfo= LineInformation.create(document);
+			String lineDelim= TextUtilities.getDefaultLineDelimiter(document);
+			
+			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, options, xsrComputer);
 			rootNode.accept(visitor);
 		}
 		return result;
