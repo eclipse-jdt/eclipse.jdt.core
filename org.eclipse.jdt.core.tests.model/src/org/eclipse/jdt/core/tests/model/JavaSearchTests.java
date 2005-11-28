@@ -39,7 +39,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_PREFIX =  "testCamelCase";
+//	TESTS_PREFIX =  "testPackageDeclaration";
 //	TESTS_NAMES = new String[] { "testMethodDeclaration11" };
 //	TESTS_NUMBERS = new int[] { 113671 };
 //	TESTS_RANGE = new int[] { 16, -1 };
@@ -1600,8 +1600,9 @@ public void testPackageDeclaration2() throws CoreException { // was testVariousP
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/p3 p3\n" +
-		"src/p3/p2/p p3.p2.p", 
+		"src/p3 p3\n" + 
+		"src/p3/p2 p3.p2\n" + 
+		"src/p3/p2/p p3.p2.p",
 		this.resultCollector);
 }
 /**
@@ -1650,9 +1651,8 @@ public void testPackageDeclaration4() throws CoreException {
 	}
 }
 /**
- * Test fix for bug 73551: NPE while searching package declaration
+ * Bug 73551: NPE while searching package declaration
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73551"
- * @throws CoreException
  */
 public void testPackageDeclarationBug73551() throws CoreException {
 	JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -1662,6 +1662,32 @@ public void testPackageDeclarationBug73551() throws CoreException {
 	assertSearchResults(
 		"src/p71267/Test.java p71267 [No source] EXACT_MATCH",
 		result);
+}
+/**
+ * Bug 117020: [search] Search for '*' does not report empty packages
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=117020"
+ */
+public void testPackageDeclarationBug117020() throws CoreException {
+	IFolder srcFolder = getFolder(new Path("/JavaSearch/src"));
+	IPackageFragmentRoot srcRoot = JAVA_PROJECT.getPackageFragmentRoot(srcFolder);
+	IPackageFragment test = null;
+	try {
+		test = srcRoot.createPackageFragment("b117020", true, null);
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(test, DECLARATIONS, getJavaSearchScope(),  result);
+		assertSearchResults(
+			"src/b117020 b117020 EXACT_MATCH",
+			result);
+	}
+	catch (JavaModelException jme) {
+		// give up
+	}
+	finally {
+		if (test != null && test.exists()) {
+			test.delete(true, null);
+		}
+	}
 }
 /**
  * Package reference test.

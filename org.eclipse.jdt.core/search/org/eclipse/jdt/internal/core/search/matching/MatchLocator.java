@@ -1203,15 +1203,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 				}
 				for (int k = 0, pksLength = pkgs.length; k < pksLength; k++) {
 					IPackageFragment pkg = (IPackageFragment) pkgs[k];
-					IJavaElement[] children = null;
-					try {
-						children = pkg.getChildren();
-					} catch (JavaModelException e) {
-						// package doesn't exist -> continue with next package (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
-						continue;
-					}
-					if (children.length > 0 
-							&& pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
+					if (!pkg.exists()) continue; // package doesn't exist -> continue with next package (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
+					if (pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
 						IResource resource = pkg.getResource();
 						if (resource == null) // case of a file in an external jar
 							resource = javaProject.getProject();
