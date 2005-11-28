@@ -47,9 +47,7 @@ public class DoubleConstant extends Constant {
 	}
 	
 	public String stringValue() {
-		String s = Double.toString(value);
-		if (s == null) return "null"; //$NON-NLS-1$
-		return s;
+		return String.valueOf(this.value);
 	}
 	
 	public String toString() {

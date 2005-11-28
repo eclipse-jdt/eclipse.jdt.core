@@ -40,10 +40,7 @@ public class CharConstant extends Constant {
 	}
 	public String stringValue() {
 		//spec 15.17.11
-		
-		String s = new Character(value).toString() ;
-		if (s == null) return "null"; //$NON-NLS-1$
-		return s;
+		return String.valueOf(this.value);
 	}
 	public String toString(){
 	
