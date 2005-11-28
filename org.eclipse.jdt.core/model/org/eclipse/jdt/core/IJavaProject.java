@@ -796,6 +796,44 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
 	 * can simply refer to some variables defining the proper locations of these external JARs.
+	 * </p><p>
+	 * If it is specified that this operation cannot modify resources, the .classpath file will not be written to disk
+	 * and no error marker will be generated. To synchronize the .classpath with the in-memory classpath,
+	 * one can use <code>setRawClasspath(readRawClasspath(), false, monitor)</code>.
+	 * </p><p>
+	 * Setting the classpath to <code>null</code> specifies a default classpath
+	 * (the project root). Setting the classpath to an empty array specifies an
+	 * empty classpath.
+	 * </p><p>
+	 * If a cycle is detected while setting this classpath (and if resources can be modified), an error marker will be added
+	 * to the project closing the cycle.
+	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
+	 * before setting the classpath.
+	 * <p>
+	 * This operation acquires a lock on the workspace's root.
+	 *
+	 * @param entries a list of classpath entries
+	 * @param canModifyResources whether resources should be written to disk if needed
+	 * @param monitor the given progress monitor
+	 * @exception JavaModelException if the classpath could not be set. Reasons include:
+	 * <ul>
+	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+	 * <li> The classpath failed the validation check as defined by <code>JavaConventions#validateClasspath</code>
+	 * </ul>
+	 * @see IClasspathEntry
+	 * @since 3.2
+	 */
+	void setRawClasspath(IClasspathEntry[] entries, boolean canModifyResources, IProgressMonitor monitor) throws JavaModelException;
+	
+	/**
+	 * Sets the classpath of this project using a list of classpath entries. In particular such a classpath may contain
+	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
+	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
+	 * <p>
+	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
+	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
+	 * can simply refer to some variables defining the proper locations of these external JARs.
 	 * <p>
 	 * Setting the classpath to <code>null</code> specifies a default classpath
 	 * (the project root). Setting the classpath to an empty array specifies an
