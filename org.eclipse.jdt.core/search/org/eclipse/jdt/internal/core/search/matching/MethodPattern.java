@@ -35,7 +35,7 @@ public char[] returnSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
-public int flags = 0;
+public boolean varargs = false;
 
 // extra reference info
 protected IType declaringType;
@@ -135,7 +135,7 @@ public MethodPattern(
 	
 	// Set flags
 	try {
-		this.flags = method.getFlags();
+		this.varargs = (method.getFlags() & Flags.AccVarargs) != 0;
 	} catch (JavaModelException e) {
 		// do nothing
 	}
@@ -270,7 +270,7 @@ boolean isPolymorphicSearch() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	MethodPattern pattern = (MethodPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || !shouldCountParameter())
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.selector, pattern.selector);
 }
 /**
@@ -299,7 +299,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
 			if (this.isCamelCase) break;
-			if (shouldCountParameter() && this.selector != null && this.parameterCount >= 0)
+			if (this.selector != null && this.parameterCount >= 0 && !this.varargs)
 				key = createIndexKey(this.selector, this.parameterCount);
 			else { // do a prefix query with the selector
 				matchRule &= ~R_EXACT_MATCH;
@@ -310,7 +310,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the selector
 			break;
 		case R_PATTERN_MATCH :
-			if (shouldCountParameter() && this.parameterCount >= 0)
+			if (this.parameterCount >= 0 && !this.varargs)
 				key = createIndexKey(this.selector == null ? ONE_STAR : this.selector, this.parameterCount);
 			else if (this.selector != null && this.selector[this.selector.length - 1] != '*')
 				key = CharOperation.concat(this.selector, ONE_STAR, SEPARATOR);
@@ -362,8 +362,5 @@ protected StringBuffer print(StringBuffer output) {
 	else if (returnQualification != null)
 		output.append("*"); //$NON-NLS-1$
 	return super.print(output);
-}
-boolean shouldCountParameter() {
-	return (this.flags & Flags.AccStatic) == 0 && (this.flags & Flags.AccVarargs) == 0;
 }
 }

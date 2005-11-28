@@ -34,7 +34,7 @@ public char[] declaringSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
-public int flags = 0;
+public boolean varargs = false;
 
 // Signatures and arguments for generic search
 char[][][] parametersTypeSignatures;
@@ -114,7 +114,7 @@ public ConstructorPattern(
 
 	// Set flags
 	try {
-		this.flags = method.getFlags();
+		this.varargs = (method.getFlags() & Flags.AccVarargs) != 0;
 	} catch (JavaModelException e) {
 		// do nothing
 	}
@@ -230,7 +230,7 @@ boolean hasConstructorParameters() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || !shouldCountParameter())
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
@@ -249,7 +249,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
 			if (this.isCamelCase) break;
-			if (shouldCountParameter() && this.declaringSimpleName != null && this.parameterCount >= 0)
+			if (this.declaringSimpleName != null && this.parameterCount >= 0 && !this.varargs)
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
 			else { // do a prefix query with the declaringSimpleName
 				matchRule &= ~R_EXACT_MATCH;
@@ -260,7 +260,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the declaringSimpleName
 			break;
 		case R_PATTERN_MATCH :
-			if (shouldCountParameter() && this.parameterCount >= 0)
+			if (this.parameterCount >= 0 && !this.varargs)
 				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
 			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
@@ -300,8 +300,5 @@ protected StringBuffer print(StringBuffer output) {
 	}
 	output.append(')');
 	return super.print(output);
-}
-boolean shouldCountParameter() {
-	return (this.flags & Flags.AccStatic) == 0 && (this.flags & Flags.AccVarargs) == 0;
 }
 }
