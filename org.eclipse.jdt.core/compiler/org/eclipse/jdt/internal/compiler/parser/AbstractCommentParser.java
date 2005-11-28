@@ -162,7 +162,7 @@ public abstract class AbstractCommentParser {
 			int invalidInlineTagLineEnd = -1;
 			
 			// Loop on each comment character
-			characterLoop: while (!abort && this.index < this.javadocEnd) {
+			while (!abort && this.index < this.javadocEnd) {
 				previousPosition = this.index;
 				previousChar = nextCharacter;
 				
@@ -1460,7 +1460,7 @@ public abstract class AbstractCommentParser {
 		int previousPosition = this.index;
 		this.starPosition = -1;
 		ch = readChar();
-		nextChar: while (this.index<this.source.length) {
+		while (this.index<this.source.length) {
 			switch (ch) {
 				case '*':
 					// valid whatever the number of star before last '/'

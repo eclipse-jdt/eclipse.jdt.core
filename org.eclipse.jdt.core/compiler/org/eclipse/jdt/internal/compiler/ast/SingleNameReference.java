@@ -340,7 +340,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
 						}
 					} else {
-						if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+						if (valueRequired) {
 							boolean isStatic = fieldBinding.isStatic();
 							if (!isStatic) {
 								if ((bits & DepthMASK) != 0) {
