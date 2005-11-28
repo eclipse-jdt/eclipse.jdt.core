@@ -2290,9 +2290,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 					first = i;
 				}
 			}
-			// Mutliple declaration fields
 			if (first >= 0) {
-				// Create handle for all multiple fields except first one as it would be returned through the match
+				// Store all multiple fields but first one for other elements
 				if (i > first) {
 					if (otherFields == null) {
 						otherFields = new FieldDeclaration[length-i];
