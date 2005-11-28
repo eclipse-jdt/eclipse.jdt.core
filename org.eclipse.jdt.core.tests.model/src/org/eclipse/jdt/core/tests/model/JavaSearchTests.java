@@ -1993,7 +1993,7 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	File workspaceLocation = new File(workspace.getRoot().getLocation().toOSString());
 	File minimalJar = new File(workspaceLocation, "JavaSearch/MyJar.jar");
-	File externalJar = new File(workspaceLocation.getParentFile(), "MyJar.jar");
+	File externalJar = new File(workspaceLocation.getParentFile().getCanonicalFile(), "MyJar.jar"); // canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
 	IJavaProject project = this.getJavaProject("JavaSearch");
 	IClasspathEntry[] classpath = project.getRawClasspath();
 	try {
@@ -2015,7 +2015,7 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			externalJar.getCanonicalPath()+ " p0.X",
+			externalJar + " p0.X",
 			this.resultCollector);
 			
 		IClassFile classFile = pkg.getClassFile("X.class");

@@ -41,7 +41,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //		TESTS_PREFIX =  "testBug79990";
-//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NAMES = new String[] { "testExternalJarInternalExternalJar"};
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 }
@@ -508,7 +508,8 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		waitUntilIndexesReady();
 		startDeltas();
 		
-		IPath externalFooPath = fooIFile.getLocation();
+		// canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
+		IPath externalFooPath = new Path(fooIFile.getLocation().toFile().getCanonicalPath());
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
 		
 		f = new File(externalFooPath.toOSString());
