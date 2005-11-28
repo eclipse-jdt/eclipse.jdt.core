@@ -2480,4 +2480,168 @@ public void testBug114338() throws CoreException {
 		"----------\n"
 	);
 }
+
+/**
+ * Bug 36032:[plan] JavaProject.findType() fails to find second type in source file
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=36032"
+ *
+ */
+public void testBug36032a() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		this.createFile(
+			"/P/Foo.java", 
+			"class SFoo { void foo() {} }\n"
+		);
+		this.createFile(
+			"/P/Test.java", 
+			source
+		);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+
+		// Add new secondary type
+		this.createFile(
+			"/P/Bar.java", 
+			"class SBar{ void bar() {} }\n"
+		);
+		waitUntilIndexesReady();
+		source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"		new SBar().bar();\n" + 
+			"	}\n" + 
+			"}\n";
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug36032b() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"		new SBar().bar();\n" + 
+			"	}\n" + 
+			"}\n";
+		createFile(
+			"/P/Foo.java", 
+			"class SFoo { void foo() {} }\n"
+		);
+		createFile(
+			"/P/Test.java", 
+			source
+		);
+		createFile(
+			"/P/Bar.java", 
+			"class SBar{ void bar() {} }\n"
+		);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+
+		// Delete secondary type => should get a problem
+		waitUntilIndexesReady();
+		deleteFile("/P/Bar.java");
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertEquals("Working copy should not find secondary type 'Bar'!", 1, this.problemRequestor.problemCount);
+		assertProblems("Working copy should have problem!",
+			"----------\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in /P/Test.java (at line 4)\n" +
+			"	new SBar().bar();\n" +
+			"	    ^^^^\n" +
+			"SBar cannot be resolved to a type\n" +
+			"----------\n"
+		);
+
+		// Fix the problem
+		source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+	} finally {
+		deleteProject("P");
+	}
+}
+// Secondary types used through multiple projects
+public void testBug36032c() throws CoreException {
+	try {
+		// Create first project
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P1/test");
+		createFile(
+			"/P1/test/Foo.java", 
+			"package test;\n" +
+			"class Secondary{ void foo() {} }\n"
+		);
+		createFile(
+			"/P1/test/Test1.java", 
+			"package test;\n" +
+			"public class Test1 {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Secondary().foo();\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+
+		// Create second project
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		String source2 = 
+			"package test;\n" +
+			"public class Test2 {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Secondary().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		createFolder("/P2/test");
+		createFile(
+			"/P2/test/Test2.java", 
+			source2
+		);
+		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.problemRequestor.initialize(source2.toCharArray());
+		this.workingCopy.getBuffer().setContents(source2);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 }
