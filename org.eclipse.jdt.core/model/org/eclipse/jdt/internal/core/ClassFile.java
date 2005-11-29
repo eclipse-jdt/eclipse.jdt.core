@@ -562,6 +562,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 						entryName.append('/');
 					}
 					entryName.append(sourceFileWithoutExtension);
+					entryName.append('.');
 					entryName.append(javaLikeExtensions[i]);
 					ZipEntry zipEntry = jar.getEntry(entryName.toString());
 					if (zipEntry != null) {

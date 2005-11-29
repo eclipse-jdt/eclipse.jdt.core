@@ -2491,7 +2491,8 @@ public final class JavaCore extends Plugin {
 	 * Returns the list of known Java-like extensions.
 	 * Java like extension are defined in the {@link org.eclipse.core.runtime.Platform#getContentTypeManager() 
 	 * content type manager} for the org.eclipse.jdt.core.javaSource content type.
-	 * Note that the ".java" extension is always defined as a Java like extension.
+	 * Note that a Java-like extension doesn't include the leading dot ('.').
+	 * Also note that the "java" extension is always defined as a Java like extension.
 	 * 
 	 * @return the list of known Java-like extensions.
 	 * @since 3.2
@@ -3811,6 +3812,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Removes the file extension from the given file name, if it has a Java-like file
 	 * extension. Otherwise the file name itself is returned.
+	 * Note this removes the dot ('.') before the extension as well.
 	 * 
 	 * @param fileName the name of a file
 	 * @return the fileName without the Java-like extension

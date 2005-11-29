@@ -591,9 +591,11 @@ public class Util {
 		char[][] javaLikeExtensions = getJavaLikeExtensions();
 		suffixes: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
 			char[] suffix = javaLikeExtensions[i];
-			if (stringLength + suffix.length != fileNameLength) continue;
-			for (int j = stringLength; j < fileNameLength; j++) {
-				if (fileName.charAt(j) != suffix[j-stringLength]) 
+			int extensionStart = stringLength+1;
+			if (extensionStart + suffix.length != fileNameLength) continue;
+			if (fileName.charAt(stringLength) != '.') continue;
+			for (int j = extensionStart; j < fileNameLength; j++) {
+				if (fileName.charAt(j) != suffix[j-extensionStart]) 
 					continue suffixes;
 			}
 			return true;
@@ -741,7 +743,7 @@ public class Util {
 		if (JAVA_LIKE_EXTENSIONS == null) {
 			// TODO (jerome) reenable once JDT UI supports other file extensions (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
 			if (!ENABLE_JAVA_LIKE_EXTENSIONS)
-				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java};
+				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.EXTENSION_java.toCharArray()};
 			else {
 				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
 				String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
@@ -749,15 +751,12 @@ public class Util {
 				int length = fileExtensions == null ? 0 : fileExtensions.length;
 				char[][] extensions = new char[length][];
 				SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
-				extensions[0] = SuffixConstants.SUFFIX_java; // ensure that ".java" is first
-				knownExtensions.add(SuffixConstants.SUFFIX_java);
+				extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that ".java" is first
+				knownExtensions.add(extensions[0]);
 				int index = 1;
 				for (int i = 0; i < length; i++) {
 					String fileExtension = fileExtensions[i];
-					int extensionLength = fileExtension.length() + 1;
-					char[] extension = new char[extensionLength];
-					extension[0] = '.';
-					fileExtension.getChars(0, extensionLength-1, extension, 1);
+					char[] extension = fileExtension.toCharArray();
 					if (!knownExtensions.includes(extension)) {
 						extensions[index++] = extension;
 						knownExtensions.add(extension);
@@ -1153,6 +1152,7 @@ public class Util {
 	/*
 	 * Returns the index of the Java like extension of the given file name
 	 * or -1 if it doesn't end with a known Java like extension. 
+	 * Note this is the index of the '.' even if it is not considered part of the extension.
 	 */
 	public static int indexOfJavaLikeExtension(String fileName) {
 		int fileNameLength = fileName.length();
@@ -1161,12 +1161,14 @@ public class Util {
 			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
-			if (extensionStart < 0) continue;
+			int dotIndex = extensionStart - 1;
+			if (dotIndex < 0) continue;
+			if (fileName.charAt(dotIndex) != '.') continue;
 			for (int j = 0; j < extensionLength; j++) {
 				if (fileName.charAt(extensionStart + j) != extension[j])
 					continue extensions;
 			}
-			return extensionStart;
+			return dotIndex;
 		}
 		return -1;
 	}
@@ -2327,7 +2329,8 @@ public class Util {
 			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
-			if (extensionStart < 0) continue;
+			if (extensionStart-1 < 0) continue;
+			if (fileName[extensionStart-1] != '.') continue;
 			for (int j = 0; j < extensionLength; j++) {
 				if (fileName[extensionStart + j] != extension[j])
 					continue extensions;

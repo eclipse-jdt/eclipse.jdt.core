@@ -56,9 +56,9 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	public void testGetJavaLikeExtensions01() {
 		assertStringsEqual(
 			"Unexpected file extensions",
-			".java\n" + 
-			".foo\n" + 
-			".bar\n",
+			"java\n" + 
+			"foo\n" + 
+			"bar\n",
 			JavaCore.getJavaLikeExtensions()
 		);
 	}
@@ -73,10 +73,10 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 				javaContentType.addFileSpec("abc", IContentType.FILE_EXTENSION_SPEC);
 			assertStringsEqual(
 				"Unexpected file extensions",
-				".java\n" + 
-				".foo\n" + 
-				".bar\n" + 
-				".abc\n",
+				"java\n" + 
+				"foo\n" + 
+				"bar\n" + 
+				"abc\n",
 				JavaCore.getJavaLikeExtensions()
 			);
 		} finally {

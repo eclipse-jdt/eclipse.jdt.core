@@ -103,7 +103,7 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 	String sourceFolderPath = this.sourceFolder.getFullPath().toString() + IPath.SEPARATOR;
 	char[][] javaLikeExtensions = Util.getJavaLikeExtensions();
 	for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
-		String extension = new String(javaLikeExtensions[i]);
+		String extension = '.' + new String(javaLikeExtensions[i]);
 		String sourceFileName = sourceFileWithoutExtension + extension;
 		if (!doesFileExist(sourceFileName, qualifiedPackageName)) continue; // most common case
 	
