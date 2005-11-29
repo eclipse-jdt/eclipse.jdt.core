@@ -27,7 +27,7 @@ public JavadocBugsCompletionModelTest(String name) {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug22043a" };
-//	TESTS_NUMBERS = new int[] { 117183 };
+//	TESTS_NUMBERS = new int[] { 118311 };
 }
 public static Test suite() {
 	return buildTestSuite(JavadocBugsCompletionModelTest.class);
@@ -674,6 +674,28 @@ public void testBug118105() throws JavaModelException {
 	completeInJavadoc("/Completion/src/bugs/b118105/BasicTestBugs.java", source, true, "Str");
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+
+/**
+ * Bug 118311: [javadoc][assist] type \@ in javadoc comment and code assist == hang
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118311"
+ */
+public void testBug118311() throws JavaModelException {
+	String source =
+		"package bugs.b118311;\n" + 
+		"/**\n" + 
+		" * Text \\@\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118311/BasicTestBugs.java", source, true, "@");
+	assertSortedResults(
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 }

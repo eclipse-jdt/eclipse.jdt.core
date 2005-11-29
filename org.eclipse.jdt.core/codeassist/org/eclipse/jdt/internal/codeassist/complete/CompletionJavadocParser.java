@@ -628,8 +628,8 @@ public class CompletionJavadocParser extends JavadocParser {
 							consumeToken();
 							break;
 						case TerminalTokens.TokenNameERROR :
+							consumeToken();
 							if (this.scanner.currentCharacter == '#') { // @see ...#member
-								consumeToken();
 								Object member = null;
 								try {
 									this.scanner.tokenizeWhiteSpace = false;

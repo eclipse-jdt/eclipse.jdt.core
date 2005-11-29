@@ -1045,8 +1045,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						return false;
 					case TerminalTokens.TokenNameERROR :
+						consumeToken();
 						if (this.scanner.currentCharacter == '#') { // @see ...#member
-							consumeToken();
 							reference = parseMember(typeRef);
 							if (reference != null) {
 								return pushSeeRef(reference);
