@@ -527,8 +527,8 @@ public IJavaElement[] findElements(IJavaElement element) {
  * @see ICompilationUnit#findPrimaryType()
  */
 public IType findPrimaryType() {
-	String typeName = Signature.getQualifier(this.getElementName());
-	IType primaryType= this.getType(typeName);
+	String typeName = Util.getNameWithoutJavaLikeExtension(getElementName());
+	IType primaryType= getType(typeName);
 	if (primaryType.exists()) {
 		return primaryType;
 	}
