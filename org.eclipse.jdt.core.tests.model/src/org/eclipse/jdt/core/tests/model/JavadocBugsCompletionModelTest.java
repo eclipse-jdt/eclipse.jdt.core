@@ -27,7 +27,7 @@ public JavadocBugsCompletionModelTest(String name) {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug22043a" };
-//	TESTS_NUMBERS = new int[] { 118311 };
+//	TESTS_NUMBERS = new int[] { 118397 };
 }
 public static Test suite() {
 	return buildTestSuite(JavadocBugsCompletionModelTest.class);
@@ -633,7 +633,7 @@ public void testBug117183c() throws JavaModelException {
 			"/**\n" + 
 			" * Completion after Obj|\n" + 
 			" */\n" + 
-			"class Y {\n" + 
+			"class BasicTestBugs {\n" + 
 			"}\n"
 	};
 	completeInJavadoc(sources, true, "Obj");
@@ -649,7 +649,7 @@ public void testBug117183d() throws JavaModelException {
 			"/**\n" + 
 			" * Completion after Str.\n" + 
 			" */\n" + 
-			"class Y {\n" + 
+			"class BasicTestBugs {\n" + 
 			"}\n"
 	};
 	completeInJavadoc(sources, true, "Str");
@@ -669,7 +669,7 @@ public void testBug118105() throws JavaModelException {
 		"/**\n" + 
 		" * Some words here {@link Str.\n" + 
 		" */\n" + 
-		"public class Test {\n" + 
+		"public class BasicTestBugs {\n" + 
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b118105/BasicTestBugs.java", source, true, "Str");
 	assertSortedResults(
@@ -687,7 +687,7 @@ public void testBug118311() throws JavaModelException {
 		"/**\n" + 
 		" * Text \\@\n" + 
 		" */\n" + 
-		"public class Test {\n" + 
+		"public class BasicTestBugs {\n" + 
 		"\n" + 
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b118311/BasicTestBugs.java", source, true, "@");
@@ -696,6 +696,78 @@ public void testBug118311() throws JavaModelException {
 		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+
+/**
+ * Bug 118397: [javadoc][assist] type \@ in javadoc comment and code assist == hang
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118397"
+ */
+public void testBug118397a() throws JavaModelException {
+	String source =
+		"package bugs.b118397;\n" + 
+		"/**\n" + 
+		" * @see bugs.b118.BasicTestBugs\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "bugs.b118", 2); // 2nd occurence
+	assertSortedResults(
+		"bugs.b118397[PACKAGE_REF]{bugs.b118397, bugs.b118397, null, null, null, "+this.positions+R_DICQNR+"}"
+	);
+}
+public void testBug118397b() throws JavaModelException {
+	String source =
+		"package bugs.b118397;\n" + 
+		"/**\n" + 
+		" * @see Basic.Inner\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	class Inner {\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "Basic");
+	assertSortedResults(
+		"BasicTestBugs[TYPE_REF]{BasicTestBugs, bugs.b118397, Lbugs.b118397.BasicTestBugs;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+public void testBug118397c() throws JavaModelException {
+	String source =
+		"package bugs.b118397;\n" + 
+		"/**\n" + 
+		" * @see BasicTestBugs.In.Level2\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	class Inner {\n" + 
+		"		class Level2 {\n" + 
+		"			class Level3 {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "In");
+	assertSortedResults(
+		"BasicTestBugs.Inner[TYPE_REF]{Inner, bugs.b118397, Lbugs.b118397.BasicTestBugs$Inner;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+public void testBug118397d() throws JavaModelException {
+	String source =
+		"package bugs.b118397;\n" + 
+		"/**\n" + 
+		" * @see BasicTestBugs.Inner.Lev.Level3\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	class Inner {\n" + 
+		"		class Level2 {\n" + 
+		"			class Level3 {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118397/BasicTestBugs.java", source, true, "Lev");
+	assertSortedResults(
+		"BasicTestBugs.Inner.Level2[TYPE_REF]{Level2, bugs.b118397, Lbugs.b118397.BasicTestBugs$Inner$Level2;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
 }

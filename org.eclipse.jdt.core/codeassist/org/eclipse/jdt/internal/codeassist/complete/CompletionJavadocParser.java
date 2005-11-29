@@ -196,29 +196,34 @@ public class CompletionJavadocParser extends JavadocParser {
 						this.identifierPositionStack[this.identifierPtr],
 						this.tagSourceStart,
 						this.tagSourceEnd);
-			if (this.identifierStack[this.identifierPtr] == CompletionScanner.EmptyCompletionIdentifier) {
-				return null;
-			}
 		} else if (nbIdentifiers > 1) { // Qualified Type ref
-			// See if completion is in qualification
-			int size = nbIdentifiers;
-			if (this.tagSourceStart <= this.cursorLocation && this.cursorLocation <= this.tagSourceEnd) {
-				for (size=0; size<nbIdentifiers; size++) {
-					int start = (int) (this.identifierPositionStack[size] >>> 32);
-					int end = (int) this.identifierPositionStack[size];
-					if (start <= this.cursorLocation && this.cursorLocation <= end) {
-						size++;
-						break;
+			for (int i=startPtr; i<this.identifierPtr; i++) {
+				int start = (int) (this.identifierPositionStack[i] >>> 32);
+				int end = (int) this.identifierPositionStack[i];
+				if (start <= this.cursorLocation && this.cursorLocation <= end) {
+					if (i == startPtr) {
+						this.completionNode = new CompletionOnJavadocSingleTypeReference(
+									this.identifierStack[startPtr],
+									this.identifierPositionStack[startPtr],
+									this.tagSourceStart,
+									this.tagSourceEnd);
+					} else {
+						char[][] tokens = new char[i][];
+						System.arraycopy(this.identifierStack, startPtr, tokens, 0, i);
+						long[] positions = new long[i+1];
+						System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, i+1);
+						this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[i], positions, this.tagSourceStart, this.tagSourceEnd);
 					}
+					break;
 				}
 			}
-			
-			// Copy only tokens necessary for completion
-			char[][] tokens = new char[size-1][];
-			System.arraycopy(this.identifierStack, startPtr, tokens, 0, size-1);
-			long[] positions = new long[size];
-			System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, size);
-			this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[this.identifierPtr], positions, this.tagSourceStart, this.tagSourceEnd);
+			if (this.completionNode == null) {
+				char[][] tokens = new char[nbIdentifiers-1][];
+				System.arraycopy(this.identifierStack, startPtr, tokens, 0, nbIdentifiers-1);
+				long[] positions = new long[nbIdentifiers];
+				System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, nbIdentifiers);
+				this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[this.identifierPtr], positions, this.tagSourceStart, this.tagSourceEnd);
+			}
 		}
 		this.identifierPtr -= nbIdentifiers;
 
