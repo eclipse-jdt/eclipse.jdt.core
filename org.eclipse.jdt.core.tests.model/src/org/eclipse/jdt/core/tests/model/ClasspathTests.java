@@ -3244,6 +3244,20 @@ public void testNoResourceChange04() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that the in-memory output is correct when setting the output with no resource change.
+ */
+public void testNoResourceChange05() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		project.setRawClasspath(project.getRawClasspath(), new Path("/P/bin2"), false/*cannot modify resources*/, null/*no progress*/);
+		assertEquals(
+			"/P/bin2",
+			project.getOutputLocation().toString());
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Ensures that a duplicate entry created by editing the .classpath is detected.
  * (regression test for bug 24498 Duplicate entries on classpath cause CP marker to no longer refresh)

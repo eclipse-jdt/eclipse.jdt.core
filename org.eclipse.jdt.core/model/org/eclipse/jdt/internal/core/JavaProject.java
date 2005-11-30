@@ -2872,6 +2872,25 @@ public class JavaProject
 	}
 
 	/**
+	 * @see IJavaProject#setRawClasspath(IClasspathEntry[],IPath,boolean,IProgressMonitor)
+	 */
+	public void setRawClasspath(
+		IClasspathEntry[] entries,
+		IPath output,
+		boolean canModifyResources,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		setRawClasspath(
+			entries, 
+			output,
+			monitor, 
+			canModifyResources, 
+			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
+			true, // needValidation
+			canModifyResources); // save only if modifying resources is allowed
+	}
+	/**
 	 * @see IJavaProject#setRawClasspath(IClasspathEntry[],IPath,IProgressMonitor)
 	 */
 	public void setRawClasspath(
