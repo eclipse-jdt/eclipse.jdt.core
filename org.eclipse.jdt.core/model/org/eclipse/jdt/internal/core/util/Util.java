@@ -73,7 +73,7 @@ public class Util {
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private static char[][] JAVA_LIKE_EXTENSIONS;
-	public static boolean ENABLE_JAVA_LIKE_EXTENSIONS = false;
+	public static boolean ENABLE_JAVA_LIKE_EXTENSIONS = true;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -745,13 +745,13 @@ public class Util {
 			if (!ENABLE_JAVA_LIKE_EXTENSIONS)
 				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.EXTENSION_java.toCharArray()};
 			else {
-				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
+				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 				String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 				// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
 				int length = fileExtensions == null ? 0 : fileExtensions.length;
 				char[][] extensions = new char[length][];
 				SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
-				extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that ".java" is first
+				extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that "java" is first
 				knownExtensions.add(extensions[0]);
 				int index = 1;
 				for (int i = 0; i < length; i++) {

@@ -1068,6 +1068,16 @@ public final class JavaCore extends Plugin {
 	public static final String NEVER = "never"; //$NON-NLS-1$
 
 	/**
+	 * Value of the content-type for Java source files. Use this value to retrieve the Java content type
+	 * from the content type manager, and to add new Java-like extensions to this content type.
+	 * 
+	 * @see org.eclipse.core.runtime.content.IContentTypeManager#getContentType(String)
+	 * @see #getJavaLikeExtensions()
+	 * @since 3.2
+	 */
+	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
+
+	/**
 	 * Creates the Java core plug-in.
 	 * <p>
 	 * The plug-in instance is created automatically by the 
@@ -2490,7 +2500,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns the list of known Java-like extensions.
 	 * Java like extension are defined in the {@link org.eclipse.core.runtime.Platform#getContentTypeManager() 
-	 * content type manager} for the org.eclipse.jdt.core.javaSource content type.
+	 * content type manager} for the {@link #JAVA_SOURCE_CONTENT_TYPE}.
 	 * Note that a Java-like extension doesn't include the leading dot ('.').
 	 * Also note that the "java" extension is always defined as a Java-like extension.
 	 * 

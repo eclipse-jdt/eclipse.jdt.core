@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
@@ -41,15 +40,9 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		Util.ENABLE_JAVA_LIKE_EXTENSIONS = true;
 		Util.resetJavaLikeExtensions();
 	}
 
-	public void tearDownSuite() throws Exception {
-		Util.ENABLE_JAVA_LIKE_EXTENSIONS = false;
-		super.tearDownSuite();
-	}
-	
 	/*
 	 * Ensures that the known Java-like extensions are correct.
 	 */
@@ -67,7 +60,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	 * Ensures that the known Java-like extensions are correct after a Java-like file extension is added.
 	 */
 	public void testGetJavaLikeExtensions02() throws CoreException {
-		IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
+		IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 		try {
 			if (javaContentType != null)
 				javaContentType.addFileSpec("abc", IContentType.FILE_EXTENSION_SPEC);
