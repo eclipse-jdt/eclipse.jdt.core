@@ -2492,7 +2492,7 @@ public final class JavaCore extends Plugin {
 	 * Java like extension are defined in the {@link org.eclipse.core.runtime.Platform#getContentTypeManager() 
 	 * content type manager} for the org.eclipse.jdt.core.javaSource content type.
 	 * Note that a Java-like extension doesn't include the leading dot ('.').
-	 * Also note that the "java" extension is always defined as a Java like extension.
+	 * Also note that the "java" extension is always defined as a Java-like extension.
 	 * 
 	 * @return the list of known Java-like extensions.
 	 * @since 3.2
