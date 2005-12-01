@@ -158,6 +158,24 @@ public abstract class SearchParticipant {
 	public abstract void locateMatches(SearchDocument[] documents, SearchPattern pattern, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException;
 
 	/**
+	 * Removes the index for a given path. 
+	 * <p>
+	 * The given index location must represent a path in the file system to a file that
+	 * already exists and must be an index file, otherwise nothing will be done.
+	 * </p><p>
+	 * It is strongly recommended to use this method instead of deleting file directly
+	 * otherwise cached index will not be removed.
+	 * </p>
+	 * 
+	 * @param indexLocation the location in the file system to the index
+	 * @since 3.2
+	 */
+	public void removeIndex(IPath indexLocation){
+		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		manager.removeIndexPath(indexLocation);
+	}
+
+	/**
 	 * Schedules the indexing of the given document.
 	 * Once the document is ready to be indexed, 
 	 * {@link #indexDocument(SearchDocument, IPath) indexDocument(document, indexPath)}
@@ -183,7 +201,7 @@ public abstract class SearchParticipant {
 		}
 		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
 		String osIndexLocation = indexLocation.toOSString();
-		// TODO (jerome) should not have to create index manually, should expose API that recreates index instead
+		// TODO (frederic) should not have to create index manually, should expose API that recreates index instead
 		manager.ensureIndexExists(osIndexLocation, containerPath);
 		manager.scheduleDocumentIndexing(document, containerPath, osIndexLocation, this);
 	}

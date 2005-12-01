@@ -51,6 +51,9 @@ Eclipse SDK 3.2M4 - ?th December 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>SearchParticipant#removeIndex(IPath)</code> to remove both index file
+    from a given location and its corresponding Index in IndexManager cache.
+</li>
 <li>Added API <code>IJavaProject#setRawClasspath(IClasspathEntry[], IPath, boolean, IProgressMonitor)</code>
      to change the output location as well as the classpath without touching resources.</li>
 <li>Added constant constant JavaCore#JAVA_SOURCE_CONTENT_TYPE to retrieve the Java source content type from 
@@ -58,7 +61,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118798">118798</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116650">116650</a>
+[search] SearchParticipant has no way to remove specific index file from IndexManager cache
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118798">118798</a>
 Unexpected JME on IMethod.getParameterNames
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114571">114571</a>
 concurrent access to HashMap

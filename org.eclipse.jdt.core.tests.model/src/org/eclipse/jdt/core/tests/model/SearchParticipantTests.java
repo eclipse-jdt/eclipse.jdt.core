@@ -227,6 +227,10 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		participant.scheduleDocumentIndexing(document, getIndexLocation());
 		waitUntilIndexesReady();
 		assertTrue("Index file should have been written",  getIndexLocation().toFile().length() > 0);
+
+		// remove index file
+		participant.removeIndex(getIndexLocation());
+		assertFalse("Index file should have been removed",  getIndexLocation().toFile().exists());
 	}
 
 	/*
@@ -252,11 +256,16 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		waitUntilIndexesReady();
 		wait(1100); // wait more than 1000ms so as to allow for the index to be saved on disk
 		assertTrue("Index file should have been written",  getIndexLocation().toFile().length() > 0);
-	
+
+		// shutdown
 		simulateExit();
 		assertTrue("Index file should stay after shutdown",  getIndexLocation().toFile().length() > 0);
 		this.deleteProject = false;
 		this.restart = true;
+
+		// remove index file
+		participant.removeIndex(getIndexLocation());
+		assertFalse("Index file should have been removed",  getIndexLocation().toFile().exists());
 	}
 
 	/*
@@ -277,6 +286,10 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		participant.scheduleDocumentIndexing(document, getIndexLocation());
 		waitUntilIndexesReady();
 		assertTrue("Index file should have been written",  getIndexLocation().toFile().length() > 0);
+
+		// remove index file
+		participant.removeIndex(getIndexLocation());
+		assertFalse("Index file should have been removed",  getIndexLocation().toFile().exists());
 	}
 	
 	/*

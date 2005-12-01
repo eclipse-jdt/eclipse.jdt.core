@@ -481,6 +481,36 @@ public synchronized void removeIndex(IPath containerPath) {
 /**
  * Removes all indexes whose paths start with (or are equal to) the given path. 
  */
+public synchronized void removeIndexPath(IPath path) {
+	Set keySet = this.indexes.keySet();
+	Iterator keys = keySet.iterator();
+	String[] locations = null;
+	int max = keySet.size();
+	int ptr = 0;
+	while (keys.hasNext()) {
+		String indexLocation = (String) keys.next();
+		IPath indexPath = new Path(indexLocation);
+		if (path.isPrefixOf(indexPath)) {
+			Index index = (Index) this.indexes.get(indexLocation);
+			if (index != null) index.monitor = null;
+			if (locations == null) locations = new String[max];
+			locations[ptr++] = indexLocation;
+			File indexFile = new File(indexLocation);
+			if (indexFile.exists()) {
+				indexFile.delete();
+			}
+		} else if (locations == null) {
+			max--;
+		}
+	}
+	for (int i=0; i<ptr; i++) {
+		this.indexes.remove(locations[i]);
+	}
+	removeIndexesState(locations);
+}
+/**
+ * Removes all indexes whose paths start with (or are equal to) the given path. 
+ */
 public synchronized void removeIndexFamily(IPath path) {
 	// only finds cached index files... shutdown removes all non-cached index files
 	ArrayList toRemove = null;
