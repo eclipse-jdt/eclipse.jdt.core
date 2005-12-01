@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -25,8 +26,19 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
+public static ClassFileReader read(InputStream stream, String fileName) throws ClassFormatException, IOException {
+	return read(stream, fileName, false);
+}
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
+}
+public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
+	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream, -1);
+	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
+	if (fullyInitialize) {
+		classFileReader.initialize();
+	}
+	return classFileReader;
 }
 public static ClassFileReader read(File file, boolean fullyInitialize) throws ClassFormatException, IOException {
 	byte classFileBytes[] = Util.getFileByteContent(file);
