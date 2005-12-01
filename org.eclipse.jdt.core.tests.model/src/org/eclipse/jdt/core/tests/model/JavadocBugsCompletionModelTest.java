@@ -27,7 +27,7 @@ public JavadocBugsCompletionModelTest(String name) {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug22043a" };
-//	TESTS_NUMBERS = new int[] { 118397 };
+//	TESTS_NUMBERS = new int[] { 118092 };
 }
 public static Test suite() {
 	return buildTestSuite(JavadocBugsCompletionModelTest.class);
@@ -675,6 +675,24 @@ public void testBug118105() throws JavaModelException {
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
 	);
+}
+
+/**
+ * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing ¸<c
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118092"
+ */
+public void testBug118092() throws JavaModelException {
+	String source =
+		"package bugs.b118092;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"   /**\n" + 
+		"    * ¸<c\n" + 
+		"    */\n" + 
+		"   public void method() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b118092/BasicTestBugs.java", source, true, "<c");
+	// expect no result, just not hang...
+	assertSortedResults("");
 }
 
 /**
