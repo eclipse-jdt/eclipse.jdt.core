@@ -199,7 +199,12 @@ public String[] getParameterNames() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
 	if (paramCount != 0) {
-		String javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
+		String javadoc = null;
+		try {
+			javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
+		} catch (JavaModelException e) {
+			// ignore
+		}
 		if (javadoc != null) {
 			final int indexOfOpenParen = javadoc.indexOf('(');
 			if (indexOfOpenParen != -1) {
