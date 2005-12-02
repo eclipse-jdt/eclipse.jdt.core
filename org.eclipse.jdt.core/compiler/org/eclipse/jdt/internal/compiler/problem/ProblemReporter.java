@@ -1028,6 +1028,14 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 		method.sourceStart(),
 		method.sourceEnd());
 }
+public void enumConstantsCannotBeSurroundedByParenthesis(Expression expression) {
+	this.handle(
+		IProblem.EnumConstantsCannotBeSurroundedByParenthesis,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void enumStaticFieldUsedDuringInitialization(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.EnumStaticFieldInInInitializerContext,

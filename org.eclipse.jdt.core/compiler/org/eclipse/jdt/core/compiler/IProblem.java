@@ -728,6 +728,7 @@ void setSourceStart(int sourceStart);
 	
 	// 1.5 features
 	int UseEnumAsAnIdentifier = Internal + 441;
+	int EnumConstantsCannotBeSurroundedByParenthesis = Syntax + Internal + 442;
 	
 	// detected task
 	/** @since 2.1 */

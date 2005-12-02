@@ -108,6 +108,10 @@ public class CaseStatement extends Statement {
 				|| caseType.isCompatibleWith(switchExpressionType)) {
 			if (caseType.isEnum()) {
 				this.isEnumConstant = true;
+				if (((this.constantExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+					scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(this.constantExpression);
+				}
+
 				if (constantExpression instanceof NameReference
 						&& (constantExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
 					NameReference reference = (NameReference) constantExpression;
