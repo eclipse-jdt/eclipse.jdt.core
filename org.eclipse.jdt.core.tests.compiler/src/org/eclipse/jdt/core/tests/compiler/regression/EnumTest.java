@@ -4136,7 +4136,7 @@ the right of e1."
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105592
 	public void test122() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -4153,7 +4153,12 @@ the right of e1."
 				"	}\n" +
 				"}"
 			},
-			"");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	case (NORMAL) :\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Enum contants cannot be surrounded by parenthesis\n" + 
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110403
 	public void test123() {
