@@ -220,34 +220,32 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			final HashMap creatingProblems = new HashMap();
 			final HashMap others = new HashMap();
 			IExtension[] extensions = extension.getExtensions();
+			// for all extensions of this point...
 			for(int i = 0; i < extensions.length; i++) {
-				// for all extensions of this point...
-				for(int j = 0; j < extensions.length; j++) {
-					IConfigurationElement[] configElements = extensions[j].getConfigurationElements();
-					// for all config elements named "compilationParticipant"
-					for(int k = 0; k < configElements.length; k++) {
-						final IConfigurationElement configElement = configElements[k];
-						String elementName =configElement.getName();
-						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
-							continue;
-						}
-						Platform.run(new ISafeRunnable() {
-							public void handleException(Throwable exception) {
-								Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
-							}
-							public void run() throws Exception {
-								Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
-								if (execExt instanceof CompilationParticipant) {
-									if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
-										modifyingEnv.put(configElement, execExt);
-									else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
-										creatingProblems.put(configElement, execExt);
-									else
-										others.put(configElement, execExt);
-								}
-							}
-						});
+				IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
+				// for all config elements named "compilationParticipant"
+				for(int j = 0; j < configElements.length; j++) {
+					final IConfigurationElement configElement = configElements[j];
+					String elementName =configElement.getName();
+					if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
+						continue;
 					}
+					Platform.run(new ISafeRunnable() {
+						public void handleException(Throwable exception) {
+							Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
+						}
+						public void run() throws Exception {
+							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
+							if (execExt instanceof CompilationParticipant) {
+								if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
+									modifyingEnv.put(configElement, execExt);
+								else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
+									creatingProblems.put(configElement, execExt);
+								else
+									others.put(configElement, execExt);
+							}
+						}
+					});
 				}
 			}
 			int size = modifyingEnv.size() + creatingProblems.size() + others.size();
