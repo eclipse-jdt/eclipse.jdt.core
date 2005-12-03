@@ -13,11 +13,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
 
 public class InternalHexFloatTest extends AbstractRegressionTest {
@@ -323,139 +321,89 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
 	public void test003() {
-		if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
-			Map customOptions = super.getCompilerOptions();
-			customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-			this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {	\n" +
-					"    public static void main(String[] args) {\n" + 
-					"        System.out.println(-0Xf.aP1F);\n" + 
-					"    }\n" + 
-					"}"
-				},
-				"-31.25",
-				null,
-				true,
-				null,
-				customOptions,
-				null);
-		}
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(-0Xf.aP1F);\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"-31.25");
 	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
 	public void test004() {
-		if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
-			Map customOptions = super.getCompilerOptions();
-			customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-			this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {	\n" +
-					"    public static void main(String[] args) {\n" + 
-					"        System.out.println(0X000.0000P5000);\n" + 
-					"    }\n" + 
-					"}"
-				},
-				"0.0",
-				null,
-				true,
-				null,
-				customOptions,
-				null);
-		}
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(0X000.0000P5000);\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"0.0");
 	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
 	public void test005() {
-		if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
-			Map customOptions = super.getCompilerOptions();
-			customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-			this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {	\n" +
-					"    public static void main(String[] args) {\n" + 
-					"        System.out.println(-0X000.0000P5000F);\n" + 
-					"    }\n" + 
-					"}"
-				},
-				"-0.0",
-				null,
-				true,
-				null,
-				customOptions,
-				null);
-		}
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(-0X000.0000P5000F);\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"-0.0");
 	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
 	public void test006() {
-		if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
-			Map customOptions = super.getCompilerOptions();
-			customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {	\n" +
-					"    public static void main(String[] args) {\n" + 
-					"        System.out.println(0X000.eP-5000F);\n" + 
-					"    }\n" + 
-					"}"
-				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\r\n" + 
-				"	System.out.println(0X000.eP-5000F);\r\n" + 
-				"	                   ^^^^^^^^^^^^^^\n" + 
-				"The literal 0X000.eP-5000F of type float is out of range \n" + 
-				"----------\n");
-		}
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(0X000.eP-5000F);\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	System.out.println(0X000.eP-5000F);\r\n" + 
+			"	                   ^^^^^^^^^^^^^^\n" + 
+			"The literal 0X000.eP-5000F of type float is out of range \n" + 
+			"----------\n");
 	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
 	public void test007() {
-		if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
-			Map customOptions = super.getCompilerOptions();
-			customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {	\n" +
-					"    public static void main(String[] args) {\n" + 
-					"        System.out.println(0X000.eP5000F);\n" + 
-					"    }\n" + 
-					"}"
-				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\r\n" + 
-				"	System.out.println(0X000.eP5000F);\r\n" + 
-				"	                   ^^^^^^^^^^^^^\n" + 
-				"The literal 0X000.eP5000F of type float is out of range \n" + 
-				"----------\n");
-		}
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(0X000.eP5000F);\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	System.out.println(0X000.eP5000F);\r\n" + 
+			"	                   ^^^^^^^^^^^^^\n" + 
+			"The literal 0X000.eP5000F of type float is out of range \n" + 
+			"----------\n");
 	}
 }
