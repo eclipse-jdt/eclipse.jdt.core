@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 623 };
+//		TESTS_NUMBERS =  new int[] { 624 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7010,6 +7010,40 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				public boolean visit(ClassInstanceCreation classInstanceCreation) {
 					assertNotNull("No binding", classInstanceCreation.resolveConstructorBinding());
 					return false;
+				}
+			});
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=118876
+	 */
+	public void test0624() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X extend {}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedOutput =
+				"Syntax error on token \"extend\", delete this token";
+			assertProblemsSize(unit, 1, expectedOutput);
+			unit.accept(new ASTVisitor() {
+				public boolean visit(TypeDeclaration typeDeclaration) {
+					assertTrue("Should be malformed", isMalformed(typeDeclaration));
+					return false;
+				}
+				public boolean visit(CompilationUnit compilationUnit) {
+					assertFalse("Should not be malformed", isMalformed(compilationUnit));
+					return true;
 				}
 			});
 		} finally {

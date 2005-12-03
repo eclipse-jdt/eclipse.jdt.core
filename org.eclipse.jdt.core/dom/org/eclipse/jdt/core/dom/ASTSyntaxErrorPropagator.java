@@ -119,6 +119,27 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	/*
 	 * Method declared on ASTVisitor.
 	 */
+	public boolean visit(AnnotationTypeDeclaration node) {
+		return checkAndTagAsMalformed(node);		
+	}
+	
+	/*
+	 * Method declared on ASTVisitor.
+	 */
+	public boolean visit(EnumDeclaration node) {
+		return checkAndTagAsMalformed(node);		
+	}
+	
+	/*
+	 * Method declared on ASTVisitor.
+	 */
+	public boolean visit(TypeDeclaration node) {
+		return checkAndTagAsMalformed(node);		
+	}
+	
+	/*
+	 * Method declared on ASTVisitor.
+	 */
 	public boolean visit(Initializer node) {
 		return checkAndTagAsMalformed(node);		
 	}
