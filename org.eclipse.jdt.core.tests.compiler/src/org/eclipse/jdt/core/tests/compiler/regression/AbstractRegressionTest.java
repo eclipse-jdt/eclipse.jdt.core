@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -73,6 +75,16 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
+			}
+			
+			try {
+				FileInputStream stream = new FileInputStream(f);
+				ClassFileReader.read(stream, className + ".class", true);
+				stream.close();
+			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e1) {
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e1) {
+				assertTrue("IOException", false);
 			}
 		} finally {
 			removeTempClass(className);
@@ -193,7 +205,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		defaultOptions.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.WARNING);
 		defaultOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
-		defaultOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 		defaultOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.WARNING );
 		return defaultOptions;
