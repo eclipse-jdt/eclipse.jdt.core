@@ -12,7 +12,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -191,7 +193,12 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				initializationScope.lastVisibleFieldID = this.binding.id;
 
 				resolveAnnotations(initializationScope, this.annotations, this.binding);
-				
+				// check @Deprecated annotation presence
+				if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+						&& (this.binding.modifiers & IConstants.AccDeprecated) != 0
+						&& initializationScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+					initializationScope.problemReporter().missingDeprecatedAnnotationForField(this);
+				}						
 				// the resolution of the initialization hasn't been done
 				if (this.initialization == null) {
 					this.binding.setConstant(Constant.NotAConstant);

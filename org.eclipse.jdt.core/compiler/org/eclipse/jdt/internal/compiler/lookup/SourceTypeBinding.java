@@ -607,8 +607,6 @@ void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
 		this.modifiers |= AccDeprecated;
-	} else if ((this.modifiers & AccDeprecated) != 0 && scope != null && scope.compilerOptions().sourceLevel >= JDK1_5) {
-		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
@@ -1140,8 +1138,6 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			field.modifiers |= AccDeprecated;
-		else if ((field.modifiers & AccDeprecated) != 0)
-			this.scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= AccDeprecatedImplicitly;	
@@ -1195,8 +1191,6 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			method.modifiers |= AccDeprecated;
-		else if ((method.modifiers & AccDeprecated) != 0)
-			this.scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= AccDeprecatedImplicitly;
