@@ -694,10 +694,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected String getURLContents(String docUrlValue, String defaultEncoding) throws JavaModelException {
 		InputStream stream = null;
 		try {
-			URL docUrl = new URL(docUrlValue);
-			URLConnection connection = docUrl.openConnection();
-			connection.setUseCaches(false);
-			stream = connection.getInputStream();
 			String encoding = defaultEncoding;
 			try {
 				if (encoding == null) {
@@ -706,7 +702,17 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			} catch (CoreException e) {
 				// ignore
 			}
+			// long time = System.currentTimeMillis();
+			URL docUrl = new URL(docUrlValue);
+			URLConnection connection = docUrl.openConnection();
+			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for opening connection for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
+			// time = System.currentTimeMillis();
+			connection.setUseCaches(false);
+			stream = connection.getInputStream();
+			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for getting stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
+			// time = System.currentTimeMillis();
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
+			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for reading stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			if (contents != null) {
 				return String.valueOf(contents);
 			}

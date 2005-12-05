@@ -1010,16 +1010,14 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 }
 public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
-	if (projectInfo.javadocCache != null) {
-		final String cachedJavadoc = (String) projectInfo.javadocCache.get(this);
-		if (cachedJavadoc != null) {
-			return cachedJavadoc;
-		}
-	} else {
-		projectInfo.javadocCache = new HashMap();
+	String cachedJavadoc = null;
+	synchronized (projectInfo.javadocCache) {
+		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+	}		
+	if (cachedJavadoc != null) {
+		return cachedJavadoc;
 	}
-		
-		
+	
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
@@ -1036,7 +1034,9 @@ public String getJavadocContents(IProgressMonitor monitor, String defaultEncodin
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
-	projectInfo.javadocCache.put(this, contents);
+	synchronized (projectInfo.javadocCache) {
+		projectInfo.javadocCache.put(this, contents);
+	}
 	return contents;
 }
 }

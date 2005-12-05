@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -442,13 +441,12 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
  */
 public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
-	if (projectInfo.javadocCache != null) {
-		final String cachedJavadoc = (String) projectInfo.javadocCache.get(this);
-		if (cachedJavadoc != null) {
-			return cachedJavadoc;
-		}
-	} else {
-		projectInfo.javadocCache = new HashMap();
+	String cachedJavadoc = null;
+	synchronized (projectInfo.javadocCache) {
+		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+	}
+	if (cachedJavadoc != null) {
+		return cachedJavadoc;
 	}
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
@@ -466,7 +464,9 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
-	projectInfo.javadocCache.put(this, contents);
+	synchronized (projectInfo.javadocCache) {
+		projectInfo.javadocCache.put(this, contents);
+	}
 	return contents;
 }
 }

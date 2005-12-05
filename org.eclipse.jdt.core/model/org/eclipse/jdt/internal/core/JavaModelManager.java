@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.WeakHashSet;
@@ -815,13 +816,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public IEclipsePreferences preferences;
 		public Hashtable options;
 		public HashMap secondaryTypes;
-		public HashMap javadocCache;
+		public LRUCache javadocCache;
 		
 		public PerProjectInfo(IProject project) {
 
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
+			this.javadocCache = new LRUCache(5);
 		}
 		
 		public void rememberExternalLibTimestamps() {
@@ -850,7 +852,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.rawClasspath = newRawClasspath;
 			this.resolvedClasspath = null;
 			this.resolvedPathToRawEntries = null;
-			this.javadocCache = null;
+			this.javadocCache = new LRUCache(5);
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();

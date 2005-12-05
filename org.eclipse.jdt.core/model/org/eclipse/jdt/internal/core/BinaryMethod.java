@@ -195,7 +195,7 @@ public String[] getParameterNames() throws JavaModelException {
 	// try to see if we can retrieve the names from the attached javadoc
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-	// disable for now See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117740
+	// TODO (olivier) disable for now See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117740
 	if (false) {
 		if (paramCount != 0) {
 			String javadoc = null;
