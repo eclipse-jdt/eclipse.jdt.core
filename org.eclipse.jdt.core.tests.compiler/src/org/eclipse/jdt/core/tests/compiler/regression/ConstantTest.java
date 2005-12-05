@@ -709,30 +709,24 @@ public void test014() {
 		"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
 		"  void foo2(X x);\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifeq 4\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 14]\n" + 
-		"        [pc: 4, line: 17]\n" + 
+		"        [pc: 0, line: 17]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
 		"  void foo3(X x);\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifne 0\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 19]\n" + 
-		"        [pc: 4, line: 22]\n" + 
+		"        [pc: 0, line: 22]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
 		"  // Stack: 1, Locals: 3\n" + 
@@ -758,28 +752,22 @@ public void test014() {
 		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
+		"  // Stack: 0, Locals: 1\n" + 
 		"  void foo6();\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifeq 4\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 32]\n" + 
-		"        [pc: 4, line: 35]\n" + 
+		"        [pc: 0, line: 35]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
+		"  // Stack: 0, Locals: 1\n" + 
 		"  void foo7();\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifne 0\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 37]\n" + 
-		"        [pc: 4, line: 40]\n" + 
+		"        [pc: 0, line: 40]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
 		"  // Stack: 1, Locals: 2\n" + 
@@ -886,30 +874,24 @@ public void test015() {
 		"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
 		"  void foo2(X x);\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifeq 4\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 14]\n" + 
-		"        [pc: 4, line: 17]\n" + 
+		"        [pc: 0, line: 17]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
 		"  void foo3(X x);\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifne 0\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 19]\n" + 
-		"        [pc: 4, line: 22]\n" + 
+		"        [pc: 0, line: 22]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #20 (LX;)V\n" + 
 		"  // Stack: 1, Locals: 3\n" + 
@@ -935,28 +917,22 @@ public void test015() {
 		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
+		"  // Stack: 0, Locals: 1\n" + 
 		"  void foo6();\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifeq 4\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 32]\n" + 
-		"        [pc: 4, line: 35]\n" + 
+		"        [pc: 0, line: 35]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
+		"  // Stack: 0, Locals: 1\n" + 
 		"  void foo7();\n" + 
-		"    0  iconst_0\n" + 
-		"    1  ifne 0\n" + 
-		"    4  return\n" + 
+		"    0  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 37]\n" + 
-		"        [pc: 4, line: 40]\n" + 
+		"        [pc: 0, line: 40]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
 		"  // Stack: 1, Locals: 2\n" + 
@@ -1023,68 +999,57 @@ public void test016() {
 		"");
 	// ensure boolean codegen got optimized (optimizedBooleanConstant)
 	String expectedOutput =
-				"  // Method descriptor #20 (LX;)V\n" + 
-				"  // Stack: 0, Locals: 2\n" + 
-				"  void foo1(X x);\n" + 
-				"    0  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 9]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
-				"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
-				"  \n" + 
-				"  // Method descriptor #20 (LX;)V\n" + 
-				"  // Stack: 1, Locals: 2\n" + 
-				"  void foo2(X x);\n" + 
-				"     0  aload_1 [x]\n" + 
-				"     1  ifnonnull 11\n" + 
-				"     4  iconst_0\n" + 
-				"     5  ifeq 15\n" + 
-				"     8  goto 15\n" + 
-				"    11  iconst_0\n" + 
-				"    12  ifeq 15\n" + 
-				"    15  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 12]\n" + 
-				"        [pc: 15, line: 15]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
-				"        [pc: 0, pc: 16] local: x index: 1 type: X\n" + 
-				"  \n" + 
-				"  // Method descriptor #20 (LX;)V\n" + 
-				"  // Stack: 1, Locals: 2\n" + 
-				"  void foo3(X x);\n" + 
-				"     0  aload_1 [x]\n" + 
-				"     1  ifnonnull 11\n" + 
-				"     4  iconst_0\n" + 
-				"     5  ifne 0\n" + 
-				"     8  goto 15\n" + 
-				"    11  iconst_0\n" + 
-				"    12  ifne 0\n" + 
-				"    15  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 18]\n" + 
-				"        [pc: 15, line: 21]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
-				"        [pc: 0, pc: 16] local: x index: 1 type: X\n" + 
-				"  \n" + 
-				"  // Method descriptor #20 (LX;)V\n" + 
-				"  // Stack: 1, Locals: 3\n" + 
-				"  void foo4(X x);\n" + 
-				"    0  aload_1 [x]\n" + 
-				"    1  ifnonnull 4\n" + 
-				"    4  iconst_0\n" + 
-				"    5  istore_2 [bb]\n" + 
-				"    6  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 23]\n" + 
-				"        [pc: 6, line: 24]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
-				"        [pc: 0, pc: 7] local: x index: 1 type: X\n" + 
-				"        [pc: 6, pc: 7] local: bb index: 2 type: boolean\n" + 
-				"}";
+		"  // Method descriptor #20 (LX;)V\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
+		"  void foo1(X x);\n" + 
+		"    0  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 9]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #20 (LX;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo2(X x);\n" + 
+		"    0  aload_1 [x]\n" + 
+		"    1  ifnonnull 4\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 12]\n" + 
+		"        [pc: 4, line: 15]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #20 (LX;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo3(X x);\n" + 
+		"    0  aload_1 [x]\n" + 
+		"    1  ifnonnull 4\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 18]\n" + 
+		"        [pc: 4, line: 21]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #20 (LX;)V\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  void foo4(X x);\n" + 
+		"    0  aload_1 [x]\n" + 
+		"    1  ifnonnull 4\n" + 
+		"    4  iconst_0\n" + 
+		"    5  istore_2 [bb]\n" + 
+		"    6  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 23]\n" + 
+		"        [pc: 6, line: 24]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 7] local: x index: 1 type: X\n" + 
+		"        [pc: 6, pc: 7] local: bb index: 2 type: boolean\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");

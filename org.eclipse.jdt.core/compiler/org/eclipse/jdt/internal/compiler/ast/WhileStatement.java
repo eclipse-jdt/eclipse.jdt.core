@@ -143,6 +143,19 @@ public class WhileStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
+		Constant cst = this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
+		if (isConditionOptimizedFalse) {
+			condition.generateCode(currentScope, 	codeStream, false);
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (mergedInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			}
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
+		}
+		
 		breakLabel.initialize(codeStream);
 
 		// generate condition
