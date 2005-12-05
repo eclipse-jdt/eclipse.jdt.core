@@ -269,6 +269,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			Object[] elements = group.keySet().toArray();
 			Util.sort(elements, new Util.Comparer() {
 				public int compare(Object a, Object b) {
+					if (a == b) return 0;
 					String id = ((IConfigurationElement) a).getAttribute("id"); //$NON-NLS-1$
 					if (id == null) return -1;
 					IConfigurationElement[] requiredElements = ((IConfigurationElement) b).getChildren("requires"); //$NON-NLS-1$
