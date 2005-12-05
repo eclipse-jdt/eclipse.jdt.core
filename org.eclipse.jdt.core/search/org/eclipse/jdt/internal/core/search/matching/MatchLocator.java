@@ -1470,8 +1470,8 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		// Move getMethodBodies to #parseAndBuildings(...) method to allow possible match resolution management
 		//getMethodBodies(unit);
 
-		boolean mustResolve = ((InternalSearchPattern)this.pattern).mustResolve || possibleMatch.nodeSet.mustResolve;
-		if (bindingsWereCreated &&  mustResolve) {
+		boolean mustResolve = (((InternalSearchPattern)this.pattern).mustResolve || possibleMatch.nodeSet.mustResolve) && bindingsWereCreated;
+		if (mustResolve) {
 			if (unit.types != null) {
 				if (BasicSearchEngine.VERBOSE)
 					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$

@@ -582,7 +582,9 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(MessageSend messageSend) {
 	MethodBinding method = messageSend.binding;
-	if (method == null) return INACCURATE_MATCH;
+	if (method == null) {
+		return INACCURATE_MATCH;
+	}
 	if (messageSend.resolvedType == null) {
 		// Closest match may have different argument numbers when ProblemReason is NotFound
 		// see MessageSend#resolveType(BlockScope)

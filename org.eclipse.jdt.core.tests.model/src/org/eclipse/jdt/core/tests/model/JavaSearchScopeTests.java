@@ -24,304 +24,191 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
  * Tests the Java search engine accross multiple projects.
  */
 public class JavaSearchScopeTests extends ModifyingResourceTests implements IJavaSearchConstants {
-	public JavaSearchScopeTests(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildTestSuite(JavaSearchScopeTests.class);
-	}
-	// Use this static initializer to specify subset for tests
-	// All specified tests which do not belong to the class are skipped...
-	static {
-	//	TESTS_NAMES = new String[] { "testMethodOccurences" };
-    //  TESTS_NUMBERS = new int[] { 101777 };
-	//	TESTS_RANGE = new int[] { 16, -1 };
-	}
-	
-	protected void tearDown() throws Exception {
-		// Cleanup caches
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.containers = new HashMap(5);
-		manager.variables = new HashMap(5);
-	
-		super.tearDown();
-	}
-	protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
-		String actual = scope.toString();
-		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + ",");
-		}
-		assertEquals("Unexpected scope", expected, actual);
-	}
-	/*
-	 * Ensures that a Java search scope with SOURCES only is correct.
-	 */
-	public void testSources() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
-	 * (external jar case)
-	 */
-	public void testApplicationLibrairiesExternalJar() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	"+  getExternalJCLPath().toOSString() +"\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
-	 * (internal jar and class folder cases)
-	 */
-	public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P/internal.jar\n" + 
-				"	/P/classfolder\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
-	 * (classpath variable case)
-	 */
-	public void testApplicationLibrairiesClasspathVariable() throws CoreException {
-		try {
-			VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P/lib.jar\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-			VariablesInitializer.reset();
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
-	 * (classpath container case)
-	 */
-	public void testApplicationLibrairiesClasspathContainer() throws CoreException {
-		try {
-			ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P/lib.jar\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with SYSTEM_LIBRARIES only is correct
-	 * (classpath container case)
-	 */
-	public void testSystemLibraries() throws CoreException {
-		try {
-			ClasspathInitializerTests.DefaultContainerInitializer intializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
-				protected DefaultContainer newContainer(char[][] libPaths) {
-					return new DefaultContainer(libPaths) {
-						public int getKind() {
-							return IClasspathContainer.K_SYSTEM;
-						}
-					};
-				}
-			};
-			ContainerInitializer.setInitializer(intializer);
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SYSTEM_LIBRARIES);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P/lib.jar\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
-	 * (direct reference case)
-	 */
-	public void testSourcesOrDirectReferencedProjects() throws CoreException {
-		try {
-			createJavaProject("P1");
-			IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {}, new String[] {"/P1"}, "bin");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P1\n" + 
-				"	/P2/src\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P1");
-			deleteProject("P2");
-		}
-	}
-	/*
-	 * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
-	 * (reference through a container case)
-	 */
-	public void testSourcesOrContainerReferencedProjects() throws CoreException {
-		try {
-			createJavaProject("P1");
-			ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P2", "/P1"}));
-			IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
-			assertScopeEquals(
-				"JavaSearchScope on [\n" + 
-				"	/P1\n" + 
-				"	/P2/src\n" + 
-				"]",
-				scope);
-		} finally {
-			deleteProject("P1");
-			deleteProject("P2");
-		}
-	}
-	
-	/**
-	 * Bug 101022: [search] JUnit Test Runner on folder runs tests outside directory
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101022"
-	 */
-	public void testBug101022() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P1", new String[] {"src", "test", "test2"}, "bin");
-			createFile(
-				"/P1/src/Test.java",
-				"public class Test {\n" +
-				"	protected void foo() {}\n" +
-				"}" 
-			);
-			createFile(
-				"/P1/test/Test.java",
-				"public class Test {\n" +
-				"	protected void foo() {}\n" +
-				"}" 
-			);
-			createFile(
-				"/P1/test2/Test.java",
-				"public class Test {\n" +
-				"	protected void foo() {}\n" +
-				"}" 
-			);
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
-			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-			resultCollector.showProject = true;
-			search("foo", METHOD, DECLARATIONS, scope, resultCollector);
-			assertSearchResults(
-				"test/Test.java [in P1] void Test.foo() [foo]",
-				resultCollector);
-		}
-		finally {
-			deleteProject("P1");
-		}
-	}
+public JavaSearchScopeTests(String name) {
+	super(name);
+}
+public static Test suite() {
+	return buildTestSuite(JavaSearchScopeTests.class);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//	TESTS_NAMES = new String[] { "testMethodOccurences" };
+//  TESTS_NUMBERS = new int[] { 101426 };
+//	TESTS_RANGE = new int[] { 16, -1 };
+}
 
-	/**
-	 * Bug 101426: Search doesn't work with imported plugin
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101426"
-	 */
-	public void testBug101426() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, "bin");
-			createFile(
-				"/P1/src/Test.java",
-				"public interface ITest {\n" +
-				"}" 
-			);
-			createFile(
-				"/P1/test/Test.java",
-				"public class Test {\n" +
-				"	ITest test;\n" +
-				"}" 
-			);
-			createFile(
-				"/P1/test2/Test.java",
-				"public class Test2 {\n" +
-				"	ITest test;\n" +
-				"}" 
-			);
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
-			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-			resultCollector.showProject = true;
-			search("ITest", TYPE, REFERENCES, scope, resultCollector);
-			assertSearchResults(
-				"test/Test.java [in P1] Test.test [ITest]\n" + 
-				"test2/Test.java [in P1] Test2.test [ITest]",
-				resultCollector);
-		}
-		finally {
-			deleteProject("P1");
-		}
-	}
+protected void tearDown() throws Exception {
+	// Cleanup caches
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.containers = new HashMap(5);
+	manager.variables = new HashMap(5);
 
-	/**
-	 * Bug 101777: [search] selecting class with a main type ignores the default package
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101777"
-	 */
-	public void testBug101777() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P1");
-			createFile(
-				"/P1/Test.java",
-				"public class Test {\n" +
-				"	public static void main(String[] args) {}\n" +
-				"}"
-			);
-			IPackageFragment[] fragments = project.getPackageFragments();
-			IPackageFragment defaultFragment = null;
-			for (int i = 0; i < fragments.length; i++) {
-				IPackageFragment fragment = fragments[i];
-				if (fragment.getElementName().length() == 0) {
-					defaultFragment = fragment;
-					break;
-				}
+	super.tearDown();
+}
+protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
+	String actual = scope.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(displayString(actual, 3) + ",");
+	}
+	assertEquals("Unexpected scope", expected, actual);
+}
+/*
+ * Ensures that a Java search scope with SOURCES only is correct.
+ */
+public void testSources() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (external jar case)
+ */
+public void testApplicationLibrairiesExternalJar() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	"+  getExternalJCLPath().toOSString() +"\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (internal jar and class folder cases)
+ */
+public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/internal.jar\n" + 
+			"	/P/classfolder\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (classpath variable case)
+ */
+public void testApplicationLibrairiesClasspathVariable() throws CoreException {
+	try {
+		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+		VariablesInitializer.reset();
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (classpath container case)
+ */
+public void testApplicationLibrairiesClasspathContainer() throws CoreException {
+	try {
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with SYSTEM_LIBRARIES only is correct
+ * (classpath container case)
+ */
+public void testSystemLibraries() throws CoreException {
+	try {
+		ClasspathInitializerTests.DefaultContainerInitializer intializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
+			protected DefaultContainer newContainer(char[][] libPaths) {
+				return new DefaultContainer(libPaths) {
+					public int getKind() {
+						return IClasspathContainer.K_SYSTEM;
+					}
+				};
 			}
-			assertNotNull("We should have a default fragment for project P1!", defaultFragment);
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {defaultFragment});
-			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-			resultCollector.showProject = true;
-			search("main(String[]) void", METHOD, DECLARATIONS, scope, resultCollector);
-			assertSearchResults(
-				"Test.java [in P1] void Test.main(String[]) [main]",
-				resultCollector);
-		}
-		finally {
-			deleteProject("P1");
-		}
+		};
+		ContainerInitializer.setInitializer(intializer);
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SYSTEM_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
 	}
+}
+/*
+ * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
+ * (direct reference case)
+ */
+public void testSourcesOrDirectReferencedProjects() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {}, new String[] {"/P1"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P1\n" + 
+			"	/P2/src\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
+ * (reference through a container case)
+ */
+public void testSourcesOrContainerReferencedProjects() throws CoreException {
+	try {
+		createJavaProject("P1");
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P1\n" + 
+			"	/P2/src\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 /*
  * Ensures that a Java project is enclosed in a scope on the project (proj=src)
  * (resourcePath case)
@@ -926,6 +813,150 @@ public void testScopeEncloses41() throws CoreException {
 		assertTrue("scope on P should enclose type A", scope.encloses(type));
 	} finally {
 		deleteProject("P");
+	}
+}
+
+/**
+ * Bug 101022: [search] JUnit Test Runner on folder runs tests outside directory
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101022"
+ */
+public void testBug101022() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src", "test", "test2"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test2/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("foo", METHOD, DECLARATIONS, scope, resultCollector);
+		assertSearchResults(
+			"test/Test.java [in P1] void Test.foo() [foo]",
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 101426: Search doesn't work with imported plugin
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101426"
+ */
+public void testBug101426() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, new String[] {"JCL_LIB"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public interface ITest {\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test/Test.java",
+			"public class Test {\n" +
+			"	ITest test;\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test2/Test.java",
+			"public class Test2 {\n" +
+			"	ITest test;\n" +
+			"}" 
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("ITest", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"test/Test.java [in P1] Test.test [ITest]\n" + 
+			"test2/Test.java [in P1] Test2.test [ITest]",
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 101777: [search] selecting class with a main type ignores the default package
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101777"
+ */
+public void testBug101777() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1");
+		createFile(
+			"/P1/Test.java",
+			"public class Test {\n" +
+			"	public static void main(String[] args) {}\n" +
+			"}"
+		);
+		IPackageFragment[] fragments = project.getPackageFragments();
+		IPackageFragment defaultFragment = null;
+		for (int i = 0; i < fragments.length; i++) {
+			IPackageFragment fragment = fragments[i];
+			if (fragment.getElementName().length() == 0) {
+				defaultFragment = fragment;
+				break;
+			}
+		}
+		assertNotNull("We should have a default fragment for project P1!", defaultFragment);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {defaultFragment});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("main(String[]) void", METHOD, DECLARATIONS, scope, resultCollector);
+		assertSearchResults(
+			"Test.java [in P1] void Test.main(String[]) [main]",
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 119203: Search doesn't work with imported plugin
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
+ */
+public void testBug119203() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public class Test {\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/src/X.java",
+			"public class X {\n" +
+			"	Test test;\n" +
+			"}" 
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("Test", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"", // cannot find result due to abort compilation error (java.lang.Object not defined)
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
 	}
 }
 }
