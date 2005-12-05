@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -707,13 +709,17 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			URLConnection connection = docUrl.openConnection();
 			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for opening connection for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			// time = System.currentTimeMillis();
-			connection.setUseCaches(false);
-			stream = connection.getInputStream();
+			if (SuffixConstants.EXTENSION_jar.equals(docUrl.getProtocol())) {
+				// if jar protocol is using a cache, some file descriptors are left behind and the resource cannot be deleted
+				connection.setUseCaches(false);
+			}
+			stream = new BufferedInputStream(connection.getInputStream());
 			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for getting stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			// time = System.currentTimeMillis();
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
 			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for reading stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			if (contents != null) {
+				// System.out.println("Size = " + (contents.length / 1024) + "kb");//$NON-NLS-1$//$NON-NLS-2$
 				return String.valueOf(contents);
 			}
  		} catch (MalformedURLException e) {
