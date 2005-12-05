@@ -55,7 +55,7 @@ What's new in this drop</h2>
 on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a>):
 <pre>
 	/**
-	 * Same functionality than {@link #findType(String)} but also look for secondary
+	 * Same functionality as {@link #findType(String)} but also look for secondary
 	 * types if given name does not match a compilation unit name.
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
@@ -70,7 +70,7 @@ on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=1187
 	 */
 	IType findType(String fullyQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, WorkingCopyOwner)}
+	 * Same functionality as {@link #findType(String, WorkingCopyOwner)}
 	 * but also look for secondary types if given name does not match
 	 * a compilation unit name.
 	 * 
@@ -87,7 +87,7 @@ on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=1187
 	 */
 	IType findType(String fullyQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, String)} but also look for
+	 * Same functionality as {@link #findType(String, String)} but also look for
 	 * secondary types if given name does not match a compilation unit name.
 	 * 
 	 * @param packageName the given package name
@@ -103,7 +103,7 @@ on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=1187
 	 */
 	IType findType(String packageName, String typeQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, String, WorkingCopyOwner)}
+	 * Same functionality as {@link #findType(String, String, WorkingCopyOwner)}
 	 * but also look for secondary types if given name does not match a compilation unit name.
 	 * 
 	 * @param packageName the given package name

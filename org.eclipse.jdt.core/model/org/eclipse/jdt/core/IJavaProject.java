@@ -200,7 +200,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IType findType(String fullyQualifiedName) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String)} but also look for secondary
+	 * Same functionality as {@link #findType(String)} but also look for secondary
 	 * types if given name does not match a compilation unit name.
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
@@ -240,7 +240,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, WorkingCopyOwner)}
+	 * Same functionality as {@link #findType(String, WorkingCopyOwner)}
 	 * but also look for secondary types if given name does not match
 	 * a compilation unit name.
 	 * 
@@ -283,7 +283,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, String)} but also look for
+	 * Same functionality as {@link #findType(String, String)} but also look for
 	 * secondary types if given name does not match a compilation unit name.
 	 * 
 	 * @param packageName the given package name
@@ -328,7 +328,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException;
 	/**
-	 * Same functionality than {@link #findType(String, String, WorkingCopyOwner)}
+	 * Same functionality as {@link #findType(String, String, WorkingCopyOwner)}
 	 * but also look for secondary types if given name does not match a compilation unit name.
 	 * 
 	 * @param packageName the given package name
