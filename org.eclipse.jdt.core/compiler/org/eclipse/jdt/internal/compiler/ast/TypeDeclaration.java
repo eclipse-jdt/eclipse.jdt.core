@@ -982,7 +982,12 @@ public class TypeDeclaration
 			} finally {
 				this.staticInitializerScope.insideTypeAnnotation = old;
 			}
-			
+			// check @Deprecated annotation
+			if ((sourceType.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+					&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0 
+					&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				scope.problemReporter().missingDeprecatedAnnotationForType(this);
+			}			
 			if ((this.bits & UndocumentedEmptyBlock) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}

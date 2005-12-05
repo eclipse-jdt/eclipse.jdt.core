@@ -5782,4 +5782,125 @@ public class AnnotationTest extends AbstractComparableTest {
     		},
     		"0");
     }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593
+    public void test182() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo(Y y) {\n" + 
+    				"		y.initialize(null, null, null);\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public void initialize(Zork z, String s) {\n" + 
+    				"	}\n" + 
+    				"\n" + 
+    				"	public void initialize(Zork z, String s, Thread t) {\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	y.initialize(null, null, null);\n" + 
+    		"	  ^^^^^^^^^^\n" + 
+    		"The method initialize(null, null, null) is undefined for the type Y\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. ERROR in Y.java (at line 6)\n" + 
+    		"	public void initialize(Zork z, String s) {\n" + 
+    		"	                       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. ERROR in Y.java (at line 9)\n" + 
+    		"	public void initialize(Zork z, String s, Thread t) {\n" + 
+    		"	                       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    public void test183() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo(Y y) {\n" + 
+    				"		int i = y.initialize;\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public Zork initialize;\n" + 
+    				"}\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	int i = y.initialize;\n" + 
+    		"	        ^^^^^^^^^^^^\n" + 
+    		"y.initialize cannot be resolved or is not a field\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. ERROR in Y.java (at line 6)\n" + 
+    		"	public Zork initialize;\n" + 
+    		"	       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }        
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    public void test184() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo() {\n" + 
+    				"		Y.initialize i;\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public class initialize extends Zork {\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 3)\n" + 
+    		"	Y.initialize i;\n" + 
+    		"	^^^^^^^^^^^^\n" + 
+    		"The type Y.initialize is deprecated\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. WARNING in Y.java (at line 6)\n" + 
+    		"	public class initialize extends Zork {\n" + 
+    		"	             ^^^^^^^^^^\n" + 
+    		"The deprecated type Y.initialize should be annotated with @Deprecated\n" + 
+    		"----------\n" + 
+    		"2. ERROR in Y.java (at line 6)\n" + 
+    		"	public class initialize extends Zork {\n" + 
+    		"	                                ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }        
 }

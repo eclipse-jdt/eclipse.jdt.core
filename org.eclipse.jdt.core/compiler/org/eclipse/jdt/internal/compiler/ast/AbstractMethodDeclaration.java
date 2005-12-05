@@ -395,6 +395,13 @@ public abstract class AbstractMethodDeclaration
 			resolveJavadoc();
 			resolveAnnotations(scope, this.annotations, this.binding);
 			resolveStatements();
+			// check @Deprecated annotation presence
+			if (this.binding != null
+					&& (this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
+					&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
+			}			
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 
