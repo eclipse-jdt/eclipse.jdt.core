@@ -18,6 +18,7 @@ package org.eclipse.jdt.core;
 
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,6 +57,17 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * @see IClasspathEntry
  */
 public interface IJavaProject extends IParent, IJavaElement, IOpenable {
+
+	/**
+	 * Returns the output folders that will be cleaned by the next Clean operation.
+	 * The result is null if the project's output folders are shared with other tools and
+	 * the option JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER is false.
+	 * 
+	 * @return different groups of output folders to be cleaned, currently:
+	 * the first array contains the output folders which are cleaned entirely, and
+	 * the second array contains the output folders in which only the .class files are cleaned.
+	 */
+	IContainer[][] computeCleanedFolders();
 
 	/**
 	 * Decodes the classpath entry that has been encoded in the given string

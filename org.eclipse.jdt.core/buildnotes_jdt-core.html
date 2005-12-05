@@ -51,6 +51,19 @@ Eclipse SDK 3.2M4 - ?th December 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added an API method on IJavaProject to compute the output folders that will be cleaned by the next Clean operation.
+<pre>
+	/**
+	 * Returns the output folders that will be cleaned by the next Clean operation.
+	 * The result is null if the project's output folders are shared with other tools and
+	 * the option JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER is false.
+	 * 
+	 * @return different groups of output folders to be cleaned, currently:
+	 * the first array contains the output folders which are cleaned entirely, and
+	 * the second array contains the output folders in which only the .class files are cleaned.
+	 */
+	IContainer[][] computeCleanedFolders();
+</pre>
 <li>Added API methods on IJavaProject to find secondary types while searching for type
 on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a>):
 <pre>
@@ -142,7 +155,9 @@ was slightly modified as it introduced an non-deterministic behavior of these AP
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110593">110593</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110048">110048</a>
+[plan] API to get the list of folders touched by a Java builder clean
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110593">110593</a>
 [1.5][compiler] NPE in ProblemReporter
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a>
 IJavaProject#findType(String) returns null for secondary type quickly after creation
