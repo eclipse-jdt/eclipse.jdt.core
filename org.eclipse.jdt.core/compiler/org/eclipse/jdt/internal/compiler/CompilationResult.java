@@ -57,6 +57,7 @@ public class CompilationResult {
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
+	public boolean declaresAnnotations = false;
 
 	public int lineSeparatorPositions[];
 	public Map compiledTypes = new Hashtable(11);

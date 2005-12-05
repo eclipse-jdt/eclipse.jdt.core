@@ -14,7 +14,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -42,16 +41,14 @@ protected int compileLoop;
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
 protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
-	super(javaBuilder);
+	super(javaBuilder, true, null);
 	this.nameEnvironment.isIncrementalBuild = true;
 	this.newState.copyFrom(javaBuilder.lastState);
+}
 
-	this.sourceFiles = new ArrayList(33);
-	this.previousSourceFiles = null;
-	this.qualifiedStrings = new StringSet(3);
-	this.simpleStrings = new StringSet(3);
-	this.hasStructuralChanges = false;
-	this.compileLoop = 0;
+protected IncrementalImageBuilder(BatchImageBuilder batchBuilder) {
+	super(batchBuilder.javaBuilder, true, batchBuilder.newState);
+	this.nameEnvironment.isIncrementalBuild = true;
 }
 
 public boolean build(SimpleLookupTable deltas) {
@@ -151,29 +148,15 @@ protected void addAffectedSourceFiles() {
 		if (refs != null && refs.includes(qualifiedNames, simpleNames)) {
 			String typeLocator = (String) keyTable[i];
 			IFile file = javaBuilder.currentProject.getFile(typeLocator);
-			if (file.exists()) {
-				ClasspathMultiDirectory md = sourceLocations[0];
-				if (sourceLocations.length > 1) {
-					IPath sourceFileFullPath = file.getFullPath();
-					for (int j = 0, m = sourceLocations.length; j < m; j++) {
-						if (sourceLocations[j].sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
-							md = sourceLocations[j];
-							if (md.exclusionPatterns == null && md.inclusionPatterns == null)
-								break;
-							if (!Util.isExcluded(file, md.inclusionPatterns, md.exclusionPatterns))
-								break;
-						}
-					}
-				}
-				SourceFile sourceFile = new SourceFile(file, md);
-				if (sourceFiles.contains(sourceFile)) continue next;
-				if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
-					continue next; // can skip previously compiled files since already saw hierarchy related problems
+			SourceFile sourceFile = findSourceFile(file);
+			if (sourceFile == null) continue next;
+			if (sourceFiles.contains(sourceFile)) continue next;
+			if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
+				continue next; // can skip previously compiled files since already saw hierarchy related problems
 
-				if (JavaBuilder.DEBUG)
-					System.out.println("  adding affected source file " + typeLocator); //$NON-NLS-1$
-				sourceFiles.add(sourceFile);
-			}
+			if (JavaBuilder.DEBUG)
+				System.out.println("  adding affected source file " + typeLocator); //$NON-NLS-1$
+			sourceFiles.add(sourceFile);
 		}
 	}
 }
@@ -206,6 +189,34 @@ protected void cleanUp() {
 	this.secondaryTypesToRemove = null;
 	this.hasStructuralChanges = false;
 	this.compileLoop = 0;
+}
+
+protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
+	// delete generated files and recompile any affected source files
+	try {
+		for (int j = deletedGeneratedFiles.length; --j >= 0;) {
+			SourceFile sourceFile = findSourceFile(deletedGeneratedFiles[j]);
+			if (sourceFile == null) continue;
+			String typeLocator = sourceFile.typeLocator();
+			int mdSegmentCount = sourceFile.sourceLocation.sourceFolder.getFullPath().segmentCount();
+			IPath typePath = sourceFile.resource.getFullPath().removeFirstSegments(mdSegmentCount).removeFileExtension();
+			char[][] definedTypeNames = newState.getDefinedTypeNamesFor(typeLocator);
+			if (definedTypeNames == null) { // defined a single type matching typePath
+				removeClassFile(typePath, sourceFile.sourceLocation.binaryFolder);
+			} else {
+				addDependentsOf(typePath, true); // add dependents of the source file since it may be involved in a name collision
+				if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
+					IPath packagePath = typePath.removeLastSegments(1);
+					for (int d = 0, l = definedTypeNames.length; d < l; d++)
+						removeClassFile(packagePath.append(new String(definedTypeNames[d])), sourceFile.sourceLocation.binaryFolder);
+				}
+			}
+			this.newState.removeLocator(typeLocator);
+		}
+	} catch (CoreException e) {
+		// must continue with compile loop so just log the CoreException
+		e.printStackTrace();
+	}
 }
 
 protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocation[] classFoldersAndJars, IProject prereqProject) {
@@ -532,6 +543,28 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 	super.finishedWith(sourceLocator, result, mainTypeName, definedTypeNames, duplicateTypeNames);
 }
 
+protected void processAnnotationResults(CompilationParticipantResult[] results) {
+	for (int i = results.length; --i >= 0;) {
+		CompilationParticipantResult result = results[i];
+		if (result == null) continue;
+
+		IFile[] deletedGeneratedFiles = result.deletedFiles;
+		if (deletedGeneratedFiles != null)
+			deleteGeneratedFiles(deletedGeneratedFiles);
+
+		IFile[] addedGeneratedFiles = result.addedFiles;
+		if (addedGeneratedFiles != null) {
+			for (int j = addedGeneratedFiles.length; --j >= 0;) {
+				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j]);
+				if (sourceFile != null && !sourceFiles.contains(sourceFile))
+					this.sourceFiles.add(sourceFile);
+			}
+		}
+
+		recordParticipantResult(result);
+	}
+}
+
 protected void removeClassFile(IPath typePath, IContainer outputFolder) throws CoreException {
 	if (typePath.lastSegment().indexOf('$') == -1) { // is not a nested type
 		newState.removeQualifiedTypeName(typePath.toString());
@@ -567,12 +600,21 @@ protected void removeSecondaryTypes() throws CoreException {
 }
 
 protected void resetCollections() {
-	previousSourceFiles = sourceFiles.isEmpty() ? null : (ArrayList) sourceFiles.clone();
+	if (this.sourceFiles == null) {
+		this.sourceFiles = new ArrayList(33);
+		this.previousSourceFiles = null;
+		this.qualifiedStrings = new StringSet(3);
+		this.simpleStrings = new StringSet(3);
+		this.hasStructuralChanges = false;
+		this.compileLoop = 0;
+	} else {
+		this.previousSourceFiles = this.sourceFiles.isEmpty() ? null : (ArrayList) this.sourceFiles.clone();
 
-	sourceFiles.clear();
-	qualifiedStrings.clear();
-	simpleStrings.clear();
-	workQueue.clear();
+		this.sourceFiles.clear();
+		this.qualifiedStrings.clear();
+		this.simpleStrings.clear();
+		this.workQueue.clear();
+	}
 }
 
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {

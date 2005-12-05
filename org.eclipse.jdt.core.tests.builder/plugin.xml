@@ -20,5 +20,11 @@
       <import plugin="org.eclipse.test.performance"/>
    </requires>
 
-
+   <extension point="org.eclipse.jdt.core.compilationParticipant">
+      <compilationParticipant
+            class="org.eclipse.jdt.core.tests.builder.TestBuilderParticipant"
+            createsProblems="true"
+            id="org.eclipse.jdt.core.tests.builder.compilationparticipant"
+            modifiesEnvironment="true"/>
+   </extension>
 </plugin>

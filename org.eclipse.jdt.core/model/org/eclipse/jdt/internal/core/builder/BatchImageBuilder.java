@@ -21,8 +21,8 @@ import java.util.*;
 
 public class BatchImageBuilder extends AbstractImageBuilder {
 
-protected BatchImageBuilder(JavaBuilder javaBuilder) {
-	super(javaBuilder);
+protected BatchImageBuilder(JavaBuilder javaBuilder, boolean buildStarting) {
+	super(javaBuilder, buildStarting, null);
 	this.nameEnvironment.isIncrementalBuild = false;
 }
 
@@ -286,6 +286,36 @@ protected IResource findOriginalResource(IPath partialPath) {
 		}
 	}
 	return null;
+}
+
+protected void processAnnotationResults(CompilationParticipantResult[] results) {
+	// called AFTER the build loop once all source files have been compiled
+
+	// to compile the compilation participant results, we need to incrementally recompile all affected types
+	// whenever the generated types are initially added or structurally changed
+
+	// this is a copy of the incremental build loop
+	IncrementalImageBuilder incrementalBuilder = new IncrementalImageBuilder(this);
+	try {
+		incrementalBuilder.resetCollections();
+		incrementalBuilder.processAnnotationResults(results);
+		incrementalBuilder.addAffectedSourceFiles(); // pick up any affected source files of the deleted generated files
+
+		while (incrementalBuilder.sourceFiles.size() > 0) {
+			SourceFile[] allSourceFiles = new SourceFile[incrementalBuilder.sourceFiles.size()];
+			incrementalBuilder.sourceFiles.toArray(allSourceFiles);
+			incrementalBuilder.resetCollections();
+
+			incrementalBuilder.workQueue.addAll(allSourceFiles);
+			incrementalBuilder.compile(allSourceFiles);
+			incrementalBuilder.removeSecondaryTypes();
+			incrementalBuilder.addAffectedSourceFiles();
+		}
+	} catch (CoreException e) {
+		throw internalException(e);
+	} finally {
+		incrementalBuilder.cleanUp();
+	}
 }
 
 public String toString() {
