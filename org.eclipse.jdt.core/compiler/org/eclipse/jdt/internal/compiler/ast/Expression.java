@@ -591,6 +591,7 @@ public abstract class Expression extends Statement {
 //				}		
 		}
 	}	
+	
 	/**
 	 * Expression statements are plain expressions, however they generate like
 	 * normal expressions with no value required.
@@ -752,6 +753,48 @@ public abstract class Expression extends Statement {
 		}
 		codeStream.invokeStringConcatenationStringConstructor();
 	}
+	
+	/**
+	 * Returns the type of the expression after required implicit conversions. When expression type gets promoted
+	 * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
+	 * #computeConversion(...)).
+	 * @return the type after conversion
+	 */
+	public TypeBinding generatedType(Scope scope) {
+		TypeBinding convertedType = this.resolvedType;
+		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+		switch (runtimeType) {
+			case T_boolean :
+				convertedType = BooleanBinding;
+				break;
+			case T_byte :
+				convertedType = ByteBinding;
+				break;
+			case T_short :
+				convertedType = ShortBinding;
+				break;
+			case T_char :
+				convertedType = CharBinding;
+				break;
+			case T_int :
+				convertedType = IntBinding;
+				break;
+			case T_float :
+				convertedType = FloatBinding;
+				break;
+			case T_long :
+				convertedType = LongBinding;
+				break;
+			case T_double :
+				convertedType = DoubleBinding;
+				break;
+			default :
+		}		
+		if ((this.implicitConversion & BOXING) != 0) {
+			convertedType = scope.environment().computeBoxingType(convertedType);
+		}
+		return convertedType;
+	}	
 
 	public boolean isCompactableOperation() {
 

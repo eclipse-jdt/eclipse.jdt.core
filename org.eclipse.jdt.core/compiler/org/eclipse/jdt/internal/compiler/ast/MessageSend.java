@@ -86,6 +86,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
 }
+
 /**
  * MessageSend code generation
  *
@@ -150,6 +151,48 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
+ */
+public TypeBinding generatedType(Scope scope) {
+	TypeBinding convertedType = this.resolvedType;
+	if (this.valueCast != null) 
+		convertedType = this.valueCast;
+	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+	switch (runtimeType) {
+		case T_boolean :
+			convertedType = BooleanBinding;
+			break;
+		case T_byte :
+			convertedType = ByteBinding;
+			break;
+		case T_short :
+			convertedType = ShortBinding;
+			break;
+		case T_char :
+			convertedType = CharBinding;
+			break;
+		case T_int :
+			convertedType = IntBinding;
+			break;
+		case T_float :
+			convertedType = FloatBinding;
+			break;
+		case T_long :
+			convertedType = LongBinding;
+			break;
+		case T_double :
+			convertedType = DoubleBinding;
+			break;
+		default :
+	}		
+	if ((this.implicitConversion & BOXING) != 0) {
+		convertedType = scope.environment().computeBoxingType(convertedType);
+	}
+	return convertedType;
+}	
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
  */
