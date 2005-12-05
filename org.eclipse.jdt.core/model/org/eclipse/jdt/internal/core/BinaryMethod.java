@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.net.URL;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
@@ -432,26 +429,18 @@ protected void toStringName(StringBuffer buffer, int flags) {
 	}
 }
 public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
-	URL baseLocation= getJavadocBaseLocation();
-	if (baseLocation == null) {
-		return null;
-	}
-	StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
-
-	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
-		pathBuffer.append('/');
-	}
 	IType declaringType = this.getDeclaringType();
-	IPackageFragment pack= declaringType.getPackageFragment();
+
+	String contents = ((BinaryType) declaringType).getJavadocContents(monitor, defaultEncoding);
+	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+
 	String typeQualifiedName = declaringType.getTypeQualifiedName('.');
 	typeQualifiedName = typeQualifiedName.replace('$', '.');
-	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
-	
 	String methodName = this.getElementName();
 	if (this.isConstructor()) {
 		methodName = typeQualifiedName;
 	}
-	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false);
+	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
 	if (declaringType.isMember()) {
 		int depth = 0;
 		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
@@ -483,14 +472,10 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 			anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 		}
 	}
-	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
-	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
-	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
-	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextMethod = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
 	// find bottom
 	int indexOfBottom = -1;
@@ -502,9 +487,9 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	} else {
 		indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
 	}
-	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	indexOfNextMethod = Math.min(indexOfNextMethod, indexOfBottom);
-	if (indexOfNextMethod == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
+	if (indexOfNextMethod == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextMethod);
 }
 }

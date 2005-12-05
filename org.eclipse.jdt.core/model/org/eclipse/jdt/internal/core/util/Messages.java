@@ -98,6 +98,7 @@ public final class Messages extends NLS {
 	public static String build_prereqProjectHasClasspathProblems;
 	public static String build_prereqProjectMustBeRebuilt;
 	public static String build_abortDueToClasspathProblems;
+	public static String status_cannot_retrieve_attached_javadoc;	
 	public static String status_cannotUseDeviceOnPath;
 	public static String status_coreException;
 	public static String status_defaultPackageReadOnly;
@@ -119,6 +120,7 @@ public final class Messages extends NLS {
 	public static String status_OK;
 	public static String status_readOnly;
 	public static String status_targetException;
+	public static String status_unknown_javadoc_format;
 	public static String status_updateConflict;
 	public static String classpath_buildPath;
 	public static String classpath_cannotNestEntryInEntry;

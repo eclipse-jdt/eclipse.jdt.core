@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.ISourceManipulation;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -439,6 +441,15 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
  * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
  */
 public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+	if (projectInfo.javadocCache != null) {
+		final String cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+		if (cachedJavadoc != null) {
+			return cachedJavadoc;
+		}
+	} else {
+		projectInfo.javadocCache = new HashMap();
+	}
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
@@ -455,6 +466,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	projectInfo.javadocCache.put(this, contents);
 	return contents;
 }
 }

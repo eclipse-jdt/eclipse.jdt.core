@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -985,6 +986,40 @@ protected void toStringName(StringBuffer buffer) {
 		buffer.append("<anonymous>"); //$NON-NLS-1$
 }
 public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	final String contents = getJavadocContents(monitor, defaultEncoding);
+	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
+	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
+	if (indexOfNextSummary == -1) {
+		// try to find constructor summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.CONSTRUCTOR_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// try to find method summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.METHOD_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// we take the end of class data
+		indexOfNextSummary = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA);
+	}
+	if (indexOfNextSummary == -1) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	}
+	return contents.substring(indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH, indexOfNextSummary);
+}
+public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+	if (projectInfo.javadocCache != null) {
+		final String cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+		if (cachedJavadoc != null) {
+			return cachedJavadoc;
+		}
+	} else {
+		projectInfo.javadocCache = new HashMap();
+	}
+		
+		
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
@@ -1001,26 +1036,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
-	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
-	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
-	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
-	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
-	if (indexOfNextSummary == -1) {
-		// try to find constructor summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.CONSTRUCTOR_SUMMARY);
-	}
-	if (indexOfNextSummary == -1) {
-		// try to find method summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.METHOD_SUMMARY);
-	}
-	if (indexOfNextSummary == -1) {
-		// we take the end of class data
-		indexOfNextSummary = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA);
-	}
-	if (indexOfNextSummary == -1) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNRECOGNIZED_JAVADOC_FORMAT, this));
-	}
-	return contents.substring(indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH, indexOfNextSummary);
+	projectInfo.javadocCache.put(this, contents);
+	return contents;
 }
 }

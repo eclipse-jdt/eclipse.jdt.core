@@ -319,5 +319,5 @@ public interface IJavaModelStatusConstants {
 	 * 
 	 * @since 3.2
 	 */
-	public static final int UNRECOGNIZED_JAVADOC_FORMAT = 1009;
+	public static final int UNKNOWN_JAVADOC_FORMAT = 1009;
 }

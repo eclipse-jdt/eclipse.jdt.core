@@ -812,6 +812,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public IEclipsePreferences preferences;
 		public Hashtable options;
 		public HashMap secondaryTypes;
+		public HashMap javadocCache;
 		
 		public PerProjectInfo(IProject project) {
 
@@ -846,6 +847,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.rawClasspath = newRawClasspath;
 			this.resolvedClasspath = null;
 			this.resolvedPathToRawEntries = null;
+			this.javadocCache = null;
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();

@@ -360,6 +360,11 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 						path.makeRelative().toString(),
 						string,
 					});
+			case CANNOT_RETRIEVE_ATTACHED_JAVADOC :
+				return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors()); 
+				
+			case UNKNOWN_JAVADOC_FORMAT :
+				return Messages.bind(Messages.status_unknown_javadoc_format, ((JavaElement)elements[0]).toStringWithAncestors()); 
 			}
 			if (string != null) {
 				return string;
