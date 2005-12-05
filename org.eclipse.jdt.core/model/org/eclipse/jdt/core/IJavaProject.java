@@ -66,6 +66,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @return different groups of output folders to be cleaned, currently:
 	 * the first array contains the output folders which are cleaned entirely, and
 	 * the second array contains the output folders in which only the .class files are cleaned.
+	 * @since 3.2
 	 */
 	IContainer[][] computeCleanedFolders();
 
