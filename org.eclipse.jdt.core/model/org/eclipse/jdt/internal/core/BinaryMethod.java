@@ -196,43 +196,44 @@ public String[] getParameterNames() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
 	// TODO (olivier) disable for now See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117740
-	if (false) {
-		if (paramCount != 0) {
-			String javadoc = null;
-			try {
-				javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
-			} catch (JavaModelException e) {
-				// ignore
-			}
-			if (javadoc != null) {
-				final int indexOfOpenParen = javadoc.indexOf('(');
-				if (indexOfOpenParen != -1) {
-					final int indexOfClosingParen = javadoc.indexOf(')', indexOfOpenParen);
-					if (indexOfClosingParen != -1) {
-						final char[] paramsSource =
-							CharOperation.replace(
-								javadoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
-								"&nbsp;".toCharArray(), //$NON-NLS-1$
-								new char[] {' '});
-						final char[][] params = CharOperation.splitOn(',', paramsSource);
-						final int paramsLength = params.length;
-						this.parameterNames = new String[paramsLength];
-						for (int i = 0; i < paramsLength; i++) {
-							final char[] param = params[i];
-							int indexOfSpace = CharOperation.lastIndexOf(' ', param);
-							if (indexOfSpace != -1) {
-								this.parameterNames[i] = String.valueOf(param, indexOfSpace + 1, param.length - indexOfSpace -1);
-							} else {
-								this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
-							}
+	if (true) {
+		// produce fake ones
+		return this.parameterNames = getRawParameterNames(paramCount);
+	}
+	if (paramCount != 0) {
+		String javadoc = null;
+		try {
+			javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
+		} catch (JavaModelException e) {
+			// ignore
+		}
+		if (javadoc != null) {
+			final int indexOfOpenParen = javadoc.indexOf('(');
+			if (indexOfOpenParen != -1) {
+				final int indexOfClosingParen = javadoc.indexOf(')', indexOfOpenParen);
+				if (indexOfClosingParen != -1) {
+					final char[] paramsSource =
+						CharOperation.replace(
+							javadoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
+							"&nbsp;".toCharArray(), //$NON-NLS-1$
+							new char[] {' '});
+					final char[][] params = CharOperation.splitOn(',', paramsSource);
+					final int paramsLength = params.length;
+					this.parameterNames = new String[paramsLength];
+					for (int i = 0; i < paramsLength; i++) {
+						final char[] param = params[i];
+						int indexOfSpace = CharOperation.lastIndexOf(' ', param);
+						if (indexOfSpace != -1) {
+							this.parameterNames[i] = String.valueOf(param, indexOfSpace + 1, param.length - indexOfSpace -1);
+						} else {
+							this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
 						}
-						return this.parameterNames;
 					}
+					return this.parameterNames;
 				}
 			}
 		}
 	}
-
 	// if still no parameter names, produce fake ones
 	return this.parameterNames = getRawParameterNames(paramCount);
 }
