@@ -106,6 +106,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		if (!PROJECT_SETUP) {
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}
 	}

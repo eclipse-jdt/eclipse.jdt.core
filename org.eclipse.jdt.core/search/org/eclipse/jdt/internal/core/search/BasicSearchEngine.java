@@ -720,7 +720,10 @@ public class BasicSearchEngine {
 	 * prefix and match modes). 
 	 * 
 	 */
-	public void searchAllSecondaryTypeNames(IPackageFragmentRoot[] sourceFolders, final IRestrictedAccessTypeRequestor nameRequestor)  throws JavaModelException {
+	public void searchAllSecondaryTypeNames(
+			IPackageFragmentRoot[] sourceFolders,
+			final IRestrictedAccessTypeRequestor nameRequestor,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
 
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchAllSecondaryTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
@@ -784,8 +787,11 @@ public class BasicSearchEngine {
 				return true;
 			}
 		};
-	
+
 		// add type names from indexes
+		if (progressMonitor != null) {
+			progressMonitor.beginTask(Messages.engine_searching, 100); 
+		}
 		indexManager.performConcurrentJob(
 			new PatternSearchJob(
 				pattern, 
@@ -793,7 +799,7 @@ public class BasicSearchEngine {
 				createJavaSearchScope(sourceFolders), 
 				searchRequestor),
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null);	
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
 	}
 
 	/**

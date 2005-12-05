@@ -168,6 +168,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	
 	private static final String ENABLE_NEW_FORMATTER = JavaCore.PLUGIN_ID + "/formatter/enable_new" ; //$NON-NLS-1$
 
+	private final static String DIRTY_CACHE = "***dirty***"; //$NON-NLS-1$
+	private final static HashMap NO_SECONDARY_TYPES = new HashMap(0);
+
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
 	
@@ -1430,7 +1433,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * @param project Project we want get secondary types from
 	 * @return HashMap Table of secondary type names->path for given project
 	 */
-	public HashMap getSecondaryTypes(IJavaProject project) throws JavaModelException {
+	public HashMap getSecondaryTypes(IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
 			StringBuffer buffer = new StringBuffer("JavaModelManager.getSecondaryTypesPaths("); //$NON-NLS-1$
 			buffer.append(project.getElementName());
@@ -1438,19 +1441,47 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			Util.verbose(buffer.toString());
 		}
 
-		PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project.getProject());
-		if (projectInfo.secondaryTypes != null) return projectInfo.secondaryTypes;
-		final HashMap secondaryTypePaths = new HashMap(3);
+		// Wait the end of indexing if requested
+		final PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project.getProject());
+		IndexManager manager = getIndexManager();
+		boolean indexing = manager.awaitingJobsCount() > 0;
+		if (indexing && waitForIndexes) {
+			while (manager.awaitingJobsCount() > 0) {
+				if (monitor != null && monitor.isCanceled()) {
+					if (projectInfo.secondaryTypes == null) return NO_SECONDARY_TYPES;
+					return projectInfo.secondaryTypes;
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					if (projectInfo.secondaryTypes == null) return NO_SECONDARY_TYPES;
+					return projectInfo.secondaryTypes;
+				}
+			}
+		}
 
+		// Return cache if not empty and not dirty
+		if (projectInfo.secondaryTypes != null && projectInfo.secondaryTypes.get(DIRTY_CACHE) == null) {
+			return projectInfo.secondaryTypes;
+		}
+		
+		// Return cache if not waiting for indexing
+		if (indexing && !waitForIndexes) {
+			if (projectInfo.secondaryTypes == null) {
+				return NO_SECONDARY_TYPES; // cache is not initialized return empty one
+			}
+			return projectInfo.secondaryTypes; // cache is dirty => return current one...
+		}
+
+		// Init variables for search
+		final HashMap secondaryTypes = new HashMap(3);
 		IRestrictedAccessTypeRequestor nameRequestor = new IRestrictedAccessTypeRequestor() {
 			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
 				String key = packageName==null ? "" : new String(packageName); //$NON-NLS-1$
-				HashMap types = (HashMap) secondaryTypePaths.get(key);
-				if (types == null) {
-					types = new HashMap();
-				}
+				HashMap types = (HashMap) secondaryTypes.get(key);
+				if (types == null) types = new HashMap(3);
 				types.put(new String(simpleTypeName), path);
-				secondaryTypePaths.put(key, types);
+				secondaryTypes.put(key, types);
 			}
 		};
 
@@ -1466,28 +1497,24 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (size < length) {
 			System.arraycopy(allSourceFolders, 0, allSourceFolders = new IPackageFragmentRoot[size], 0, size);
 		}
-			
+
 		// Search all secondary types on scope
-		new BasicSearchEngine().searchAllSecondaryTypeNames(allSourceFolders, nameRequestor);
+		new BasicSearchEngine().searchAllSecondaryTypeNames(allSourceFolders, nameRequestor, monitor);
 		if (VERBOSE) {
-			System.out.print(Thread.currentThread() + " -> secondary paths: ");  //$NON-NLS-1$
-			if (secondaryTypePaths == null) {
-				System.out.println(" NONE"); //$NON-NLS-1$
-			} else {
-				System.out.println();
-				Iterator keys = secondaryTypePaths.keySet().iterator();
-				while (keys.hasNext()) {
-					String qualifiedName = (String) keys.next();
-					Util.verbose("		- "+qualifiedName+'-'+secondaryTypePaths.get(qualifiedName) ); //$NON-NLS-1$
-				}
+			System.out.print(Thread.currentThread() + "	-> secondary paths: ");  //$NON-NLS-1$
+			System.out.println();
+			Iterator keys = secondaryTypes.keySet().iterator();
+			while (keys.hasNext()) {
+				String qualifiedName = (String) keys.next();
+				Util.verbose("		- "+qualifiedName+'-'+secondaryTypes.get(qualifiedName) ); //$NON-NLS-1$
 			}
 		}
-		
+
 		// Build types from paths
-		Iterator packages = secondaryTypePaths.keySet().iterator();
+		Iterator packages = secondaryTypes.keySet().iterator();
 		while (packages.hasNext()) {
 			String packName = (String) packages.next();
-			HashMap types = (HashMap) secondaryTypePaths.get(packName);
+			HashMap types = (HashMap) secondaryTypes.get(packName);
 			Iterator names = types.keySet().iterator();
 			while (names.hasNext()) {
 				String typeName = (String) names.next();
@@ -1500,9 +1527,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 		}
-		
-		// Store result in per project info cache
-		return (projectInfo.secondaryTypes = secondaryTypePaths);
+
+		// Store result in per project info cache if still null or dirty (may have been set by another thread...)
+		if (projectInfo.secondaryTypes == null || projectInfo.secondaryTypes.get(DIRTY_CACHE) != null) {
+			projectInfo.secondaryTypes = secondaryTypes;
+		}
+		return projectInfo.secondaryTypes;
 	}
 
 	/**
@@ -2389,7 +2419,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					while (names.hasNext()) {
 						String typeName = (String) names.next();
 						IType type = (IType) types.get(typeName);
-						if (file == type.getResource()) {
+						if (file.equals(type.getResource())) {
 							types.remove(typeName);
 							if (types.size() == 0) {
 								projectInfo.secondaryTypes.remove(packName);
@@ -2404,6 +2434,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	/**
 	 * Reset secondary types cache for a project got from given path.
+	 * If secondary types cache already exist, do not reset it now to avoid
+	 * cache desynchronization (this reset is done in indexing thread...).
+	 * Instead flag the cache as dirty to store the fact that current cache
+	 * should be recomputed when indexing will be ended.
 	 * 
 	 * @param path Path of file containing a secondary type
 	 */
@@ -2422,7 +2456,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				if (VERBOSE) {
 					Util.verbose("-> reset cache for project: "+resource.getProject().getName()); //$NON-NLS-1$
 				}
-				projectInfo.secondaryTypes = null;
+				if (projectInfo.secondaryTypes != null) {
+					Object dirty = projectInfo.secondaryTypes.get(DIRTY_CACHE);
+					if (dirty == null) {
+						projectInfo.secondaryTypes.put(DIRTY_CACHE, resource);
+					} else {
+						HashSet resources = (dirty instanceof HashSet) ? (HashSet) dirty : new HashSet(3);
+						resources.add(resource);
+						projectInfo.secondaryTypes.put(DIRTY_CACHE, resource);
+					}
+				}
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -110,7 +111,7 @@ public class NameLookup implements SuffixConstants {
 	 * Allows working copies to take precedence over compilation units.
 	 */
 	protected HashMap typesInWorkingCopies;
-	
+
 	public long timeSpentInSeekTypesInSourcePackage = 0;
 	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
@@ -481,9 +482,9 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	/*
-	 * Find secondary type for a source folders.
+	 * Find secondary type for a project.
 	 */
-	private IType findSecondaryType(String packageName, String typeName, IJavaProject project) {
+	private IType findSecondaryType(String packageName, String typeName, IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) {
 		if (VERBOSE) {
 			Util.verbose("NameLookup FIND SECONDARY TYPES:"); //$NON-NLS-1$
 			Util.verbose(" -> pkg name: " + packageName);  //$NON-NLS-1$
@@ -493,12 +494,15 @@ public class NameLookup implements SuffixConstants {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IJavaProject javaProject = project;
-			HashMap secondaryTypePaths = manager.getSecondaryTypes(javaProject);
+			HashMap secondaryTypePaths = manager.getSecondaryTypes(javaProject, waitForIndexes, monitor);
 			if (secondaryTypePaths.size() > 0) {
 				HashMap types = (HashMap) secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
 				if (types != null && types.size() > 0) {
 					IType type = (IType) types.get(typeName);
 					if (type != null) {
+						if (VERBOSE) {
+							Util.verbose(" -> type: " + type.getElementName());  //$NON-NLS-1$
+						}
 						return type;
 					}
 				}
@@ -511,9 +515,18 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	/**
-	 * 
+	 * Find type considering secondary types but without waiting for indexes.
+	 * It means that secondary types may be not found under certain circumstances...
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118789"
 	 */
 	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags) {
+		return findType(typeName, packageName, partialMatch, acceptFlags, true, false, null);
+	}
+
+	/**
+	 * Find type. Considering secondary types and waiting for indexes depends on given corresponding parameters.
+	 */
+	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
@@ -535,14 +548,14 @@ public class NameLookup implements SuffixConstants {
 			if (type != null) {
 				return type;
 			}
-			if (project == null) {
+			if (considerSecondaryTypes && project == null) {
 				project = packages[i].getJavaProject();
 			}
 		}
 
 		// If type was not found, try to find it as secondary in source folders
-		if (project != null) {
-			type = findSecondaryType(packageName, typeName, project);
+		if (considerSecondaryTypes && project != null) {
+			type = findSecondaryType(packageName, typeName, project, waitForIndexes, monitor);
 		}
 		return type;
 	}
@@ -592,6 +605,9 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
+		return findType(name, partialMatch, acceptFlags, true, null);
+	}
+	public IType findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, IProgressMonitor monitor) {
 		int index= name.lastIndexOf('.');
 		String className= null, packageName= null;
 		if (index == -1) {
@@ -601,7 +617,7 @@ public class NameLookup implements SuffixConstants {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-		return findType(className, packageName, partialMatch, acceptFlags);
+		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, true, monitor);
 	}
 
 	private IType getMemberType(IType type, String name, int dot) {

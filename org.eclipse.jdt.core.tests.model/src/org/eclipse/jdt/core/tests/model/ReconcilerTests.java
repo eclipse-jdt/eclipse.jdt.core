@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class ReconcilerTests extends ModifyingResourceTests {
 	
@@ -91,18 +92,32 @@ public ReconcilerTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	TESTS_PREFIX = "testBug36032";
 // TESTS_NAMES = new String[] { "testTypeWithDollarName" };
-// Numbers of tests to run: "test<number>" will be run for each number of this array
-//TESTS_NUMBERS = new int[] { 114338 };
-// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//TESTS_RANGE = new int[] { 16, -1 };
+//	TESTS_NUMBERS = new int[] { 114338 };
+//	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(ReconcilerTests.class);
 }
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
+}
+// Expect no error as soon as indexing is finished
+protected void assertNoProblem(char[] source) throws InterruptedException, JavaModelException {
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	if (this.problemRequestor.problemCount > 0) {
+		// If errors then wait for indexes to finish
+		while (indexManager.awaitingJobsCount() > 0) {
+			Thread.sleep(100);
+		}
+		// Reconcile again to see if error goes away
+		this.problemRequestor.initialize(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+	}
 }
 protected void addClasspathEntries(IClasspathEntry[] entries, boolean enableForbiddenReferences) throws JavaModelException {
 	IJavaProject project = getJavaProject("Reconciler");
@@ -2486,8 +2501,9 @@ public void testBug114338() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=36032"
  *
  */
-public void testBug36032a() throws CoreException {
+public void testBug36032a() throws CoreException, InterruptedException {
 	try {
+		// Resources creation
 		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		String source = 
 			"public class Test {\n" + 
@@ -2503,20 +2519,20 @@ public void testBug36032a() throws CoreException {
 			"/P/Test.java", 
 			source
 		);
+		
+		// Get compilation unit and reconcile it
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
-		this.problemRequestor.initialize(source.toCharArray());
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		if (this.problemRequestor.problemCount > 0) {
-			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
-		}
+		assertNoProblem(sourceChars);
 
 		// Add new secondary type
 		this.createFile(
 			"/P/Bar.java", 
 			"class SBar{ void bar() {} }\n"
 		);
-		waitUntilIndexesReady();
 		source = 
 			"public class Test {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2524,18 +2540,20 @@ public void testBug36032a() throws CoreException {
 			"		new SBar().bar();\n" + 
 			"	}\n" + 
 			"}\n";
-		this.problemRequestor.initialize(source.toCharArray());
+		
+		// Reconcile with modified source
+		sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		if (this.problemRequestor.problemCount > 0) {
-			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
-		}
+		assertNoProblem(sourceChars);
 	} finally {
 		deleteProject("P");
 	}
 }
-public void testBug36032b() throws CoreException {
+public void testBug36032b() throws CoreException, InterruptedException {
 	try {
+		// Resources creation
 		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		String source = 
 			"public class Test {\n" + 
@@ -2556,22 +2574,22 @@ public void testBug36032b() throws CoreException {
 			"/P/Bar.java", 
 			"class SBar{ void bar() {} }\n"
 		);
+		
+		// Get compilation unit and reconcile it
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
-		this.problemRequestor.initialize(source.toCharArray());
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		if (this.problemRequestor.problemCount > 0) {
-			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
-		}
+		assertNoProblem(sourceChars);
 
 		// Delete secondary type => should get a problem
 		waitUntilIndexesReady();
 		deleteFile("/P/Bar.java");
+		this.problemRequestor.initialize(source.toCharArray());
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
 		assertEquals("Working copy should not find secondary type 'Bar'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
-			"----------\n" +
-			"----------\n" +
 			"----------\n" +
 			"1. ERROR in /P/Test.java (at line 4)\n" +
 			"	new SBar().bar();\n" +
@@ -2587,18 +2605,17 @@ public void testBug36032b() throws CoreException {
 			"		new SFoo().foo();\n" + 
 			"	}\n" + 
 			"}\n";
-		this.problemRequestor.initialize(source.toCharArray());
+		sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		if (this.problemRequestor.problemCount > 0) {
-			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
-		}
+		assertNoProblem(sourceChars);
 	} finally {
 		deleteProject("P");
 	}
 }
 // Secondary types used through multiple projects
-public void testBug36032c() throws CoreException {
+public void testBug36032c() throws CoreException, InterruptedException {
 	try {
 		// Create first project
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
@@ -2620,7 +2637,7 @@ public void testBug36032c() throws CoreException {
 
 		// Create second project
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		String source2 = 
+		String source = 
 			"package test;\n" +
 			"public class Test2 {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2630,15 +2647,16 @@ public void testBug36032c() throws CoreException {
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Test2.java", 
-			source2
+			source
 		);
+		
+		// Get compilation unit and reconcile it => expect no error
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
-		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopy.getBuffer().setContents(source2);
+		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		if (this.problemRequestor.problemCount > 0) {
-			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
-		}
+		assertNoProblem(sourceChars);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");

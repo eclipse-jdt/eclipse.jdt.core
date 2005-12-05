@@ -30,8 +30,10 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -2056,6 +2058,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void setUp () throws Exception {
 		super.setUp();
 		this.discard = true;
+		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Running test "+getName()+"...");
+		}
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {

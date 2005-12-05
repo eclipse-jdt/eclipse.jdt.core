@@ -31,6 +31,7 @@ public class InternalSearchDocument {
 					// This is a key of a secondary type => reset java model manager secondary types cache for document path project
 					JavaModelManager manager = JavaModelManager.getJavaModelManager();
 					manager.resetSecondaryTypesCache(getPath());
+//					manager.addSecondaryType(getPath(), key);
 				}
 			}
 		}

@@ -1158,48 +1158,41 @@ public class JavaProject
 	public IType findType(String fullyQualifiedName) throws JavaModelException {
 		return findType(fullyQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
 	}
-	
 	/**
-	 * @see IJavaProject#findType(String, String)
+	 * @see IJavaProject#findType(String, IProgressMonitor)
 	 */
-	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
-		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	public IType findType(String fullyQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException {
+		return findType(fullyQualifiedName, DefaultWorkingCopyOwner.PRIMARY, progressMonitor);
 	}
-
-	/**
-	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
-	 */
-	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
-		NameLookup lookup = newNameLookup(owner);
-		return lookup.findType(
-			typeQualifiedName, 
-			packageName,
-			false,
-			NameLookup.ACCEPT_ALL);
-	}	
-
 	/**
 	 * @see IJavaProject#findType(String, WorkingCopyOwner)
 	 */
 	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
-		
 		NameLookup lookup = newNameLookup(owner);
-		return findType(fullyQualifiedName, lookup);
+		return findType(fullyQualifiedName, lookup, false, null);
 	}
-
+	/**
+	 * @see IJavaProject#findType(String, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(fullyQualifiedName, lookup, true, progressMonitor);
+	}
 	/*
 	 * Internal findType with instanciated name lookup
 	 */
-	IType findType(String fullyQualifiedName, NameLookup lookup) throws JavaModelException {
+	IType findType(String fullyQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
 		IType type = lookup.findType(
 			fullyQualifiedName,
 			false,
-			NameLookup.ACCEPT_ALL);
+			NameLookup.ACCEPT_ALL,
+			considerSecondaryTypes,
+			progressMonitor);
 		if (type == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
 			if (lastDot == -1) return null;
-			type = findType(fullyQualifiedName.substring(0, lastDot), lookup);
+			type = findType(fullyQualifiedName.substring(0, lastDot), lookup, considerSecondaryTypes, progressMonitor);
 			if (type != null) {
 				type = type.getType(fullyQualifiedName.substring(lastDot+1));
 				if (!type.exists()) {
@@ -1209,6 +1202,56 @@ public class JavaProject
 		}
 		return type;
 	}
+
+	/**
+	 * @see IJavaProject#findType(String, String)
+	 */
+	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
+		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	}
+	/**
+	 * @see IJavaProject#findType(String, String, IProgressMonitor)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException {
+		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY, progressMonitor);
+	}
+	/**
+	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(
+			packageName,
+			typeQualifiedName, 
+			lookup,
+			false, // do not consider secondary types
+			null);
+	}	
+	/**
+	 * @see IJavaProject#findType(String, String, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(
+			packageName,
+			typeQualifiedName, 
+			lookup,
+			true, // consider secondary types
+			progressMonitor);
+	}	
+	/*
+	 * Internal findType with instanciated name lookup
+	 */
+	IType findType(String packageName, String typeQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
+		return lookup.findType(
+			typeQualifiedName, 
+			packageName,
+			false,
+			NameLookup.ACCEPT_ALL,
+			considerSecondaryTypes,
+			true, // wait for indexes (in case we need to consider secondary types)
+			progressMonitor);
+	}	
 	
 	/**
 	 * Remove all markers denoting classpath problems

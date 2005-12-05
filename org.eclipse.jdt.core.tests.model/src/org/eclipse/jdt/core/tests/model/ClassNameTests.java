@@ -33,7 +33,7 @@ public ClassNameTests(String name) {
 
 static {
 //	org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
-//	TESTS_NAMES = new String[] { "testReconcileMultipleProject" };
+//	TESTS_NAMES = new String[] { "testFindSecondaryType_Bug72179" };
 //	TESTS_PREFIX = "testReconcile";
 }
 public static Test suite() {
@@ -46,10 +46,6 @@ public static Test suite() {
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUp()
  */
 protected void setUp() throws Exception {
-	if (org.eclipse.jdt.internal.core.NameLookup.VERBOSE || org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE) {
-		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("Running test "+getName()+"...");
-	}
 	super.setUp();
 	if (TEST_PROJECT == null) {
 		String[] sourceFolders = new String[SF_LENGTH];
@@ -112,7 +108,7 @@ protected void tearDown() throws Exception {
 
 protected void assertTypeFound(String typeName, String expectedResult) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(typeName);
+	IType type = TEST_PROJECT.findType(typeName, new NullProgressMonitor());
 	assertTrue("type "+typeName+" should exist!", type != null && type.exists());
 	assertEquals("Expected type "+typeName+" NOT found!",
 		expectedResult,
@@ -121,7 +117,7 @@ protected void assertTypeFound(String typeName, String expectedResult) throws Ja
 }
 protected void assertTypeFound(String packageName, String typeName, String expectedResult) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(packageName, typeName);
+	IType type = TEST_PROJECT.findType(packageName, typeName, new NullProgressMonitor());
 	assertTrue("type "+typeName+" should exist!", type != null && type.exists());
 	assertEquals("Expected type "+typeName+" NOT found!",
 		expectedResult,
@@ -131,25 +127,25 @@ protected void assertTypeFound(String packageName, String typeName, String expec
 
 protected void assertTypeNotFound(String typeName) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(typeName);
+	IType type = TEST_PROJECT.findType(typeName, new NullProgressMonitor());
 	assertNotNull("type "+typeName+" should NOT be null!", type);
 	assertFalse("type "+typeName+" should NOT exist!", type.exists());
 }
 protected void assertTypeNotFound(String packageName, String typeName) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(packageName, typeName);
+	IType type = TEST_PROJECT.findType(packageName, typeName, new NullProgressMonitor());
 	assertNotNull("type "+typeName+" should NOT be null!", type);
 	assertFalse("type "+typeName+" should NOT exist!", type.exists());
 }
 
 protected void assertTypeUnknown(String typeName) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(typeName);
+	IType type = TEST_PROJECT.findType(typeName, new NullProgressMonitor());
 	assertNull("type "+typeName+" should NOT be found!", type);
 }
 protected void assertTypeUnknown(String packageName, String typeName) throws JavaModelException {
 	assertNotNull("TEST_PROJECT should not be null!!!", TEST_PROJECT);
-	IType type = TEST_PROJECT.findType(packageName, typeName);
+	IType type = TEST_PROJECT.findType(packageName, typeName, new NullProgressMonitor());
 	assertNull("type "+typeName+" should NOT be found!", type);
 }
 
@@ -1123,19 +1119,19 @@ public void testFindSecondaryType_Bug72179() throws JavaModelException, CoreExce
 			"	jc008 a;\n" +
 			"}\n"
 		);
-		IType type = javaProject.findType("p1", "jc008");
+		IType type = javaProject.findType("p1", "jc008", new NullProgressMonitor());
 		assertTrue("type 'jc008' should exist!", type != null && type.exists());
 		assertEquals("Expected type 'jc008' NOT found!",
 			"class jc008 [in jc.java [in p1 [in <project root> [in P]]]]",
 			type.toString()
 		);
-		type = javaProject.findType("p1", "jc009");
+		type = javaProject.findType("p1", "jc009", new NullProgressMonitor());
 		assertTrue("type 'jc009' should exist!", type != null && type.exists());
 		assertEquals("Expected type 'jc009' NOT found!",
 			"class jc009 [in jc.java [in p1 [in <project root> [in P]]]]",
 			type.toString()
 		);
-		type = javaProject.findType("p1", "jc010");
+		type = javaProject.findType("p1", "jc010", new NullProgressMonitor());
 		assertTrue("type 'jc010' should exist!", type != null && type.exists());
 		assertEquals("Expected type 'jc010' NOT found!",
 			"class jc010 [in jc.java [in p1 [in <project root> [in P]]]]\n" +
