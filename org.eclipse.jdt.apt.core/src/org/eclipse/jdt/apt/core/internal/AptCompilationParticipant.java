@@ -145,8 +145,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 					newFiles.toArray( new IFile[ newFiles.size() ] ), 
 					deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), 
 					result.getNewDependencies(), 
-					result.getProblems(),
-					false);
+					result.getProblems());
 		}
 		finally {
 			if (isFullBuild) {
@@ -231,7 +230,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		}
 		
 		return GENERIC_COMPILATION_RESULT;
-	}
+	}	
 	
 	public boolean doesParticipateInProject(IJavaProject project){
 		if (!AptConfig.isEnabled(project)) {
@@ -250,12 +249,11 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		GeneratedFileManager manager = AptPlugin.getAptProject(project).getGeneratedFileManager();
 		manager.compilationStarted();
 	}
-
     
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
-		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap(), false );
+		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );
 		
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();
