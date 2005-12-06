@@ -73,36 +73,6 @@ public static void buildStarting() {
 	// build is about to start
 }
 
-public static IContainer[][] computeCleanedFolders(JavaProject javaProject) {
-	try {
-		// see BatchImageBuilder.cleanOutputFolders()
-		boolean deleteAll = JavaCore.CLEAN.equals(javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
-		if (!deleteAll)
-			return null;
-
-		NameEnvironment env = new NameEnvironment(javaProject.getProject().getWorkspace().getRoot(), javaProject, new SimpleLookupTable(3));
-		ClasspathMultiDirectory[] sourceLocations = env.sourceLocations;
-		ArrayList allContent = new ArrayList(sourceLocations.length);
-		ArrayList onlyClassFiles = new ArrayList(sourceLocations.length);
-		for (int i = 0, l = sourceLocations.length; i < l; i++) {
-			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
-			if (sourceLocation.hasIndependentOutputFolder) {
-				if (!allContent.contains(sourceLocation.binaryFolder))
-					allContent.add(sourceLocation.binaryFolder);
-			} else if (!onlyClassFiles.contains(sourceLocation.binaryFolder)) {
-				onlyClassFiles.add(sourceLocation.binaryFolder);
-			}
-		}
-		return new IContainer[][] {
-			(IContainer[]) allContent.toArray(new IContainer[allContent.size()]),
-			(IContainer[]) onlyClassFiles.toArray(new IContainer[onlyClassFiles.size()]),
-		};
-	} catch (CoreException e) {
-		Util.log(e, "JavaBuilder handling CoreException while computing outputFoldersToClean for: " + javaProject.getProject().getName()); //$NON-NLS-1$
-	}
-	return null;
-}
-
 /**
  * Hook allowing to reset some static state after a complete build iteration.
  * This hook is invoked during POST_AUTO_BUILD notification

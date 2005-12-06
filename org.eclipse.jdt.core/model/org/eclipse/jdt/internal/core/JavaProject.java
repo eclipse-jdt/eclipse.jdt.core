@@ -21,7 +21,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.resources.ICommand;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -380,10 +379,6 @@ public class JavaProject
 		info.setNonJavaResources(null);
 		info.setChildren(
 			computePackageFragmentRoots(classpath, false, null /*no reverse map*/));		
-	}
-
-	public IContainer[][] computeCleanedFolders() {
-		return org.eclipse.jdt.internal.core.builder.JavaBuilder.computeCleanedFolders(this);
 	}
 
 	/**
