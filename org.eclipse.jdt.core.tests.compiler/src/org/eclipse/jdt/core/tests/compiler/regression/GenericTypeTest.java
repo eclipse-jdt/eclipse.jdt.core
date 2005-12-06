@@ -27062,4 +27062,112 @@ public void test874() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395
+public void _test875() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static class DatabaseObject {}\n" + 
+			"	public static class ObjectFormUI<T extends DatabaseObject> {}\n" + 
+			"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+			"\n" + 
+			"	public static <T extends DatabaseObject> Class<? extends ObjectFormUI<T>> getUI(\n" + 
+			"			Class<T> persistentClass) {\n" + 
+			"		return null != null \n" + 
+			"			? uiMap.get(persistentClass)\n" + 
+			"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"should be: 1-type mismatch 2-unchecked cast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
+public void _test876() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo(){\n" + 
+			"		Class<Class<Object>> cco = null;\n" + 
+			"		Class<Class> cc = cco; // ko\n" + 
+			"		Class<Class<Object>> cco2 = cc; // ko\n" + 
+			"		\n" + 
+			"		Class<? extends Class<Object>> ceco = null;\n" + 
+			"		Class<? extends Class> cec = ceco; // ok\n" + 
+			"		Class<? extends Class<Object>> ceco2 = cec; // ko\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"should be 3 errors");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
+public void test877() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	<T extends Class> void bar(T t) {\n" + 
+			"		Class<Object> c = t; // ok - unchecked\n" + 
+			"	}\n" + 
+			"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+			"		Class<Object> c = let.get(0); // ok - unchecked\n" + 
+			"	}\n" + 
+			"	void bar3(List<? extends Class> lec) {\n" + 
+			"		Class<Object> c = lec.get(0); // ok - unchecked\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	<T extends Class> void bar(T t) {\n" + 
+		"	           ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	<T extends Class> void bar(T t) {\n" + 
+		"	           ^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Class. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	Class<Object> c = t; // ok - unchecked\n" + 
+		"	                  ^\n" + 
+		"Type safety: The expression of type T needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+		"	           ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+		"	           ^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Class. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 7)\n" + 
+		"	Class<Object> c = let.get(0); // ok - unchecked\n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type capture-of ? extends T needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 9)\n" + 
+		"	void bar3(List<? extends Class> lec) {\n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 10)\n" + 
+		"	Class<Object> c = lec.get(0); // ok - unchecked\n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type capture-of ? extends Class needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
