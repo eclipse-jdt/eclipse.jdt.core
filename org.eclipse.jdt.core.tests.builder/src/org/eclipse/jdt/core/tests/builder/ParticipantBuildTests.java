@@ -58,7 +58,7 @@ public class ParticipantBuildTests extends Tests {
 		// install compilationParticipant
 		new BuildTestParticipant() {
 			boolean createFile = true;
-			public void compileStarting(ICompilationParticipantResult[] files) {
+			public void buildStarting(ICompilationParticipantResult[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				if (!this.createFile) return;
 				this.createFile = false;

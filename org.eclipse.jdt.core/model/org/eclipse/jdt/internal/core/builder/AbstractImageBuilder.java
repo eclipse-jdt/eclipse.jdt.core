@@ -433,7 +433,7 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 				for (int j = unitsAboutToCompile.length; --j >= 0;)
 					results[j] = new CompilationParticipantResult(unitsAboutToCompile[j]);
 			}
-			this.javaBuilder.participants[i].compileStarting(results);
+			this.javaBuilder.participants[i].buildStarting(results);
 		}
 	}
 	return results;

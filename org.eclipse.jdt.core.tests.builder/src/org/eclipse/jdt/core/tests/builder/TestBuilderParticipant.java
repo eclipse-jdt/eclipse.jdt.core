@@ -17,16 +17,16 @@ public class TestBuilderParticipant extends CompilationParticipant {
 
 	public static CompilationParticipant PARTICIPANT;
 
-public int buildStarting(IJavaProject project) {
-	return PARTICIPANT.buildStarting(project);
+public int aboutToBuild(IJavaProject project) {
+	return PARTICIPANT.aboutToBuild(project);
 }
 
 public void cleanStarting(IJavaProject project) {
 	PARTICIPANT.cleanStarting(project);
 }
 
-public void compileStarting(ICompilationParticipantResult[] files) {
-	PARTICIPANT.compileStarting(files);
+public void buildStarting(ICompilationParticipantResult[] files) {
+	PARTICIPANT.buildStarting(files);
 }
 
 public boolean isActive(IJavaProject project) {

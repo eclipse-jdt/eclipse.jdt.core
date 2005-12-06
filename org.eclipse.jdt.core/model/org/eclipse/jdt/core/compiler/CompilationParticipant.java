@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.IJavaProject;
  * (for a working copy), etc.
  * <p>
  * Clients wishing to participate in the compilation process must suclass this class, and implement
- * {@link #isActive(IJavaProject)}, {@link #buildStarting(IJavaProject)}, 
+ * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)}, 
  * {@link #reconcile(ReconcileContext)}, etc.
 * </p><p>
  * This class is intended to be subclassed by clients.
@@ -46,18 +46,8 @@ public static int NEEDS_FULL_BUILD = 2;
  * @param project the project about to build
  * @return READY_FOR_BUILD or NEEDS_FULL_BUILD
  */
-public int buildStarting(IJavaProject project) {
+public int aboutToBuild(IJavaProject project) {
 	return READY_FOR_BUILD;
-}
-
-/**
- * Notifies this participant that a clean is about to start and provides it the opportunity to
- * delete generated source files.
- * Only sent to participants interested in the project.
- * @param project the project about to be cleaned
- */
-public void cleanStarting(IJavaProject project) {
-	// do nothing by default
 }
 
 /**
@@ -67,7 +57,17 @@ public void cleanStarting(IJavaProject project) {
  *
  * @param files is an array of CompilationParticipantResult
   */
-public void compileStarting(ICompilationParticipantResult[] files) {
+public void buildStarting(ICompilationParticipantResult[] files) {
+	// do nothing by default
+}
+
+/**
+ * Notifies this participant that a clean is about to start and provides it the opportunity to
+ * delete generated source files.
+ * Only sent to participants interested in the project.
+ * @param project the project about to be cleaned
+ */
+public void cleanStarting(IJavaProject project) {
 	// do nothing by default
 }
 

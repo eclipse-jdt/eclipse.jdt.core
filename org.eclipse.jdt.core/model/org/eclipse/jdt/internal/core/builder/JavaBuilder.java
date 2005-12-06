@@ -492,7 +492,7 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 		this.participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(this.javaProject);
 		if (this.participants != null)
 			for (int i = 0, l = this.participants.length; i < l; i++)
-				if (this.participants[i].buildStarting(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
+				if (this.participants[i].aboutToBuild(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
 					kind = FULL_BUILD;
 	
 		// Flush the existing external files cache if this is the beginning of a build cycle
