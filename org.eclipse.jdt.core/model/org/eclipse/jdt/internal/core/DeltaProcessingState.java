@@ -41,6 +41,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 * Collection of pre Java resource change listeners
 	 */
 	public IResourceChangeListener[] preResourceChangeListeners = new IResourceChangeListener[1];
+	public int[] preResourceChangeEventMasks = new int[1];
 	public int preResourceChangeListenerCount = 0;
 
 	/*
@@ -188,18 +189,21 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		this.elementChangedListenerCount++;
 	}
 
-	public void addPreResourceChangedListener(IResourceChangeListener listener) {
+	public void addPreResourceChangedListener(IResourceChangeListener listener, int eventMask) {
 		for (int i = 0; i < this.preResourceChangeListenerCount; i++){
 			if (this.preResourceChangeListeners[i].equals(listener)) {
+				this.preResourceChangeEventMasks[i] |= eventMask;
 				return;
 			}
 		}
 		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
 		int length;
-		if ((length = this.preResourceChangeListeners.length) == this.preResourceChangeListenerCount){
+		if ((length = this.preResourceChangeListeners.length) == this.preResourceChangeListenerCount) {
 			System.arraycopy(this.preResourceChangeListeners, 0, this.preResourceChangeListeners = new IResourceChangeListener[length*2], 0, length);
+			System.arraycopy(this.preResourceChangeEventMasks, 0, this.preResourceChangeEventMasks = new int[length*2], 0, length);
 		}
 		this.preResourceChangeListeners[this.preResourceChangeListenerCount] = listener;
+		this.preResourceChangeEventMasks[this.preResourceChangeListenerCount] = eventMask;
 		this.preResourceChangeListenerCount++;
 	}
 
@@ -395,17 +399,21 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				// need to clone defensively since we might be in the middle of listener notifications (#fire)
 				int length = this.preResourceChangeListeners.length;
 				IResourceChangeListener[] newListeners = new IResourceChangeListener[length];
+				int[] newEventMasks = new int[length];
 				System.arraycopy(this.preResourceChangeListeners, 0, newListeners, 0, i);
+				System.arraycopy(this.preResourceChangeEventMasks, 0, newEventMasks, 0, i);
 				
 				// copy trailing listeners
 				int trailingLength = this.preResourceChangeListenerCount - i - 1;
-				if (trailingLength > 0){
+				if (trailingLength > 0) {
 					System.arraycopy(this.preResourceChangeListeners, i+1, newListeners, i, trailingLength);
+					System.arraycopy(this.preResourceChangeEventMasks, i+1, newEventMasks, i, trailingLength);
 				}
 				
 				// update manager listener state (#fire need to iterate over original listeners through a local variable to hold onto
 				// the original ones)
 				this.preResourceChangeListeners = newListeners;
+				this.preResourceChangeEventMasks = newEventMasks;
 				this.preResourceChangeListenerCount--;
 				return;
 			}
@@ -413,11 +421,10 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	}
 
 	public void resourceChanged(final IResourceChangeEvent event) {
-		boolean isPostChange = event.getType() == IResourceChangeEvent.POST_CHANGE;
-		if (isPostChange) {
-			for (int i = 0; i < this.preResourceChangeListenerCount; i++) {
-				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-				final IResourceChangeListener listener = this.preResourceChangeListeners[i];
+		for (int i = 0; i < this.preResourceChangeListenerCount; i++) {
+			// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+			final IResourceChangeListener listener = this.preResourceChangeListeners[i];
+			if ((this.preResourceChangeEventMasks[i] & event.getType()) != 0)
 				Platform.run(new ISafeRunnable() {
 					public void handleException(Throwable exception) {
 						Util.log(exception, "Exception occurred in listener of pre Java resource change notification"); //$NON-NLS-1$
@@ -426,13 +433,12 @@ public class DeltaProcessingState implements IResourceChangeListener {
 						listener.resourceChanged(event);
 					}
 				});
-			}
 		}
 		try {
 			getDeltaProcessor().resourceChanged(event);
 		} finally {
 			// TODO (jerome) see 47631, may want to get rid of following so as to reuse delta processor ? 
-			if (isPostChange) {
+			if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
 				this.deltaProcessors.set(null);
 			}
 		}

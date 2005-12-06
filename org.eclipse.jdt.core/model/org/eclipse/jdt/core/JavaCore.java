@@ -1115,11 +1115,43 @@ public final class JavaCore extends Plugin {
 	 * @param listener the listener
 	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
 	 * @since 3.0
+	 * @deprecated use addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE) instead
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
-		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener);
+		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE);
 	}
 	
+	/**
+	 * Adds the given listener for resource change events of the given types to the Java core. 
+	 * The listener is guaranteed to be notified of the resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * <p>
+	 * If an identical listener is already registered, the given event types are added to the event types 
+	 * of interest to the listener.
+	 * </p>
+	 * <p>
+	 * Supported event types are:
+	 * <ul>
+	 * <li>{@link IResourceChangeEvent#PRE_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_CHANGE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_DELETE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_CLOSE}</li>
+	 * </ul>
+	 * This list may increase in the future.
+	 * </p>
+	 * 
+	 * @param listener the listener
+	 * @param eventMask the bit-wise OR of all event types of interest to the
+	 * listener
+	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
+	 * @see IResourceChangeEvent
+	 * @since 3.2
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener, int eventMask) {
+		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener, eventMask);
+	}
+
 	/**
 	 * Configures the given marker for the given Java element.
 	 * Used for markers, which denote a Java element rather than a resource.
