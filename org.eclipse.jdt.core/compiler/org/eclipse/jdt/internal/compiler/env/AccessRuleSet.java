@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
-import java.io.File;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -58,17 +56,10 @@ public class AccessRuleSet {
  * Select the first access rule which is violated when accessing a given type, 
  * or null if no 'non accessible' access rule applies.
  * @param targetTypeFilePath the target type file path, formed as: 
- * "org/eclipse/jdt/core/JavaCore"; on systems that use '\' as their file 
- * separator, the alternative format: "org\eclipse\jdt\core\JavaCore" is 
- * accepted as well; the use of a mix of separators is tolerated but
- * discouraged.
+ * "org/eclipse/jdt/core/JavaCore"
  * @return the first access restriction that applies if any, null else
  */
 public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
-	if (File.separatorChar == '\\') {
-		targetTypeFilePath = CharOperation.replaceOnCopy(targetTypeFilePath,
-				File.separatorChar, '/');
-	}
 	for (int i = 0, length = this.accessRules.length; i < length; i++) {
 		AccessRule accessRule = this.accessRules[i];
 		if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, 

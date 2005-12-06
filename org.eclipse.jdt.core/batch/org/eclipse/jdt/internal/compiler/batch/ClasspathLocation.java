@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
+import java.io.File;
+
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -29,16 +32,21 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	 * 
 	 * @param qualifiedBinaryFileName
 	 *            tested type specification, formed as:
-	 *            "org/eclipse/jdt/core/JavaCore.class"
+	 *            "org/eclipse/jdt/core/JavaCore.class"; on systems that
+	 *            use \ as File.separator, the 
+	 *            "org\eclipse\jdt\core\JavaCore.class" is accepted as well
 	 * @return the first access rule which is violated when accessing a given
 	 *         type, or null if none applies
 	 */
 	AccessRestriction fetchAccessRestriction(String qualifiedBinaryFileName) {
 		if (this.accessRuleSet == null)
 			return null;
-		return this.accessRuleSet
-					.getViolatedRestriction(
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SUFFIX_CLASS.length)
-						.toCharArray());
+		char [] qualifiedTypeName = qualifiedBinaryFileName.
+			substring(0, qualifiedBinaryFileName.length() - SUFFIX_CLASS.length)
+			.toCharArray(); 
+		if (File.separatorChar == '\\') {
+			CharOperation.replace(qualifiedTypeName, File.separatorChar, '/');
+		}
+		return this.accessRuleSet.getViolatedRestriction(qualifiedTypeName);
 	}
 }

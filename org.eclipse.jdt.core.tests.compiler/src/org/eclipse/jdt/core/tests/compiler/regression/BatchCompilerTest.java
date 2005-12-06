@@ -2038,6 +2038,50 @@ public void test035(){
 		System.setProperty("user.dir", javaUserDir);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=119108
+// \ in call to AccessRulesSet.getViolatedRestriction
+public void test036(){
+	this.runConformTest(
+		new String[] {
+			"src1/p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR + "/src1/p/X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -proceedOnError -referenceInfo" 
+        + " -d \"" + OUTPUT_DIR + "/bin1/\"",
+        "",
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"src2/Y.java",
+			"/** */\n" + 
+			"public class Y extends p.X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + File.separator + "bin1[~**/X]\""
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
+        "",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + 
+			"src2" + File.separator + "Y.java\n" + 
+		" (at line 2)\n" + 
+		"	public class Y extends p.X {\n" + 
+		"	                       ^^^\n" + 
+		"Discouraged access: X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+        false);
+}
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
