@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import java.io.File;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -52,26 +54,36 @@ public class AccessRuleSet {
 		return this.accessRules;
 	}
 	
-	/**
-	 * Select the first access rule which is violated when accessing a given type, or null if no 'non accessible' access rule applies.
-	 * Target type file path is formed as: "org/eclipse/jdt/core/JavaCore".
-	 */
-	public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
-		
-		for (int i = 0, length = this.accessRules.length; i < length; i++) {
-			AccessRule accessRule = this.accessRules[i];
-			if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, true/*case sensitive*/, '/')) {
-				switch (accessRule.problemId) {
-					case IProblem.ForbiddenReference:
-					case IProblem.DiscouragedReference:
-						return new AccessRestriction(accessRule, this.messageTemplate);
-					default:
-						return null;
-				}
+/**
+ * Select the first access rule which is violated when accessing a given type, 
+ * or null if no 'non accessible' access rule applies.
+ * @param targetTypeFilePath the target type file path, formed as: 
+ * "org/eclipse/jdt/core/JavaCore"; on systems that use '\' as their file 
+ * separator, the alternative format: "org\eclipse\jdt\core\JavaCore" is 
+ * accepted as well; the use of a mix of separators is tolerated but
+ * discouraged.
+ * @return the first access restriction that applies if any, null else
+ */
+public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
+	if (File.separatorChar == '\\') {
+		targetTypeFilePath = CharOperation.replaceOnCopy(targetTypeFilePath,
+				File.separatorChar, '/');
+	}
+	for (int i = 0, length = this.accessRules.length; i < length; i++) {
+		AccessRule accessRule = this.accessRules[i];
+		if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, 
+				true/*case sensitive*/, '/')) {
+			switch (accessRule.problemId) {
+				case IProblem.ForbiddenReference:
+				case IProblem.DiscouragedReference:
+					return new AccessRestriction(accessRule, this.messageTemplate);
+				default:
+					return null;
 			}
 		}
-		return null;
 	}
+	return null;
+}
 	
 	public String toString() {
 		return toString(true/*wrap lines*/);
