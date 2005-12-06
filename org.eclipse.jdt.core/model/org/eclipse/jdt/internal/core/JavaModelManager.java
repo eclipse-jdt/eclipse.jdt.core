@@ -2417,17 +2417,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				Iterator packages = projectInfo.secondaryTypes.keySet().iterator();
 				while (packages.hasNext()) {
 					String packName = (String) packages.next();
-					HashMap types = (HashMap) projectInfo.secondaryTypes.get(packName);
-					Iterator names = types.keySet().iterator();
-					while (names.hasNext()) {
-						String typeName = (String) names.next();
-						IType type = (IType) types.get(typeName);
-						if (file.equals(type.getResource())) {
-							types.remove(typeName);
-							if (types.size() == 0) {
-								projectInfo.secondaryTypes.remove(packName);
+					Object object = projectInfo.secondaryTypes.get(packName);
+					if (object instanceof HashMap) {
+						HashMap types = (HashMap) object;
+						Iterator names = types.keySet().iterator();
+						while (names.hasNext()) {
+							String typeName = (String) names.next();
+							IType type = (IType) types.get(typeName);
+							if (file.equals(type.getResource())) {
+								types.remove(typeName);
+								if (types.size() == 0) {
+									projectInfo.secondaryTypes.remove(packName);
+								}
+								return;
 							}
-							return;
 						}
 					}
 				}
