@@ -13,7 +13,6 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -22,7 +21,10 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
-public class ElementChangedListener implements IElementChangedListener 
+/**
+ * Used by the GeneratedFileManager in order to clean up working copies after a build
+ */
+public class WorkingCopyCleanupListener implements IElementChangedListener 
 {
 	public void elementChanged(ElementChangedEvent event) 
 	{
@@ -65,8 +67,7 @@ public class ElementChangedListener implements IElementChangedListener
 			if ( workingCopyDiscarded )
 			{
 				IJavaProject jp = cu.getJavaProject();
-				IProject p = jp.getProject();
-				GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(p);
+				GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
 				IFile f = (IFile)cu.getResource();
 				if ( gfm.isParentFile( f ) )
 				{

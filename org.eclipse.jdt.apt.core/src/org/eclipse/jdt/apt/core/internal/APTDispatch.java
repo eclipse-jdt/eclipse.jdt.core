@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -80,16 +79,15 @@ public class APTDispatch
 		boolean building = files != null;
 	    
 		APTDispatchRunnable runnable;
-		ISchedulingRule schedulingRule;
+		AptProject aptProject = AptPlugin.getAptProject(javaProj);
 		if ( building )
 		{
 			// If we're building, types can be generated, so we
 			// want to run this as an atomic workspace operation
-			 runnable = new APTDispatchRunnable( files, javaProj, factories, previousRoundsFactories, isFullBuild );
-			 schedulingRule = javaProj.getResource();
+			 runnable = new APTDispatchRunnable( files, aptProject, factories, previousRoundsFactories, isFullBuild );
 			 IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			 try {
-				 workspace.run(runnable, schedulingRule, IWorkspace.AVOID_UPDATE, null);
+				 workspace.run(runnable, javaProj.getResource(), IWorkspace.AVOID_UPDATE, null);
 			 }
 			 catch (CoreException ce) {
 				 AptPlugin.log(ce, "Could not run APT"); //$NON-NLS-1$
@@ -100,7 +98,7 @@ public class APTDispatch
 			// Reconciling, so we do not want to run this as an atomic workspace
 			// operation. If we do, it is easy to have locking issues when someone
 			// calls a reconcile from within a workspace lock
-			runnable = new APTDispatchRunnable( compilationUnit, javaProj, factories );
+			runnable = new APTDispatchRunnable( compilationUnit, aptProject, factories );
 			runnable.run(null);
 		}
 			
@@ -120,8 +118,7 @@ public class APTDispatch
 			_deletedFiles = Collections.emptySet();
 			_newDependencies = Collections.emptyMap();
 			_newProblems = Collections.emptyMap();
-			_dispatchedBatchFactories = Collections.emptySet();
-			_sourcePathChanged = false;
+			_dispatchedBatchFactories = Collections.emptySet();			
 			_hasGeneratedTypes = false;
 		}
 		APTResult( 
@@ -129,8 +126,7 @@ public class APTDispatch
 				Set<IFile> deletedFiles,
 				Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 				Map<IFile, Set<String>> deps, 
-				Map<IFile, List<IProblem>> problems, 
-				boolean sourcePathChanged,
+				Map<IFile, List<IProblem>> problems,
 				boolean hasGeneratedTypes)
 		{
 			_newFiles = newFiles;
@@ -138,7 +134,6 @@ public class APTDispatch
 			_deletedFiles = deletedFiles;
 			_newProblems = problems;
 			_dispatchedBatchFactories = dispatchedBatchFactories;
-			_sourcePathChanged = sourcePathChanged;
 			_hasGeneratedTypes = hasGeneratedTypes;
 		}
 		
@@ -147,7 +142,6 @@ public class APTDispatch
 		private final Map<IFile, Set<String>> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
 		private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
-		private boolean _sourcePathChanged;
 		private boolean _hasGeneratedTypes;
 		private boolean _mutable = true;
 		
@@ -165,8 +159,7 @@ public class APTDispatch
 			mutate();
 			_newProblems.remove(file);
 		}
-		
-		boolean getSourcePathChanged() { return _sourcePathChanged; }
+	
 		boolean hasGeneratedTypes(){ return _hasGeneratedTypes; }
 		
 		void setReadOnly(){
@@ -185,7 +178,6 @@ public class APTDispatch
 			_dispatchedBatchFactories.addAll(otherResult._dispatchedBatchFactories);
 			mergeMaps(_newDependencies, otherResult._newDependencies);
 			mergeMaps(_newProblems, otherResult._newProblems);
-			_sourcePathChanged |= otherResult._sourcePathChanged;
 			_hasGeneratedTypes |= otherResult._hasGeneratedTypes;
 		}
 		

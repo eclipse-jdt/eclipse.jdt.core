@@ -39,6 +39,9 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	@Override
 	public boolean exists() {
 		try {
+			final File jarFile = getJarFile();
+			if(jarFile == null)
+				return false;
 			return getJarFile().exists();
 		} catch (SecurityException e) {
 			return false;

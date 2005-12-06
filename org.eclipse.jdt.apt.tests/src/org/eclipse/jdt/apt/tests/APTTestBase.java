@@ -51,6 +51,7 @@ public abstract class APTTestBase extends Tests{
 		super.setUp();
 
 		env.resetWorkspace();
+		TestUtil.enableAutoBuild(false);
 
 		// project will be deleted by super-class's tearDown() method
 		final String projectName = getProjectName();

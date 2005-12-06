@@ -38,7 +38,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
     	try {
 	    	String contents = _sw.toString();
 	        super.close();
-	        GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(_env.getProject());
+	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
 	        Phase phase = _env.getPhase();
 		
 	        FileGenerationResult result = null;
@@ -59,9 +59,6 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        }
 	        if (result != null) {
 	        	_env.addGeneratedFile(result.getFile(), result.isModified());
-	        	if (result.hasSourcepathChanged()) {
-	        		_env.setSourcePathChanged(true);
-	        	}
 	        }
     	}
     	catch (CoreException ce) {

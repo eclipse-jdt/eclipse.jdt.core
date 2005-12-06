@@ -13,12 +13,10 @@ public class FileGenerationResult {
 
 	private final IFile file;
 	private final boolean modified;
-	private final boolean sourcepathChanged;
 	
-	public FileGenerationResult(final IFile file, final boolean modified, final boolean sourcepathChanged) {
+	public FileGenerationResult(final IFile file, final boolean modified) {
 		this.file = file;
 		this.modified = modified;
-		this.sourcepathChanged = sourcepathChanged;
 	}
 	
 	public IFile getFile() {
@@ -27,9 +25,5 @@ public class FileGenerationResult {
 	
 	public boolean isModified() {
 		return modified;
-	}	
-	
-	public boolean hasSourcepathChanged() {
-		return sourcepathChanged;
 	}
 }

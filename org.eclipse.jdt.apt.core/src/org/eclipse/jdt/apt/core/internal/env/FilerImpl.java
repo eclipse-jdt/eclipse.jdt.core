@@ -75,7 +75,7 @@ public class FilerImpl implements Filer {
 			return new NoOpOutputStream();
 		}
 		
-    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
+    	GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
     	IPath path;
     	try 
     	{
@@ -170,7 +170,7 @@ public class FilerImpl implements Filer {
     private IPath getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
     	throws IOException
     {
-    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
+    	GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
     	IPath path = null;
     	if ( loc == Filer.Location.CLASS_TREE )
     	{

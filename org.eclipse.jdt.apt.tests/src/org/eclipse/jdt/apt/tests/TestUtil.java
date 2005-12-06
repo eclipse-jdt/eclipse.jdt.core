@@ -31,6 +31,10 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -98,6 +102,34 @@ public class TestUtil
 		return new File(classesJarPath);
 	}
 	
+	/**
+     * Set the autobuild to the value of the parameter and
+     * return the old one.  This is a workaround for a synchronization
+     * problem: thread A creates a project, thus spawning thread B to
+     * do an autobuild.  Thread A goes on to configure the project's
+     * classpath; at the same time, thread B calls APT, which configures
+     * the project's classpath.  Access to the classpath is not
+     * synchronized, so there's a race for which thread's modification 
+     * wins.  We work around this by disabling autobuild.
+     * 
+     * @param state the value to be set for autobuilding.
+     * @return the old value of the autobuild state
+     */
+    public static boolean enableAutoBuild(boolean state) {
+        IWorkspace workspace= ResourcesPlugin.getWorkspace();
+        IWorkspaceDescription desc= workspace.getDescription();
+        boolean isAutoBuilding= desc.isAutoBuilding();
+        if (isAutoBuilding != state) {
+            desc.setAutoBuilding(state);
+            try {
+				workspace.setDescription(desc);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+        }
+        return isAutoBuilding;
+    }
+    
 	public static IPath getProjectPath( IJavaProject project )
 	{
 		return project.getResource().getLocation();

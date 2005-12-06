@@ -96,7 +96,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     private Set<IFile> _modifiedGeneratedFiles = new HashSet<IFile>();
 	private Set<AnnotationProcessorListener> _listeners = null;
 	private final FilerImpl _filer;
-	private boolean _sourcePathChanged;
 	private boolean _isClosed = false;
 
 	/**
@@ -919,14 +918,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	/**
 	 * @return - the extra type dependencies for the files under compilation
 	 */
-	public Map<IFile, Set<String>> getTypeDependencies()  { return _typeDependencies; }
-	
-	/** true value indicates that the source path for the project changed during this APT dispatch */
-	public boolean getSourcePathChanged() { return _sourcePathChanged; }
-
-	/** true value indicates that the source path for the project changed during this APT dispatch */
-	public void setSourcePathChanged( boolean b ) { _sourcePathChanged = b; }
-	
+	public Map<IFile, Set<String>> getTypeDependencies()  { return _typeDependencies; }	
 	
 	/**
 	 * Switch to batch processing mode. 

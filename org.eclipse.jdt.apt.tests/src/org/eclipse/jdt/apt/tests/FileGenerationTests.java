@@ -94,6 +94,7 @@ public class FileGenerationTests extends APTTestBase {
 			"}";
 
 		AptConfig.setGenSrcDir(jproj, "__foo_src");
+		
 		env.addClass(srcRoot, "test", "Test", code);
 
 		fullBuild( project.getFullPath() );

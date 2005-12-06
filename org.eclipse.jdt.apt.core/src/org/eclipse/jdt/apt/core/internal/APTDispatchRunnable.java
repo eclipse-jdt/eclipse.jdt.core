@@ -36,7 +36,6 @@ import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.ScannerUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
@@ -55,7 +54,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	// The original set of files - <code>_allFilesRequireProcessing</code> 
 	private /*final*/ IFile[] _remainingFiles = null;
 	private final ICompilationUnit _compilationUnit;
-	private final IJavaProject _javaProject;
+	private final AptProject _aptProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
 	private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
 	private  APTResult _result;
@@ -63,7 +62,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	
 	/*package*/ APTDispatchRunnable( 
 			IFile[] files, 
-			IJavaProject javaProject, 
+			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 			boolean isFullBuild)
@@ -71,14 +70,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		assert files != null : "missing files"; //$NON-NLS-1$
 		_compilationUnit = null;
 		filterFilesForProcessing(files);
-		_javaProject = javaProject;
+		_aptProject = aptProject;
 		_factories = factories;
 		_dispatchedBatchFactories = dispatchedBatchFactories;
 		_isFullBuild = isFullBuild;
 	}	
 	/*package*/ APTDispatchRunnable( 
 			ICompilationUnit cu, 
-			IJavaProject javaProject, 
+			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
 	{
 		_compilationUnit = cu;
@@ -87,7 +86,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_allFilesRequireProcessing = hasAnnotation ?
 				new IFile[]{file} : NO_FILES;
 		_remainingFiles = hasAnnotation ? NO_FILES : new IFile[]{file};
-		_javaProject = javaProject;
+		_aptProject = aptProject;
 		_factories = factories;
 		_isFullBuild = false;
 		// does not apply in reconcile case. we don't generate file during
@@ -192,7 +191,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 										 Collections.<AnnotationProcessorFactory>emptySet(),
 										 Collections.<IFile, Set<String>>emptyMap(),
 										 Collections.<IFile, List<IProblem>>emptyMap(), 
-										 false,
 										 false );
 		}
 		else
@@ -202,12 +200,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			if ( _compilationUnit != null )
 			{
 				processorEnv = ProcessorEnvImpl
-					.newReconcileEnv(_compilationUnit, _javaProject);
+					.newReconcileEnv(_compilationUnit, _aptProject.getJavaProject());
 			}
 			else
 			{
 				processorEnv = ProcessorEnvImpl
-					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _javaProject);
+					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _aptProject.getJavaProject());
 			}			
 			_result = runAPT(_factories, processorEnv);
 		}
@@ -543,7 +541,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			}
 		
 			final IFile[] files = processorEnv.getFiles();
-			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( processorEnv.getJavaProject().getProject() );
+			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 			final Map<IFile,Set<IFile>> lastGeneratedFiles = new HashMap<IFile,Set<IFile>>();
 			for( IFile parentIFile : files ){
 				lastGeneratedFiles.put(parentIFile, gfm.getGeneratedFilesForParent(parentIFile));
@@ -602,7 +600,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 
 											  processorEnv.getProblems(), 
-											  processorEnv.getSourcePathChanged(),
 											  processorEnv.hasGeneratedClassFiles() || processorEnv.hasGeneratedSourceFiles());
 			processorEnv.close();
 			return result;
@@ -636,7 +633,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			ICompilationUnit parentCompilationUnit,
 			ProcessorEnvImpl processorEnv)
 	{
-		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
+		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
 		return cleanupNoLongerGeneratedFiles( 
 				parent, 

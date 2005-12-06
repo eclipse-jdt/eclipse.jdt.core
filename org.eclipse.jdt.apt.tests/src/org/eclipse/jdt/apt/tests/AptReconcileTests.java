@@ -19,9 +19,9 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -325,8 +325,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 			
 			assertProblems( "UnexpectedProblems", "" );
 			
-			IProject p = _workingCopy.getJavaProject().getProject();
-			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			IJavaProject jp = _workingCopy.getJavaProject();
+			GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
 			
 			if ( !gfm.containsWorkingCopyMapEntriesForParent((IFile)_workingCopy.getResource()))
 				fail( "Expected to find map entries in GeneratedFileManager");
@@ -358,7 +358,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 			
 			// make sure generated source folder exists in the project.  This is necessary
 			// for reconcile-time type-generation to work
-			GeneratedFileManager.getGeneratedFileManager( project.getProject() );
+			AptPlugin.getAptProject(project).getGeneratedFileManager();
 			
 			_classesJarFile = TestUtil.createAndAddAnnotationJar( project );
 

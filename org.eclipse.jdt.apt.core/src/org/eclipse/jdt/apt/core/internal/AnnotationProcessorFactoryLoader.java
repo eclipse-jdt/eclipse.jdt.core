@@ -666,8 +666,12 @@ public class AnnotationProcessorFactoryLoader {
 		for (FactoryContainer fc : containers.keySet()) {
 			if (fc instanceof JarFactoryContainer) {
 				try {
-					String key = ((JarFactoryContainer)fc).getJarFile().getCanonicalPath();
-					addToResourcesMap(key, jproj);
+					final File jarFile = ((JarFactoryContainer)fc).getJarFile();
+					// if null, will add to bad container set below.
+					if( jarFile != null ){
+						String key = jarFile.getCanonicalPath();
+						addToResourcesMap(key, jproj);
+					}
 				} catch (IOException e) {
 					// If there's something this malformed on the factory path,
 					// don't bother putting it on the resources map; we'll never
@@ -676,7 +680,7 @@ public class AnnotationProcessorFactoryLoader {
 					// to load (later on).
 				}
 			}
-			if (!fc.exists()) {
+			if ( !fc.exists() ) {
 				if (badContainers == null) {
 					badContainers = new HashSet<FactoryContainer>();
 				}

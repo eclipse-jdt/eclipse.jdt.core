@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImplNoBinding;
@@ -56,6 +57,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -100,6 +102,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	protected final Phase _phase;
 	protected IFile _file;
 	protected final IJavaProject _javaProject;
+	protected final AptProject _aptProject;
 	
 	/**
      * Mapping model compilation unit to dom compilation unit.
@@ -128,6 +131,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
+		_aptProject = AptPlugin.getAptProject(javaProj);
 	}
   
 	public Types getTypeUtils()
@@ -296,7 +300,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             binding = ((AbstractTypeDeclaration)node).resolveBinding();
             break;
         case ASTNode.SINGLE_VARIABLE_DECLARATION:
-        	binding = null;
+            binding = ((SingleVariableDeclaration)node).resolveBinding();
             break;
         case ASTNode.PACKAGE_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
@@ -816,4 +820,5 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	public Phase            getPhase(){ return _phase; }
     public IProject         getProject(){ return _javaProject.getProject(); }
 	public IJavaProject		getJavaProject(){ return _javaProject; }
+	public AptProject		getAptProject(){ return _aptProject; }
 }

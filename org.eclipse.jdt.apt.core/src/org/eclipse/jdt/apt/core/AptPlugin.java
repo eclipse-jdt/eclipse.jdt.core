@@ -13,19 +13,22 @@ package org.eclipse.jdt.apt.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedResourceChangeListener;
 import org.eclipse.jdt.apt.core.util.AptConfig;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.framework.BundleContext;
 
 public class AptPlugin extends Plugin {
@@ -46,6 +49,11 @@ public class AptPlugin extends Plugin {
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
+	// Use a weak hash map so that we don't prevent java projects from getting
+	// garbage collected
+	private static final Map<IJavaProject,AptProject> PROJECT_MAP = 
+		new WeakHashMap<IJavaProject,AptProject>();
+	
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
 		super.start(context);
@@ -54,28 +62,10 @@ public class AptPlugin extends Plugin {
 		AptConfig.initialize();
 		AnnotationProcessorFactoryLoader.getLoader();
 		// register resource-changed listener
+		// TODO: can move this into AptProject.
 		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
 		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.addResourceChangeListener( new GeneratedResourceChangeListener(), mask );
-	
-		final IWorkspaceRoot root = workspace.getRoot();
-		if(root != null){
-			final IProject[] projects = root.getProjects();
-			try{
-				for( IProject proj : projects ){
-					if(DEBUG)
-						trace("updating project " + proj.getName() ); //$NON-NLS-1$
-					if( proj.hasNature(JavaCore.NATURE_ID) && proj.exists() && 
-						proj.isOpen() && AptConfig.isEnabled(JavaCore.create( proj ))){
-						final GeneratedFileManager mgr = GeneratedFileManager.getGeneratedFileManager(proj);
-						mgr.ensureGeneratedSourceFolder(null);
-					}
-				}
-			}
-			catch( JavaModelException e) { e.printStackTrace(); }
-		}
-		if( DEBUG )
-			trace("addded listener"); //$NON-NLS-1$
 	}
 
 	/**
@@ -161,6 +151,26 @@ public class AptPlugin extends Plugin {
 	public static void trace(final String msg){
 		if(DEBUG)
 			System.err.println("[ " + Thread.currentThread().getName() + " ] " + msg );  //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public static AptProject getAptProject(IJavaProject javaProject) {
+		synchronized (PROJECT_MAP) {
+			AptProject aptProject = PROJECT_MAP.get(javaProject);
+			if (aptProject != null) {
+				return aptProject;
+			}
+			else {
+				aptProject = new AptProject(javaProject);
+				PROJECT_MAP.put(javaProject, aptProject);
+				return aptProject;
+			}
+		}
+	}
+	
+	public static void deleteAptProject(IJavaProject javaProject) {
+		synchronized (PROJECT_MAP) {
+			PROJECT_MAP.remove(javaProject);
+		}
 	}
 	
 	public static boolean DEBUG = false;
