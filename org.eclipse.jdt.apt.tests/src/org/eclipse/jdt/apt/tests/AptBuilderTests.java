@@ -19,6 +19,8 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -50,8 +52,9 @@ public class AptBuilderTests extends APTTestBase
 		// remove old package fragment root so that names don't collide
 		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
 
-		TestUtil.createAndAddAnnotationJar( env
-			.getJavaProject( projectPath ) );
+		IJavaProject jproj = env.getJavaProject( projectPath );
+		AptConfig.setEnabled( jproj, true );
+		TestUtil.createAndAddAnnotationJar( jproj );
 		
 	}
 

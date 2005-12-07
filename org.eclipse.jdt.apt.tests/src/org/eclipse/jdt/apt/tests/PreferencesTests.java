@@ -105,13 +105,11 @@ public class PreferencesTests extends APTTestBase {
 		
 		// aptEnabled
 		AptConfig.setEnabled(jproj, false);
-		AptConfig.setEnabled(null, true);
 		assertFalse(AptConfig.isEnabled(jproj));
-		assertTrue(AptConfig.isEnabled(null));
-		AptConfig.setEnabled(null, true);
-		AptConfig.setEnabled(jproj, false);
-		assertFalse(AptConfig.isEnabled(jproj));
-		assertTrue(AptConfig.isEnabled(null));
+		assertFalse(AptConfig.isEnabled(null));
+		AptConfig.setEnabled(jproj, true);
+		assertTrue(AptConfig.isEnabled(jproj));
+		assertFalse(AptConfig.isEnabled(null));
 		
 		// processorOptions
 		Map<String, String> wkspOpts = new HashMap<String, String>(3);

@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -291,10 +292,7 @@ public class AptConfig {
 		for (IScopeContext context : contexts) {
 			IEclipsePreferences prefs = context.getNode(AptPlugin.PLUGIN_ID);
 			try {
-				// We use the presence of GENSRCDIR as an indicator for whether we've
-				// got any settings at this level.  If we write any settings we write
-				// them all, and GENSRCDIR can be set at any level.
-				if (prefs != null && prefs.get(AptPreferenceConstants.APT_GENSRCDIR, null) != null) {
+				if (prefs.childrenNames().length > 0) {
 					IEclipsePreferences procOptionsNode = context.getNode(
 							AptPlugin.PLUGIN_ID + "/" + AptPreferenceConstants.APT_PROCESSOROPTIONS); //$NON-NLS-1$
 					if (procOptionsNode != null) {
@@ -304,8 +302,8 @@ public class AptConfig {
 									null : nonNullVal;
 							options.put(key, val);
 						}
+						break;
 					}
-					break;
 				}
 			} catch (BackingStoreException e) {
 				AptPlugin.log(e, "Unable to load annotation processor options"); //$NON-NLS-1$
@@ -510,6 +508,13 @@ public class AptConfig {
 	 * @param enabled
 	 */
 	public static void setEnabled(IJavaProject jproject, boolean enabled) {
+		if (jproject == null && enabled == true) {
+			IllegalArgumentException e = new IllegalArgumentException();
+			IStatus status = AptPlugin.createWarningStatus(e, 
+				"Illegal attempt to enable annotation processing workspace-wide"); //$NON-NLS-1$
+			AptPlugin.log(status);
+			throw e;
+		}
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
 	

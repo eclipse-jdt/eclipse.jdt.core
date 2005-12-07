@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -66,8 +67,9 @@ public abstract class APTTestBase extends Tests{
 		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
 		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
 		
-		AptConfig.setEnabled(null, true);
-		TestUtil.createAndAddAnnotationJar( env.getJavaProject( projectPath ) );
+		IJavaProject jproj = env.getJavaProject( projectPath );
+		AptConfig.setEnabled(jproj, true);
+		TestUtil.createAndAddAnnotationJar( jproj );
 	}
 	
 	protected void tearDown()

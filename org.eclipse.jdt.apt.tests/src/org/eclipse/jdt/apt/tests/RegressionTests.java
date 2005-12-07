@@ -46,7 +46,6 @@ public class RegressionTests extends Tests {
 	public void setUp() throws Exception
 	{
 		super.setUp();
-		AptConfig.setEnabled(null, true);
 	}
 	
 	/**
@@ -87,6 +86,7 @@ public class RegressionTests extends Tests {
 		// Set some per-project preferences
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.addProcessorOption(jproj, "test.104032.a", "foo");
+		AptConfig.setEnabled(jproj, true);
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -110,6 +110,7 @@ public class RegressionTests extends Tests {
         env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
 
         IJavaProject javaProject = env.getJavaProject( projectPath ) ;
+		AptConfig.setEnabled(javaProject, true);
         TestUtil.createAndAddAnnotationJar(javaProject);
         IProject project = env.getProject( projName );
         IFolder srcFolder = project.getFolder( "src" );
