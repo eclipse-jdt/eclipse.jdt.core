@@ -216,6 +216,12 @@ public String[] getParameterNames() throws JavaModelException {
  			} catch(NumberFormatException e) {
  				// ignore
  			}
+ 			if (timeOut == 0) {
+ 				// don't try to fetch the values
+ 				return this.parameterNames = getRawParameterNames(paramCount);
+ 			} if (timeOut == -1) {
+ 				timeOut = 0; // infinite time out, wait until the fetching is complete
+ 			}
  			final class ParametersNameCollector {
  				String javadoc;
  				public void setJavadoc(String s) {
@@ -232,6 +238,7 @@ public String[] getParameterNames() throws JavaModelException {
 			Thread collect = new Thread() {
 				public void run() {
 					try {
+						// this call has a side-effect on the per project info cache
 						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null, "UTF-8")); //$NON-NLS-1$
 			        } catch (JavaModelException e) {
 	 		        	// ignore

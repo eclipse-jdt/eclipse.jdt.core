@@ -2466,8 +2466,10 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "disabled"
 	 *	CODEASSIST / Set the timeout value for retrieving the method's parameter names from javadoc
 	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
+	 *    If the value is 0, then it means don't fetch the parameter names (use default values). To denote an infinite timeout,
+	 *    use -1.
 	 *     - option id:         "org.eclipse.jdt.core.codeAssist.timeoutForParameterNames"
-	 *     - possible values:	"&lt;n&gt;", where n is a positive integer
+	 *     - possible values:	"&lt;n&gt;", where n is a integer greater or equals to 0, or -1 to denote that the timeout is infinite.
 	 *     - default:           "150"
 	 * </pre>
 	 * 
