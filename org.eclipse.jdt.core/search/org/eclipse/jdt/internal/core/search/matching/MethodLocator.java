@@ -483,22 +483,35 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	if (type == null) return; // case of a secondary type
 
 	char[] bindingSelector = methodBinding.selector;
+	boolean isBinary = type.isBinary();
+	IMethod method = null;
 	TypeBinding[] parameters = methodBinding.original().parameters;
 	int parameterLength = parameters.length;
-	String[] parameterTypes = new String[parameterLength];
-	for (int i = 0; i  < parameterLength; i++) {
-		char[] typeName = parameters[i].shortReadableName();
-		if (parameters[i].isMemberType()) {
-			typeName = CharOperation.subarray(typeName, CharOperation.indexOf('.', typeName)+1, typeName.length);
+	if (isBinary) {
+		char[][] parameterTypes = new char[parameterLength][];
+		for (int i = 0; i<parameterLength; i++) {
+			char[] typeName = parameters[i].qualifiedSourceName();
+			for (int j=0, dim=parameters[i].dimensions(); j<dim; j++) {
+				typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+			}
+			parameterTypes[i] = typeName;
 		}
-		parameterTypes[i] = Signature.createTypeSignature(typeName, false);
+		method = locator.createBinaryMethodHandle(type, methodBinding.selector, parameterTypes, locator);
+	} else {
+		String[] parameterTypes = new String[parameterLength];
+		for (int i = 0; i  < parameterLength; i++) {
+			char[] typeName = parameters[i].shortReadableName();
+			if (parameters[i].isMemberType()) {
+				typeName = CharOperation.subarray(typeName, CharOperation.indexOf('.', typeName)+1, typeName.length);
+			}
+			parameterTypes[i] = Signature.createTypeSignature(typeName, false);
+		}
+		method = type.getMethod(new String(bindingSelector), parameterTypes);
 	}
-	IMethod method = type.getMethod(new String(bindingSelector), parameterTypes);
-	if (knownMethods.includes(method)) return;
+	if (method == null || knownMethods.includes(method)) return;
 
 	knownMethods.add(method);
 	IResource resource = type.getResource();
-	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {
 		if (resource == null)

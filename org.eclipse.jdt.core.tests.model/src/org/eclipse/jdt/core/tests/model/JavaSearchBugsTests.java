@@ -46,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
 //	TESTS_NAMES = new String[] { "testBug110336e" };
-//	TESTS_NUMBERS = new int[] { 79267 };
+//	TESTS_NUMBERS = new int[] { 119545 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -5547,6 +5547,28 @@ public void testBug110336h() throws CoreException {
 		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" + 
 		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
 		collector
+	);
+}
+
+/**
+ * @test Bug 119545: [search] Binary java method model elements returned by SearchEngine have unresolved parameter types
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119545"
+ */
+public void testBug119545() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b119545/Test.java",
+		"package b119545;\n" + 
+		"class Test {\n" + 
+		"	void foo(Object o1, Object o2){\n" + 
+		"		if (o1.equals(o2)) {}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IMethod method = type.getMethods()[0];
+	searchDeclarationsOfSentMessages(method, this.resultCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH"
 	);
 }
 }

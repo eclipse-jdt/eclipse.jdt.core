@@ -519,7 +519,36 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 
 	return createMethodHandle(type, new String(method.selector), parameterTypeSignatures);
 }
-
+/*
+ * Create binary method handle
+ */
+IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] argumentTypeNames, MatchLocator locator) {
+	ClassFileReader reader = MatchLocator.classFileReader(type);
+	if (reader != null) {
+		IBinaryMethod[] methods = reader.getMethods();
+		if (methods != null) {
+			int argCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
+			nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
+				IBinaryMethod binaryMethod = methods[i];
+				char[] selector = binaryMethod.getSelector();
+				if (CharOperation.equals(selector, methodSelector)) {
+					char[] signature = binaryMethod.getGenericSignature();
+					if (signature == null) signature = binaryMethod.getMethodDescriptor();
+					char[][] parameterTypes = Signature.getParameterTypes(signature);
+					if (argCount != parameterTypes.length) continue nextMethod;
+					for (int j = 0; j < argCount; j++) {
+						char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
+						if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), argumentTypeNames[j]))
+							continue nextMethod;
+						parameterTypes[j] = parameterTypeName;
+					}
+					return (IMethod) locator.createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
+				}
+			}
+		}
+	}
+	return null;
+}
 /*
  * Create method handle.
  * Store occurences for create handle to retrieve possible duplicate ones.
