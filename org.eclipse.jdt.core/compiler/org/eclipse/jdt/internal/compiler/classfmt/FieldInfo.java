@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable, TypeIds {
+public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable {
 	private int accessFlags;
 	private int attributeBytes;
 	private Constant constant;
@@ -222,31 +222,31 @@ public Object getWrappedConstantValue() {
 		if (hasConstant()) {
 			Constant fieldConstant = getConstant();
 			switch (fieldConstant.typeID()) {
-				case T_int :
+				case TypeIds.T_int :
 					this.wrappedConstantValue = new Integer(fieldConstant.intValue());
 					break;
-				case T_byte :
+				case TypeIds.T_byte :
 					this.wrappedConstantValue = new Byte(fieldConstant.byteValue());
 					break;
-				case T_short :
+				case TypeIds.T_short :
 					this.wrappedConstantValue = new Short(fieldConstant.shortValue());
 					break;
-				case T_char :
+				case TypeIds.T_char :
 					this.wrappedConstantValue = new Character(fieldConstant.charValue());
 					break;
-				case T_float :
+				case TypeIds.T_float :
 					this.wrappedConstantValue = new Float(fieldConstant.floatValue());
 					break;
-				case T_double :
+				case TypeIds.T_double :
 					this.wrappedConstantValue = new Double(fieldConstant.doubleValue());
 					break;
-				case T_boolean :
+				case TypeIds.T_boolean :
 					this.wrappedConstantValue = Util.toBoolean(fieldConstant.booleanValue());
 					break;
-				case T_long :
+				case TypeIds.T_long :
 					this.wrappedConstantValue = new Long(fieldConstant.longValue());
 					break;
-				case T_JavaLangString :
+				case TypeIds.T_JavaLangString :
 					this.wrappedConstantValue = fieldConstant.stringValue();
 			}
 		}
