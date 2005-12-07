@@ -888,6 +888,14 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK= PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
 	
+	// TODO (olivier) remove warning for name change before 3.2 release
+	/**
+	 * Possible  configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String CODEASSIST_TIMEOUT_FOR_PARAMETER_NAMES = PLUGIN_ID + ".codeAssist.timeoutForParameterNames"; //$NON-NLS-1$
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -2456,6 +2464,11 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 *	CODEASSIST / Set the timeout value for retrieving the method's parameter names from javadoc
+	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
+	 *     - option id:         "org.eclipse.jdt.core.codeAssist.timeoutForParameterNames"
+	 *     - possible values:	"&lt;n&gt;", where n is a positive integer
+	 *     - default:           "150"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options

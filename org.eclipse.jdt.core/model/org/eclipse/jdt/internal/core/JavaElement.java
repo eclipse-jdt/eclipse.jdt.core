@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -709,7 +708,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			URLConnection connection = docUrl.openConnection();
 			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for opening connection for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			// time = System.currentTimeMillis();
-			if (SuffixConstants.EXTENSION_jar.equals(docUrl.getProtocol())) {
+			if ("jar".equals(docUrl.getProtocol())) { //$NON-NLS-1$
 				// if jar protocol is using a cache, some file descriptors are left behind and the resource cannot be deleted
 				connection.setUseCaches(false);
 			}

@@ -44,6 +44,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	private static final String[] NO_STRINGS = new String[0];
+	public static final String EMPTY_JAVADOC = new String();
 	
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
@@ -1013,8 +1014,8 @@ public String getJavadocContents(IProgressMonitor monitor, String defaultEncodin
 	String cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
 		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
-	}		
-	if (cachedJavadoc != null) {
+	}
+	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
 		return cachedJavadoc;
 	}
 	

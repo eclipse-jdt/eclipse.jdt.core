@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -195,26 +196,75 @@ public String[] getParameterNames() throws JavaModelException {
 	// try to see if we can retrieve the names from the attached javadoc
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-	// TODO (olivier) disable for now See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117740
-	if (true) {
-		// produce fake ones
-		return this.parameterNames = getRawParameterNames(paramCount);
-	}
 	if (paramCount != 0) {
-		String javadoc = null;
-		try {
-			javadoc = this.getAttachedJavadoc(null, "UTF-8"); //$NON-NLS-1$
-		} catch (JavaModelException e) {
-			// ignore
-		}
-		if (javadoc != null) {
-			final int indexOfOpenParen = javadoc.indexOf('(');
+ 		String javadocContents = null;
+ 		IType declaringType = this.getDeclaringType();
+		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+ 		synchronized (projectInfo.javadocCache) {
+ 			javadocContents = (String) projectInfo.javadocCache.get(declaringType);
+ 			if (javadocContents == null) {
+ 				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
+ 			}
+ 		}
+ 		if (javadocContents == null) {
+ 			long timeOut = 150; // default value
+ 			try {
+ 				String option = this.getJavaProject().getOption(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAMES, true);
+ 				if (option != null) {
+ 					timeOut = Long.parseLong(option);
+ 				}
+ 			} catch(NumberFormatException e) {
+ 				// ignore
+ 			}
+ 			final class ParametersNameCollector {
+ 				String javadoc;
+ 				public void setJavadoc(String s) {
+ 					this.javadoc = s;
+ 				}
+ 				public String getJavadoc() {
+ 					return this.javadoc;
+ 				}
+ 	 		}
+ 			/*
+ 			 * The declaring type is not in the cache yet. The thread wil retrieve the javadoc contents
+ 			 */
+	 		final ParametersNameCollector nameCollector = new ParametersNameCollector();
+			Thread collect = new Thread() {
+				public void run() {
+					try {
+						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null, "UTF-8")); //$NON-NLS-1$
+			        } catch (JavaModelException e) {
+	 		        	// ignore
+	 		        }
+					synchronized(nameCollector) {
+						nameCollector.notify();
+					}
+				}
+			};
+			collect.start();
+			synchronized(nameCollector) {
+				try {
+					nameCollector.wait(timeOut);
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
+			javadocContents = nameCollector.getJavadoc();
+ 		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
+ 			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
+ 			javadocContents = extractJavadoc(declaringType, javadocContents);
+ 		} else {
+ 			// we don't want to set the parameter names
+ 			return getRawParameterNames(paramCount);
+ 		}
+		if (javadocContents != null && javadocContents != BinaryType.EMPTY_JAVADOC) {
+			final int indexOfOpenParen = javadocContents.indexOf('(');
 			if (indexOfOpenParen != -1) {
-				final int indexOfClosingParen = javadoc.indexOf(')', indexOfOpenParen);
+				final int indexOfClosingParen = javadocContents.indexOf(')', indexOfOpenParen);
 				if (indexOfClosingParen != -1) {
 					final char[] paramsSource =
 						CharOperation.replace(
-							javadoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
+							javadocContents.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
 							"&nbsp;".toCharArray(), //$NON-NLS-1$
 							new char[] {' '});
 					final char[][] params = CharOperation.splitOn(',', paramsSource);
@@ -436,6 +486,9 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	IType declaringType = this.getDeclaringType();
 
 	String contents = ((BinaryType) declaringType).getJavadocContents(monitor, defaultEncoding);
+	return extractJavadoc(declaringType, contents);
+}
+private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 
 	String typeQualifiedName = declaringType.getTypeQualifiedName('.');
