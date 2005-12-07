@@ -5778,7 +5778,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		}\n" + 
 			"	}\n" + 
 			"}";
-	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 	   	if (bindings[0] != null) {
 	   		// should not get here if patch 100584 applied
 		   	try {
@@ -5942,7 +5942,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"	</*start*/T/*end*/> void foo() {\n" + 
 				"	}\n" + 
 				"}";
-		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 		   	assertBindingsEqual(
 		   		"LX;.foo<T:>():TT;",
 		   		bindings);

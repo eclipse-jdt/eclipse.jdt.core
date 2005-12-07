@@ -448,7 +448,14 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * Resolve the bindings of the nodes marked with *start?* and *end?*.
 	 */
 	protected IBinding[] resolveBindings(String contents, ICompilationUnit cu) throws JavaModelException {
-		ASTNode[] nodes = buildASTs(contents, cu, false /* do not report errors */);
+		return resolveBindings(contents, cu, true/*report errors*/);
+	}
+
+	/*
+	 * Resolve the bindings of the nodes marked with *start?* and *end?*.
+	 */
+	protected IBinding[] resolveBindings(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(contents, cu, reportErrors);
 		if (nodes == null) return null;
 		int length = nodes.length;
 		IBinding[] result = new IBinding[length];
