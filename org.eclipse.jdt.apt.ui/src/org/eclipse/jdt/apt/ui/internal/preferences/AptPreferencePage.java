@@ -26,7 +26,9 @@ public class AptPreferencePage extends BasePreferencePage {
 
 	public AptPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
-		//setDescription(Messages.AptPreferencePage_preferences);
+		
+		// only shown for workspace preferences
+		setDescription(Messages.AptPreferencePage_preferences);
 		
 		// only used when page is shown programatically
 		setTitle(Messages.AptPreferencePage_preferencesTitle);

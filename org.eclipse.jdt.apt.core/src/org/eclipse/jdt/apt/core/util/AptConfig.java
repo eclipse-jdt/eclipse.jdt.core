@@ -260,6 +260,8 @@ public class AptConfig {
      * store and that are displayed in the configuration GUI.
      * 
      * @param jproj a project, or null to query the workspace-wide setting.
+     * If jproj is not null, but the project has no per-project settings,
+     * this method will fall back to the workspace-wide settings.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
      * The value part of a pair may be null (equivalent to "-Akey").
      * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
@@ -276,7 +278,8 @@ public class AptConfig {
 		
 		// Fall back from project to workspace scope on an all-or-nothing basis,
 		// not value by value.  (Never fall back to default scope; there are no
-		// default processor options.)
+		// default processor options.)  We can't use IPreferencesService for this
+		// as we would normally do, because we don't know the names of the keys.
 		IScopeContext[] contexts;
 		if (jproj != null) {
 			contexts = new IScopeContext[] { 
@@ -287,8 +290,11 @@ public class AptConfig {
 		}
 		for (IScopeContext context : contexts) {
 			IEclipsePreferences prefs = context.getNode(AptPlugin.PLUGIN_ID);
-			if (prefs != null) {
-				try {
+			try {
+				// We use the presence of GENSRCDIR as an indicator for whether we've
+				// got any settings at this level.  If we write any settings we write
+				// them all, and GENSRCDIR can be set at any level.
+				if (prefs != null && prefs.get(AptPreferenceConstants.APT_GENSRCDIR, null) != null) {
 					IEclipsePreferences procOptionsNode = context.getNode(
 							AptPlugin.PLUGIN_ID + "/" + AptPreferenceConstants.APT_PROCESSOROPTIONS); //$NON-NLS-1$
 					if (procOptionsNode != null) {
@@ -299,10 +305,10 @@ public class AptConfig {
 							options.put(key, val);
 						}
 					}
-				} catch (BackingStoreException e) {
-					AptPlugin.log(e, "Unable to load annotation processor options"); //$NON-NLS-1$
+					break;
 				}
-				break;
+			} catch (BackingStoreException e) {
+				AptPlugin.log(e, "Unable to load annotation processor options"); //$NON-NLS-1$
 			}
 		}
 		return options;
@@ -563,7 +569,7 @@ public class AptConfig {
 			AnnotationProcessorFactoryLoader.getLoader().resetAll();
 		}
 	}
-
+	
 	/**
 	 * Has an explicit factory path been set for the specified project, or
 	 * is it just defaulting to the workspace settings? 

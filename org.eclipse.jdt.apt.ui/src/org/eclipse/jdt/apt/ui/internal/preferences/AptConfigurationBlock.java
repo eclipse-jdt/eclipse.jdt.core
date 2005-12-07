@@ -103,7 +103,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 
 		public void selectionChanged(ListDialogField field) {
 			List selectedElements= field.getSelectedElements();
-			field.enableButton(IDX_EDIT, canEdit(selectedElements));
+			field.enableButton(IDX_EDIT, canEdit(field, selectedElements));
 		}
 			
 		public void doubleClicked(ListDialogField field) {
@@ -114,13 +114,15 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			updateModel(field);
 		}			
 
-		private boolean canEdit(List selectedElements) {
+		private boolean canEdit(DialogField field, List selectedElements) {
+			if (!field.isEnabled())
+				return false;
 			return selectedElements.size() == 1;
 		}
 		
 		private void tryToEdit(ListDialogField field) {
 			List<ProcessorOption> selection= getListSelection();
-			if (canEdit(selection)) {
+			if (canEdit(field, selection)) {
 				editOrAddProcessorOption(selection.get(0));
 			}
 		}
@@ -179,9 +181,14 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 		UpdateAdapter adapter= new UpdateAdapter();
 		
-		fAptEnabledField= new SelectionButtonDialogField(SWT.CHECK);
-		fAptEnabledField.setDialogFieldListener(adapter);
-		fAptEnabledField.setLabelText(Messages.AptConfigurationBlock_enable);
+		if (fJProj != null) {
+			fAptEnabledField= new SelectionButtonDialogField(SWT.CHECK);
+			fAptEnabledField.setDialogFieldListener(adapter);
+			fAptEnabledField.setLabelText(Messages.AptConfigurationBlock_enable);
+		}
+		else {
+			fAptEnabledField = null;
+		}
 		
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
@@ -211,8 +218,17 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		} else {
 			fProcessorOptionsField.enableButton(IDX_EDIT, false);
 		}
+		
 	}
 	
+	/* 
+	 * At workspace level, don't ask for a rebuild.
+	 */
+	@Override
+	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
+		return workspaceSettings ? null : super.getFullBuildDialogStrings(workspaceSettings);
+	}
+
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
@@ -256,11 +272,16 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 		fBlockControl.setLayout(layout);
 		
-		DialogField[] fields = new DialogField[] {
-			fAptEnabledField,
-			fGenSrcDirField,
-			fProcessorOptionsField,
-		};
+		DialogField[] fields = fAptEnabledField != null ? 
+				new DialogField[] {
+					fAptEnabledField,
+					fGenSrcDirField,
+					fProcessorOptionsField,
+				} :
+				new DialogField[] {
+					fGenSrcDirField,
+					fProcessorOptionsField,
+				};
 		LayoutUtil.doDefaultLayout(fBlockControl, fields, true, SWT.DEFAULT, SWT.DEFAULT);
 		LayoutUtil.setHorizontalGrabbing(fProcessorOptionsField.getListControl(null));
 
@@ -391,8 +412,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	@Override
 	protected void updateControls() {
-		boolean aptEnabled= Boolean.valueOf(getValue(KEY_APTENABLED)).booleanValue();
-		fAptEnabledField.setSelection(aptEnabled);
+		if (fAptEnabledField != null) {
+			boolean aptEnabled= Boolean.valueOf(getValue(KEY_APTENABLED)).booleanValue();
+			fAptEnabledField.setSelection(aptEnabled);
+		}
 		String str= getValue(KEY_GENSRCDIR);
 		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
 	}	
@@ -402,7 +425,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	protected final void updateModel(DialogField field) {
 		
-		if (field == fAptEnabledField) {
+		if (fAptEnabledField != null && field == fAptEnabledField) {
 			String newVal = String.valueOf(fAptEnabledField.isSelected());
 			setValue(KEY_APTENABLED, newVal);
 		} else if (field == fGenSrcDirField) {
