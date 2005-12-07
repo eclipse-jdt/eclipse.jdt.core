@@ -245,7 +245,7 @@ public boolean isConstructor() {
  * @return boolean
  */
 public boolean isSynthetic() {
-	return (getModifiers() & AccSynthetic) != 0;
+	return (getModifiers() & ClassFileConstants.AccSynthetic) != 0;
 }
 private void readExceptionAttributes() {
 	int attributesCount = u2At(6);
@@ -290,15 +290,15 @@ private void readModifierRelatedAttributes() {
 			switch(attributeName[0]) {
 				case 'D' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
-						this.accessFlags |= AccDeprecated;
+						this.accessFlags |= ClassFileConstants.AccDeprecated;
 					break;
 				case 'S' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
-						this.accessFlags |= AccSynthetic;
+						this.accessFlags |= ClassFileConstants.AccSynthetic;
 					break;
 				case 'A' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName))
-						this.accessFlags |= AccAnnotationDefault;
+						this.accessFlags |= ClassFileConstants.AccAnnotationDefault;
 					break;
 			}
 		}
@@ -326,7 +326,7 @@ public String toString() {
 	return buffer
 		.append("{") //$NON-NLS-1$
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			((modifiers & ClassFileConstants.AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$

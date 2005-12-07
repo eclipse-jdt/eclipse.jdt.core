@@ -277,7 +277,7 @@ void initialize() {
  * @return boolean
  */
 public boolean isSynthetic() {
-	return (getModifiers() & AccSynthetic) != 0;
+	return (getModifiers() & ClassFileConstants.AccSynthetic) != 0;
 }
 
 private void readConstantAttribute() {
@@ -293,7 +293,7 @@ private void readConstantAttribute() {
 			// read the right constant
 			int relativeOffset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
 			switch (u1At(relativeOffset)) {
-				case IntegerTag :
+				case ClassFileConstants.IntegerTag :
 					char[] sign = getTypeName();
 					if (sign.length == 1) {
 						switch (sign[0]) {
@@ -319,16 +319,16 @@ private void readConstantAttribute() {
 						constant = Constant.NotAConstant;
 					}
 					break;
-				case FloatTag :
+				case ClassFileConstants.FloatTag :
 					constant = new FloatConstant(floatAt(relativeOffset + 1));
 					break;
-				case DoubleTag :
+				case ClassFileConstants.DoubleTag :
 					constant = new DoubleConstant(doubleAt(relativeOffset + 1));
 					break;
-				case LongTag :
+				case ClassFileConstants.LongTag :
 					constant = new LongConstant(i8At(relativeOffset + 1));
 					break;
-				case StringTag :
+				case ClassFileConstants.StringTag :
 					utf8Offset = constantPoolOffsets[u2At(relativeOffset + 1)] - structOffset;
 					constant = 
 						new StringConstant(
@@ -353,11 +353,11 @@ private void readModifierRelatedAttributes() {
 			switch(attributeName[0]) {
 				case 'D' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
-						this.accessFlags |= AccDeprecated;
+						this.accessFlags |= ClassFileConstants.AccDeprecated;
 					break;
 				case 'S' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
-						this.accessFlags |= AccSynthetic;
+						this.accessFlags |= ClassFileConstants.AccSynthetic;
 					break;
 			}
 		}
@@ -385,7 +385,7 @@ public String toString() {
 	return buffer
 		.append("{") //$NON-NLS-1$
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			((modifiers & ClassFileConstants.AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
