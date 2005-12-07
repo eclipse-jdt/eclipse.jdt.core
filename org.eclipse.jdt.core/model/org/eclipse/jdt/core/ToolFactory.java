@@ -13,10 +13,12 @@ package org.eclipse.jdt.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -155,9 +157,20 @@ public class ToolFactory {
 					String entryName = org.eclipse.jdt.internal.core.util.Util.concatWith(packageFragment.names, classFileName, '/');
 					return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
 				} else {
-					IPath location = classfile.getResource().getLocation();
-					if (location == null) return null;
-					return createDefaultClassFileReader(location.toOSString(), decodingFlag);
+					URI uri = classfile.getResource().getLocationURI();
+					if (uri == null) return null;
+					InputStream in = null;
+					try {
+						in = EFS.getStore(uri).openInputStream(EFS.NONE, null);
+						return createDefaultClassFileReader(in, decodingFlag);
+					} finally {
+						if (in != null)
+							try {
+								in.close();
+							} catch (IOException e) {
+								// ignore
+							}
+					}
 				}
 			} catch(CoreException e){
 				// unable to read

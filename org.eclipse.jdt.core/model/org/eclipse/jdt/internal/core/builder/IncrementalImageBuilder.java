@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -674,9 +675,10 @@ protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newByt
 				if (newBytes[i] != oldBytes[i]) break notEqual;
 			return false; // bytes are identical so skip them
 		}
-		IPath location = file.getLocation();
-		if (location == null) return false; // unable to determine location of this class file
-		ClassFileReader reader = new ClassFileReader(oldBytes, location.toString().toCharArray());
+		URI uri = file.getLocationURI();
+		if (uri == null) return false; // unable to determine location of this class file
+		String filePath = uri.getPath();
+		ClassFileReader reader = new ClassFileReader(oldBytes, filePath.toCharArray());
 		// ignore local types since they're only visible inside a single method
 		if (!(reader.isLocal() || reader.isAnonymous()) && reader.hasStructuralChanges(newBytes)) {
 			if (JavaBuilder.DEBUG)

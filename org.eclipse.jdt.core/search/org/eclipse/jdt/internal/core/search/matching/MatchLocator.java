@@ -256,7 +256,7 @@ public static ClassFileReader classFileReader(IType type) {
 	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 	try {
 		if (!root.isArchive())
-			return ClassFileReader.read(type.getResource().getLocation().toOSString());
+			return Util.newClassFileReader(type.getResource());
 
 		IPath zipPath = root.isExternal() ? root.getPath() : root.getResource().getLocation();
 		if (zipPath == null) return null; // location is null
@@ -735,8 +735,7 @@ protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) thr
 			}
 		} else {
 			// class file in a directory
-			String osPath = resource.getLocation().toOSString();
-			info = ClassFileReader.read(osPath);
+			info = Util.newClassFileReader(resource);
 		}
 		if (info == null) throw binaryType.newNotPresentException();
 		return info;

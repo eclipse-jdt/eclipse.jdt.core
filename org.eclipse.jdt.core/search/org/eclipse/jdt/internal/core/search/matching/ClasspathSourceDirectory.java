@@ -16,17 +16,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
+import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathSourceDirectory extends ClasspathLocation {
 
 	IContainer sourceFolder;
-	String sourceLocation; 
-	String encoding;
 	SimpleLookupTable directoryCache;
 	String[] missingPackageHolder = new String[1];
 	char[][] fullExclusionPatternChars;
@@ -34,15 +32,6 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 
 ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternChars, char[][] fulInclusionPatternChars) {
 	this.sourceFolder = sourceFolder;
-	IPath location = sourceFolder.getLocation();
-	this.sourceLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
-	// Store default encoding
-	try {
-		this.encoding = this.sourceFolder.getDefaultCharset();
-	}
-	catch (CoreException ce) {
-		// let use no encoding by default
-	}
 	this.directoryCache = new SimpleLookupTable(5);
 	this.fullExclusionPatternChars = fullExclusionPatternChars;
 	this.fulInclusionPatternChars = fulInclusionPatternChars;
@@ -108,19 +97,11 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 		if (!doesFileExist(sourceFileName, qualifiedPackageName)) continue; // most common case
 	
 		String qualifiedSourceFileName = qualifiedSourceFileWithoutExtension + extension;
-		String fullSourcePath = this.sourceLocation + qualifiedSourceFileName;
 		if (org.eclipse.jdt.internal.compiler.util.Util.isExcluded((sourceFolderPath + qualifiedSourceFileName).toCharArray(), this.fulInclusionPatternChars, this.fullExclusionPatternChars, false/*not a folder path*/))
 			continue;
 		IPath path = new Path(qualifiedSourceFileName);
 		IFile file = this.sourceFolder.getFile(path);
-		String fileEncoding = this.encoding;
-		try {
-			fileEncoding = file.getCharset();
-		}
-		catch (CoreException ce) {
-			// let use default encoding
-		}
-		return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding), null /* no access restriction */);
+		return new NameEnvironmentAnswer(new ResourceCompilationUnit(file), null /* no access restriction */);
 	}
 	return null;
 }
@@ -142,7 +123,7 @@ public String toString() {
 }
 
 public String debugPathString() {
-	return this.sourceLocation;
+	return this.sourceFolder.getFullPath().toString();
 }
 
 }

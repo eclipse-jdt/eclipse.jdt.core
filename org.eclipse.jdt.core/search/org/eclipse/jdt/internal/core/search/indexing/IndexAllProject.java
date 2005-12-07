@@ -11,8 +11,10 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashSet;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -137,7 +139,7 @@ public class IndexAllProject extends IndexRequest {
 										case IResource.FILE :
 											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 												IFile file = (IFile) proxy.requestResource();
-												if (file.getLocation() == null) return false;
+												if (file.getLocationURI() == null) return false;
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
@@ -161,20 +163,21 @@ public class IndexAllProject extends IndexRequest {
 					} else {
 						sourceFolder.accept(
 							new IResourceProxyVisitor() {
-								public boolean visit(IResourceProxy proxy) {
+								public boolean visit(IResourceProxy proxy) throws CoreException {
 									if (isCancelled) return false;
 									switch(proxy.getType()) {
 										case IResource.FILE :
 											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 												IFile file = (IFile) proxy.requestResource();
-												IPath location = file.getLocation();
-												if (location == null) return false;
+												URI uri = file.getLocationURI();
+												if (uri == null) return false;
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
 												String relativePathString = Util.relativePath(file.getFullPath(), 1/*remove project segment*/);
 												indexedFileNames.put(relativePathString,
-													indexedFileNames.get(relativePathString) == null || indexLastModified < location.toFile().lastModified()
+													indexedFileNames.get(relativePathString) == null 
+															|| indexLastModified < EFS.getStore(uri).fetchInfo().getLastModified()
 														? (Object) file
 														: (Object) OK);
 											}

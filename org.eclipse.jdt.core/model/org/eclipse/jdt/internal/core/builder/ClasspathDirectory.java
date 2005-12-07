@@ -10,20 +10,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathDirectory extends ClasspathLocation {
 
 IContainer binaryFolder; // includes .class files for a single directory
 boolean isOutputFolder;
-String binaryLocation;
 SimpleLookupTable directoryCache;
 String[] missingPackageHolder = new String[1];
 AccessRuleSet accessRuleSet;
@@ -31,8 +34,6 @@ AccessRuleSet accessRuleSet;
 ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder;
-	IPath location = binaryFolder.getLocation();
-	this.binaryLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
 	this.directoryCache = new SimpleLookupTable(5);
 	this.accessRuleSet = accessRuleSet;
 }
@@ -94,34 +95,21 @@ public boolean equals(Object o) {
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
 
+	ClassFileReader reader = null;
 	try {
-		ClassFileReader reader = ClassFileReader.read(binaryLocation + qualifiedBinaryFileName);
-		if (reader != null) {
-			if (this.accessRuleSet == null)
-				return new NameEnvironmentAnswer(reader, null);
-			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
-			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
-		}
-	} catch (Exception e) {
-		// handle the case when the project is the output folder and the top-level package is a linked folder
-		if (binaryFolder instanceof IProject) {
-			IResource file = binaryFolder.findMember(qualifiedBinaryFileName);
-			if (file instanceof IFile) {
-				IPath location = file.getLocation();
-				if (location != null) {
-					try {
-						ClassFileReader reader = ClassFileReader.read(location.toString());
-						if (reader != null) {
-							if (this.accessRuleSet == null)
-								return new NameEnvironmentAnswer(reader, null);
-							String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
-							return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
-						}
-					} catch (Exception ignored) { // treat as if class file is missing
-					}
-				}
-			}
-		}
+		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
+	} catch (CoreException e) {
+		return null;
+	} catch (ClassFormatException e) {
+		return null;
+	} catch (IOException e) {
+		return null;
+	}
+	if (reader != null) {
+		if (this.accessRuleSet == null)
+			return new NameEnvironmentAnswer(reader, null);
+		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 	}
 	return null;
 }
@@ -154,7 +142,7 @@ public String toString() {
 }
 
 public String debugPathString() {
-	return this.binaryLocation;
+	return this.binaryFolder.getFullPath().toString();
 }
 
 

@@ -11,10 +11,13 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.content.IContentType;
@@ -736,6 +739,7 @@ public class Util {
 		}
 		return null;
 	}
+	
 	/**
 	 * Returns the registered Java like extensions.
 	 */
@@ -780,48 +784,45 @@ public class Util {
 	 */
 	public static long getJdkLevel(Object targetLibrary) {
 		try {
-				ClassFileReader reader = null;
-				if (targetLibrary instanceof IFolder) {
-					IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
-					if (classFile != null) {
-						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);
-						IPath location = classFile.getLocation();
-						reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
+			ClassFileReader reader = null;
+			if (targetLibrary instanceof IFolder) {
+				IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
+				if (classFile != null)
+					reader = Util.newClassFileReader(classFile);
+			} else {
+				// root is a jar file or a zip file
+				ZipFile jar = null;
+				try {
+					IPath path = null;
+					if (targetLibrary instanceof IResource) {
+						path = ((IResource)targetLibrary).getLocation();
+					} else if (targetLibrary instanceof File){
+						File f = (File) targetLibrary;
+						if (!f.isDirectory()) {
+							path = new Path(((File)targetLibrary).getPath());
+						}
 					}
-				} else {
-					// root is a jar file or a zip file
-					ZipFile jar = null;
-					try {
-						IPath path = null;
-						if (targetLibrary instanceof IResource) {
-							path = ((IResource)targetLibrary).getLocation();
-						} else if (targetLibrary instanceof File){
-							File f = (File) targetLibrary;
-							if (!f.isDirectory()) {
-								path = new Path(((File)targetLibrary).getPath());
+					if (path != null) {
+						jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+							ZipEntry member= (ZipEntry) e.nextElement();
+							String entryName= member.getName();
+							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+								reader = ClassFileReader.read(jar, entryName);
+								break;
 							}
 						}
-						if (path != null) {
-							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-								ZipEntry member= (ZipEntry) e.nextElement();
-								String entryName= member.getName();
-								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-									reader = ClassFileReader.read(jar, entryName);
-									break;
-								}
-							}
-						}
-					} catch (CoreException e) {
-						// ignore
-					} finally {
-						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
+				} catch (CoreException e) {
+					// ignore
+				} finally {
+					JavaModelManager.getJavaModelManager().closeZipFile(jar);
 				}
-				if (reader != null) {
-					return reader.getVersion();
-				}
-		} catch(JavaModelException e) {
+			}
+			if (reader != null) {
+				return reader.getVersion();
+			}
+		} catch (CoreException e) {
 			// ignore
 		} catch(ClassFormatException e) {
 			// ignore
@@ -1358,6 +1359,20 @@ public class Util {
 		JavaCore.getPlugin().getLog().log(status);
 	}	
 	
+	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
+		InputStream in = null;
+		try {
+			URI uri = resource.getLocationURI();
+			if (uri == null) return null;
+			IFileStore store = EFS.getStore(uri);
+			in = store.openInputStream(EFS.NONE, null);
+			return ClassFileReader.read(in, uri.getPath());
+		} finally {
+			if (in != null)
+				in.close();
+		}
+	}
+
 	/**
 	 * Normalizes the cariage returns in the given text.
 	 * They are all changed  to use the given buffer's line separator.

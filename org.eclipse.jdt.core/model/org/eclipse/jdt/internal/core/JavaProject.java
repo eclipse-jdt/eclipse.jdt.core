@@ -2217,20 +2217,23 @@ public class JavaProject
 			// when a project is imported, we get a first delta for the addition of the .project, but the .classpath is not accessible
 			// so default to using java.io.File
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96258
-			File file  = rscFile.getLocation().toFile();
-			if (file.exists()) {
-				byte[] bytes;
-				try {
-					bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
-				} catch (IOException e) {
-					return null;
-				}
-				try {
-					property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
-				} catch (UnsupportedEncodingException e) {
-					Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
-					// fallback to default
-					property = new String(bytes);
+			IPath location = rscFile.getLocation();
+			if (location != null) {
+				File file = location.toFile();
+				if (file.exists()) {
+					byte[] bytes;
+					try {
+						bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
+					} catch (IOException e) {
+						return null;
+					}
+					try {
+						property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
+					} catch (UnsupportedEncodingException e) {
+						Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
+						// fallback to default
+						property = new String(bytes);
+					}
 				}
 			}
 		}

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.hierarchy;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -25,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class HierarchyBuilder {
@@ -247,9 +250,9 @@ public abstract class HierarchyBuilder {
 /**
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
 	final char[] elementName = handle.getElementName().toCharArray();
-	return new BasicCompilationUnit(null/* no source*/, null/* no package */, osPath, handle) {
+	return new ResourceCompilationUnit(file) {
 		public char[] getFileName() {
 			return elementName;
 		}
@@ -259,16 +262,21 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String
  * Creates the type info from the given class file on disk and
  * adds it to the given list of infos.
  */
-protected IBinaryType createInfoFromClassFile(Openable handle, String osPath) {
+protected IBinaryType createInfoFromClassFile(Openable handle, IResource file) {
 	IBinaryType info = null;
 	try {
-		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
+		info = Util.newClassFileReader(file);
 	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
 		if (TypeHierarchy.DEBUG) {
 			e.printStackTrace();
 		}
 		return null;
 	} catch (java.io.IOException e) {
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
+		return null;
+	} catch (CoreException e) {
 		if (TypeHierarchy.DEBUG) {
 			e.printStackTrace();
 		}
