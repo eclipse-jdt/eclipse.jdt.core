@@ -79,7 +79,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testNoResourceChange04"};
+//	TESTS_NAMES = new String[] {"testClasspathCrossProject"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -477,13 +477,10 @@ public void testClasspathCrossProject() throws CoreException {
 		project.setRawClasspath(newClasspath, null);
 		project.getAllPackageFragmentRoots();
 		IJavaElementDelta removedDelta= getDeltaFor(oldRoot, true);
-		assertTrue("Deltas not correct for crossproject classpath setting", 
-			this.deltaListener.deltas.length == 1 &&
-			this.deltaListener.deltas[0].getAffectedChildren().length == 1 &&
-			removedDelta.getElement().equals(oldRoot) &&
-			removedDelta.getKind() == IJavaElementDelta.CHANGED &&
-			(removedDelta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0
-		);
+		assertDeltas(
+			"Unexpected delta", 
+			"<project root>[*]: {REMOVED FROM CLASSPATH}", 
+			removedDelta);
 	} finally {
 		stopDeltas();
 		this.deleteProjects(new String[] {"P1", "P2"});
