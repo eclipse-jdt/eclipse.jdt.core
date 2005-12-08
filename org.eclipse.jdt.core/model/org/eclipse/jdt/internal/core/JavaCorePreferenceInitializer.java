@@ -86,7 +86,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		defaultOptionsMap.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.DISABLED);
-		defaultOptionsMap.put(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAMES, "150"); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
 		
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);

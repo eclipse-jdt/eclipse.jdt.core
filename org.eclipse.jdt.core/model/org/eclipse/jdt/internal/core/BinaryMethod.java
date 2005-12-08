@@ -175,9 +175,9 @@ public String[] getParameterNames() throws JavaModelException {
  			}
  		}
  		if (javadocContents == null) {
- 			long timeOut = 150; // default value
+ 			long timeOut = 50; // default value
  			try {
- 				String option = this.getJavaProject().getOption(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAMES, true);
+ 				String option = this.getJavaProject().getOption(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
  				if (option != null) {
  					timeOut = Long.parseLong(option);
  				}
@@ -187,8 +187,6 @@ public String[] getParameterNames() throws JavaModelException {
  			if (timeOut == 0) {
  				// don't try to fetch the values
  				return this.parameterNames = getRawParameterNames(paramCount);
- 			} if (timeOut == -1) {
- 				timeOut = 0; // infinite time out, wait until the fetching is complete
  			}
  			final class ParametersNameCollector {
  				String javadoc;

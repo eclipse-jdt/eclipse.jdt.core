@@ -805,6 +805,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	protected WeakHashMap searchScopes = new WeakHashMap();
 
 	public static class PerProjectInfo {
+		private static final int JAVADOC_CACHE_INITIAL_SIZE = 10;
 		
 		public IProject project;
 		public Object savedState;
@@ -824,7 +825,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
-			this.javadocCache = new LRUCache(5);
+			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
 		
 		public void rememberExternalLibTimestamps() {
@@ -853,7 +854,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.rawClasspath = newRawClasspath;
 			this.resolvedClasspath = null;
 			this.resolvedPathToRawEntries = null;
-			this.javadocCache = new LRUCache(5);
+			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
