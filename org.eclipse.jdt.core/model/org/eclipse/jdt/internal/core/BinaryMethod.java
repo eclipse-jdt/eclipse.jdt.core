@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
@@ -24,34 +23,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 /* package */ class BinaryMethod extends BinaryMember implements IMethod {
-	
-	class DecodeParametersNames extends SourceElementRequestorAdapter {
-			String[] parametersNames;
-		
-			public void enterMethod(MethodInfo methodInfo) {
-					if (methodInfo.parameterNames != null) {
-						int length = methodInfo.parameterNames.length;
-						this.parametersNames = new String[length];
-						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
-						}
-					}
-				}
-				
-			public void enterConstructor(MethodInfo methodInfo) {
-					if (methodInfo.parameterNames != null) {
-						int length = methodInfo.parameterNames.length;
-						this.parametersNames = new String[length];
-						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
-						}
-					}
-				}
-				
-				public String[] getParametersNames() {
-					return this.parametersNames;
-				}
-	}
 
 	/**
 	 * The parameter type signatures of the method - stored locally
