@@ -46,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
 //	TESTS_NAMES = new String[] { "testBug110336e" };
-//	TESTS_NUMBERS = new int[] { 119545 };
+//	TESTS_NUMBERS = new int[] { 110291, 110422 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -2844,6 +2844,7 @@ public void testBug92944_TYPE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
 		"b108088.A108088\n" + 
 		"b108088.B108088\n" + 
 		"b108088.Test108088\n" + 
@@ -2909,6 +2910,7 @@ public void testBug92944_CLASS() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
 		"b108088.A108088\n" + 
 		"b108088.B108088\n" + 
 		"b108088.Test108088\n" + 
@@ -2969,6 +2971,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
 		"b108088.A108088\n" + 
 		"b108088.B108088\n" + 
 		"b108088.Test108088\n" + 
@@ -3032,6 +3035,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
 		"b108088.A108088\n" + 
 		"b108088.B108088\n" + 
 		"b108088.Test108088\n" + 
@@ -5317,6 +5321,41 @@ public void testBug110060_FieldPattern05() throws CoreException {
 		"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.oF [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110291: [search] BasicSearchEngine return constructor declarations that doesn't exist in source
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110291"
+ */
+public void testBug110291() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110291/TestXX.java",
+		"package b110291;\n" + 
+		"public class TestXX {\n" + 
+		"	class TestYY {}" +
+		"}\n"
+	);
+	search("Test", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"src/b110291/TestXX.java b110291.TestXX$TestYY [TestYY] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110422: [search] BasicSearchEngine doesn't find all type declarations
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110422"
+ */
+public void testBug110422a() throws CoreException {
+	search("TestP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+	);
+}
+public void testBug110422b() throws CoreException {
+	search("TESTP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
 	);
 }
 

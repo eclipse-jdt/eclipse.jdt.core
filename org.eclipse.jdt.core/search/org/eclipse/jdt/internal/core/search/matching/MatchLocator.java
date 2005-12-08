@@ -1882,7 +1882,7 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the method declaration has already been checked.
  */
-protected void reportMatching(AbstractMethodDeclaration method, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
+protected void reportMatching(TypeDeclaration type, AbstractMethodDeclaration method, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
 	IJavaElement enclosingElement = null;
 	if (accuracy > -1) {
 		enclosingElement = createHandle(method, parent);
@@ -1898,9 +1898,18 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 				// ignore
 			}
 			if (encloses(enclosingElement)) {
-				int length = scanner.currentPosition - nameSourceStart;
-				SearchMatch match = this.patternLocator.newDeclarationMatch(method, enclosingElement, method.binding, accuracy, length, this);
-				if (match != null) report(match);
+				SearchMatch match = null;
+				if (method.isDefaultConstructor()) {
+					// Use type for match associated element as default constructor does not exist in source
+					int offset = type.sourceStart;
+					match = this.patternLocator.newDeclarationMatch(type, parent, type.binding, accuracy, type.sourceEnd-offset+1, this);
+				} else {
+					int length = scanner.currentPosition - nameSourceStart;
+					match = this.patternLocator.newDeclarationMatch(method, enclosingElement, method.binding, accuracy, length, this);
+				}
+				if (match != null) {
+					report(match);
+				}
 			}
 		}
 	}
@@ -2346,7 +2355,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			AbstractMethodDeclaration method = methods[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(method);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
-			reportMatching(method, enclosingElement, value, typeInHierarchy, nodeSet);
+			reportMatching(type, method, enclosingElement, value, typeInHierarchy, nodeSet);
 		}
 	}
 
