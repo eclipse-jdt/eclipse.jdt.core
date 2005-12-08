@@ -35,17 +35,14 @@ import org.eclipse.jdt.internal.core.util.Util;
 	 */
 	protected String[] parameterNames;
 
-	/**
-	 * An empty list of Strings
-	 */
-	protected static final String[] NO_TYPES= new String[] {};
 	protected String[] exceptionTypes;
 	protected String returnType;
+
 protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (paramTypes == null) {
-		this.parameterTypes= NO_TYPES;
+		this.parameterTypes= CharOperation.NO_STRINGS;
 	} else {
 		this.parameterTypes= paramTypes;
 	}
@@ -68,7 +65,7 @@ public String[] getExceptionTypes() throws JavaModelException {
 		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
 			char[][] eTypeNames = info.getExceptionTypeNames();
 			if (eTypeNames == null || eTypeNames.length == 0) {
-				this.exceptionTypes = NO_TYPES;
+				this.exceptionTypes = CharOperation.NO_STRINGS;
 			} else {
 				eTypeNames = ClassFile.translatedNames(eTypeNames);
 				this.exceptionTypes = new String[eTypeNames.length];
