@@ -308,9 +308,6 @@ MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment e
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
  */
 public char[] computeUniqueKey(boolean isLeaf) {
-	return computeUniqueKey(this, isLeaf);
-}
-protected char[] computeUniqueKey(MethodBinding methodBinding, boolean isLeaf) {
 	// declaring class 
 	char[] declaringKey = this.declaringClass.computeUniqueKey(false/*not a leaf*/);
 	int declaringLength = declaringKey.length;
@@ -319,8 +316,8 @@ protected char[] computeUniqueKey(MethodBinding methodBinding, boolean isLeaf) {
 	int selectorLength = this.selector == TypeConstants.INIT ? 0 : this.selector.length;
 	
 	// generic signature
-	char[] sig = methodBinding.genericSignature();
-	if (sig == null) sig = methodBinding.signature();
+	char[] sig = genericSignature();
+	if (sig == null) sig = signature();
 	int signatureLength = sig.length;
 	
 	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
