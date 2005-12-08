@@ -772,6 +772,16 @@ public class BindingKeyParser {
 	private void parseRawType() {
 		this.scanner.skipParametersEnd();
 		consumeRawType();
+		this.scanner.skipTypeEnd();
+		parseFlags();
+	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
+	 		char[] typeName = this.scanner.getTokenSource();
+			if (this.scanner.isAtParametersStart()) {
+				this.scanner.skipParametersStart();
+		 		parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
+			} else
+				consumeParameterizedType(typeName, true/*raw*/);
+	 	}
 	}
 	
 	private void parseReturnType() {

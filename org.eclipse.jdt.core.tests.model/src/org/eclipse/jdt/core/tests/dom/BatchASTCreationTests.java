@@ -91,7 +91,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test071" };
+//		TESTS_NAMES = new String[] { "test056" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1225,10 +1225,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			}, "1.5");
 			ITypeBinding[] bindings = createTypeBindings(new String[0], new String[] {
-				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;"
+				"Lp/X<>.Y<Lp/X;:TK;Lp/X;:TV;>;"
 			}, project);
 			assertBindingsEqual(
-				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;",
+				"Lp/X<>.Y<Lp/X;:TK;Lp/X;:TV;>;",
 				bindings);
 		} finally {
 			deleteProject("BinaryProject");

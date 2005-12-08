@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 203 };
-//		TESTS_NAMES = new String[] {"test0189"};
+//		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -6163,4 +6163,41 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	typeBinding = initializer.resolveTypeBinding();
     	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
 	}	
+	
+	/*
+	 * Ensures that the key of parameterized type binding with a raw enclosing type is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0204() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<T> {\n" + 
+    		"	static class Y {\n" + 
+    		"		/*start*/Y/*end*/ y;\n" + 
+    		"	}\n" + 
+    		"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertBindingsEqual(
+	   		"LX<>.Y;",
+	   		bindings);
+	}
+
+	/*
+	 * Ensures that the declaration method binding and the reference method bindings are the same
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0205() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<E> {\n" + 
+    		"    @I(12)\n" + 
+    		"    @interface I {\n" + 
+    		"        @I(/*start1*/value/*end1*/=13)\n" + 
+    		"        int /*start2*/value/*end2*/();\n" + 
+    		"    }\n" + 
+    		"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertFalse("Declaration and reference keys should not be the same", bindings[0].getKey().equals(bindings[1].getKey()));
+	}
+
 }
