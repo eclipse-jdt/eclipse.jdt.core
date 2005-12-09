@@ -157,24 +157,36 @@ public class GeneratedFileManager {
 		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
 		IPreferenceChangeListener projListener = new IPreferenceChangeListener() {
 			public void preferenceChange(PreferenceChangeEvent event) {
+				
+				final String newValue = (String)event.getNewValue();
+				if (newValue == null) {
+					// Null is used to indicate this preference has
+					// been removed, as the project has been deleted.
+					// We do nothing
+					return;
+				}
+				final String oldValue = (String)event.getOldValue();
+				if (newValue.equals(oldValue)) {
+					// No-op -- same config
+					return;
+				}
+				
 				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
 					final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
 					if( AptPlugin.DEBUG )
 						AptPlugin.trace("configure generated source directory new value = " +  //$NON-NLS-1$
-								event.getNewValue() + 
-								" old value = "  + event.getOldValue() + //$NON-NLS-1$
+								newValue + 
+								" old value = "  + oldValue + //$NON-NLS-1$
 								" APT is enabled = " + aptEnabled); //$NON-NLS-1$
 					// If APT is enabled, 
-					// clean up the old cp entry, deleted the old folder and 
+					// clean up the old cp entry, delete the old folder, 
 					// create the new one and update the classpath.
 					if( aptEnabled )
-						configureGeneratedSourceFolder( (String)event.getNewValue(), (String)event.getOldValue() );
+						configureGeneratedSourceFolder( newValue, oldValue );
 					else
-						setGenratedSourceFolderName((String)event.getNewValue());
+						setGeneratedSourceFolderName(newValue);
 				}
 				else if(AptPreferenceConstants.APT_ENABLED.equals(event.getKey()) ){
-					final String newValue = (String)event.getNewValue();
-					final String oldValue = (String)event.getOldValue();
 					if( AptPlugin.DEBUG ){
 						AptPlugin.trace("Got preference change event for " + AptPreferenceConstants.APT_ENABLED ); //$NON-NLS-1$
 					}
@@ -1722,7 +1734,7 @@ public class GeneratedFileManager {
 	 * <em>This should only be called when APT is disabled.</em>
 	 * @param newName
 	 */
-	private void setGenratedSourceFolderName(String newName){
+	private void setGeneratedSourceFolderName(String newName){
 		assert !AptConfig.isEnabled(_aptProject.getJavaProject()) :
 			 "APT is enabled for " + _aptProject.getJavaProject().getElementName(); //$NON-NLS-1$
 		if( newName == null || newName.length() == 0 )
