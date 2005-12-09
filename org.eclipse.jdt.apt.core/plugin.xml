@@ -21,6 +21,7 @@
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
          class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipant"
+         loadEarly="true"
          eventMask="0xff"/>
 </extension>
 
