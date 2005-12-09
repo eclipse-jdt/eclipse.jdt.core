@@ -2463,7 +2463,8 @@ public final class JavaCore extends Plugin {
 	 *    When active, completion show proposals whose name match to the CamelCase pattern.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
+	 *     - default:           "enabled"
+	 *     
 	 *	CODEASSIST / Set the timeout value for retrieving the method's parameter names from javadoc
 	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
 	 *    If the value is 0, then it means don't fetch the parameter names (use default values).
