@@ -35,7 +35,7 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
@@ -48,7 +48,7 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  * A singleton object, created by callback through the
  * org.eclipse.jdt.core.compilationParticipants extension point.
  */
-public class AptCompilationParticipant implements ICompilationParticipant
+public class AptCompilationParticipant extends CompilationParticipant
 {
 	/** 
 	 * Batch factories that claimed some annotation in a previous round of APT processing.
@@ -77,7 +77,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	{	
         // We need to clean even if we have been disabled. This allows
 		// us to remove our generated source files if we get disabled
-        if ( cpe.getKind() == ICompilationParticipant.CLEAN_EVENT ) {
+        if ( cpe.getKind() == CompilationParticipant.CLEAN_EVENT ) {
             return cleanNotify( cpe );
         }
         else if (!AptConfig.isEnabled(cpe.getJavaProject())) {
@@ -86,10 +86,10 @@ public class AptCompilationParticipant implements ICompilationParticipant
         else if ( cpe == null ) {
 			return GENERIC_COMPILATION_RESULT;
 		}
-		else if ( cpe.getKind() == ICompilationParticipant.PRE_BUILD_EVENT ) {
+		else if ( cpe.getKind() == CompilationParticipant.PRE_BUILD_EVENT ) {
 			return preBuildNotify( (PreBuildCompilationEvent) cpe );
 		}
-		else if ( cpe.getKind() == ICompilationParticipant.PRE_RECONCILE_EVENT ) {
+		else if ( cpe.getKind() == CompilationParticipant.PRE_RECONCILE_EVENT ) {
 			return preReconcileNotify( (PreReconcileCompilationEvent) cpe );
 		}
 		else {
