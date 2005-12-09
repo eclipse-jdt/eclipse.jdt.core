@@ -12,6 +12,9 @@
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -22,9 +25,13 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
+/**
+ * A jdt.core pre-process resource change listener that manages generated resources.
+ */
 public class GeneratedResourceChangeListener implements IResourceChangeListener 
 {
 	public GeneratedResourceChangeListener(){}
@@ -36,9 +43,10 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			try
 			{ 
 				if( AptPlugin.DEBUG )
-					AptPlugin.trace("[ thread= " + Thread.currentThread().getName() + " ] ---- got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
+					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
 				final PreBuildVisitor visitor = new PreBuildVisitor();
 				event.getDelta().accept( visitor );
+				addGeneratedSrcFolderTo(visitor.getProjectsThatNeedGenSrcFolder());
 			}
 			catch ( CoreException ce )
 			{
@@ -64,20 +72,36 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			AptPlugin.deleteAptProject(jp);
 		}
 	}
+	
+private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
+		
+		for(IProject proj : projs ){
+			final IJavaProject javaProj = JavaCore.create(proj);
+			if(AptConfig.isEnabled(javaProj)){
+				final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
+				gfm.createGeneratedSourceFolder();
+			}	
+		}
 
-	public class PreBuildVisitor implements IResourceDeltaVisitor
+	}
+
+	private class PreBuildVisitor implements IResourceDeltaVisitor
 	{
+		// projects that we need to add the generated source folder to.
+		private final Set<IProject> _addGenFolderTo = new HashSet<IProject>();
+		// any projects that is closed or about to be deleted
+		private final Set<IProject> _removedProjects = new HashSet<IProject>();
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
 			IResource r = delta.getResource();
-			IProject project = r.getProject();		
+			IProject project = r.getProject();
 			
 			if ( project == null ) 
 				return true;
 			
 			if( delta.getKind() == IResourceDelta.REMOVED ){
-				IJavaProject jp = JavaCore.create(project);
-				GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
+				final IJavaProject javaProj = JavaCore.create(project);
+				final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
 				if( r instanceof IFile ){
 					IFile f = (IFile)r;
 					if ( gfm.isParentFile( f ) )
@@ -88,15 +112,45 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 					{
 						gfm.generatedFileDeleted( f, null /*progress monitor */ );
 					}
-				}
+				}				
 				else if( r instanceof IFolder ){			
-					IFolder f = (IFolder) r;
+					IFolder f = (IFolder) r;					
 					if ( gfm.isGeneratedSourceFolder( f ) ){
 						gfm.generatedSourceFolderDeleted();
+						// all deletion occurs before any add (adding the generated source directory)
+						if( !_removedProjects.contains(project) ){
+							_addGenFolderTo.add(project);
+						}
+						// if the project is already closed or in the process of being
+						// deleted, will ignore this deletion since we cannot correct 
+						// the classpath anyways.
 					}
 				}
+				else if( r instanceof IProject ){	
+					_removedProjects.add((IProject)r);
+				}
 			}
+			else if( r instanceof IProject ){
+				final IProject proj = (IProject)delta.getResource();		
+				if( canUpdate(proj) ){
+					_addGenFolderTo.add(proj);
+				}				
+				else
+					_removedProjects.add(proj);
+			}
+
 			return true;
+		}	
+		
+		Set<IProject> getProjectsThatNeedGenSrcFolder(){
+			_addGenFolderTo.removeAll(_removedProjects);
+			return _addGenFolderTo;
+		}
+		
+		private boolean canUpdate(IProject proj)
+			throws CoreException
+		{
+			return proj.isOpen() && proj.exists() && proj.hasNature(JavaCore.NATURE_ID);
 		}
 	}
 }

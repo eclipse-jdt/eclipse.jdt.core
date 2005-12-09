@@ -28,6 +28,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -44,6 +45,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChang
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.Messages;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -132,7 +134,14 @@ public class GeneratedFileManager {
 	
 	// This is set when the build starts, and accessed during type generation. 
 	private IPackageFragmentRoot _generatedPackageFragmentRoot;
-	
+	// This is initialized/reset when the build starts, and accessed during type generation.
+	// It has the same life-cycle as _generatedPackageFragmentRoot.
+	// This bit may be set to <code>true</code> during the first type generation to prevent any 
+	// future type generation due to configuration problem.
+	private boolean _skipTypeGeneration = false;
+	// The name of the generated source folder when the _generatedPackageFragmenRoot is 
+	// initialized. Used for problem reporting.
+	private String _snapshotFolderName = null;
 	
 	/**
 	 * Construction can only take place from within 
@@ -149,8 +158,46 @@ public class GeneratedFileManager {
 		IPreferenceChangeListener projListener = new IPreferenceChangeListener() {
 			public void preferenceChange(PreferenceChangeEvent event) {
 				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
+					final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
+					if( AptPlugin.DEBUG )
+						AptPlugin.trace("configure generated source directory new value = " +  //$NON-NLS-1$
+								event.getNewValue() + 
+								" old value = "  + event.getOldValue() + //$NON-NLS-1$
+								" APT is enabled = " + aptEnabled); //$NON-NLS-1$
+					// If APT is enabled, 
+					// clean up the old cp entry, deleted the old folder and 
+					// create the new one and update the classpath.
+					if( aptEnabled )
+						configureGeneratedSourceFolder( (String)event.getNewValue(), (String)event.getOldValue() );
+					else
+						setGenratedSourceFolderName((String)event.getNewValue());
+				}
+				else if(AptPreferenceConstants.APT_ENABLED.equals(event.getKey()) ){
+					final String newValue = (String)event.getNewValue();
+					final String oldValue = (String)event.getOldValue();
+					if( AptPlugin.DEBUG ){
+						AptPlugin.trace("Got preference change event for " + AptPreferenceConstants.APT_ENABLED ); //$NON-NLS-1$
+					}
 					
-					setGeneratedSourceFolderName( (String)event.getNewValue() );
+					// no-op;
+					if(newValue.equals(oldValue)){
+						return;
+					}
+					
+					final boolean isEnabling = Boolean.parseBoolean(newValue);
+					if( AptPlugin.DEBUG ){
+						if( isEnabling )
+							AptPlugin.trace("enabling APT"); //$NON-NLS-1$
+						else
+							AptPlugin.trace("diabling APT"); //$NON-NLS-1$
+					}
+					if( isEnabling )
+						configureGeneratedSourceFolder();
+					else{
+						final IFolder srcFolder = getGeneratedSourceFolder();
+						projectClean(true);
+						resetGeneratedSrcFolder(srcFolder, false);
+					}
 				}
 			}
 		};
@@ -166,7 +213,7 @@ public class GeneratedFileManager {
 		IPreferenceChangeListener wkspListener = new IPreferenceChangeListener() {
 			public void preferenceChange(PreferenceChangeEvent event) {
 				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
-					setGeneratedSourceFolderName( AptConfig.getGenSrcDir(javaProject) );
+					configureGeneratedSourceFolder( AptConfig.getGenSrcDir(javaProject), null );
 				}
 			}
 		};
@@ -223,6 +270,27 @@ public class GeneratedFileManager {
 			IProgressMonitor progressMonitor)
 	throws CoreException
 	{
+		if( _skipTypeGeneration ) return null;
+		else if( _generatedPackageFragmentRoot == null ){			
+			String message = Messages.bind(
+					Messages.GeneratedFileManager_missing_classpath_entry, 
+					new String[] {_snapshotFolderName});
+			IMarker marker = _aptProject.getJavaProject().getProject().createMarker(AptPlugin.APT_CONFIG_PROBLEM_MARKER);
+			marker.setAttributes(
+					new String[] {
+						IMarker.MESSAGE, 
+						IMarker.SEVERITY
+					},
+					new Object[] {
+						message,
+						IMarker.SEVERITY_ERROR
+					}
+				);
+			// disable any future type generation
+			_skipTypeGeneration = true;
+			return null;
+		}
+		
 		try{
 			
 			if( typeName.indexOf('/') != -1 )
@@ -246,7 +314,9 @@ public class GeneratedFileManager {
 			final Set<IContainer> newFolders = getNewPackageFolders(pkgName, genSrcFolder);
 			IPackageFragment pkgFrag = _generatedPackageFragmentRoot.createPackageFragment(pkgName, true, progressMonitor);
 			if( pkgFrag == null ){
-				throw new IllegalStateException("failed to locate package '" + pkgName + "'");  //$NON-NLS-1$ //$NON-NLS-2$
+				final Exception e = new IllegalStateException("failed to locate package '" + pkgName + "'");  //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+				throw e;
 			}			
 			// mark all newly create folders as derived.			
 			markNewFoldersAsDerived((IContainer)pkgFrag.getResource(), newFolders);
@@ -808,35 +878,67 @@ public class GeneratedFileManager {
 	 * Called at the start of build in order to cache our package fragment root
 	 */
 	public void compilationStarted() {
-		ensureGeneratedSourceFolder();
-		final IFolder genFolder = getGeneratedSourceFolder();
+
+		try{
+			// clear out any generated source folder config markers
+			IMarker[] markers = _aptProject.getJavaProject().getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			if( markers != null ){
+				for( IMarker marker : markers )
+					marker.delete();
+			}
+		}
+		catch(CoreException e){
+			AptPlugin.log(e, "Unable to delete configuration marker."); //$NON-NLS-1$
+		}
+		_skipTypeGeneration = false;
+		createGeneratedSourceFolder();
+		final IFolder genFolder;		
+		synchronized(this){
+			genFolder = getGeneratedSourceFolder();
+			_snapshotFolderName = _generatedSourceFolderName;
+		}
 		try {
+			_generatedPackageFragmentRoot = null;
 			IPackageFragmentRoot[] roots = _aptProject.getJavaProject().getAllPackageFragmentRoots();
 			for (IPackageFragmentRoot root : roots) {
-				if( genFolder.equals(root.getResource()) ){
+				final IResource resource = root.getResource();
+				if( resource != null && resource.equals(genFolder)){
 					_generatedPackageFragmentRoot = root;
 					return;
 				}
 			}
-			
-			// Failure case -- we've created the source folder, but we can't find its corresponding
-			// package fragment root.
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append("*** start of classpath ***\n"); //$NON-NLS-1$
-			IClasspathEntry[] cp = _aptProject.getJavaProject().getRawClasspath();
-			for (IClasspathEntry c : cp) {
-				sb.append(c).append("\n"); //$NON-NLS-1$
-			}
-			sb.append("*** end of classpath ***"); //$NON-NLS-1$
-			
-			throw new IllegalStateException("failed to locate package fragment root for " +  //$NON-NLS-1$
-					genFolder.getName() + ". classpath:\n" + sb.toString()); //$NON-NLS-1$
 		}
 		catch (JavaModelException jme) {
 			AptPlugin.log(jme, "Failure during start of compilation attempting to create generated source folder"); //$NON-NLS-1$
 		}
 		
+	}
+	
+	/**
+	 * Creates the generated source folder if it doesn't exist. 
+	 * No changes to the classpath will be made.
+	 */
+	public void createGeneratedSourceFolder(){
+		IFolder srcFolder = getGeneratedSourceFolder();
+		// This most likely means the preference change event hasn't occured yet
+		// and we don't know about the name of the generated source directory.
+		if( srcFolder == null )
+			return;
+		try{
+			srcFolder.refreshLocal( IResource.DEPTH_INFINITE, null );
+			if (!srcFolder.exists()) {
+				if( AptPlugin.DEBUG )
+					AptPlugin.trace("creating " + srcFolder.getProjectRelativePath()); //$NON-NLS-1$
+					
+				FileSystemUtil.makeDerivedParentFolders(srcFolder);
+			}
+		}
+		catch(CoreException ce){
+			AptPlugin.log(ce, "Failure during refreshLocal on " + srcFolder.getProjectRelativePath()); //$NON-NLS-1$
+		}
+		synchronized (this) {
+			_generatedSourceFolder = srcFolder;
+		}
 	}
 	
 	/**
@@ -862,10 +964,11 @@ public class GeneratedFileManager {
 	 *  @see #getGeneratedSourceFolder()
 	 *  @see #isGeneratedSourceFolderConfigured()
 	 */
-	public boolean ensureGeneratedSourceFolder(){
+	private boolean ensureGeneratedSourceFolder(){
 		
 		boolean reset = false;
 		IFolder curSrcFolder = null;
+	
 		synchronized( this )
 		{
 			if( _generatedSourceFolder != null ){
@@ -1577,14 +1680,15 @@ public class GeneratedFileManager {
 	 * creation has failed, the folder has been deleted or has not been created.
 	 */
 	public IFolder getGeneratedSourceFolder(){
-		IFolder srcFolder;
+		
 		final String folderName;
 		synchronized (this) {
-			srcFolder = _generatedSourceFolder;
+			if( _generatedSourceFolder != null )
+				return _generatedSourceFolder;
 			folderName = getGeneratedSourceFolderName();
-		}
-		if(srcFolder != null)
-			return srcFolder;
+		}		
+		if(folderName == null)
+			return null;
 		
 		return _aptProject.getJavaProject().getProject().getFolder( folderName );
 	}
@@ -1600,7 +1704,33 @@ public class GeneratedFileManager {
 	{ 
 		return _generatedSourceFolderName; 
 	}
-
+	
+	public boolean isGeneratedSourceFolderConfigured(){
+		return _generatedSourceFolder != null;
+	}
+	
+	public void configureGeneratedSourceFolder(){
+		final String folderName = _generatedSourceFolderName;
+		if( AptPlugin.DEBUG ){
+			AptPlugin.trace("configure genenerated source folder to be " + folderName ); //$NON-NLS-1$
+		}
+		configureGeneratedSourceFolder(folderName, null);
+	}
+	
+	/**
+	 * Simply set the name of the generated source folder. 
+	 * <em>This should only be called when APT is disabled.</em>
+	 * @param newName
+	 */
+	private void setGenratedSourceFolderName(String newName){
+		assert !AptConfig.isEnabled(_aptProject.getJavaProject()) :
+			 "APT is enabled for " + _aptProject.getJavaProject().getElementName(); //$NON-NLS-1$
+		if( newName == null || newName.length() == 0 )
+			throw new IllegalStateException("[" + newName + "] not a valid name for generated source folder ");  //$NON-NLS-1$//$NON-NLS-2$
+		synchronized (this) {
+			_generatedSourceFolderName = newName;
+		}
+	}
 	
 	/**
 	 * Sets the name of the generated soruce folder.  The source folder will not be created 
@@ -1608,7 +1738,7 @@ public class GeneratedFileManager {
 	 * setGeneratedSourceFolderName, isGeneratedSourceFolderConfigured() will return false.)  
 	 * To properly have the new generated source folder configured, call #ensureGeneratedSourceFolder(). 
 	 * 
-	 * @param s The string name of the new generated source folder.  This should be relative 
+	 * @param newValue The string name of the new generated source folder.  This should be relative 
 	 * to the project root.  Absolute paths are not supported.  The specified string should be 
 	 * a valid folder name for the file system, and should not be an existing source folder for the 
 	 * project.  
@@ -1617,70 +1747,78 @@ public class GeneratedFileManager {
 	 * @see #getGeneratedSourceFolderName()
 	 * @see #isGeneratedSourceFolderConfigured()
 	 */
-	public void setGeneratedSourceFolderName( String s ) 
+	private void configureGeneratedSourceFolder( String newValue, String oldValue ) 
 	{
+		
 		// bail if they specify null, empty-string or don't change the name of the source folder
-		if ( s == null || s.length() == 0 || s.equals( getGeneratedSourceFolderName() ) )
+		if ( newValue == null || 
+			 newValue.length() == 0 || 
+			 newValue.equals(oldValue) )
 			return;
 		
 		projectClean( true );
 
-		final IFolder srcFolder;
+		IFolder srcFolder = null;
 		synchronized ( this )
 		{
 			// We are not going to delete any directories or change the classpath
 			// since this could happen during a build. 
 			// see ensureGeneratedSourceFolder() 
-			_generatedSourceFolderName = s;
-			// save _generatedSrcFolder off to avoid race conditions
+			_generatedSourceFolderName = newValue;
 			srcFolder = _generatedSourceFolder;
+		}
+		
+		// if the preference change occur before we actually
+		// initialized the _generatedSourceFolder. 
+		// This may happen when the pre-processor resource change event occurs after
+		// the preference change event.
+		if( oldValue != null && srcFolder == null ){
+			srcFolder = _aptProject.getJavaProject().getProject().getFolder( oldValue );
 		}
 		
 		resetGeneratedSrcFolder(srcFolder, true);		
 	}
 	
 	/**
-	 * Schedule a job to delete the generated source folder and remove it
-	 * from the classpath. 
-	 *
-	 * @param recreate <code>true</code> to recreate the generated source folder.
+	 * Cleanup the classpath and schedule a job to delete the generated source folder.
+	 * @param recreate if <code>true</code> configure the generated source directory.
 	 */
-	private void resetGeneratedSrcFolder(final IFolder srcFolder, final boolean recreate){
-		
-		// clean up the classpath so that when we actually delete the 
+	private void resetGeneratedSrcFolder(final IFolder srcFolder, boolean recreate){
+		// clean up the classpath first so that when we actually delete the 
 		// generated source folder and won't cause a classpath error.
-		// (which will cause us to re-add the folder to correct 
-		// the classpath problem)
 		if( srcFolder != null ){
-		  	try{	
+			try{	
 		  		removeFromProjectClasspath( _aptProject.getJavaProject(), srcFolder, null );		
 			}catch(JavaModelException e){
 				AptPlugin.log( e, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 			}
 		}
+		
 		if( recreate )
 			ensureGeneratedSourceFolder();
-		 
-		// schedule the deletion job.
-		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-            public void run(IProgressMonitor monitor)
-            {		
-            	if( srcFolder != null ){
-	            	try{
-	            		srcFolder.delete(true, false, null);
-	            	}catch(CoreException e){
-	            		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
-	            	}catch(OperationCanceledException cancel){
-	            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
+		
+		if( srcFolder != null ){
+			// schedule the deletion job.
+			final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+	            public void run(IProgressMonitor monitor)
+	            {		
+	            	if( srcFolder != null ){
+		            	try{
+		            		srcFolder.delete(true, false, null);
+		            	}catch(CoreException e){
+		            		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
+		            	}catch(OperationCanceledException cancel){
+		            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
+		            	}
 	            	}
-            	}
-            };
-        };
-        IWorkspace ws = _aptProject.getJavaProject().getProject().getWorkspace();
-        try{
-        	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
-        }catch(CoreException e){
-    		AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
-    	}
+	            };
+	        };
+	        IWorkspace ws = _aptProject.getJavaProject().getProject().getWorkspace();
+	        try{
+	        	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
+	        }catch(CoreException e){
+	    		AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
+	    	}
+		}
 	}
 }

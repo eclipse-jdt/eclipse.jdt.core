@@ -33,4 +33,6 @@ public class Messages extends NLS {
 	public static String AnnotationProcessorFactoryLoader_factorypath;
 
 	public static String AnnotationProcessorFactoryLoader_unableToLoadFactoryClass;
+
+	public static String GeneratedFileManager_missing_classpath_entry;
 }

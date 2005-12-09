@@ -39,6 +39,12 @@
 	<persistent value="true"/>
 </extension>  
 
+<extension id="configproblem" point="org.eclipse.core.resources.markers" name="APT Configuration Marker">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+</extension>
+
 <!-- =================================================================================== -->
 <!-- Extension: Headless Build                                                           -->
 <!-- =================================================================================== -->

@@ -23,7 +23,9 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.preferences.ScrolledPageContent;
 import org.eclipse.jdt.internal.ui.util.CoreUtility;
@@ -217,6 +219,7 @@ public abstract class BaseConfigurationBlock {
 				new InstanceScope(),
 				new DefaultScope()
 			};
+			AptPlugin.ensureAptProject(JavaCore.create(fProject));			
 		} else {
 			fLookupOrder= new IScopeContext[] {
 				new InstanceScope(),

@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -29,6 +27,7 @@ import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedResourceChangeListener;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.osgi.framework.BundleContext;
 
 public class AptPlugin extends Plugin {
@@ -46,6 +45,8 @@ public class AptPlugin extends Plugin {
 	
 	/** Marker ID used for build problem, e.g., missing factory jar */
 	public static final String APT_BUILD_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$
+	/** Marker ID used for configuration problem, e.g generated source folder not on classpath */
+	public static final String APT_CONFIG_PROBLEM_MARKER = PLUGIN_ID + ".configproblem"; //$NON-NLS-1$
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
@@ -64,8 +65,9 @@ public class AptPlugin extends Plugin {
 		// register resource-changed listener
 		// TODO: can move this into AptProject.
 		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
-		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.addResourceChangeListener( new GeneratedResourceChangeListener(), mask );
+		JavaCore.addPreProcessingResourceChangedListener( new GeneratedResourceChangeListener(), mask );
+		if( DEBUG )
+			trace("registered resource change listener"); //$NON-NLS-1$
 	}
 
 	/**
@@ -153,18 +155,39 @@ public class AptPlugin extends Plugin {
 			System.err.println("[ " + Thread.currentThread().getName() + " ] " + msg );  //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	public static AptProject getAptProject(IJavaProject javaProject) {
-		synchronized (PROJECT_MAP) {
+	/**
+	 * Guarantees that the Apt Project for the given java project is loaded
+	 * and any project based listeners are registered.
+	 * @param javaProject
+	 */
+	public static void ensureAptProject(IJavaProject javaProject){
+		AptProject aptProj = getAptProject(javaProject, false);
+		if( aptProj == null ){
+			aptProj = getAptProject( javaProject, true );
+			aptProj.ensureLoaded();
+		}
+	}
+	
+	private static AptProject getAptProject(IJavaProject javaProject, boolean create){
+		synchronized(PROJECT_MAP){
 			AptProject aptProject = PROJECT_MAP.get(javaProject);
 			if (aptProject != null) {
 				return aptProject;
 			}
-			else {
-				aptProject = new AptProject(javaProject);
-				PROJECT_MAP.put(javaProject, aptProject);
-				return aptProject;
+			else{
+				if( create ){
+					aptProject = new AptProject(javaProject);
+					PROJECT_MAP.put(javaProject, aptProject);
+					return aptProject;
+				}
+				else
+					return null;
 			}
 		}
+	}
+	
+	public static AptProject getAptProject(IJavaProject javaProject) {
+		return getAptProject(javaProject, true);
 	}
 	
 	public static void deleteAptProject(IJavaProject javaProject) {
