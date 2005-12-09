@@ -638,7 +638,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
  * to reconcile with is the same as the current contents.
  */
 public void testPerfReconcile() throws CoreException {
-	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
+	tagAsSummary("Model>Reconcile>Parser", true); // put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
