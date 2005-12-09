@@ -810,43 +810,43 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
-public void testListRemoves2() throws Exception {
-IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-StringBuffer buf= new StringBuffer();
-buf.append("package test1;\n");
-buf.append("public class E {\n");
-buf.append("    public void setMyProp(String property1) {}\n");
-buf.append("}\n");	
-ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
-
-CompilationUnit astRoot= createAST(cu);
-AST ast= astRoot.getAST();
-
-ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
-
-{ // delete param, insert new
-	MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
-	List parameters= methodDecl.parameters();
-	rewrite.remove((ASTNode) parameters.get(0), null);
-	
-	SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
-	decl.setType(ast.newPrimitiveType(PrimitiveType.INT));
-	decl.setName(ast.newSimpleName("property11"));
-	
-	rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(decl, null);
-	
-}
-String preview= evaluateRewrite(cu, rewrite);
-
-buf= new StringBuffer();
-buf.append("package test1;\n");
-buf.append("public class E {\n");
-buf.append("    public void setMyProp(int property11) {}\n");
-buf.append("}\n");	
-	
-assertEqualString(preview, buf.toString());
-}
+	public void testListRemoves2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void setMyProp(String property1) {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST(cu);
+		AST ast= astRoot.getAST();
+		
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
+		
+		{ // delete param, insert new
+			MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
+			List parameters= methodDecl.parameters();
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			
+			SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
+			decl.setType(ast.newPrimitiveType(PrimitiveType.INT));
+			decl.setName(ast.newSimpleName("property11"));
+			
+			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(decl, null);
+			
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void setMyProp(int property11) {}\n");
+		buf.append("}\n");	
+		
+		assertEqualString(preview, buf.toString());
+	}
 
 	
 	public void testListInserts() throws Exception {
@@ -1538,12 +1538,12 @@ assertEqualString(preview, buf.toString());
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
 			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
 		}
-		{ // remove modifer and remove javadoc
+		{ // remove modifier and remove javadoc
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
 			rewrite.remove(methodDecl.getJavadoc(), null);
 			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
 		}
-		{ // remove modifer and insert javadoc
+		{ // remove modifier and insert javadoc
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
 			
 			Javadoc javadoc= ast.newJavadoc();
@@ -2533,7 +2533,38 @@ assertEqualString(preview, buf.toString());
 		buf.append("    }\n");	
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testEnumConstantDeclaration_bug114119() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    RED, BROWN(), GREEN(){};\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
+		{
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(2);
+			assertNotNull(enumConst.getAnonymousClassDeclaration());
+			
+			rewrite.remove(enumConst.getAnonymousClassDeclaration(), null);
+		}
+		
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum DD {\n");
+		buf.append("    RED, BROWN(), GREEN();\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
 	}	
+
 
 	public void testMethodDeclChangesBug77538() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -2678,8 +2709,4 @@ assertEqualString(preview, buf.toString());
 		assertEqualString(preview, buf.toString());
 	}
 
-	
-	
-	
-	
 }
