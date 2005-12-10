@@ -19,7 +19,11 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -69,7 +73,7 @@ public class AptBuilderTests extends APTTestBase
 			return new Path( "/" + getProjectName_ProjectRootAsSrcDir() );
 		else
 		{
-			IProject project = env.getProject( getProjectName() );
+			IProject project = env.getProject( projectName );
 			IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 			IPath srcRoot = srcFolder.getFullPath();
 			return srcRoot;
@@ -520,6 +524,85 @@ public class AptBuilderTests extends APTTestBase
 		fullBuild( project.getFullPath() );
 		
 		expectingNoProblems();
+	}
+	
+	public void testConfigMarker() throws Exception{
+		final String projectName = "ConfigMarkerTestProject";	
+		final IJavaProject javaProj = createJavaProject( projectName );
+		// apt is currently disabled save off the cp before configuration
+		final IClasspathEntry[] cp = javaProj.getRawClasspath();		
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );		
+		// this will cause a type generation.
+		String code = "package pkg;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "\npublic class Foo{\n"
+			+ "    @HelloWorldAnnotation\n"
+			+ "    public static void main( String[] argv ){}"
+			+ "\n}";
+		
+		env.addClass( srcRoot, "pkg", "Foo", code );
+		
+		AptConfig.setEnabled(javaProj, true);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		expectingNoMarkers();
+		
+		// wipe out the source folder from the classpath.
+		javaProj.setRawClasspath(cp, null);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		// make sure we post the marker about the incorrect classpath
+		expectingMarkers(new String[]{"Generated source folder '" + 
+				AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME + 
+				"' is missing from classpath"} );
+		
+		// take out the annotation and no type generation will occur.
+		code = "package pkg;\n"
+			+ "\npublic class Foo{\n"			
+			+ "    public static void main( String[] argv ){}"
+			+ "\n}";
+		
+		env.addClass( srcRoot, "pkg", "Foo", code );
+		fullBuild( project.getFullPath() );		
+		expectingNoProblems();
+		// Make sure we cleaned out config marker from previous build
+		// We don't need to generate types, hence we should not register the config marker 
+		expectingNoMarkers();
+	}
+	
+	public void testDeletedGeneratedSourceFolder()
+		throws Exception
+	{
+		final String projectName = "DeleteGenSourceFolderTestProject";	
+		final IJavaProject javaProj = createJavaProject( projectName );
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );		
+		// this will cause a type generation.
+		String code = "package pkg;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "\npublic class Foo{\n"
+			+ "    @HelloWorldAnnotation\n"
+			+ "    public static void main( String[] argv ){}"
+			+ "\n}";
+		
+		env.addClass( srcRoot, "pkg", "Foo", code );
+		AptConfig.setEnabled(javaProj, true);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		expectingNoMarkers();
+		
+		GeneratedFileManager mgr = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
+		IFolder srcFolder = mgr.getGeneratedSourceFolder();
+		assertEquals(true, srcFolder.exists());
+		// delete the gen source folder
+		srcFolder.delete(true, false, null);
+		assertEquals(false, srcFolder.exists());
+		
+		// we would have re-created the folder on the next build
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		expectingNoMarkers();
 	}
 	
 	private static void sleep( long millis )

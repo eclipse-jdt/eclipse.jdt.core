@@ -58,18 +58,31 @@ public abstract class APTTestBase extends Tests{
 		final String projectName = getProjectName();
 		if( projectName == null )
 			throw new IllegalStateException();
-		IPath projectPath = env.addProject( getProjectName(), "1.5" );
+		IJavaProject jproj = createJavaProject(projectName);
+		AptConfig.setEnabled(jproj, true);
+	}
+	
+	/**
+	 * Create a java project with java libraries and test annotations on classpath
+	 * (compiler level is 1.5). Use "src" as source folder and "bin" as output folder.
+	 * APT is not enabled.
+	 * 
+	 * @param projectName
+	 * @return a java project that has been added to the current workspace.
+	 * @throws Exception
+	 */
+	protected IJavaProject createJavaProject(final String projectName )
+		throws Exception
+	{
+		IPath projectPath = env.addProject( projectName, "1.5" );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		//fullBuild( projectPath );
-
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
 		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
 		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
-		
-		IJavaProject jproj = env.getJavaProject( projectPath );
-		AptConfig.setEnabled(jproj, true);
-		TestUtil.createAndAddAnnotationJar( jproj );
+		final IJavaProject javaProj = env.getJavaProject( projectPath );
+		TestUtil.createAndAddAnnotationJar( javaProj );
+		return javaProj;
 	}
 	
 	protected void tearDown()
@@ -119,7 +132,7 @@ public abstract class APTTestBase extends Tests{
 	
 	protected void expectingMarkers(String[] messages)
 	{	
-		final IMarker[] markers = getAPTBuildMarkerFor(env.getWorkspaceRootPath());
+		final IMarker[] markers = getAllAPTMarkers(env.getWorkspaceRootPath());
 		final Set<String> expectedMessages = new HashSet<String>();
 		for(String msg : messages ){
 			expectedMessages.add(msg);
@@ -150,7 +163,7 @@ public abstract class APTTestBase extends Tests{
 	
 	protected void expectingNoMarkers(IPath path)
 	{
-		final IMarker[] markers = getAPTBuildMarkerFor(path);
+		final IMarker[] markers = getAllAPTMarkers(path);
 		
 		if( markers != null && markers.length != 0 ){
 			try{
@@ -163,7 +176,7 @@ public abstract class APTTestBase extends Tests{
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected IMarker[] getAPTBuildMarkerFor(IPath path){
+	protected IMarker[] getAllAPTMarkers(IPath path){
 		IResource resource;
 		if(path.equals(env.getWorkspaceRootPath())){
 			resource = env.getWorkspace().getRoot();
@@ -178,7 +191,39 @@ public abstract class APTTestBase extends Tests{
 			}
 		}
 		try {
-			return resource.findMarkers("org.eclipse.jdt.apt.core.marker", true, IResource.DEPTH_INFINITE);
+			IMarker[] markers = null;
+			int total = 0;
+			final IMarker[] processorMarkers = resource.findMarkers(AptPlugin.APT_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			total = processorMarkers.length;
+			markers = processorMarkers;
+				
+			final IMarker[] factoryPathMarkers = resource.findMarkers(AptPlugin.APT_BUILD_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);			
+			if( factoryPathMarkers.length != 0 ){
+				if( total != 0 ){
+					final int len = factoryPathMarkers.length;
+					final IMarker[] temp = new IMarker[len + total ];
+					System.arraycopy(markers, 0, temp, 0, total);
+					System.arraycopy(factoryPathMarkers, 0, temp, total, len);
+					markers = temp;
+					total += len;
+				}
+				else
+					markers = factoryPathMarkers;
+			}
+			final IMarker[] configMarkers = resource.findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);			
+			if( configMarkers.length != 0 ){
+				if( total != 0 ){
+					final int len = configMarkers.length;
+					final IMarker[] temp = new IMarker[len + total];
+					System.arraycopy(markers, 0, temp, 0, total);
+					System.arraycopy(configMarkers, 0, temp, total, len);
+					markers = temp;
+					total += len;
+				}
+				else
+					markers = configMarkers;
+			}
+			return markers;
 		} catch(CoreException e){
 			return null;
 		}

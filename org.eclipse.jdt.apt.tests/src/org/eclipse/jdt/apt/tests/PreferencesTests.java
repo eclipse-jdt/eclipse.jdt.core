@@ -20,13 +20,20 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class PreferencesTests extends APTTestBase {
 	
@@ -214,5 +221,88 @@ public class PreferencesTests extends APTTestBase {
 		
 		assertEquals(newDir, genSrcDir);
 		
+	}
+	
+	/**
+	 * Test a series of configuration and make sure the GeneratedFileManager and 
+	 * the classpath reflecting the setup. Configuration setting includes 
+	 * enabling and disabling apt and configure the generated source folder 
+	 * with and without apt enabled.
+	 * 
+	 * See comments in method body for detail testing scenarios
+	 * @throws Exception
+	 */
+	public void testConfigGenSrcDir() throws Exception {
+		
+		final String projectName = "ConfigTestProj";		
+		IPath projectPath = env.addProject( projectName, "1.5" );
+		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+		final IJavaProject javaProj = env.getJavaProject(projectName);
+		// APT is not enabled
+		boolean aptEnabled = AptConfig.isEnabled(javaProj);
+		// test 1: make sure apt is disabled by default
+		assertEquals(false, aptEnabled);
+		final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
+		IFolder srcFolder = gfm.getGeneratedSourceFolder();
+		String folderName = srcFolder.getProjectRelativePath().toOSString();
+		// test 2: apt is disabled, then folder should not exists 
+		assertEquals(srcFolder.exists(), false);
+		// test 3: folder name has not been configured, then it should be the default.
+		// folder name should be the default name.
+		assertEquals(folderName, AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
+		
+		// set folder name while apt is disabled
+		String newName = ".gensrcdir";
+		AptConfig.setGenSrcDir(javaProj, newName);
+		srcFolder = gfm.getGeneratedSourceFolder();
+		folderName = srcFolder.getProjectRelativePath().toOSString();
+		// test 4: apt still disabled but folder name changed, make sure the folder is not on disk.
+		assertEquals(false, srcFolder.exists());
+		// test 5: make sure we got the new name
+		assertEquals(newName, folderName);
+		// test 6: make sure the source folder is not on the classpath.
+		assertEquals( false, isOnClasspath(javaProj, srcFolder.getFullPath()) );
+		
+		// enable apt
+		AptConfig.setEnabled(javaProj, true);
+		aptEnabled = AptConfig.isEnabled(javaProj);
+		// test 7: make sure it's enabled after we called the API to enable it. 
+		assertEquals(true, aptEnabled);
+		srcFolder = gfm.getGeneratedSourceFolder();		
+		folderName = srcFolder.getProjectRelativePath().toOSString();
+		// test 8: apt enabled, the source folder should be on disk
+		assertEquals(true, srcFolder.exists());
+		// test 9: make sure the name matches
+		assertEquals(newName, folderName);
+		// test 10: apt is enabled, folder must be on classpath.
+		assertEquals( true, isOnClasspath(javaProj, srcFolder.getFullPath()) );
+		
+		// now disable apt.
+		AptConfig.setEnabled(javaProj, false);
+		aptEnabled = AptConfig.isEnabled(javaProj);
+		// test 11: make sure it's disabled.
+		assertEquals(false, aptEnabled);
+		srcFolder = gfm.getGeneratedSourceFolder();
+		folderName = srcFolder.getProjectRelativePath().toOSString();
+		// test 12: make sure we deleted the source folder when we disable apt
+		assertEquals(false, srcFolder.exists());
+		// test 13: make sure we didn't overwrite the configure folder name
+		assertEquals(newName, folderName);
+		// test 14: make sure we cleaned up the classpath.
+		assertEquals( false, isOnClasspath(javaProj, srcFolder.getFullPath()) );
+	}
+	
+	private boolean isOnClasspath(IJavaProject javaProj, IPath path)
+			throws JavaModelException
+	{		
+		final IClasspathEntry[] cp = javaProj.getRawClasspath();
+		for (int i = 0; i < cp.length; i++) 
+		{
+			if (cp[i].getPath().equals( path )) 
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

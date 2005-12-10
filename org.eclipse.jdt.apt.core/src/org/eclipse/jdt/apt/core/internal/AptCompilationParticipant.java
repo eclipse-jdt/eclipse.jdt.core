@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -219,7 +218,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		gfm.projectClean( true );
 		try{
 			// clear out all markers during a clean.
-			IMarker[] markers = p.findMarkers(ProcessorEnvImpl.BUILD_MARKER, true, IResource.DEPTH_INFINITE);
+			IMarker[] markers = p.findMarkers(AptPlugin.APT_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			if( markers != null ){
 				for( IMarker marker : markers )
 					marker.delete();

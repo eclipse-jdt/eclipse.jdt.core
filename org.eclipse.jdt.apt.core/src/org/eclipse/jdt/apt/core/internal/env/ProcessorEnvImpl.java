@@ -75,7 +75,6 @@ import com.sun.mirror.declaration.TypeDeclaration;
 public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotationProcessorEnvironment
 {
 	private static final boolean ENABLE_GENERATED_FILE_LISTENER = false;
-	public static final String BUILD_MARKER = "org.eclipse.jdt.apt.core.marker"; //$NON-NLS-1$
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
 	private static final char PATHVAR_DELIM = '%';
@@ -1181,7 +1180,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	            {		
 	                for( MarkerInfo markerInfo : _markerInfos ){	                  
 						try{
-		                    final IMarker marker = _javaProject.getProject().createMarker(BUILD_MARKER);
+		                    final IMarker marker = _javaProject.getProject().createMarker(AptPlugin.APT_PROCESSOR_PROBLEM_MARKER);
 							//final IMarker marker = _javaProject.getProject().createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		                    markerInfo.copyIntoMarker(marker);
 						}

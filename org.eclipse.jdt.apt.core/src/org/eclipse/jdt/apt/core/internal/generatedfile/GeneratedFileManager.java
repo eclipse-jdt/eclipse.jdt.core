@@ -199,9 +199,9 @@ public class GeneratedFileManager {
 					final boolean isEnabling = Boolean.parseBoolean(newValue);
 					if( AptPlugin.DEBUG ){
 						if( isEnabling )
-							AptPlugin.trace("enabling APT"); //$NON-NLS-1$
+							AptPlugin.trace("enabling APT for " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
 						else
-							AptPlugin.trace("diabling APT"); //$NON-NLS-1$
+							AptPlugin.trace("diabling APT " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
 					}
 					if( isEnabling )
 						configureGeneratedSourceFolder();
