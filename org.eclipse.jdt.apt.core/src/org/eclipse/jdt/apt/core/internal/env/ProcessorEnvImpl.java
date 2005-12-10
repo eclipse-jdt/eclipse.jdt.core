@@ -990,6 +990,11 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
         CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
         return resultUnit;
 	}
+	
+	// Implementation for EclipseAnnotationProcessorEnvironment
+	public CompilationUnit getAbridgedASTWithBindings() {
+		return _astRoot;
+	}
 
 	public void addTypeDependency(final String fullyQualifiedTypeName )
 	{
