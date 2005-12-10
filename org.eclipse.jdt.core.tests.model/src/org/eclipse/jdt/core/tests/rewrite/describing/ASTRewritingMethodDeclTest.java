@@ -2535,7 +2535,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
-	public void testEnumConstantDeclaration_bug114119() throws Exception {
+	public void _testEnumConstantDeclaration_bug114119() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
