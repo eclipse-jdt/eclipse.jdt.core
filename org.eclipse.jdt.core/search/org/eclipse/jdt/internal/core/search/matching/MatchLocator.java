@@ -1278,7 +1278,7 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 		acceptFlag = NameLookup.ACCEPT_CLASSES;
 	}
 	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
-		IType type = this.nameLookup.findType(typeName, pkgs[i],  false,  acceptFlag);
+		IType type = this.nameLookup.findType(typeName, pkgs[i],  false,  acceptFlag, true/*consider secondary types*/);
 		if (type != null) return type;
 	}
 

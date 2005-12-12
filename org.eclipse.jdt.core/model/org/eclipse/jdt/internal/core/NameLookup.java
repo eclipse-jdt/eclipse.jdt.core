@@ -573,6 +573,37 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
 	 * 	are desired results. If no flags are specified, all types are returned.
+	 * @param considerSecondaryTypes flag to know whether secondary types has to be considered
+	 * 	during the search
+	 *
+	 * @see #ACCEPT_CLASSES
+	 * @see #ACCEPT_INTERFACES
+	 * @see #ACCEPT_ENUMS
+	 * @see #ACCEPT_ANNOTATIONS
+	 */
+	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes) {
+		IType type = findType(name, pkg, partialMatch, acceptFlags);
+		if (type == null && considerSecondaryTypes) {
+			type = findSecondaryType(pkg.getElementName(), name, pkg.getJavaProject(), false, null);
+		}
+		return type;
+	}
+
+	/**
+	 * Returns the first type in the given package whose name
+	 * matches the given (unqualified) name, or <code>null</code> if none
+	 * exist. Specifying a <code>null</code> package will result in no matches.
+	 * The domain of the search is bounded by the Java project from which 
+	 * this name lookup was obtained.
+	 * <br>
+	 *	Note that this method does not find secondary types.
+	 * <br>
+	 * @param name the name of the type to find
+	 * @param pkg the package to search
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *	only exact name matches qualify when <code>false</code>
+	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
+	 * 	are desired results. If no flags are specified, all types are returned.
 	 *
 	 * @see #ACCEPT_CLASSES
 	 * @see #ACCEPT_INTERFACES
