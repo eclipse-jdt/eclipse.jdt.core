@@ -240,7 +240,7 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 	IBinaryType type = (IBinaryType) binaryInfo;
 	char[] fullyQualifiedTypeName = convertClassFileFormat(type.getName());
 	if (pattern.enclosingTypeNames == null || pattern instanceof QualifiedTypeDeclarationPattern) {
-		char[] simpleName = (pattern.getMatchMode() | SearchPattern.R_PREFIX_MATCH) != 0
+		char[] simpleName = (pattern.getMatchMode() == SearchPattern.R_PREFIX_MATCH)
 			? CharOperation.concat(pattern.simpleName, IIndexConstants.ONE_STAR)
 			: pattern.simpleName;
 		if (!checkTypeName(simpleName, pattern.pkg, fullyQualifiedTypeName, pattern.isCaseSensitive(), pattern.isCamelCase())) return false;
