@@ -177,7 +177,7 @@ public String[] getParameterNames() throws JavaModelException {
  		if (javadocContents == null) {
  			long timeOut = 50; // default value
  			try {
- 				String option = this.getJavaProject().getOption(JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
+ 				String option = this.getJavaProject().getOption(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
  				if (option != null) {
  					timeOut = Long.parseLong(option);
  				}
