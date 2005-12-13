@@ -117,6 +117,12 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextField = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
 	int indexOfBottom = contents.indexOf(JavadocConstants.CONSTRUCTOR_DETAIL, indexOfEndLink);
+	if (indexOfBottom == -1) {
+		indexOfBottom = contents.indexOf(JavadocConstants.METHOD_DETAIL, indexOfEndLink);
+		if (indexOfBottom == -1) {
+			indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+		}
+	}
 	indexOfNextField= Math.min(indexOfNextField, indexOfBottom);
 	if (indexOfNextField == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextField);
