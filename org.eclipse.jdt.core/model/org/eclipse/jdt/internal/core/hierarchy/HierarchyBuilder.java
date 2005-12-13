@@ -236,7 +236,12 @@ public abstract class HierarchyBuilder {
 		char[] bName = typeInfo.getName();
 		qualifiedName = new String(ClassFile.translatedName(bName));
 		if (qualifiedName.equals(this.focusQualifiedName)) return getType();
-		return this.nameLookup.findType(qualifiedName, false, flag);
+		return this.nameLookup.findType(qualifiedName,
+			false,
+			flag,
+			true/* consider secondary types */,
+			false/* do NOT wait for indexes */,
+			null);
 	}
 	protected void worked(IProgressMonitor monitor, int work) {
 		if (monitor != null) {

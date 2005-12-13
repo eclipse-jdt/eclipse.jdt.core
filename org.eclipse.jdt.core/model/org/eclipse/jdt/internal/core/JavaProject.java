@@ -1062,7 +1062,10 @@ public class JavaProject
 				IType type = lookup.findType(
 					qualifiedName,
 					false,
-					NameLookup.ACCEPT_ALL);
+					NameLookup.ACCEPT_ALL,
+					true/* consider secondary types */,
+					false/* do NOT wait for indexes */,
+					null);
 
 				if (type != null) {
 					return type.getParent();
@@ -1185,6 +1188,7 @@ public class JavaProject
 			false,
 			NameLookup.ACCEPT_ALL,
 			considerSecondaryTypes,
+			true, /* wait for indexes (only if consider secondary types)*/
 			progressMonitor);
 		if (type == null) {
 			// try to find enclosing type

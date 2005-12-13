@@ -520,7 +520,13 @@ public class NameLookup implements SuffixConstants {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118789"
 	 */
 	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags) {
-		return findType(typeName, packageName, partialMatch, acceptFlags, true, false, null);
+		return findType(typeName,
+			packageName,
+			partialMatch,
+			acceptFlags,
+			true/* consider secondary types */,
+			false/* do NOT wait for indexes */,
+			null);
 	}
 
 	/**
@@ -636,9 +642,9 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
-		return findType(name, partialMatch, acceptFlags, true, null);
+		return findType(name, partialMatch, acceptFlags, true/*consider secondary types*/, true/*wait for indexes*/, null);
 	}
-	public IType findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, IProgressMonitor monitor) {
+	public IType findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
 		int index= name.lastIndexOf('.');
 		String className= null, packageName= null;
 		if (index == -1) {
@@ -648,7 +654,7 @@ public class NameLookup implements SuffixConstants {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, true, monitor);
+		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, monitor);
 	}
 
 	private IType getMemberType(IType type, String name, int dot) {
