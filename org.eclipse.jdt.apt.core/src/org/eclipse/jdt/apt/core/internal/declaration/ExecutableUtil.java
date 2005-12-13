@@ -50,6 +50,10 @@ class ExecutableUtil {
 		if( executable.isFromSource() ){
 			final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = 
 				(org.eclipse.jdt.core.dom.MethodDeclaration)executable.getAstNode();
+			
+			// Synthetic methods will have no ast node
+			if (methodAstNode == null)
+				return Collections.emptyList();
 	    	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	    	final List<TypeParameter> typeParams = methodAstNode.typeParameters();
 	    	final List<TypeParameterDeclaration> result = new ArrayList<TypeParameterDeclaration>();
