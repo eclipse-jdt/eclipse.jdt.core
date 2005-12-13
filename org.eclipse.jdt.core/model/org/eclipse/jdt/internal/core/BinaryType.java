@@ -994,6 +994,10 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
 	if (indexOfNextSummary == -1) {
 		// try to find constructor summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.FIELD_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// try to find constructor summary start
 		indexOfNextSummary = contents.indexOf(JavadocConstants.CONSTRUCTOR_SUMMARY);
 	}
 	if (indexOfNextSummary == -1) {
