@@ -894,8 +894,18 @@ public final class JavaCore extends Plugin {
 	 * The name of this option is subject to change before 3.2 release.
 	 * @see #getDefaultOptions()
 	 * @since 3.2
+	 * @deprecated Use TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC instead
 	 */
 	public static final String CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".codeAssist.timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
+
+	/**
+	 * Possible  configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
+
 	// *************** Possible values for configurable options. ********************
 	
 	/**
