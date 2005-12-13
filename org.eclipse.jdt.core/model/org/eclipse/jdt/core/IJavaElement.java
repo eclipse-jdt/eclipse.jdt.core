@@ -165,6 +165,7 @@ public interface IJavaElement extends IAdaptable {
 	 * <p>This should be used only for binary elements. Source elements will always return null.
 	 * The encoding used to read the javadoc is the one defined by the content type of the
 	 * file. If none is defined, then the specified encoding will be used as the default encoding.</p>
+	 * <p>In case of the javadoc doesn't exist for this element, null is returned.</p>
 	 * 
 	 * <p>The html is extracted from the attached javadoc and provided as is. No
 	 * transformation or validation is done.</p>

@@ -462,7 +462,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	return extractJavadoc(declaringType, contents);
 }
 private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {
-	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	if (contents == null) return null;
 
 	String typeQualifiedName = declaringType.getTypeQualifiedName('.');
 	typeQualifiedName = typeQualifiedName.replace('$', '.');

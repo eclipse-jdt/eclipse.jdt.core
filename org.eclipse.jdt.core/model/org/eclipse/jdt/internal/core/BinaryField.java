@@ -109,7 +109,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 }
 public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
 	String contents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor, defaultEncoding);
-	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	if (contents == null) return null;
 	int indexAnchor = contents.indexOf(
 			JavadocConstants.ANCHOR_PREFIX_START + this.getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
 	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));

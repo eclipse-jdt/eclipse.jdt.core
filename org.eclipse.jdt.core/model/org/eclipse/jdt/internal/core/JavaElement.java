@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -722,9 +723,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				return String.valueOf(contents);
 			}
  		} catch (MalformedURLException e) {
- 			// ignore
-		} catch (IOException e) {
-			// ignore
+ 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+		} catch (FileNotFoundException e) {
+			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
+		} catch(IOException e) {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} finally {
 			if (stream != null) {
 				try {
