@@ -184,6 +184,9 @@ public abstract class SearchParticipant {
 	 * The given index location must represent a path in the file system to a file that
 	 * either already exists or is going to be created. If it exists, it must be an index file,
 	 * otherwise its data might be overwritten.
+	 * </p><p>
+	 * When the index is no longer needed, clients should use {@link #removeIndex(IPath) }
+	 * to discard it.
 	 * </p>
 	 * 
 	 * @param document the document to index
