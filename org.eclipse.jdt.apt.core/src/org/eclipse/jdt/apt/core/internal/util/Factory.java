@@ -94,7 +94,10 @@ public class Factory
         	if( typeBinding.isAnonymous() || typeBinding.isArray() || 
     			typeBinding.isWildcardType() || typeBinding.isPrimitive() )       
                 throw new IllegalStateException("failed to create declaration from " + binding); //$NON-NLS-1$
-            return createReferenceType(typeBinding, env);
+        	if( typeBinding.isTypeVariable() )
+	        	return new TypeParameterDeclarationImpl(typeBinding, env);
+        	else
+        		return createReferenceType(typeBinding, env);
         case IBinding.VARIABLE:
         	final IVariableBinding varBinding = (IVariableBinding)binding;            
             if(varBinding.isEnumConstant())

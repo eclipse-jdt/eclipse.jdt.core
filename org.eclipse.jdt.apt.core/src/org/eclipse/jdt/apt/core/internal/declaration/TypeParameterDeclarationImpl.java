@@ -21,6 +21,7 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 import com.sun.mirror.declaration.AnnotationMirror;
@@ -86,8 +87,6 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 
     public Declaration getOwner()
     {
-        // TODO: (theodora) uncomment the following code when we get the next version of jdt.core
-	/*
 		final ITypeBinding binding = getDeclarationBinding();
 		// declared on a class
 		IBinding owner = binding.getDeclaringClass();
@@ -96,10 +95,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 			owner = binding.getDeclaringMethod();
 		// actually don't know for some reason.
 		if( owner == null ) return null;
-		return Factory.createDeclaration(owner, _env);
-		
-	*/	
-        throw new UnsupportedOperationException("Need version 1.44 of jdt.core.dom.ITypeBinding.java. tyeung@bea.com"); //$NON-NLS-1$
+		return Factory.createDeclaration(owner, _env);    
     }
 
     public SourcePosition getPosition()

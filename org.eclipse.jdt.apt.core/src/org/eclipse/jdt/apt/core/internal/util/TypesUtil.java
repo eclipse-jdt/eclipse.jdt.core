@@ -284,8 +284,8 @@ public class TypesUtil implements Types
      */
     public boolean isAssignable(TypeMirror t1, TypeMirror t2)
     {
-        final ITypeBinding left = getTypeBinding(t1);
-        final ITypeBinding right = getTypeBinding(t2);
+        final ITypeBinding left = getTypeBinding(t2);
+        final ITypeBinding right = getTypeBinding(t1);
         
         if( left == right ) return true;
         else if( left == null || right == null ) return false;
@@ -333,6 +333,7 @@ public class TypesUtil implements Types
                 case TYPE_ERROR: 	 return null;
                 case TYPE_ARRAY: 	 return ((ArrayTypeImpl)type).getArrayBinding();
                 case TYPE_WILDCARD:  return ((WildcardTypeImpl)type).getWildcardBinding();
+                case TYPE_PARAMETER_VARIABLE: return ((TypeParameterDeclarationImpl)type).getDeclarationBinding();
                 default: return ((TypeDeclarationImpl)type).getTypeBinding();
             }
         }

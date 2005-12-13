@@ -80,6 +80,9 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.DefaultConstantAnnotationFactory">
 	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.apitest.APIAnnotationProcessorFactory">
+	      </factory>
 	   </factories>
    </extension>
 
