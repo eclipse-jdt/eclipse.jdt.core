@@ -40,7 +40,7 @@ public static Test suite() {
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX =  "testPackageDeclaration";
-//	TESTS_NAMES = new String[] { "testMethodDeclaration11" };
+//	TESTS_NAMES = new String[] { "testMethodReference17" };
 //	TESTS_NUMBERS = new int[] { 113671 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -1548,6 +1548,19 @@ public void testMethodReference16() throws CoreException {
 	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope15(), resultCollector);
 	assertSearchResults(
 		"src/p2/Y.java void p2.Y.bar() [foo(this)]",
+		this.resultCollector);
+}
+/**
+ * Bug 111416: [search] wrong potential matches on a static method open
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=111416"
+ */
+public void testMethodReference17() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/b111416/X.java").getType("X");
+	IMethod method = type.getMethod("open", new String[] {"QString;"});
+	resultCollector.showAccuracy = true;
+	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope(), resultCollector);
+	assertSearchResults(
+		"src/b111416/X.java void b111416.X.foo() [open(\"\")] EXACT_MATCH",
 		this.resultCollector);
 }
 /**
