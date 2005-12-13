@@ -1184,39 +1184,41 @@ public final class CompletionEngine
 				}
 			}
 		} else if (astNode instanceof CompletionOnMemberValueName) {
-			if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
-				CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
-				Annotation annotation = (Annotation) astNodeParent;
-				
-				this.completionToken = memberValuePair.name;
-				
-				if (this.completionToken.length == 0) {
+			CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
+			Annotation annotation = (Annotation) astNodeParent;
+			
+			this.completionToken = memberValuePair.name;
+			
+			if (this.completionToken.length == 0) {
+				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
 
 					findAnnotationReference(annotation.type);
-				} else {
-					MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				}
+			} else {
+				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
 					this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
-					if (memberValuePairs == null || memberValuePairs.length == 0) {
-						if (annotation.resolvedType instanceof ReferenceBinding) {
-							MethodBinding[] methodBindings =
-								((ReferenceBinding)annotation.resolvedType).availableMethods();
-							if (methodBindings != null &&
-									methodBindings.length == 1 &&
-									CharOperation.equals(methodBindings[0].selector, VALUE)) {
-								if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-									findTypesAndPackages(this.completionToken, scope);
-								} else {
-									findVariablesAndMethods(
-										this.completionToken,
-										scope,
-										FakeInvocationSite,
-										scope,
-										insideTypeAnnotation,
-										true);
-									// can be the start of a qualified type name
-									findTypesAndPackages(this.completionToken, scope);
-								}
+				}
+				if (memberValuePairs == null || memberValuePairs.length == 0) {
+					if (annotation.resolvedType instanceof ReferenceBinding) {
+						MethodBinding[] methodBindings =
+							((ReferenceBinding)annotation.resolvedType).availableMethods();
+						if (methodBindings != null &&
+								methodBindings.length == 1 &&
+								CharOperation.equals(methodBindings[0].selector, VALUE)) {
+							if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+								findTypesAndPackages(this.completionToken, scope);
+							} else {
+								findVariablesAndMethods(
+									this.completionToken,
+									scope,
+									FakeInvocationSite,
+									scope,
+									insideTypeAnnotation,
+									true);
+								// can be the start of a qualified type name
+								findTypesAndPackages(this.completionToken, scope);
 							}
 						}
 					}

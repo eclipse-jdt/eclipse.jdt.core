@@ -7988,4 +7988,40 @@ public void test0263() throws JavaModelException {
 			"zzmethod2[METHOD_REF]{zzmethod2(), Ltest.SuperInterface;, ()V, zzmethod2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=120522
+public void test0264() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"@MyAnnot(MyEnum\n"+
+		"public class Test {\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/MyEnum.java",
+		"package test;"+
+		"public enum MyEnum {\n"+
+		"  AAA\n"+
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/MyAnnot.java",
+		"package test;"+
+		"public @interface MyAnnot {\n"+
+		"  MyEnum[] value();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyEnum";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"MyEnum[TYPE_REF]{MyEnum, test, Ltest.MyEnum;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
