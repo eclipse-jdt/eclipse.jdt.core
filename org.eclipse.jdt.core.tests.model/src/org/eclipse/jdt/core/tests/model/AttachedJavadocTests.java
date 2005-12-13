@@ -288,4 +288,38 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120597
+	public void test011() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		IType type = classFile.getType();
+		IField field = type.getField("out"); //$NON-NLS-1$
+		assertNotNull(field);
+		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
+	public void test012() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+		assertTrue("Should not contain reference to out", javadoc.indexOf("out") == -1);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
+	public void test013() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("W.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+	}
 }
