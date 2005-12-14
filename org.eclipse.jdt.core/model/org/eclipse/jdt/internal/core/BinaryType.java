@@ -992,9 +992,13 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
 	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
-	if (indexOfNextSummary == -1) {
+	if (this.isEnum() && indexOfNextSummary == -1) {
 		// try to find enum constant summary start
 		indexOfNextSummary = contents.indexOf(JavadocConstants.ENUM_CONSTANT_SUMMARY);
+	}
+	if (this.isAnnotation() && indexOfNextSummary == -1) {
+		// try to find enum constant summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_MEMBER_SUMMARY);
 	}
 	if (indexOfNextSummary == -1) {
 		// try to find field summary start
