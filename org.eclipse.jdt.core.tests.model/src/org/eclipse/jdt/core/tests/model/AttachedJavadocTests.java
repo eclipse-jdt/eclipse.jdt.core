@@ -344,4 +344,40 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name", javadoc.indexOf("name") == -1);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120847
+	public void test016() throws JavaModelException {
+		IClasspathEntry[] savedEntries = null;
+		try {
+			IClasspathEntry[] entries = this.project.getRawClasspath();
+			savedEntries = (IClasspathEntry[]) entries.clone();
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, "invalid_path");
+			for (int i = 0, max = entries.length; i < max; i++) {
+				final IClasspathEntry entry = entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
+						&& entry.getContentKind() == IPackageFragmentRoot.K_BINARY
+						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
+					entries[i] = JavaCore.newLibraryEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), new IClasspathAttribute[] { attribute }, entry.isExported());
+				}
+			}
+			this.project.setRawClasspath(entries, null);
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			assertNotNull(classFile);
+			IType type = classFile.getType();
+			IField field = type.getField("f"); //$NON-NLS-1$
+			assertNotNull(field);
+			field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+			assertFalse("Should be unreachable", true);
+		} catch(JavaModelException e) {
+			assertTrue("Must occur", true);
+			assertEquals("Wrong error message", "Cannot retrieve the attached javadoc for invalid_path", e.getMessage());
+		} finally {
+			// restore classpath
+			if (savedEntries != null) {
+				this.project.setRawClasspath(savedEntries, null);
+			}
+		}
+	}
 }
