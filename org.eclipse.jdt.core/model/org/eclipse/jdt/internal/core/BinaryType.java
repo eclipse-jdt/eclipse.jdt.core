@@ -993,7 +993,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
 	if (indexOfNextSummary == -1) {
-		// try to find constructor summary start
+		// try to find field summary start
 		indexOfNextSummary = contents.indexOf(JavadocConstants.FIELD_SUMMARY);
 	}
 	if (indexOfNextSummary == -1) {
@@ -1033,8 +1033,22 @@ public String getJavadocContents(IProgressMonitor monitor, String defaultEncodin
 		pathBuffer.append('/');
 	}
 	IPackageFragment pack= this.getPackageFragment();
-	String typeQualifiedName = this.getTypeQualifiedName('.');
-	typeQualifiedName = typeQualifiedName.replace('$', '.');
+	String typeQualifiedName = null;
+	if (this.isMember()) {
+		IType currentType = this;
+		StringBuffer typeName = new StringBuffer();
+		while (currentType != null) {
+			typeName.insert(0, currentType.getElementName());
+			currentType = currentType.getDeclaringType();
+			if (currentType != null) {
+				typeName.insert(0, '.');
+			}
+		}
+		typeQualifiedName = new String(typeName.toString());
+	} else {
+		typeQualifiedName = this.getElementName();
+	}
+	
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
