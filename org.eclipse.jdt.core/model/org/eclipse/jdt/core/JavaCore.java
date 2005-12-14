@@ -2325,7 +2325,7 @@ public final class JavaCore extends Plugin {
 	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
 	 *    If the value is 0, then it means don't fetch the parameter names (use default values).
 	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
-	 *     - possible values:	"&lt;n&gt;", where n is an integer greater or equals to 0
+	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
 	 *     - default:           "50"
 	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
