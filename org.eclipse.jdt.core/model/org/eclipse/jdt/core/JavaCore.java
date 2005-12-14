@@ -2323,7 +2323,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 *	JAVACORE / Set the timeout value for retrieving the method's parameter names from javadoc
 	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
-	 *    If the value is 0, then it means don't fetch the parameter names (use default values).
+	 *    If the value is 0, the parameter names are not fetched and the raw names are returned.
 	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
 	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
 	 *     - default:           "50"
