@@ -679,7 +679,7 @@ public interface IType extends IMember {
 	 * <li>the type qualified name of a class B defined as a member of a class A
 	 *     using the '$' separator is "A$B"</li>
 	 * <li>the type qualified name of a binary type whose class file is A$B.class
-	 *     using the '.' separator is "A.B"</li>
+	 *     using the '.' separator is "A$B"</li>
 	 * <li>the type qualified name of a binary type whose class file is A$B.class
 	 *     using the '$' separator is "A$B"</li>
 	 * <li>the type qualified name of an anonymous binary type whose class file is A$1.class
