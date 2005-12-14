@@ -79,11 +79,14 @@ int getFlags() throws JavaModelException;
  * extracted from the corresponding source.</p>
  * <p>If this element is from a binary, the javadoc is extracted from the
  * attached source if present.</p>
+ * <p>If this element's openable is not consistent, then null is returned.</p>
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  * @return a source range corresponding to the javadoc source or <code>null</code>
- * if no source is available or the element has no javadoc comment.
+ * if no source is available, this element has no javadoc comment or
+ * this element's openable is not consistent
+ * @see IOpenable#isConsistent()
  * @since 3.2
  */
 ISourceRange getJavadocRange() throws JavaModelException;

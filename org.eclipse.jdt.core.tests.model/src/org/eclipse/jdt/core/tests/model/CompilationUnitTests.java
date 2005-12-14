@@ -1153,4 +1153,28 @@ public void test110172() throws CoreException {
 		deleteFile("/P/src/X.java");
 	}
 }
+public void test120902() throws CoreException {
+	try {
+		String source =
+			"/**\r\n" + 
+			" * Toy\r\n" + 
+			" */\r\n" + 
+			"public class X {\r\n" +
+			"}";
+		createFile("/P/src/X.java", source);
+		final ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
+		IType type = compilationUnit.getType("X");
+		ISourceRange javadocRange = type.getJavadocRange();
+		assertNotNull("No source range", javadocRange);
+		compilationUnit.getBuffer().setContents("");
+		try {
+			javadocRange = type.getJavadocRange();
+			assertNull("Got a source range", javadocRange);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			assertFalse("Should not happen", true);
+		}		
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
 }
