@@ -9,6 +9,7 @@ public interface JavadocConstants {
 	String CONSTRUCTOR_DETAIL = "<!-- ========= CONSTRUCTOR DETAIL ======== -->"; //$NON-NLS-1$
 	String CONSTRUCTOR_SUMMARY = "<!-- ======== CONSTRUCTOR SUMMARY ======== -->"; //$NON-NLS-1$
 	String FIELD_SUMMARY = "<!-- =========== FIELD SUMMARY =========== -->"; //$NON-NLS-1$
+	String ENUM_CONSTANT_SUMMARY = "<!-- =========== ENUM CONSTANT SUMMARY =========== -->"; //$NON-NLS-1$
 	String END_OF_CLASS_DATA = "<!-- ========= END OF CLASS DATA ========= -->"; //$NON-NLS-1$
 	String HTML_EXTENSION = ".html"; //$NON-NLS-1$
 	String INDEX_FILE_NAME = "index.html"; //$NON-NLS-1$
