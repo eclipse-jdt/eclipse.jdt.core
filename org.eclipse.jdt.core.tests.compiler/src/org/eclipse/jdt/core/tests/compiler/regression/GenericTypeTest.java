@@ -27028,20 +27028,21 @@ public void test874() {
 		"     0  ldc <String \"X\"> [16]\n" + 
 		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
 		"     5  ldc <String \"Y\"> [23]\n" + 
-		"     7  invokevirtual C.label(java.lang.String) : java.lang.Object [25]\n" + 
-		"    10  checkcast D [29]\n" + 
-		"    13  astore_1 [d]\n" + 
-		"    14  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
-		"    17  aload_1 [d]\n" + 
-		"    18  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [37]\n" + 
-		"    21  return\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : B [25]\n" + 
+		"    10  checkcast C [18]\n" + 
+		"    13  astore_1 [c]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+		"    17  aload_1 [c]\n" + 
+		"    18  invokevirtual C.toString() : java.lang.String [35]\n" + 
+		"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [39]\n" + 
+		"    24  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 14]\n" + 
-		"        [pc: 14, line: 15]\n" + 
-		"        [pc: 21, line: 16]\n" + 
+		"        [pc: 0, line: 13]\n" + 
+		"        [pc: 14, line: 14]\n" + 
+		"        [pc: 24, line: 15]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 14, pc: 22] local: d index: 1 type: D\n";
+		"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 25] local: c index: 1 type: C\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -27170,7 +27171,7 @@ public void test877() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693 - variation
-public void _test878() {
+public void test878() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27201,21 +27202,20 @@ public void _test878() {
 		"     0  ldc <String \"X\"> [16]\n" + 
 		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
 		"     5  ldc <String \"Y\"> [23]\n" + 
-		"     7  invokevirtual C.label(java.lang.String) : B [25]\n" + 
-		"    10  checkcast C [18]\n" + 
-		"    13  astore_1 [c]\n" + 
-		"    14  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
-		"    17  aload_1 [c]\n" + 
-		"    18  invokevirtual C.toString() : java.lang.String [35]\n" + 
-		"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [39]\n" + 
-		"    24  return\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : java.lang.Object [25]\n" + 
+		"    10  checkcast D [29]\n" + 
+		"    13  astore_1 [d]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
+		"    17  aload_1 [d]\n" + 
+		"    18  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [37]\n" + 
+		"    21  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 13]\n" + 
-		"        [pc: 14, line: 14]\n" + 
-		"        [pc: 24, line: 15]\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 14, line: 15]\n" + 
+		"        [pc: 21, line: 16]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 14, pc: 25] local: c index: 1 type: C\n";
+		"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 22] local: d index: 1 type: D\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
