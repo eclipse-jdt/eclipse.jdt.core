@@ -672,7 +672,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		for (int i= 0; i < extraAttributes.length; i++) {
 			IClasspathAttribute attrib= extraAttributes[i];
 			if (IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
-				final String value = attrib.getValue();
+				String value = attrib.getValue();
 				try {
 					return new URL(value);
 				} catch (MalformedURLException e) {
