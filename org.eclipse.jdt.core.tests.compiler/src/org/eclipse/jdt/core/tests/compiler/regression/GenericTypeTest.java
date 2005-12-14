@@ -27020,7 +27020,7 @@ public void test874() {
 			"}\n",
 		},
 		"SUCCESS");
-	// 	ensure proper declaring class for #run() invocation
+	// 	ensure only one checkcast C
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 2\n" + 
@@ -27028,21 +27028,20 @@ public void test874() {
 		"     0  ldc <String \"X\"> [16]\n" + 
 		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
 		"     5  ldc <String \"Y\"> [23]\n" + 
-		"     7  invokevirtual C.label(java.lang.String) : B [25]\n" + 
-		"    10  checkcast C [18]\n" + 
-		"    13  astore_1 [c]\n" + 
-		"    14  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
-		"    17  aload_1 [c]\n" + 
-		"    18  invokevirtual C.toString() : java.lang.String [35]\n" + 
-		"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [39]\n" + 
-		"    24  return\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : java.lang.Object [25]\n" + 
+		"    10  checkcast D [29]\n" + 
+		"    13  astore_1 [d]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
+		"    17  aload_1 [d]\n" + 
+		"    18  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [37]\n" + 
+		"    21  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 13]\n" + 
-		"        [pc: 14, line: 14]\n" + 
-		"        [pc: 24, line: 15]\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 14, line: 15]\n" + 
+		"        [pc: 21, line: 16]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 14, pc: 25] local: c index: 1 type: C\n";
+		"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 22] local: d index: 1 type: D\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -27169,5 +27168,71 @@ public void test877() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693 - variation
+public void _test878() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"class A {}\n" + 
+			"class D extends A {}\n" + 
+			"abstract class B<T> {\n" + 
+			"    public T label(String s) { return null; }\n" + 
+			"}\n" + 
+			"final class C extends B<A> {\n" + 
+			"    public static C instance(String s) { return new C(); }\n" + 
+			"    @Override public String toString() {\n" + 
+			"    	return \"SUCCESS\"; \n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        D d = (D)C.instance(\"X\").label(\"Y\");\n" + 
+			"        System.out.println(d);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"null");
+	// 	ensure only one checkcast D
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  ldc <String \"X\"> [16]\n" + 
+		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
+		"     5  ldc <String \"Y\"> [23]\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : B [25]\n" + 
+		"    10  checkcast C [18]\n" + 
+		"    13  astore_1 [c]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+		"    17  aload_1 [c]\n" + 
+		"    18  invokevirtual C.toString() : java.lang.String [35]\n" + 
+		"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [39]\n" + 
+		"    24  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 13]\n" + 
+		"        [pc: 14, line: 14]\n" + 
+		"        [pc: 24, line: 15]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 25] local: c index: 1 type: C\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
 }
 }
