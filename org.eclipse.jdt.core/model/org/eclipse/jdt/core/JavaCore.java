@@ -54,6 +54,8 @@
  *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING
  *                                 COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING
+ *     IBM Corporation - added the following constants:
+ *                                 TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -2319,6 +2321,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
+	 *	JAVACORE / Set the timeout value for retrieving the method's parameter names from javadoc
+	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
+	 *    If the value is 0, then it means don't fetch the parameter names (use default values).
+	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
+	 *     - possible values:	"&lt;n&gt;", where n is an integer greater or equals to 0
+	 *     - default:           "50"
+	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
@@ -2475,12 +2484,6 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *     
-	 *	Set the timeout value for retrieving the method's parameter names from javadoc
-	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
-	 *    If the value is 0, then it means don't fetch the parameter names (use default values).
-	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
-	 *     - possible values:	"&lt;n&gt;", where n is an integer greater or equals to 0
-	 *     - default:           "50"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
