@@ -464,14 +464,29 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {
 	if (contents == null) return null;
 
-	String typeQualifiedName = declaringType.getTypeQualifiedName('.');
-	typeQualifiedName = typeQualifiedName.replace('$', '.');
+	String typeQualifiedName = null;
+	final boolean declaringTypeIsMember = declaringType.isMember();
+	if (declaringTypeIsMember) {
+		IType currentType = declaringType;
+		StringBuffer buffer = new StringBuffer();
+		while (currentType != null) {
+			buffer.insert(0, currentType.getElementName());
+			currentType = currentType.getDeclaringType();
+			if (currentType != null) {
+				buffer.insert(0, '.');
+			}
+		}
+		typeQualifiedName = new String(buffer.toString());
+	} else {
+		typeQualifiedName = declaringType.getElementName();
+	}
 	String methodName = this.getElementName();
 	if (this.isConstructor()) {
 		methodName = typeQualifiedName;
 	}
 	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
-	if (declaringType.isMember()) {
+	if (declaringTypeIsMember) {
+
 		int depth = 0;
 		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
 		// might need to remove a part of the signature corresponding to the synthetic argument
