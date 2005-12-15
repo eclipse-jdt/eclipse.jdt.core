@@ -645,22 +645,23 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 	
 	protected void saveSettings() {
-		List<FactoryPathEntry> containers;
+		FactoryPath fp;
 		if ((fJProj != null) && !fBlockControl.isEnabled()) {
 			// We're in a project properties pane but the entire configuration 
 			// block control is disabled.  That means the per-project settings checkbox 
 			// is unchecked.  To save that state, we'll delete the settings file.
-			containers = null;
+			fp = null;
 		}
 		else {
+			List<FactoryPathEntry> containers;
+			Map<FactoryContainer, FactoryPath.Attributes> map;
 			containers = getListContents();
+			map = FactoryPathEntry.pathMapFromList(containers);
+			fp = new FactoryPath();
+			fp.setContainers(map);
 		}
 		
-		Map<FactoryContainer, FactoryPath.Attributes> map = FactoryPathEntry.pathMapFromList(containers);
-		
 		try {
-			FactoryPath fp = new FactoryPath();
-			fp.setContainers(map);
 			AptConfig.setFactoryPath(fJProj, fp);
 		}
 		catch (CoreException e) {

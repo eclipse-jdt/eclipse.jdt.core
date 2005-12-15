@@ -366,7 +366,8 @@ public final class FactoryPathUtil {
 
 	public static void setFactoryPath(IJavaProject jproj, FactoryPath path) 
 			throws CoreException {
-		Map<FactoryContainer, FactoryPath.Attributes> map = path.getAllContainers();
+		Map<FactoryContainer, FactoryPath.Attributes> map = (path != null) ?
+				path.getAllContainers() : null;
 		saveFactoryPathFile(jproj, map);
 	}
 	
