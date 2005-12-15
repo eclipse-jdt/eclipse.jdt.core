@@ -367,17 +367,6 @@ public class AnnotationProcessorFactoryLoader {
     }
     
     /**
-     * @param javaProj
-     * @return <code>true</code> iff there are Annotation Processor Factories associated with 
-     * the given project
-     */
-    public synchronized boolean hasFactoriesForProject(IJavaProject javaProj){
-    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
-    		getFactoriesAndAttributesForProject(javaProj);
-		return factories != null && !factories.isEmpty();
-    }
-    
-    /**
      * Convenience method: get the key set of the map returned by
      * @see #getFactoriesAndAttributesForProject(IJavaProject), as a List.
      */

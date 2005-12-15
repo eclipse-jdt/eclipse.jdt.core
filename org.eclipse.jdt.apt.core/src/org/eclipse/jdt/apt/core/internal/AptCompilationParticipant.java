@@ -231,13 +231,13 @@ public class AptCompilationParticipant extends CompilationParticipant
 		return GENERIC_COMPILATION_RESULT;
 	}	
 	
+	/**
+	 * Does APT have anything to do for this project?
+	 * Even if there are no processors on the factory path, apt may still
+	 * be involved during a clean.
+	 */
 	public boolean doesParticipateInProject(IJavaProject project){
-		if (!AptConfig.isEnabled(project)) {
-			return false;
-		}	
-		
-		return AnnotationProcessorFactoryLoader.getLoader().hasFactoriesForProject(project);
-		// TODO: use config to decide which projects we support
+		return AptConfig.isEnabled(project);
 	}
 	
 	public void aboutToBuild(IJavaProject project) {
