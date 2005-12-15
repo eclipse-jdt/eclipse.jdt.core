@@ -38,26 +38,50 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 	@Override
 	public void close() throws IOException {
 		super.close();
-		InputStream contents = new ByteArrayInputStream(toByteArray());
-		if (!_file.exists()) {
-			saveToDisk(contents, true);
-			return;
-		}
-		boolean needToWriteData = true;
+		InputStream contents = null;
 		try {
-			// Only write the contents if the data is different
-			InputStream in = new ByteArrayInputStream(toByteArray());
-			InputStream oldData = new BufferedInputStream(_file.getContents());
-			if (FileSystemUtil.compareStreams(in, oldData)) {
-				needToWriteData = false;
+			contents = new ByteArrayInputStream(toByteArray());
+			if (!_file.exists()) {
+				saveToDisk(contents, true);
+				return;
+			}
+			boolean needToWriteData = true;
+			InputStream in = null;
+			InputStream oldData = null;
+			try {
+				// Only write the contents if the data is different
+				in = new ByteArrayInputStream(toByteArray());
+				oldData = new BufferedInputStream(_file.getContents());
+				if (FileSystemUtil.compareStreams(in, oldData)) {
+					needToWriteData = false;
+				}
+			}
+			catch (CoreException ce) {
+				// Ignore -- couldn't read the old data, so assume it's different
+			}
+			finally {
+				try {
+					if (in != null) in.close(); 
+				} 
+				catch (IOException ioe) {
+				}
+				try {
+					if (oldData != null) oldData.close(); 
+				} 
+				catch (IOException ioe) {
+				}
+			}
+			if (needToWriteData) {
+				contents.reset();
+				saveToDisk(contents, false);
 			}
 		}
-		catch (CoreException ce) {
-			// Ignore -- couldn't read the old data, so assume it's different
-		}
-		if (needToWriteData) {
-			contents.reset();
-			saveToDisk(contents, false);
+		finally {
+			try {
+				if (contents != null) contents.close(); 
+			} 
+			catch (IOException ioe) {
+			}
 		}
 	}
 	

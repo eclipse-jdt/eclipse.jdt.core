@@ -265,10 +265,16 @@ public class GeneratedFileManager {
 					// Do nothing. Assume the new content is different
 				}
 				finally {
-					is.reset();
 					if (oldData != null) {
 						try {
 							oldData.close();
+						} 
+						catch (IOException ioe) 
+						{}
+					}
+					if (is != null) {
+						try {
+							is.close();
 						} 
 						catch (IOException ioe) 
 						{}
