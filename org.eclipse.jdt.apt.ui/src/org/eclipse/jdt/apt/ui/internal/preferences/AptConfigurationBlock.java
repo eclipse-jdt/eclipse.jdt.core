@@ -84,6 +84,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private Composite fBlockControl;
 	
 	private Map<String, String> fOriginalProcOptions; // cache of saved values
+	private String fOriginalGenSrcDir;
+	private boolean fOriginalAptEnabled;
 	
 	/**
 	 * Event handler for Processor Options list control.
@@ -303,6 +305,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	protected void cacheOriginalValues() {
 		super.cacheOriginalValues();
 		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
+		fOriginalGenSrcDir = AptConfig.getGenSrcDir(fJProj);
+		fOriginalAptEnabled = AptConfig.isEnabled(fJProj);
 	}
 
 	protected void initContents() {
@@ -322,6 +326,12 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			elements = getListElements();
 		}
 		saveProcessorOptions(elements);
+		fAptProject.getGeneratedFileManager().handlePreferenceChange(
+				AptPreferenceConstants.APT_GENSRCDIR, fOriginalGenSrcDir, fGenSrcDirField.getText());
+		fAptProject.getGeneratedFileManager().handlePreferenceChange(
+				AptPreferenceConstants.APT_ENABLED, 
+				Boolean.toString(fOriginalAptEnabled), 
+				Boolean.toString(fAptEnabledField.isSelected()));
 		super.saveSettings();
 	}
 

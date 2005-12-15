@@ -29,6 +29,8 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
+import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -515,7 +517,7 @@ public class AptConfig {
 			AptPlugin.log(status);
 			throw e;
 		}
-		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);	
+		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
 	
 	private static boolean getBoolean(IJavaProject jproj, String optionName) {
@@ -635,20 +637,29 @@ public class AptConfig {
     }
 	
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
-		AptPlugin.ensureAptProject(jproject);
 		IScopeContext context = (null != jproject) ? 
 				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		node.putBoolean(optionName, value);
+		if (jproject != null) {
+			AptProject aproj = AptPlugin.getAptProject(jproject);
+			GeneratedFileManager gfm = aproj.getGeneratedFileManager();
+			gfm.handlePreferenceChange(optionName, null, Boolean.toString(value));
+		}
 		flushPreference(optionName, node);
 	}
 	
 	private static void setString(IJavaProject jproject, String optionName, String value) {
-		AptPlugin.ensureAptProject(jproject);
 		IScopeContext context = (null != jproject) ? 
 				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
+		String oldValue = node.get(optionName, null);
 		node.put(optionName, value);
+		if (jproject != null) {
+			AptProject aproj = AptPlugin.getAptProject(jproject);
+			GeneratedFileManager gfm = aproj.getGeneratedFileManager();
+			gfm.handlePreferenceChange(optionName, oldValue, value);
+		}
 		flushPreference(optionName, node);
 	}
 

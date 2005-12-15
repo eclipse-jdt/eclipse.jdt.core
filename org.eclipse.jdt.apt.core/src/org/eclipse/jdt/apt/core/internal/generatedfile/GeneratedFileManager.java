@@ -33,16 +33,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
@@ -150,86 +144,6 @@ public class GeneratedFileManager {
 	public GeneratedFileManager(final AptProject aptProject) {
 		_aptProject = aptProject;
 		final IJavaProject javaProject = aptProject.getJavaProject();
-		
-		// register a preference listener so that we can watch for changes 
-		// to the gen src dir at the project scope...
-		IScopeContext projScope = new ProjectScope(aptProject.getJavaProject().getProject());
-		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
-		IPreferenceChangeListener projListener = new IPreferenceChangeListener() {
-			public void preferenceChange(PreferenceChangeEvent event) {
-				
-				final String newValue = (String)event.getNewValue();
-				if (newValue == null) {
-					// Null is used to indicate this preference has
-					// been removed, as the project has been deleted.
-					// We do nothing
-					return;
-				}
-				final String oldValue = (String)event.getOldValue();
-				if (newValue.equals(oldValue)) {
-					// No-op -- same config
-					return;
-				}
-				
-				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
-					final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
-					if( AptPlugin.DEBUG )
-						AptPlugin.trace("configure generated source directory new value = " +  //$NON-NLS-1$
-								newValue + 
-								" old value = "  + oldValue + //$NON-NLS-1$
-								" APT is enabled = " + aptEnabled); //$NON-NLS-1$
-					// If APT is enabled, 
-					// clean up the old cp entry, delete the old folder, 
-					// create the new one and update the classpath.
-					if( aptEnabled )
-						configureGeneratedSourceFolder( newValue, oldValue );
-					else
-						setGeneratedSourceFolderName(newValue);
-				}
-				else if(AptPreferenceConstants.APT_ENABLED.equals(event.getKey()) ){
-					if( AptPlugin.DEBUG ){
-						AptPlugin.trace("Got preference change event for " + AptPreferenceConstants.APT_ENABLED ); //$NON-NLS-1$
-					}
-					
-					// no-op;
-					if(newValue.equals(oldValue)){
-						return;
-					}
-					
-					final boolean isEnabling = Boolean.parseBoolean(newValue);
-					if( AptPlugin.DEBUG ){
-						if( isEnabling )
-							AptPlugin.trace("enabling APT for " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
-						else
-							AptPlugin.trace("diabling APT " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
-					}
-					if( isEnabling )
-						configureGeneratedSourceFolder();
-					else{
-						final IFolder srcFolder = getGeneratedSourceFolder();
-						projectClean(true);
-						resetGeneratedSrcFolder(srcFolder, false);
-					}
-				}
-			}
-		};
-		projPrefs.addPreferenceChangeListener(projListener);
-		
-		// ...and at the workspace scope.
-		// Note we check all projects, even those that have project-specific
-		// settings, when the workspace setting changes.  For projects with
-		// project-specific settings, the value of the setting won't change 
-		// so the request will be ignored.
-		IScopeContext wkspScope = new InstanceScope();
-		IEclipsePreferences wkspPrefs = wkspScope.getNode(AptPlugin.PLUGIN_ID);
-		IPreferenceChangeListener wkspListener = new IPreferenceChangeListener() {
-			public void preferenceChange(PreferenceChangeEvent event) {
-				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
-					configureGeneratedSourceFolder( AptConfig.getGenSrcDir(javaProject), null );
-				}
-			}
-		};
-		wkspPrefs.addPreferenceChangeListener(wkspListener);
 		
 		// get generated source dir from config 
 		// default value is set in org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer
@@ -498,6 +412,75 @@ public class GeneratedFileManager {
 	}
 
 	
+	/**
+	 * Update the classpath and generated source folder in response to a change
+	 * in a preference.
+	 * <p>
+	 * This used to be called within a preference change listener.  However, we
+	 * sometimes get preference change events within jobs that hold locks that
+	 * are incompatible with changing the classpath.  Instead, we now call this
+	 * method directly from AptConfig and from the APT config UI code whenever
+	 * the preference has changed.  Programmatic preference changes, such as those
+	 * that take place when syncing to a changed settings file, do not directly
+	 * cause the classpath or GSF to be updated.  This is fine, because changes
+	 * like that should simultaneously update both the preferences and the classpath
+	 * (except in the case of syncing to a broken project, which we don't want to
+	 * fix anyhow).  The GSF will still get created on disk during the prebuild
+	 * notification.
+	 * @param key the preference that is changing, e.g., AptPreferenceConstants.APT_GENSRCDIR
+	 * @param oldValue the previous value, or null if unknown
+	 * @param newValue the new value, which must not be null
+	 */
+	public void handlePreferenceChange(String key, String oldValue, String newValue) 
+	{
+		if (newValue == null) {
+			// Null is used to indicate this preference has
+			// been removed, as the project has been deleted.
+			// We do nothing
+			return;
+		}
+		if (newValue.equals(oldValue)) {
+			// No-op -- same config
+			return;
+		}
+		
+		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {
+			final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
+			if( AptPlugin.DEBUG )
+				AptPlugin.trace("configure generated source directory new value = " +  //$NON-NLS-1$
+						newValue + 
+						" old value = "  + oldValue + //$NON-NLS-1$
+						" APT is enabled = " + aptEnabled); //$NON-NLS-1$
+			// If APT is enabled, 
+			// clean up the old cp entry, delete the old folder, 
+			// create the new one and update the classpath.
+			if( aptEnabled )
+				configureGeneratedSourceFolder( newValue, oldValue );
+			else
+				setGeneratedSourceFolderName(newValue);
+		}
+		else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
+			if( AptPlugin.DEBUG ){
+				AptPlugin.trace("Got preference change event for " + AptPreferenceConstants.APT_ENABLED ); //$NON-NLS-1$
+			}
+			
+			final boolean isEnabling = Boolean.parseBoolean(newValue);
+			if( AptPlugin.DEBUG ){
+				if( isEnabling )
+					AptPlugin.trace("enabling APT for " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
+				else
+					AptPlugin.trace("diabling APT " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
+			}
+			if( isEnabling )
+				configureGeneratedSourceFolder();
+			else{
+				final IFolder srcFolder = getGeneratedSourceFolder();
+				projectClean(true);
+				resetGeneratedSrcFolder(srcFolder, false);
+			}
+		}
+	}
+
 	/**
 	 *  returns true if the specified file is a generated file (i.e., it has one or more parent files)
 	 *  

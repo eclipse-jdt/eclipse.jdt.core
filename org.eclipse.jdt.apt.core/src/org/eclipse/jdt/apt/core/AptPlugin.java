@@ -156,19 +156,6 @@ public class AptPlugin extends Plugin {
 			System.err.println("[ " + Thread.currentThread().getName() + " ] " + msg );  //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	/**
-	 * Guarantees that the Apt Project for the given java project is loaded
-	 * and any project based listeners are registered.
-	 * @param javaProject
-	 */
-	public static void ensureAptProject(IJavaProject javaProject){
-		AptProject aptProj = getAptProject(javaProject, false);
-		if( aptProj == null ){
-			aptProj = getAptProject( javaProject, true );
-			aptProj.ensureLoaded();
-		}
-	}
-	
 	private static AptProject getAptProject(IJavaProject javaProject, boolean create){
 		synchronized(PROJECT_MAP){
 			AptProject aptProject = PROJECT_MAP.get(javaProject);

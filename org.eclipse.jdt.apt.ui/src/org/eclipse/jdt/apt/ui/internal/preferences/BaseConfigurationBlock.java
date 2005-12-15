@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -188,6 +189,7 @@ public abstract class BaseConfigurationBlock {
 	private SelectionListener fSelectionListener;
 	
 	protected final IProject fProject; // project or null
+	protected final AptProject fAptProject; // null for workspace prefs
 
 	private IWorkbenchPreferenceContainer fContainer;
 	private Shell fShell;
@@ -219,12 +221,13 @@ public abstract class BaseConfigurationBlock {
 				new InstanceScope(),
 				new DefaultScope()
 			};
-			AptPlugin.ensureAptProject(JavaCore.create(fProject));			
+			fAptProject = AptPlugin.getAptProject(JavaCore.create(fProject));
 		} else {
 			fLookupOrder= new IScopeContext[] {
 				new InstanceScope(),
 				new DefaultScope()
 			};
+			fAptProject = null;
 		}
 		
 		testIfOptionsComplete(keys);

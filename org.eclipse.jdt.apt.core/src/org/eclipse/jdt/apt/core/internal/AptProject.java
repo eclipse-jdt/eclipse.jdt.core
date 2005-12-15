@@ -26,13 +26,4 @@ public class AptProject {
 	public GeneratedFileManager getGeneratedFileManager() {
 		return _gfm;
 	}
-	
-	/**
-	 * Guarantees that the generated file manager is initialized 
-	 * and any project based listeners are registered. 
-	 */
-	public void ensureLoaded(){
-	    // the constructor creates generated file manager which will
-		// register PreferenceChangeListener.
-	}
 }
