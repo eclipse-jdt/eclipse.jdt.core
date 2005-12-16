@@ -1028,6 +1028,14 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 		method.sourceStart(),
 		method.sourceEnd());
 }
+public void enumConstantsCannotBeSurroundedByParenthesis(Expression expression) {
+	this.handle(
+		IProblem.EnumConstantsCannotBeSurroundedByParenthesis,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void enumStaticFieldUsedDuringInitialization(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.EnumStaticFieldInInInitializerContext,
@@ -5427,7 +5435,8 @@ public void unsafeCast(CastExpression castExpression, Scope scope) {
 	TypeBinding erasedLeaf = erasedCastType.leafComponentType();
 	int dim = erasedCastType.dimensions();
 	if (erasedLeaf.isGenericType()) {
-		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, erasedLeaf.enclosingType());
+		ReferenceBinding leafEnclosing = scope.environment().convertToParameterizedType(erasedLeaf.enclosingType());
+		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, leafEnclosing);
 		if (dim > 0) erasedCastType = scope.environment().createArrayType(erasedCastType, dim);
 	}	
 	this.handle(

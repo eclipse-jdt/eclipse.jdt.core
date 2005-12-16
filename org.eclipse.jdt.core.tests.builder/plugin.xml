@@ -4,7 +4,7 @@
    id="org.eclipse.jdt.core.tests.builder"
    name="%pluginName"
    provider-name = "%providerName"
-   version="3.1.1">
+   version="3.1.0">
 
    <runtime>
       <library name="jdtcoretestsbuilder.jar">
@@ -20,5 +20,11 @@
       <import plugin="org.eclipse.test.performance"/>
    </requires>
 
-
+   <extension point="org.eclipse.jdt.core.compilationParticipant">
+      <compilationParticipant
+            class="org.eclipse.jdt.core.tests.builder.TestBuilderParticipant"
+            createsProblems="true"
+            id="org.eclipse.jdt.core.tests.builder.compilationparticipant"
+            modifiesEnvironment="true"/>
+   </extension>
 </plugin>

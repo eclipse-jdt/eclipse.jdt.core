@@ -3942,4 +3942,23 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+
+	/**
+	 * Bug 116464: [javadoc] Unicode tag name are not correctly parsed
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=116464"
+	 */
+	public void testBug116464() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @\\u0070\\u0061\\u0072\\u0061\\u006d str xxx\n" + 
+				"	 */\n" + 
+				"	void foo(String str) {}\n" + 
+				"}\n"
+			}
+		);
+	}
 }

@@ -250,12 +250,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			WAIT_UNTIL_READY_TO_SEARCH,
 			null);
 
-		// Clean memory
-		runGc();
-
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			cleanCategoryTableCache(true);
+			runGc();
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
 				new SearchEngine().searchAllTypeNames(
@@ -301,12 +299,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Warm up
 		search("JavaCore", TYPE, ALL_OCCURRENCES);
 
-		// Clean memory
-		runGc();
-
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			cleanCategoryTableCache(true);
+			runGc();
 			startMeasuring();
 			search("JavaCore", TYPE, ALL_OCCURRENCES);
 			stopMeasuring();
@@ -336,12 +332,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Warm up
 		search("FILE", FIELD, ALL_OCCURRENCES);
 
-		// Clean memory
-		runGc();
-
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			cleanCategoryTableCache(false);
+			runGc();
 			startMeasuring();
 			search("FILE", FIELD, ALL_OCCURRENCES);
 			stopMeasuring();
@@ -407,12 +401,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Warm up
 		search("String", CONSTRUCTOR, ALL_OCCURRENCES);
 
-		// Clean memory
-		runGc();
-
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			cleanCategoryTableCache(false);
+			runGc();
 			startMeasuring();
 			search("String", CONSTRUCTOR, ALL_OCCURRENCES);
 			stopMeasuring();

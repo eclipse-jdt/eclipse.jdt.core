@@ -10,20 +10,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
-import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.PreReconcileCompilationEvent;
-import org.eclipse.jdt.core.compiler.PreReconcileCompilationResult;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
+import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Reconcile a working copy and signal the changes through a delta.
@@ -31,82 +32,78 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public static boolean PERF = false;
 	
-	boolean createAST;
-	int astLevel;
+	public int astLevel;
+	public boolean resolveBindings;
+	public HashMap problems;
 	boolean forceProblemDetection;
 	WorkingCopyOwner workingCopyOwner;
-	org.eclipse.jdt.core.dom.CompilationUnit ast;
+	public org.eclipse.jdt.core.dom.CompilationUnit ast;
+	public JavaElementDeltaBuilder deltaBuilder;
 	
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean creatAST, int astLevel, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
-		this.createAST = creatAST;
 		this.astLevel = astLevel;
 		this.forceProblemDetection = forceProblemDetection;
 		this.workingCopyOwner = workingCopyOwner;
 	}
+	
 	/**
 	 * @exception JavaModelException if setting the source
 	 * 	of the original compilation unit fails
 	 */
 	protected void executeOperation() throws JavaModelException {
-		if (this.progressMonitor != null){
+		if (this.progressMonitor != null) {
 			if (this.progressMonitor.isCanceled()) 
 				throw new OperationCanceledException();
 			this.progressMonitor.beginTask(Messages.element_reconciling, 2); 
 		}
 	
-		notifyCompilationParticipants();
-		
 		CompilationUnit workingCopy = getWorkingCopy();
-		boolean wasConsistent = workingCopy.isConsistent();
-		try {
-			if (!wasConsistent) {
-				// create the delta builder (this remembers the current content of the cu)
-				JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
-				
-				// update the element infos with the content of the working copy
-				this.ast = workingCopy.makeConsistent(this.createAST, this.astLevel, this.progressMonitor);
-				deltaBuilder.buildDeltas();
-
-				if (progressMonitor != null) progressMonitor.worked(2);
-			
-				// register the deltas
-				JavaElementDelta delta = deltaBuilder.delta;
-				if (delta != null) {
-					delta.changedAST(this.ast);
-					addReconcileDelta(workingCopy, delta);
-				}
-			} else {
-				// force problem detection? - if structure was consistent
-				if (this.forceProblemDetection) {
-					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-					boolean computeProblems = JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()) && problemRequestor != null && problemRequestor.isActive();
-					if (computeProblems) {
-					    CompilationUnitDeclaration unit = null;
-					    try {
-							problemRequestor.beginReporting();
-							char[] contents = workingCopy.getContents();
-							unit = CompilationUnitProblemFinder.process(workingCopy, contents, this.workingCopyOwner, problemRequestor, !this.createAST/*reset env if not creating AST*/, this.progressMonitor);
-							problemRequestor.endReporting();
-							if (progressMonitor != null) progressMonitor.worked(1);
-							if (this.createAST && unit != null) {
-								Map options = workingCopy.getJavaProject().getOptions(true);
-								this.ast = AST.convertCompilationUnit(this.astLevel, unit, contents, options, true/*isResolved*/, workingCopy, this.progressMonitor);
-								JavaElementDelta delta = new JavaElementDelta(workingCopy);
-								delta.changedAST(this.ast);
-								addReconcileDelta(workingCopy, delta);
-								if (progressMonitor != null) progressMonitor.worked(1);
-							}
-					    } finally {
-					        if (unit != null) {
-					            unit.cleanUp();
-					        }
-					    }
+		IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
+		this.resolveBindings |= problemRequestor != null && problemRequestor.isActive();
+		
+		// create the delta builder (this remembers the current content of the cu)
+		this.deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+		
+		// make working copy consistent if needed and compute AST if needed
+		makeConsistent(workingCopy, problemRequestor);
+		
+		// notify reconcile participants
+		notifyParticipants(workingCopy);
+		
+		// recreate ast if needed
+		if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))
+			makeConsistent(workingCopy, problemRequestor);
+	
+		// report problems
+		if (this.problems != null) {
+			try {
+				problemRequestor.beginReporting();
+				for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
+					CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
+					if (categorizedProblems == null) continue;
+					for (int i = 0, length = categorizedProblems.length; i < length; i++) {
+						CategorizedProblem problem = categorizedProblems[i];
+						if (JavaModelManager.VERBOSE){
+							System.out.println("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
+						}
+						if (this.progressMonitor != null && this.progressMonitor.isCanceled()) break;
+						problemRequestor.acceptProblem(problem);
 					}
 				}
+			} finally {
+				problemRequestor.endReporting();
+			}
+		}
+		
+		// report delta
+		try {
+			JavaElementDelta delta = this.deltaBuilder.delta;
+			if (delta != null) {
+				addReconcileDelta(workingCopy, delta);
 			}
 		} finally {
-			if (progressMonitor != null) progressMonitor.done();
+			if (this.progressMonitor != null) this.progressMonitor.done();
 		}
 	}
 	/**
@@ -121,6 +118,92 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public boolean isReadOnly() {
 		return true;
 	}
+	/*
+	 * Makes the given working copy consistent, computes the delta and computes an AST if needed.
+	 * Returns the AST.
+	 */
+	public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(CompilationUnit workingCopy, IProblemRequestor problemRequestor) throws JavaModelException {
+		if (!workingCopy.isConsistent()) {
+			// make working copy consistent
+			if (this.problems == null) this.problems = new HashMap();
+			this.ast = workingCopy.makeConsistent(this.astLevel, this.resolveBindings, this.problems, this.progressMonitor);
+			this.deltaBuilder.buildDeltas();
+			if (this.ast != null && this.deltaBuilder.delta != null)
+				this.deltaBuilder.delta.changedAST(this.ast);
+			return this.ast;
+		} 
+		if (this.ast != null) return this.ast; // no need to recompute AST if known already
+		if (this.forceProblemDetection && this.resolveBindings) {
+			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject())) {
+				if (this.problems == null) this.problems = new HashMap();
+			    CompilationUnitDeclaration unit = null;
+			    try {
+			    	// find problems
+					char[] contents = workingCopy.getContents();
+					unit = 
+						CompilationUnitProblemFinder.process(
+							workingCopy, 
+							contents, 
+							this.workingCopyOwner, 
+							this.problems, 
+							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */, 
+							this.progressMonitor);
+					if (this.progressMonitor != null) this.progressMonitor.worked(1);
+					
+					// create AST if needed
+					if (this.astLevel != ICompilationUnit.NO_AST && unit != null) {
+						Map options = workingCopy.getJavaProject().getOptions(true);
+						this.ast = 
+							AST.convertCompilationUnit(
+								this.astLevel, 
+								unit, 
+								contents, 
+								options, 
+								true/*isResolved*/, 
+								workingCopy, 
+								this.progressMonitor);
+						if (this.ast != null) {
+							this.deltaBuilder.delta = new JavaElementDelta(workingCopy);
+							this.deltaBuilder.delta.changedAST(this.ast);
+						}
+						if (this.progressMonitor != null) this.progressMonitor.worked(1);
+					}
+			    } finally {
+			        if (unit != null) {
+			            unit.cleanUp();
+			        }
+			    }
+			} // else working copy not in a Java project
+			return this.ast;
+		} 
+		return null;
+	}
+	private void notifyParticipants(final CompilationUnit workingCopy) {
+		IJavaProject javaProject = getWorkingCopy().getJavaProject();
+		CompilationParticipant[] participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(javaProject);	
+		if (participants == null) return;
+
+		final ReconcileContext context = new ReconcileContext(this, workingCopy);
+		for (int i = 0, length = participants.length; i < length; i++) {
+			final CompilationParticipant participant = participants[i];
+			Platform.run(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					if (exception instanceof Error) {
+						throw (Error) exception; // errors are not supposed to be caught
+					} else if (exception instanceof OperationCanceledException)
+						throw (OperationCanceledException) exception;
+					else if (exception instanceof UnsupportedOperationException) {
+						// might want to disable participant as it tried to modify the buffer of the working copy being reconciled
+						Util.log(exception, "Reconcile participant attempted to modify the buffer of the working copy being reconciled"); //$NON-NLS-1$
+					} else
+						Util.log(exception, "Exception occurred in reconcile participant"); //$NON-NLS-1$
+				}
+				public void run() throws Exception {
+					participant.reconcile(context);
+				}
+			});
+		}
+	}
 	protected IJavaModelStatus verify() {
 		IJavaModelStatus status = super.verify();
 		if (!status.isOK()) {
@@ -133,30 +216,5 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		return status;
 	}
 
-	private void notifyCompilationParticipants() {
-		CompilationUnit workingCopy = getWorkingCopy();
-		final IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-		
-		IJavaProject javaProject = workingCopy.getJavaProject();
-		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.PRE_RECONCILE_EVENT, javaProject);	
 
-		// we want to go through ICompilationParticipant only if there are participants
-		// and the compilation unit is not consistent or we are forcing problem detection
-		if ( ( l != null && l.size() > 0 ) && ( !workingCopy.isConsistent() || forceProblemDetection )) {	
-			PreReconcileCompilationEvent prce = new PreReconcileCompilationEvent( workingCopy, javaProject );
-			Iterator it = l.iterator();
-			while ( it.hasNext() ) {
-				ICompilationParticipant p = (ICompilationParticipant)it.next(); 
-				final CompilationParticipantResult result = p.notify(prce);
-				if (result.getKind() == ICompilationParticipant.PRE_RECONCILE_EVENT) {
-					final PreReconcileCompilationResult postResult = (PreReconcileCompilationResult)result;
-					final IProblem[] problems = postResult.getProblems();	
-					if( problemRequestor != null && problems != null ){
-						for(int i=0, len=problems.length; i<len; i++ )
-							problemRequestor.acceptProblem(problems[i]);
-					}
-				}
-			}
-		}
-	}
 }

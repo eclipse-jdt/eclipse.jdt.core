@@ -10,19 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
-import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -79,9 +76,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IErrorHandlingPolicy policy,
 		Map settings,
 		ICompilerRequestor requestor,
-		IProblemFactory problemFactory) {
+		IProblemFactory problemFactory,
+		boolean parseLiteralExpressionsAsConstants ) {
 
-		super(environment, policy, settings, requestor, problemFactory, true);
+		super(environment, policy, settings, requestor, problemFactory, parseLiteralExpressionsAsConstants );
 	}
 
 	/**
@@ -135,8 +133,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 		char[] contents,
 		Parser parser,
 		WorkingCopyOwner workingCopyOwner,
-		IProblemRequestor problemRequestor,
-		boolean resetEnvironment,
+		HashMap problems,
+		boolean creatingAST,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -152,7 +150,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
-				problemFactory);
+				problemFactory,
+				!creatingAST); // optimize string literal only if not creating a DOM AST
 			if (parser != null) {
 				problemFinder.parser = parser;
 			}
@@ -179,7 +178,21 @@ public class CompilationUnitProblemFinder extends Compiler {
 					true, // analyze code
 					true); // generate code
 			}
-			reportProblems(unit, problemRequestor, monitor);
+			CompilationResult unitResult = unit.compilationResult;
+			IProblem[] unitProblems = unitResult.getProblems();
+			int length = unitProblems == null ? 0 : unitProblems.length;
+			if (length > 0) {
+				CategorizedProblem[] categorizedProblems = new CategorizedProblem[length];
+				System.arraycopy(unitProblems, 0, categorizedProblems, 0, length);
+				problems.put(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, categorizedProblems);
+			}
+			unitProblems = unitResult.getTasks();
+			length = unitProblems == null ? 0 : unitProblems.length;
+			if (length > 0) {
+				CategorizedProblem[] categorizedProblems = new CategorizedProblem[length];
+				System.arraycopy(unitProblems, 0, categorizedProblems, 0, length);
+				problems.put(IJavaModelMarker.TASK_MARKER, categorizedProblems);
+			}
 			if (NameLookup.VERBOSE) {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
@@ -197,8 +210,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 			if (problemFactory != null)
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			// NB: unit.cleanUp() is done by caller
-			if (problemFinder != null && resetEnvironment)
-				problemFinder.lookupEnvironment.reset();			
+			if (problemFinder != null && !creatingAST)
+				problemFinder.lookupEnvironment.reset();		
 		}
 	}
 
@@ -206,25 +219,12 @@ public class CompilationUnitProblemFinder extends Compiler {
 		ICompilationUnit unitElement, 
 		char[] contents,
 		WorkingCopyOwner workingCopyOwner,
-		IProblemRequestor problemRequestor,
-		boolean resetEnvironment,
+		HashMap problems,
+		boolean creatingAST,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, resetEnvironment, monitor);
-	}
-
-	
-	private static void reportProblems(CompilationUnitDeclaration unit, IProblemRequestor problemRequestor, IProgressMonitor monitor) {
-		CompilationResult unitResult = unit.compilationResult;
-		IProblem[] problems = unitResult.getAllProblems();
-		for (int i = 0, problemLength = problems == null ? 0 : problems.length; i < problemLength; i++) {
-			if (JavaModelManager.VERBOSE){
-				System.out.println("PROBLEM FOUND while reconciling : "+problems[i].getMessage());//$NON-NLS-1$
-			}
-			if (monitor != null && monitor.isCanceled()) break;
-			problemRequestor.acceptProblem(problems[i]);				
-		}
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, monitor);
 	}
 
 	/* (non-Javadoc)

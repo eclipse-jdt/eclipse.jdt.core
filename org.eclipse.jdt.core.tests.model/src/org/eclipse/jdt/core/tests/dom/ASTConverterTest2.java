@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0576"};
+//		TESTS_NAMES = new String[] {"test0577"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -1439,7 +1439,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		SimpleName name = methodDeclaration.getName();
-		assertEquals("wrong line number", 3, compilationUnit.lineNumber(name.getStartPosition()));
+		assertEquals("wrong line number", 3, compilationUnit.getLineNumber(name.getStartPosition()));
 	}
 
 	/**
@@ -4844,7 +4844,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, fields.length);
 		IVariableBinding variableBinding = fields[0];
 		Object constantValue = variableBinding.getConstantValue();
-		assertNull("Got a constant value", constantValue);
+		assertNotNull("Missing constant", constantValue);
 	}
 	
 	/**
@@ -5326,8 +5326,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
     		workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 	    	String contents =
 				"public class X {\n" + 
-				"	/*start1*/String foo(String o) {}/*end1*/\n" + 
-				"	/*start2*/String foo(Object o) {}/*end2*/\n" + 
+				"	/*start1*/String foo(String o) {return null;}/*end1*/\n" + 
+				"	/*start2*/String foo(Object o) {return null;}/*end2*/\n" + 
 				"}";
 		   	IBinding[] firstBatch = resolveBindings(contents, workingCopy);
 		   	IBinding[] secondBatch = resolveBindings(contents, workingCopy);
@@ -5363,6 +5363,28 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());
 		} finally {
 			deleteProject("P1");
+		}
+	}
+	
+	/*
+	 * Ensures that strings are not optimized when creating the AST through a reconcile
+	 * even if the working copy was consistent.
+	 * (regression test for bug 114909 AST: String concatenation represented as single node)
+	 */
+	public void test0577() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  String s = /*start*/\"a\" + \"b\"/*end*/;\n" +
+				"}",
+				true/*resolve*/);
+			ASTNode string = buildAST(workingCopy);
+			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
 		}
 	}
 	

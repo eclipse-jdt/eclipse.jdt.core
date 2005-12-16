@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class BlockScope extends Scope {
@@ -145,7 +146,7 @@ public class BlockScope extends Scope {
 	 */
 	public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 
-		if (enclosingSourceType() != binding.declaringClass)
+		if (enclosingReceiverType() != binding.declaringClass)
 			return false;
 
 		MethodScope methodScope = methodScope();
@@ -221,7 +222,7 @@ public class BlockScope extends Scope {
 				LocalVariableBinding local = locals[ilocal]; // if no local at all, will be locals[ilocal]==null
 				
 				// check if variable is actually used, and may force it to be preserved
-				boolean generateCurrentLocalVar = (local.useFlag == LocalVariableBinding.USED && !local.isConstantValue());
+				boolean generateCurrentLocalVar = (local.useFlag == LocalVariableBinding.USED && local.constant() == Constant.NotAConstant);
 					
 				// do not report fake used variable
 				if (local.useFlag == LocalVariableBinding.UNUSED
@@ -296,6 +297,63 @@ public class BlockScope extends Scope {
 				currentType.addSyntheticArgument(outerLocalVariable);
 			}
 		}
+	}
+
+	/**
+	 * Returns all declarations of most specific locals containing a given position in their source range.
+	 * This code does not recurse in nested types.
+	 * Returned array may have null values at trailing indexes.
+	 */
+	public LocalDeclaration[] findLocalVariableDeclarations(int position) {
+
+		// local variable init
+		int ilocal = 0, maxLocals = this.localIndex;
+		boolean hasMoreVariables = maxLocals > 0;
+		LocalDeclaration[] localDeclarations = null;
+		int declPtr = 0;
+
+		// scope init
+		int iscope = 0, maxScopes = this.subscopeCount;
+		boolean hasMoreScopes = maxScopes > 0;
+
+		// iterate scopes and variables in parallel
+		while (hasMoreVariables || hasMoreScopes) {
+			if (hasMoreScopes
+				&& (!hasMoreVariables || (subscopes[iscope].startIndex() <= ilocal))) {
+				// consider subscope first
+				Scope subscope = subscopes[iscope];
+				if (subscope.kind == Scope.BLOCK_SCOPE) { // do not dive in nested types
+					localDeclarations = ((BlockScope)subscope).findLocalVariableDeclarations(position);
+					if (localDeclarations != null) {
+						return localDeclarations;
+					}
+				}
+				hasMoreScopes = ++iscope < maxScopes;
+			} else {
+				// consider variable first
+				LocalVariableBinding local = locals[ilocal]; // if no local at all, will be locals[ilocal]==null
+				if (local != null) {
+					LocalDeclaration localDecl = local.declaration;
+					if (localDecl != null) {
+						if (localDecl.declarationSourceStart <= position) {
+							if (position <= localDecl.declarationSourceEnd) {
+								if (localDeclarations == null) {
+									localDeclarations = new LocalDeclaration[maxLocals];
+								}
+								localDeclarations[declPtr++] = localDecl;
+							}
+						} else {
+							return localDeclarations;
+						}
+					}
+				}
+				hasMoreVariables = ++ilocal < maxLocals;
+				if (!hasMoreVariables && localDeclarations != null) {
+					return localDeclarations;
+				}
+			}
+		}
+		return null;
 	}
 
 	/* Note that it must never produce a direct access to the targetEnclosingType,

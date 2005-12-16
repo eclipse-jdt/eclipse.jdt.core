@@ -63,8 +63,8 @@ public class IfStatement extends Statement {
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
 		Constant cst = this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 		
 		// process the THEN part
 		FlowInfo thenFlowInfo = flowInfo.initsWhenTrue().copy();
@@ -133,12 +133,12 @@ public class IfStatement extends Statement {
 		// optimizing the then/else part code gen
 		Constant cst;
 		boolean hasThenPart = 
-			!(((cst = this.condition.optimizedBooleanConstant()) != NotAConstant
+			!(((cst = this.condition.optimizedBooleanConstant()) != Constant.NotAConstant
 					&& cst.booleanValue() == false)
 				|| this.thenStatement == null
 				|| this.thenStatement.isEmptyBlock());
 		boolean hasElsePart =
-			!((cst != NotAConstant && cst.booleanValue() == true)
+			!((cst != Constant.NotAConstant && cst.booleanValue() == true)
 				|| this.elseStatement == null
 				|| this.elseStatement.isEmptyBlock());
 

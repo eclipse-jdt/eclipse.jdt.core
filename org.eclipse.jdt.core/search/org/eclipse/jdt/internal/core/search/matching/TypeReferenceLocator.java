@@ -255,7 +255,13 @@ protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement el
 		// TODO (frederic) need to add a test for this case while searching generic types...
 		if (locator.encloses(element)) {
 			int offset = arrayRef.sourceStart;
-			match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, offset, arrayRef.sourceEnd-offset+1, arrayRef);
+			int length = arrayRef.sourceEnd-offset+1;
+			if (this.match == null) {
+				this.match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, offset, length, arrayRef);
+			} else {
+				this.match.setOffset(offset);
+				this.match.setLength(length);
+			}
 			locator.report(match);
 			return;
 		}
@@ -267,7 +273,16 @@ protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement el
 	}
 	locator.reportAccurateTypeReference(match, arrayRef, this.pattern.simpleName);
 }
+/**
+ * Reports the match of the given reference.
+ */
 protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	matchReportReference(reference, element, null, null, elementBinding, accuracy, locator);
+}
+/**
+ * Reports the match of the given reference. Also provide a local and other elements to eventually report in match.
+ */
+protected void matchReportReference(ASTNode reference, IJavaElement element, IJavaElement localElement, IJavaElement[] otherElements, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedTypesPattern) {
 		if ((element = findElement(element, accuracy)) != null)
 			reportDeclaration(reference, element, locator, ((DeclarationOfReferencedTypesPattern) this.pattern).knownTypes);
@@ -275,7 +290,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 	}
 	
 	// Create search match
-	match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, reference);
+	TypeReferenceMatch refMatch = locator.newTypeReferenceMatch(element, elementBinding, accuracy, reference);
+	refMatch.setLocalElement(localElement);
+	refMatch.setOtherElements(otherElements);
+	this.match = refMatch;
 
 	// Report match depending on reference type
 	if (reference instanceof QualifiedNameReference)
@@ -292,6 +310,63 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		}
 		locator.report(match);
 	}
+}
+/**
+ * Reports the match of the given reference. Also provide a scope to look for possible local and other elements.
+ */
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, Scope scope, int accuracy, MatchLocator locator) throws CoreException {
+	if (scope == null || (scope.kind != Scope.BLOCK_SCOPE && scope.kind != Scope.METHOD_SCOPE)) {
+		matchReportReference(reference, element, elementBinding, accuracy, locator);
+		return;
+	}
+	
+	// Look if some block scope local variable declarations include reference start position
+	BlockScope blockScope = (BlockScope) scope;
+	LocalDeclaration[] localDeclarations = blockScope.findLocalVariableDeclarations(reference.sourceStart);
+	int length = localDeclarations == null ? 0 : localDeclarations.length;
+	IJavaElement localElement = null;
+	IJavaElement[] otherElements = null;
+
+	// Some local variable declaration are matching
+	if (length > 0) {
+
+		// Set local element to first matching local declaration
+		int idx = 0;
+		for (; idx<length; idx++) {
+			if (localDeclarations[idx] == null) break;
+			if (reference.sourceStart == localDeclarations[idx].declarationSourceStart) {
+				localElement = locator.createHandle(localDeclarations[idx], element);
+				break;
+			}
+			if (idx>0 && localDeclarations[idx].sourceStart > reference.sourceStart) {
+				localElement = locator.createHandle(localDeclarations[idx-1], element);
+				break;
+			}
+		}
+		if (localElement == null && idx > 0) {
+			if (reference.sourceEnd < localDeclarations[idx-1].declarationEnd) {
+				localElement = locator.createHandle(localDeclarations[idx-1], element);
+			}
+		}
+		
+		// Store other local variable declarations in other elements
+		int size = 0;
+		for (int j=1; j<length; j++) {
+			if (localDeclarations[j] == null) break;
+			if (reference.sourceStart == localDeclarations[j].declarationSourceStart) {
+				if (otherElements == null) {
+					otherElements = new IJavaElement[length-j];
+				}
+				otherElements[size++] = locator.createHandle(localDeclarations[j], element);
+			}
+		}
+		if (size > 0 && size != (length-1)) {
+			System.arraycopy(otherElements, 0, otherElements = new IJavaElement[size], 0, size);
+		}
+	}
+	
+	// Report match with local and other elements if any
+	matchReportReference(reference, element, localElement, otherElements, elementBinding, accuracy, locator);
 }
 protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	Binding binding = qNameRef.binding;
@@ -325,7 +400,9 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	}
 
 	// Create search match to report
-	match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, qNameRef);
+	if (this.match == null) {
+		this.match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, qNameRef);
+	}
 
 	// try to match all enclosing types for which the token matches as well.
 	if (typeBinding instanceof ReferenceBinding) {
@@ -368,7 +445,9 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 	}
 
 	// Create search match to report
-	match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, qTypeRef);
+	if (this.match == null) {
+		this.match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, qTypeRef);
+	}
 
 	// try to match all enclosing types for which the token matches as well
 	if (typeBinding instanceof ReferenceBinding) {

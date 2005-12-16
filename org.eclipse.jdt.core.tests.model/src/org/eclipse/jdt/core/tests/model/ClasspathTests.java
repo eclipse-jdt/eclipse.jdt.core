@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -78,7 +79,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testCycleDetection4"};
+//	TESTS_NAMES = new String[] {"testClasspathCrossProject"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -476,13 +477,10 @@ public void testClasspathCrossProject() throws CoreException {
 		project.setRawClasspath(newClasspath, null);
 		project.getAllPackageFragmentRoots();
 		IJavaElementDelta removedDelta= getDeltaFor(oldRoot, true);
-		assertTrue("Deltas not correct for crossproject classpath setting", 
-			this.deltaListener.deltas.length == 1 &&
-			this.deltaListener.deltas[0].getAffectedChildren().length == 1 &&
-			removedDelta.getElement().equals(oldRoot) &&
-			removedDelta.getKind() == IJavaElementDelta.CHANGED &&
-			(removedDelta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0
-		);
+		assertDeltas(
+			"Unexpected delta", 
+			"<project root>[*]: {REMOVED FROM CLASSPATH}", 
+			removedDelta);
 	} finally {
 		stopDeltas();
 		this.deleteProjects(new String[] {"P1", "P2"});
@@ -3164,6 +3162,98 @@ public void testNoCycleDetection2() throws CoreException {
 	noCycleDetection(5, true, true);
 	noCycleDetection(10, true, true);
 	noCycleDetection(20, true, true);
+}
+/*
+ * Ensures that the .classpath file is not written to disk when setting the raw classpath with no resource change.
+ */
+public void testNoResourceChange01() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		IClasspathEntry[] newClasspath = createClasspath("P", new String[] {"/P/src2", ""});
+		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the in-memory classpath is correct when setting the raw classpath with no resource change.
+ */
+public void testNoResourceChange02() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		IClasspathEntry[] newClasspath = createClasspath("P", new String[] {"/P/src2", ""});
+		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
+		assertClasspathEquals(
+			project.getRawClasspath(),
+			"/P/src2[CPE_SOURCE][K_SOURCE][isExported:false]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a compilation unit on the old classpath doesn't exist after setting a new raw classpath with no resource change.
+ */
+public void testNoResourceChange03() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		createFile(
+			"/P/src1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/src1/X.java");
+		cu.open(null);
+		IClasspathEntry[] newClasspath = createClasspath("P", new String[] {"/P/src2", ""});
+		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
+		assertFalse("Compilation unit should not exist", cu.exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the delta is correct when setting a new raw classpath with no resource change.
+ */
+public void testNoResourceChange04() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		createFolder("/P/src2");
+		IClasspathEntry[] newClasspath = createClasspath("P", new String[] {"/P/src2", ""});
+		startDeltas();
+		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src2[*]: {ADDED TO CLASSPATH}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the in-memory output is correct when setting the output with no resource change.
+ */
+public void testNoResourceChange05() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		project.setRawClasspath(project.getRawClasspath(), new Path("/P/bin2"), false/*cannot modify resources*/, null/*no progress*/);
+		assertEquals(
+			"/P/bin2",
+			project.getOutputLocation().toString());
+	} finally {
+		deleteProject("P");
+	}
 }
 /**
  * Ensures that a duplicate entry created by editing the .classpath is detected.

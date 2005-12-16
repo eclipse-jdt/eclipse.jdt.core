@@ -407,7 +407,7 @@ IType[] getTypes() throws JavaModelException;
  * unit. In particular, such a working copy can then be committed in order to create
  * the corresponding compilation unit.
  * </p>
-* @param monitor a progress monitor used to report progress while opening this compilation unit
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
  *                 or <code>null</code> if no progress should be reported 
  * @throws JavaModelException if the contents of this element can
  *   not be determined. 

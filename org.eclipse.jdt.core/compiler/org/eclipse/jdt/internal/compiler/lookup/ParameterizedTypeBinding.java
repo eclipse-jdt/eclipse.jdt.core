@@ -35,6 +35,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
+//		if (enclosingType != null && enclosingType.isGenericType()) {
+//			RuntimeException e = new RuntimeException("PARAM TYPE with GENERIC ENCLOSING");
+//			e.printStackTrace();
+//			throw e;
+//		}
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this);
@@ -161,6 +166,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+        		if (constraint == CONSTRAINT_EQUAL) {
+        			substitutes.put(VoidBinding, NoTypes); // marker for impossible inference
+        		}
         		return;
         	default :
         		return;
@@ -204,13 +212,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	
 	public char[] computeUniqueKey(boolean isLeaf) {
 	    StringBuffer sig = new StringBuffer(10);
-		if (this.isMemberType() && enclosingType().isParameterizedType()) {
-		    char[] typeSig = enclosingType().computeUniqueKey(false/*not a leaf*/);
+	    ReferenceBinding enclosing;
+		if (isMemberType() && ((enclosing = enclosingType()).isParameterizedType() || enclosing.isRawType())) {
+		    char[] typeSig = enclosing.computeUniqueKey(false/*not a leaf*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName());
 		} else if(this.type.isLocalType()){
 			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.type;
-			ReferenceBinding enclosing = localTypeBinding.enclosingType();
+			enclosing = localTypeBinding.enclosingType();
 			ReferenceBinding temp;
 			while ((temp = enclosing.enclosingType()) != null)
 				enclosing = temp;
@@ -239,12 +248,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			sig.insert(0, "&"); //$NON-NLS-1$
 			sig.insert(0, captureSourceType.computeUniqueKey(false/*not a leaf*/));
 		}
-
+	
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];
 		sig.getChars(0, sigLength, uniqueKey, 0);			
 		return uniqueKey;
-   	}
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()

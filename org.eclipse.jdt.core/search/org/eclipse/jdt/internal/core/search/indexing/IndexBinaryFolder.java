@@ -11,14 +11,15 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
+import java.net.URI;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -67,7 +68,7 @@ public class IndexBinaryFolder extends IndexRequest {
 						if (proxy.getType() == IResource.FILE) {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 								IFile file = (IFile) proxy.requestResource();
-								if (file.getLocation() != null) {
+								if (file.getLocationURI() != null) {
 									String containerRelativePath = Util.relativePath(file.getFullPath(), containerPath.segmentCount());
 									indexedFileNames.put(containerRelativePath, file);
 								}
@@ -84,16 +85,18 @@ public class IndexBinaryFolder extends IndexRequest {
 				final long indexLastModified = index.getIndexFile().lastModified();
 				this.folder.accept(
 					new IResourceProxyVisitor() {
-						public boolean visit(IResourceProxy proxy) {
+						public boolean visit(IResourceProxy proxy) throws CoreException {
 							if (isCancelled) return false;
 							if (proxy.getType() == IResource.FILE) {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 									IFile file = (IFile) proxy.requestResource();
-									IPath location = file.getLocation();
-									if (location != null) {
+									URI uri = file.getLocationURI();
+									if (uri != null) {
 										String containerRelativePath = Util.relativePath(file.getFullPath(), containerPath.segmentCount());
 										indexedFileNames.put(containerRelativePath,
-											indexedFileNames.get(containerRelativePath) == null || indexLastModified < location.toFile().lastModified()
+											indexedFileNames.get(containerRelativePath) == null 
+													|| indexLastModified < 
+													EFS.getStore(uri).fetchInfo().getLastModified()
 												? (Object) file
 												: (Object) OK);
 									}

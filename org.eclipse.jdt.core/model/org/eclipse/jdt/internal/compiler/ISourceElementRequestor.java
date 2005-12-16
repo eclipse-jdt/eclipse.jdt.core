@@ -49,6 +49,7 @@ public interface ISourceElementRequestor {
 		public TypeParameterInfo[] typeParameters;
 		public long[] annotationPositions;
 		public char[][] categories;
+		public boolean secondary;
 	}
 	
 	public static class TypeParameterInfo {

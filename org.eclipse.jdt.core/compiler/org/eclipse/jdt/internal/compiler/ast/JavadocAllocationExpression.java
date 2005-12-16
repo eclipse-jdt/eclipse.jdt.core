@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocAllocationExpression extends AllocationExpression {
@@ -30,7 +31,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	private TypeBinding internalResolveType(Scope scope) {
 	
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.type == null) {
 			this.resolvedType = scope.enclosingSourceType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {

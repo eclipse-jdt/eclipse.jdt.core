@@ -46,8 +46,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 199, 200, 201 };
-//		TESTS_NAMES = new String[] {"test0189"};
+//		TESTS_NUMBERS = new int[] { 203 };
+//		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -1264,19 +1264,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertEquals("Wrong name", "X", typeBinding2.getName());
+		assertEquals("Wrong name", "X<T>", typeBinding2.getName());
 		assertEquals("Wrong isArray", false, typeBinding2.isArray());
 		assertEquals("Wrong isAnnotation", false, typeBinding2.isAnnotation());
 		assertEquals("Wrong isAnonymous", false, typeBinding2.isAnonymous());
 		assertEquals("Wrong isClass", true, typeBinding2.isClass());
 		assertEquals("Wrong isEnum", false, typeBinding2.isEnum());
 		assertEquals("Wrong isInterface", false, typeBinding2.isInterface());
-		assertEquals("Wrong isGenericType", true, typeBinding2.isGenericType());
+		assertEquals("Wrong isGenericType", false, typeBinding2.isGenericType());
 		assertEquals("Wrong isLocal", false, typeBinding2.isLocal());
 		assertEquals("Wrong isMember", false, typeBinding2.isMember());
 		assertEquals("Wrong isNested", false, typeBinding2.isNested());
 		assertEquals("Wrong isNullType", false, typeBinding2.isNullType());
-		assertEquals("Wrong isParameterizedType", false, typeBinding2.isParameterizedType());
+		assertEquals("Wrong isParameterizedType", true, typeBinding2.isParameterizedType());
 		assertEquals("Wrong isPrimitive", false, typeBinding2.isPrimitive());
 		assertEquals("Wrong isRawType", false, typeBinding2.isRawType());
 		assertEquals("Wrong isTopLevel", true, typeBinding2.isTopLevel());
@@ -1284,8 +1284,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isTypeVariable", false, typeBinding2.isTypeVariable());
 		assertEquals("Wrong isWildcardType", false, typeBinding2.isWildcardType());
 		typeParameters = typeBinding2.getTypeParameters();
-		assertEquals("Wrong size", 1, typeParameters.length);
-		assertEquals("Wrong name", "T", typeParameters[0].getName());
+		assertEquals("Wrong size", 0, typeParameters.length);
 	}
 	
 	/**
@@ -5779,7 +5778,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		}\n" + 
 			"	}\n" + 
 			"}";
-	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 	   	if (bindings[0] != null) {
 	   		// should not get here if patch 100584 applied
 		   	try {
@@ -5943,7 +5942,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"	</*start*/T/*end*/> void foo() {\n" + 
 				"	}\n" + 
 				"}";
-		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 		   	assertBindingsEqual(
 		   		"LX;.foo<T:>():TT;",
 		   		bindings);
@@ -6128,4 +6127,77 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(modifier1, "@Ann", source);
 		checkSourceRange(modifier2, "final", source);
     }
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80472
+	 */
+	public void test0203() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "class X<T> {\n" + 
+				"        X<T> list= this;\n" + 
+				"        X<? super T> list2= this;\n" + 
+				"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	List fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	Expression initializer = fragment.getInitializer();
+    	ITypeBinding typeBinding = initializer.resolveTypeBinding();
+    	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
+
+    	node = getASTNode(compilationUnit, 0, 1);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	fieldDeclaration = (FieldDeclaration) node;
+    	fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	fragment = (VariableDeclarationFragment) fragments.get(0);
+    	initializer = fragment.getInitializer();
+    	typeBinding = initializer.resolveTypeBinding();
+    	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
+	}	
+	
+	/*
+	 * Ensures that the key of parameterized type binding with a raw enclosing type is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0204() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<T> {\n" + 
+    		"	static class Y {\n" + 
+    		"		/*start*/Y/*end*/ y;\n" + 
+    		"	}\n" + 
+    		"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertBindingsEqual(
+	   		"LX<>.Y;",
+	   		bindings);
+	}
+
+	/*
+	 * Ensures that the declaration method binding and the reference method bindings are the same
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0205() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<E> {\n" + 
+    		"    @I(12)\n" + 
+    		"    @interface I {\n" + 
+    		"        @I(/*start1*/value/*end1*/=13)\n" + 
+    		"        int /*start2*/value/*end2*/();\n" + 
+    		"    }\n" + 
+    		"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertFalse("Declaration and reference keys should not be the same", bindings[0].getKey().equals(bindings[1].getKey()));
+	}
+
 }

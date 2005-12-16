@@ -722,6 +722,20 @@ public void testGetPrimary() {
 	assertEquals("Primary for a compilation unit should be the same", this.cu, primary);
 	
 }
+/*
+ * Ensures that the occurrence count for an initializer is correct
+ */
+public void testGetOccurrenceCount01() {
+	IInitializer initializer = this.cu.getType("X").getInitializer(2);
+	assertEquals("Unexpected occurrence count", 2, initializer.getOccurrenceCount());
+}
+/*
+ * Ensures that the occurrence count for an anonymous type is correct
+ */
+public void testGetOccurrenceCount02() {
+	IType type = this.cu.getType("X").getMethod("foo", new String[]{"QY;"}).getType("", 3);
+	assertEquals("Unexpected occurrence count", 3, type.getOccurrenceCount());
+}
 /**
  * Ensures that correct number of package declarations with the correct names
  * exist a compilation unit.
@@ -1135,6 +1149,30 @@ public void test110172() throws CoreException {
 				}
 			}
 		}
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+public void test120902() throws CoreException {
+	try {
+		String source =
+			"/**\r\n" + 
+			" * Toy\r\n" + 
+			" */\r\n" + 
+			"public class X {\r\n" +
+			"}";
+		createFile("/P/src/X.java", source);
+		final ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
+		IType type = compilationUnit.getType("X");
+		ISourceRange javadocRange = type.getJavadocRange();
+		assertNotNull("No source range", javadocRange);
+		compilationUnit.getBuffer().setContents("");
+		try {
+			javadocRange = type.getJavadocRange();
+			assertNull("Got a source range", javadocRange);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			assertFalse("Should not happen", true);
+		}		
 	} finally {
 		deleteFile("/P/src/X.java");
 	}

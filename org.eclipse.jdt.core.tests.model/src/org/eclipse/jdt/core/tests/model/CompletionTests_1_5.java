@@ -7884,4 +7884,144 @@ public void test0260() throws JavaModelException {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113945
+public void test0261() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T extends SuperClass> {\n"+
+		"  T foo() {\n"+
+		"    foo().zz\n"+
+		"  }\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperClass.java",
+		"package test;"+
+		"public class SuperClass {\n"+
+		"  public int zzfield;\n"+
+		"  public void zzmethod(){}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo().zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zzfield[FIELD_REF]{zzfield, Ltest.SuperClass;, I, zzfield, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"zzmethod[METHOD_REF]{zzmethod(), Ltest.SuperClass;, ()V, zzmethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113945
+public void test0262() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T extends SuperInterface> {\n"+
+		"  T foo() {\n"+
+		"    foo().zz\n"+
+		"  }\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperInterface.java",
+		"package test;"+
+		"public interface SuperInterface {\n"+
+		"  public static int zzfield;\n"+
+		"  public void zzmethod();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo().zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zzfield[FIELD_REF]{zzfield, Ltest.SuperInterface;, I, zzfield, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"zzmethod[METHOD_REF]{zzmethod(), Ltest.SuperInterface;, ()V, zzmethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113945
+public void test0263() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T extends SuperClass & SuperInterface> {\n"+
+		"  T foo() {\n"+
+		"    foo().zz\n"+
+		"  }\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperClass.java",
+		"package test;"+
+		"public class SuperClass {\n"+
+		"  public int zzfield;\n"+
+		"  public void zzmethod();\n"+
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/SuperInterface.java",
+		"package test;"+
+		"public interface SuperInterface {\n"+
+		"  public static int zzfield2;\n"+
+		"  public void zzmethod2();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo().zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zzfield2[FIELD_REF]{zzfield2, Ltest.SuperInterface;, I, zzfield2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"zzfield[FIELD_REF]{zzfield, Ltest.SuperClass;, I, zzfield, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"zzmethod[METHOD_REF]{zzmethod(), Ltest.SuperClass;, ()V, zzmethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"zzmethod2[METHOD_REF]{zzmethod2(), Ltest.SuperInterface;, ()V, zzmethod2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=120522
+public void test0264() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"@MyAnnot(MyEnum\n"+
+		"public class Test {\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/MyEnum.java",
+		"package test;"+
+		"public enum MyEnum {\n"+
+		"  AAA\n"+
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/MyAnnot.java",
+		"package test;"+
+		"public @interface MyAnnot {\n"+
+		"  MyEnum[] value();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyEnum";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"MyEnum[TYPE_REF]{MyEnum, test, Ltest.MyEnum;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }

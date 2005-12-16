@@ -28,7 +28,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 		super(name);
 	}
 
-	public static Class javadocTestClass() {
+	public static Class testClass() {
 		return JavadocTest_1_4.class;
 	}
 
@@ -43,7 +43,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildTestSuite(javadocTestClass());
+		return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_4);
 	}
 
 	protected Map getCompilerOptions() {

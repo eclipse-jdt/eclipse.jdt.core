@@ -269,13 +269,13 @@ public class CompilerOptions {
 	public boolean reportSpecialParameterHidingField = false;
 
 	// check javadoc comments tags
-	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
-	public boolean reportInvalidJavadocTags = true;
-	public boolean reportInvalidJavadocTagsDeprecatedRef = true;
-	public boolean reportInvalidJavadocTagsNotVisibleRef = true;
+	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic; 
+	public boolean reportInvalidJavadocTags = false;
+	public boolean reportInvalidJavadocTagsDeprecatedRef = false;
+	public boolean reportInvalidJavadocTagsNotVisibleRef = false;
 
 	// check missing javadoc tags
-	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
+	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic; 
 	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments

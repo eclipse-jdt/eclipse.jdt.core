@@ -46,11 +46,11 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowInfo flowInfo) {
 
 		Constant cst = this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		int mode = flowInfo.reachMode();
-		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == NotAConstant);
+		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == Constant.NotAConstant);
 		
 		// process the if-true part
 		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
@@ -77,12 +77,12 @@ public class ConditionalExpression extends OperatorExpression {
 		} else {
 			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
 			cst = this.optimizedIfTrueConstant;
-			boolean isValueIfTrueOptimizedTrue = cst != null && cst != NotAConstant && cst.booleanValue() == true;
-			boolean isValueIfTrueOptimizedFalse = cst != null && cst != NotAConstant && cst.booleanValue() == false;
+			boolean isValueIfTrueOptimizedTrue = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfTrueOptimizedFalse = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == false;
 			
 			cst = this.optimizedIfFalseConstant;
-			boolean isValueIfFalseOptimizedTrue = cst != null && cst != NotAConstant && cst.booleanValue() == true;
-			boolean isValueIfFalseOptimizedFalse = cst != null && cst != NotAConstant && cst.booleanValue() == false;
+			boolean isValueIfFalseOptimizedTrue = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfFalseOptimizedFalse = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 			UnconditionalFlowInfo trueInfoWhenTrue = trueFlowInfo.initsWhenTrue().copy().unconditionalInits();
 			if (isValueIfTrueOptimizedFalse) trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE); 
@@ -121,7 +121,7 @@ public class ConditionalExpression extends OperatorExpression {
 
 		int pc = codeStream.position;
 		Label endifLabel, falseLabel;
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -130,15 +130,15 @@ public class ConditionalExpression extends OperatorExpression {
 		Constant cst = condition.constant;
 		Constant condCst = condition.optimizedBooleanConstant();
 		boolean needTruePart =
-			!(((cst != NotAConstant) && (cst.booleanValue() == false))
-				|| ((condCst != NotAConstant) && (condCst.booleanValue() == false)));
+			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == false))
+				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == false)));
 		boolean needFalsePart =
-			!(((cst != NotAConstant) && (cst.booleanValue() == true))
-				|| ((condCst != NotAConstant) && (condCst.booleanValue() == true)));
+			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == true))
+				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == true)));
 		endifLabel = new Label(codeStream);
 
 		// Generate code for the condition
-		boolean needConditionValue = (cst == NotAConstant) && (condCst == NotAConstant);
+		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
 		condition.generateOptimizedBoolean(
 			currentScope,
 			codeStream,
@@ -208,16 +208,16 @@ public class ConditionalExpression extends OperatorExpression {
 		Constant cst = condition.constant;
 		Constant condCst = condition.optimizedBooleanConstant();
 		boolean needTruePart =
-			!(((cst != NotAConstant) && (cst.booleanValue() == false))
-				|| ((condCst != NotAConstant) && (condCst.booleanValue() == false)));
+			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == false))
+				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == false)));
 		boolean needFalsePart =
-			!(((cst != NotAConstant) && (cst.booleanValue() == true))
-				|| ((condCst != NotAConstant) && (condCst.booleanValue() == true)));
+			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == true))
+				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == true)));
 
 		Label internalFalseLabel, endifLabel = new Label(codeStream);
 
 		// Generate code for the condition
-		boolean needConditionValue = (cst == NotAConstant) && (condCst == NotAConstant);
+		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
 		condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
@@ -277,7 +277,7 @@ public class ConditionalExpression extends OperatorExpression {
 
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
@@ -332,9 +332,9 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
 		Constant condConstant, trueConstant, falseConstant;
-		if ((condConstant = condition.constant) != NotAConstant
-			&& (trueConstant = valueIfTrue.constant) != NotAConstant
-			&& (falseConstant = valueIfFalse.constant) != NotAConstant) {
+		if ((condConstant = condition.constant) != Constant.NotAConstant
+			&& (trueConstant = valueIfTrue.constant) != Constant.NotAConstant
+			&& (falseConstant = valueIfFalse.constant) != Constant.NotAConstant) {
 			// all terms are constant expression so we can propagate the constant
 			// from valueIFTrue or valueIfFalse to the receiver constant
 			constant = condConstant.booleanValue() ? trueConstant : falseConstant;
@@ -345,12 +345,12 @@ public class ConditionalExpression extends OperatorExpression {
 			if (valueIfTrueType == BooleanBinding) {
 				this.optimizedIfTrueConstant = valueIfTrue.optimizedBooleanConstant();
 				this.optimizedIfFalseConstant = valueIfFalse.optimizedBooleanConstant();
-				if (this.optimizedIfTrueConstant != NotAConstant 
-						&& this.optimizedIfFalseConstant != NotAConstant
+				if (this.optimizedIfTrueConstant != Constant.NotAConstant 
+						&& this.optimizedIfFalseConstant != Constant.NotAConstant
 						&& this.optimizedIfTrueConstant.booleanValue() == this.optimizedIfFalseConstant.booleanValue()) {
 					// a ? true : true  /   a ? false : false
 					this.optimizedBooleanConstant = optimizedIfTrueConstant;
-				} else if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant) { // Propagate the optimized boolean constant if possible
+				} else if ((condConstant = condition.optimizedBooleanConstant()) != Constant.NotAConstant) { // Propagate the optimized boolean constant if possible
 					this.optimizedBooleanConstant = condConstant.booleanValue()
 						? this.optimizedIfTrueConstant
 						: this.optimizedIfFalseConstant;

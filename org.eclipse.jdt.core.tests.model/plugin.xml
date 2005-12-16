@@ -58,4 +58,15 @@
 		</repository>;
 	</extension>
 	
+	<!-- Compilation participant -->
+	 <extension point="org.eclipse.jdt.core.compilationParticipant">
+	   <compilationParticipant
+          class="org.eclipse.jdt.core.tests.model.TestCompilationParticipant"
+          createsProblems="true"
+          id="org.eclipse.jdt.core.tests.model.compilationparticipant"
+          modifiesEnvironment="true">
+       <requires id="non.existing"/>
+    </compilationParticipant>
+	 </extension>
+	
 </plugin>

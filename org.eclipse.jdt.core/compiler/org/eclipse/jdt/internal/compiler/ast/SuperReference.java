@@ -11,8 +11,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SuperReference extends ThisReference {
@@ -50,15 +51,15 @@ public class SuperReference extends ThisReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (!checkAccess(scope.methodScope()))
 			return null;
-		SourceTypeBinding enclosingTb = scope.enclosingSourceType();
-		if (enclosingTb.id == T_JavaLangObject) {
+		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
+		if (enclosingReceiverType.id == T_JavaLangObject) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}
-		return this.resolvedType = enclosingTb.superclass;
+		return this.resolvedType = enclosingReceiverType.superclass();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

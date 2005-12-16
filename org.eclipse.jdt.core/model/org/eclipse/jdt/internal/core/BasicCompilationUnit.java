@@ -119,7 +119,7 @@ public char[] getMainTypeName() {
 			start = separator;
 	
 		int end = CharOperation.lastIndexOf('$', this.fileName);
-		if (end == -1) {
+		if (end == -1 || !Util.isClassFileName(this.fileName)) {
 			end = CharOperation.lastIndexOf('.', this.fileName);
 			if (end == -1)
 				end = this.fileName.length;

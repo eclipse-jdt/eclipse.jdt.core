@@ -358,6 +358,9 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 	if (!path.isAbsolute()) return null; 
 
 	// lookup - outside the container
+	return getTargetAsExternalFile(path, checkResourceExistence);	
+}
+private synchronized static Object getTargetAsExternalFile(IPath path, boolean checkResourceExistence) {
 	File externalFile = new File(path.toOSString());
 	if (!checkResourceExistence) {
 		return externalFile;
@@ -373,7 +376,7 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 			return externalFile;
 		}
 	}
-	return null;	
+	return null;
 }
 
 /**
@@ -387,7 +390,7 @@ public static boolean isFile(Object target) {
  * Helper method - returns the file item (ie. which returns true to {@link java.io.File#isFile()},
  * or null if unbound
  */
-public static File getFile(Object target) {
+public static synchronized File getFile(Object target) {
 	if (existingExternalConfirmedFiles.contains(target))
 		return (File) target;
 	if (target instanceof File) {

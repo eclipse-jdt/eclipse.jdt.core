@@ -473,6 +473,11 @@ protected void consumeEnterVariable() {
 		declaration.declarationSourceStart = previousVariable.declarationSourceStart;
 		declaration.modifiers = previousVariable.modifiers;
 		declaration.modifiersSourceStart = previousVariable.modifiersSourceStart;
+		final Annotation[] annotations = previousVariable.annotations;
+		if (annotations != null) {
+			final int annotationsLength = annotations.length;
+			System.arraycopy(annotations, 0, declaration.annotations = new Annotation[annotationsLength], 0, annotationsLength);
+		}
 	}
 
 	localIntPtr = intPtr;

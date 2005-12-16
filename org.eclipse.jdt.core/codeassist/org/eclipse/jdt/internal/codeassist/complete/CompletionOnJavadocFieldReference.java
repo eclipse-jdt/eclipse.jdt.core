@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -38,6 +39,15 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 		this.tagSourceStart = fieldRef.tagSourceStart;
 		this.tagSourceEnd = fieldRef.tagSourceEnd;
 		this.tagValue = fieldRef.tagValue;
+	}
+
+	public CompletionOnJavadocFieldReference(JavadocMessageSend msgSend, int position) {
+		super(msgSend.selector, ((msgSend.nameSourcePosition>>32)<<32)+msgSend.sourceEnd);
+		this.receiver = msgSend.receiver;
+		this.separatorPosition = position;
+		this.tagSourceStart = msgSend.tagSourceStart;
+		this.tagSourceEnd = msgSend.tagSourceEnd;
+		this.tagValue = msgSend.tagValue;
 	}
 
 	/**

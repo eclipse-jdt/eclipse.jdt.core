@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -86,7 +87,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 	public TypeBinding resolveType(BlockScope scope) {
 	
 		// implicit this
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		TypeBinding snippetType = null;
 		if (this.isImplicit || checkAccess(scope.methodScope())){
 			snippetType = scope.enclosingSourceType();

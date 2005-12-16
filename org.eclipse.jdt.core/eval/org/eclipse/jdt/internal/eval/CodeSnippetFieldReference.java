@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedFieldBinding;
@@ -77,7 +78,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 	int pc = codeStream.position;
-	if (this.constant != NotAConstant) {
+	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {
 			codeStream.generateConstant(this.constant, this.implicitConversion);
 		}
@@ -85,7 +86,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		boolean isStatic = this.codegenBinding.isStatic();
 		this.receiver.generateCode(currentScope, codeStream, !isStatic);
 		if (valueRequired) {
-			if (!this.codegenBinding.isConstantValue()) {
+			Constant fieldConstant = this.codegenBinding.constant();
+			if (fieldConstant == Constant.NotAConstant) {
 				if (this.codegenBinding.declaringClass == null) { // array length
 					codeStream.arraylength();
 				} else {
@@ -109,7 +111,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.invokeObjectGetClass(); // perform null check
 					codeStream.pop();
 				}
-				codeStream.generateConstant(this.codegenBinding.constant(), this.implicitConversion);
+				codeStream.generateConstant(fieldConstant, this.implicitConversion);
 			}
 		} else {
 			if (!isStatic){
@@ -313,7 +315,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (this.binding.declaringClass != someReceiverType
 			&& !someReceiverType.isArrayType()
 			&& this.binding.declaringClass != null // array.length
-			&& !this.binding.isConstantValue()) {
+			&& this.binding.constant() == Constant.NotAConstant) {
 	
 		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
@@ -336,7 +338,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// regular receiver reference 
 	this.receiverType = this.receiver.resolveType(scope);
 	if (this.receiverType == null){
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		return null;
 	}
 	// the case receiverType.isArrayType and token = 'length' is handled by the scope API
@@ -350,12 +352,12 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (this.evaluationContext.declaringTypeName != null) {
 					this.delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
 					if (this.delegateThis == null){  // if not found then internal error, field should have been found
-						this.constant = NotAConstant;
+						this.constant = Constant.NotAConstant;
 						scope.problemReporter().invalidField(this, this.receiverType);
 						return null;
 					}
 				} else {
-					this.constant = NotAConstant;
+					this.constant = Constant.NotAConstant;
 					scope.problemReporter().invalidField(this, this.receiverType);
 					return null;
 				}
@@ -365,7 +367,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 
 	if (!this.binding.isValidBinding()) {
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (isNotVisible) {
 			this.codegenBinding = this.binding = firstAttempt;
 		}
@@ -377,9 +379,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().deprecatedField(this.binding, this);
 	}
 	// check for this.x in static is done in the resolution of the receiver
-	this.constant = FieldReference.getConstantFor(this.binding, this, this.receiver.isImplicitThis(), scope);
+	this.constant = this.receiver.isImplicitThis() ? this.binding.constant() : Constant.NotAConstant;
 	if (!this.receiver.isThis()) {
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 	}
 	return this.resolvedType = this.binding.type;
 }

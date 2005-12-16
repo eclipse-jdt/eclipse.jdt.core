@@ -52,10 +52,10 @@ public class DoStatement extends Statement {
 				currentScope);
 
 		Constant cst = condition.constant;
-		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		cst = condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		int previousMode = flowInfo.reachMode();
 				
@@ -120,17 +120,24 @@ public class DoStatement extends Statement {
 		if (action != null) {
 			action.generateCode(currentScope, codeStream);
 		}
-		// generate condition
-		if (continueLabel != null) {
-			continueLabel.place();
-			condition.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				actionLabel,
-				null,
-				true);
+		Constant cst = condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;		
+		if (isConditionOptimizedFalse){
+			condition.generateCode(currentScope, codeStream, false);
+		} else {
+			// generate condition
+			if (continueLabel != null) {
+				continueLabel.place();
+				condition.generateOptimizedBoolean(
+					currentScope,
+					codeStream,
+					actionLabel,
+					null,
+					true);
+			}
 		}
-		breakLabel.place();
+		if (breakLabel.hasForwardReferences())
+			breakLabel.place();
 
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
@@ -138,7 +145,6 @@ public class DoStatement extends Statement {
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-
 	}
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {

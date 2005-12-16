@@ -11,12 +11,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.IJavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 
@@ -249,64 +247,20 @@ public void testFindBinaryTypeWithDollarName() throws CoreException, IOException
 	}
 }
 /*
- * Performance test for looking up package fragments
- * (see bug 72683 Slow code assist in Display view)
+ * Ensure that a type with the same simple name as its member type is found
+ * (regression test for bug 102286 Error when trying F4-Type Hierarchy)
  */
-public void testPerfSeekPackageFragments() throws CoreException {
+public void testFindBinaryTypeWithSameNameAsMember() throws CoreException, IOException {
 	try {
-		// setup projects with 100 source folders and 10 packages per source folder
-		final int rootLength = 100;
-		final String[] sourceFolders = new String[rootLength];
-		for (int i = 0; i < rootLength; i++) {
-			sourceFolders[i] = "src" + i;
-		}
-		String path = getWorkspaceRoot().getLocation().toString() + "/P/src";
-		for (int i = 0; i < rootLength; i++) {
-			for (int j = 0; j < 10; j++) {
-				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
-			}
-		}
-		JavaProject project = (JavaProject)createJavaProject("P", sourceFolders, "bin");
-		
-		class PackageRequestor implements IJavaElementRequestor {
-			ArrayList pkgs = new ArrayList();
-			public void acceptField(IField field) {}
-			public void acceptInitializer(IInitializer initializer) {}
-			public void acceptMemberType(IType type) {}
-			public void acceptMethod(IMethod method) {}
-			public void acceptPackageFragment(IPackageFragment packageFragment) {
-				if (pkgs != null)
-					pkgs.add(packageFragment);
-			}
-			public void acceptType(IType type) {}
-			public boolean isCanceled() {
-				return false;
-			}
-		}
-		
-		// first pass: ensure all class are loaded, and ensure that the test works as expected
-		PackageRequestor requestor = new PackageRequestor();
-		getNameLookup(project).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5", false/*not partial match*/, requestor);
-		int size = requestor.pkgs.size();
-		IJavaElement[] result = new IJavaElement[size];
-		requestor.pkgs.toArray(result);
-		assertElementsEqual(
-			"Unexpected packages",
-			"org.eclipse.jdt.core.tests78.performance5 [in src78 [in P]]",
-			result
-		);
-		
-		// measure performance
-		requestor.pkgs = null;
-		for (int i = 0; i < 100; i++) {
-			startMeasuring();
-			for (int j = 0; j < 40; j++) {
-				getNameLookup(project).seekPackageFragments("org.eclipse.jdt.core.tests" + j + "0.performance" + j, false/*not partial match*/, requestor);
-			}
-			stopMeasuring();
-		}
-		commitMeasurements();
-		assertPerformance();
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"/P/lib"}, new String[] {}, "bin");
+		createFolder("/P/lib/p");
+		createFile("/P/lib/p/X.class", "");
+		createFile("/P/lib/p/X$X.class", "");
+		IType type = getNameLookup((JavaProject) project).findType("p.X", false, NameLookup.ACCEPT_ALL);
+		assertTypesEqual(
+			"Unexpected type", 
+			"p.X\n",
+			new IType[] {type});
 	} finally {
 		deleteProject("P");
 	}

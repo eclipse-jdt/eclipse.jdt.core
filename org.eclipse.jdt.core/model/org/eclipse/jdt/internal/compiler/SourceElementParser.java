@@ -57,6 +57,7 @@ public class SourceElementParser extends CommentRecorderParser {
 	CompilerOptions options;
 	HashtableOfObjectToInt sourceEnds = new HashtableOfObjectToInt();
 	HashMap nodesToCategories = new HashMap(); // a map from ASTNode to char[][]
+	boolean useSourceJavadocParser = true;
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -94,6 +95,16 @@ public SourceElementParser(
 		CompilerOptions options,
 		boolean reportLocalDeclarations,
 		boolean optimizeStringLiterals) {
+	this(requestor, problemFactory, options, reportLocalDeclarations, optimizeStringLiterals, true/* use SourceJavadocParser */);
+}
+
+public SourceElementParser(
+		final ISourceElementRequestor requestor, 
+		IProblemFactory problemFactory,
+		CompilerOptions options,
+		boolean reportLocalDeclarations,
+		boolean optimizeStringLiterals,
+		boolean useSourceJavadocParser) {
 	// we want to notify all syntax error with the acceptProblem API
 	// To do so, we define the record method of the ProblemReporter
 	super(new ProblemReporter(
@@ -115,7 +126,10 @@ public SourceElementParser(
 		this.localDeclarationVisitor = new LocalDeclarationVisitor();
 	}
 	// set specific javadoc parser
-	this.javadocParser = new SourceJavadocParser(this);
+	this.useSourceJavadocParser = useSourceJavadocParser;
+	if (useSourceJavadocParser) {
+		this.javadocParser = new SourceJavadocParser(this);
+	}
 }
 
 public void checkComment() {
@@ -1246,6 +1260,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
 			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 			typeInfo.categories = (char[][]) this.nodesToCategories.get(typeDeclaration);
+			typeInfo.secondary = typeDeclaration.isSecondary();
 			requestor.enterType(typeInfo);
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
@@ -1323,11 +1338,13 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 	}
 }
 private void rememberCategories() {
-	SourceJavadocParser sourceJavadocParser = (SourceJavadocParser) this.javadocParser;
-	char[][] categories =  sourceJavadocParser.categories;
-	if (categories.length > 0) {
-		this.nodesToCategories.put(this.astStack[this.astPtr], categories);
-		sourceJavadocParser.categories = CharOperation.NO_CHAR_CHAR;
+	if (this.useSourceJavadocParser) {
+		SourceJavadocParser sourceJavadocParser = (SourceJavadocParser) this.javadocParser;
+		char[][] categories =  sourceJavadocParser.categories;
+		if (categories.length > 0) {
+			this.nodesToCategories.put(this.astStack[this.astPtr], categories);
+			sourceJavadocParser.categories = CharOperation.NO_CHAR_CHAR;
+		}
 	}
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {

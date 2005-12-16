@@ -70,6 +70,13 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			beginTask(Messages.workingCopy_commit, 2); 
 			CompilationUnit workingCopy = getCompilationUnit();
 			IFile resource = (IFile)workingCopy.getResource();
+			
+			if (resource == null) {
+				// case of a working copy without a resource
+				workingCopy.getBuffer().save(this.progressMonitor, this.force);
+				return;
+			}
+			
 			ICompilationUnit primary = workingCopy.getPrimary();
 			boolean isPrimary = workingCopy.isPrimary();
 
@@ -178,6 +185,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	}
 	protected ISchedulingRule getSchedulingRule() {
 		IResource resource = getElementToProcess().getResource();
+		if (resource == null) return null;
 		IWorkspace workspace = resource.getWorkspace();
 		if (resource.exists()) {
 			return workspace.getRuleFactory().modifyRule(resource);

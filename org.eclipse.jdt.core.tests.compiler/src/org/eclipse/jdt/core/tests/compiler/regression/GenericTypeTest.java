@@ -31,13 +31,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 119 };
+//		TESTS_NUMBERS = new int[] { 871 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
-		Test suite = buildTestSuite(testClass());
-		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-		return suite;
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {  
@@ -14783,22 +14781,22 @@ public void test500(){
 		this.runConformTest(
 			new String[] {
 				"X.java",
-			"class XA {}\n" + 
-			"interface XB {\n" + 
-			"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
-			"}\n" + 
-			"class XAB extends XA implements XB {}\n" + 
-			"\n" + 
-			"public class X <E extends XA&XB> {\n" + 
-			"	E e;\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"	  System.out.print(new X<XAB>().e.CONST);\n" + 
-			"	  new X<XAB>().foo();\n" + 
-			"  }\n" + 
-			"  public void foo() {\n" + 
-			"    System.out.print(this.e.CONST);\n" + 
-			"  }\n" + 
-			"}\n",
+				"class XA {}\n" + 
+				"interface XB {\n" + 
+				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+				"}\n" + 
+				"class XAB extends XA implements XB {}\n" + 
+				"\n" + 
+				"public class X <E extends XA&XB> {\n" + 
+				"	E e;\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"	  System.out.print(new X<XAB>().e.CONST);\n" + 
+				"	  new X<XAB>().foo();\n" + 
+				"  }\n" + 
+				"  public void foo() {\n" + 
+				"    System.out.print(this.e.CONST);\n" + 
+				"  }\n" + 
+				"}\n",
 			},
 			"SUCCESSSUCCESS");		
 		String expectedOutput =
@@ -14850,19 +14848,16 @@ public void test500(){
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"     3  aload_0 [this]\n" + 
-			"     4  getfield X.e : XA [29]\n" + 
-			"     7  pop\n" + 
-			"     8  getstatic XB.CONST : XB [48]\n" + 
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"    14  return\n" + 
+			"     3  getstatic XB.CONST : XB [48]\n" + 
+			"     6  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
-			"        [pc: 14, line: 15]\n" + 
+			"        [pc: 9, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n" + 
 			"}";
 		
 		try {
@@ -15069,21 +15064,18 @@ public void test500(){
 			"     5  invokespecial X$1(X) [30]\n" + 
 			"     8  invokevirtual X$1.run() : void [33]\n" + 
 			"    11  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
-			"    14  aload_0 [this]\n" + 
-			"    15  getfield X.e : XA [42]\n" + 
-			"    18  pop\n" + 
-			"    19  getstatic XB.CONST : XB [44]\n" + 
-			"    22  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [50]\n" + 
-			"    25  return\n" + 
+			"    14  getstatic XB.CONST : XB [42]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [48]\n" + 
+			"    20  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 13]\n" + 
 			"        [pc: 8, line: 17]\n" + 
 			"        [pc: 11, line: 18]\n" + 
-			"        [pc: 25, line: 19]\n" + 
+			"        [pc: 20, line: 19]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: X<E>\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X<E>\n" + 
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #28 X$1, outer class info: #0\n" + 
@@ -17664,13 +17656,8 @@ public void test500(){
 				"    }\n" + 
 				"}\n",
             },
-            "----------\n" + 
-    		"1. WARNING in X.java (at line 6)\n" + 
-    		"	boolean c = X.class == Long.class;\n" + 
-    		"	            ^\n" + 
-    		"X is a raw type. References to generic type X<S> should be parameterized\n" + 
     		"----------\n" + 
-    		"2. ERROR in X.java (at line 6)\n" + 
+    		"1. ERROR in X.java (at line 6)\n" + 
     		"	boolean c = X.class == Long.class;\n" + 
     		"	            ^^^^^^^^^^^^^^^^^^^^^\n" + 
     		"Incompatible operand types Class<X> and Class<Long>\n" + 
@@ -22732,10 +22719,10 @@ public void test743() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	@Override public Nested<B> getNested3() { // sub\n" + 
-		"	                           ^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with TestGeneric3<B>.getNested3()\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	return this;//3\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" + 
 		"----------\n");
 }
 public void test744() {
@@ -24071,7 +24058,6 @@ public void test787() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
-// TODO (kent) reenable once addressed
 public void test788() {
 	this.runConformTest(
 		new String[] {
@@ -26592,5 +26578,661 @@ public void test859() {
 			"}",
 		},
 		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304
+public void test860() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test861() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends A.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test862() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test863() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    B.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test864() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I<T> { }\n" + 
+			"\n" + 
+			"    A.I<Object> foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J<E> extends B.I<E> { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J<Object> foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test865() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B<Object> {\n" + 
+			"	@Override\n" + 
+			"    C.J foo() { return (B.J)super.foo(); }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114997
+public void test866() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  public interface Interface {\n" + 
+			"	  // nothing\n" + 
+			"  }\n" + 
+			"  public List<? extends Interface> field = Collections.emptyList();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114087
+public void test867() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	static <T extends Runnable> List<List<T>> foo1() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar1(List<List<T>> l) {\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> List<T> foo2() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar2(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	{\n" + 
+			"		List<List> o = Foo.foo1();\n" + 
+			"		Foo.bar1(o);\n" + 
+			"	}\n" + 
+			"	{\n" + 
+			"		List o = Foo.foo2();\n" + 
+			"		Foo.bar2(o);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	     ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	                   ^^^^\n" + 
+		"The method foo1() in the type Foo is not applicable for the arguments ()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 21)\n" + 
+		"	Foo.bar1(o);\n" + 
+		"	    ^^^^\n" + 
+		"The method bar1(List<List<T>>) in the type Foo is not applicable for the arguments (List<List>)\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 24)\n" + 
+		"	List o = Foo.foo2();\n" + 
+		"	^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(List) of the generic method bar2(List<T>) of type Foo\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	         ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114365
+public void test868() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.io.Serializable;\n" +
+			"import java.lang.Cloneable;\n" +
+			"public class X<A extends Collection & Serializable > implements Collection {\n" +
+			"	public int size() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	public boolean isEmpty() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean contains(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public Iterator iterator() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public Object[] toArray() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public Object[] toArray(Object[] arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public boolean add(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean remove(Object arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean containsAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean addAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean removeAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean retainAll(Collection arg0) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void clear() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		\n" +
+			"	}" +
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115181
+public void test869() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Class<?> c = Comparator.class;\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113950
+public void test870() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public interface I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public abstract class A<T> implements I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls) { }\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class C<T> extends A<List<T>> { }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107788
+public void test871() {
+	this.runConformTest(
+		new String[] {
+			"Lister.java",
+			"interface Lister<BeanT, PropT, PackT> {\n" + 
+			"	void endPacking(PackT p, BeanT b, Accessor<BeanT, PropT> acc);\n" + 
+			"\n" + 
+			"	static class IDRefs<BeanT, PropT> implements\n" + 
+			"			Lister<BeanT, PropT, IDRefs<BeanT, PropT>.Pack> {\n" + 
+			"		public void endPacking(Pack p, BeanT b, Accessor<BeanT, PropT> acc) {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		private class Pack {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Accessor<BeanT, PropT> {\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test872() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.io.PrintStream;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void foo1(){\n" + 
+			"		M1<X> m = new M1<X>();\n" + 
+			"		M1<X>.N1<X> n = m.new N1<X>();\n" + 
+			"	}\n" + 
+			"	static class M1<T> {\n" + 
+			"		class N1<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo2(){\n" + 
+			"		M2<X> m = new M2<X>();\n" + 
+			"		M2<X>.N2<X> n = m.new N2<X>();\n" + 
+			"	}\n" + 
+			"	class M2<T> {\n" + 
+			"		class N2<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo3(){\n" + 
+			"		M3<X> m = new M3<X>();\n" + 
+			"		M3<X>.N3<X> n = m.new N3<X>();\n" + 
+			"	}\n" + 
+			"	class M3<T> {\n" + 
+			"		static class N3<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo4(){\n" + 
+			"		M4<X> m = new M4<X>();\n" + 
+			"		M4<X>.N4<X> n = m.new N4<X>();\n" + 
+			"	}\n" + 
+			"	static class M4<T> {\n" + 
+			"		static class N4<U> {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	M3<X>.N3<X> n = m.new N3<X>();\n" + 
+		"	^^^^^^^^\n" + 
+		"The member type X.M3<X>.N3 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 25)\n" + 
+		"	static class N3<U> {\n" + 
+		"	             ^^\n" + 
+		"The member type N3 cannot be declared static; static types can only be declared in static or top level types\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 30)\n" + 
+		"	M4<X>.N4<X> n = m.new N4<X>();\n" + 
+		"	^^^^^^^^\n" + 
+		"The member type X.M4<X>.N4 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" + 
+		"----------\n");
+}
+public void test873() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X<T> {\n" + 
+			"    static class XMap {\n" + 
+			"        XEntry[] table;\n" + 
+			"        static class XEntry {}    \n" + 
+			"        void foo() {\n" + 
+			"            XEntry e = table[0];\n" + 
+			"        }	\n" + 
+			"    }        \n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693
+public void test874() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"class A {}\n" + 
+			"abstract class B<T> {\n" + 
+			"    public B<T> label(String s) { return this; }\n" + 
+			"}\n" + 
+			"final class C extends B<A> {\n" + 
+			"    public static C instance(String s) { return new C(); }\n" + 
+			"    @Override public String toString() {\n" + 
+			"    	return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        C c = (C)C.instance(\"X\").label(\"Y\");\n" + 
+			"        System.out.println(c.toString());\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	// 	ensure only one checkcast C
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  ldc <String \"X\"> [16]\n" + 
+		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
+		"     5  ldc <String \"Y\"> [23]\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : B [25]\n" + 
+		"    10  checkcast C [18]\n" + 
+		"    13  astore_1 [c]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+		"    17  aload_1 [c]\n" + 
+		"    18  invokevirtual C.toString() : java.lang.String [35]\n" + 
+		"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [39]\n" + 
+		"    24  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 13]\n" + 
+		"        [pc: 14, line: 14]\n" + 
+		"        [pc: 24, line: 15]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 25] local: c index: 1 type: C\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395
+public void _test875() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static class DatabaseObject {}\n" + 
+			"	public static class ObjectFormUI<T extends DatabaseObject> {}\n" + 
+			"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+			"\n" + 
+			"	public static <T extends DatabaseObject> Class<? extends ObjectFormUI<T>> getUI(\n" + 
+			"			Class<T> persistentClass) {\n" + 
+			"		return null != null \n" + 
+			"			? uiMap.get(persistentClass)\n" + 
+			"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"should be: 1-type mismatch 2-unchecked cast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
+public void _test876() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo(){\n" + 
+			"		Class<Class<Object>> cco = null;\n" + 
+			"		Class<Class> cc = cco; // ko\n" + 
+			"		Class<Class<Object>> cco2 = cc; // ko\n" + 
+			"		\n" + 
+			"		Class<? extends Class<Object>> ceco = null;\n" + 
+			"		Class<? extends Class> cec = ceco; // ok\n" + 
+			"		Class<? extends Class<Object>> ceco2 = cec; // ko\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"should be 3 errors");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
+public void test877() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	<T extends Class> void bar(T t) {\n" + 
+			"		Class<Object> c = t; // ok - unchecked\n" + 
+			"	}\n" + 
+			"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+			"		Class<Object> c = let.get(0); // ok - unchecked\n" + 
+			"	}\n" + 
+			"	void bar3(List<? extends Class> lec) {\n" + 
+			"		Class<Object> c = lec.get(0); // ok - unchecked\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	<T extends Class> void bar(T t) {\n" + 
+		"	           ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	<T extends Class> void bar(T t) {\n" + 
+		"	           ^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Class. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	Class<Object> c = t; // ok - unchecked\n" + 
+		"	                  ^\n" + 
+		"Type safety: The expression of type T needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+		"	           ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	<T extends Class> void bar2(List<? extends T> let) {\n" + 
+		"	           ^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Class. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 7)\n" + 
+		"	Class<Object> c = let.get(0); // ok - unchecked\n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type capture-of ? extends T needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 9)\n" + 
+		"	void bar3(List<? extends Class> lec) {\n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 10)\n" + 
+		"	Class<Object> c = lec.get(0); // ok - unchecked\n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type capture-of ? extends Class needs unchecked conversion to conform to Class<Object>\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693 - variation
+public void test878() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"class A {}\n" + 
+			"class D extends A {}\n" + 
+			"abstract class B<T> {\n" + 
+			"    public T label(String s) { return null; }\n" + 
+			"}\n" + 
+			"final class C extends B<A> {\n" + 
+			"    public static C instance(String s) { return new C(); }\n" + 
+			"    @Override public String toString() {\n" + 
+			"    	return \"SUCCESS\"; \n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        D d = (D)C.instance(\"X\").label(\"Y\");\n" + 
+			"        System.out.println(d);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"null");
+	// 	ensure only one checkcast D
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  ldc <String \"X\"> [16]\n" + 
+		"     2  invokestatic C.instance(java.lang.String) : C [17]\n" + 
+		"     5  ldc <String \"Y\"> [23]\n" + 
+		"     7  invokevirtual C.label(java.lang.String) : java.lang.Object [25]\n" + 
+		"    10  checkcast D [29]\n" + 
+		"    13  astore_1 [d]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
+		"    17  aload_1 [d]\n" + 
+		"    18  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [37]\n" + 
+		"    21  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 14, line: 15]\n" + 
+		"        [pc: 21, line: 16]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 14, pc: 22] local: d index: 1 type: D\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
 }
 }

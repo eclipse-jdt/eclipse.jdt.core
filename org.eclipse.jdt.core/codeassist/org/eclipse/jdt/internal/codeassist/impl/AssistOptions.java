@@ -99,7 +99,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.fieldPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.fieldPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.fieldPrefixes = null;
 				}
@@ -109,7 +109,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.staticFieldPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.staticFieldPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.staticFieldPrefixes = null;
 				}
@@ -119,7 +119,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.localPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.localPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.localPrefixes = null;
 				}
@@ -129,7 +129,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.argumentPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.argumentPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.argumentPrefixes = null;
 				}
@@ -139,7 +139,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.fieldSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.fieldSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.fieldSuffixes = null;
 				}
@@ -149,7 +149,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.staticFieldSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.staticFieldSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.staticFieldSuffixes = null;
 				}
@@ -159,7 +159,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.localSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.localSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.localSuffixes = null;
 				}
@@ -169,7 +169,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.argumentSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.argumentSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.argumentSuffixes = null;
 				}
@@ -196,5 +196,22 @@ public class AssistOptions {
 				this.camelCaseMatch = false;
 			}
 		}
+	}
+	
+	private char[][] splitAndTrimOn(char divider, char[] arrayToSplit) {
+		char[][] result = CharOperation.splitAndTrimOn(',', arrayToSplit);
+		
+		int length = result.length;
+		
+		int resultCount = 0;
+		for (int i = 0; i < length; i++) {
+			if(result[i].length != 0) {
+				result[resultCount++] = result[i];
+			}
+		}
+		if(resultCount != length) {
+			System.arraycopy(result, 0, result = new char[resultCount][], 0, resultCount);
+		}
+		return result;
 	}
 }

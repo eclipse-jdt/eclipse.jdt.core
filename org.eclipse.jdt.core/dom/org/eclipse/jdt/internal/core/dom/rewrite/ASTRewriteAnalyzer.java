@@ -17,39 +17,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.text.edits.CopySourceEdit;
-import org.eclipse.text.edits.CopyTargetEdit;
-import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.text.edits.InsertEdit;
-import org.eclipse.text.edits.MoveSourceEdit;
-import org.eclipse.text.edits.MoveTargetEdit;
-import org.eclipse.text.edits.RangeMarker;
-import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
-
 import org.eclipse.core.runtime.CoreException;
-
-import org.eclipse.jface.text.Assert;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.TextUtilities;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
-
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.BlockContext;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.NodeMarker;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.CopyPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.StringPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jface.text.Assert;
+import org.eclipse.text.edits.*;
 
 
 /**
@@ -58,14 +40,14 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  * Idea:
  * - Get the AST for existing code 
  * - Describe changes
- * - This visitor analyses the changes or annotations and generates text edits
+ * - This visitor analyzes the changes or annotations and generates text edits
  * (text manipulation API) that describe the required code changes. 
  */
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 	/**
-	 * Internal synonynm for deprecated constant AST.JLS2
-	 * to alleviate deprecation warnings.
+	 * Internal synonym for deprecated constant AST.JLS2
+	 * to alleviate deprecated warnings.
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
@@ -78,7 +60,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private final Map sourceCopyInfoToEdit;
 	private final Stack sourceCopyEndNodes;
 	
-	private final IDocument document;
+	private final char[] content;
+	private final LineInformation lineInfo;
 	private final ASTRewriteFormatter formatter;
 	private final NodeInfoStore nodeInfos;
 	private final TargetSourceRangeComputer extendedSourceRangeComputer;
@@ -86,16 +69,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	/*
 	 * Constructor for ASTRewriteAnalyzer.
 	 */
-	public ASTRewriteAnalyzer(IDocument document, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, Map options, TargetSourceRangeComputer extendedSourceRangeComputer) {
+	public ASTRewriteAnalyzer(char[] content, LineInformation lineInfo, String lineDelim, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, Map options, TargetSourceRangeComputer extendedSourceRangeComputer) {
 		this.eventStore= eventStore;
-		this.document= document;
+		this.content= content;
+		this.lineInfo= lineInfo;
 		this.nodeInfos= nodeInfos;
 		this.tokenScanner= null;
 		this.currentEdit= rootEdit;
 		this.sourceCopyInfoToEdit= new IdentityHashMap();
 		this.sourceCopyEndNodes= new Stack();
-
-		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, TextUtilities.getDefaultLineDelimiter(document));
+		
+		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, lineDelim);
 		
 		this.extendedSourceRangeComputer = extendedSourceRangeComputer;
 	}
@@ -103,14 +87,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	final TokenScanner getScanner() {
 		if (this.tokenScanner == null) {
 			IScanner scanner= ToolFactory.createScanner(true, false, false, false);
-			scanner.setSource(getDocument().get().toCharArray());
-			this.tokenScanner= new TokenScanner(scanner, getDocument());
+			scanner.setSource(this.content);
+			this.tokenScanner= new TokenScanner(scanner);
 		}
 		return this.tokenScanner;
 	}
 	
-	final IDocument getDocument() {
-		return this.document;
+	final char[] getContent() {
+		return this.content;
+	}
+	
+	final LineInformation getLineInformation() {
+		return this.lineInfo;
 	}
 	
 	/**
@@ -219,14 +207,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	    return this.formatter.createIndentString(indent);
 	}
 	
-	final String getIndentAtOffset(int pos) {
-		try {
-			IRegion line= getDocument().getLineInformationOfOffset(pos);
-			String str= getDocument().get(line.getOffset(), line.getLength());
-			return this.formatter.getIndentString(str);
-		} catch (BadLocationException e) {
-			return ""; //$NON-NLS-1$
+	final private String getIndentOfLine(int pos) {
+		int line= getLineInformation().getLineOfOffset(pos);
+		if (pos >= 0) {
+			char[] cont= getContent();
+			int lineStart= getLineInformation().getLineOffset(line);
+		    int i= lineStart;
+			while (i < cont.length && Indents.isIndentChar(content[i])) {
+			    i++;
+			}
+			return new String(cont, lineStart, i - lineStart);
 		}
+		return new String();
+	}
+	
+		
+	final String getIndentAtOffset(int pos) {
+		return this.formatter.getIndentString(getIndentOfLine(pos));
 	}
 	
 	final void doTextInsert(int offset, String insertString, TextEditGroup editGroup) {
@@ -804,30 +801,28 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		private int countEmptyLines(ASTNode last) {
-			IDocument doc= getDocument();
-			try {
-				int lastLine= doc.getLineOfOffset(last.getStartPosition() + last.getLength());
-				int scanLine= lastLine + 1;
-				int numLines= doc.getNumberOfLines();
-				while(scanLine < numLines && containsOnlyWhitespaces(doc, scanLine)) {
-					scanLine++;
+			LineInformation lineInformation= getLineInformation();
+			int lastLine= lineInformation.getLineOfOffset(getExtendedEnd(last));
+			if (lastLine >= 0) {
+				int startLine= lastLine + 1;
+				int start= lineInformation.getLineOffset(startLine);
+				if (start < 0) {
+					return 0;
 				}
-				return scanLine - lastLine - 1;
-			} catch (BadLocationException e) {
-				handleException(e);
-				return 0;
-			}	
-		}
-		
-		private boolean containsOnlyWhitespaces(IDocument doc, int line) throws BadLocationException {
-			int offset= doc.getLineOffset(line);
-			int end= offset + doc.getLineLength(line);
-			while (offset < end && Character.isWhitespace(doc.getChar(offset))) {
-				offset++;
+				char[] cont= getContent();
+				int i= start;
+				while (i < cont.length && Character.isWhitespace(cont[i])) {
+					i++;
+				}
+				if (i > start) {
+					lastLine= lineInformation.getLineOfOffset(i);
+					if (lastLine > startLine) {
+						return lastLine - startLine;
+					}
+				}
 			}
-			return offset == end;
-		}
-		
+			return 0;
+		}		
 	}
 		
 	private int rewriteParagraphList(ASTNode parent, StructuralPropertyDescriptor property, int insertPos, int insertIndent, int separator, int lead) {
@@ -994,14 +989,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return pos;
 	}
 	
-	final int getIndent(int pos) {
-		try {
-			IRegion line= getDocument().getLineInformationOfOffset(pos);
-			String str= getDocument().get(line.getOffset(), line.getLength());
-			return this.formatter.computeIndentUnits(str);
-		} catch (BadLocationException e) {
-			return 0;
-		}
+	final int getIndent(int offset) {
+		return this.formatter.computeIndentUnits(getIndentOfLine(offset));
 	}
 
 	final void doTextInsert(int insertOffset, ASTNode node, int initialIndentLevel, boolean removeLeadingIndent, TextEditGroup editGroup) {		
@@ -2892,17 +2881,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 	private int findTagNameEnd(TagElement tagNode) {
 		if (tagNode.getTagName() != null) {
-		    try {
-		        IDocument doc = getDocument();
-		        int len= doc.getLength();
-		        int i= tagNode.getStartPosition();
-		        while (i < len && !Indents.isIndentChar(doc.getChar(i))) {
-		            i++;
-		        }
-		        return i;
-		    } catch (BadLocationException e) {
-		        handleException(e);
-		    }
+			char[] cont= getContent();
+		    int len= cont.length;
+			int i= tagNode.getStartPosition();
+			while (i < len && !Indents.isIndentChar(cont[i])) {
+			    i++;
+			}
+			return i;
 		}
 	    return tagNode.getStartPosition();
 	}

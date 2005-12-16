@@ -20,6 +20,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.content.IContentTypeManager.ContentTypeChangeEvent;
+import org.eclipse.core.runtime.content.IContentTypeManager.IContentTypeChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -27,18 +29,21 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.WeakHashSet;
@@ -59,7 +64,7 @@ import org.xml.sax.SAXException;
  * The single instance of <code>JavaModelManager</code> is available from
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
-public class JavaModelManager implements ISaveParticipant { 	
+public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener { 	
  
 	/**
 	 * Unique handle onto the JavaModel
@@ -127,11 +132,6 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String COMPILATION_PARTICIPANT_EXTPOINT_ID = "compilationParticipant" ; //$NON-NLS-1$
 	
 	/**
-	 * Value of the content-type for Java source files
-	 */
-	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
-
-	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VARIABLE_INITIALIZATION_IN_PROGRESS = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
@@ -169,6 +169,9 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	private static final String ENABLE_NEW_FORMATTER = JavaCore.PLUGIN_ID + "/formatter/enable_new" ; //$NON-NLS-1$
 
+	private final static String DIRTY_CACHE = "***dirty***"; //$NON-NLS-1$
+	private final static HashMap NO_SECONDARY_TYPES = new HashMap(0);
+
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
 	
@@ -182,6 +185,110 @@ public class JavaModelManager implements ISaveParticipant {
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
+	static final CompilationParticipant[] NO_PARTICIPANTS = new CompilationParticipant[0];
+	
+	public class CompilationParticipants {
+	
+		/*
+		 * The registered compilation participants
+		 */
+		private CompilationParticipant[] registeredParticipants = null;
+				
+		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
+			CompilationParticipant[] participants = getRegisteredParticipants();
+			if (participants == NO_PARTICIPANTS)
+				return null;
+			int length = participants.length;
+			CompilationParticipant[] result = new CompilationParticipant[length];
+			int index = 0;
+			for (int i = 0; i < length; i++) {
+				CompilationParticipant participant = participants[i];
+				if (participant.isActive(project))
+					result[index++] = participant;
+			}
+			if (index == 0)
+				return null;
+			if (index < length)
+				System.arraycopy(result, 0, result = new CompilationParticipant[index], 0, index);
+			return result;
+		}
+		
+		private CompilationParticipant[] getRegisteredParticipants() {
+			if (this.registeredParticipants != null) {
+				return this.registeredParticipants;
+			}
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
+			if (extension == null)
+				return this.registeredParticipants = NO_PARTICIPANTS;
+			final HashMap modifyingEnv = new HashMap();
+			final HashMap creatingProblems = new HashMap();
+			final HashMap others = new HashMap();
+			IExtension[] extensions = extension.getExtensions();
+			// for all extensions of this point...
+			for(int i = 0; i < extensions.length; i++) {
+				IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
+				// for all config elements named "compilationParticipant"
+				for(int j = 0; j < configElements.length; j++) {
+					final IConfigurationElement configElement = configElements[j];
+					String elementName =configElement.getName();
+					if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
+						continue;
+					}
+					Platform.run(new ISafeRunnable() {
+						public void handleException(Throwable exception) {
+							Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
+						}
+						public void run() throws Exception {
+							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
+							if (execExt instanceof CompilationParticipant) {
+								if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
+									modifyingEnv.put(configElement, execExt);
+								else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
+									creatingProblems.put(configElement, execExt);
+								else
+									others.put(configElement, execExt);
+							}
+						}
+					});
+				}
+			}
+			int size = modifyingEnv.size() + creatingProblems.size() + others.size();
+			if (size == 0)
+				return this.registeredParticipants = NO_PARTICIPANTS;
+			CompilationParticipant[] result = new CompilationParticipant[size];
+			int index = 0;
+			index = sortParticipants(modifyingEnv, result, index);
+			index = sortParticipants(creatingProblems, result, index);
+			index = sortParticipants(others, result, index);
+			return this.registeredParticipants = result;
+		}
+		
+		private int sortParticipants(HashMap group, CompilationParticipant[] participants, int index) {
+			int size = group.size();
+			if (size == 0) return index;
+			Object[] elements = group.keySet().toArray();
+			Util.sort(elements, new Util.Comparer() {
+				public int compare(Object a, Object b) {
+					if (a == b) return 0;
+					String id = ((IConfigurationElement) a).getAttribute("id"); //$NON-NLS-1$
+					if (id == null) return -1;
+					IConfigurationElement[] requiredElements = ((IConfigurationElement) b).getChildren("requires"); //$NON-NLS-1$
+					for (int i = 0, length = requiredElements.length; i < length; i++) {
+						IConfigurationElement required = requiredElements[i];
+						if (id.equals(required.getAttribute("id"))) //$NON-NLS-1$
+							return 1;
+					}
+					return -1;
+				}
+			});
+			for (int i = 0; i < size; i++)
+				participants[index+i] = (CompilationParticipant) group.get(elements[i]);
+			return index + size;
+		}
+	}
+			
+	public final CompilationParticipants compilationParticipants = new CompilationParticipants();
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -698,6 +805,7 @@ public class JavaModelManager implements ISaveParticipant {
 	protected WeakHashMap searchScopes = new WeakHashMap();
 
 	public static class PerProjectInfo {
+		private static final int JAVADOC_CACHE_INITIAL_SIZE = 10;
 		
 		public IProject project;
 		public Object savedState;
@@ -709,12 +817,15 @@ public class JavaModelManager implements ISaveParticipant {
 		
 		public IEclipsePreferences preferences;
 		public Hashtable options;
+		public HashMap secondaryTypes;
+		public LRUCache javadocCache;
 		
 		public PerProjectInfo(IProject project) {
 
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
+			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
 		
 		public void rememberExternalLibTimestamps() {
@@ -743,6 +854,7 @@ public class JavaModelManager implements ISaveParticipant {
 			this.rawClasspath = newRawClasspath;
 			this.resolvedClasspath = null;
 			this.resolvedPathToRawEntries = null;
+			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
@@ -1054,130 +1166,6 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return container;			
 	}
-	
-	public class CompilationParticipants {
-		
-		/** Map<ICompilationParticipant, eventMask> registered by plugins */
-		private Map pluginCPs;
-		
-		/** Map<ICompilationParticipant, eventMask> from calls to add() */
-		private Map dynamicCPs = new HashMap();
-		
-		/**
-		 * @see JavaCore#addCompilationParticipant(ICompilationParticipant, int)
-		 */
-		public synchronized void add(ICompilationParticipant icp, int eventMask) {
-			dynamicCPs.put(icp, new Integer(eventMask));
-		}
-
-		/**
-		 * @see JavaCore#removeCompilationParticipant(ICompilationParticipant)
-		 */
-		public synchronized void remove(ICompilationParticipant icp) {
-			dynamicCPs.remove(icp);
-		}
-		
-		/**
-		 * Returns an immutable list containing the subset of registered
-		 * listeners that have requested notification of at least one of
-		 * the events in the flags mask.
-		 * The first time this is called, it loads listeners from plugins,
-		 * which may cause plugins to be loaded.  
-		 * 
-		 * <p>
-		 * The initialization of ICompilationParticipants  is synchronized.  A deadlock may 
-		 * occur if all of the following conditions are true:  
-		 *  
-		 *  <li>A plugin defines <code>ICompilationParticipants</code></li>
-		 *  <li>That plugin's <code>start()</code> method spawns a thread which causes 
-		 *  <code>getCompilationParticipants()</code> to be invoked</li>
-		 *  <li>The <code>start()</code> method blocks waiting for the spawned thread to complete.</li> 
-		 *  
-		 *  Note that a build and reconcile operations will cause <code>getCompilationParticipants()</code> to 
-		 *  be called.
-		 *  
-		 * @param eventMask an ORed combination of values from ICompilationParticipant.
-		 * @param project the java project on which the compilation participant will
-		 * operate
-		 * @return an immutable list of ICompilationParticipant.
-		 */
-		public List getCompilationParticipants(int eventMask, IJavaProject project) {
-			initPlugins();
-			List filteredICPs = new ArrayList();
-			Iterator it;
-			synchronized(this) {
-				it = dynamicCPs.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry cp = (Map.Entry)it.next();
-					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-						ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
-						if (participant.doesParticipateInProject(project))
-							filteredICPs.add(participant);
-					}
-				}
-			}
-			it = pluginCPs.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry cp = (Map.Entry)it.next();
-				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-					ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
-					if (participant.doesParticipateInProject(project))
-						filteredICPs.add(participant);
-				}
-			}
-			return Collections.unmodifiableList(filteredICPs);
-		}
-		
-		private synchronized void initPlugins() {
-			if (null != pluginCPs) {
-				return;
-			}
-			pluginCPs = new HashMap();
-
-			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
-			if (extension == null) 
-				return;
-			IExtension[] extensions = extension.getExtensions();
-			for(int iExtension = 0; iExtension < extensions.length; iExtension++){
-				// for all extensions of this point...
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					// for all config elements named "compilationParticipant"
-					for(int j = 0; j < configElements.length; j++){
-						String elementName = configElements[j].getName();
-						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
-							continue;
-						}
-						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
-						try {
-							Integer eventMask;
-							if (null != eventMaskStr) {
-								eventMask = Integer.decode(eventMaskStr);
-							}
-							else {
-								// if mask is unspecified, send it all events
-								eventMask = new Integer(-1); 
-							}
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-							if (execExt instanceof ICompilationParticipant){
-								pluginCPs.put(execExt, eventMask);
-							}
-						} catch(CoreException e) {
-							// TODO: what is the right way to handle exceptions?
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private final CompilationParticipants compilationParticipants = new CompilationParticipants();
-	
-	public CompilationParticipants getCompilationParticipants() {
-		return compilationParticipants;
-	}
 
 	public DeltaProcessor getDeltaProcessor() {
 		return this.deltaState.getDeltaProcessor();
@@ -1442,7 +1430,115 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	    return null; // break cycle
 	}
-	
+
+	/**
+	 * Get all secondary types for a project and store result in per project info cache.
+	 * 
+	 * @param project Project we want get secondary types from
+	 * @return HashMap Table of secondary type names->path for given project
+	 */
+	public HashMap getSecondaryTypes(IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.getSecondaryTypesPaths("); //$NON-NLS-1$
+			buffer.append(project.getElementName());
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+
+		// Wait the end of indexing if requested
+		final PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project.getProject());
+		IndexManager manager = getIndexManager();
+		boolean indexing = manager.awaitingJobsCount() > 0;
+		if (indexing && waitForIndexes) {
+			while (manager.awaitingJobsCount() > 0) {
+				if (monitor != null && monitor.isCanceled()) {
+					if (projectInfo.secondaryTypes == null) return NO_SECONDARY_TYPES;
+					return projectInfo.secondaryTypes;
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					if (projectInfo.secondaryTypes == null) return NO_SECONDARY_TYPES;
+					return projectInfo.secondaryTypes;
+				}
+			}
+		}
+
+		// Return cache if not empty and not dirty
+		if (projectInfo.secondaryTypes != null && projectInfo.secondaryTypes.get(DIRTY_CACHE) == null) {
+			return projectInfo.secondaryTypes;
+		}
+		
+		// Return cache if not waiting for indexing
+		if (indexing && !waitForIndexes) {
+			if (projectInfo.secondaryTypes == null) {
+				return NO_SECONDARY_TYPES; // cache is not initialized return empty one
+			}
+			return projectInfo.secondaryTypes; // cache is dirty => return current one...
+		}
+
+		// Init variables for search
+		final HashMap secondaryTypes = new HashMap(3);
+		IRestrictedAccessTypeRequestor nameRequestor = new IRestrictedAccessTypeRequestor() {
+			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+				String key = packageName==null ? "" : new String(packageName); //$NON-NLS-1$
+				HashMap types = (HashMap) secondaryTypes.get(key);
+				if (types == null) types = new HashMap(3);
+				types.put(new String(simpleTypeName), path);
+				secondaryTypes.put(key, types);
+			}
+		};
+
+		// Build scope using prereq projects but only source folders
+		IPackageFragmentRoot[] allRoots = project.getAllPackageFragmentRoots();
+		int length = allRoots.length, size = 0;
+		IPackageFragmentRoot[] allSourceFolders = new IPackageFragmentRoot[length];
+		for (int i=0; i<length; i++) {
+			if (allRoots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
+				allSourceFolders[size++] = allRoots[i];
+			}
+		}
+		if (size < length) {
+			System.arraycopy(allSourceFolders, 0, allSourceFolders = new IPackageFragmentRoot[size], 0, size);
+		}
+
+		// Search all secondary types on scope
+		new BasicSearchEngine().searchAllSecondaryTypeNames(allSourceFolders, nameRequestor, monitor);
+		if (VERBOSE) {
+			System.out.print(Thread.currentThread() + "	-> secondary paths: ");  //$NON-NLS-1$
+			System.out.println();
+			Iterator keys = secondaryTypes.keySet().iterator();
+			while (keys.hasNext()) {
+				String qualifiedName = (String) keys.next();
+				Util.verbose("		- "+qualifiedName+'-'+secondaryTypes.get(qualifiedName) ); //$NON-NLS-1$
+			}
+		}
+
+		// Build types from paths
+		Iterator packages = secondaryTypes.keySet().iterator();
+		while (packages.hasNext()) {
+			String packName = (String) packages.next();
+			HashMap types = (HashMap) secondaryTypes.get(packName);
+			Iterator names = types.keySet().iterator();
+			while (names.hasNext()) {
+				String typeName = (String) names.next();
+				String path = (String) types.get(typeName);
+				if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(path)) {
+					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
+					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
+					IType type = unit.getType(typeName);
+					types.put(typeName, type); // replace stored path with type itself
+				}
+			}
+		}
+
+		// Store result in per project info cache if still null or dirty (may have been set by another thread...)
+		if (projectInfo.secondaryTypes == null || projectInfo.secondaryTypes.get(DIRTY_CACHE) != null) {
+			projectInfo.secondaryTypes = secondaryTypes;
+		}
+		return projectInfo.secondaryTypes;
+	}
+
 	/**
 	 * Returns the temporary cache for newly opened elements for the current thread.
 	 * Creates it if not already created.
@@ -2300,7 +2396,87 @@ public class JavaModelManager implements ISaveParticipant {
 		// used by tests to simulate a startup
 		MANAGER = new JavaModelManager();
 	}
-	
+
+	/**
+	 * Remove a file from its project secondary types cache.
+	 * 
+	 * @param file File to remove
+	 */
+	public void removeFromSecondaryTypesCache(IFile file) {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.removeSecondaryTypePaths("); //$NON-NLS-1$
+			buffer.append(file.getName());
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+		if (file != null) {
+			PerProjectInfo projectInfo = getPerProjectInfo(file.getProject(), false);
+			if (projectInfo != null && projectInfo.secondaryTypes != null) {
+				if (VERBOSE) {
+					Util.verbose("-> remove file from cache of project: "+file.getProject().getName()); //$NON-NLS-1$
+				}
+				Iterator packages = projectInfo.secondaryTypes.keySet().iterator();
+				while (packages.hasNext()) {
+					String packName = (String) packages.next();
+					Object object = projectInfo.secondaryTypes.get(packName);
+					if (object instanceof HashMap) {
+						HashMap types = (HashMap) object;
+						Iterator names = types.keySet().iterator();
+						while (names.hasNext()) {
+							String typeName = (String) names.next();
+							IType type = (IType) types.get(typeName);
+							if (file.equals(type.getResource())) {
+								types.remove(typeName);
+								if (types.size() == 0) {
+									projectInfo.secondaryTypes.remove(packName);
+								}
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Reset secondary types cache for a project got from given path.
+	 * If secondary types cache already exist, do not reset it now to avoid
+	 * cache desynchronization (this reset is done in indexing thread...).
+	 * Instead flag the cache as dirty to store the fact that current cache
+	 * should be recomputed when indexing will be ended.
+	 * 
+	 * @param path Path of file containing a secondary type
+	 */
+	public void resetSecondaryTypesCache(String path) {
+		if (VERBOSE) {
+			StringBuffer buffer = new StringBuffer("JavaModelManager.resetSecondaryTypePaths("); //$NON-NLS-1$
+			buffer.append(path);
+			buffer.append(')');
+			Util.verbose(buffer.toString());
+		}
+		IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = wRoot.findMember(path);
+		if (resource != null) {
+			PerProjectInfo projectInfo = getPerProjectInfo(resource.getProject(), false);
+			if (projectInfo != null) {
+				if (VERBOSE) {
+					Util.verbose("-> reset cache for project: "+resource.getProject().getName()); //$NON-NLS-1$
+				}
+				if (projectInfo.secondaryTypes != null) {
+					Object dirty = projectInfo.secondaryTypes.get(DIRTY_CACHE);
+					if (dirty == null) {
+						projectInfo.secondaryTypes.put(DIRTY_CACHE, resource);
+					} else {
+						HashSet resources = (dirty instanceof HashSet) ? (HashSet) dirty : new HashSet(3);
+						resources.add(resource);
+						projectInfo.secondaryTypes.put(DIRTY_CACHE, resource);
+					}
+				}
+			}
+		}
+	}
+
 	/*
 	 * Resets the temporary cache for newly created elements to null.
 	 */
@@ -2641,6 +2817,9 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			};
 			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
+			
+			// Listen to content-type changes
+			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
 
 			// retrieve variable values
 			loadVariablesAndContainers();
@@ -2706,6 +2885,9 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(this.deltaState);
 		workspace.removeSaveParticipant(javaCore);
+		
+		// Stop listening to content-type changes
+		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
 	
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
@@ -2962,5 +3144,10 @@ public class JavaModelManager implements ISaveParticipant {
 			return false;
 		variablePut(variableName, newPath);
 		return true;
+	}
+
+	public void contentTypeChanged(ContentTypeChangeEvent event) {
+		Util.resetJavaLikeExtensions();
+		
 	}
 }

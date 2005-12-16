@@ -96,7 +96,7 @@ public char[][] getPackageName() {
 private char[] getQualifiedName() {
 	if (this.openable instanceof CompilationUnit) {
 		// get file name
-		String fileName = this.resource.getFullPath().lastSegment();
+		String fileName = this.openable.getElementName(); // working copy on a .class file may not have a resource, so use the element name
 		// get main type name
 		char[] mainTypeName = Util.getNameWithoutJavaLikeExtension(fileName).toCharArray();
 		CompilationUnit cu = (CompilationUnit) this.openable;

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -511,69 +510,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
-/**
- * Collect the substitutes into a map for certain type variables inside the receiver type
- * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
- * Constraints:
- *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
- *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
- *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
- */
-public void collectSubstitutes(Scope currentScope, TypeBinding actualType, Map substitutes, int constraint) {
-	
-	if (actualType == NullBinding) return;
-	if (!(actualType instanceof ReferenceBinding)) return;
-	TypeVariableBinding[] variables = this.typeVariables;
-	if (variables == NoTypeVariables) return;
-	// generic type is acting as parameterized type with its own parameters as arguments
-	
-	ReferenceBinding formalEquivalent, actualEquivalent;
-	switch (constraint) {
-		case CONSTRAINT_EQUAL :
-		case CONSTRAINT_EXTENDS :
-			formalEquivalent = this;
-	        actualEquivalent = ((ReferenceBinding)actualType).findSuperTypeWithSameErasure(this);
-	        if (actualEquivalent == null) return;
-	        break;
-		case CONSTRAINT_SUPER :
-        default:
-	        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
-	        if (formalEquivalent == null) return;
-	        actualEquivalent = (ReferenceBinding) actualType;
-	        break;
-	}
-    TypeBinding[] formalArguments;
-    switch (formalEquivalent.kind()) {
-    	case Binding.GENERIC_TYPE :
-    		formalArguments = formalEquivalent.typeVariables();
-    		break;
-    	case Binding.PARAMETERIZED_TYPE :
-    		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
-    		break;
-    	case Binding.RAW_TYPE :
-    		substitutes.clear(); // clear all variables to indicate raw generic method in the end
-    	default :
-    		return;
-    }
-    TypeBinding[] actualArguments;
-    switch (actualEquivalent.kind()) {
-    	case Binding.GENERIC_TYPE :
-    		actualArguments = actualEquivalent.typeVariables();
-    		break;
-    	case Binding.PARAMETERIZED_TYPE :
-    		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
-    		break;
-    	case Binding.RAW_TYPE :
-    		substitutes.clear(); // clear all variables to indicate raw generic method in the end
-    		return;
-    	default :
-    		return;
-    }
-    for (int i = 0, length = formalArguments.length; i < length; i++) {
-    	TypeBinding formalArgument = formalArguments[i];
-        formalArgument.collectSubstitutes(scope, actualArguments[i], substitutes, formalArgument.isWildcard() ? constraint : CONSTRAINT_EQUAL);
-    }
-}
 public int kind() {
 	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
@@ -616,8 +552,6 @@ void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
 		this.modifiers |= ClassFileConstants.AccDeprecated;
-	} else if ((this.modifiers & ClassFileConstants.AccDeprecated) != 0 && scope != null && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
@@ -696,13 +630,6 @@ public char[] genericSignature() {
         sig.append(this.superInterfaces[i].genericTypeSignature());
 	return sig.toString().toCharArray();
 }
-
-public IAnnotationInstance[] getAnnotations()
-{
-	getAnnotationTagBits();
-	return this.annotations;
-}
-
 /**
  * Compute the tagbits for standard annotations. For source types, these could require
  * lazily resolving corresponding annotation nodes, in case of forward references.
@@ -1156,8 +1083,6 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			field.modifiers |= ClassFileConstants.AccDeprecated;
-		else if ((field.modifiers & ClassFileConstants.AccDeprecated) != 0)
-			this.scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	
@@ -1211,8 +1136,6 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			method.modifiers |= ClassFileConstants.AccDeprecated;
-		else if ((method.modifiers & ClassFileConstants.AccDeprecated) != 0)
-			this.scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
@@ -1238,7 +1161,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/);
 			if (resolvedExceptionType == null)
 				continue;
-			if (resolvedExceptionType.isGenericType() || resolvedExceptionType.isBoundParameterizedType()) {
+			if (resolvedExceptionType.isBoundParameterizedType()) {
 				methodDecl.scope.problemReporter().invalidParameterizedExceptionType(resolvedExceptionType, exceptionTypes[i]);
 				continue;
 			}
@@ -1507,5 +1430,10 @@ void verifyMethods(MethodVerifier verifier) {
 
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
+}
+
+public IAnnotationInstance[] getAnnotations() {
+	getAnnotationTagBits();
+	return this.annotations;
 }
 }

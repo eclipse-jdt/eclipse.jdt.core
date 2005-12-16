@@ -15,21 +15,17 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
 import java.util.*;
-
 
 /**
  * The abstract superclass of Java builders.
@@ -53,21 +49,17 @@ protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
 
-/** 
- * this is a Map<IFile, Set<String>> where each String is a fully-qualified name
- * of an extra dependency introduced by a compilation participant.
- */
-private Map extraDependencyMap;
+protected SimpleSet filesDeclaringAnnotation = null;
 
 public static int MAX_AT_ONCE = 1000;
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
-					IMarker.MESSAGE, 
-					IMarker.SEVERITY, 
-					IJavaModelMarker.ID, 
-					IMarker.CHAR_START, 
-					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER, 
-					IJavaModelMarker.ARGUMENTS};
+	IMarker.MESSAGE, 
+	IMarker.SEVERITY, 
+	IJavaModelMarker.ID, 
+	IMarker.CHAR_START, 
+	IMarker.CHAR_END, 
+	IMarker.LINE_NUMBER, 
+	IJavaModelMarker.ARGUMENTS};
 public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.MESSAGE, 
 	IMarker.PRIORITY, 
@@ -82,18 +74,31 @@ public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = new Integer(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = new Integer(IMarker.PRIORITY_LOW);
 
-protected AbstractImageBuilder(JavaBuilder javaBuilder) {
-	this.javaBuilder = javaBuilder;
-	this.newState = new State(javaBuilder);
-
+protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState) {
 	// local copies
+	this.javaBuilder = javaBuilder;
 	this.nameEnvironment = javaBuilder.nameEnvironment;
 	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
 
-	this.compiler = newCompiler();
-	this.workQueue = new WorkQueue();
-	this.problemSourceFiles = new ArrayList(3);
+	if (buildStarting) {
+		this.newState = newState == null ? new State(javaBuilder) : newState;
+		this.compiler = newCompiler();
+		this.workQueue = new WorkQueue();
+		this.problemSourceFiles = new ArrayList(3);
+
+		if (this.javaBuilder.participants != null) {
+			for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++) {
+				if (this.javaBuilder.participants[i].isAnnotationProcessor()) {
+					// initialize this set so the builder knows to gather CUs that define Annotation types
+					// each Annotation processor participant is then asked to process these files AFTER
+					// the compile loop. The normal dependency loop will then recompile all affected types
+					this.filesDeclaringAnnotation = new SimpleSet(1);
+					break;
+				}
+			}
+		}
+	}
 }
 
 public void acceptResult(CompilationResult result) {
@@ -175,6 +180,9 @@ public void acceptResult(CompilationResult result) {
 					createProblemFor(compilationUnit.resource, null, Messages.build_inconsistentClassFile, JavaCore.ERROR); 
 			}
 		}
+		if (result.declaresAnnotations && this.filesDeclaringAnnotation != null) // only initialized if an annotation processor is attached
+			this.filesDeclaringAnnotation.add(compilationUnit);
+
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 		notifier.compiled(compilationUnit);
 	}
@@ -196,8 +204,16 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(SourceFile[] units) {
-	int unitsLength = units.length;
+	if (this.filesDeclaringAnnotation != null && this.filesDeclaringAnnotation.elementSize > 0)
+		// will add files that declare annotations in acceptResult() & then processAnnotations() before exitting this method
+		this.filesDeclaringAnnotation.clear();
 
+	// notify CompilationParticipants (that !isAnnotationProcessor()) which source files are about to be compiled
+	CompilationParticipantResult[] participantResults = notifyParticipants(units);
+	if (participantResults != null)
+		units = processParticipantResults(participantResults, units);
+
+	int unitsLength = units.length;
 	this.compiledAllAtOnce = unitsLength <= MAX_AT_ONCE;
 	if (this.compiledAllAtOnce) {
 		// do them all now
@@ -228,230 +244,16 @@ protected void compile(SourceFile[] units) {
 			System.arraycopy(units, i, additionalUnits, 0, additionalUnits.length);
 			compilingFirstGroup = false;
 			compile(toCompile, additionalUnits);
-		}	
-	}
-}
-
-
-/**
- *  notify the ICompilationParticipants of the pre-build event 
- *  @return a map that maps source units to problems encountered during the prebuild process.
- */
-private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
-	List cps = JavaCore
-			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT,
-					javaBuilder.javaProject );
-	if ( cps.isEmpty() ) {
-		return null;
-	}
-
-	IFile[] files = new IFile[sourceUnits.length];
-	for ( int i = 0; i < files.length; i++ ) {
-		if ( sourceUnits[i] instanceof SourceFile ) {
-			files[i] = ( ( SourceFile ) sourceUnits[i] ).getFile();
-		} else {
-			String fname = new String( sourceUnits[i].getFileName() );
-			files[i] = javaBuilder.javaProject.getProject().getFile( fname );
 		}
 	}
-	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files, 
-			javaBuilder.javaProject,
-			!javaBuilder.nameEnvironment.isIncrementalBuild);
 
-	java.util.Iterator it = cps.iterator();
-	Map ifiles2problems = new HashMap();
-	boolean classpathChanged = false;
-	while ( it.hasNext() ) {
-		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
+	if (participantResults != null)
+		for (int i = participantResults.length; --i >= 0;)
+			if (participantResults[i] != null)
+				recordParticipantResult(participantResults[i]);
 
-		CompilationParticipantResult cpr = p.notify( pbce );
-		if ( cpr instanceof PreBuildCompilationResult ) {
-			PreBuildCompilationResult pbcr = ( PreBuildCompilationResult ) cpr;
-
-			IFile[] f = pbcr.getNewFiles();
-			if ( f != null ) {
-				for ( int i = 0; i < f.length; i++ )
-					newFiles.add( f[i] );
-			}
-			
-			f = pbcr.getDeletedFiles();
-			if ( f != null ) { 
-				for ( int i = 0; i < f.length; i++ ) 
-					deletedFiles.add( f[i] );
-			}
-			
-			mergeMaps( pbcr.getNewDependencies(), extraDependencies );
-			mergeMaps( pbcr.getProblems(), ifiles2problems );
-			
-			classpathChanged  |= pbcr.getProjectClasspathChanged();
-		}
-	}
-	
-	if ( newFiles.size() > 0 ) {
-		
-		// if project classpath has changed, then we need to reset the name environments
-		if ( classpathChanged )
-			resetNameEnvironment();
-		
-		Set newFiles_2 = new HashSet();
-		Set deletedFiles_2 = new HashSet();
-		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
-		final Map newFiles2Problems = notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies );
-		newFiles.addAll( newFiles_2 );
-		deletedFiles.addAll( deletedFiles_2 );
-		
-		mergeMaps( newFiles2Problems, ifiles2problems);
-	}
-	
-	return convertKey(files, sourceUnits, ifiles2problems);
-}	
-
-/**
- * Convert the key of the map from <code>IFile</code> to the corresponding <code>ICompilationUnit</code>
- * @param files parallel to <code>units</code>. The <code>IFile</code> of the corresponding <code>ICompilationUnit</code> 
- * @param units parallel to <code>files</code>. The <code>ICompilationUnit</code> of the corresponding <code>IFile</code>
- * @param problems Map between <code>IFile</code> and its list of <code>IProblem</code>
- *                        Content of this map will be destructively modified.
- * @return a map between <code>ICompilationUnit</code> and its list of <code>IProblem</code>
- */
-private Map convertKey(final IFile[] files, final ICompilationUnit[] units, Map problems)
-{	
-	for( int i=0, len=files.length; i<len; i++ ){				
-		Object val = problems.remove(files[i]);
-		if( val != null )
-			problems.put(units[i], val);
-	}
-	
-	return problems;
-}
-
-/** 
- *   Given a Map which maps from a key to a value, where key is an arbitrary 
- *   type, and where value is a Collection, mergeMaps will ensure that for a key 
- *   k with value v in source, all of the elements in the Collection v will be 
- *   moved into the Collection v' corresponding to key k in the destination Map. 
- * 
- * @param source - The source map from some key to a Collection.
- * @param destination - The destination map from some key to a Collection
- */
-private static void mergeMaps( Map source, Map destination ) {
-	Iterator keys = source.keySet().iterator();
-	while( keys.hasNext() ) {
-		Object key = keys.next();
-		Object val = destination.get( key );
-		if ( val != null ) {
-			Collection c = (Collection) val;
-			c.addAll( (Collection)source.get( key ) );
-		}
-		else {
-			destination.put( key, source.get( key ) );
-		}
-	}
-}
-
-
-
-/** 
- * given a source file, determine which of the project's source folders the file lives 
- */
-protected ClasspathMultiDirectory getSourceLocationForFile(IFile file) {
-	ClasspathMultiDirectory md = null;
-	md = sourceLocations[0];
-	if ( sourceLocations.length > 1 ) {
-		IPath sourceFileFullPath = file.getFullPath();
-		for ( int j = 0, m = sourceLocations.length; j < m; j++ ) {
-			if ( sourceLocations[j].sourceFolder.getFullPath()
-					.isPrefixOf( sourceFileFullPath ) ) {
-				md = sourceLocations[j];
-				if ( md.exclusionPatterns == null
-						&& md.inclusionPatterns == null )
-					break;
-				if ( !Util.isExcluded( file, md.inclusionPatterns,
-						md.exclusionPatterns ) )
-					break;
-			}
-		}
-	}
-	return md;
-}
-
-/**
- * copies IFile entries in a Set<IFile> into SourceFile entries into a SourceFile[]. 
- * Copying starts at the specified start position.
- */
-private void ifileSet2SourceFileArray( Set ifiles, SourceFile[] sourceFiles, int start ) {
-	Iterator it = ifiles.iterator();
-	while ( it.hasNext() ) {
-		IFile f = ( IFile ) it.next();
-		sourceFiles[start++] = new SourceFile( f, getSourceLocationForFile( f ) );
-	}	
-}
-
-/**
- *  Given a Set<IFile>, this method returns a SourceFile[] where each entry 
- *  in the array corresponds to an entry in the set.
- */
-private SourceFile[] ifileSet2SourceFileArray( Set ifiles ) {
-	SourceFile[] sf = new SourceFile[ ifiles.size() ];
-	ifileSet2SourceFileArray( ifiles, sf, 0 );
-	return sf;
-}
-
-private void resetNameEnvironment() {
-	
-	SimpleLookupTable binaryLocationsPerProject = new SimpleLookupTable(3);
-	NameEnvironment newNameEnvironment = null; 
-	try {
-		newNameEnvironment = new NameEnvironment(this.javaBuilder.workspaceRoot, this.javaBuilder.javaProject, binaryLocationsPerProject);
-	}
-	catch( CoreException ce ) {
-		// TODO:  log exception
-		ce.printStackTrace();
-	}
-	
-	if ( newNameEnvironment != null ) {
-		this.nameEnvironment.cleanup();
-		this.javaBuilder.binaryLocationsPerProject = new SimpleLookupTable(3);
-		this.javaBuilder.nameEnvironment = newNameEnvironment;
-		this.nameEnvironment = this.javaBuilder.nameEnvironment;
-		this.sourceLocations = this.nameEnvironment.sourceLocations;
-		this.compiler = newCompiler();
-	}
-}
-
-private SourceFile[] updateSourceUnits( SourceFile[] units, Set newFiles, Set deletedFiles ) {
-	
-	if ( newFiles.size() == 0 && deletedFiles.size() == 0 )
-		return units;
-	else if ( deletedFiles.size() == 0 ) {
-		// files have only been added
-		SourceFile[] newUnits = new SourceFile[ units.length + newFiles.size() ];
-		System.arraycopy( units, 0, newUnits, 0, units.length );
-		ifileSet2SourceFileArray( newFiles, newUnits, units.length );
-		return newUnits;
-	}
-	else {
-		// files have been added & deleted.  Deal with deleted files first.  If 
-		// someone reports that a file has been added and deleted, then it will be 
-		// added.
-		HashSet unitSet = new HashSet();
-		for ( int i=0; i<units.length; i++ )
-			unitSet.add( units[i].getFile() );
-		Iterator it = deletedFiles.iterator();
-		while ( it.hasNext() )	{
-			IFile f = (IFile) it.next();
-			if ( unitSet.contains( f ) )
-				unitSet.remove( f );
-			handleFileDeletedByCompilationParticipant( f );
-		}
-		unitSet.addAll( newFiles );
-		return ifileSet2SourceFileArray( unitSet );
-	}
-}
-
-protected void handleFileDeletedByCompilationParticipant( IFile f )
-{
-	// noop
+	if (this.filesDeclaringAnnotation != null)
+		processAnnotations();
 }
 
 void compile(SourceFile[] units, SourceFile[] additionalUnits) {
@@ -476,21 +278,7 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	notifier.checkCancel();
 	try {
 		inCompiler = true;
-		
-		// notify compilation participants, 
-		Set newFiles = new HashSet();
-		Set deletedFiles = new HashSet();
-		extraDependencyMap = new HashMap();
-		Map units2Problems = notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap );
-
-		// update units array with the new & deleted files
-		units = updateSourceUnits( units, newFiles, deletedFiles );
-		
-		compiler.compile(units, units2Problems);
-		
-		// we should be done with this map here, so null it out for GC
-		extraDependencyMap = null;
-		
+		compiler.compile(units);
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
 		// the Compiler failed after the user has chose to cancel... likely due to an OutOfMemory error
@@ -518,71 +306,38 @@ protected void createProblemFor(IResource resource, IMember javaElement, String 
 	}
 }
 
-protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
-		
-	char[][][] qualifiedRefs = result.qualifiedReferences;
-	char[][] simpleRefs = result.simpleNameReferences;
-	
-	if ( extraDependencyMap != null && extraDependencyMap.size() > 0 ) {
-		IFile f = ResourcesPlugin.getWorkspace().getRoot().getFile( new Path( new String( result.fileName ) ));
-		Set s  = (Set)extraDependencyMap.get( f );
-		if ( s != null && s.size() > 0 ) {
-			NameSet simpleNameSet = new NameSet( simpleRefs.length + s.size() );
-			QualifiedNameSet qualifiedNameSet = new QualifiedNameSet( qualifiedRefs.length + s.size() );
+protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
+	// no op by default
+}
 
-			//
-			// add in all of the existing refs to the sets to filter out duplicates
-			//
-			for ( int i = 0; i< simpleRefs.length; i++ ) 
-				simpleNameSet.add( simpleRefs[i] );
+protected SourceFile findSourceFile(IFile file) {
+	if (!file.exists()) return null;
 
-			for ( int i = 0; i< qualifiedRefs.length; i++ ) 
-				qualifiedNameSet.add( qualifiedRefs[i] );
-
-			//
-			// get all of the the parts of the new dependencies into sets
-			// for  a dependency "a.b.c.d", we want the qualifiedNameSet to include
-			// "a.b.c.d", "a.b.c" & "a.b" and we want the simple name set to include
-			// "a", "b", "c" & "d".
-			//
-			Iterator it = s.iterator();
-			while ( it.hasNext() ) {
-				char[] array = ((String) it.next() ).toCharArray();
-				char[][] parts = CharOperation.splitOn('.', array );
-				for ( int i = 0; i<parts.length; i++ )
-					simpleNameSet.add( parts[i] );
-				
-				for( int i = parts.length - 1; i > 0; --i ) {
-					qualifiedNameSet.add( parts );
-					parts = CharOperation.subarray( parts, 0, i );
-				}
+	// assumes the file exists in at least one of the source folders & is not excluded
+	ClasspathMultiDirectory md = sourceLocations[0];
+	if (sourceLocations.length > 1) {
+		IPath sourceFileFullPath = file.getFullPath();
+		for (int j = 0, m = sourceLocations.length; j < m; j++) {
+			if (sourceLocations[j].sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
+				md = sourceLocations[j];
+				if (md.exclusionPatterns == null && md.inclusionPatterns == null)
+					break;
+				if (!Util.isExcluded(file, md.inclusionPatterns, md.exclusionPatterns))
+					break;
 			}
-	
-			//
-			// strip out any null entries in the arrays retrieved from the sets.
-			//
-			simpleRefs = new char[ simpleNameSet.elementSize][];
-			char[][] names = simpleNameSet.names;
-			int j = 0;
-			for ( int i = 0; i<names.length; i++ )
-				if ( names[i] != null)
-					simpleRefs[j++] = names[i];
-			
-			qualifiedRefs = new char[ qualifiedNameSet.elementSize ][][];
-			j = 0;
-			char[][][] qnames = qualifiedNameSet.qualifiedNames;
-			for ( int i = 0; i< qnames.length; i++ )
-				if ( qnames[i] != null )
-					qualifiedRefs[j++] = qnames[i];
-			
 		}
 	}
-		
+	return new SourceFile(file, md);
+}
+
+protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
 	if (duplicateTypeNames == null) {
-		newState.record(sourceLocator, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
+		newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
 		return;
 	}
-	
+
+	char[][][] qualifiedRefs = result.qualifiedReferences;
+	char[][] simpleRefs = result.simpleNameReferences;
 	// for each duplicate type p1.p2.A, add the type name A (package was already added)
 	next : for (int i = 0, l = duplicateTypeNames.size(); i < l; i++) {
 		char[][] compoundName = (char[][]) duplicateTypeNames.get(i);
@@ -613,6 +368,18 @@ protected RuntimeException internalException(CoreException t) {
 	if (inCompiler)
 		return new AbortCompilation(true, imageBuilderException);
 	return imageBuilderException;
+}
+
+protected boolean isExcludedFromProject(IPath childPath) throws JavaModelException {
+	// answer whether the folder should be ignored when walking the project as a source folder
+	if (childPath.segmentCount() > 2) return false; // is a subfolder of a package
+
+	for (int j = 0, k = sourceLocations.length; j < k; j++) {
+		if (childPath.equals(sourceLocations[j].binaryFolder.getFullPath())) return true;
+		if (childPath.equals(sourceLocations[j].sourceFolder.getFullPath())) return true;
+	}
+	// skip default output folder which may not be used by any source folder
+	return childPath.equals(javaBuilder.javaProject.getOutputLocation());
 }
 
 protected Compiler newCompiler() {
@@ -655,16 +422,97 @@ protected Compiler newCompiler() {
 	return newCompiler;
 }
 
-protected boolean isExcludedFromProject(IPath childPath) throws JavaModelException {
-	// answer whether the folder should be ignored when walking the project as a source folder
-	if (childPath.segmentCount() > 2) return false; // is a subfolder of a package
-
-	for (int j = 0, k = sourceLocations.length; j < k; j++) {
-		if (childPath.equals(sourceLocations[j].binaryFolder.getFullPath())) return true;
-		if (childPath.equals(sourceLocations[j].sourceFolder.getFullPath())) return true;
+protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
+	// TODO (kent) do we expect to have more than one participant?
+	// and if so should we pass the generated files from the each processor to the others to process?
+	CompilationParticipantResult[] results = null;
+	for (int i = 0, l = this.javaBuilder.participants == null ? 0 : this.javaBuilder.participants.length; i < l; i++) {
+		if (!this.javaBuilder.participants[i].isAnnotationProcessor()) {
+			if (results == null) {
+				results = new CompilationParticipantResult[unitsAboutToCompile.length];
+				for (int j = unitsAboutToCompile.length; --j >= 0;)
+					results[j] = new CompilationParticipantResult(unitsAboutToCompile[j]);
+			}
+			this.javaBuilder.participants[i].buildStarting(results);
+		}
 	}
-	// skip default output folder which may not be used by any source folder
-	return childPath.equals(javaBuilder.javaProject.getOutputLocation());
+	return results;
+}
+
+protected abstract void processAnnotationResults(CompilationParticipantResult[] results);
+
+protected void processAnnotations() {
+	int size = this.filesDeclaringAnnotation.elementSize;
+	if (size == 0) return;
+
+	Object[] values = this.filesDeclaringAnnotation.values;
+	CompilationParticipantResult[] results = new CompilationParticipantResult[size];
+	for (int i = values.length; --i >= 0 && size > 0;)
+		if (values[i] != null)
+			results[--size] = new CompilationParticipantResult((SourceFile) values[i]);
+
+ 	// TODO (kent) do we expect to have more than one annotation processor participant?
+	// and if so should we pass the generated files from the each processor to the others to process?
+	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
+		if (this.javaBuilder.participants[i].isAnnotationProcessor())
+			this.javaBuilder.participants[i].processAnnotations(results, this instanceof BatchImageBuilder);
+	processAnnotationResults(results);
+}
+
+protected SourceFile[] processParticipantResults(CompilationParticipantResult[] results, SourceFile[] unitsAboutToCompile) {
+	SimpleSet newUnits = null;
+	for (int i = results.length; --i >= 0;) {
+		CompilationParticipantResult result = results[i];
+		if (result == null) continue;
+
+		IFile[] deletedGeneratedFiles = result.deletedFiles;
+		if (deletedGeneratedFiles != null)
+			deleteGeneratedFiles(deletedGeneratedFiles);
+
+		IFile[] addedGeneratedFiles = result.addedFiles;
+		if (addedGeneratedFiles != null) {
+			for (int j = addedGeneratedFiles.length; --j >= 0;) {
+				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j]);
+				if (sourceFile == null) continue;
+				if (newUnits == null)
+					newUnits = new SimpleSet(unitsAboutToCompile.length + 3);
+				if (!newUnits.includes(sourceFile))
+					newUnits.add(sourceFile);
+			}
+		}
+	}
+	if (newUnits == null)
+		return unitsAboutToCompile;
+
+	for (int i = unitsAboutToCompile.length; --i >= 0;)
+		newUnits.add(unitsAboutToCompile[i]);
+	SourceFile[] result = new SourceFile[newUnits.elementSize];
+	newUnits.asArray(result);
+	return result;
+}
+
+protected void recordParticipantResult(CompilationParticipantResult result) {
+	// any added/changed/deleted generated files have already been taken care
+	// just record the problems and dependencies - do not expect there to be many
+	// must be called after we're finished with the compilation unit results but before incremental loop adds affected files
+	IProblem[] problems = result.problems;
+	if (problems != null && problems.length > 0) {
+		// existing problems have already been removed so just add these as new problems
+		this.notifier.updateProblemCounts(problems);
+		try {
+			storeProblemsFor(result.sourceFile, problems);
+		} catch (CoreException e) {
+			// must continue with compile loop so just log the CoreException
+			e.printStackTrace();
+		}
+	}
+
+	String[] dependencies = result.dependencies;
+	if (dependencies != null) {
+		ReferenceCollection refs = (ReferenceCollection) this.newState.references.get(result.sourceFile.typeLocator());
+		if (refs != null)
+			refs.addDependencies(dependencies);
+	}
 }
 
 /**
@@ -703,7 +551,8 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 					new Integer(problem.getSourceEnd() + 1),
 					new Integer(problem.getSourceLineNumber()),
 					Util.getProblemArgumentsForMarker(problem.getArguments())
-				});
+				}
+			);
 		}
 
 /* Do NOT want to populate the Java Model just to find the matching Java element.

@@ -48,6 +48,9 @@ private static Class[] getAllTestClasses() {
 		// Source attachment tests
 		AttachSourceTests.class,
 		
+		// Attached javadoc tests
+		AttachedJavadocTests.class,
+	
 		// Java search tests
 		RunJavaSearchTests.class,
 			
@@ -166,7 +169,9 @@ private static Class[] getAllTestClasses() {
 		
 		// Class file tests
 		ClassFileTests.class,
-	
+		
+		// Java-like extensions tests
+		JavaLikeExtensionsTests.class,
 	};
 	
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

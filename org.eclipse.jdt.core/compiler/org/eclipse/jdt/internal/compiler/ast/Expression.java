@@ -527,9 +527,7 @@ public abstract class Expression extends Statement {
 		}
 		if (match != null && (
 				castType.isBoundParameterizedType() 
-				|| castType.isGenericType() 
-				|| 	expressionType.isBoundParameterizedType() 
-				|| expressionType.isGenericType())) {
+				|| 	expressionType.isBoundParameterizedType())) {
 			
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 
@@ -593,6 +591,7 @@ public abstract class Expression extends Statement {
 //				}		
 		}
 	}	
+	
 	/**
 	 * Expression statements are plain expressions, however they generate like
 	 * normal expressions with no value required.
@@ -620,7 +619,7 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		boolean valueRequired) {
 
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			// generate a constant expression
 			int pc = codeStream.position;
 			codeStream.generateConstant(constant, implicitConversion);
@@ -706,7 +705,7 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		int typeID) {
 
-		if (typeID == T_JavaLangString && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
+		if (typeID == T_JavaLangString && this.constant != Constant.NotAConstant && this.constant.stringValue().length() == 0) {
 			return; // optimize str + ""
 		}
 		generateCode(blockScope, codeStream, true);
@@ -735,7 +734,7 @@ public abstract class Expression extends Statement {
 				return;
 			case T_JavaLangString :
 			case T_null :
-				if (constant != NotAConstant) {
+				if (constant != Constant.NotAConstant) {
 					String stringValue = constant.stringValue();
 					if (stringValue.length() == 0) {  // optimize ""+<str> 
 						codeStream.invokeStringConcatenationDefaultConstructor();
@@ -754,6 +753,48 @@ public abstract class Expression extends Statement {
 		}
 		codeStream.invokeStringConcatenationStringConstructor();
 	}
+	
+	/**
+	 * Returns the type of the expression after required implicit conversions. When expression type gets promoted
+	 * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
+	 * #computeConversion(...)).
+	 * @return the type after conversion
+	 */
+	public TypeBinding generatedType(Scope scope) {
+		TypeBinding convertedType = this.resolvedType;
+		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+		switch (runtimeType) {
+			case T_boolean :
+				convertedType = BooleanBinding;
+				break;
+			case T_byte :
+				convertedType = ByteBinding;
+				break;
+			case T_short :
+				convertedType = ShortBinding;
+				break;
+			case T_char :
+				convertedType = CharBinding;
+				break;
+			case T_int :
+				convertedType = IntBinding;
+				break;
+			case T_float :
+				convertedType = FloatBinding;
+				break;
+			case T_long :
+				convertedType = LongBinding;
+				break;
+			case T_double :
+				convertedType = DoubleBinding;
+				break;
+			default :
+		}		
+		if ((this.implicitConversion & BOXING) != 0) {
+			convertedType = scope.environment().computeBoxingType(convertedType);
+		}
+		return convertedType;
+	}	
 
 	public boolean isCompactableOperation() {
 
@@ -788,7 +829,7 @@ public abstract class Expression extends Statement {
 	
 	public int nullStatus(FlowInfo flowInfo) {
 		
-		if (this.constant != null && this.constant != NotAConstant)
+		if (this.constant != null && this.constant != Constant.NotAConstant)
 			return FlowInfo.NON_NULL; // constant expression cannot be null
 		
 		LocalVariableBinding local = localVariableBinding();

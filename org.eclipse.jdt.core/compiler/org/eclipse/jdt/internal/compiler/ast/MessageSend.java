@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -66,7 +67,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 	if (this.binding != null && this.binding.isValidBinding()) {
 		MethodBinding originalBinding = this.binding.original();
-		if (originalBinding != this.binding) {
+		if (originalBinding != this.binding && originalBinding.returnType != this.binding.returnType) {
 		    // extra cast needed if method return type has type variable
 		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 		    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
@@ -85,6 +86,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
 }
+
 /**
  * MessageSend code generation
  *
@@ -149,6 +151,48 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
+ */
+public TypeBinding generatedType(Scope scope) {
+	TypeBinding convertedType = this.resolvedType;
+	if (this.valueCast != null) 
+		convertedType = this.valueCast;
+	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+	switch (runtimeType) {
+		case T_boolean :
+			convertedType = BooleanBinding;
+			break;
+		case T_byte :
+			convertedType = ByteBinding;
+			break;
+		case T_short :
+			convertedType = ShortBinding;
+			break;
+		case T_char :
+			convertedType = CharBinding;
+			break;
+		case T_int :
+			convertedType = IntBinding;
+			break;
+		case T_float :
+			convertedType = FloatBinding;
+			break;
+		case T_long :
+			convertedType = LongBinding;
+			break;
+		case T_double :
+			convertedType = DoubleBinding;
+			break;
+		default :
+	}		
+	if ((this.implicitConversion & BOXING) != 0) {
+		convertedType = scope.environment().computeBoxingType(convertedType);
+	}
+	return convertedType;
+}	
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
  */
@@ -207,7 +251,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			&& !this.actualReceiverType.isArrayType()) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(receiver.isImplicitThis() && this.codegenBinding.isStatic()))
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 
@@ -250,7 +294,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
 
-	constant = NotAConstant;
+	constant = Constant.NotAConstant;
 	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
 		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
@@ -295,18 +339,13 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
-			if(actualReceiverType instanceof ReferenceBinding) {
-				// record any selector match, for clients who may still need hint about possible method match
-				int resolvedCount = 0;
-				for (int i = 0; i < length; i++)
-					if (argumentTypes[i] != null)
-						resolvedCount++;
-				TypeBinding[] knownArgs = new TypeBinding[resolvedCount];
+			if (actualReceiverType instanceof ReferenceBinding) {
+				//  record a best guess, for clients who need hint about possible method match
+				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;)
-					if (argumentTypes[i] != null)
-						knownArgs[--resolvedCount] = argumentTypes[i];
-				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, knownArgs, this);
-			}			
+					pseudoArgs[i] = argumentTypes[i] == null ? actualReceiverType : argumentTypes[i]; // replace args with errors with receiver
+				this.binding = scope.findMethod((ReferenceBinding) actualReceiverType, selector, pseudoArgs, this);
+			}
 			return null;
 		}
 	}

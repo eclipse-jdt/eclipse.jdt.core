@@ -34,18 +34,27 @@ public SimpleSet(int size) {
 }
 
 public Object add(Object object) {
-	int length = values.length;
+	int length = this.values.length;
 	int index = (object.hashCode() & 0x7FFFFFFF) % length;
 	Object current;
-	while ((current = values[index]) != null) {
-		if (current.equals(object)) return values[index] = object;
+	while ((current = this.values[index]) != null) {
+		if (current.equals(object)) return this.values[index] = object;
 		if (++index == length) index = 0;
 	}
-	values[index] = object;
+	this.values[index] = object;
 
 	// assumes the threshold is never equal to the size of the table
-	if (++elementSize > threshold) rehash();
+	if (++this.elementSize > this.threshold) rehash();
 	return object;
+}
+
+public void asArray(Object[] copy) {
+	if (this.elementSize != copy.length)
+		throw new IllegalArgumentException();
+	int index = this.elementSize;
+	for (int i = 0, l = this.values.length; i < l && index > 0; i++)
+		if (this.values[i] != null)
+			copy[--index] = this.values[i];
 }
 
 public void clear() {

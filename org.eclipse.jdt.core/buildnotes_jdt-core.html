@@ -13,7 +13,7 @@
       <font size="+3"><b>jdt core - build notes 3.2 stream</b></font>
     </td>
   </tr>
-  <tr><td td align="left" width="72%" class="title2"><font size="-2">java development tooling core</font></td></tr>
+  <tr><td align="left" width="72%" class="title2"><font size="-2">java development tooling core</font></td></tr>
   <tr><td>&nbsp;</td></tr>
   <tr>
   	<td class="title3">
@@ -42,19 +42,760 @@
   </tr>
 </table>
 
-<a name="v_548_APT_merged_with_v_619_R3_2_MILESTONE_3"></a>
+<a name="v_548_APT_merged_with_v_631_R3_2_MILESTONE_4"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.2M3 + APT - 2nd November 2005
-<br>Project org.eclipse.jdt.core v_548_APT_merged_with_v_619_R3_2_MILESTONE_3
-(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_548_APT_merged_with_v_619_R3_2_MILESTONE_3">cvs</a>).
+Eclipse SDK 3.2M4 + APT - 16th December 2005
+<br>Project org.eclipse.jdt.core v_548_APT_merged_with_v_631_R3_2_MILESTONE_4
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_548_APT_merged_with_v_631_R3_2_MILESTONE_4">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
+
+
+<a name="v_631"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 14th December 2005
+<br>Project org.eclipse.jdt.core v_631 - 3.2 MILESTONE 4
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_631">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120902">120902</a>
+Member.getJavadocRange() causes AIOOBE
+
+
+<a name="v_630"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 14th December 2005
+<br>Project org.eclipse.jdt.core v_630
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_630">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120847">120847</a>
+[javadoc] AIOOBE while getting attached javadoc in Javadoc view
+
+<a name="v_629"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 13th December 2005
+<br>Project org.eclipse.jdt.core v_629
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_629">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>The constant <code>JavaCore.CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC</code> has been deprecated and it will be removed
+after M4. Use <code>JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC</code> instead.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120640">120640</a>
+[javadoc] Open External Javadoc fails for nested binary types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120597">120597</a>
+JME extracting Javadoc for public fields from 1.5 doc
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120637">120637</a>
+javadoc extraction: includes field title for Java 5 classes
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120559">120559</a>
+Getting Javadoc from attached Javadoc gives JavaModelException
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120545">120545</a>
+Misleading constant: CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120522">120522</a>
+[assist] No proposal in @Target annotation attributes
+
+<a name="v_628"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 12th December 2005
+<br>Project org.eclipse.jdt.core v_628
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_628">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120350">120350</a>
+[model] Secondary type not found by code resolve
+
+<a name="v_627"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 9th December 2005
+<br>Project org.eclipse.jdt.core v_627
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_627">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Change the default value of JavaCore#CODEASSIST_CAMEL_CASE_MATCH to "enabled" as
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114098">bug 114098</a> is fixed.</li>
+<li>Added support for EFS on non zip file. Support for zip and jar files is blocked by 
+     <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=119244">bug 119244</a></li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120092">120092</a>
+[search] Java like extensions functionality causes performance issue for search engine
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117740">117740</a>
+Parameter names completion should be done asynchronoulsy
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110422">110422</a>
+[search] BasicSearchEngine doesn't find all type declarations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110291">110291</a>
+[search] BasicSearchEngine return constructor declarations that doesn't exist in source
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83064">83064</a>
+[plan][1.5] Unidentical bindings for declaration of and reference to Class.MethodArray
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119545">119545</a>
+[search] Binary java method model elements returned by SearchEngine have unresolved parameter types
+
+<a name="v_626"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 6th December 2005
+<br>Project org.eclipse.jdt.core v_626
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_626">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119430">119430</a>
+Potential performance problem in getViolatedRestriction()
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113944">113944</a>
+[plan] Support for refactoring of JAR files
+
+<a name="v_625"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 6th December 2005
+<br>Project org.eclipse.jdt.core v_625
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_625">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API methods on IJavaProject to find secondary types while searching for type
+on a project (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a>):
+<pre>
+	/**
+	 * Same functionality as {@link #findType(String)} but also look for secondary
+	 * types if given name does not match a compilation unit name.
+	 * 
+	 * @param fullyQualifiedName the given fully qualified name
+	 * @param progressMonitor the progress monitor to report progress to,
+	 * 	or <code>null</code> if no progress monitor is provided
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.2
+	 */
+	IType findType(String fullyQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException;
+	/**
+	 * Same functionality as {@link #findType(String, WorkingCopyOwner)}
+	 * but also look for secondary types if given name does not match
+	 * a compilation unit name.
+	 * 
+	 * @param fullyQualifiedName the given fully qualified name
+	 * @param owner the owner of the returned type's compilation unit
+	 * @param progressMonitor the progress monitor to report progress to,
+	 * 	or <code>null</code> if no progress monitor is provided
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.2
+	 */
+	IType findType(String fullyQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException;
+	/**
+	 * Same functionality as {@link #findType(String, String)} but also look for
+	 * secondary types if given name does not match a compilation unit name.
+	 * 
+	 * @param packageName the given package name
+	 * @param typeQualifiedName the given type qualified name
+	 * @param progressMonitor the progress monitor to report progress to,
+	 * 	or <code>null</code> if no progress monitor is provided
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.2
+	 */
+	IType findType(String packageName, String typeQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException;
+	/**
+	 * Same functionality as {@link #findType(String, String, WorkingCopyOwner)}
+	 * but also look for secondary types if given name does not match a compilation unit name.
+	 * 
+	 * @param packageName the given package name
+	 * @param typeQualifiedName the given type qualified name
+	 * @param owner the owner of the returned type's compilation unit
+	 * @param progressMonitor the progress monitor to report progress to,
+	 * 	or <code>null</code> if no progress monitor is provided
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.2
+	 */
+	IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException;
+</pre>
+Note that previously existing find type API methods:
+<ul>
+<li><code>IJavaproject#findType(String)</code></li>
+<li><code>IJavaproject#findType(String, WorkingCopyOwner)</code></li>
+<li><code>IJavaproject#findType(String, String)</code></li>
+<li><code>IJavaproject#findType(String, String, WorkingCopyOwner)</code></li>
+</ul>
+will <b>not</b> find secondary types (same behavior than for 3.1 version).<br>
+This means that fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36032">36032</a>
+was slightly modified as it introduced an non-deterministic behavior of these API methods
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a> for the whole story...).
+</li>
+<li>Added API <code>SearchParticipant#removeIndex(IPath)</code> to remove both index file
+    from a given location and its corresponding Index in IndexManager cache.
+</li>
+<li>Added API <code>IJavaProject#setRawClasspath(IClasspathEntry[], IPath, boolean, IProgressMonitor)</code>
+     to change the output location as well as the classpath without touching resources.</li>
+<li>Added constant constant JavaCore#JAVA_SOURCE_CONTENT_TYPE to retrieve the Java source content type from 
+     the content type manager (see org.eclipse.core.runtime.content.IContentTypeManager#getContentType(String))</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119108">119108</a>
+Access Rules and Path separators
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119203">119203</a>
+[search] references to method gives many inaccurate matches in Plug-in Dependencies
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110593">110593</a>
+[1.5][compiler] NPE in ProblemReporter
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115693">115693</a>
+[1.5][compiler] Unnecessary double checkcast instruction emmited
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118789">118789</a>
+IJavaProject#findType(String) returns null for secondary type quickly after creation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118876">118876</a>
+[dom] TypeDeclaration nodes aren't flagged as MALFORMED
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105592">105592</a>
+Enum switch statement compile error
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118888">118888</a>
+Need an entry point to create a org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader using a stream
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118092">118092</a>
+Eclipse hangs on code assist when writing ?&lt;c
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116650">116650</a>
+[search] SearchParticipant has no way to remove specific index file from IndexManager cache
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118798">118798</a>
+Unexpected JME on IMethod.getParameterNames
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114571">114571</a>
+concurrent access to HashMap
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71460">71460</a>
+[model] Non *.java file association with Java contents.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118397">118397</a>
+[javadoc][assist] No completion available while completing inside a qualified reference
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118393">118393</a>
+ICompilationUnit.findPrimaryType: Should use JavaCore.removeJavaLikeExtension
+
+<a name="v_624"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 29th November 2005
+<br>Project org.eclipse.jdt.core v_624
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_624">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API <code>IJavaProject#setRawClasspath(IClasspathEntry[], boolean, IProgressMonitor)</code> 
+     to set the classpath without touching the .classpath file.</li>
+<li>Added API <code>org.eclipse.jdt.core.compiler.CharOperation#equals(char[], char[], int, int, boolean)</code>.</li>
+<li>Added API <code>org.eclipse.jdt.core.compiler.CharOperation#replace(char[], char[], char, int, int)</code>.</li>
+<li>Plugin version now respects new versionning requirements. See <a href="http://eclipse.org/equinox/documents/plugin-versioning.html">plugin versioning</a> and bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=99393">99393</a>.</li>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36032">bug 36032</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
+<li>Added API <code>IMember#getOccurrenceCount()</code> to return the relative position of the member in the source.</li>
+<li>Added API <code>WorkingCopyOwner#newWorkingCopy(String,IProgressMonitor)</code> to create a new working copy 
+     without an underlying resource.</li>
+<li>Added API on TypeReferenceMatch to report local element and other elements while
+searching for type references (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110336">110336</a>):
+<pre>
+	/**
+	 * Returns the local element of this search match.
+	 * This may be a local variable which declaring type is the referenced one
+	 * or a type parameter which extends it.
+	 * 
+	 * @return the element of the search match, or <code>null</code> if none or there's
+	 * 	no more specific local element than the element itself ({@link SearchMatch#getElement()}).
+	 */
+	public final IJavaElement getLocalElement()
+	/**
+	 * Returns other enclosing elements of this search match.
+	 *
+	 * If {@link #getLocalElement()} is not <code>null</code>, these may be other
+	 * local elements such as additional local variables of a multiple local
+	 * variables declaration. Otherwise, these may be other elements such as
+	 * additional fields of a multiple fields declaration.
+	 * 
+	 * @return the other elements of the search match, or <code>null</code> if none
+	 */
+	public final IJavaElement[] getOtherElements()
+	/**
+	 * Sets the local element of this search match.
+	 * 
+	 * @param localElement A more specific local element that corresponds to the match,
+	 * 	or <code>null</code> if none
+	 */
+	public final void setLocalElement(IJavaElement localElement)
+	/**
+	 * Sets the other elements of this search match.
+	 * 
+	 * @param otherElements the other elements of the match,
+	 * 	or <code>null</code> if none
+	 */
+	public final void setOtherElements(IJavaElement[] otherElements)
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118246">118246</a>
+Definition of getJavaLikeExtensions() leads to programming errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118311">118311</a>
+type \@ in javadoc comment and code assist == hang
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117020">117020</a>
+[search] Search for '*' does not report empty packages
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111416">111416</a>
+[search] wrong potential matches on a static method open
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118214">118214</a>
+[completion] "has inconsistent hierarchy" field should not be proposed
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118105">118105</a>
+[javadoc][assist] Hang with 100% CPU during code assist on comment
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=118064">118064</a>
+Access rules are not flushed between classpaths in batch mode.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117451">117451</a>
+[compiler] Codegen could better optimize field access when value not required
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117120">117120</a>
+[compiler] VerifyError: Expecting to find integer on stack
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36032">36032</a>
+[plan] JavaProject.findType() fails to find second type in source file
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117183">117183</a>
+[javadoc][assist] No completion in text when cursor location is followed by a '.'
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116573">116573</a>
+wrong guess of binding with overloaded methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117861">117861</a>
+[1.5][compiler] invalid handling of static import
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110336">110336</a>
+[plan][search] Should optionaly return the local variable for type reference
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117890">117890</a>
+JavaElement.getURLContents(...) leaves file open
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117589">117589</a>
+Completion dialog shows html file name
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115040">115040</a>
+Provide API for getting occurrence count from initializers and types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117121">117121</a>
+Can't create class called A$B in eclipse
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116858">116858</a>
+java code formatter problem with switch statements and comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117495">117495</a>
+Compiler: ternary ops return wrong type when condition is boolean literal
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61013">61013</a>
+[plan][model] Minimal support for editing units outside workspace
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117487">117487</a>
+Classpaths in the build scripts need to be updated
+
+<a name="v_623"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 22nd November 2005
+<br>Project org.eclipse.jdt.core v_623
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_623">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li><code>JavaCore#initializeAfterLoad(IProgressMonitor)</code> used to schedule a job to do its work. 
+      It now does it in the same thread. Note this is not an API change as the spec allows both scenarii.
+</li>
+<li> DOM type bindings for generics got adjusted. There were situations where a reference to a generic type from within itself would expose the declared 
+generic type binding, instead of a parameterized type binding (using its own type parameters as type arguments). This is now corrected, clients should 
+ensure they did not rely on the previous inconsistency (note: no change was required from direct JDT dependents).
+</li>
+<li>Added APIs <code>JavaCore#getJavaLikeExtensions(), isJavaLikeFileName(String), and removeJavaLikeExtension(String)</code>
+     to get the available Java-like extensions (from the Java source content-type), checking if a file is a Java-like file, and removing
+     the Java-like extension from a file name.
+</li>
+<li>Added new API for org.eclipse.jdt.core.dom.CompilationUnit:
+<pre>
+	/**
+	 * Returns the column number corresponding to the given source character
+	 * position in the original source string. Column number are zero-based. 
+	 * Return <code>-1</code> if it is beyond the valid range or <code>-2</code>
+	 * if the column number information is unknown.
+	 * 
+	 * @param position a 0-based character position, possibly
+	 *   negative or out of range
+	 * @return the 0-based column number, or <code>-1</code> if the character
+	 *    position does not correspond to a source line in the original
+	 *    source file or <code>-2</code> if column number information is unknown for this
+	 *    compilation unit
+	 * @see ASTParser
+	 * @since 3.2
+	 */
+	public int getColumnNumber(final int position)
+	/**
+	 * Given a line number and column number, returns the corresponding 
+	 * position in the original source string.
+	 * Returns -2 if no line number information is available for this
+	 * compilation unit. 
+	 * Returns the total size of the source string if <code>line</code>
+	 * is greater than the actual number lines in the unit.
+	 * Returns -1 if <code>column</code> is less than 0,  
+	 * or the position of the last character of the line if <code>column</code>
+	 * is beyond the legal range, or the given line number is less than one. 
+	 * 
+	 * @param line the one-based line number
+	 * @param column the zero-based column number
+	 * @return the 0-based character position in the source string; 
+	 * <code>-2</code> if line/column number information is not known 
+	 * for this compilation unit or <code>-1</code> the inputs are not valid
+	 * @since 3.2
+	 */
+	 public int getPosition(int line, int column)
+	/**
+	 * Returns the line number corresponding to the given source character
+	 * position in the original source string. The initial line of the 
+	 * compilation unit is numbered 1, and each line extends through the
+	 * last character of the end-of-line delimiter. The very last line extends
+	 * through the end of the source string and has no line delimiter.
+	 * For example, the source string <code>class A\n{\n}</code> has 3 lines
+	 * corresponding to inclusive character ranges [0,7], [8,9], and [10,10].
+	 * Returns -1 for a character position that does not correspond to any
+	 * source line, or -2 if no line number information is available for this
+	 * compilation unit.
+	 * 
+	 * @param position a 0-based character position, possibly
+	 *   negative or out of range
+	 * @return the 1-based line number, or <code>-1</code> if the character
+	 *    position does not correspond to a source line in the original
+	 *    source file or <code>-2</code> if line number information is not known for this
+	 *    compilation unit
+	 * @see ASTParser
+	 * @since 3.2
+	 */
+	public int getLineNumber(int position) 	
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117382">117382</a>
+synthetic class$N fields generated unnecessarily
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115658">115658</a>
+ReconcileContext/CompilationParticipant clarifications
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61946">61946</a>
+AST: NPE in IVariableBinding.getConstantValue
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116472">116472</a>
+Ambigous API definition on CompilationUnit.getPosition()
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117032">117032</a>
+AST line numbers: Problems with single line source
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116745">116745</a>
+[compiler] VerifyError: Incompatible type for getting or setting field
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98154">98154</a>
+Code assist from Javadoc
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116464">116464</a>
+[javadoc] Unicode tag name are not correctly parsed
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114941">114941</a>
+Remove init job
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114935">114935</a>
+ASTParser.createASTs parses more CUs then required
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116311">116311</a>
+[search] NPE searching for reference to our Assert class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115067">115067</a>
+Util#getJavaLikeExtensions should become API
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80472">80472</a>
+Binding of parameterized return type List&lt;E&gt; subList(...) should not be generic binding
+
+
+<a name="v_622"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 16th November 2005
+<br>Project org.eclipse.jdt.core v_622
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_622">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API <code>IMethod#getRawParameterNames()</code> that returns the invented names arg0...argn for a binary method.</li>
+<li>Added API <code>IOpenable#findRecommendedLineSeparator()</code> that finds the line separator for the given Java element.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116419">116419</a>
+code assist regression: POTENTIAL_METHOD_DECLARATION not offered anymore
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84750">84750</a>
+[perf] BinaryMethod.getParameterNames does not follow IMethod API contract
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110650">110650</a>
+Need API for determining Java line delimiter
+
+<a name="v_621"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 15th November 2005
+<br>Project org.eclipse.jdt.core v_621
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_621">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>
+Due to bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110964">110964</a> fix,
+some javadoc compiler options default value have been changed.
+<pre>
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS:
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS__DEPRECATED_REF
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS__NOT_VISIBLE_REF
+	- old default value = "enabled"
+	- new default value = "disabled"
+JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY
+	- old default value = "private"
+	- new default value = "public"
+JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY
+	- old default value = "private"
+	- new default value = "public"
+</pre>
+</li>
+<li>Added new API for org.eclipse.jdt.core.dom.CompilationUnit:
+<pre>
+	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the first leading comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of first leading comment or -1 if node has
+	 *	no associated comment before its start position.
+	 * @since 3.2
+	 */
+	public int firstLeadingCommentIndex(ASTNode node)
+	/**
+	 * Return the index in the whole comments list {@link #getCommentList() }
+	 * of the last trailing comments associated with the given node. 
+	 * 
+	 * @param node the node
+	 * @return 0-based index of last trailing comment or -1 if node has
+	 * 	no associated comment after its end position.
+	 * @since 3.2
+	 */
+	public int lastTrailingCommentIndex(ASTNode node)
+	/**
+	 * Returns the column number corresponding to the given source character
+	 * position in the original source string. Column number are zero-based. 
+	 * Return zero if it is beyond the valid range.
+	 * 
+	 * @param position a 0-based character position, possibly
+	 *   negative or out of range
+	 * @return the 0-based coloumn number, or <code>0</code> if the character
+	 *    position does not correspond to a source line in the original
+	 *    source file or if column number information is not known for this
+	 *    compilation unit
+	 * @see ASTParser
+	 * @since 3.2
+	 */
+	public int columnNumber(final int position)
+	/**
+	 * Given a line number and column number, returns the corresponding 
+	 * position in the original source string.
+	 * Returns 0 if no line number information is available for this
+	 * compilation unit or the requested line number is less than one. 
+	 * Returns the total size of the source string if <code>line</code>
+	 * is greater than the actual number lines in the unit.
+	 * Returns 0 if <code>column</code> is less than 0,  
+	 * or the position of the last character of the line if <code>column</code>
+	 * is beyond the legal range. 
+	 * 
+	 * @param line the one-based line number
+	 * @param column the zero-based column number
+	 * @return the 0-based character position in the source string; 
+	 * returns <code>0</code> if line/column number information is not known 
+	 * for this compilation unit or the inputs are not valid
+	 * @since 3.2
+	 */
+	 public int getPosition(int line, int column)
+</pre>
+</li>
+<li>A tool to automate the update of the build notes is available on this update-site:<br>
+http://www.eclipse.org/jdt/core/tools/jdtcoretools/update-site/<br>
+<p>This is matching the format of the JDT/Core buildnotes. But the code can be easily customized for a different format.</p>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115662">115662</a>
+[javadoc][assist] link completion in types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106140">106140</a>
+[compiler] Eclipse3.1.0: unrecognized class invisibility
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113108">113108</a>
+[API][comments] CompilationUnit.getNodeComments(ASTNode)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110964">110964</a>
+[javadoc] Change compiler default options to have minimum javadoc warnings
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116028">116028</a>
+annotations only applied to first field in a declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112843">112843</a>
+Cut blocked by background build
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116028">116028</a>
+annotations only applied to first field in a declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797">110797</a>
+In case of multiple task tags on a single line, the tasks view does not show the complete line for each tag
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110173">110173</a>
+[plan] API to extract the Javadoc as HTML from attached HTML
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110188">110188</a>
+[plan][assist] Provide hook for completing inside string literal
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107105">107105</a>
+[1.5][compiler] method override check does not detect differences in additional type bounds
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115408">115408</a>
+[compiler] ArrayIndexOutOfBoundsException in CodeStream.java
+	  	
+<a name="v_620"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M4 - 8th November 2005
+<br>Project org.eclipse.jdt.core v_620
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_620">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added support for participating in reconcile (see <code>compilationParticipant</code> extension point as well as 
+     <code>CompilationParticipant</code> and <code>ReconcileContext</code> classes.)
+     Note that this support is still work in progress and it is subject to change.
+     Ability to participate in building will be added later.
+</li>
+<li>Code Assist: added support for completing on label in break/continue statement.
+</li>
+<li>Added new CompletionContext API (first part of fix for bug
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110181">110181</a>) :
+<pre>
+/**
+ * Returns the completed token.
+ * This token is either the identifier or Java language keyword
+ * or the string literal under, immediately preceding, 
+ * the original request offset. If the original request offset
+ * is not within or immediately after an identifier or keyword or
+ * a string literal then the returned value is &lt;code&gt;null&lt;/code&gt;.
+ * 
+ * @return completed token or &lt;code&gt;null&lt;/code&gt;
+ * @since 3.2
+ */
+public char[] getToken()
+
+/**
+ * Returns the kind of completion token being proposed.
+ * 
+ * The set of different kinds of completion token is
+ * expected to change over time. It is strongly recommended
+ * that clients do not assume that the kind is one of the
+ * ones they know about, and code defensively for the
+ * possibility of unexpected future growth.
+ * 
+ * @return the kind; one of the kind constants declared on
+ * this class whose name starts with &lt;code&gt;TOKEN_KIND&lt;/code&gt;,
+ * or possibly a kind unknown to the caller
+ * @since 3.2
+ */
+public int getTokenKind()
+
+/**
+ * Returns the character index of the start of the
+ * subrange in the source file buffer containing the
+ * relevant token being completed. This
+ * token is either the identifier or Java language keyword
+ * under, or immediately preceding, the original request 
+ * offset. If the original request offset is not within
+ * or immediately after an identifier or keyword, then the
+ * position returned is original request offset and the
+ * token range is empty.
+ * 
+ * @return character index of token start position (inclusive)
+ * @since 3.2
+ */
+public int getTokenStart()
+
+/**
+ * Returns the character index of the end (exclusive) of the subrange
+ * in the source file buffer containing the
+ * relevant token. When there is no relevant token, the
+ * range is empty
+ * (&lt;code&gt;getTokenEnd() == getTokenStart()&lt;/code&gt;).
+ * 
+ * @return character index of token end position (exclusive)
+ * @since 3.2
+ */
+public int getTokenEnd()
+
+/**
+ * Returns the offset position in the source file buffer
+ * after which code assist is requested.
+ * 
+ * @return offset position in the source file buffer
+ * @since 3.2
+ */
+public int getOffset()
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115363">115363</a>
+java.lang.VerifyError in org.eclipse.ui.workbench from HEAD, using N20051107
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22072">22072</a>
+Code completion on continue label: broken.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113950">113950</a>
+[1.5][compiler] Problems implementing inherited generic abstract methods and type erasure
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115181">115181</a>
+[1.5][compiler] Wrongly flagged "Usage of a raw type"
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113945">113945</a>
+No codeassist in anonymous class in generics
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114086">114086</a>
+Refactor->Rename of instance variables fails with "-1" when Code Style->Fields prefix list has dangling ","
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114341">114341</a>
+[javadoc][assist] range of the qualified type completion in javadoc text isn't correct
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114338">114338</a>
+[javadoc] Reconciler reports wrong javadoc warning (missing return type)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102286">102286</a>
+Error when trying F4-Type Hierarchy
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114909">114909</a>
+AST: String concatenation represented as single node
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114539">114539</a>
+[search] Internal error when refactoring code with errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114855">114855</a>
+[compiler] OutOfMemoryError compiling deeply nested try-catch
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114087">114087</a>
+[1.5][compiler] Eclipse compiles code that cannot be compiled with JDK!
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114304">114304</a>
+[1.5][compiler] Return type not compatible with generic subinterface.
 
 
 <a name="v_619"></a>

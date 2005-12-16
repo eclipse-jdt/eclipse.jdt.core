@@ -37,9 +37,7 @@ public class EnumTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		Test suite = buildTestSuite(testClass());
-		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-		return suite;
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {  
@@ -50,6 +48,7 @@ public class EnumTest extends AbstractComparableTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
@@ -4137,7 +4136,7 @@ the right of e1."
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105592
 	public void test122() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -4154,7 +4153,12 @@ the right of e1."
 				"	}\n" +
 				"}"
 			},
-			"");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	case (NORMAL) :\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Enum contants cannot be surrounded by parenthesis\n" + 
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110403
 	public void test123() {

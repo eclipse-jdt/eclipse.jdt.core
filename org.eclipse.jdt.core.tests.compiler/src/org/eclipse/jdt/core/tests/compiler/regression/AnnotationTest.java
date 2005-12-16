@@ -34,7 +34,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
-	// All specified tests which does not belong to the class are skipped...
+	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 179 };
@@ -42,9 +42,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	public static Test suite() {
-		Test suite = buildTestSuite(testClass());
-		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-		return suite;
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {  
@@ -1791,7 +1789,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums={Color.RED},\n" + 
-			"      annotations={@Foo()},\n" + 
+			"      annotations={@Foo},\n" + 
 			"      ints={(int) 2},\n" + 
 			"      bytes={(byte) 1},\n" + 
 			"      shorts={(short) 5},\n" + 
@@ -1801,11 +1799,14 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      floats={0.0f},\n" + 
 			"      doubles={-0.0})\n" + 
 			"  void foo();"; 
-			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
 		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
 	}
 	
 	public void test063() {
@@ -1867,7 +1868,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums=Color.RED,\n" + 
-			"      annotations=@Foo(),\n" + 
+			"      annotations=@Foo,\n" + 
 			"      ints=(int) 2,\n" + 
 			"      bytes=(byte) 1,\n" + 
 			"      shorts=(short) 5,\n" + 
@@ -1878,10 +1879,13 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      doubles=-0.0)\n" + 
 			"  void foo();"; 
 			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
 		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
 	}
 	
 	public void test064() {
@@ -2207,7 +2211,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract Color[] enums() default {Color.GREEN};\n" + 
 			"  \n" + 
 			"  // Method descriptor #13 ()[LFoo;\n" + 
-			"  public abstract Foo[] annotations() default {@Foo()};\n" + 
+			"  public abstract Foo[] annotations() default {@Foo};\n" + 
 			"  \n" + 
 			"  // Method descriptor #16 ()[I\n" + 
 			"  public abstract int[] ints() default {(int) 0};\n" + 
@@ -2259,7 +2263,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n" + 
 				"@interface I {\n" + 
 				"    Color _enum() default Color.GREEN;\n" + 
-				"    Foo _annotation() default @Foo();\n" + 
+				"    Foo _annotation() default @Foo;\n" + 
 				"    int _int() default 0;\n" + 
 				"    byte _byte() default 1;\n" + 
 				"    short _short() default 3;\n" + 
@@ -2309,7 +2313,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract Color _enum() default Color.GREEN;\n" + 
 			"  \n" + 
 			"  // Method descriptor #13 ()LFoo;\n" + 
-			"  public abstract Foo _annotation() default @Foo();\n" + 
+			"  public abstract Foo _annotation() default @Foo;\n" + 
 			"  \n" + 
 			"  // Method descriptor #16 ()I\n" + 
 			"  public abstract int _int() default (int) 0;\n" + 
@@ -2997,10 +3001,10 @@ public class AnnotationTest extends AbstractComparableTest {
 		
 		String expectedOutput = 
 			"  Inner classes:\n" + 
-			"    [inner class info: #29 X$MyAnon, outer class info: #1 X\n" + 
-			"     inner name: #68 MyAnon, accessflags: 9737 public abstract static ],\n" + 
-			"    [inner class info: #69 X$I, outer class info: #1 X\n" + 
-			"     inner name: #71 I, accessflags: 1545 public abstract static ]\n"; 
+			"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
+			"     inner name: #66 MyAnon, accessflags: 9737 public abstract static ],\n" + 
+			"    [inner class info: #67 X$I, outer class info: #1 X\n" + 
+			"     inner name: #69 I, accessflags: 1545 public abstract static ]\n"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -5734,4 +5738,169 @@ public class AnnotationTest extends AbstractComparableTest {
     		},
     		"");
     }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    public void test180() {
+    	this.runConformTest(
+    		new String[] {
+    			"X.java",
+    			"import java.lang.reflect.Field;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"  @Deprecated public static Object x, y, z;\n" + 
+    			"\n" + 
+    			"  public static void main(String[] args) {\n" + 
+    			"    Class c = X.class;\n" + 
+    			"    int counter = 0;\n" + 
+    			"    for (Field f : c.getFields()) {\n" + 
+    			"      counter += f.getDeclaredAnnotations().length;\n" + 
+    			"    }\n" + 
+    			"    System.out.print(counter);\n" + 
+    			"  }\n" + 
+    			"}"
+    		},
+    		"3");
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    public void test181() {
+    	this.runConformTest(
+    		new String[] {
+    			"X.java",
+    			"import java.lang.reflect.Field;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"  public static Object x, y, z;\n" + 
+    			"\n" + 
+    			"  public static void main(String[] args) {\n" + 
+    			"    Class c = X.class;\n" + 
+    			"    int counter = 0;\n" + 
+    			"    for (Field f : c.getFields()) {\n" + 
+    			"      counter += f.getDeclaredAnnotations().length;\n" + 
+    			"    }\n" + 
+    			"    System.out.print(counter);\n" + 
+    			"  }\n" + 
+    			"}"
+    		},
+    		"0");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593
+    public void test182() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo(Y y) {\n" + 
+    				"		y.initialize(null, null, null);\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public void initialize(Zork z, String s) {\n" + 
+    				"	}\n" + 
+    				"\n" + 
+    				"	public void initialize(Zork z, String s, Thread t) {\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	y.initialize(null, null, null);\n" + 
+    		"	  ^^^^^^^^^^\n" + 
+    		"The method initialize(null, null, null) is undefined for the type Y\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. ERROR in Y.java (at line 6)\n" + 
+    		"	public void initialize(Zork z, String s) {\n" + 
+    		"	                       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. ERROR in Y.java (at line 9)\n" + 
+    		"	public void initialize(Zork z, String s, Thread t) {\n" + 
+    		"	                       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    public void test183() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo(Y y) {\n" + 
+    				"		int i = y.initialize;\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public Zork initialize;\n" + 
+    				"}\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	int i = y.initialize;\n" + 
+    		"	        ^^^^^^^^^^^^\n" + 
+    		"y.initialize cannot be resolved or is not a field\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. ERROR in Y.java (at line 6)\n" + 
+    		"	public Zork initialize;\n" + 
+    		"	       ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }        
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    public void test184() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"X.java", // =================
+    				"public class X {\n" + 
+    				"	void foo() {\n" + 
+    				"		Y.initialize i;\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    				"Y.java", // =================
+    				"public class Y {\n" + 
+    				"\n" + 
+    				"	/**\n" + 
+    				"	 * @deprecated\n" + 
+    				"	 */\n" + 
+    				"	public class initialize extends Zork {\n" + 
+    				"	}\n" + 
+    				"}\n" + 
+    				"\n" + 
+    				"\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 3)\n" + 
+    		"	Y.initialize i;\n" + 
+    		"	^^^^^^^^^^^^\n" + 
+    		"The type Y.initialize is deprecated\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. WARNING in Y.java (at line 6)\n" + 
+    		"	public class initialize extends Zork {\n" + 
+    		"	             ^^^^^^^^^^\n" + 
+    		"The deprecated type Y.initialize should be annotated with @Deprecated\n" + 
+    		"----------\n" + 
+    		"2. ERROR in Y.java (at line 6)\n" + 
+    		"	public class initialize extends Zork {\n" + 
+    		"	                                ^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }        
 }

@@ -79,11 +79,14 @@ int getFlags() throws JavaModelException;
  * extracted from the corresponding source.</p>
  * <p>If this element is from a binary, the javadoc is extracted from the
  * attached source if present.</p>
+ * <p>If this element's openable is not consistent, then null is returned.</p>
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  * @return a source range corresponding to the javadoc source or <code>null</code>
- * if no source is available or the element has no javadoc comment.
+ * if no source is available, this element has no javadoc comment or
+ * this element's openable is not consistent
+ * @see IOpenable#isConsistent()
  * @since 3.2
  */
 ISourceRange getJavadocRange() throws JavaModelException;
@@ -101,6 +104,25 @@ ISourceRange getJavadocRange() throws JavaModelException;
  * associated source code (for example, a binary type)
  */
 ISourceRange getNameRange() throws JavaModelException;
+/**
+ * Returns the position relative to the order this member is defined in the source.
+ * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).
+ * <p>
+ * Two members m1 and m2 that are equal (e.g. 2 fields with the same name in 
+ * the same type) can be distinguished using their occurrence counts. If member 
+ * m1 appears first in the source, it will have an occurrence count of 1. If member 
+ * m2 appears right after member m1, it will have an occurrence count of 2.
+ * </p><p>
+ * The occurrence count can be used to distinguish initializers inside a type
+ * or anonymous types inside a method.
+ * </p><p>
+ * This is a handle-only method.  The member may or may not be present.
+ * </p>
+ * 
+ * @return the position relative to the order this member is defined in the source
+ * @since 3.2
+ */
+int getOccurrenceCount();
 /**
  * Returns the local or anonymous type declared in this source member with the given simple name and/or
  * with the specified position relative to the order they are defined in the source.

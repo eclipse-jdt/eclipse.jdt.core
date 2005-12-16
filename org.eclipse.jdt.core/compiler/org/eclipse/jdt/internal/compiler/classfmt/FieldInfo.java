@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable, TypeIds {
+public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable {
 	protected int accessFlags;
 	protected int attributeBytes;
 	protected Constant constant;
@@ -59,7 +59,8 @@ public static FieldInfo createField(byte classFileBytes[], int offsets[], int of
 					break;
 				case 'R' :
 					AnnotationInfo[] decodedAnnos = null;
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)
+							|| CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						decodedAnnos = decodeAnnotations(readOffset, true, fieldInfo);
 					}
 					else if(CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
@@ -244,31 +245,31 @@ public Object getWrappedConstantValue() {
 		if (hasConstant()) {
 			Constant fieldConstant = getConstant();
 			switch (fieldConstant.typeID()) {
-				case T_int :
+				case TypeIds.T_int :
 					this.wrappedConstantValue = new Integer(fieldConstant.intValue());
 					break;
-				case T_byte :
+				case TypeIds.T_byte :
 					this.wrappedConstantValue = new Byte(fieldConstant.byteValue());
 					break;
-				case T_short :
+				case TypeIds.T_short :
 					this.wrappedConstantValue = new Short(fieldConstant.shortValue());
 					break;
-				case T_char :
+				case TypeIds.T_char :
 					this.wrappedConstantValue = new Character(fieldConstant.charValue());
 					break;
-				case T_float :
+				case TypeIds.T_float :
 					this.wrappedConstantValue = new Float(fieldConstant.floatValue());
 					break;
-				case T_double :
+				case TypeIds.T_double :
 					this.wrappedConstantValue = new Double(fieldConstant.doubleValue());
 					break;
-				case T_boolean :
+				case TypeIds.T_boolean :
 					this.wrappedConstantValue = Util.toBoolean(fieldConstant.booleanValue());
 					break;
-				case T_long :
+				case TypeIds.T_long :
 					this.wrappedConstantValue = new Long(fieldConstant.longValue());
 					break;
-				case T_JavaLangString :
+				case TypeIds.T_JavaLangString :
 					this.wrappedConstantValue = fieldConstant.stringValue();
 			}
 		}
@@ -299,7 +300,7 @@ void initialize() {
  * @return boolean
  */
 public boolean isSynthetic() {
-	return (getModifiers() & AccSynthetic) != 0;
+	return (getModifiers() & ClassFileConstants.AccSynthetic) != 0;
 }
 
 private void readConstantAttribute() {
@@ -315,7 +316,7 @@ private void readConstantAttribute() {
 			// read the right constant
 			int relativeOffset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
 			switch (u1At(relativeOffset)) {
-				case IntegerTag :
+				case ClassFileConstants.IntegerTag :
 					char[] sign = getTypeName();
 					if (sign.length == 1) {
 						switch (sign[0]) {
@@ -341,16 +342,16 @@ private void readConstantAttribute() {
 						constant = Constant.NotAConstant;
 					}
 					break;
-				case FloatTag :
+				case ClassFileConstants.FloatTag :
 					constant = new FloatConstant(floatAt(relativeOffset + 1));
 					break;
-				case DoubleTag :
+				case ClassFileConstants.DoubleTag :
 					constant = new DoubleConstant(doubleAt(relativeOffset + 1));
 					break;
-				case LongTag :
+				case ClassFileConstants.LongTag :
 					constant = new LongConstant(i8At(relativeOffset + 1));
 					break;
-				case StringTag :
+				case ClassFileConstants.StringTag :
 					utf8Offset = constantPoolOffsets[u2At(relativeOffset + 1)] - structOffset;
 					constant = 
 						new StringConstant(
@@ -375,11 +376,11 @@ private void readModifierRelatedAttributes() {
 			switch(attributeName[0]) {
 				case 'D' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
-						this.accessFlags |= AccDeprecated;
+						this.accessFlags |= ClassFileConstants.AccDeprecated;
 					break;
 				case 'S' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
-						this.accessFlags |= AccSynthetic;
+						this.accessFlags |= ClassFileConstants.AccSynthetic;
 					break;
 			}
 		}
@@ -413,7 +414,7 @@ protected void toStringContent(final StringBuffer buffer)
 	buffer
 		.append("{") //$NON-NLS-1$
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			((modifiers & ClassFileConstants.AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$

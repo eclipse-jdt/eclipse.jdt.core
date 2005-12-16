@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class ASTHolderCUInfo extends CompilationUnitElementInfo {
 	int astLevel;
+	boolean resolveBindings;
+	HashMap problems = null;
 	CompilationUnit ast;
 }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-abstract public class ClassFileStruct implements ClassFileConstants {
+abstract public class ClassFileStruct {
 	byte[] reference;
 	int structOffset;
 public ClassFileStruct(byte classFileBytes[], int off) {
@@ -54,12 +54,12 @@ public static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 
-	if ((modifiers & AccPublic) != 0) print.print("public "); //$NON-NLS-1$
-	if ((modifiers & AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
-	if ((modifiers & AccFinal) != 0) print.print("final "); //$NON-NLS-1$
-	if ((modifiers & AccSuper) != 0) print.print("super "); //$NON-NLS-1$
-	if ((modifiers & AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
-	if ((modifiers & AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
 	print.flush();
 	return out.toString();
 }

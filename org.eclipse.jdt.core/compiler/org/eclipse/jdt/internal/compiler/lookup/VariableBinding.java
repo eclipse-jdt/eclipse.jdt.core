@@ -18,7 +18,7 @@ public abstract class VariableBinding extends Binding implements TypeConstants {
 	public int modifiers;
 	public TypeBinding type;
 	public char[] name;
-	private Constant constant;
+	protected Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
 	public long tagBits;
 	public IAnnotationInstance[] annotations;
@@ -39,10 +39,6 @@ public abstract class VariableBinding extends Binding implements TypeConstants {
 	}
 	/* Answer true if the receiver is final and cannot be changed
 	*/
-	
-	public boolean isConstantValue() {
-		return constant != Constant.NotAConstant;
-	}
 	
 	public final boolean isFinal() {
 		return (modifiers & ClassFileConstants.AccFinal) != 0;

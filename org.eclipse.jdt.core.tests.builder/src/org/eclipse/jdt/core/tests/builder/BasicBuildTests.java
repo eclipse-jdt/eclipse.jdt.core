@@ -32,6 +32,11 @@ public class BasicBuildTests extends Tests {
 	}
 	
 	public static Test suite() {
+		if (false) {
+			TestSuite suite = new TestSuite(BasicBuildTests.class.getName());
+			suite.addTest(new BasicBuildTests("testTags"));
+			return suite;
+		}
 		return new TestSuite(BasicBuildTests.class);
 	}
 	
@@ -164,7 +169,140 @@ public class BasicBuildTests extends Tests {
 		}
 		JavaCore.setOptions(options);
 	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
+	 */
+	public void testTags() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
+		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
+		
+		JavaCore.setOptions(newOptions);
+		
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"// TODO FIXME need to review the loop TODO should be done\n" + //$NON-NLS-1$
+			"public class A {\n" + //$NON-NLS-1$
+			"}");
+
+		fullBuild(projectPath);
+		IMarker[] markers = env.getTaskMarkersFor(pathToA);
+		assertEquals("Wrong size", 3, markers.length);
+		Arrays.sort(markers, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				IMarker marker1 = (IMarker) o1;
+				IMarker marker2 = (IMarker) o2;
+				try {
+					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
+					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
+					return start1 - start2;
+				} catch (CoreException e) {
+					return 0;
+				}
+			}
+		});
+
+		try {
+			IMarker marker = markers[2];
+			Object priority = marker.getAttribute(IMarker.PRIORITY);
+			String message = (String) marker.getAttribute(IMarker.MESSAGE);
+			assertEquals("Wrong message", "TODO should be done", message);
+			assertNotNull("No task priority", priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+
+			marker = markers[1];
+			priority = marker.getAttribute(IMarker.PRIORITY);
+			message = (String) marker.getAttribute(IMarker.MESSAGE);
+			assertEquals("Wrong message", "FIXME need to review the loop", message);
+			assertNotNull("No task priority", priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+
+			marker = markers[0];
+			priority = marker.getAttribute(IMarker.PRIORITY);
+			message = (String) marker.getAttribute(IMarker.MESSAGE);
+			assertEquals("Wrong message", "TODO need to review the loop", message);
+			assertNotNull("No task priority", priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+		} catch (CoreException e) {
+			assertTrue(false);
+		}
+		JavaCore.setOptions(options);
+	}
+
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
+	 */
+	public void testTags2() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
+		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
+		
+		JavaCore.setOptions(newOptions);
+		
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"// TODO TODO need to review the loop\n" + //$NON-NLS-1$
+			"public class A {\n" + //$NON-NLS-1$
+			"}");
+
+		fullBuild(projectPath);
+		IMarker[] markers = env.getTaskMarkersFor(pathToA);
+		assertEquals("Wrong size", 2, markers.length);
+		Arrays.sort(markers, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				IMarker marker1 = (IMarker) o1;
+				IMarker marker2 = (IMarker) o2;
+				try {
+					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
+					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
+					return start1 - start2;
+				} catch (CoreException e) {
+					return 0;
+				}
+			}
+		});
+
+		try {
+			IMarker marker = markers[1];
+			Object priority = marker.getAttribute(IMarker.PRIORITY);
+			String message = (String) marker.getAttribute(IMarker.MESSAGE);
+			assertEquals("Wrong message", "TODO need to review the loop", message);
+			assertNotNull("No task priority", priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+
+			marker = markers[0];
+			priority = marker.getAttribute(IMarker.PRIORITY);
+			message = (String) marker.getAttribute(IMarker.MESSAGE);
+			assertEquals("Wrong message", "TODO need to review the loop", message);
+			assertNotNull("No task priority", priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+		} catch (CoreException e) {
+			assertTrue(false);
+		}
+		JavaCore.setOptions(options);
+	}
+	
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=92821
 	 */

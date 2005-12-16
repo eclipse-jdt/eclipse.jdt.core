@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ReturnStatement extends Statement {
@@ -40,7 +41,7 @@ public class ReturnStatement extends Statement {
 		FlowContext traversedContext = flowContext;
 		int subIndex = 0, maxSub = 5;
 		boolean saveValueNeeded = false;
-		boolean hasValueToSave = this.expression != null && this.expression.constant == NotAConstant;
+		boolean hasValueToSave = this.expression != null && this.expression.constant == Constant.NotAConstant;
 		do {
 			SubRoutineStatement sub;
 			if ((sub = traversedContext.subRoutine()) != null) {
@@ -112,7 +113,7 @@ public class ReturnStatement extends Statement {
 		}
 		int pc = codeStream.position;
 		// generate the expression
-		if ((this.expression != null) && (this.expression.constant == NotAConstant)) {
+		if ((this.expression != null) && (this.expression.constant == Constant.NotAConstant)) {
 			this.expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
 			generateStoreSaveValueIfNecessary(codeStream);
 		}
@@ -132,7 +133,7 @@ public class ReturnStatement extends Statement {
 		}
 		if (saveValueVariable != null) codeStream.load(saveValueVariable);
 		
-		if ((this.expression != null) && (this.expression.constant != NotAConstant)) {
+		if ((this.expression != null) && (this.expression.constant != Constant.NotAConstant)) {
 			codeStream.generateConstant(this.expression.constant, this.expression.implicitConversion);
 			generateStoreSaveValueIfNecessary(codeStream);		
 		}

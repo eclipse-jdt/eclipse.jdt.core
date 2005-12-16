@@ -264,8 +264,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		TypeBinding[] arguments = getTypeBindingArguments();
 		if (simpleTypeName != null) {
-			// parameterized member type with parameterized enclosing type
-			this.genericType = this.genericType.getMemberType(simpleTypeName);
+			if (this.genericType == null) {
+				// parameterized member type with raw enclosing type
+				this.genericType = ((ReferenceBinding) this.typeBinding).getMemberType(simpleTypeName);
+			} else {
+				// parameterized member type with parameterized enclosing type
+				this.genericType = this.genericType.getMemberType(simpleTypeName);
+			}
 			if (!isRaw)
 				this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, (ReferenceBinding) this.typeBinding);
 			else
@@ -298,7 +303,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeRawType() {
 		if (this.typeBinding == null) return;
-		this.typeBinding = this.environment.createRawType((ReferenceBinding) this.typeBinding, this.typeBinding.enclosingType());
+		this.typeBinding = this.environment.convertToRawType(this.typeBinding);
 	}
 	public void consumeSecondaryType(char[] simpleTypeName) {
 		if (this.parsedUnit == null) return;

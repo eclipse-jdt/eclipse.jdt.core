@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -23,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -41,6 +44,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	private static final String[] NO_STRINGS = new String[0];
+	public static final String EMPTY_JAVADOC = new String();
 	
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
@@ -981,5 +985,85 @@ protected void toStringName(StringBuffer buffer) {
 		super.toStringName(buffer);
 	else
 		buffer.append("<anonymous>"); //$NON-NLS-1$
+}
+public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	final String contents = getJavadocContents(monitor, defaultEncoding);
+	if (contents == null) return null;
+	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
+	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
+	if (this.isEnum() && indexOfNextSummary == -1) {
+		// try to find enum constant summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.ENUM_CONSTANT_SUMMARY);
+	}
+	if (this.isAnnotation() && indexOfNextSummary == -1) {
+		// try to find enum constant summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_MEMBER_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// try to find field summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.FIELD_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// try to find constructor summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.CONSTRUCTOR_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// try to find method summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.METHOD_SUMMARY);
+	}
+	if (indexOfNextSummary == -1) {
+		// we take the end of class data
+		indexOfNextSummary = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA);
+	}
+	if (indexOfNextSummary == -1) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	}
+	return contents.substring(indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH, indexOfNextSummary);
+}
+public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+	String cachedJavadoc = null;
+	synchronized (projectInfo.javadocCache) {
+		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+	}
+	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
+		return cachedJavadoc;
+	}
+	
+	URL baseLocation= getJavadocBaseLocation();
+	if (baseLocation == null) {
+		return null;
+	}
+	StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+
+	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
+		pathBuffer.append('/');
+	}
+	IPackageFragment pack= this.getPackageFragment();
+	String typeQualifiedName = null;
+	if (this.isMember()) {
+		IType currentType = this;
+		StringBuffer typeName = new StringBuffer();
+		while (currentType != null) {
+			typeName.insert(0, currentType.getElementName());
+			currentType = currentType.getDeclaringType();
+			if (currentType != null) {
+				typeName.insert(0, '.');
+			}
+		}
+		typeQualifiedName = new String(typeName.toString());
+	} else {
+		typeQualifiedName = this.getElementName();
+	}
+	
+	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
+	
+	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
+	synchronized (projectInfo.javadocCache) {
+		projectInfo.javadocCache.put(this, contents);
+	}
+	return contents;
 }
 }

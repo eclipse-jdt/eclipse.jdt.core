@@ -23,6 +23,38 @@ protected ReferenceCollection(char[][][] qualifiedNameReferences, char[][] simpl
 	this.simpleNameReferences = internSimpleNames(simpleNameReferences, true);
 }
 
+void addDependencies(String[] typeNameDependencies) {
+	// if each qualified type name is already known then all of its subNames can be skipped
+	// and its expected that very few qualified names in typeNameDependencies need to be added
+	// but could always take 'p1.p2.p3.X' and make all qualified names 'p1' 'p1.p2' 'p1.p2.p3' 'p1.p2.p3.X', then intern
+	char[][][] qNames = new char[typeNameDependencies.length][][];
+	for (int i = typeNameDependencies.length; --i >= 0;)
+		qNames[i] = CharOperation.splitOn('.', typeNameDependencies[i].toCharArray());
+	qNames = internQualifiedNames(qNames);
+
+	next : for (int i = qNames.length; --i >= 0;) {
+		char[][] qualifiedTypeName = qNames[i];
+		while (!includes(qualifiedTypeName)) {
+			if (qualifiedTypeName.length == 1) {
+				if (!includes(qualifiedTypeName[0])) {
+					int length = this.simpleNameReferences.length;
+					System.arraycopy(this.simpleNameReferences, 0, this.simpleNameReferences = new char[length + 1][], 0, length);
+					this.simpleNameReferences[length] = qualifiedTypeName[0];
+				}
+				continue next;
+			} else {
+				int length = this.qualifiedNameReferences.length;
+				System.arraycopy(this.qualifiedNameReferences, 0, this.qualifiedNameReferences = new char[length + 1][][], 0, length);
+				this.qualifiedNameReferences[length] = qualifiedTypeName;
+
+				qualifiedTypeName = CharOperation.subarray(qualifiedTypeName, 0, qualifiedTypeName.length - 1);
+				char[][][] temp = internQualifiedNames(new char[][][] {qualifiedTypeName});
+				qualifiedTypeName = temp[0];
+			}		
+		}
+	}
+}
+
 boolean includes(char[] simpleName) {
 	for (int i = 0, l = simpleNameReferences.length; i < l; i++)
 		if (simpleName == simpleNameReferences[i]) return true;
@@ -157,7 +189,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 		keepers[index++] = internedNames.add(qualifiedName);
 	}
 	if (length > index) {
-		if (length == 0) return EmptyQualifiedNames;
+		if (index == 0) return EmptyQualifiedNames;
 		System.arraycopy(keepers, 0, keepers = new char[index][][], 0, index);
 	}
 	return keepers;

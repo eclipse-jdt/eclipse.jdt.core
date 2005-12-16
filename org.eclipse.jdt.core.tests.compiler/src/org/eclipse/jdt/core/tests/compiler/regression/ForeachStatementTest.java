@@ -36,18 +36,16 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 	return options;
 }
-	// Static initializer to specify tests subset using TESTS_* static variables
-	// All specified tests which does not belong to the class are skipped...
-//	static {
-//		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 31 };
-//		TESTS_RANGE = new int[] { 34, 38 };
-//	}
-	public static Test suite() {
-		Test suite = buildTestSuite(testClass());
-		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
-		return suite;
-	}
+// Static initializer to specify tests subset using TESTS_* static variables
+// All specified tests which do not belong to the class are skipped...
+//static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_RANGE = new int[] { 34, 38 };
+//}
+public static Test suite() {
+	return buildTestSuite(testClass());
+}
 public void test001() {
 	this.runConformTest(
 		new String[] {

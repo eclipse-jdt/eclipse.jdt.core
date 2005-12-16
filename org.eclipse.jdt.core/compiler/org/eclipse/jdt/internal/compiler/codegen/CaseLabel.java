@@ -72,7 +72,7 @@ public void place() {
 }
 
 /*
-* Put down  a refernece to the array at the location in the codestream.
+* Put down  a reference to the array at the location in the codestream.
 */
 void placeInstruction() {
 	if (instructionPosition == POS_NOT_SET) {

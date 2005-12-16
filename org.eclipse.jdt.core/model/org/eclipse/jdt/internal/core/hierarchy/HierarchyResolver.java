@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,9 +41,6 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -52,18 +50,12 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
@@ -569,9 +561,8 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					if (containsLocalType) 	parsedUnit.bits |= ASTNode.HasAllMethodBodies;
 				} else {
 					// create parsed unit from file
-					IResource file = cu.getResource();
-					String osPath = file.getLocation().toOSString();
-					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, osPath);
+					IFile file = (IFile) cu.getResource();
+					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, file);
 					
 					CompilationResult unitResult = new CompilationResult(sourceUnit, i, openablesLength, this.options.maxProblemsPerUnit); 
 					parsedUnit = parser.dietParse(sourceUnit, unitResult);
@@ -608,8 +599,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						binaryType = this.builder.createInfoFromClassFileInJar(classFile);
 					} else {
 						IResource file = classFile.getResource();
-						String osPath = file.getLocation().toOSString();
-						binaryType = this.builder.createInfoFromClassFile(classFile, osPath);
+						binaryType = this.builder.createInfoFromClassFile(classFile, file);
 					}
 				}
 				if (binaryType != null) {

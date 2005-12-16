@@ -44,17 +44,45 @@ public static Test suite() {
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//	TESTS_PREFIX =  "testBug110060";
-//	TESTS_NAMES = new String[] { "testBug113671" };
-//	TESTS_NUMBERS = new int[] { 100772 };
+//	TESTS_PREFIX =  "testBug110336";
+//	TESTS_NAMES = new String[] { "testBug110336e" };
+//	TESTS_NUMBERS = new int[] { 110291, 110422 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
-	public void acceptSearchMatch(SearchMatch match) throws CoreException {
-		super.acceptSearchMatch(match);
-		matches.add(match);
+	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+		super.acceptSearchMatch(searchMatch);
+		matches.add(searchMatch);
+	}
+}
+class TypeReferencesCollector extends JavaSearchResultCollector {
+
+	protected IJavaElement getElement(SearchMatch searchMatch) {
+		IJavaElement element = super.getElement(searchMatch);
+		IJavaElement localElement = null;
+		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) match;
+		localElement = typeRefMatch.getLocalElement();
+		if (localElement != null) {
+			return localElement;
+		}
+		return element;
+	}
+	protected void writeLine() throws CoreException {
+		super.writeLine();
+		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) this.match;
+		IJavaElement[] others = typeRefMatch.getOtherElements();
+		int length = others==null ? 0 : others.length;
+		if (length > 0) {
+			line.append("+[");
+			for (int i=0; i<length; i++) {
+				IJavaElement other = others[i];
+				if (i>0) line.append(',');
+				line.append(other.getElementName());
+			}
+			line.append(']');
+		}
 	}
 }
 
@@ -2816,6 +2844,10 @@ public void testBug92944_TYPE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -2878,6 +2910,10 @@ public void testBug92944_CLASS() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -2935,6 +2971,10 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -2995,6 +3035,10 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		"Unexpected all type names",
 		"Test\n" + 
 		"Test$Inner\n" + 
+		"TestPrefix\n" + 
+		"b108088.A108088\n" + 
+		"b108088.B108088\n" + 
+		"b108088.Test108088\n" + 
 		"b81556.a.A81556\n" + 
 		"b81556.a.B81556\n" + 
 		"b81556.a.X81556\n" + 
@@ -4458,6 +4502,22 @@ public void testBug100772_ProjectScope_Complex04() throws CoreException {
 }
 
 /**
+ * Bug 108088: [search] Inaccurate search match for method invocations with literal arguments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108088"
+ */
+public void testBug108088() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b108088", "Test108088.java");
+	IType type = unit.getType("A108088");
+	IMethod method = type.getMethod("subroutine", new String[] { "F" });
+	SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES, EXACT_RULE);
+	assertNotNull("Pattern should not be null", pattern);
+	search(pattern, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b108088/B108088.java void b108088.B108088.doit(A108088, String) [subroutine(1.2f)] EXACT_MATCH"
+	);
+}
+
+/**
  * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  */
@@ -5261,6 +5321,293 @@ public void testBug110060_FieldPattern05() throws CoreException {
 		"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.oF [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110291: [search] BasicSearchEngine return constructor declarations that doesn't exist in source
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110291"
+ */
+public void testBug110291() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110291/TestXX.java",
+		"package b110291;\n" + 
+		"public class TestXX {\n" + 
+		"	class TestYY {}" +
+		"}\n"
+	);
+	search("Test", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"src/b110291/TestXX.java b110291.TestXX$TestYY [TestYY] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110422: [search] BasicSearchEngine doesn't find all type declarations
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110422"
+ */
+public void testBug110422a() throws CoreException {
+	search("TestP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+	);
+}
+public void testBug110422b() throws CoreException {
+	search("TESTP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 114539: [search] Internal error when refactoring code with errors
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
+ */
+public void testBug114539() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
+		"package b114539;\n" + 
+		"public class Foo {\n" + 
+		"	int bar=Bar.FOO;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b114539/Bar.java",
+		"package b114539;\n" + 
+		"public class Bar {\n" + 
+		"	private static final int FOO=0;\n" + 
+		"}\n"
+	);
+	IField field = this.workingCopies[1].getType("Bar").getField("FOO");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/b114539/Foo.java b114539.Foo.bar [FOO] POTENTIAL_MATCH"
+	);
+}
+
+/**
+ * @test Bug 110336: [plan][search] Should optionaly return the local variable for type reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110336"
+ */
+public void testBug110336a() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	<TP extends Test> void method(Class<Test> clazz) {\n" + 
+		"		Test localVar1 = new Test();\n" + 
+		"		Class<Test> localVar2 = new Class<Test>();\n" + 
+		"		localVar1.method(localVar2);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]",
+		collector
+	);
+}
+public void testBug110336b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	void method1(Test methodParam) {\n" + 
+		"		Test localVar1 = new Test(){\n" + 
+		"			Class c = Test.class;\n" + 
+		"			<TP extends Test> void foo(){\n" + 
+		"				Test o = (Test) null;\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}	\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().TP [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test).methodParam [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test).localVar1 [Test]",
+		collector
+	);
+}
+public void testBug110336c() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test<TP extends X> {\n" + 
+		"	X x;\n" + 
+		"\n" + 
+		"}\n" + 
+		"class X {}\n"
+	);
+	IType type = this.workingCopies[0].getType("X");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.TP [X]\n" + 
+		"src/b110336/Test.java b110336.Test.x [X]",
+		collector
+	);
+}
+public void testBug110336d() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	Test a1Test = null, b1Test = new Test(), c1Test;\n" + 
+		"	Test a2Test = new Test(), b2Test, c2Test = null;\n" + 
+		"	Test a3Test, b3Test = null, c3Test = new Test();\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" + 
+		"src/b110336/Test.java b110336.Test.b1Test [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a2Test [Test]+[b2Test,c2Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a2Test [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a3Test [Test]+[b3Test,c3Test]\n" + 
+		"src/b110336/Test.java b110336.Test.c3Test [Test]",
+		collector
+	);
+}
+public void testBug110336e() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv9 [Test]",
+		collector
+	);
+}
+public void testBug110336f() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test extends Exception {\n" + 
+		"        void foo(Test test1) { // <- no local element\n" + 
+		"                Test test2; // <- local element\n" + 
+		"                try {\n" + 
+		"                        throw new Test();\n" + 
+		"                }\n" + 
+		"                catch (Test test4) { // <- no local element\n" + 
+		"                }\n" + 
+		"                for(Test test3;;) {} // <- local element\n" + 
+		"        }\n" + 
+		"\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test4 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test3 [Test]",
+		collector
+	);
+}
+public void testBug110336g() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	{\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv9 [Test]",
+		collector
+	);
+}
+public void testBug110336h() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
+		"package b110336;\n" + 
+		"public class Test {\n" + 
+		"	static {\n" + 
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Test");
+	TypeReferencesCollector collector = new TypeReferencesCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
+		collector
+	);
+}
+
+/**
+ * @test Bug 119545: [search] Binary java method model elements returned by SearchEngine have unresolved parameter types
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119545"
+ */
+public void testBug119545() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b119545/Test.java",
+		"package b119545;\n" + 
+		"class Test {\n" + 
+		"	void foo(Object o1, Object o2){\n" + 
+		"		if (o1.equals(o2)) {}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IMethod method = type.getMethods()[0];
+	searchDeclarationsOfSentMessages(method, this.resultCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH"
 	);
 }
 }

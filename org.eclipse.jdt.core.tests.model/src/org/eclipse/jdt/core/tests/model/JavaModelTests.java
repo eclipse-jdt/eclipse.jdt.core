@@ -29,7 +29,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testBug100772_ProjectScope";
-//	TESTS_NAMES = new String[] { "testPreProcessingResourceChangedListener03" };
+//	TESTS_NAMES = new String[] { "testFindLineSeparator04" };
 //	TESTS_NUMBERS = new int[] { 100772 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 }
@@ -291,6 +291,73 @@ public void testCreatePkgHandleInDifferentProject() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that the right line separator is found for a compilation unit.
+ */
+public void testFindLineSeparator01() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals("\n", cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for a compilation unit.
+ */
+public void testFindLineSeparator02() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			"public class X {\r\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals("\r\n", cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for an empty compilation unit.
+ */
+public void testFindLineSeparator03() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/X.java", 
+			""
+		);
+		ICompilationUnit cu = getCompilationUnit("/P/X.java");
+		assertEquals(System.getProperty("line.separator"), cu.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the right line separator is found for a package fragment
+ */
+public void testFindLineSeparator04() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p");
+		IPackageFragment pkg = getPackage("/P/p");
+		assertEquals(System.getProperty("line.separator"), pkg.findRecommendedLineSeparator());
+	} finally {
+		deleteProject("P");
+	}
+}
+
 /**
  * Test that a model has no project.
  */
@@ -355,26 +422,26 @@ public void testGetNonJavaResources() throws CoreException {
 		IJavaModel model = this.getJavaModel();
 
 		this.createJavaProject("JP", new String[]{}, "");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources",
 			"",
 			model.getNonJavaResources());
 
 		this.createProject("SP1");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP1",
 			"SP1",
 			model.getNonJavaResources());
 		
 		this.createProject("SP2");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP2",
 			"SP1\n" +
 			"SP2",
 			model.getNonJavaResources());
 
 		this.deleteProject("SP1");
-		assertResourcesEqual(
+		assertResourceNamesEqual(
 			"Unexpected non-Java resources after deletion of SP1",
 			"SP2",
 			model.getNonJavaResources());

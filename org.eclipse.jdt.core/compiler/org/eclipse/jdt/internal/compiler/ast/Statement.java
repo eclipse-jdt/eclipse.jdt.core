@@ -138,7 +138,7 @@ public abstract class Statement extends ASTNode {
 		// statement within a switch that are not case are treated as normal statement.... 
 
 		resolve(scope);
-		return NotAConstant;
+		return Constant.NotAConstant;
 	}
 
 }

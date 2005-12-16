@@ -28,7 +28,7 @@ public class SelectionJavadocParser extends JavadocParser {
 
 	public SelectionJavadocParser(SelectionParser sourceParser) {
 		super(sourceParser);
-		this.kind = SELECTION_PARSER;
+		this.kind = SELECTION_PARSER | TEXT_PARSE;
 	}
 
 	/*

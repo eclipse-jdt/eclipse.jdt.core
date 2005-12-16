@@ -63,7 +63,7 @@ public class CompletionJavadoc extends Javadoc {
 					if (scope.kind == Scope.METHOD_SCOPE) {
 						paramNameReference.missingParams = missingParamTags(paramNameReference.binding, (MethodScope)scope);
 					}
-					if (paramNameReference.token == null) {
+					if (paramNameReference.token == null || paramNameReference.token.length == 0) {
 						paramNameReference.missingTypeParams = missingTypeParameterTags(paramNameReference.binding, scope);
 					}
 				} else if (this.completionNode instanceof CompletionOnJavadocTypeParamReference) {

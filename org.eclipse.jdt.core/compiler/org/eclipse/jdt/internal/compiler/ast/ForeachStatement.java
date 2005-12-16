@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -427,23 +428,23 @@ public class ForeachStatement extends Statement {
 					// allocate #index secret variable (of type int)
 					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
-					this.indexVariable.setConstant(NotAConstant); // not inlinable
+					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					
 					// allocate #max secret variable
 					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.maxVariable);
-					this.maxVariable.setConstant(NotAConstant); // not inlinable
+					this.maxVariable.setConstant(Constant.NotAConstant); // not inlinable
 					// add #array secret variable (of collection type)
 					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.collectionVariable);
-					this.collectionVariable.setConstant(NotAConstant); // not inlinable
+					this.collectionVariable.setConstant(Constant.NotAConstant); // not inlinable
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
 					// allocate #index secret variable (of type Iterator)
 					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
-					this.indexVariable.setConstant(NotAConstant); // not inlinable
+					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					break;
 				default :
 					scope.problemReporter().invalidTypeForCollection(collection);

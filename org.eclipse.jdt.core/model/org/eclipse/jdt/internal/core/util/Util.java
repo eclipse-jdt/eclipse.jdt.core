@@ -11,10 +11,13 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.content.IContentType;
@@ -73,6 +76,7 @@ public class Util {
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private static char[][] JAVA_LIKE_EXTENSIONS;
+	public static boolean ENABLE_JAVA_LIKE_EXTENSIONS = true;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -590,9 +594,11 @@ public class Util {
 		char[][] javaLikeExtensions = getJavaLikeExtensions();
 		suffixes: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
 			char[] suffix = javaLikeExtensions[i];
-			if (stringLength + suffix.length != fileNameLength) continue;
-			for (int j = stringLength; j < fileNameLength; j++) {
-				if (fileName.charAt(j) != suffix[j-stringLength]) 
+			int extensionStart = stringLength+1;
+			if (extensionStart + suffix.length != fileNameLength) continue;
+			if (fileName.charAt(stringLength) != '.') continue;
+			for (int j = extensionStart; j < fileNameLength; j++) {
+				if (fileName.charAt(j) != suffix[j-extensionStart]) 
 					continue suffixes;
 			}
 			return true;
@@ -733,30 +739,28 @@ public class Util {
 		}
 		return null;
 	}
+	
 	/**
 	 * Returns the registered Java like extensions.
 	 */
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
 			// TODO (jerome) reenable once JDT UI supports other file extensions (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
-			if (true)
-				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java};
+			if (!ENABLE_JAVA_LIKE_EXTENSIONS)
+				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.EXTENSION_java.toCharArray()};
 			else {
-				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
+				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 				String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 				// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
 				int length = fileExtensions == null ? 0 : fileExtensions.length;
 				char[][] extensions = new char[length][];
 				SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
-				extensions[0] = SuffixConstants.SUFFIX_java; // ensure that ".java" is first
-				knownExtensions.add(SuffixConstants.SUFFIX_java);
+				extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that "java" is first
+				knownExtensions.add(extensions[0]);
 				int index = 1;
 				for (int i = 0; i < length; i++) {
 					String fileExtension = fileExtensions[i];
-					int extensionLength = fileExtension.length() + 1;
-					char[] extension = new char[extensionLength];
-					extension[0] = '.';
-					fileExtension.getChars(0, extensionLength-1, extension, 1);
+					char[] extension = fileExtension.toCharArray();
 					if (!knownExtensions.includes(extension)) {
 						extensions[index++] = extension;
 						knownExtensions.add(extension);
@@ -780,48 +784,45 @@ public class Util {
 	 */
 	public static long getJdkLevel(Object targetLibrary) {
 		try {
-				ClassFileReader reader = null;
-				if (targetLibrary instanceof IFolder) {
-					IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
-					if (classFile != null) {
-						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);
-						IPath location = classFile.getLocation();
-						reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
+			ClassFileReader reader = null;
+			if (targetLibrary instanceof IFolder) {
+				IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
+				if (classFile != null)
+					reader = Util.newClassFileReader(classFile);
+			} else {
+				// root is a jar file or a zip file
+				ZipFile jar = null;
+				try {
+					IPath path = null;
+					if (targetLibrary instanceof IResource) {
+						path = ((IResource)targetLibrary).getLocation();
+					} else if (targetLibrary instanceof File){
+						File f = (File) targetLibrary;
+						if (!f.isDirectory()) {
+							path = new Path(((File)targetLibrary).getPath());
+						}
 					}
-				} else {
-					// root is a jar file or a zip file
-					ZipFile jar = null;
-					try {
-						IPath path = null;
-						if (targetLibrary instanceof IResource) {
-							path = ((IResource)targetLibrary).getLocation();
-						} else if (targetLibrary instanceof File){
-							File f = (File) targetLibrary;
-							if (!f.isDirectory()) {
-								path = new Path(((File)targetLibrary).getPath());
+					if (path != null) {
+						jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+							ZipEntry member= (ZipEntry) e.nextElement();
+							String entryName= member.getName();
+							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+								reader = ClassFileReader.read(jar, entryName);
+								break;
 							}
 						}
-						if (path != null) {
-							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-								ZipEntry member= (ZipEntry) e.nextElement();
-								String entryName= member.getName();
-								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-									reader = ClassFileReader.read(jar, entryName);
-									break;
-								}
-							}
-						}
-					} catch (CoreException e) {
-						// ignore
-					} finally {
-						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
+				} catch (CoreException e) {
+					// ignore
+				} finally {
+					JavaModelManager.getJavaModelManager().closeZipFile(jar);
 				}
-				if (reader != null) {
-					return reader.getVersion();
-				}
-		} catch(JavaModelException e) {
+			}
+			if (reader != null) {
+				return reader.getVersion();
+			}
+		} catch (CoreException e) {
 			// ignore
 		} catch(ClassFormatException e) {
 			// ignore
@@ -1152,6 +1153,7 @@ public class Util {
 	/*
 	 * Returns the index of the Java like extension of the given file name
 	 * or -1 if it doesn't end with a known Java like extension. 
+	 * Note this is the index of the '.' even if it is not considered part of the extension.
 	 */
 	public static int indexOfJavaLikeExtension(String fileName) {
 		int fileNameLength = fileName.length();
@@ -1160,12 +1162,14 @@ public class Util {
 			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
-			if (extensionStart < 0) continue;
+			int dotIndex = extensionStart - 1;
+			if (dotIndex < 0) continue;
+			if (fileName.charAt(dotIndex) != '.') continue;
 			for (int j = 0; j < extensionLength; j++) {
 				if (fileName.charAt(extensionStart + j) != extension[j])
 					continue extensions;
 			}
-			return extensionStart;
+			return dotIndex;
 		}
 		return -1;
 	}
@@ -1213,7 +1217,9 @@ public class Util {
 			case IJavaElement.COMPILATION_UNIT:
 				root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				resource = element.getResource();
-				if (resource != null && isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
+				if (resource == null) 
+					return false;
+				if (isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
 					return true;
 				return isExcluded(element.getParent());
 				
@@ -1353,6 +1359,20 @@ public class Util {
 		JavaCore.getPlugin().getLog().log(status);
 	}	
 	
+	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
+		InputStream in = null;
+		try {
+			URI uri = resource.getLocationURI();
+			if (uri == null) return null;
+			IFileStore store = EFS.getStore(uri);
+			in = store.openInputStream(EFS.NONE, null);
+			return ClassFileReader.read(in, uri.getPath());
+		} finally {
+			if (in != null)
+				in.close();
+		}
+	}
+
 	/**
 	 * Normalizes the cariage returns in the given text.
 	 * They are all changed  to use the given buffer's line separator.
@@ -1782,6 +1802,13 @@ public class Util {
 		if (hasTrailingSeparator)
 			result[offset++] = '/';
 		return new String(result);
+	}
+	
+	/*
+	 * Resets the list of Java-like extensions after a change in content-type.
+	 */
+	public static void resetJavaLikeExtensions() {
+		JAVA_LIKE_EXTENSIONS = null;
 	}
 	
 	/**
@@ -2317,7 +2344,8 @@ public class Util {
 			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
-			if (extensionStart < 0) continue;
+			if (extensionStart-1 < 0) continue;
+			if (fileName[extensionStart-1] != '.') continue;
 			for (int j = 0; j < extensionLength; j++) {
 				if (fileName[extensionStart + j] != extension[j])
 					continue extensions;

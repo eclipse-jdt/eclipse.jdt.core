@@ -45,12 +45,12 @@ public class WhileStatement extends Statement {
 		continueLabel = new Label(); 
 
 		Constant cst = this.condition.constant;
-		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		cst = this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 		
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -143,12 +143,25 @@ public class WhileStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
+		Constant cst = this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
+		if (isConditionOptimizedFalse) {
+			condition.generateCode(currentScope, 	codeStream, false);
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (mergedInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			}
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
+		}
+		
 		breakLabel.initialize(codeStream);
 
 		// generate condition
 		if (continueLabel == null) {
 			// no need to reverse condition
-			if (condition.constant == NotAConstant) {
+			if (condition.constant == Constant.NotAConstant) {
 				condition.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
@@ -158,7 +171,7 @@ public class WhileStatement extends Statement {
 			}
 		} else {
 			continueLabel.initialize(codeStream);
-			if (!(((condition.constant != NotAConstant)
+			if (!(((condition.constant != Constant.NotAConstant)
 				&& (condition.constant.booleanValue() == true))
 				|| (action == null)
 				|| action.isEmptyBlock())) {

@@ -26,10 +26,144 @@ import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
 public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaModelCompletionTests implements JavadocTagConstants {
 
-	CompletionTestsRequestor2 requestor;
+	// Basic relevance values
+	/** R_DEFAULT+R_INTERESTING+R_NON_RESTRICTED<br>= 8 */
+	protected final static int JAVADOC_RELEVANCE = R_DEFAULT + R_INTERESTING+ R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING<br>+R_UNQUALIFIED+R_NON_RESTRICTED<br>= 11 */
+	protected final static int R_DIUNR= R_DEFAULT+R_INTERESTING+R_UNQUALIFIED+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED<br>= 18 */
+	protected static final int R_DICNR = R_DEFAULT+R_INTERESTING+R_CASE+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_QUALIFIED+R_NON_RESTRICTED<br>= 20 */
+	protected static final int R_DICQNR = R_DEFAULT+R_INTERESTING+R_CASE+R_QUALIFIED+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_UNQUALIFIED+R_NON_RESTRICTED<br>= 21 */
+	protected static final int R_DICUNR = R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_NON_RESTRICTED<br>= 22 */
+	protected static final int R_DICENNR = R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_QUALIFIED+R_NON_RESTRICTED<br>= 24 */
+	protected static final int R_DICENQNR = R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME+R_QUALIFIED+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_UNQUALIFIED+R_NON_RESTRICTED<br>= 25 */
+	protected static final int R_DICENUNR = R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_NON_STATIC<br>= 29 */
+	protected static final int R_DICNRNS = R_DEFAULT+R_INTERESTING+R_CASE+R_NON_RESTRICTED+R_NON_STATIC;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_NON_RESTRICTED+R_NON_STATIC<br>= 33 */
+	protected static final int R_DICENNRNS = R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME+R_NON_RESTRICTED+R_NON_STATIC;
+
+	// Exception relevance values
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_EXCEPTION<br>= 38 */
+	protected static final int R_DICNRE = R_DICNR+R_EXCEPTION;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_UNQUALIFIED+R_NON_RESTRICTED+R_EXCEPTION<br>= 41 */
+	protected static final int R_DICUNRE = R_DICUNR+R_EXCEPTION;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_NON_RESTRICTED+R_EXCEPTION<br>= 42 */
+	protected static final int R_DICENNRE = R_DICENNR+R_EXCEPTION;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_UNQUALIFIED+R_NON_RESTRICTED+R_EXCEPTION<br>= 45 */
+	protected static final int R_DICENUNRE = R_DICENUNR+R_EXCEPTION;
+
+	// Exact Expected relevance values
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>= 48 */
+	protected static final int R_DICNREET = R_DICNR+R_EXACT_EXPECTED_TYPE;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>= 51 */
+	protected static final int R_DICUNREET = R_DICUNR+R_EXACT_EXPECTED_TYPE;
+
+	// Exact Expected Exception relevance values
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_NON_RESTRICTED<br>+R_EXCEPTION+R_EXACT_EXPECTED_TYPE<br>= 68 */
+	protected static final int R_DICNREEET = R_DICNRE+R_EXACT_EXPECTED_TYPE;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXCEPTION<br>
+	 * +R_EXACT_EXPECTED_TYPE<br>= 71 */
+	protected static final int R_DICUNREEET = R_DICUNRE+R_EXACT_EXPECTED_TYPE;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_NON_RESTRICTED+R_EXCEPTION<br>
+	 * +R_EXACT_EXPECTED_TYPE<br>= 72 */
+	protected static final int R_DICENNREEET = R_DICENNRE+R_EXACT_EXPECTED_TYPE;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_UNQUALIFIED+R_NON_RESTRICTED+R_EXCEPTION<br>
+	 * +R_EXACT_EXPECTED_TYPE<br>= 75 */
+	protected static final int R_DICENUNREEET = R_DICENUNRE+R_EXACT_EXPECTED_TYPE;
+
+	// Inline tag relevance values
+	/** R_DEFAULT+R_INTERESTING+R_NON_RESTRICTED<br>+R_INLINE_TAG<br>= 39 */
+	protected static final int JAVADOC_RELEVANCE_IT = JAVADOC_RELEVANCE+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_INLINE_TAG<br>= 49 */
+	protected static final int R_DICNRIT = R_DICNR+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_INLINE_TAG<br>= 52 */
+	protected static final int R_DICUNRIT = R_DICUNR+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_NON_RESTRICTED+R_INLINE_TAG<br>= 53 */
+	protected static final int R_DICENNRIT = R_DICENNR+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_EXACT_NAME<br>+R_UNQUALIFIED+R_NON_RESTRICTED+R_INLINE_TAG<br>= 56 */
+	protected static final int R_DICENUNRIT = R_DICENUNR+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_NON_STATIC+R_INLINE_TAG<br>= 60 */
+	protected static final int R_DICNRNSIT = R_DICNRNS+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_NON_RESTRICTED<br>+R_EXACT_EXPECTED_TYPE+R_INLINE_TAG<br>= 79 */
+	protected static final int R_DICNREETIT = R_DICNREET+R_INLINE_TAG;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>
+	 * +R_INLINE_TAG<br>= 82 */
+	protected static final int R_DICUNREETIT = R_DICUNREET+R_INLINE_TAG;
+	
+	// Store all relevance values in array
+	private static final int[] RELEVANCES = {
+		JAVADOC_RELEVANCE,
+		R_DIUNR,
+		R_DICNR,
+		R_DICQNR,
+		R_DICUNR,
+		R_DICENNR,
+		R_DICENQNR,
+		R_DICENUNR,
+		R_DICNRNS,
+		R_DICENNRNS,
+		R_DICNRE,
+		R_DICUNRE,
+		R_DICENNRE,
+		R_DICENUNRE,
+		R_DICNREET,
+		R_DICUNREET,
+		R_DICNREEET,
+		R_DICUNREEET,
+		R_DICENNREEET,
+		R_DICENUNREEET,
+		JAVADOC_RELEVANCE_IT,
+		R_DICNRIT,
+		R_DICUNRIT,
+		R_DICENNRIT,
+		R_DICENUNRIT,
+		R_DICNRNSIT,
+		R_DICNREETIT,
+		R_DICUNREETIT,
+	};
+	private static final String[] RELEVANCES_NAMES = {
+		"JAVADOC_RELEVANCE",
+		"R_DIUNR",
+		"R_DICNR",
+		"R_DICQNR",
+		"R_DICUNR",
+		"R_DICENNR",
+		"R_DICENQNR",
+		"R_DICENUNR",
+		"R_DICNRNS",
+		"R_DICENNRNS",
+		"R_DICNRE",
+		"R_DICUNRE",
+		"R_DICENNRE",
+		"R_DICENUNRE",
+		"R_DICNREET",
+		"R_DICUNREET",
+		"R_DICNREEET",
+		"R_DICUNREEET",
+		"R_DICENNREEET",
+		"R_DICENUNREEET",
+		"JAVADOC_RELEVANCE_IT",
+		"R_DICNRIT",
+		"R_DICUNRIT",
+		"R_DICENNRIT",
+		"R_DICENUNRIT",
+		"R_DICNRNSIT",
+		"R_DICNREETIT",
+		"R_DICUNREETIT",
+	};
+
+	// Write file contants
 	protected static final String WRITE_DIR = System.getProperty("writeDir");
 	protected static final File WRITE_DIR_FILE;
 	protected static final Set PACKAGE_FILES = new HashSet();
+	
+	CompletionTestsRequestor2 requestor;
 	static {
 		File writeDir = null;
 		if (WRITE_DIR != null) {
@@ -49,8 +183,6 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	protected int completionStart;
 	protected String replacedText;
 	protected String positions;
-	
-	protected final static int JAVADOC_RELEVANCE = R_DEFAULT + R_INTERESTING+ R_NON_RESTRICTED;
 
 	public AbstractJavadocCompletionModelTest(String name) {
 		super(name);
@@ -229,23 +361,19 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 				while (toDisplay.charAt(closeBracket+i) != '}') i++;
 				try {
 					int relevance = Integer.parseInt(toDisplay.substring(closeBracket, closeBracket+i));
-					switch (relevance) {
-						case JAVADOC_RELEVANCE:
-							buffer.append("JAVADOC_RELEVANCE+\"");
-							break;
-						case JAVADOC_RELEVANCE+R_INLINE_TAG:
-							buffer.append("(JAVADOC_RELEVANCE+R_INLINE_TAG)+\"");
-							break;
-						default:
-							if (relevance >= 55) {
-								buffer.append("("+(relevance-R_INLINE_TAG)+"+R_INLINE_TAG)+\"");
-							} else {
-								buffer.append('"');
-								buffer.append(relevance);
-							}
-							break;
+					int length = RELEVANCES.length;
+					boolean found = false;
+					for (int r=0; !found && r<length; r++) {
+						if (RELEVANCES[r] == relevance) {
+							buffer.append(RELEVANCES_NAMES[r]);
+							buffer.append("+\"");
+							found = true;
+						}
 					}
-//					buffer.append('}');
+					if (!found) {
+						buffer.append('"');
+						buffer.append(relevance);
+					}
 					closeBracket += i;
 				}
 				catch (NumberFormatException nfe) {

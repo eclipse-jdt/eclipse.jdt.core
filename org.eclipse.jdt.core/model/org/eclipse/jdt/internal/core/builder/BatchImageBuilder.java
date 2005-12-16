@@ -14,8 +14,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
-import org.eclipse.jdt.core.compiler.CleanCompilationEvent;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -23,8 +21,8 @@ import java.util.*;
 
 public class BatchImageBuilder extends AbstractImageBuilder {
 
-protected BatchImageBuilder(JavaBuilder javaBuilder) {
-	super(javaBuilder);
+protected BatchImageBuilder(JavaBuilder javaBuilder, boolean buildStarting) {
+	super(javaBuilder, buildStarting, null);
 	this.nameEnvironment.isIncrementalBuild = false;
 }
 
@@ -100,30 +98,14 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 	}
 }
 
-private void notifyCompilationParticipantsOfClean()
-{
-	List cps = JavaCore.getCompilationParticipants( 
-			ICompilationParticipant.CLEAN_EVENT, javaBuilder.javaProject );
-		
-	if ( cps.isEmpty() ) 
-		return;
-
-	CleanCompilationEvent pbce = new CleanCompilationEvent(	javaBuilder.javaProject );
-
-	java.util.Iterator it = cps.iterator();
-	while ( it.hasNext() ) {
-		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
-		p.notify( pbce );
-	}
-}
-	
 protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
-		
-		notifyCompilationParticipantsOfClean();
-		
+		if (this.javaBuilder.participants != null)
+			for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
+				this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
+
 		ArrayList visited = new ArrayList(sourceLocations.length);
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			notifier.subTask(Messages.build_cleaningOutput); 
@@ -304,6 +286,36 @@ protected IResource findOriginalResource(IPath partialPath) {
 		}
 	}
 	return null;
+}
+
+protected void processAnnotationResults(CompilationParticipantResult[] results) {
+	// called AFTER the build loop once all source files have been compiled
+
+	// to compile the compilation participant results, we need to incrementally recompile all affected types
+	// whenever the generated types are initially added or structurally changed
+
+	// this is a copy of the incremental build loop
+	IncrementalImageBuilder incrementalBuilder = new IncrementalImageBuilder(this);
+	try {
+		incrementalBuilder.resetCollections();
+		incrementalBuilder.processAnnotationResults(results);
+		incrementalBuilder.addAffectedSourceFiles(); // pick up any affected source files of the deleted generated files
+
+		while (incrementalBuilder.sourceFiles.size() > 0) {
+			SourceFile[] allSourceFiles = new SourceFile[incrementalBuilder.sourceFiles.size()];
+			incrementalBuilder.sourceFiles.toArray(allSourceFiles);
+			incrementalBuilder.resetCollections();
+
+			incrementalBuilder.workQueue.addAll(allSourceFiles);
+			incrementalBuilder.compile(allSourceFiles);
+			incrementalBuilder.removeSecondaryTypes();
+			incrementalBuilder.addAffectedSourceFiles();
+		}
+	} catch (CoreException e) {
+		throw internalException(e);
+	} finally {
+		incrementalBuilder.cleanUp();
+	}
 }
 
 public String toString() {

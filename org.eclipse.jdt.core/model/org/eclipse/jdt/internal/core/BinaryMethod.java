@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -27,34 +23,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 /* package */ class BinaryMethod extends BinaryMember implements IMethod {
-	
-	class DecodeParametersNames extends SourceElementRequestorAdapter {
-			String[] parametersNames;
-		
-			public void enterMethod(MethodInfo methodInfo) {
-					if (methodInfo.parameterNames != null) {
-						int length = methodInfo.parameterNames.length;
-						this.parametersNames = new String[length];
-						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
-						}
-					}
-				}
-				
-			public void enterConstructor(MethodInfo methodInfo) {
-					if (methodInfo.parameterNames != null) {
-						int length = methodInfo.parameterNames.length;
-						this.parametersNames = new String[length];
-						for (int i = 0; i < length; i++) {
-							this.parametersNames[i] = new String(methodInfo.parameterNames[i]);
-						}
-					}
-				}
-				
-				public String[] getParametersNames() {
-					return this.parametersNames;
-				}
-	}
 
 	/**
 	 * The parameter type signatures of the method - stored locally
@@ -67,17 +35,14 @@ import org.eclipse.jdt.internal.core.util.Util;
 	 */
 	protected String[] parameterNames;
 
-	/**
-	 * An empty list of Strings
-	 */
-	protected static final String[] NO_TYPES= new String[] {};
 	protected String[] exceptionTypes;
 	protected String returnType;
+
 protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (paramTypes == null) {
-		this.parameterTypes= NO_TYPES;
+		this.parameterTypes= CharOperation.NO_STRINGS;
 	} else {
 		this.parameterTypes= paramTypes;
 	}
@@ -100,7 +65,7 @@ public String[] getExceptionTypes() throws JavaModelException {
 		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
 			char[][] eTypeNames = info.getExceptionTypeNames();
 			if (eTypeNames == null || eTypeNames.length == 0) {
-				this.exceptionTypes = NO_TYPES;
+				this.exceptionTypes = CharOperation.NO_STRINGS;
 			} else {
 				eTypeNames = ClassFile.translatedNames(eTypeNames);
 				this.exceptionTypes = new String[eTypeNames.length];
@@ -168,42 +133,132 @@ public int getNumberOfParameters() {
  * Look for source attachment information to retrieve the actual parameter names as stated in source.
  */
 public String[] getParameterNames() throws JavaModelException {
-	if (this.parameterNames == null) {
+	if (this.parameterNames != null) 
+		return this.parameterNames;
 
-		// force source mapping if not already done
-		IType type = (IType) getParent();
-		SourceMapper mapper = getSourceMapper();
-		if (mapper != null) {
-			char[][] paramNames = mapper.getMethodParameterNames(this);
-			
-			// map source and try to find parameter names
-			if(paramNames == null) {
-				char[] source = mapper.findSource(type);
-				if (source != null){
-					mapper.mapSource(type, source);
-				}
-				paramNames = mapper.getMethodParameterNames(this);
+	// force source mapping if not already done
+	IType type = (IType) getParent();
+	SourceMapper mapper = getSourceMapper();
+	if (mapper != null) {
+		char[][] paramNames = mapper.getMethodParameterNames(this);
+		
+		// map source and try to find parameter names
+		if(paramNames == null) {
+			char[] source = mapper.findSource(type);
+			if (source != null){
+				mapper.mapSource(type, source);
 			}
-			
-			// if parameter names exist, convert parameter names to String array
-			if(paramNames != null) {
-				this.parameterNames = new String[paramNames.length];
-				for (int i = 0; i < paramNames.length; i++) {
-					this.parameterNames[i] = new String(paramNames[i]);
-				}
-			}
+			paramNames = mapper.getMethodParameterNames(this);
 		}
-		// if still no parameter names, produce fake ones
-		if (this.parameterNames == null) {
-			IBinaryMethod info = (IBinaryMethod) getElementInfo();
-			int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-			this.parameterNames = new String[paramCount];
-			for (int i = 0; i < paramCount; i++) {
-				this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
+		
+		// if parameter names exist, convert parameter names to String array
+		if(paramNames != null) {
+			this.parameterNames = new String[paramNames.length];
+			for (int i = 0; i < paramNames.length; i++) {
+				this.parameterNames[i] = new String(paramNames[i]);
+			}
+			return this.parameterNames;
+		}
+	}
+	
+	// try to see if we can retrieve the names from the attached javadoc
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+	if (paramCount != 0) {
+ 		String javadocContents = null;
+ 		IType declaringType = this.getDeclaringType();
+		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+ 		synchronized (projectInfo.javadocCache) {
+ 			javadocContents = (String) projectInfo.javadocCache.get(declaringType);
+ 			if (javadocContents == null) {
+ 				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
+ 			}
+ 		}
+ 		if (javadocContents == null) {
+ 			long timeOut = 50; // default value
+ 			try {
+ 				String option = this.getJavaProject().getOption(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
+ 				if (option != null) {
+ 					timeOut = Long.parseLong(option);
+ 				}
+ 			} catch(NumberFormatException e) {
+ 				// ignore
+ 			}
+ 			if (timeOut == 0) {
+ 				// don't try to fetch the values
+ 				return this.parameterNames = getRawParameterNames(paramCount);
+ 			}
+ 			final class ParametersNameCollector {
+ 				String javadoc;
+ 				public void setJavadoc(String s) {
+ 					this.javadoc = s;
+ 				}
+ 				public String getJavadoc() {
+ 					return this.javadoc;
+ 				}
+ 	 		}
+ 			/*
+ 			 * The declaring type is not in the cache yet. The thread wil retrieve the javadoc contents
+ 			 */
+	 		final ParametersNameCollector nameCollector = new ParametersNameCollector();
+			Thread collect = new Thread() {
+				public void run() {
+					try {
+						// this call has a side-effect on the per project info cache
+						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null, "UTF-8")); //$NON-NLS-1$
+			        } catch (JavaModelException e) {
+	 		        	// ignore
+	 		        }
+					synchronized(nameCollector) {
+						nameCollector.notify();
+					}
+				}
+			};
+			collect.start();
+			synchronized(nameCollector) {
+				try {
+					nameCollector.wait(timeOut);
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
+			javadocContents = nameCollector.getJavadoc();
+ 		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
+ 			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
+ 			javadocContents = extractJavadoc(declaringType, javadocContents);
+ 		} else {
+ 			// we don't want to set the parameter names
+ 			return getRawParameterNames(paramCount);
+ 		}
+		if (javadocContents != null && javadocContents != BinaryType.EMPTY_JAVADOC) {
+			final int indexOfOpenParen = javadocContents.indexOf('(');
+			if (indexOfOpenParen != -1) {
+				final int indexOfClosingParen = javadocContents.indexOf(')', indexOfOpenParen);
+				if (indexOfClosingParen != -1) {
+					final char[] paramsSource =
+						CharOperation.replace(
+							javadocContents.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
+							"&nbsp;".toCharArray(), //$NON-NLS-1$
+							new char[] {' '});
+					final char[][] params = CharOperation.splitOn(',', paramsSource);
+					final int paramsLength = params.length;
+					this.parameterNames = new String[paramsLength];
+					for (int i = 0; i < paramsLength; i++) {
+						final char[] param = params[i];
+						int indexOfSpace = CharOperation.lastIndexOf(' ', param);
+						if (indexOfSpace != -1) {
+							this.parameterNames[i] = String.valueOf(param, indexOfSpace + 1, param.length - indexOfSpace -1);
+						} else {
+							this.parameterNames[i] = "arg" + i; //$NON-NLS-1$
+						}
+					}
+					return this.parameterNames;
+				}
 			}
 		}
 	}
-	return this.parameterNames;
+	// if still no parameter names, produce fake ones
+	return this.parameterNames = getRawParameterNames(paramCount);
 }
 /*
  * @see IMethod
@@ -241,6 +296,19 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 	char[][] typeParams = Signature.getTypeParameters(dotBasedSignature);
 	return CharOperation.toStrings(typeParams);
+}
+
+public String[] getRawParameterNames() throws JavaModelException {
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+	return getRawParameterNames(paramCount);
+}
+private String[] getRawParameterNames(int paramCount) {
+	String[] result = new String[paramCount];
+	for (int i = 0; i < paramCount; i++) {
+		result[i] = "arg" + i; //$NON-NLS-1$
+	}
+	return result;
 }
 
 /*
@@ -386,5 +454,87 @@ protected void toStringName(StringBuffer buffer, int flags) {
 		buffer.append("#"); //$NON-NLS-1$
 		buffer.append(this.occurrenceCount);
 	}
+}
+public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	IType declaringType = this.getDeclaringType();
+
+	String contents = ((BinaryType) declaringType).getJavadocContents(monitor, defaultEncoding);
+	return extractJavadoc(declaringType, contents);
+}
+private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {
+	if (contents == null) return null;
+
+	String typeQualifiedName = null;
+	final boolean declaringTypeIsMember = declaringType.isMember();
+	if (declaringTypeIsMember) {
+		IType currentType = declaringType;
+		StringBuffer buffer = new StringBuffer();
+		while (currentType != null) {
+			buffer.insert(0, currentType.getElementName());
+			currentType = currentType.getDeclaringType();
+			if (currentType != null) {
+				buffer.insert(0, '.');
+			}
+		}
+		typeQualifiedName = new String(buffer.toString());
+	} else {
+		typeQualifiedName = declaringType.getElementName();
+	}
+	String methodName = this.getElementName();
+	if (this.isConstructor()) {
+		methodName = typeQualifiedName;
+	}
+	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
+	if (declaringTypeIsMember) {
+
+		int depth = 0;
+		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
+		// might need to remove a part of the signature corresponding to the synthetic argument
+		final IJavaProject javaProject = declaringType.getJavaProject();
+		char[][] typeNames = CharOperation.splitOn('.', typeQualifiedName.toCharArray());
+		if (!Flags.isStatic(declaringType.getFlags())) depth++;
+		StringBuffer typeName = new StringBuffer();
+		for (int i = 0, max = typeNames.length; i < max; i++) {
+			if (typeName.length() == 0) {
+				typeName.append(typeNames[i]);
+			} else {
+				typeName.append('.').append(typeNames[i]);
+			}
+			IType resolvedType = javaProject.findType(packageFragmentName, String.valueOf(typeName));
+			if (resolvedType != null && resolvedType.isMember() && !Flags.isStatic(resolvedType.getFlags())) depth++;
+		}
+		if (depth != 0) {
+			int indexOfOpeningParen = anchor.indexOf('(');
+			if (indexOfOpeningParen == -1) return null;
+			int index = indexOfOpeningParen;
+			indexOfOpeningParen++;
+			for (int i = 0; i < depth; i++) {
+				int indexOfComma = anchor.indexOf(',', index);
+				if (indexOfComma != -1) {
+					index = indexOfComma + 2;
+				}
+			}
+			anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
+		}
+	}
+	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
+	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
+	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfNextMethod = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
+	// find bottom
+	int indexOfBottom = -1;
+	if (this.isConstructor()) {
+		indexOfBottom = contents.indexOf(JavadocConstants.METHOD_DETAIL, indexOfEndLink);
+		if (indexOfBottom == -1) {
+			indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+		}
+	} else {
+		indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+	}
+	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	indexOfNextMethod = Math.min(indexOfNextMethod, indexOfBottom);
+	if (indexOfNextMethod == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextMethod);
 }
 }

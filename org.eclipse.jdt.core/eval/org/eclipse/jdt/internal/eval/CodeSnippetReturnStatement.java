@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -123,7 +124,7 @@ public void resolve(BlockScope scope) {
 				return;
 			}
 			// in constant case, the implicit conversion cannot be left uninitialized
-			if (this.expression.constant != NotAConstant) {
+			if (this.expression.constant != Constant.NotAConstant) {
 				// fake 'no implicit conversion' (the return type is always void)
 				this.expression.implicitConversion = this.expression.constant.typeID() << 4;
 			}

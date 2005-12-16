@@ -263,6 +263,9 @@ public class CompletionNodeDetector extends ASTVisitor {
 	public boolean visit(SingleTypeReference singleTypeReference, ClassScope scope) {
 		return this.visit(singleTypeReference);
 	}
+	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
+		return this.visit(stringLiteral);
+	}
 	public boolean visit(SuperReference superReference, BlockScope scope) {
 		return this.visit(superReference);
 	}

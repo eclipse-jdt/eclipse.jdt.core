@@ -36,7 +36,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in Expli
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	if (!(node instanceof ExplicitConstructorCall)) return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null && (this.pattern.shouldCountParameter() || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
+	if (this.pattern.parameterSimpleNames != null && (!this.pattern.varargs || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = ((ExplicitConstructorCall) node).arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -61,7 +61,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, typeName[typeName.length-1]))
 		return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null && (this.pattern.shouldCountParameter() || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
+	if (this.pattern.parameterSimpleNames != null && (!this.pattern.varargs || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -81,7 +81,7 @@ public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 			return IMPOSSIBLE_MATCH;
 	}
 
-	if (this.pattern.parameterSimpleNames != null && this.pattern.shouldCountParameter()) {
+	if (this.pattern.parameterSimpleNames != null && !this.pattern.varargs) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -212,7 +212,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		// Update match regarding declaring class type arguments
 		if (constructorBinding.declaringClass.isParameterizedType() || constructorBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)constructorBinding.declaringClass;
-			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
+			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments() || parameterizedBinding.isParameterizedWithOwnVariables()) {
 				// special case for constructor pattern which defines arguments but no type
 				// in this case, we only use refined accuracy for constructor
 			} else if (this.pattern.hasTypeArguments() && !this.pattern.hasConstructorArguments()) {
@@ -235,7 +235,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
 				// special case for constructor pattern which defines arguments but no type
 				updateMatch(parameterizedBinding, new char[][][] {this.pattern.constructorArguments}, this.pattern.hasTypeParameters(), 0, locator);
-			} else {
+			} else if (!parameterizedBinding.isParameterizedWithOwnVariables()) {
 				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
 		} else if (this.pattern.hasTypeArguments()) {

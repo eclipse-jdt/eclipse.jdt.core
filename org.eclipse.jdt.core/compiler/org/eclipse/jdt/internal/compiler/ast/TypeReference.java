@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -119,7 +120,7 @@ public final TypeBinding resolveType(BlockScope blockScope) {
 
 public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 	// handle the error here
-	this.constant = NotAConstant;
+	this.constant = Constant.NotAConstant;
 	if (this.resolvedType != null) // is a shared type reference which was already resolved
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
@@ -142,7 +143,7 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 }
 public TypeBinding resolveType(ClassScope scope) {
 	// handle the error here
-	this.constant = NotAConstant;
+	this.constant = Constant.NotAConstant;
 	if (this.resolvedType != null) // is a shared type reference which was already resolved
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 

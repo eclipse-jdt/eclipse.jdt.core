@@ -20,6 +20,12 @@ public class InternalCompletionContext {
 	protected char[][] expectedTypesKeys;
 	protected int javadoc;
 	
+	protected int offset = -1;
+	protected int tokenStart = -1;
+	protected int tokenEnd = -1;
+	protected char[] token = null;
+	protected int tokenKind;
+	
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
 	}
@@ -30,5 +36,25 @@ public class InternalCompletionContext {
 
 	protected void setJavadoc(int javadoc) {
 		this.javadoc = javadoc;
+	}
+	
+	protected void setOffset(int offset) {
+		this.offset = offset;
+	}
+	
+	protected void setTokenRange(int start, int end) {
+		this.setTokenRange(start, end, -1);
+	}
+	protected void setTokenRange(int start, int end, int endOfEmptyToken) {
+		this.tokenStart = start;
+		this.tokenEnd = endOfEmptyToken > end ? endOfEmptyToken : end;
+	}
+	
+	protected void setToken(char[] token) {
+		this.token = token;
+	}
+	
+	protected void setTokenKind(int tokenKind) {
+		this.tokenKind = tokenKind;
 	}
 }

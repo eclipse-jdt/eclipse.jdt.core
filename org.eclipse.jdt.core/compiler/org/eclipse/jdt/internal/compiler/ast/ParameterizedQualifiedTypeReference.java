@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -109,7 +110,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 
 		// handle the error here
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.didResolve) { // is a shared type reference which was already resolved
 			if (this.resolvedType != null && !this.resolvedType.isValidBinding())
 				return null; // already reported error
@@ -136,8 +137,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType == null) {
 				qualifiedType = currentType.enclosingType(); // if member type
-				if (qualifiedType != null && currentType.isStatic() && (qualifiedType.isGenericType() || qualifiedType.isParameterizedType())) {
-					qualifiedType = scope.environment().createRawType((ReferenceBinding)qualifiedType.erasure(), qualifiedType.enclosingType());
+				if (qualifiedType != null && qualifiedType.isGenericType()) {
+					qualifiedType = currentType.isStatic()
+						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType)
+						: scope.environment().convertToParameterizedType(qualifiedType);
 				}
 			}				
 			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
@@ -189,25 +192,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 							this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType), argTypes);
 					typeIsConsistent = false;				
 				}
-				// if generic type X<T> is referred to as parameterized X<T>, then answer itself
-				boolean isIdentical = (qualifiedType == null) || (qualifiedType instanceof SourceTypeBinding);
-				if (isIdentical) {
-				    for (int j = 0; j < argLength; j++) {
-						if (typeVariables[j] != argTypes[j]) {
-							isIdentical = false;
-						    break;
-						}
-					}
-				}
-			    if (isIdentical) {
-			    	qualifiedType = (ReferenceBinding) currentType.erasure();
-			    } else {
-					ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
-					// check argument type compatibility
-					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-						parameterizedType.boundCheck(scope, args);
-					qualifiedType = parameterizedType;
-			    }
+				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
+				// check argument type compatibility
+				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
+					parameterizedType.boundCheck(scope, args);
+				qualifiedType = parameterizedType;
 		    } else {
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, null))

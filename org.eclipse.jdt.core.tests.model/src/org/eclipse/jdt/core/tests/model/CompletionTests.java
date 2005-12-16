@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -36,7 +38,7 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 static {
-//	TESTS_NAMES = new String[] { "testCamelCaseType1"};
+//	TESTS_NAMES = new String[] { "testInconsistentHierarchy1"};
 }
 public static Test suite() {
 	return buildTestSuite(CompletionTests.class);
@@ -11040,5 +11042,239 @@ public void testCamelCaseMethodDeclaration1() throws JavaModelException {
 	} finally {
 		JavaCore.setOptions(oldOptions);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    label1 : for(;;) foo();\n"+
+		"    label2 : for(;;)\n"+
+		"      label3 : for(;;) {\n"+
+		"        label4 : for(;;) {\n"+
+		"          break lab\n"+
+		"        }\n"+
+		"      }\n"+
+		"  }\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label3[LABEL_REF]{label3, null, null, label3, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label4[LABEL_REF]{label4, null, null, label4, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    #\n"+
+		"    label1 : for(;;) foo();\n"+
+		"    label2 : for(;;)\n"+
+		"      label3 : for(;;) {\n"+
+		"        label4 : for(;;) {\n"+
+		"          break lab\n"+
+		"        }\n"+
+		"      }\n"+
+		"  }\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label3[LABEL_REF]{label3, null, null, label3, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label4[LABEL_REF]{label4, null, null, label4, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    label1 : for(;;) foo();\n"+
+		"    label2 : for(;;)\n"+
+		"      label3 : for(;;) {\n"+
+		"        label4 : for(;;) {\n"+
+		"          break lab\n"+
+		"  }\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label3[LABEL_REF]{label3, null, null, label3, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label4[LABEL_REF]{label4, null, null, label4, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    #\n"+
+		"    label1 : for(;;) foo();\n"+
+		"    label2 : for(;;)\n"+
+		"      label3 : for(;;) {\n"+
+		"        label4 : for(;;) {\n"+
+		"          break lab\n"+
+		"  }\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label3[LABEL_REF]{label3, null, null, label3, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"label4[LABEL_REF]{label4, null, null, label4, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) foo();\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label1[LABEL_REF]{label1, null, null, label1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testLabel6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) {\n" + 
+ 		"            continue lab\n" + 
+ 		"          }\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// TODO (olivier) reenable once 117740 is fixed
+public void _testParameterNames1() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/Test.java",
+		"package p;"+
+		"public class Test {\n" + 
+		"  void foo(doctest.X x) {\n" + 
+		"    x.fo\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	addLibrary(
+			"Completion", 
+			"tmpDoc.jar",
+			null,
+			"tmpDocDoc.zip",
+			false);
+	
+	CompletionTestsRequestor2 requestor;
+	try {
+		requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "x.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		removeLibrary("Completion", "tmpDoc.jar");
+	}
+}
+public void testInconsistentHierarchy1() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/Test.java",
+		"package p;"+
+		"public class Test extends Unknown {\n" + 
+		"  void foo() {\n" + 
+		"    this.has\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+		requestor.getResults());
 }
 }

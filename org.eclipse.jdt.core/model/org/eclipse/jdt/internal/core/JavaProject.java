@@ -380,8 +380,6 @@ public class JavaProject
 		info.setChildren(
 			computePackageFragmentRoots(classpath, false, null /*no reverse map*/));		
 	}
-	
-
 
 	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
@@ -1064,7 +1062,10 @@ public class JavaProject
 				IType type = lookup.findType(
 					qualifiedName,
 					false,
-					NameLookup.ACCEPT_ALL);
+					NameLookup.ACCEPT_ALL,
+					true/* consider secondary types */,
+					false/* do NOT wait for indexes */,
+					null);
 
 				if (type != null) {
 					return type.getParent();
@@ -1151,48 +1152,49 @@ public class JavaProject
 		}
 		return new IPackageFragmentRoot[] {};
 	}
-	
+
 	/**
 	 * @see IJavaProject#findType(String)
 	 */
 	public IType findType(String fullyQualifiedName) throws JavaModelException {
 		return findType(fullyQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
 	}
-	
 	/**
-	 * @see IJavaProject#findType(String, String)
+	 * @see IJavaProject#findType(String, IProgressMonitor)
 	 */
-	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
-		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	public IType findType(String fullyQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException {
+		return findType(fullyQualifiedName, DefaultWorkingCopyOwner.PRIMARY, progressMonitor);
 	}
-
-	/**
-	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
-	 */
-	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
-		NameLookup lookup = newNameLookup(owner);
-		return lookup.findType(
-			typeQualifiedName, 
-			packageName,
-			false,
-			NameLookup.ACCEPT_ALL);
-	}	
-
 	/**
 	 * @see IJavaProject#findType(String, WorkingCopyOwner)
 	 */
 	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
-		
 		NameLookup lookup = newNameLookup(owner);
+		return findType(fullyQualifiedName, lookup, false, null);
+	}
+	/**
+	 * @see IJavaProject#findType(String, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(fullyQualifiedName, lookup, true, progressMonitor);
+	}
+	/*
+	 * Internal findType with instanciated name lookup
+	 */
+	IType findType(String fullyQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
 		IType type = lookup.findType(
 			fullyQualifiedName,
 			false,
-			NameLookup.ACCEPT_ALL);
+			NameLookup.ACCEPT_ALL,
+			considerSecondaryTypes,
+			true, /* wait for indexes (only if consider secondary types)*/
+			progressMonitor);
 		if (type == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
 			if (lastDot == -1) return null;
-			type = this.findType(fullyQualifiedName.substring(0, lastDot));
+			type = findType(fullyQualifiedName.substring(0, lastDot), lookup, considerSecondaryTypes, progressMonitor);
 			if (type != null) {
 				type = type.getType(fullyQualifiedName.substring(lastDot+1));
 				if (!type.exists()) {
@@ -1202,6 +1204,56 @@ public class JavaProject
 		}
 		return type;
 	}
+
+	/**
+	 * @see IJavaProject#findType(String, String)
+	 */
+	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
+		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY);
+	}
+	/**
+	 * @see IJavaProject#findType(String, String, IProgressMonitor)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, IProgressMonitor progressMonitor) throws JavaModelException {
+		return findType(packageName, typeQualifiedName, DefaultWorkingCopyOwner.PRIMARY, progressMonitor);
+	}
+	/**
+	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(
+			packageName,
+			typeQualifiedName, 
+			lookup,
+			false, // do not consider secondary types
+			null);
+	}	
+	/**
+	 * @see IJavaProject#findType(String, String, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findType(
+			packageName,
+			typeQualifiedName, 
+			lookup,
+			true, // consider secondary types
+			progressMonitor);
+	}	
+	/*
+	 * Internal findType with instanciated name lookup
+	 */
+	IType findType(String packageName, String typeQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
+		return lookup.findType(
+			typeQualifiedName, 
+			packageName,
+			false,
+			NameLookup.ACCEPT_ALL,
+			considerSecondaryTypes,
+			true, // wait for indexes (in case we need to consider secondary types)
+			progressMonitor);
+	}	
 	
 	/**
 	 * Remove all markers denoting classpath problems
@@ -2169,20 +2221,23 @@ public class JavaProject
 			// when a project is imported, we get a first delta for the addition of the .project, but the .classpath is not accessible
 			// so default to using java.io.File
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96258
-			File file  = rscFile.getLocation().toFile();
-			if (file.exists()) {
-				byte[] bytes;
-				try {
-					bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
-				} catch (IOException e) {
-					return null;
-				}
-				try {
-					property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
-				} catch (UnsupportedEncodingException e) {
-					Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
-					// fallback to default
-					property = new String(bytes);
+			IPath location = rscFile.getLocation();
+			if (location != null) {
+				File file = location.toFile();
+				if (file.exists()) {
+					byte[] bytes;
+					try {
+						bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
+					} catch (IOException e) {
+						return null;
+					}
+					try {
+						property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
+					} catch (UnsupportedEncodingException e) {
+						Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
+						// fallback to default
+						property = new String(bytes);
+					}
 				}
 			}
 		}
@@ -2845,6 +2900,44 @@ public class JavaProject
 		this.parent = JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 
+	/**
+	 * @see IJavaProject#setRawClasspath(IClasspathEntry[],boolean,IProgressMonitor)
+	 */
+	public void setRawClasspath(
+		IClasspathEntry[] entries,
+		boolean canModifyResources,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		setRawClasspath(
+			entries, 
+			SetClasspathOperation.DO_NOT_SET_OUTPUT,
+			monitor, 
+			canModifyResources, 
+			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
+			true, // needValidation
+			canModifyResources); // save only if modifying resources is allowed
+	}
+
+	/**
+	 * @see IJavaProject#setRawClasspath(IClasspathEntry[],IPath,boolean,IProgressMonitor)
+	 */
+	public void setRawClasspath(
+		IClasspathEntry[] entries,
+		IPath output,
+		boolean canModifyResources,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		setRawClasspath(
+			entries, 
+			output,
+			monitor, 
+			canModifyResources, 
+			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),
+			true, // needValidation
+			canModifyResources); // save only if modifying resources is allowed
+	}
 	/**
 	 * @see IJavaProject#setRawClasspath(IClasspathEntry[],IPath,IProgressMonitor)
 	 */

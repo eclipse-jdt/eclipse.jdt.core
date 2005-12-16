@@ -108,10 +108,17 @@ public void cleanUpIndexes() {
 
 	if (indexStates != null) {
 		Object[] keys = indexStates.keyTable;
+		int keysLength = keys.length;
+		int updates = 0;
+		String locations[] = new String[keysLength];
 		for (int i = 0, l = keys.length; i < l; i++) {
 			String key = (String) keys[i];
-			if (key != null && !knownPaths.containsKey(key))
-				updateIndexState(key, null);
+			if (key != null && !knownPaths.containsKey(key)) {
+				locations[updates++] = key;
+			}
+		}
+		if (updates > 0) {
+			removeIndexesState(locations);
 		}
 	}
 
@@ -474,6 +481,36 @@ public synchronized void removeIndex(IPath containerPath) {
 /**
  * Removes all indexes whose paths start with (or are equal to) the given path. 
  */
+public synchronized void removeIndexPath(IPath path) {
+	Set keySet = this.indexes.keySet();
+	Iterator keys = keySet.iterator();
+	String[] locations = null;
+	int max = keySet.size();
+	int ptr = 0;
+	while (keys.hasNext()) {
+		String indexLocation = (String) keys.next();
+		IPath indexPath = new Path(indexLocation);
+		if (path.isPrefixOf(indexPath)) {
+			Index index = (Index) this.indexes.get(indexLocation);
+			if (index != null) index.monitor = null;
+			if (locations == null) locations = new String[max];
+			locations[ptr++] = indexLocation;
+			File indexFile = new File(indexLocation);
+			if (indexFile.exists()) {
+				indexFile.delete();
+			}
+		} else if (locations == null) {
+			max--;
+		}
+	}
+	for (int i=0; i<ptr; i++) {
+		this.indexes.remove(locations[i]);
+	}
+	removeIndexesState(locations);
+}
+/**
+ * Removes all indexes whose paths start with (or are equal to) the given path. 
+ */
 public synchronized void removeIndexFamily(IPath path) {
 	// only finds cached index files... shutdown removes all non-cached index files
 	ArrayList toRemove = null;
@@ -630,6 +667,23 @@ private char[] readIndexState() {
 		return new char[0];
 	}
 }
+private synchronized void removeIndexesState(String[] locations) {
+	getIndexStates(); // ensure the states are initialized
+	int length = locations.length;
+	boolean changed = false;
+	for (int i=0; i<length; i++) {
+		if (locations[i] == null) continue;
+		if ((indexStates.removeKey(locations[i]) != null)) {
+			changed = true;
+			if (VERBOSE) {
+				Util.verbose("-> index state updated to: ? for: "+locations[i]); //$NON-NLS-1$
+			}
+		}
+	}
+	if (!changed) return;
+
+	writeSavedIndexNamesFile();
+}
 private synchronized void updateIndexState(String indexLocation, Integer indexState) {
 	getIndexStates(); // ensure the states are initialized
 	if (indexState != null) {
@@ -640,6 +694,18 @@ private synchronized void updateIndexState(String indexLocation, Integer indexSt
 		indexStates.removeKey(indexLocation);
 	}
 
+	writeSavedIndexNamesFile();
+
+	if (VERBOSE) {
+		String state = "?"; //$NON-NLS-1$
+		if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
+		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
+		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
+		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
+		Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+}
+private void writeSavedIndexNamesFile() {
 	BufferedWriter writer = null;
 	try {
 		writer = new BufferedWriter(new FileWriter(savedIndexNamesFile));
@@ -662,14 +728,6 @@ private synchronized void updateIndexState(String indexLocation, Integer indexSt
 				// ignore
 			}
 		}
-	}
-	if (VERBOSE) {
-		String state = "?"; //$NON-NLS-1$
-		if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
-		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
-		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
-		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
-		Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 }

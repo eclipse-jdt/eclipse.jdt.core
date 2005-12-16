@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
@@ -39,7 +40,7 @@ public class JavadocMessageSend extends MessageSend {
 	private TypeBinding internalResolveType(Scope scope) {
 		// Answer the signature return type
 		// Base type promotion
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (this.receiver == null) {
 			this.actualReceiverType = scope.enclosingSourceType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {

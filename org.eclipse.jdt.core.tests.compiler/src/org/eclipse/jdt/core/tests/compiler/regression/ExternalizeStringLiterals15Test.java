@@ -12,9 +12,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ExternalizeStringLiterals15Test extends AbstractRegressionTest {
 
@@ -27,7 +27,7 @@ public ExternalizeStringLiterals15Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(testClass());
+	return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_5);
 }
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();

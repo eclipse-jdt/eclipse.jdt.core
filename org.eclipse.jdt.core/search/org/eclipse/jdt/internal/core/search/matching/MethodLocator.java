@@ -152,7 +152,7 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
-	if (this.pattern.parameterSimpleNames != null && (this.pattern.shouldCountParameter() || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
+	if (this.pattern.parameterSimpleNames != null && (!this.pattern.varargs || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
 		int length = this.pattern.parameterSimpleNames.length;
 		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -363,7 +363,7 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		// Update match regarding declaring class type arguments
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)methodBinding.declaringClass;
-			if (!this.pattern.hasTypeArguments() && this.pattern.hasMethodArguments()) {
+			if (!this.pattern.hasTypeArguments() && this.pattern.hasMethodArguments() || parameterizedBinding.isParameterizedWithOwnVariables()) {
 				// special case for pattern which defines method arguments but not its declaring type
 				// in this case, we do not refine accuracy using declaring type arguments...!
 			} else {
@@ -387,7 +387,9 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		isParameterized = true;
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)methodBinding.declaringClass;
-			updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+			if (!parameterizedBinding.isParameterizedWithOwnVariables()) {
+				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+			}
 		} else if (this.pattern.hasTypeArguments()) {
 			match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}
@@ -481,22 +483,35 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	if (type == null) return; // case of a secondary type
 
 	char[] bindingSelector = methodBinding.selector;
+	boolean isBinary = type.isBinary();
+	IMethod method = null;
 	TypeBinding[] parameters = methodBinding.original().parameters;
 	int parameterLength = parameters.length;
-	String[] parameterTypes = new String[parameterLength];
-	for (int i = 0; i  < parameterLength; i++) {
-		char[] typeName = parameters[i].shortReadableName();
-		if (parameters[i].isMemberType()) {
-			typeName = CharOperation.subarray(typeName, CharOperation.indexOf('.', typeName)+1, typeName.length);
+	if (isBinary) {
+		char[][] parameterTypes = new char[parameterLength][];
+		for (int i = 0; i<parameterLength; i++) {
+			char[] typeName = parameters[i].qualifiedSourceName();
+			for (int j=0, dim=parameters[i].dimensions(); j<dim; j++) {
+				typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+			}
+			parameterTypes[i] = typeName;
 		}
-		parameterTypes[i] = Signature.createTypeSignature(typeName, false);
+		method = locator.createBinaryMethodHandle(type, methodBinding.selector, parameterTypes, locator);
+	} else {
+		String[] parameterTypes = new String[parameterLength];
+		for (int i = 0; i  < parameterLength; i++) {
+			char[] typeName = parameters[i].shortReadableName();
+			if (parameters[i].isMemberType()) {
+				typeName = CharOperation.subarray(typeName, CharOperation.indexOf('.', typeName)+1, typeName.length);
+			}
+			parameterTypes[i] = Signature.createTypeSignature(typeName, false);
+		}
+		method = type.getMethod(new String(bindingSelector), parameterTypes);
 	}
-	IMethod method = type.getMethod(new String(bindingSelector), parameterTypes);
-	if (knownMethods.includes(method)) return;
+	if (method == null || knownMethods.includes(method)) return;
 
 	knownMethods.add(method);
 	IResource resource = type.getResource();
-	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {
 		if (resource == null)
@@ -580,7 +595,9 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(MessageSend messageSend) {
 	MethodBinding method = messageSend.binding;
-	if (method == null) return INACCURATE_MATCH;
+	if (method == null) {
+		return INACCURATE_MATCH;
+	}
 	if (messageSend.resolvedType == null) {
 		// Closest match may have different argument numbers when ProblemReason is NotFound
 		// see MessageSend#resolveType(BlockScope)

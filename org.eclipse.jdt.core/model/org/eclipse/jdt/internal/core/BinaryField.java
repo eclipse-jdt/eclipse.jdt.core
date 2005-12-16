@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -104,5 +106,25 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
+}
+public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	String contents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor, defaultEncoding);
+	if (contents == null) return null;
+	int indexAnchor = contents.indexOf(
+			JavadocConstants.ANCHOR_PREFIX_START + this.getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
+	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
+	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	int indexOfNextField = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
+	int indexOfBottom = contents.indexOf(JavadocConstants.CONSTRUCTOR_DETAIL, indexOfEndLink);
+	if (indexOfBottom == -1) {
+		indexOfBottom = contents.indexOf(JavadocConstants.METHOD_DETAIL, indexOfEndLink);
+		if (indexOfBottom == -1) {
+			indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
+		}
+	}
+	indexOfNextField= Math.min(indexOfNextField, indexOfBottom);
+	if (indexOfNextField == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextField);
 }
 }

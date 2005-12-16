@@ -68,7 +68,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		if (this.binding != null
 				&& this.binding.isValidBinding()
 				&& this.binding.isStatic()
-				&& !this.binding.isConstantValue()
+				&& this.binding.constant() == Constant.NotAConstant
 				&& this.binding.declaringClass.isNestedType()
 				&& !this.binding.declaringClass.isStatic()) {
 			initializationScope.problemReporter().unexpectedStaticModifierForField(
@@ -103,7 +103,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		int pc = codeStream.position;
 		boolean isStatic;
 		if (this.initialization != null
-			&& !((isStatic = this.binding.isStatic()) && this.binding.isConstantValue())) {
+			&& !((isStatic = this.binding.isStatic()) && this.binding.constant() != Constant.NotAConstant)) {
 			// non-static field, need receiver
 			if (!isStatic)
 				codeStream.aload_0();
@@ -192,7 +192,12 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				initializationScope.lastVisibleFieldID = this.binding.id;
 
 				resolveAnnotations(initializationScope, this.annotations, this.binding);
-				
+				// check @Deprecated annotation presence
+				if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+						&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
+						&& initializationScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+					initializationScope.problemReporter().missingDeprecatedAnnotationForField(this);
+				}						
 				// the resolution of the initialization hasn't been done
 				if (this.initialization == null) {
 					this.binding.setConstant(Constant.NotAConstant);
@@ -241,7 +246,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							this.binding.setConstant(this.initialization.constant.castTo((this.binding.type.id << 4) + this.initialization.constant.typeID()));
 						}
 					} else {
-						this.binding.setConstant(NotAConstant);
+						this.binding.setConstant(Constant.NotAConstant);
 					}
 				}
 				// Resolve Javadoc comment if one is present

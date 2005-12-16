@@ -216,7 +216,7 @@ public abstract class Annotation extends Expression {
 		if(this.compilerAnnotation != null)
 			return this.resolvedType;		
 		
-		this.constant = NotAConstant;
+		this.constant = Constant.NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
 		if (typeBinding == null){	
@@ -238,7 +238,11 @@ public abstract class Annotation extends Expression {
 		MemberValuePair valueAttribute = null; // remember the first 'value' pair
 		MemberValuePair[] pairs;
 		int pairsLength = originalValuePairs.length;
-		System.arraycopy(originalValuePairs, 0, pairs = new MemberValuePair[pairsLength], 0, pairsLength);
+		if (pairsLength > 0) {
+			System.arraycopy(originalValuePairs, 0, pairs = new MemberValuePair[pairsLength], 0, pairsLength);
+		} else {
+			pairs = originalValuePairs;
+		}		
 		
 		nextMember: for (int i = 0, requiredLength = methods.length; i < requiredLength; i++) {
 			MethodBinding method = methods[i];

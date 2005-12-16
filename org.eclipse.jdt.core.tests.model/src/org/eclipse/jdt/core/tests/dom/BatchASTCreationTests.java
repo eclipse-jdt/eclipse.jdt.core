@@ -91,7 +91,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test069" };
+//		TESTS_NAMES = new String[] { "test056" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1225,10 +1225,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			}, "1.5");
 			ITypeBinding[] bindings = createTypeBindings(new String[0], new String[] {
-				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;"
+				"Lp/X<>.Y<Lp/X;:TK;Lp/X;:TV;>;"
 			}, project);
 			assertBindingsEqual(
-				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;",
+				"Lp/X<>.Y<Lp/X;:TK;Lp/X;:TV;>;",
 				bindings);
 		} finally {
 			deleteProject("BinaryProject");
@@ -1568,4 +1568,64 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			resolver.getFoundKeys());
 	}
 
+	/*
+	 * Ensures that unrequested compilation units are not resolved
+	 * (regression test for bug 114935 ASTParser.createASTs parses more CUs then required)
+	 */
+	public void test070() throws CoreException {
+		MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X extends /*start*/Y/*end*/ {\n" +
+			"}",
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  static final int CONST = 2 + 3;\n" +
+			"}",
+		});
+		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
+		TestASTRequestor requestor = new TestASTRequestor();
+		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
+		
+		// get the binding for Y
+		Type y = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
+		ITypeBinding yBinding = y.resolveBinding();
+		
+		// ensure that the fields for Y are not resolved
+		assertBindingsEqual("", yBinding.getDeclaredFields());
+	}
+
+	/*
+	 * Ensures that unrequested compilation units are not resolved
+	 * (regression test for bug 117018 IVariableBinding#getConstantValue() could be lazy resolved)
+	 */
+	public void test071() throws CoreException {
+		final MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X extends /*start*/Y/*end*/ {\n" +
+			"}",
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  static final int CONST = 2 + 3;\n" +
+			"}",
+		});
+		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
+		class Requestor extends TestASTRequestor {
+			Object constantValue = null;
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				super.acceptAST(source, ast);
+				Type y = (Type) findNode(ast, markerInfos[0]);
+				ITypeBinding typeBinding = y.resolveBinding();
+				IVariableBinding fieldBinding = typeBinding.getDeclaredFields()[0];
+				this.constantValue = fieldBinding.getConstantValue();
+			}
+		}
+		Requestor requestor = new Requestor();
+		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
+		
+		assertEquals("Unexpected constant value", new Integer(5), requestor.constantValue);
+	}
 }

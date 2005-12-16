@@ -11,9 +11,10 @@
 package org.eclipse.jdt.core.tests.performance;
 
 import java.lang.reflect.*;
+import java.text.NumberFormat;
+
 import org.eclipse.jdt.core.tests.junit.extension.PerformanceTestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.model.NameLookupTests2;
 import junit.framework.Test;
 
 /**
@@ -21,8 +22,10 @@ import junit.framework.Test;
  */
 public class AllPerformanceTests extends junit.framework.TestCase {
 
-	final static String LENGTH = System.getProperty("length", "0");
 	final static boolean ADD = System.getProperty("add", "false").equals("true");
+	final static String RUN_ID = System.getProperty("runID");
+	final static long MAX_MEM = 256L * 1024 * 1024;
+	final static long TOTAL_MEM = MAX_MEM;
 
 	/**
 	 * Define performance tests classes to be run.
@@ -33,79 +36,164 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			FullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceASTTests.class,
 			FullSourceWorkspaceTypeHierarchyTests.class,
-			NameLookupTests2.class
+			FullSourceWorkspaceModelTests.class,
+			FullSourceWorkspaceCompletionTests.class,
 		};
 	}
 
 	/**
 	 * Additional test class(es).
 	 * 
-	 * Classes put in this list will be run only if "additional" VM parameter is added
+	 * Classes put in this list will be run only if "add" VM parameter is added
 	 * while running JUnit test suite.
 	 * 
-	 * This parameter is an integer to specify position where this additional classes
-	 * list has to be added in main list {@link #getAllTestClasses()}.
-	 * 
-	 * For example, set VM parameter -Dadditional=2 will result to run following list of classes:
-	 *		- FullSourceWorkspaceSearchTests
-	 *		- FullSourceWorkspaceBuildTests
-	 *		- FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
-	 *		- FullSourceWorkspaceASTTests
-	 *		- FullSourceWorkspaceTypeHierarchyTests
-	 *		- NameLookupTests2
-	 *
 	 * @see #ADD
 	 */
 	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
-			FullSourceWorkspaceCompletionTests.class
 		};
 	}
 	
 	/**
 	 * Build test suite.
 	 * All classes suite method are called and bundle to main test suite.
-	 * 
-	 * @see FullSourceWorkspaceSearchTests
-	 * @see FullSourceWorkspaceBuildTests
-	 * @see FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
-	 * @see FullSourceWorkspaceASTTests
-	 * @see FullSourceWorkspaceTypeHierarchyTests
-	 * @see NameLookupTests2
 	 */
 	public static Test suite() {
 		PerformanceTestSuite perfSuite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		Class[] testSuites = getAllTestClasses();
 
-		// Reset subsets of tests (after having test classes loaded
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NUMBERS = null;
-		TestCase.TESTS_RANGE = null;
+		// Display warning if one of subset static fields is not null
+		// (this may modify tests run order and make stored results invalid)
+		StringBuffer buffer = null;
+		if (TestCase.TESTS_NAMES != null) {
+			buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- following subset is still defined and may alter tests order:\n");
+			buffer.append("		+ TESTS_NAMES = new String[] { ");
+			int length = TestCase.TESTS_NAMES.length;
+			for (int i=0; i<length; i++) {
+				if (i>0) buffer.append(',');
+				buffer.append('"');
+				buffer.append(TestCase.TESTS_NAMES[i]);
+				buffer.append('"');
+			}
+			buffer.append(" };\n");
+		}
+		if (TestCase.TESTS_PREFIX != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_PREFIX = ");
+			buffer.append('"');
+			buffer.append(TestCase.TESTS_PREFIX);
+			buffer.append('"');
+			buffer.append(";\n");
+		}
+		if (TestCase.TESTS_NUMBERS != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_NUMBERS = new int[] { ");
+			int length = TestCase.TESTS_NUMBERS.length;
+			for (int i=0; i<length; i++) {
+				if (i>0) buffer.append(',');
+				buffer.append(TestCase.TESTS_NUMBERS[i]);
+			}
+			buffer.append(" };\n");
+		}
+		if (TestCase.TESTS_RANGE != null) {
+			if (buffer == null) {
+				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer.append("	- following subset is still defined and may alter tests order:\n");
+			}
+			buffer.append("		+ TESTS_RANGE = new int[] { ");
+			buffer.append(TestCase.TESTS_RANGE[0]);
+			buffer.append(',');
+			buffer.append(TestCase.TESTS_RANGE[1]);
+			buffer.append(";\n");
+		}
+		
+		// Verify VM memory arguments: should be -Xmx256M -Xms256M
+		NumberFormat floatFormat = NumberFormat.getNumberInstance();
+		floatFormat.setMaximumFractionDigits(1);
+		long maxMem = Runtime.getRuntime().maxMemory(); // -Xmx
+		boolean tooMuch = false;
+		if (maxMem < (MAX_MEM*0.98) || (tooMuch = maxMem > (MAX_MEM*1.02))) {
+			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- ");
+			buffer.append(tooMuch ? "too much " : "not enough ");
+			buffer.append("max memory allocated (");
+			buffer.append(floatFormat.format(((maxMem/1024.0)/1024.0)));
+			buffer.append("M)!\n");
+			buffer.append("		=> -Xmx");
+			buffer.append(floatFormat.format(((MAX_MEM/1024.0)/1024.0)));
+			buffer.append("M should have been specified.\n");
+		}
+		long totalMem = Runtime.getRuntime().totalMemory(); // -Xms
+		tooMuch = false;
+		if (totalMem < (TOTAL_MEM*0.98)|| (tooMuch = totalMem > (TOTAL_MEM*1.02))) {
+			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer.append("	- ");
+			buffer.append(tooMuch ? "too much " : "not enough ");
+			buffer.append("total memory allocated (");
+			buffer.append(floatFormat.format(((totalMem/1024.0)/1024.0)));
+			buffer.append("M)!\n");
+			buffer.append("		=> -Xms");
+			buffer.append(floatFormat.format(((MAX_MEM/1024.0)/1024.0)));
+			buffer.append("M should have been specified.\n");
+		}
+		
+		// Display warning message if any
+		if (buffer != null) {
+			System.err.println(buffer.toString());
+		}
 
 		// Get test suites subset
 		int length = testSuites.length;
-		if (ADD) {
-			try {
-				Class[] complete = getAdditionalTestClasses();
-				int completeLength = complete.length;
-				Class[] newSuites = new Class[length+completeLength];
-				System.arraycopy(testSuites, 0, newSuites, 0, length);
-				System.arraycopy(complete, 0, newSuites, length, completeLength);
-				testSuites = newSuites;
-				length = testSuites.length;
-			} catch (NumberFormatException e1) {
-				// do nothing
+		if (RUN_ID != null) {
+			Class[] subSetSuites = new Class[length];
+			int count = 0;
+			for (int i = 0; i < length; i++) {
+				String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
+				if (RUN_ID.indexOf(name.charAt(0)) >= 0) {
+					subSetSuites[count++] = testSuites[i];
+				}
 			}
+			System.arraycopy(subSetSuites, 0, testSuites = new Class[count], 0, count);
+			length = count;
+		}
+
+		// Get test suites subset
+		if (ADD) {
+			Class[] complete = getAdditionalTestClasses();
+			int completeLength = complete.length;
+			Class[] newSuites = new Class[length+completeLength];
+			System.arraycopy(testSuites, 0, newSuites, 0, length);
+			System.arraycopy(complete, 0, newSuites, length, completeLength);
+			testSuites = newSuites;
+			length = testSuites.length;
 		}
 
 		// Get suite acronym
+		if (length == 0) {
+			System.err.println("There's no performances suites to run!!!");
+			return perfSuite;
+		}
 		String suitesAcronym = "";
-		for (int i = 0; i < length; i++) {
-			String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
-			if (name != null) {
-				suitesAcronym += name.substring(0, 1);
+		if (RUN_ID == null) {
+			for (int i = 0; i < length; i++) {
+				String name = FullSourceWorkspaceTests.suiteTypeShortName(testSuites[i]);
+				if (name != null) {
+					char firstChar = name.charAt(0);
+					if (suitesAcronym.indexOf(firstChar) >= 0) {
+						System.out.println("WARNING: Duplicate letter in RUN_ID for test suite: "+name);
+					}
+					suitesAcronym += firstChar;
+				}
 			}
+		} else {
+			suitesAcronym = RUN_ID;
 		}
 		FullSourceWorkspaceTests.RUN_ID = suitesAcronym; //.toLowerCase();
 		

@@ -15,22 +15,20 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -113,17 +111,17 @@ public class NameLookup implements SuffixConstants {
 	 * Allows working copies to take precedence over compilation units.
 	 */
 	protected HashMap typesInWorkingCopies;
-	
+
 	public long timeSpentInSeekTypesInSourcePackage = 0;
 	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
 		long start = -1;
 		if (VERBOSE) {
-			System.out.println(Thread.currentThread() + " BUILDING NameLoopkup");  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> pkg roots size: " + (packageFragmentRoots == null ? 0 : packageFragmentRoots.length));  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> pkgs size: " + (packageFragments == null ? 0 : packageFragments.size()));  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
+			Util.verbose(" BUILDING NameLoopkup");  //$NON-NLS-1$
+			Util.verbose(" -> pkg roots size: " + (packageFragmentRoots == null ? 0 : packageFragmentRoots.length));  //$NON-NLS-1$
+			Util.verbose(" -> pkgs size: " + (packageFragments == null ? 0 : packageFragments.size()));  //$NON-NLS-1$
+			Util.verbose(" -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
 			start = System.currentTimeMillis();
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
@@ -201,7 +199,7 @@ public class NameLookup implements SuffixConstants {
 		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
         if (VERBOSE) {
-            System.out.println(Thread.currentThread() + " -> spent: " + (start - System.currentTimeMillis()) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+            Util.verbose(" -> spent: " + (start - System.currentTimeMillis()) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
         }
 	}
 
@@ -483,34 +481,87 @@ public class NameLookup implements SuffixConstants {
 		return null;
 	}
 
+	/*
+	 * Find secondary type for a project.
+	 */
+	private IType findSecondaryType(String packageName, String typeName, IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) {
+		if (VERBOSE) {
+			Util.verbose("NameLookup FIND SECONDARY TYPES:"); //$NON-NLS-1$
+			Util.verbose(" -> pkg name: " + packageName);  //$NON-NLS-1$
+			Util.verbose(" -> type name: " + typeName);  //$NON-NLS-1$
+			Util.verbose(" -> projects: "+project.getElementName()); //$NON-NLS-1$
+		}
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		try {
+			IJavaProject javaProject = project;
+			HashMap secondaryTypePaths = manager.getSecondaryTypes(javaProject, waitForIndexes, monitor);
+			if (secondaryTypePaths.size() > 0) {
+				HashMap types = (HashMap) secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
+				if (types != null && types.size() > 0) {
+					IType type = (IType) types.get(typeName);
+					if (type != null) {
+						if (VERBOSE) {
+							Util.verbose(" -> type: " + type.getElementName());  //$NON-NLS-1$
+						}
+						return type;
+					}
+				}
+			}
+		}
+		catch (JavaModelException jme) {
+			// give up
+		}
+		return null;
+	}
+
 	/**
-	 * 
+	 * Find type considering secondary types but without waiting for indexes.
+	 * It means that secondary types may be not found under certain circumstances...
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118789"
 	 */
 	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags) {
+		return findType(typeName,
+			packageName,
+			partialMatch,
+			acceptFlags,
+			true/* consider secondary types */,
+			false/* do NOT wait for indexes */,
+			null);
+	}
+
+	/**
+	 * Find type. Considering secondary types and waiting for indexes depends on given corresponding parameters.
+	 */
+	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
 			// see if this is a known package and not a type
 			if (findPackageFragments(packageName + "." + typeName, false) != null) return null; //$NON-NLS-1$
 		}
+
+		// Look for concerned package fragments
 		JavaElementRequestor elementRequestor = new JavaElementRequestor();
 		seekPackageFragments(packageName, false, elementRequestor);
 		IPackageFragment[] packages= elementRequestor.getPackageFragments();
 
-		for (int i= 0, length= packages.length; i < length; i++) {
-			IType type= findType(typeName, packages[i], partialMatch, acceptFlags);
-			if (type != null)
+		// Try to find type in package fragments list
+		IType type = null;
+		int length= packages.length;
+		IJavaProject project = null;
+		for (int i= 0; i < length; i++) {
+			type = findType(typeName, packages[i], partialMatch, acceptFlags);
+			if (type != null) {
 				return type;
+			}
+			if (considerSecondaryTypes && project == null) {
+				project = packages[i].getJavaProject();
+			}
 		}
-		return null;
-	}
-	
-	private IType getMemberType(IType type, String name, int dot) {
-		while (dot != -1) {
-			int start = dot+1;
-			dot = name.indexOf('.', start);
-			String typeName = name.substring(start, dot == -1 ? name.length() : dot);
-			type = type.getType(typeName);
+
+		// If type was not found, try to find it as secondary in source folders
+		if (considerSecondaryTypes && project != null) {
+			type = findSecondaryType(packageName, typeName, project, waitForIndexes, monitor);
 		}
 		return type;
 	}
@@ -522,6 +573,37 @@ public class NameLookup implements SuffixConstants {
 	 * The domain of the search is bounded by the Java project from which 
 	 * this name lookup was obtained.
 	 *
+	 * @param name the name of the type to find
+	 * @param pkg the package to search
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *	only exact name matches qualify when <code>false</code>
+	 * @param acceptFlags a bit mask describing if classes, interfaces or both classes and interfaces
+	 * 	are desired results. If no flags are specified, all types are returned.
+	 * @param considerSecondaryTypes flag to know whether secondary types has to be considered
+	 * 	during the search
+	 *
+	 * @see #ACCEPT_CLASSES
+	 * @see #ACCEPT_INTERFACES
+	 * @see #ACCEPT_ENUMS
+	 * @see #ACCEPT_ANNOTATIONS
+	 */
+	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes) {
+		IType type = findType(name, pkg, partialMatch, acceptFlags);
+		if (type == null && considerSecondaryTypes) {
+			type = findSecondaryType(pkg.getElementName(), name, pkg.getJavaProject(), false, null);
+		}
+		return type;
+	}
+
+	/**
+	 * Returns the first type in the given package whose name
+	 * matches the given (unqualified) name, or <code>null</code> if none
+	 * exist. Specifying a <code>null</code> package will result in no matches.
+	 * The domain of the search is bounded by the Java project from which 
+	 * this name lookup was obtained.
+	 * <br>
+	 *	Note that this method does not find secondary types.
+	 * <br>
 	 * @param name the name of the type to find
 	 * @param pkg the package to search
 	 * @param partialMatch partial name matches qualify when <code>true</code>,
@@ -540,68 +622,7 @@ public class NameLookup implements SuffixConstants {
 		// Return first found (ignore duplicates).
 		SingleTypeRequestor typeRequestor = new SingleTypeRequestor();
 		seekTypes(name, pkg, partialMatch, acceptFlags, typeRequestor);
-		IType type = typeRequestor.getType();
-//		if (type == null)
-//			type = findSecondaryType(name, pkg, partialMatch, acceptFlags);
-		return type;
-	}
-
-	// TODO (kent) enable once index support is in
-	IType findSecondaryType(String typeName, IPackageFragment pkg, boolean partialMatch, final int acceptFlags) {
-		try {
-			final ArrayList paths = new ArrayList();
-			TypeNameRequestor nameRequestor = new TypeNameRequestor() {
-				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
-					if (enclosingTypeNames == null || enclosingTypeNames.length == 0) { // accept only top level types
-						int kind = modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation);
-						switch (kind) {
-							case ClassFileConstants.AccAnnotation:
-							case ClassFileConstants.AccAnnotation|ClassFileConstants.AccInterface:
-								if ((acceptFlags & ACCEPT_ANNOTATIONS) != 0) paths.add(path);
-								break;
-							case ClassFileConstants.AccEnum:
-								if ((acceptFlags & ACCEPT_ENUMS) != 0) paths.add(path);
-								break;
-							case ClassFileConstants.AccInterface:
-								if ((acceptFlags & ACCEPT_INTERFACES) != 0) paths.add(path);
-								break;
-							default:
-								if ((acceptFlags & ACCEPT_CLASSES) != 0) paths.add(path);
-								break;
-						}
-					}
-				}
-			};
-
-			int matchMode = partialMatch ? SearchPattern.R_PREFIX_MATCH : SearchPattern.R_EXACT_MATCH;
-			int matchRule = !partialMatch ? matchMode | SearchPattern.R_CASE_SENSITIVE : matchMode;
-			new SearchEngine().searchAllTypeNames(
-				pkg.getElementName().toCharArray(),
-				typeName.toCharArray(),
-				matchRule,
-				IJavaSearchConstants.TYPE,
-				SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg}, false),
-				nameRequestor,
-				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-				null);
-
-			if (!paths.isEmpty()) {
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				for (int i = 0, l = paths.size(); i < l; i++) {
-					String pathname = (String) paths.get(i);
-					if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(pathname)) {
-						IFile file = workspace.getRoot().getFile(new Path(pathname));
-						ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
-						return unit.getType(typeName);
-					}
-				}
-			}
-		} catch (JavaModelException e) {
-			// ignore
-		} catch (OperationCanceledException ignore) {
-			// ignore
-		}
-		return null;
+		return typeRequestor.getType();
 	}
 
 	/**
@@ -621,6 +642,9 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
+		return findType(name, partialMatch, acceptFlags, true/*consider secondary types*/, true/*wait for indexes*/, null);
+	}
+	public IType findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
 		int index= name.lastIndexOf('.');
 		String className= null, packageName= null;
 		if (index == -1) {
@@ -630,7 +654,17 @@ public class NameLookup implements SuffixConstants {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-		return findType(className, packageName, partialMatch, acceptFlags);
+		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, monitor);
+	}
+
+	private IType getMemberType(IType type, String name, int dot) {
+		while (dot != -1) {
+			int start = dot+1;
+			dot = name.indexOf('.', start);
+			String typeName = name.substring(start, dot == -1 ? name.length() : dot);
+			type = type.getType(typeName);
+		}
+		return type;
 	}
 
 	/**
@@ -681,9 +715,9 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
 /*		if (VERBOSE) {
-			System.out.println(Thread.currentThread() + " SEEKING PACKAGE FRAGMENTS");  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> name: " + name);  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> partial match:" + partialMatch);  //$NON-NLS-1$
+			Util.verbose(" SEEKING PACKAGE FRAGMENTS");  //$NON-NLS-1$
+			Util.verbose(" -> name: " + name);  //$NON-NLS-1$
+			Util.verbose(" -> partial match:" + partialMatch);  //$NON-NLS-1$
 		}
 */		if (partialMatch) {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
@@ -749,10 +783,10 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
 /*		if (VERBOSE) {
-			System.out.println(Thread.currentThread() + " SEEKING TYPES");  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> name: " + name);  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> pkg: " + ((JavaElement) pkg).toStringWithAncestors());  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> partial match:" + partialMatch);  //$NON-NLS-1$
+			Util.verbose(" SEEKING TYPES");  //$NON-NLS-1$
+			Util.verbose(" -> name: " + name);  //$NON-NLS-1$
+			Util.verbose(" -> pkg: " + ((JavaElement) pkg).toStringWithAncestors());  //$NON-NLS-1$
+			Util.verbose(" -> partial match:" + partialMatch);  //$NON-NLS-1$
 		}
 */
 		String matchName= partialMatch ? name.toLowerCase() : name;
@@ -810,37 +844,51 @@ public class NameLookup implements SuffixConstants {
 				return; // the package is not present
 			}
 			int length= classFiles.length;
-	
-			String unqualifiedName= name;
-			int index= name.lastIndexOf('$');
-			if (index != -1) {
-				//the type name of the inner type
-				unqualifiedName= Util.localTypeName(name, index, name.length());
-				// unqualifiedName is empty if the name ends with a '$' sign.
-				// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
-			}
-			String matchName= partialMatch ? name.toLowerCase() : name;
-			for (int i= 0; i < length; i++) {
-				if (requestor.isCanceled())
-					return;
-				IClassFile classFile= classFiles[i];
-				String elementName = classFile.getElementName();
-				if (partialMatch) elementName = elementName.toLowerCase();
-	
-				/**
-				 * Must use startWith because matchName will never have the 
-				 * extension ".class" and the elementName always will.
-				 */
-				if (elementName.startsWith(matchName)) {
-					IType type= null;
-					try {
-						type= classFile.getType();
-					} catch (JavaModelException npe) {
-						continue; // the classFile is not present
-					}
-					if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
-						if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
+			if (!partialMatch) {
+				// exact match
+				for (int i= 0; i < length; i++) {
+					if (requestor.isCanceled()) return;
+					ClassFile classFile= (ClassFile) classFiles[i];
+					if (name.equals(classFile.name)) { // ClassFile#name contains the name of the .class file without the .class extension
+						IType type = classFile.getType();
+						if (acceptType(type, acceptFlags, false/*not a source type*/)) {
 							requestor.acceptType(type);
+							break;  // since an exact match was requested, no other matching type can exist
+						}
+					}
+				}
+			} else {
+				String unqualifiedName = name;
+				int index = name.lastIndexOf('$');
+				if (index != -1) {
+					//the type name of the inner type
+					unqualifiedName = Util.localTypeName(name, index, name.length());
+					// unqualifiedName is empty if the name ends with a '$' sign.
+					// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
+				}
+				String matchName = name.toLowerCase();
+				for (int i = 0; i < length; i++) {
+					if (requestor.isCanceled())
+						return;
+					IClassFile classFile= classFiles[i];
+					String elementName = classFile.getElementName();
+					elementName = elementName.toLowerCase();
+		
+					/**
+					 * Must use startWith because matchName will never have the 
+					 * extension ".class" and the elementName always will.
+					 */
+					if (elementName.startsWith(matchName)) {
+						IType type= null;
+						try {
+							type = classFile.getType();
+						} catch (JavaModelException npe) {
+							continue; // the classFile is not present
+						}
+						if ((type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
+							if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
+								requestor.acceptType(type);
+						}
 					}
 				}
 			}

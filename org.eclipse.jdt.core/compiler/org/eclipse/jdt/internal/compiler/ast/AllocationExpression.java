@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class AllocationExpression extends Expression implements InvocationSite {
@@ -233,10 +234,10 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (this.type == null) {
 			// initialization of an enum constant
-			this.resolvedType = scope.enclosingSourceType();
+			this.resolvedType = scope.enclosingReceiverType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 			checkParameterizedAllocation: {
@@ -293,6 +294,13 @@ public class AllocationExpression extends Expression implements InvocationSite {
 				}
 			}
 			if (argHasError) {
+				if (this.resolvedType instanceof ReferenceBinding) {
+					// record a best guess, for clients who need hint about possible contructor match
+					TypeBinding[] pseudoArgs = new TypeBinding[length];
+					for (int i = length; --i >= 0;)
+						pseudoArgs[i] = argumentTypes[i] == null ? this.resolvedType : argumentTypes[i]; // replace args with errors with receiver
+					this.binding = scope.findMethod((ReferenceBinding) this.resolvedType, TypeConstants.INIT, pseudoArgs, this);
+				}
 				return this.resolvedType;
 			}
 		}

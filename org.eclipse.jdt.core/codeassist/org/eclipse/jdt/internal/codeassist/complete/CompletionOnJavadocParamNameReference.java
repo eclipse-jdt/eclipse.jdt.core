@@ -47,7 +47,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		output.append("<CompleteOnJavadocSingleNameReference:"); //$NON-NLS-1$
+		output.append("<CompletionOnJavadocParamNameReference:"); //$NON-NLS-1$
 		if (this.token != null) super.printExpression(indent, output);
 		return output.append('>');
 	}

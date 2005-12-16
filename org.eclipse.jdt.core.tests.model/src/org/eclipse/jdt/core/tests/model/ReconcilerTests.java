@@ -20,11 +20,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class ReconcilerTests extends ModifyingResourceTests {
 	
@@ -55,6 +58,32 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			super.acceptProblem(problem);
 		}		
 	}
+	
+	class ReconcileParticipant extends CompilationParticipant {
+		int astLevel;
+		boolean resolveBinding;
+		IJavaElementDelta delta;
+		org.eclipse.jdt.core.dom.CompilationUnit ast;
+		ReconcileParticipant() {
+			this(ICompilationUnit.NO_AST, false);
+		}
+		ReconcileParticipant(int astLevel, boolean resolveBinding) {
+			TestCompilationParticipant.PARTICIPANT = this;
+			this.astLevel = astLevel;
+			this.resolveBinding = resolveBinding;
+		}
+		public boolean isActive(IJavaProject project) {
+			return true;
+		}
+		public void reconcile(ReconcileContext context) {
+			this.delta = context.getDelta();
+			try {
+				this.ast = context.getAST(this.astLevel, this.resolveBinding);
+			} catch (JavaModelException e) {
+				assertNull("Unexpected exception", e);
+			}
+		}
+	}
 /**
  */
 public ReconcilerTests(String name) {
@@ -63,18 +92,32 @@ public ReconcilerTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-// TESTS_NAMES = new String[] { "testNoChanges1" };
-// Numbers of tests to run: "test<number>" will be run for each number of this array
-//TESTS_NUMBERS = new int[] { 13 };
-// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//TESTS_RANGE = new int[] { 16, -1 };
+//	TESTS_PREFIX = "testBug36032";
+// TESTS_NAMES = new String[] { "testTypeWithDollarName" };
+//	TESTS_NUMBERS = new int[] { 114338 };
+//	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(ReconcilerTests.class);
 }
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
+}
+// Expect no error as soon as indexing is finished
+protected void assertNoProblem(char[] source) throws InterruptedException, JavaModelException {
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	if (this.problemRequestor.problemCount > 0) {
+		// If errors then wait for indexes to finish
+		while (indexManager.awaitingJobsCount() > 0) {
+			Thread.sleep(100);
+		}
+		// Reconcile again to see if error goes away
+		this.problemRequestor.initialize(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		if (this.problemRequestor.problemCount > 0) {
+			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
+		}
+	}
 }
 protected void addClasspathEntries(IClasspathEntry[] entries, boolean enableForbiddenReferences) throws JavaModelException {
 	IJavaProject project = getJavaProject("Reconciler");
@@ -111,7 +154,9 @@ public void setUp() throws Exception {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+
+	// Create project with 1.4 compliance
+	IJavaProject project14 = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
@@ -123,10 +168,13 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
-	javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	project14.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	project14.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+
+	// Create project with 1.5 compliance
+	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
-		javaProject, 
+		project15, 
 		"lib15.jar", 
 		"lib15src.zip", 
 		new String[] {
@@ -158,7 +206,7 @@ public void setUpSuite() throws Exception {
 		}, 
 		JavaCore.VERSION_1_5
 	);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
@@ -184,6 +232,7 @@ void setWorkingCopyContents(String contents) throws JavaModelException {
  * Cleanup after the previous test.
  */
 public void tearDown() throws Exception {
+	TestCompilationParticipant.PARTICIPANT = null;
 	if (this.workingCopy != null) {
 		this.workingCopy.discardWorkingCopy();
 	}
@@ -490,7 +539,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /*
@@ -1721,7 +1770,7 @@ public void testNoChanges1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /**
@@ -1741,7 +1790,7 @@ public void testNoChanges2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
 /*
@@ -1777,6 +1826,176 @@ public void testRawUsage() throws CoreException {
 		if (otherCopy != null)
 			otherCopy.discardWorkingCopy();
 	}
+}
+/*
+ * Ensures that a reconcile participant is notified when a working copy is reconciled.
+ */
+public void testReconcileParticipant01() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected participant delta",
+		"[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"		bar()[+]: {}\n" + 
+		"		foo()[-]: {}",
+		participant.delta
+	);
+}
+/*
+ * Ensures that a reconcile participant is not notified if not participating.
+ */
+public void testReconcileParticipant02() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(){
+		public boolean isActive(IJavaProject project) {
+			return false;
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected participant delta",
+		"<null>",
+		participant.delta
+	);
+}
+/*
+ * Ensures that a reconcile participant is notified with the correct AST.
+ */
+public void testReconcileParticipant03() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertASTNodeEquals(
+		"Unexpected participant delta",
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"  public void bar(){\n" + 
+		"  }\n" + 
+		"}\n",
+		participant.ast
+	);
+}
+/*
+ * Ensures that the same AST as the one a reconcile participant requested is reported.
+ */
+public void testReconcileParticipant04() throws CoreException {
+	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    System.out.println()\n" +
+		"  }\n" +
+		"}"
+	);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
+	assertSame(
+		"Unexpected participant delta",
+		participant.ast,
+		ast
+	);
+}
+/*
+ * Ensures that a participant can fix an error during reconcile.
+ */
+public void testReconcileParticipant05() throws CoreException {
+	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+		public void reconcile(ReconcileContext context) {
+			try {
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public void bar() {\n" +
+					"  }\n" +
+					"}"
+				);
+				context.resetAST();
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"    toString()\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+}
+/*
+ * Ensures that a participant can introduce an error during reconcile.
+ */
+public void testReconcileParticipant06() throws CoreException {
+	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+		public void reconcile(ReconcileContext context) {
+			try {
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public void bar() {\n" +
+					"    toString()\n" +
+					"  }\n" +
+					"}"
+				);
+				context.resetAST();
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
+		"	toString()\n" + 
+		"	         ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
@@ -2160,6 +2379,36 @@ public void testTypeParameterWithBound() throws CoreException {
 	}
 }
 /*
+ * Ensures that a working copy with a type with a dollar name can be reconciled without errors.
+ * (regression test for bug 117121 Can't create class called A$B in eclipse)
+ */
+public void testTypeWithDollarName() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	try {
+		String contents =
+			"package p1;\n" +
+			"public class Y$Z {\n" +
+			"}";
+		createFile(
+			"/Reconciler/src/p1/Y$Z.java", 
+			contents
+		);
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y$Z.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteFile("/Reconciler/src/p1/Y$Z.java");
+	}
+}
+/*
  * Ensures that a varargs method can be referenced from another working copy.
  */
 public void testVarargs() throws CoreException {
@@ -2203,4 +2452,214 @@ public void testVarargs() throws CoreException {
 	}
 }
 
+/**
+ * Bug 114338:[javadoc] Reconciler reports wrong javadoc warning (missing return type)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114338"
+ *
+ */
+public void testBug114338() throws CoreException {
+	// Set initial CU content
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @return a\n" + 
+		"	 */\n" + 
+		"	boolean get() {\n" + 
+		"		return false;\n" + 
+		"	}\n" + 
+		"}");
+	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+
+	// Modify content
+	String contents =
+		"package p1;\n" +
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @return boolean\n" + 
+		"	 */\n" + 
+		"	boolean get() {\n" + 
+		"		return false;\n" + 
+		"	}\n" + 
+		"}";
+	setWorkingCopyContents(contents);
+	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+}
+
+/**
+ * Bug 36032:[plan] JavaProject.findType() fails to find second type in source file
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=36032"
+ *
+ */
+public void testBug36032a() throws CoreException, InterruptedException {
+	try {
+		// Resources creation
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		this.createFile(
+			"/P/Foo.java", 
+			"class SFoo { void foo() {} }\n"
+		);
+		this.createFile(
+			"/P/Test.java", 
+			source
+		);
+		
+		// Get compilation unit and reconcile it
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars);
+
+		// Add new secondary type
+		this.createFile(
+			"/P/Bar.java", 
+			"class SBar{ void bar() {} }\n"
+		);
+		source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"		new SBar().bar();\n" + 
+			"	}\n" + 
+			"}\n";
+		
+		// Reconcile with modified source
+		sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug36032b() throws CoreException, InterruptedException {
+	try {
+		// Resources creation
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"		new SBar().bar();\n" + 
+			"	}\n" + 
+			"}\n";
+		createFile(
+			"/P/Foo.java", 
+			"class SFoo { void foo() {} }\n"
+		);
+		createFile(
+			"/P/Test.java", 
+			source
+		);
+		createFile(
+			"/P/Bar.java", 
+			"class SBar{ void bar() {} }\n"
+		);
+		
+		// Get compilation unit and reconcile it
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars);
+
+		// Delete secondary type => should get a problem
+		waitUntilIndexesReady();
+		deleteFile("/P/Bar.java");
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertEquals("Working copy should not find secondary type 'Bar'!", 1, this.problemRequestor.problemCount);
+		assertProblems("Working copy should have problem!",
+			"----------\n" +
+			"1. ERROR in /P/Test.java (at line 4)\n" +
+			"	new SBar().bar();\n" +
+			"	    ^^^^\n" +
+			"SBar cannot be resolved to a type\n" +
+			"----------\n"
+		);
+
+		// Fix the problem
+		source = 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new SFoo().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars);
+	} finally {
+		deleteProject("P");
+	}
+}
+// Secondary types used through multiple projects
+public void testBug36032c() throws CoreException, InterruptedException {
+	try {
+		// Create first project
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P1/test");
+		createFile(
+			"/P1/test/Foo.java", 
+			"package test;\n" +
+			"class Secondary{ void foo() {} }\n"
+		);
+		createFile(
+			"/P1/test/Test1.java", 
+			"package test;\n" +
+			"public class Test1 {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Secondary().foo();\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+
+		// Create second project
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		String source = 
+			"package test;\n" +
+			"public class Test2 {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Secondary().foo();\n" + 
+			"	}\n" + 
+			"}\n";
+		createFolder("/P2/test");
+		createFile(
+			"/P2/test/Test2.java", 
+			source
+		);
+		
+		// Get compilation unit and reconcile it => expect no error
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy.getBuffer().setContents(source);
+		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 }

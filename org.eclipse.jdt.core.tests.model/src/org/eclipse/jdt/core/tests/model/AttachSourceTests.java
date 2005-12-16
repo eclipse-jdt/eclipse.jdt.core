@@ -136,7 +136,7 @@ protected void tearDown() throws Exception {
  */
 public void tearDownSuite() throws Exception {
 	this.deleteProject("AttachSourceTests");
-	super.tearDown();
+	super.tearDownSuite();
 }
 
 /**

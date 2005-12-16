@@ -15,6 +15,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 
 import junit.framework.Test;
 
@@ -32,7 +35,7 @@ public ClassFileTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "testGetChildrenForCategory01"};
+//	TESTS_NAMES = new String[] { "testWorkingCopy11"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -267,6 +270,38 @@ public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
 		type.getSuperInterfaceTypeSignatures());
 }
 
+/*
+ * Ensures that the parameter names of a binary method with source attached are correct.
+ */
+public void testParameterNames01() throws CoreException {
+	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	String[] parameterNames = method.getParameterNames();
+	assertStringsEqual(
+		"Unexpected parameter names", 
+		"key\n" + 
+		"value\n",
+		parameterNames);
+}
+
+/*
+ * Ensures that the parameter names of a binary method without source attached are correct.
+ */
+public void testParameterNames02() throws CoreException {
+	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
+	try {
+		attachSource(this.jarRoot, null, null);
+		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		String[] parameterNames = method.getParameterNames();
+		assertStringsEqual(
+			"Unexpected parameter names", 
+			"arg0\n" + 
+			"arg1\n",
+			parameterNames);
+	} finally {
+		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
+	}
+}
+
 /**
  * Ensure that the type parameter signatures of a binary type are correct.
  */
@@ -336,6 +371,38 @@ public void testParameterTypeSignatures6() throws JavaModelException {
 		"K:Ljava.lang.Object;\n" + 
 		"V:Ljava.lang.Object;\n",
 		method.getTypeParameterSignatures());
+}
+
+/*
+ * Ensures that the raw parameter names of a binary method with source attached are correct.
+ */
+public void testRawParameterNames01() throws CoreException {
+	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	String[] parameterNames = method.getRawParameterNames();
+	assertStringsEqual(
+		"Unexpected parameter names", 
+		"arg0\n" + 
+		"arg1\n",
+		parameterNames);
+}
+
+/*
+ * Ensures that the raw parameter names of a binary method without source attached are correct.
+ */
+public void testRawParameterNames02() throws CoreException {
+	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
+	try {
+		attachSource(this.jarRoot, null, null);
+		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		String[] parameterNames = method.getParameterNames();
+		assertStringsEqual(
+			"Unexpected parameter names", 
+			"arg0\n" + 
+			"arg1\n",
+			parameterNames);
+	} finally {
+		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
+	}
 }
 
 /*
@@ -572,7 +639,7 @@ public void testWorkingCopy08() throws CoreException {
 }
 
 /*
- * Ensures that types in a class file are hidden if the class file working copy is empty.
+ * Ensures that types in a class file are hidden when reconciling against if the class file working copy is empty.
  */
 public void testWorkingCopy09() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
@@ -634,4 +701,21 @@ public void testWorkingCopy10() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that types in a class file are not found by a search if the class file working copy is empty.
+ */
+public void testWorkingCopy11() throws CoreException {
+	IPackageFragment pkg = this.jarRoot.getPackageFragment("workingcopy");
+	IClassFile clazz = pkg.getClassFile("X.class");
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy.getBuffer().setContents(	"");
+	this.workingCopy.makeConsistent(null);
+	
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	AbstractJavaSearchTests.JavaSearchResultCollector requestor = new AbstractJavaSearchTests.JavaSearchResultCollector();
+	search("*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, requestor);
+	assertSearchResults(
+		"lib.jar workingcopy.Y",
+		requestor);
+}
 }

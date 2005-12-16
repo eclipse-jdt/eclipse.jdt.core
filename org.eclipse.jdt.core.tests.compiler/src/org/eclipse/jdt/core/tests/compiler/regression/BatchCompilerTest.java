@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -25,25 +24,17 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
-	
+
+	static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 27 };
+//	TESTS_RANGE = new int[] { 11, -1 };
+}	
 public BatchCompilerTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test035"));
-		return suite;
-	}
-	if (false) {
-		TestSuite suite = new TestSuite();
-		for (int i = 23; i < 27; i++) 
-		  suite.addTest(new BatchCompilerTest("test0" + String.valueOf(i)));
-		return suite;
-	}
-	return setupSuite(testClass());
-	// TODO find a way to reduce the number of command line tests to one per 
-	//      test run (aka do not add 1.3, 1.4, 1.5 supplementary level)
+	return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_5);
 }
 
 	/**
@@ -1468,70 +1459,68 @@ public void _test019(){
 		        true);
 		}
 		
-public void _test027(){
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"	OK1 ok1;\n" + 
-					"	OK2 ok2;\n" + 
-					"	Warn warn;\n" + 
-					"	KO ko;\n" + 
-			        "	Zork z;\n" + 
-					"}",
-					"OK1.java",
-					"/** */\n" + 
-					"public class OK1 {\n" + 
-					"	// empty\n" + 
-					"}",
-					"OK2.java",
-					"/** */\n" + 
-					"public class OK2 {\n" + 
-					"	// empty\n" + 
-					"}",
-					"p1/Warn.java",
-					"/** */\n" + 
-					"public class Warn {\n" + 
-					"	// empty\n" + 
-					"}",
-					"KO.java",
-					"/** */\n" + 
-					"public class KO {\n" + 
-					"	// empty\n" + 
-					"}",
-				},
-		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "-KO]" + File.pathSeparator
-		        + OUTPUT_DIR + File.separator + "p1[~Warn]\""
-		        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
-		        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-		        "[5 .class files generated]\n", 
-		        "----------\n" + 
-		        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
-		        " (at line 5)\n" + 
-		        "	Warn warn;\n" + 
-		        "	^^^^\n" + 
-		        "Discouraged access: Warn\n" + 
-		        "----------\n" + 
-		        "----------\n" + 
-		        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
-		        " (at line 6)\n" + 
-		        "	KO ko;\n" + 
-		        "	^^\n" + 
-		        "Access restriction: KO\n" + 
-		        "----------\n" + 
-		        "----------\n" + 
-		        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
-		        " (at line 7)\n" + 
-		        "	Zork z;\n" + 
-		        "	^^^^\n" + 
-		        "Zork cannot be resolved to a type\n" + 
-		        "----------\n" + 
-		        "3 problems (1 error, 2 warnings)",
-		        true);
-		}
+public void test027(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"	OK1 ok1;\n" + 
+			"	OK2 ok2;\n" + 
+			"	Warn warn;\n" + 
+			"	KO ko;\n" + 
+	        "	Zork z;\n" + 
+			"}",
+			"OK1.java",
+			"/** */\n" + 
+			"public class OK1 {\n" + 
+			"	// empty\n" + 
+			"}",
+			"OK2.java",
+			"/** */\n" + 
+			"public class OK2 {\n" + 
+			"	// empty\n" + 
+			"}",
+			"p1/Warn.java",
+			"/** */\n" + 
+			"public class Warn {\n" + 
+			"	// empty\n" + 
+			"}",
+			"KO.java",
+			"/** */\n" + 
+			"public class KO {\n" + 
+			"	// empty\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "-KO]" + File.pathSeparator
+        + OUTPUT_DIR + File.separator + "p1[~Warn]\""
+        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "[5 .class files generated]\n", 
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 5)\n" + 
+        "	Warn warn;\n" + 
+        "	^^^^\n" + 
+        "Discouraged access: Warn\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 6)\n" + 
+        "	KO ko;\n" + 
+        "	^^\n" + 
+        "Access restriction: KO\n" + 
+        "----------\n" + 
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 7)\n" + 
+        "	Zork z;\n" + 
+        "	^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
+        "3 problems (1 error, 2 warnings)",
+        true);
+}
 public void test028(){
 			this.runConformTest(
 				new String[] {
@@ -2049,6 +2038,50 @@ public void test035(){
 		System.setProperty("user.dir", javaUserDir);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=119108
+// \ in call to AccessRulesSet.getViolatedRestriction
+public void test036(){
+	this.runConformTest(
+		new String[] {
+			"src1/p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR + "/src1/p/X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -proceedOnError -referenceInfo" 
+        + " -d \"" + OUTPUT_DIR + "/bin1/\"",
+        "",
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"src2/Y.java",
+			"/** */\n" + 
+			"public class Y extends p.X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + File.separator + "bin1[~**/X]\""
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
+        "",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + 
+			"src2" + File.separator + "Y.java\n" + 
+		" (at line 2)\n" + 
+		"	public class Y extends p.X {\n" + 
+		"	                       ^^^\n" + 
+		"Discouraged access: X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+        false);
+}
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Reference extends Expression  {
@@ -70,7 +71,7 @@ public abstract void generatePostIncrement(BlockScope currentScope, CodeStream c
 
 public int nullStatus(FlowInfo flowInfo) {
 
-	if (this.constant != null && this.constant != NotAConstant)
+	if (this.constant != null && this.constant != Constant.NotAConstant)
 		return FlowInfo.NON_NULL; // constant expression cannot be null
 	
 	LocalVariableBinding local = localVariableBinding();

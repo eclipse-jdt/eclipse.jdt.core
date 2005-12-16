@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class TryStatement extends SubRoutineStatement {
@@ -470,14 +471,14 @@ public class TryStatement extends SubRoutineStatement {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);
-					this.returnAddressVariable.setConstant(NotAConstant); // not inlinable
+					this.returnAddressVariable.setConstant(Constant.NotAConstant); // not inlinable
 				}
 				this.subRoutineStartLabel = new Label();
 	
 				this.anyExceptionVariable =
 					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
 				finallyScope.addLocalVariable(this.anyExceptionVariable);
-				this.anyExceptionVariable.setConstant(NotAConstant); // not inlinable
+				this.anyExceptionVariable.setConstant(Constant.NotAConstant); // not inlinable
 	
 				if (!methodScope.isInsideInitializer()) {
 					MethodBinding methodBinding =
@@ -492,7 +493,7 @@ public class TryStatement extends SubRoutineStatement {
 									ClassFileConstants.AccDefault,
 									false);
 							finallyScope.addLocalVariable(this.secretReturnValue);
-							this.secretReturnValue.setConstant(NotAConstant); // not inlinable
+							this.secretReturnValue.setConstant(Constant.NotAConstant); // not inlinable
 						}
 					}
 				}

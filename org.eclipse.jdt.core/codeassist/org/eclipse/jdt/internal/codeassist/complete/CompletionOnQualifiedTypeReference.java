@@ -28,10 +28,20 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
+	public static final int K_TYPE = 0;
+	public static final int K_CLASS = 1;
+	public static final int K_INTERFACE = 2;
+	public static final int K_EXCEPTION = 3;
+	
+	private int kind = K_TYPE;
 	public char[] completionIdentifier;
 public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
+	this(previousIdentifiers, completionIdentifier, positions, K_TYPE);
+}
+public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, int kind) {
 	super(previousIdentifiers, positions);
 	this.completionIdentifier = completionIdentifier;
+	this.kind = kind;
 }
 public void aboutToResolve(Scope scope) {
 	getTypeBinding(scope);
@@ -52,9 +62,32 @@ protected TypeBinding getTypeBinding(Scope scope) {
 
 	throw new CompletionNodeFound(this, binding, scope);
 }
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public boolean isClass(){
+	return this.kind == K_CLASS;
+}
 
-	output.append("<CompleteOnType:"); //$NON-NLS-1$
+public boolean isInterface(){
+	return this.kind == K_INTERFACE;
+}
+
+public boolean isException(){
+	return this.kind == K_EXCEPTION;
+}
+public StringBuffer printExpression(int indent, StringBuffer output) {
+	switch (this.kind) {
+		case K_CLASS :
+			output.append("<CompleteOnClass:");//$NON-NLS-1$
+			break;
+		case K_INTERFACE :
+			output.append("<CompleteOnInterface:");//$NON-NLS-1$
+			break;
+		case K_EXCEPTION :
+			output.append("<CompleteOnException:");//$NON-NLS-1$
+			break;
+		default :
+			output.append("<CompleteOnType:");//$NON-NLS-1$
+			break;
+	}
 	for (int i = 0; i < tokens.length; i++) {
 		output.append(tokens[i]);
 		output.append('.'); 

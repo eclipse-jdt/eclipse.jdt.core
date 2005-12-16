@@ -8636,4 +8636,581 @@ public void test0152(){
 			expectedReplacedSource,
 	"diet ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0153(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      break lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    break <CompleteOnLabel:lab>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0154(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      break lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      break <CompleteOnLabel:lab>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0155(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    continue <CompleteOnLabel:lab>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0156(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      continue <CompleteOnLabel:lab>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0157(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) foo();\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      class X {\n" + 
+		"        X() {\n" + 
+		"          super();\n" + 
+		"        }\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"      continue <CompleteOnLabel:lab>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0158(){
+	String str =
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) {\n" + 
+ 		"            continue lab\n" + 
+ 		"          }\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "lab";
+	expectedReplacedSource = "lab";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      class X {\n" + 
+		"        X() {\n" + 
+		"        }\n" + 
+		"        void foo() {\n" + 
+		"          {\n" + 
+		"            continue <CompleteOnLabel:lab>;\n" + 
+		"          }\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0159() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ\";\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ\"";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0160() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \\u0022ZZ\\u005AZZ\\u0022;\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZ\\u005A";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\\u0022ZZ\\u005AZZ\\u0022";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0161() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"AAAAA\" + \"ZZZZZ\";\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = (\"AAAAA\" + <CompletionOnString:\"ZZZ\">);\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ\"";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0162() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ\n" +
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0163() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"ZZZZZ"; 
+
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"ZZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0164() {
+
+	String str = 
+		"public class X {\n" +
+		"	String s = \"\\u005AZZZZ\\u000D\\u0022" +
+		"}\n"; 
+
+	String completeBehind = "\\u005AZZ";
+	String expectedCompletionNodeToString = "<CompletionOnString:\"ZZZ\">";
+	String completionIdentifier = "ZZZ";
+	String expectedUnitDisplayString = 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"ZZZ\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"\\u005AZZZZ";
+	String testName = "<complete inside a string literal>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

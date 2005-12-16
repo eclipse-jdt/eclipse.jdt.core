@@ -1351,26 +1351,27 @@ public void test37() {
 		"}													\n"; 
 
 	String completeBehind = "IOEx";
-	String expectedCompletionNodeToString = NONE;
-	String completionIdentifier = NONE;
-	String expectedUnitDisplayString = "";
-	String expectedReplacedSource = NONE;
+	String expectedCompletionNodeToString = "<CompletionOnString:\"IOEx\">";
+	String completionIdentifier = "IOEx";
+	String expectedUnitDisplayString = 
+		"import java.io.*;\n" + 
+		"public class X {\n" + 
+		"  String s = <CompletionOnString:\"IOEx\">;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "\"IOException\"";
 	String testName = "<complete inside a string literal>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
-	try{
-		this.checkDietParse(
-			str.toCharArray(), 
-			cursorLocation, 
-			expectedCompletionNodeToString,
-			expectedUnitDisplayString,
-			completionIdentifier,
-			expectedReplacedSource,
-			testName);
-		assertTrue("failed to detect invalid cursor location", false);		
-	} catch(InvalidCursorLocation e){
-		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_STRING);
-	}	
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
 }
 /*
  * Invalid completion inside a number literal

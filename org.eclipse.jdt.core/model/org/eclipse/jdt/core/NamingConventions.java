@@ -23,14 +23,14 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
  * <p>
  * The possible options are :
  * <ul>
- * <li>CODEASSIST_FIELD_PREFIXES : Define the Prefixes for Field Name.</li>
- * <li>CODEASSIST_STATIC_FIELD_PREFIXES : Define the Prefixes for Static Field Name.</li>
- * <li>CODEASSIST_LOCAL_PREFIXES : Define the Prefixes for Local Variable Name.</li>
- * <li>CODEASSIST_ARGUMENT_PREFIXES : Define the Prefixes for Argument Name.</li>
- * <li>CODEASSIST_FIELD_SUFFIXES : Define the Suffixes for Field Name.</li>
- * <li>CODEASSIST_STATIC_FIELD_SUFFIXES : Define the Suffixes for Static Field Name.</li>
- * <li>CODEASSIST_LOCAL_SUFFIXES : Define the Suffixes for Local Variable Name.</li>
- * <li>CODEASSIST_ARGUMENT_SUFFIXES : Define the Suffixes for Argument Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_FIELD_PREFIXES} : Define the Prefixes for Field Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} : Define the Prefixes for Static Field Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} : Define the Prefixes for Local Variable Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} : Define the Prefixes for Argument Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} : Define the Suffixes for Field Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} : Define the Suffixes for Static Field Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES} : Define the Suffixes for Local Variable Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES} : Define the Suffixes for Argument Name.</li>
  * </ul>
  * </p>
  * <p>
@@ -282,8 +282,8 @@ public final class NamingConventions {
 	 * name <code>preArgsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and
-	 * CODEASSIST_ARGUMENT_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} and
+	 *  {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -313,8 +313,8 @@ public final class NamingConventions {
 	 * name <code>preArgsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and
-	 * CODEASSIST_ARGUMENT_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} and
+	 *  {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -340,9 +340,9 @@ public final class NamingConventions {
 	 * name <code>preFieldsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options : {@link JavaCore#CODEASSIST_FIELD_PREFIXES} } , 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -376,9 +376,9 @@ public final class NamingConventions {
 	 * name <code>preFieldsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -406,8 +406,8 @@ public final class NamingConventions {
 	 * name <code>preLocalsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and 
-	 * CODEASSIST_LOCAL_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and 
+	 *  {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -437,8 +437,8 @@ public final class NamingConventions {
 	 * name <code>preLocalsuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and 
-	 * CODEASSIST_LOCAL_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and 
+	 *  {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -465,8 +465,8 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and 
-	 * CODEASSIST_ARGUMENT_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} and 
+	 *  {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -506,8 +506,8 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and 
-	 * CODEASSIST_ARGUMENT_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} and 
+	 *  {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -543,9 +543,9 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES and for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} and for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -589,9 +589,9 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES and for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} and for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -632,8 +632,8 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and
-	 * CODEASSIST_LOCAL_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and
+	 *  {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -673,8 +673,8 @@ public final class NamingConventions {
 	 * and <code>name</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and
-	 * CODEASSIST_LOCAL_SUFFIXES.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and
+	 *  {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -711,9 +711,9 @@ public final class NamingConventions {
 	 * for boolean field or <code>getPreFieldNamesuf</code> for others.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -763,9 +763,9 @@ public final class NamingConventions {
 	 * for boolean field or <code>getPreFieldNamesuf</code> for others.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -803,9 +803,9 @@ public final class NamingConventions {
 	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
@@ -859,9 +859,9 @@ public final class NamingConventions {
 	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.
 	 * </p>
 	 * <p>
-	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
-	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
-	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.
+	 * This method is affected by the following JavaCore options :  {@link JavaCore#CODEASSIST_FIELD_PREFIXES}, 
+	 *  {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} for instance field and  {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES},
+	 *  {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} for static field.
 	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.

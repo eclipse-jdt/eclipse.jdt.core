@@ -13,13 +13,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -34,40 +28,17 @@ public class TokenScanner {
 	public static final int DOCUMENT_ERROR= 20003;
 	
 	private final IScanner scanner;
-	private final IDocument document;
 	private final int endPosition;
 	
 	/**
 	 * Creates a TokenScanner
-	 * @param scanner The scanner to be wrapped. The scanner has to support line information
-	 * if the comment position methods are used.
+	 * @param scanner The scanner to be wrapped
 	 */
 	public TokenScanner(IScanner scanner) {
-		this(scanner, null);
-	}
-	
-	/**
-	 * Creates a TokenScanner
-	 * @param scanner The scanner to be wrapped
-	 * @param document The document used for line information if specified
-	 */
-	public TokenScanner(IScanner scanner, IDocument document) {
 		this.scanner= scanner;
 		this.endPosition= this.scanner.getSource().length - 1;
-		this.document= document;
 	}
-	
-	/**
-	 * Creates a TokenScanner
-	 * @param document The textbuffer to create the scanner on
-	 */
-	public TokenScanner(IDocument document) {
-		this.scanner= ToolFactory.createScanner(true, false, false, false);
-		this.scanner.setSource(document.get().toCharArray());
-		this.document= document;
-		this.endPosition= this.scanner.getSource().length - 1;
-	}		
-		
+			
 	/**
 	 * Returns the wrapped scanner
 	 * @return IScanner
@@ -126,26 +97,7 @@ public class TokenScanner {
 		} while (ignoreComments && isComment(curr));
 		return curr;
 	}
-	
-	/**
-	 * Reads the next token.
-	 * @param ignoreComments If set, comments will be overread.
-	 * @return Return the token id.
-	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
-	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
-	 */
-	private int readNextWithEOF(boolean ignoreComments) throws CoreException {
-		int curr= 0;
-		do {
-			try {
-				curr= this.scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e));
-			}
-		} while (ignoreComments && isComment(curr));
-		return curr;
-	}	
-	
+		
 	/**
 	 * Reads the next token from the given offset.
 	 * @param offset The offset to start reading from.
@@ -254,148 +206,6 @@ public class TokenScanner {
 		}
 		return res;
 	}
-	
-	/**
-	 * Evaluates the start offset of comments directly ahead of a token specified by its start offset
-	 * 
-	 * @param lastPos An offset to before the node start offset. Can be 0 but better is the end location of the previous node. 
-	 * @param nodeStart Start offset of the node to find the comments for.
-	 * @return Returns the start offset of comments directly ahead of a token.
-	 * @exception CoreException Thrown when a lexical error was detected while scanning (code LEXICAL_ERROR)
-	 */		
-	public int getTokenCommentStart(int lastPos, int nodeStart) throws CoreException {
-		setOffset(lastPos);
-
-		int prevEndPos= lastPos;
-		int prevEndLine= prevEndPos > 0 ? getLineOfOffset(prevEndPos - 1) : 0;
-		int nodeLine= getLineOfOffset(nodeStart);
-		
-		int res= -1;
-
-		int curr= readNextWithEOF(false);
-		int currStartPos= getCurrentStartOffset();
-		int currStartLine= getLineOfOffset(currStartPos);
-		while (curr != ITerminalSymbols.TokenNameEOF && nodeStart > currStartPos) {
-			if (TokenScanner.isComment(curr)) {
-				int linesDifference= currStartLine - prevEndLine;
-				if ((linesDifference > 1) || (res == -1 && (linesDifference != 0 || nodeLine == currStartLine))) {
-					res= currStartPos; // begin new
-				}
-			} else {
-				res= -1;
-			}
-			
-			if (curr == ITerminalSymbols.TokenNameCOMMENT_LINE) {
-				prevEndLine= currStartLine;
-			} else {
-				prevEndLine= getLineOfOffset(getCurrentEndOffset() - 1);
-			}					
-			curr= readNextWithEOF(false);
-			currStartPos= getCurrentStartOffset();
-			currStartLine= getLineOfOffset(currStartPos);
-		}
-		if (res == -1 || curr == ITerminalSymbols.TokenNameEOF) {
-			return nodeStart;
-		}
-		if (currStartLine - prevEndLine > 1) {
-			return nodeStart;
-		}			
-		return res;
-	}
-	
-	/**
-	 * Looks for comments after a node and returns the end position of the comment still belonging to the node.
-	 * @param nodeEnd The end position of the node
-	 * @param nextTokenStart The start positoion of the next node. Optional, can be -1
-	 * the line information shoould be taken from the scanner object
-	 * @return Returns returns the end position of the comment still belonging to the node.
-	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
-	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
-	 */		
-	public int getTokenCommentEnd(int nodeEnd, int nextTokenStart) throws CoreException {
-		// assign comments to the previous comments as long they are all on the same line as the
-		// node end position or if they are on the next line but there is a separation from the next
-		// node
-		// } //aa
-		// // aa
-		//
-		// // bb
-		// public void b...
-		//
-		// } /* cc */ /*
-		// cc/*
-		// /*dd*/
-		// public void d...
-		
-		int prevEndLine= getLineOfOffset(nodeEnd - 1);
-		int prevEndPos= nodeEnd;
-		int res= nodeEnd;
-		boolean sameLineComment= true;
-		
-		setOffset(nodeEnd);
-		
-		
-		int curr= readNextWithEOF(false);
-		while (curr == ITerminalSymbols.TokenNameCOMMENT_LINE || curr == ITerminalSymbols.TokenNameCOMMENT_BLOCK) {
-			int currStartLine= getLineOfOffset(getCurrentStartOffset());
-			int linesDifference= currStartLine - prevEndLine;
-
-			if (linesDifference > 1) {
-				return prevEndPos; // separated comments
-			}
-
-			if (curr == ITerminalSymbols.TokenNameCOMMENT_LINE) {
-				prevEndPos= getLineEnd(currStartLine);
-				prevEndLine= currStartLine;
-			} else {
-				prevEndPos= getCurrentEndOffset();
-				prevEndLine= getLineOfOffset(prevEndPos - 1);
-			}
-			if (sameLineComment) {
-				if (linesDifference == 0) {
-					res= prevEndPos;
-				} else {
-					sameLineComment= false;
-				}
-			}
-			curr= readNextWithEOF(false);
-		}
-		if (curr == ITerminalSymbols.TokenNameEOF) {
-			return prevEndPos;
-		}
-		int currStartLine= getLineOfOffset(getCurrentStartOffset());
-		int linesDifference= currStartLine - prevEndLine;
-		if (linesDifference > 1) {
-			return prevEndPos; // separated comments
-		}
-		return res;
-	}
-	
-	private int getLineOfOffset(int offset) throws CoreException {
-		if (this.document != null) {
-			try {
-				return this.document.getLineOfOffset(offset);
-			} catch (BadLocationException e) {
-				String message= "Illegal offset: " + offset; //$NON-NLS-1$
-				throw new CoreException(createError(DOCUMENT_ERROR, message, e));
-			}
-		}
-		return getScanner().getLineNumber(offset);
-	}
-	
-	private int getLineEnd(int line) throws CoreException {
-		if (this.document != null) {
-			try {
-				IRegion region= this.document.getLineInformation(line);
-				return region.getOffset() + region.getLength();
-			} catch (BadLocationException e) {
-				String message= "Illegal line: " + line; //$NON-NLS-1$
-				throw new CoreException(createError(DOCUMENT_ERROR, message, e));
-			}
-		}
-		return getScanner().getLineEnd(line);
-	}			
-	
 		
 	public static boolean isComment(int token) {
 		return token == ITerminalSymbols.TokenNameCOMMENT_BLOCK || token == ITerminalSymbols.TokenNameCOMMENT_JAVADOC 

@@ -1012,9 +1012,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
  */
 public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
-	// Null string not allowed, empty string only allowed for Package seach (default package)
-	if (stringPattern == null || stringPattern.length() == 0 && searchFor != IJavaSearchConstants.PACKAGE) 
-		return null;
+	if (stringPattern == null || stringPattern.length() == 0 && searchFor != IJavaSearchConstants.PACKAGE) return null;
 
 	if ((matchRule = validateMatchRule(stringPattern, matchRule)) == -1) {
 		return null;

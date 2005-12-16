@@ -422,6 +422,7 @@ public class Tests extends TestCase {
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
 			suite.addTest(Java50Tests.suite());
             suite.addTest(PackageInfoTest.suite());
+			suite.addTest(ParticipantBuildTests.suite());
         }
 
 		return suite;

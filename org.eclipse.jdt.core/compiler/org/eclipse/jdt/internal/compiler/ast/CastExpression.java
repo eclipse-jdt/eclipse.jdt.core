@@ -271,9 +271,7 @@ public class CastExpression extends Expression {
 		}
 		if (match != null && (
 				castType.isBoundParameterizedType() 
-				|| castType.isGenericType() 
-				|| 	expressionType.isBoundParameterizedType() 
-				|| expressionType.isGenericType())) {
+				|| 	expressionType.isBoundParameterizedType())) {
 			
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 
@@ -283,15 +281,14 @@ public class CastExpression extends Expression {
 				return true;
 			}
 			if ((castType.tagBits & TagBits.HasDirectWildcard) == 0) {
-				if ((!match.isParameterizedType() && !match.isGenericType())
-						|| expressionType.isRawType()) {
+				if (!match.isParameterizedType() || expressionType.isRawType()) {
 					this.bits |= UnsafeCast;
 					return true;
 				}
 			}
 		} else if (isNarrowing) {
 			TypeBinding leafType = castType.leafComponentType();
-			if (expressionType.id == T_JavaLangObject && castType.isArrayType() && (leafType.isBoundParameterizedType() || leafType.isGenericType())) {
+			if (expressionType.id == T_JavaLangObject && castType.isArrayType() && leafType.isBoundParameterizedType()) {
 				this.bits |= UnsafeCast;
 				return true;
 			}
@@ -320,7 +317,7 @@ public class CastExpression extends Expression {
 	
 		int pc = codeStream.position;
 		boolean needRuntimeCheckcast = (this.bits & GenerateCheckcast) != 0;
-		if (constant != NotAConstant) {
+		if (constant != Constant.NotAConstant) {
 			if (valueRequired || needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
@@ -339,7 +336,8 @@ public class CastExpression extends Expression {
 			currentScope,
 			codeStream,
 			valueRequired || needRuntimeCheckcast);
-		if (needRuntimeCheckcast) {
+		if (needRuntimeCheckcast 
+				&& this.expression.generatedType(currentScope) != this.resolvedType) { // no need to issue a checkcast if already done as genericCast
 			codeStream.checkcast(this.resolvedType);
 			if (valueRequired) {
 				codeStream.generateImplicitConversion(implicitConversion);
@@ -381,7 +379,7 @@ public class CastExpression extends Expression {
 			case T_JavaLangBoolean :
 				return this.expression.optimizedBooleanConstant();
 		}
-		return NotAConstant;
+		return Constant.NotAConstant;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

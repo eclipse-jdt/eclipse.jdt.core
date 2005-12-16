@@ -146,6 +146,8 @@ public class CompilationUnitDeclaration
 				cleanUp(type.memberTypes[i]);
 			}
 		}
+		if (type.binding != null && type.binding.isAnnotationType())
+			compilationResult.declaresAnnotations = true;
 		if (type.binding != null) {
 			// null out the type's scope backpointers
 			type.binding.scope = null;

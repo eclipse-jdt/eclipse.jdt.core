@@ -11,11 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -169,6 +164,9 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 	}
 	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
 	return ((IType)primaryParent).getMethod(this.name, this.parameterTypes);
+}
+public String[] getRawParameterNames() throws JavaModelException {
+	return getParameterNames();
 }
 /**
  * @see IMethod

@@ -51,8 +51,8 @@ public class AssertStatement extends Statement {
 		preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 
 		Constant cst = this.assertExpression.optimizedBooleanConstant();		
-		boolean isOptimizedTrueAssertion = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isOptimizedFalseAssertion = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		FlowInfo assertInfo = flowInfo.copy();
 		if (isOptimizedTrueAssertion) {

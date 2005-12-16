@@ -253,7 +253,16 @@ public Member getOuterMostLocalContext() {
 public ISourceRange getJavadocRange() throws JavaModelException {
 	ISourceRange range= this.getSourceRange();
 	if (range == null) return null;
-	IBuffer buf= this.isBinary() ? this.getClassFile().getBuffer() : this.getCompilationUnit().getBuffer();
+	IBuffer buf= null;
+	if (this.isBinary()) {
+		buf = this.getClassFile().getBuffer();
+	} else {
+		ICompilationUnit compilationUnit = this.getCompilationUnit();
+		if (!compilationUnit.isConsistent()) {
+			return null;
+		}
+		buf = compilationUnit.getBuffer();
+	}
 	final int start= range.getOffset();
 	final int length= range.getLength();
 	if (length > 0 && buf.getChar(start) == '/') {

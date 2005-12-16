@@ -3068,6 +3068,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				if (!wasACase) {
 					this.scribe.printNewLine();
 				}
+				this.scribe.printComment();
 			}
 		}		
 		

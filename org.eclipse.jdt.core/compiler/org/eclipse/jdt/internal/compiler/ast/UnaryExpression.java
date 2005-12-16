@@ -117,7 +117,7 @@ public class UnaryExpression extends OperatorExpression {
 				break;
 			case MINUS :
 				// - <num>
-				if (this.constant != NotAConstant) {
+				if (this.constant != Constant.NotAConstant) {
 					if (valueRequired) {
 						switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4){ /* runtime */
 							case T_int :
@@ -210,7 +210,7 @@ public class UnaryExpression extends OperatorExpression {
 		if ((expressionIsCast = this.expression instanceof CastExpression) == true) this.expression.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding expressionType = this.expression.resolveType(scope);
 		if (expressionType == null) {
-			this.constant = NotAConstant;
+			this.constant = Constant.NotAConstant;
 			return null;
 		}
 		int expressionTypeID = expressionType.id;
@@ -222,7 +222,7 @@ public class UnaryExpression extends OperatorExpression {
 			}
 		}		
 		if (expressionTypeID > 15) {
-			this.constant = NotAConstant;
+			this.constant = Constant.NotAConstant;
 			scope.problemReporter().invalidOperator(this, expressionType);
 			return null;
 		}

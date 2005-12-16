@@ -54,17 +54,42 @@
  *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING
  *                                 COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING
+ *     IBM Corporation - added the following constants:
+ *                                 TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -72,7 +97,6 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -866,6 +890,24 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK= PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
 	
+	// TODO (olivier) remove warning for name change before 3.2 release
+	/**
+	 * Possible  configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 * @deprecated Use TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC instead
+	 */
+	public static final String CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".codeAssist.timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
+
+	/**
+	 * Possible  configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
+
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -1046,6 +1088,16 @@ public final class JavaCore extends Plugin {
 	public static final String NEVER = "never"; //$NON-NLS-1$
 
 	/**
+	 * Value of the content-type for Java source files. Use this value to retrieve the Java content type
+	 * from the content type manager, and to add new Java-like extensions to this content type.
+	 * 
+	 * @see org.eclipse.core.runtime.content.IContentTypeManager#getContentType(String)
+	 * @see #getJavaLikeExtensions()
+	 * @since 3.2
+	 */
+	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
+
+	/**
 	 * Creates the Java core plug-in.
 	 * <p>
 	 * The plug-in instance is created automatically by the 
@@ -1057,19 +1109,6 @@ public final class JavaCore extends Plugin {
 	public JavaCore() {
 		super();
 		JAVA_CORE_PLUGIN = this;
-	}
-
-	/**
-	 * Add a compilation participant listener dynamically.  It is not necessary
-	 * to call this for listeners registered with the compilationParticipants
-	 * extension point.
-	 * 
-	 * @param icp the listener
-	 * @param eventMask the set of events for which the listener will be notified,
-	 * built by ORing together values from CompilationParticipantEvent.
-	 */
-	public static void addCompilationParticipant(ICompilationParticipant icp, int eventMask) {
-		JavaModelManager.getJavaModelManager().getCompilationParticipants().add(icp, eventMask);
 	}
 
 	/**
@@ -1620,28 +1659,6 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Returns an immutable list containing the subset of registered
-	 * listeners that have requested notification of at least one of
-	 * the events in the flags mask.
-	 * The first time this is called, it loads listeners from plugins,
-	 * which may cause plugins to be loaded.  
-	 * 
-	 * <p>
-	 * Note that a deadlock situation can occur if a plugin's <code>start()</code> 
-	 * method blocks on a thread that calls <code>getCompilationParticipants()</code>.  
-	 * See <code>JavaModelManager.CompilationParticipants.getCompilationParticipants()</code>
-	 * for a complete description of the circumstances under which this deadlock can occur.
-	 * 
-	 * @param eventMask an ORed combination of values from ICompilationParticipant.
-	 * @param project the java project that will the participants will operate against
-	 * @return an immutable list of ICompilationParticipant.
-	 * @see JavaModelManager.CompilationParticipants#getCompilationParticipants
-	 */
-	public static List getCompilationParticipants(int eventMask, IJavaProject project) {
-		return JavaModelManager.getJavaModelManager().getCompilationParticipants().getCompilationParticipants(eventMask, project);
-	}
-	
-	/**
 	 * Returns a table of all known configurable options with their default values.
 	 * These options allow to configure the behaviour of the underlying components.
 	 * The client may safely use the result as a template that they can modify and
@@ -2076,7 +2093,7 @@ public final class JavaCore extends Plugin {
 	 *    Set the minimum visibility level for Javadoc tag problems. Below this level problems will be ignored.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"
 	 *     - possible values:   { "public", "protected", "default", "private" }
-	 *     - default:           "private"
+	 *     - default:           "public"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags
 	 *    When enabled, the compiler will signal unbound or unexpected reference tags in Javadoc.
@@ -2087,7 +2104,7 @@ public final class JavaCore extends Plugin {
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
 	 *     - possible values:   { "disabled", "enabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags with Deprecated References
 	 *    Specify whether the compiler will report deprecated references used in Javadoc tags.
@@ -2095,7 +2112,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Tags with Not Visible References
 	 *    Specify whether the compiler will report non-visible references used in Javadoc tags.
@@ -2103,7 +2120,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Tags
 	 *    This is the generic control for the severity of Javadoc missing tag problems.
@@ -2119,7 +2136,7 @@ public final class JavaCore extends Plugin {
 	 *    Set the minimum visibility level for Javadoc missing tag problems. Below this level problems will be ignored.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"
 	 *     - possible values:   { "public", "protected", "default", "private" }
-	 *     - default:           "private"
+	 *     - default:           "public"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Tags on Overriding Methods
 	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
@@ -2304,6 +2321,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
+	 *	JAVACORE / Set the timeout value for retrieving the method's parameter names from javadoc
+	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
+	 *    If the value is 0, the parameter names are not fetched and the raw names are returned.
+	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
+	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
+	 *     - default:           "50"
+	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
@@ -2458,7 +2482,8 @@ public final class JavaCore extends Plugin {
 	 *    When active, completion show proposals whose name match to the CamelCase pattern.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
+	 *     - default:           "enabled"
+	 *     
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -2498,6 +2523,20 @@ public final class JavaCore extends Plugin {
 	 */
 	public static JavaCore getJavaCore() {
 		return (JavaCore) getPlugin();
+	}
+	
+	/**
+	 * Returns the list of known Java-like extensions.
+	 * Java like extension are defined in the {@link org.eclipse.core.runtime.Platform#getContentTypeManager() 
+	 * content type manager} for the {@link #JAVA_SOURCE_CONTENT_TYPE}.
+	 * Note that a Java-like extension doesn't include the leading dot ('.').
+	 * Also note that the "java" extension is always defined as a Java-like extension.
+	 * 
+	 * @return the list of known Java-like extensions.
+	 * @since 3.2
+	 */
+	public static String[] getJavaLikeExtensions() {
+		return CharOperation.toStrings(Util.getJavaLikeExtensions());
 	}
 	
 	/**
@@ -2749,110 +2788,114 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
-		Job job = new Job(Messages.javamodel_initialization) {
-			protected IStatus run(IProgressMonitor progressMonitor) {
-				// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
-				SearchEngine engine = new SearchEngine();
-				IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
-				try {
-					engine.searchAllTypeNames(
-						null,
-						"!@$#!@".toCharArray(), //$NON-NLS-1$
-						SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-						IJavaSearchConstants.CLASS,
-						scope, 
-						new TypeNameRequestor() {
-							public void acceptType(
-								int modifiers,
-								char[] packageName,
-								char[] simpleTypeName,
-								char[][] enclosingTypeNames,
-								String path) {
-								// no type to accept
-							}
-						},
-						// will not activate index query caches if indexes are not ready, since it would take to long
-						// to wait until indexes are fully rebuild
-						IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 99) // 99% of the time is spent in the dummy search
-					); 
-				} catch (JavaModelException e) {
-					// /search failed: ignore
-				} catch (OperationCanceledException e) {
-					if (progressMonitor != null && progressMonitor.isCanceled())
-						throw e;
-					// else indexes were not ready: catch the exception so that jars are still refreshed
-				}
-				
-				// check if the build state version number has changed since last session
-				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
-				QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				String versionNumber = null;
-				try {
-					versionNumber = root.getPersistentProperty(qName);
-				} catch (CoreException e) {
-					// could not read version number: consider it is new
-				}
-				final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-				String newVersionNumber = Byte.toString(State.VERSION);
-				if (!newVersionNumber.equals(versionNumber)) {
-					// build state version number has changed: touch every projects to force a rebuild
-					if (JavaBuilder.DEBUG)
-						System.out.println("Build state version number has changed"); //$NON-NLS-1$
-					IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-						public void run(IProgressMonitor progressMonitor2) throws CoreException {
-							IJavaProject[] projects = null;
-							try {
-								projects = model.getJavaProjects();
-							} catch (JavaModelException e) {
-								// could not get Java projects: ignore
-							}
-							if (projects != null) {
-								for (int i = 0, length = projects.length; i < length; i++) {
-									IJavaProject project = projects[i];
-									try {
-										if (JavaBuilder.DEBUG)
-											System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
-										project.getProject().touch(progressMonitor2);
-									} catch (CoreException e) {
-										// could not touch this project: ignore
-									}
+		try {
+			if (monitor != null) monitor.beginTask(Messages.javamodel_initialization, 100);
+			// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
+			SearchEngine engine = new SearchEngine();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+			try {
+				engine.searchAllTypeNames(
+					null,
+					"!@$#!@".toCharArray(), //$NON-NLS-1$
+					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+					IJavaSearchConstants.CLASS,
+					scope, 
+					new TypeNameRequestor() {
+						public void acceptType(
+							int modifiers,
+							char[] packageName,
+							char[] simpleTypeName,
+							char[][] enclosingTypeNames,
+							String path) {
+							// no type to accept
+						}
+					},
+					// will not activate index query caches if indexes are not ready, since it would take to long
+					// to wait until indexes are fully rebuild
+					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+					monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
+				); 
+			} catch (JavaModelException e) {
+				// /search failed: ignore
+			} catch (OperationCanceledException e) {
+				if (monitor != null && monitor.isCanceled())
+					throw e;
+				// else indexes were not ready: catch the exception so that jars are still refreshed
+			}
+			
+			// check if the build state version number has changed since last session
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			String versionNumber = null;
+			try {
+				versionNumber = root.getPersistentProperty(qName);
+			} catch (CoreException e) {
+				// could not read version number: consider it is new
+			}
+			final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			String newVersionNumber = Byte.toString(State.VERSION);
+			if (!newVersionNumber.equals(versionNumber)) {
+				// build state version number has changed: touch every projects to force a rebuild
+				if (JavaBuilder.DEBUG)
+					System.out.println("Build state version number has changed"); //$NON-NLS-1$
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor progressMonitor2) throws CoreException {
+						IJavaProject[] projects = null;
+						try {
+							projects = model.getJavaProjects();
+						} catch (JavaModelException e) {
+							// could not get Java projects: ignore
+						}
+						if (projects != null) {
+							for (int i = 0, length = projects.length; i < length; i++) {
+								IJavaProject project = projects[i];
+								try {
+									if (JavaBuilder.DEBUG)
+										System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+									project.getProject().touch(progressMonitor2);
+								} catch (CoreException e) {
+									// could not touch this project: ignore
 								}
 							}
 						}
-					};
-					try {
-						ResourcesPlugin.getWorkspace().run(runnable, progressMonitor);
-					} catch (CoreException e) {
-						// could not touch all projects
 					}
-					try {
-						root.setPersistentProperty(qName, newVersionNumber);
-					} catch (CoreException e) {
-						Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
-					}
-				}
-				
-				// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+				};
 				try {
-					model.refreshExternalArchives(
-						null/*refresh all projects*/, 
-						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1) // 1% of the time is spent in jar refresh
-					);
-				} catch (JavaModelException e) {
-					// refreshing failed: ignore
+					ResourcesPlugin.getWorkspace().run(runnable, monitor);
+				} catch (CoreException e) {
+					// could not touch all projects
 				}
-				
-				return Status.OK_STATUS;
+				try {
+					root.setPersistentProperty(qName, newVersionNumber);
+				} catch (CoreException e) {
+					Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
+				}
 			}
-			public boolean belongsTo(Object family) {
-				return PLUGIN_ID.equals(family);
+			
+			// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+			try {
+				model.refreshExternalArchives(
+					null/*refresh all projects*/, 
+					monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
+				);
+			} catch (JavaModelException e) {
+				// refreshing failed: ignore
 			}
-		};
-		job.setPriority(Job.SHORT);
-		job.schedule(2000);	 // wait for the startup activity to calm down
-		
+		} finally {
+			if (monitor != null) monitor.done();
+		}
+	}
+	
+	/**
+	 * Returns whether the given file name's extension is a Java-like extension.
+	 * 
+	 * @return whether the given file name's extension is a Java-like extension
+	 * @see #getJavaLikeExtensions()
+	 * @since 3.2
+	 */
+	public static boolean isJavaLikeFileName(String fileName) {
+		return Util.isJavaLikeFileName(fileName);
 	}
 	
 	/**
@@ -3795,17 +3838,6 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Removes the specified compilation participant listener.  Has no effect
-	 * if the listener was not on the list, or if it was registered via the 
-	 * compilationParticipant extension point rather than a call to 
-	 * addCompilationParticipant.
-	 * @param icp the listener to remove
-	 */
-	public static void removeCompilationParticipant(ICompilationParticipant icp) {
-		JavaModelManager.getJavaModelManager().getCompilationParticipants().remove(icp);
-	}
-
-	/**
 	 * Removes the given element changed listener.
 	 * Has no affect if an identical listener is not registered.
 	 *
@@ -3815,6 +3847,19 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(listener);
 	}
 
+	/**
+	 * Removes the file extension from the given file name, if it has a Java-like file
+	 * extension. Otherwise the file name itself is returned.
+	 * Note this removes the dot ('.') before the extension as well.
+	 * 
+	 * @param fileName the name of a file
+	 * @return the fileName without the Java-like extension
+	 * @since 3.2
+	 */
+	public static String removeJavaLikeExtension(String fileName) {
+		return Util.getNameWithoutJavaLikeExtension(fileName);
+	}
+	
 	/**
 	 * Removes the given pre-processing resource changed listener.
 	 * <p>

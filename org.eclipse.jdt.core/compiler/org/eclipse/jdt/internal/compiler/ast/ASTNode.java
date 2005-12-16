@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
@@ -20,23 +19,20 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
 
-	//some global provision for the hierarchy
-	public final static Constant NotAConstant = Constant.NotAConstant;
-
 	// storage for internal flags (32 bits)						BIT USAGE
 	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
-	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
+	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement)
 	public final static int Bit8 = 0x80; 						// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression)
 	public final static int Bit9 = 0x100; 					// depth (name ref, msg) | operator (operator) | is local type (type decl)
 	public final static int Bit10= 0x200; 					// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
 	public final static int Bit11 = 0x400; 					// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
-	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) 
+	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) | is secondary type (type decl)
 	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
 	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
@@ -92,7 +88,6 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 
 	// for binary expressions
 	public static final int IsReturnedValue = Bit5; 
-	public static final int OnlyValueRequired = Bit6; 
 
 	// for cast expressions
 	public static final int UnnecessaryCast = Bit15;
@@ -122,7 +117,8 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	public static final int IsAnonymousType = Bit10; // used to test for anonymous 
 	public static final int IsMemberType = Bit11; // local member do not know it is local at parse time (need to look at binding)
 	public static final int HasAbstractMethods = Bit12; // used to promote abstract enums
-	
+	public static final int IsSecondaryType = Bit13; // used to test for secondary
+
 	// for type, method and field declarations 
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 

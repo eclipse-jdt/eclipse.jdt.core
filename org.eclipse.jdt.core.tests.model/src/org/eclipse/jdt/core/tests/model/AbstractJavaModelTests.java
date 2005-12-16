@@ -30,8 +30,10 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -237,10 +239,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
 			null,
 			null,
+			new IClasspathAttribute[0],
 			exported
 		);
 	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
+		addLibraryEntry(
+			project,
+			path,
+			srcAttachmentPath,
+			srcAttachmentPathRoot,
+			accessibleFiles,
+			nonAccessibleFiles,
+			new IClasspathAttribute[0],
+			exported
+		);
+	}
+	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
@@ -249,7 +264,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
 			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
-			new IClasspathAttribute[0], 
+			extraAttributes, 
 			exported);
 		project.setRawClasspath(entries, null);
 	}
@@ -260,7 +275,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
 	
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
-		this.sortResources(resources);
+		sortResources(resources);
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = resources.length; i < length; i++){
+			IResource resource = (IResource)resources[i];
+			buffer.append(resource == null ? "<null>" : resource.getFullPath().toString());
+			if (i != length-1)buffer.append("\n");
+		}
+		if (!expected.equals(buffer.toString())) {
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+			System.out.println(this.endChar);
+		}
+		assertEquals(
+			message,
+			expected,
+			buffer.toString()
+		);
+	}
+	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
+		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = resources.length; i < length; i++){
 			IResource resource = (IResource)resources[i];
@@ -304,6 +337,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.append("<null>");
 		}
 		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			if (this.displayName) System.out.println(getName()+" actual result is:");
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
+		}
+		assertEquals(message, expected, actual);
+	}
+	protected void assertExceptionEquals(String message, String expected, JavaModelException exception) {
+		String actual = exception == null ? "<null>" : exception.getStatus().getMessage();
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
@@ -401,17 +442,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Element should not be present after deletion: " + elementToDelete, !elementToDelete.exists());
 		}
 	}
-protected void assertDeltas(String message, String expected) {
-	String actual = this.deltaListener.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(displayString(actual, 2));
-		System.err.println(this.deltaListener.stackTraces.toString());
+	protected void assertDeltas(String message, String expected) {
+		String actual = this.deltaListener.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2));
+			System.err.println(this.deltaListener.stackTraces.toString());
+		}
+		assertEquals(
+			message,
+			expected,
+			actual);
 	}
-	assertEquals(
-		message,
-		expected,
-		actual);
-}
+	protected void assertDeltas(String message, String expected, IJavaElementDelta delta) {
+		String actual = delta == null ? "<null>" : delta.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2));
+			System.err.println(this.deltaListener.stackTraces.toString());
+		}
+		assertEquals(
+			message,
+			expected,
+			actual);
+	}
 	protected void assertTypesEqual(String message, String expected, IType[] types) {
 		assertTypesEqual(message, expected, types, true);
 	}
@@ -1078,17 +1130,20 @@ protected void assertDeltas(String message, String expected) {
 		CoreException lastException = null;
 		try {
 			resource.delete(true, null);
+			return;
 		} catch (CoreException e) {
 			lastException = e;
 			// just print for info
-			System.out.println(e.getMessage());
+			System.out.println(e.getMessage() + " [" + resource.getFullPath() + "]");
 		} catch (IllegalArgumentException iae) {
 			// just print for info
-			System.out.println(iae.getMessage());
+			System.out.println(iae.getMessage() + " [" + resource.getFullPath() + "]");
 		}
-		int retryCount = 60; // wait 1 minute at most
-		while (resource.isAccessible() && --retryCount >= 0) {
+		int retryCount = 0; // wait 1 minute at most
+		while (resource.isAccessible() && ++retryCount <= 60) {
+			System.out.println("Running GC and waiting 1s...");
 			try {
+				System.gc();
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
@@ -1097,14 +1152,17 @@ protected void assertDeltas(String message, String expected) {
 			} catch (CoreException e) {
 				lastException = e;
 				// just print for info
-				System.out.println("Retry "+retryCount+": "+ e.getMessage());
+				System.out.println("Retry "+retryCount+": "+ e.getMessage() + " [" + resource.getFullPath() + "]");
 			} catch (IllegalArgumentException iae) {
 				// just print for info
-				System.out.println("Retry "+retryCount+": "+ iae.getMessage());
+				System.out.println("Retry "+retryCount+": "+ iae.getMessage() + " [" + resource.getFullPath() + "]");
 			}
 		}
-		if (!resource.isAccessible()) return;
-		System.err.println("Failed to delete " + resource.getFullPath());
+		if (!resource.isAccessible()) {
+			System.out.println("Succeed to delete resource [" + resource.getFullPath() + "]");
+			return;
+		}
+		System.err.println("Failed to delete resource [" + resource.getFullPath() + "]");
 		if (lastException != null) {
 			throw lastException;
 		}
@@ -2000,6 +2058,10 @@ protected void assertDeltas(String message, String expected) {
 	protected void setUp () throws Exception {
 		super.setUp();
 		this.discard = true;
+		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Running test "+getName()+"...");
+		}
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
@@ -2025,8 +2087,7 @@ protected void assertDeltas(String message, String expected) {
 			public int compare(Object a, Object b) {
 				IResource resourceA = (IResource)a;
 				IResource resourceB = (IResource)b;
-				return resourceA.getName().compareTo(resourceB.getName());
-			}
+				return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			}
 		};
 		Util.sort(resources, comparer);
 	}

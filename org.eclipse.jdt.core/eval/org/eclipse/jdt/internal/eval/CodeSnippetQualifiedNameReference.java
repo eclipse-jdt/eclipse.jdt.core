@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.eval;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -84,7 +83,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 }
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-	if (this.constant != NotAConstant) {
+	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {
 			codeStream.generateConstant(this.constant, this.implicitConversion);
 		}
@@ -95,13 +94,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				codeStream.arraylength();
 				codeStream.generateImplicitConversion(this.implicitConversion);
 			} else {
-				if (lastFieldBinding.isConstantValue()) {
+				Constant fieldConstant = lastFieldBinding.constant();
+				if (fieldConstant != Constant.NotAConstant) {
 					if (!lastFieldBinding.isStatic()){
 						codeStream.invokeObjectGetClass();
 						codeStream.pop();
 					}
 					// inline the last field constant
-					codeStream.generateConstant(lastFieldBinding.constant(), this.implicitConversion);
+					codeStream.generateConstant(fieldConstant, this.implicitConversion);
 				} else {	
 					if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 						if (lastFieldBinding.isStatic()) {
@@ -294,7 +294,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			lastFieldBinding = (FieldBinding) this.codegenBinding;
 			lastGenericCast = this.genericCast;
 			// if first field is actually constant, we can inline it
-			if (lastFieldBinding.isConstantValue()) {
+			if (lastFieldBinding.constant() != Constant.NotAConstant) {
 				break;
 			}
 			if (needValue) {
@@ -327,8 +327,9 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			if (!needValue) break; // no value needed
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// regular local variable read
-			if (localBinding.isConstantValue()) {
-				codeStream.generateConstant(localBinding.constant(), 0);
+			Constant localConstant = localBinding.constant();
+			if (localConstant != Constant.NotAConstant) {
+				codeStream.generateConstant(localConstant, 0);
 				// no implicit conversion
 			} else {
 				// outer local?
@@ -352,12 +353,13 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				needValue = !nextField.isStatic();
 				if (needValue) {
 					if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
-						if (lastFieldBinding.isConstantValue()) {
+						Constant fieldConstant = lastFieldBinding.constant();
+						if (fieldConstant != Constant.NotAConstant) {
 							if (lastFieldBinding != this.codegenBinding && !lastFieldBinding.isStatic()) {
 								codeStream.invokeObjectGetClass(); // perform null check
 								codeStream.pop();
 							}
-							codeStream.generateConstant(lastFieldBinding.constant(), 0);
+							codeStream.generateConstant(fieldConstant, 0);
 						} else if (lastFieldBinding.isStatic()) {
 							codeStream.getstatic(lastFieldBinding);
 						} else {
@@ -418,7 +420,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	TypeBinding type = ((VariableBinding) this.binding).type;
 	int index = this.indexOfFirstFieldBinding;
 	if (index == length) { //	restrictiveFlag == FIELD
-		this.constant = FieldReference.getConstantFor((FieldBinding) this.binding, this, false, scope);
+		this.constant = ((FieldBinding) this.binding).constant();
 		return type;
 	}
 
@@ -427,10 +429,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	this.otherCodegenBindings = this.otherBindings = new FieldBinding[otherBindingsLength];
 	
 	// fill the first constant (the one of the binding)
-	this.constant =
-		((this.bits & Binding.FIELD) != 0)
-			? FieldReference.getConstantFor((FieldBinding) this.binding, this, false, scope)
-			: ((VariableBinding) this.binding).constant();
+	this.constant =((VariableBinding) this.binding).constant();
 
 	// iteration on each field	
 	while (index < length) {
@@ -449,7 +448,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 						return super.reportError(scope);
 					}
 				} else {
-					this.constant = NotAConstant; //don't fill other constants slots...
+					this.constant = Constant.NotAConstant; //don't fill other constants slots...
 					scope.problemReporter().invalidField(this, field, index, type);
 					return null;
 				}
@@ -462,15 +461,14 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && index+1 == length)) {
 				scope.problemReporter().deprecatedField(field, this);
 			}
-			Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 			// constant propagation can only be performed as long as the previous one is a constant too.
-			if (this.constant != NotAConstant){
-				this.constant = someConstant;
+			if (this.constant != Constant.NotAConstant){
+				this.constant = field.constant();
 			}
 			type = field.type;
 			index++;
 		} else {
-			this.constant = NotAConstant; //don't fill other constants slots...
+			this.constant = Constant.NotAConstant; //don't fill other constants slots...
 			scope.problemReporter().invalidField(this, field, index, type);
 			return null;
 		}
@@ -523,7 +521,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		if (fieldBinding.declaringClass != lastReceiverType
 				&& !lastReceiverType.isArrayType()
 				&& fieldBinding.declaringClass != null // array.length
-				&& !fieldBinding.isConstantValue()) {
+				&& fieldBinding.constant() == Constant.NotAConstant) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || (index < 0 ? fieldBinding != binding : index > 0) || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())

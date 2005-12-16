@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -23,8 +24,19 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
+public static ClassFileReader read(InputStream stream, String fileName) throws ClassFormatException, IOException {
+	return read(stream, fileName, false);
+}
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
+}
+public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
+	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream, -1);
+	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
+	if (fullyInitialize) {
+		classFileReader.initialize();
+	}
+	return classFileReader;
 }
 public static ClassFileReader read(File file, boolean fullyInitialize) throws ClassFormatException, IOException {
 	byte classFileBytes[] = Util.getFileByteContent(file);
@@ -121,52 +133,52 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		for (int i = 1; i < constantPoolCount; i++) {
 			int tag = this.u1At(readOffset);
 			switch (tag) {
-				case Utf8Tag :
+				case ClassFileConstants.Utf8Tag :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += u2At(readOffset + 1);
-					readOffset += ConstantUtf8FixedSize;
+					readOffset += ClassFileConstants.ConstantUtf8FixedSize;
 					break;
-				case IntegerTag :
+				case ClassFileConstants.IntegerTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantIntegerFixedSize;
+					readOffset += ClassFileConstants.ConstantIntegerFixedSize;
 					break;
-				case FloatTag :
+				case ClassFileConstants.FloatTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantFloatFixedSize;
+					readOffset += ClassFileConstants.ConstantFloatFixedSize;
 					break;
-				case LongTag :
+				case ClassFileConstants.LongTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantLongFixedSize;
+					readOffset += ClassFileConstants.ConstantLongFixedSize;
 					i++;
 					break;
-				case DoubleTag :
+				case ClassFileConstants.DoubleTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantDoubleFixedSize;
+					readOffset += ClassFileConstants.ConstantDoubleFixedSize;
 					i++;
 					break;
-				case ClassTag :
+				case ClassFileConstants.ClassTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantClassFixedSize;
+					readOffset += ClassFileConstants.ConstantClassFixedSize;
 					break;
-				case StringTag :
+				case ClassFileConstants.StringTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantStringFixedSize;
+					readOffset += ClassFileConstants.ConstantStringFixedSize;
 					break;
-				case FieldRefTag :
+				case ClassFileConstants.FieldRefTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantFieldRefFixedSize;
+					readOffset += ClassFileConstants.ConstantFieldRefFixedSize;
 					break;
-				case MethodRefTag :
+				case ClassFileConstants.MethodRefTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantMethodRefFixedSize;
+					readOffset += ClassFileConstants.ConstantMethodRefFixedSize;
 					break;
-				case InterfaceMethodRefTag :
+				case ClassFileConstants.InterfaceMethodRefTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantInterfaceMethodRefFixedSize;
+					readOffset += ClassFileConstants.ConstantInterfaceMethodRefFixedSize;
 					break;
-				case NameAndTypeTag :
+				case ClassFileConstants.NameAndTypeTag :
 					this.constantPoolOffsets[i] = readOffset;
-					readOffset += ConstantNameAndTypeFixedSize;
+					readOffset += ClassFileConstants.ConstantNameAndTypeFixedSize;
 			}
 		}
 		// Read and validate access flags
@@ -215,7 +227,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		if (this.methodsCount != 0) {
 			this.methods = new MethodInfo[this.methodsCount];
 			MethodInfo method;
-			final boolean isAnnotationType = (this.accessFlags & AccAnnotation) != 0;
+			final boolean isAnnotationType = (this.accessFlags & ClassFileConstants.AccAnnotation) != 0;
 			for (int i = 0; i < this.methodsCount; i++) {
 				if( isAnnotationType )
 					method = AnnotationMethodInfo.createAnnotationMethod(reference, this.constantPoolOffsets, readOffset);
@@ -240,7 +252,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			switch(attributeName[0] ) {
 				case 'D' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName)) {
-						this.accessFlags |= AccDeprecated;
+						this.accessFlags |= ClassFileConstants.AccDeprecated;
 					}
 					break;
 				case 'I' :
@@ -273,7 +285,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 								break;
 							case 'y' :
 								if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName)) {
-									this.accessFlags |= AccSynthetic;
+									this.accessFlags |= ClassFileConstants.AccSynthetic;
 								}
 								break;
 							case 'i' :
@@ -285,7 +297,8 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)
+							|| CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						decodeAnnotations(readOffset, true);
 					}
 					else if(CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName )){
@@ -534,7 +547,7 @@ public IBinaryAnnotation[] getAnnotations(){
  */
 public int getModifiers() {
 	if (this.innerInfo != null) {
-		return this.innerInfo.getModifiers() | (this.accessFlags & AccDeprecated);
+		return this.innerInfo.getModifiers() | (this.accessFlags & ClassFileConstants.AccDeprecated);
 	}
 	return this.accessFlags;
 }

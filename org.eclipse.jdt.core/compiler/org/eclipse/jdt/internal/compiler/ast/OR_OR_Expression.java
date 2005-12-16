@@ -32,8 +32,8 @@ public class OR_OR_Expression extends BinaryExpression {
 		FlowInfo flowInfo) {
 
 		Constant cst = this.left.optimizedBooleanConstant();
-		boolean isLeftOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isLeftOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+		boolean isLeftOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isLeftOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		if (isLeftOptimizedFalse) {
 			// FALSE || anything
@@ -86,7 +86,7 @@ public class OR_OR_Expression extends BinaryExpression {
 			return;
 		}
 		Constant cst = right.constant;
-		if (cst != NotAConstant) {
+		if (cst != Constant.NotAConstant) {
 			// <expr> || true --> true
 			if (cst.booleanValue() == true) {
 				this.left.generateCode(currentScope, codeStream, false);
@@ -106,11 +106,11 @@ public class OR_OR_Expression extends BinaryExpression {
 		
 		Label trueLabel = new Label(codeStream), endLabel;
 		cst = left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsConst = cst != Constant.NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
 
 		cst = right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsConst = cst != Constant.NotAConstant;
 		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
 
 		generateOperands : {
@@ -187,7 +187,7 @@ public class OR_OR_Expression extends BinaryExpression {
 
 		// <expr> || false --> <expr>
 		Constant cst = right.constant;
-		if (cst != NotAConstant && cst.booleanValue() == false) {
+		if (cst != Constant.NotAConstant && cst.booleanValue() == false) {
 			int pc = codeStream.position;
 			this.left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			if (mergedInitStateIndex != -1) {
@@ -198,11 +198,11 @@ public class OR_OR_Expression extends BinaryExpression {
 		}
 	
 		cst = left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != NotAConstant;
+		boolean leftIsConst = cst != Constant.NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
 
 		cst = right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != NotAConstant;
+		boolean rightIsConst = cst != Constant.NotAConstant;
 		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
 
 		// default case

@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.*;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -326,19 +328,19 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		if (monitor != null) monitor.done();
 	}
 }
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
-	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, osPath);
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
+	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, file);
 	this.cuToHandle.put(unit, handle);
 	return unit;
 }
-protected IBinaryType createInfoFromClassFile(Openable classFile, String osPath) {
+protected IBinaryType createInfoFromClassFile(Openable classFile, IResource file) {
 	String documentPath = classFile.getPath().toString();
 	IBinaryType binaryType = (IBinaryType)this.binariesFromIndexMatches.get(documentPath);
 	if (binaryType != null) {
 		this.infoToHandle.put(binaryType, classFile);
 		return binaryType;
 	} else {
-		return super.createInfoFromClassFile(classFile, osPath);
+		return super.createInfoFromClassFile(classFile, file);
 	}
 }
 protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {

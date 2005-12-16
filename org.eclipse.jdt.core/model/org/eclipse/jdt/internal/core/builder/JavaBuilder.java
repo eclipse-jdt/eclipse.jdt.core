@@ -14,9 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.BrokenClasspathBuildFailureEvent;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -30,6 +28,7 @@ public class JavaBuilder extends IncrementalProjectBuilder {
 IProject currentProject;
 JavaProject javaProject;
 IWorkspaceRoot workspaceRoot;
+CompilationParticipant[] participants;
 NameEnvironment nameEnvironment;
 SimpleLookupTable binaryLocationsPerProject; // maps a project to its binary resources (output folders, class folders, zip/jar files)
 State lastState;
@@ -131,7 +130,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	boolean ok = false;
 	try {
 		notifier.checkCancel();
-		initializeBuilder();
+		kind = initializeBuilder(kind, true);
 
 		if (isWorthBuilding()) {
 			if (kind == FULL_BUILD) {
@@ -211,7 +210,7 @@ private void buildAll() {
 	if (DEBUG && lastState != null)
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState();
-	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
+	BatchImageBuilder imageBuilder = new BatchImageBuilder(this, true);
 	imageBuilder.build();
 	recordNewState(imageBuilder.newState);
 }
@@ -241,12 +240,12 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	try {
 		notifier.checkCancel();
 
-		initializeBuilder();
+		initializeBuilder(CLEAN_BUILD, true);
 		if (DEBUG)
 			System.out.println("Clearing last state as part of clean : " + lastState); //$NON-NLS-1$
 		clearLastState();
 		removeProblemsAndTasksFor(currentProject);
-		new BatchImageBuilder(this).cleanOutputFolders(false);
+		new BatchImageBuilder(this, false).cleanOutputFolders(false);
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
@@ -262,6 +261,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 }
 
 private void cleanup() {
+	this.participants = null;
 	this.nameEnvironment = null;
 	this.binaryLocationsPerProject = null;
 	this.lastState = null;
@@ -482,46 +482,59 @@ private boolean hasStructuralDelta() {
 	return false;
 }
 
-private void initializeBuilder() throws CoreException {
+private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
+	// some calls just need the nameEnvironment initialized so skip the rest
 	this.javaProject = (JavaProject) JavaCore.create(currentProject);
 	this.workspaceRoot = currentProject.getWorkspace().getRoot();
 
-	// Flush the existing external files cache if this is the beginning of a build cycle
-	String projectName = currentProject.getName();
-	if (builtProjects == null || builtProjects.contains(projectName)) {
-		JavaModel.flushExternalFileCache();
-		builtProjects = new ArrayList();
+	if (forBuild) {
+		// cache the known participants for this project
+		this.participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(this.javaProject);
+		if (this.participants != null)
+			for (int i = 0, l = this.participants.length; i < l; i++)
+				if (this.participants[i].aboutToBuild(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
+					kind = FULL_BUILD;
+	
+		// Flush the existing external files cache if this is the beginning of a build cycle
+		String projectName = currentProject.getName();
+		if (builtProjects == null || builtProjects.contains(projectName)) {
+			JavaModel.flushExternalFileCache();
+			builtProjects = new ArrayList();
+		}
+		builtProjects.add(projectName);
 	}
-	builtProjects.add(projectName);
 
 	this.binaryLocationsPerProject = new SimpleLookupTable(3);
 	this.nameEnvironment = new NameEnvironment(workspaceRoot, javaProject, binaryLocationsPerProject);
 
-	String filterSequence = javaProject.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, true);
-	char[][] filters = filterSequence != null && filterSequence.length() > 0
-		? CharOperation.splitAndTrimOn(',', filterSequence.toCharArray())
-		: null;
-	if (filters == null) {
-		this.extraResourceFileFilters = null;
-		this.extraResourceFolderFilters = null;
-	} else {
-		int fileCount = 0, folderCount = 0;
-		for (int i = 0, l = filters.length; i < l; i++) {
-			char[] f = filters[i];
-			if (f.length == 0) continue;
-			if (f[f.length - 1] == '/') folderCount++; else fileCount++;
-		}
-		this.extraResourceFileFilters = new char[fileCount][];
-		this.extraResourceFolderFilters = new String[folderCount];
-		for (int i = 0, l = filters.length; i < l; i++) {
-			char[] f = filters[i];
-			if (f.length == 0) continue;
-			if (f[f.length - 1] == '/')
-				extraResourceFolderFilters[--folderCount] = new String(f, 0, f.length - 1);
-			else
-				extraResourceFileFilters[--fileCount] = f;
+	if (forBuild) {
+		String filterSequence = javaProject.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, true);
+		char[][] filters = filterSequence != null && filterSequence.length() > 0
+			? CharOperation.splitAndTrimOn(',', filterSequence.toCharArray())
+			: null;
+		if (filters == null) {
+			this.extraResourceFileFilters = null;
+			this.extraResourceFolderFilters = null;
+		} else {
+			int fileCount = 0, folderCount = 0;
+			for (int i = 0, l = filters.length; i < l; i++) {
+				char[] f = filters[i];
+				if (f.length == 0) continue;
+				if (f[f.length - 1] == '/') folderCount++; else fileCount++;
+			}
+			this.extraResourceFileFilters = new char[fileCount][];
+			this.extraResourceFolderFilters = new String[folderCount];
+			for (int i = 0, l = filters.length; i < l; i++) {
+				char[] f = filters[i];
+				if (f.length == 0) continue;
+				if (f[f.length - 1] == '/')
+					extraResourceFolderFilters[--folderCount] = new String(f, 0, f.length - 1);
+				else
+					extraResourceFileFilters[--fileCount] = f;
+			}
 		}
 	}
+	return kind;
 }
 
 private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throws CoreException {
@@ -535,31 +548,10 @@ private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throw
 	return false;
 }
 
-private void notifyCompilationParticipants() {
-	
-	List cps = JavaCore
-		.getCompilationParticipants( ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT, javaProject );
-	if ( cps == null || cps.isEmpty() )
-		return;
-		
-	BrokenClasspathBuildFailureEvent event = new BrokenClasspathBuildFailureEvent( javaProject );
-	Iterator it = cps.iterator();
-	while ( it.hasNext() ) {
-		ICompilationParticipant cp = (ICompilationParticipant) it.next();
-		cp.notify( event );
-	}
-}
-
-
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds =
 		JavaCore.ABORT.equals(javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
 	if (!abortBuilds) return true;
-
-	
-	// if classpath is broken, let the compilation participants have a chance to fix it
-	if ( isClasspathBroken( javaProject.getRawClasspath(), currentProject ))
-		notifyCompilationParticipants();
 
 	// Abort build only if there are classpath errors
 	if (isClasspathBroken(javaProject.getRawClasspath(), currentProject)) {

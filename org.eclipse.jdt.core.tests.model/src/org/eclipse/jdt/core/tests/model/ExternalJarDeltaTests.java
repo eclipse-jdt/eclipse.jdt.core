@@ -19,9 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -43,7 +41,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //		TESTS_PREFIX =  "testBug79990";
-//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NAMES = new String[] { "testExternalJarInternalExternalJar"};
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 }
@@ -244,13 +242,6 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 
 		startDeltas();
 		JavaCore.initializeAfterLoad(null);
-		try {
-			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
-		} catch (OperationCanceledException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -517,7 +508,8 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		waitUntilIndexesReady();
 		startDeltas();
 		
-		IPath externalFooPath = fooIFile.getLocation();
+		// canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
+		IPath externalFooPath = new Path(fooIFile.getLocation().toFile().getCanonicalPath());
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
 		
 		f = new File(externalFooPath.toOSString());

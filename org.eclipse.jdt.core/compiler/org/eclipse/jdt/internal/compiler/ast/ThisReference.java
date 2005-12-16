@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ThisReference extends Reference {
@@ -109,11 +110,11 @@ public class ThisReference extends Reference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 	
-		constant = NotAConstant;
+		constant = Constant.NotAConstant;
 		if (!this.isImplicitThis() &&!checkAccess(scope.methodScope())) {
 			return null;
 		}
-		return this.resolvedType = scope.enclosingSourceType();
+		return this.resolvedType = scope.enclosingReceiverType();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

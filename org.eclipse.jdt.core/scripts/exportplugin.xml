@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from ${plugin} -->
-<project name="${plugin}" default="export plug-in [_3.1.1.apt02]" basedir=".."> 
+<project name="${plugin}" default="export plug-in [_3.2.0]" basedir="..">
 
-<target name="export plug-in [_3.1.1.apt02]">
+<target name="export plug-in [_3.2.0]">
+    <tstamp/>
+	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.1.1.apt02"/>
+		<param name="jdt_core_version" value="3.2.0"/>
+	</antcall>
+</target>
+
+<target name="export plug-in [_3.2.0.qualifier]">
+    <tstamp/>
+	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
+	<antcall target="zz_internal_export">
+		<param name="jdt_core_version" value="3.2.0.${qualifier}"/>
 	</antcall>
 </target>
 
@@ -75,36 +85,35 @@
 		basedir="antbin"/>
 
 	<echo message="UPDATE ${plugin}_${jdt_core_version}.jar" />
+	<copy todir="${plugin-dir}/META-INF">
+		<fileset dir="META-INF" />
+	</copy>  
+	<replaceregexp file="${plugin-dir}/META-INF/MANIFEST.MF" match="Bundle-Version: ((\d)+\.(\d)+\.(\d)+\.)qualifier" replace="Bundle-Version: \1${qualifier}" byline="true" />
 	<zip zipfile="${plugin-dir}/${plugin}_${jdt_core_version}.jar">
 		<fileset dir=".">
 		  <include name="plugin.xml" />
 		  <include name="plugin.properties" />
-		  <include name="META-INF/**" />
 	      <include name=".options"/>
           <include name="about.html"/>
         </fileset>
+		<fileset dir="${plugin-dir}">
+			<include name="META-INF/**" />
+		</fileset>
         <fileset dir="bin" />
         <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
+        <zipfileset dir="batch" prefix="src"/>
+	    <zipfileset dir="codeassist" prefix="src"/>
+	    <zipfileset dir="compiler" prefix="src"/>
+	    <zipfileset dir="dom" prefix="src"/>
+	    <zipfileset dir="eval" prefix="src"/>
+	    <zipfileset dir="formatter" prefix="src"/>
+	    <zipfileset dir="model" prefix="src"/>
+	    <zipfileset dir="search" prefix="src"/>
 	</zip>
+	<delete dir="${plugin-dir}/META-INF" />
 
 	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
-	<echo message="UPDATE src.zip" />
-	<zip zipfile="${plugin-dir}/src.zip">
-        <fileset file="component.xml"/>	
-	    <fileset dir="batch" />
-	    <fileset dir="codeassist" />
-	    <fileset dir="compiler" />
-	    <fileset dir="dom" />
-	    <fileset dir="eval" />
-	    <fileset dir="formatter" />
-	    <fileset dir="model" />
-	    <fileset dir="search" />
-	</zip>		
 
-	<echo message="UPDATE jdtCompilerAdaptersrc.zip" />
-	<zip zipfile="${plugin-dir}/jdtCompilerAdaptersrc.zip">
-		<fileset dir="antadapter" />
-	</zip>	    
 	<echo message="UPDATE ${export-dir}/../${plugin}_${jdt_core_version}.zip" />
 	<zip zipfile="${export-dir}/../${plugin}_${jdt_core_version}.zip"
 	    basedir="${export-dir}" 

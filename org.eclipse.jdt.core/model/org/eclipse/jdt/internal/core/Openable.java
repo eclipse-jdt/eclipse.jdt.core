@@ -15,15 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.PerformanceStats;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
+import org.eclipse.jdt.internal.core.util.Util;
 
 
 /**
@@ -190,6 +188,11 @@ public boolean exists() {
 		return resourceExists();
 	}
 	return super.exists();
+}
+public String findRecommendedLineSeparator() throws JavaModelException {
+	IBuffer buffer = getBuffer();
+	String source = buffer == null ? null : buffer.getContents();
+	return Util.getLineSeparator(source, getJavaProject());
 }
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 
@@ -466,12 +469,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  * Find enclosing package fragment root if any
  */
 public PackageFragmentRoot getPackageFragmentRoot() {
-	IJavaElement current = this;
-	do {
-		if (current instanceof PackageFragmentRoot) return (PackageFragmentRoot)current;
-		current = current.getParent();
-	} while(current != null);
-	return null;
+	return (PackageFragmentRoot) getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 }
 
 }

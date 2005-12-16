@@ -146,7 +146,7 @@ boolean isKnownPackage(String qualifiedPackageName) {
 
 void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
 	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
-			references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs));
+		references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs));
 	} else {
 		char[][] definedTypeNames = new char[typeNames.size()][]; // can be empty when no types are defined
 		typeNames.toArray(definedTypeNames);

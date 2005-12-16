@@ -35,7 +35,7 @@ private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
 private char[] cachedCategoryName;
 
-public static final String SIGNATURE= "INDEX VERSION 1.106"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.107"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;
@@ -488,7 +488,7 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 
 		// rename file by deleting previous index file & renaming temp one
 		File old = getIndexFile();
-		if (!old.delete()) {
+		if (old.exists() && !old.delete()) {
 			if (DEBUG)
 				System.out.println("mergeWith - Failed to delete " + this.fileName); //$NON-NLS-1$
 			throw new IOException("Failed to delete index file " + this.fileName); //$NON-NLS-1$

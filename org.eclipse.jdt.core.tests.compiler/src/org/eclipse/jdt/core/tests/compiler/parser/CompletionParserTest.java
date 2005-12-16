@@ -2532,7 +2532,7 @@ public void testIA_1FGNBPR_1() {
 
 	String testName = "<complete on label name>";
 	String completeBehind = "la";
-	String expectedCompletionNodeToString = "<CompleteOnName:la>";
+	String expectedCompletionNodeToString = "break <CompleteOnLabel:la>;";
 	String completionIdentifier = "la";
 	String expectedReplacedSource = "la";
 	int cursorLocation = str.indexOf("la }") + completeBehind.length() - 1;
@@ -2542,15 +2542,15 @@ public void testIA_1FGNBPR_1() {
 		"  public IA() {\n" + 
 		"  }\n" + 
 		"  void foo1() {\n" + 
-		"    {\n" +
-		"      class A {\n" +
-		"        A() {\n" +
-		"        }\n" +
-		"        void foo2() {\n" +
-		"          <CompleteOnName:la>;\n" +
-		"        }\n" +
-		"      }\n" +
-		"    }\n" +
+		"    {\n" + 
+		"      class A {\n" + 
+		"        A() {\n" + 
+		"        }\n" + 
+		"        void foo2() {\n" + 
+		"          break <CompleteOnLabel:la>;\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2585,7 +2585,7 @@ public void testIA_1FGNBPR_2() {
 
 	String testName = "<complete on label name>";
 	String completeBehind = "la";
-	String expectedCompletionNodeToString = "<CompleteOnName:la>";
+	String expectedCompletionNodeToString = "break <CompleteOnLabel:la>;";
 	String completionIdentifier = "la";
 	String expectedReplacedSource = "la";
 	int cursorLocation = str.indexOf("la }", str.indexOf("la }") + 1) + completeBehind.length() - 1;
@@ -2604,7 +2604,7 @@ public void testIA_1FGNBPR_2() {
 		"        }\n" +
 		"      }\n" +
 		"      A a;\n" +
-		"      <CompleteOnName:la>;\n" +
+		"      break <CompleteOnLabel:la>;\n" +
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -8607,6 +8607,37 @@ public void test016(){
 		"}\n";
 
 	checkMethodParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
+
+public void test017(){
+	String str = 
+		"public class Bar {\n" +
+		"  String s;\n" + 
+		"  /**/\n" + 
+		"}\n";
+
+	String testName = "";
+	String completeBehind = "/**/";
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	int cursorLocation = str.lastIndexOf("/**/") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+		"public class Bar {\n" + 
+		"  String s;\n" + 
+		"  <CompleteOnType:>;\n" + 
+		"  public Bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
 		str.toCharArray(), 
 		cursorLocation, 
 		expectedCompletionNodeToString,

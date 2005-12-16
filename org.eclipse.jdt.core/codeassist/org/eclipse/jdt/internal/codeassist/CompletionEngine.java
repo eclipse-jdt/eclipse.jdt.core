@@ -646,7 +646,11 @@ public final class CompletionEngine
 		}
 	}
 		
-	private void buildContext(ASTNode astNode) {
+	private void buildContext(
+			ASTNode astNode,
+			ASTNode astNodeParent,
+			Binding qualifiedBinding,
+			Scope scope) {
 		CompletionContext context = new CompletionContext();
 		
 		// build expected types context
@@ -662,10 +666,45 @@ public final class CompletionEngine
 			context.setExpectedTypesKeys(expKeys);
 		}
 		
+		context.setOffset(this.actualCompletionPosition + 1);
+		
 		// Set javadoc info
 		if (astNode instanceof CompletionOnJavadoc) {
 			this.assistNodeInJavadoc = ((CompletionOnJavadoc)astNode).getCompletionFlags();
 			context.setJavadoc(this.assistNodeInJavadoc);
+		}
+		
+		if (!(astNode instanceof CompletionOnJavadoc)) {
+			CompletionScanner scanner = (CompletionScanner)this.parser.scanner;
+			context.setToken(scanner.completionIdentifier);
+			context.setTokenRange(
+					scanner.completedIdentifierStart,
+					scanner.completedIdentifierEnd,
+					scanner.endOfEmptyToken);
+		} else if(astNode instanceof CompletionOnJavadocTag) {
+			CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
+			context.setToken(CharOperation.concat(new char[]{'@'}, javadocTag.token));
+			context.setTokenRange(
+					javadocTag.tagSourceStart,
+					javadocTag.tagSourceEnd,
+					((CompletionScanner)this.parser.javadocParser.scanner).endOfEmptyToken);
+		} else {
+			CompletionScanner scanner = (CompletionScanner)this.parser.javadocParser.scanner;
+			context.setToken(scanner.completionIdentifier);
+			context.setTokenRange(
+					scanner.completedIdentifierStart,
+					scanner.completedIdentifierEnd,
+					scanner.endOfEmptyToken);
+		}
+		
+		if(astNode instanceof CompletionOnStringLiteral) {
+			context.setTokenKind(CompletionContext.TOKEN_KIND_STRING_LITERAL);
+		} else {
+			context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
+		}
+		
+		if(DEBUG) {
+			System.out.println(context.toString());
 		}
 		this.requestor.acceptContext(context);
 	}
@@ -680,9 +719,9 @@ public final class CompletionEngine
 			if(!isValidParent(astNodeParent, astNode, scope)) return false;
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
-
-		buildContext(astNode);
-
+		
+		buildContext(astNode, astNodeParent, qualifiedBinding, scope);
+		
 		if (astNode instanceof CompletionOnFieldType) {
 
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
@@ -772,12 +811,14 @@ public final class CompletionEngine
 
 		} else if (astNode instanceof CompletionOnSingleTypeReference) {
 
-			this.completionToken = ((CompletionOnSingleTypeReference) astNode).token;
+			CompletionOnSingleTypeReference singleRef = (CompletionOnSingleTypeReference) astNode;
+			
+			this.completionToken = singleRef.token;
 
-			this.assistNodeIsClass = astNode instanceof CompletionOnClassReference;
-			this.assistNodeIsException = astNode instanceof CompletionOnExceptionReference;
-			this.assistNodeIsInterface = astNode instanceof CompletionOnInterfaceReference;
-			this.assistNodeIsConstructor = ((CompletionOnSingleTypeReference) astNode).isConstructorType;
+			this.assistNodeIsClass = singleRef.isClass();
+			this.assistNodeIsException = singleRef.isException();
+			this.assistNodeIsInterface = singleRef.isInterface();
+			this.assistNodeIsConstructor = singleRef.isConstructorType;
 
 			// can be the start of a qualified type name
 			if (qualifiedBinding == null) {
@@ -905,12 +946,13 @@ public final class CompletionEngine
 
 			this.insideQualifiedReference = true;
 			
-			this.assistNodeIsClass = astNode instanceof CompletionOnQualifiedClassReference;
-			this.assistNodeIsException = astNode instanceof CompletionOnQualifiedExceptionReference;
-			this.assistNodeIsInterface = astNode instanceof CompletionOnQualifiedInterfaceReference;
-			
 			CompletionOnQualifiedTypeReference ref =
 				(CompletionOnQualifiedTypeReference) astNode;
+			
+			this.assistNodeIsClass = ref.isClass();
+			this.assistNodeIsException = ref.isException();
+			this.assistNodeIsInterface = ref.isInterface();
+			
 			this.completionToken = ref.completionIdentifier;
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
 
@@ -1142,43 +1184,53 @@ public final class CompletionEngine
 				}
 			}
 		} else if (astNode instanceof CompletionOnMemberValueName) {
-			if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
-				CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
-				Annotation annotation = (Annotation) astNodeParent;
-				
-				this.completionToken = memberValuePair.name;
-				
-				if (this.completionToken.length == 0) {
+			CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
+			Annotation annotation = (Annotation) astNodeParent;
+			
+			this.completionToken = memberValuePair.name;
+			
+			if (this.completionToken.length == 0) {
+				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
 
 					findAnnotationReference(annotation.type);
-				} else {
-					MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				}
+			} else {
+				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
 					this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
-					if (memberValuePairs == null || memberValuePairs.length == 0) {
-						if (annotation.resolvedType instanceof ReferenceBinding) {
-							MethodBinding[] methodBindings =
-								((ReferenceBinding)annotation.resolvedType).availableMethods();
-							if (methodBindings != null &&
-									methodBindings.length == 1 &&
-									CharOperation.equals(methodBindings[0].selector, VALUE)) {
-								if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-									findTypesAndPackages(this.completionToken, scope);
-								} else {
-									findVariablesAndMethods(
-										this.completionToken,
-										scope,
-										FakeInvocationSite,
-										scope,
-										insideTypeAnnotation,
-										true);
-									// can be the start of a qualified type name
-									findTypesAndPackages(this.completionToken, scope);
-								}
+				}
+				if (memberValuePairs == null || memberValuePairs.length == 0) {
+					if (annotation.resolvedType instanceof ReferenceBinding) {
+						MethodBinding[] methodBindings =
+							((ReferenceBinding)annotation.resolvedType).availableMethods();
+						if (methodBindings != null &&
+								methodBindings.length == 1 &&
+								CharOperation.equals(methodBindings[0].selector, VALUE)) {
+							if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+								findTypesAndPackages(this.completionToken, scope);
+							} else {
+								findVariablesAndMethods(
+									this.completionToken,
+									scope,
+									FakeInvocationSite,
+									scope,
+									insideTypeAnnotation,
+									true);
+								// can be the start of a qualified type name
+								findTypesAndPackages(this.completionToken, scope);
 							}
 						}
 					}
 				}
+			}
+		} else if(astNode instanceof CompletionOnBrankStatementLabel) {
+			if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+				CompletionOnBrankStatementLabel label = (CompletionOnBrankStatementLabel) astNode;
+				
+				this.completionToken = label.label;
+				
+				this.findLabels(this.completionToken, label.possibleLabels);
 			}
 		// Completion on Javadoc nodes
 		} else if ((astNode.bits & ASTNode.InsideJavadoc) != 0) {
@@ -1202,7 +1254,8 @@ public final class CompletionEngine
 				// get the source positions of the completion identifier
 				if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 					if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
-						setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+						int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
+						setSourceRange(rangeStart, (int) completionPosition);
 						findMemberTypes(this.completionToken,
 							(ReferenceBinding) qualifiedBinding,
 							scope,
@@ -1552,7 +1605,7 @@ public final class CompletionEngine
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					contextAccepted = true;
-					this.requestor.acceptContext(new CompletionContext());
+					this.buildContext(parsedUnit.currentPackage, null, null, null);
 					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 						findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					}
@@ -1573,7 +1626,7 @@ public final class CompletionEngine
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
 								contextAccepted = true;
-								this.requestor.acceptContext(new CompletionContext());
+								this.buildContext(importReference, null, null, null);
 								
 								setSourceRange(
 									importReference.sourceStart,
@@ -1620,7 +1673,7 @@ public final class CompletionEngine
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
 							contextAccepted = true;
-							this.requestor.acceptContext(new CompletionContext());
+							this.buildContext(importReference, null, null, null);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
@@ -1673,7 +1726,10 @@ public final class CompletionEngine
 			if(this.noProposal && this.problem != null) {
 				if(!contextAccepted) {
 					contextAccepted = true;
-					this.requestor.acceptContext(new CompletionContext());
+					CompletionContext context = new CompletionContext();
+					context.setOffset(completionPosition);
+					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
+					this.requestor.acceptContext(context);
 				}
 				this.requestor.completionFailure(this.problem);
 				if(DEBUG) {
@@ -1715,7 +1771,10 @@ public final class CompletionEngine
 			reset();
 			if(!contextAccepted) {
 				contextAccepted = true;
-				this.requestor.acceptContext(new CompletionContext());
+				CompletionContext context = new CompletionContext();
+				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
+				context.setOffset(completionPosition);
+				this.requestor.acceptContext(context);
 			}
 			this.requestor.endReporting();
 		}
@@ -2272,6 +2331,8 @@ public final class CompletionEngine
 			FieldBinding field = fields[f];
 
 			if (field.isSynthetic())	continue next;
+			
+			if (field.name == ClassScope.IncompleteHierarchy) continue next;
 
 			if (onlyStaticFields && !field.isStatic()) continue next;
 
@@ -4092,6 +4153,36 @@ public final class CompletionEngine
 			addUninterestingBindings(((FieldDeclaration)parent).binding);
 		} 
 	}
+	
+	private void findLabels(char[] label, char[][] choices) {
+		if(choices == null || choices.length == 0) return;
+		
+		int length = label.length;
+		for (int i = 0; i < choices.length; i++) {
+			if (length <= choices[i].length
+				&& CharOperation.prefixEquals(label, choices[i], false /* ignore case */
+			)){
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForCaseMatching(label, choices[i]);
+				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+				
+				this.noProposal = false;
+				if(!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
+					proposal.setName(choices[i]);
+					proposal.setCompletion(choices[i]);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+		}
+	}
+	
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
 	private void findLocalMethodDeclarations(
 		char[] methodName,
@@ -4495,7 +4586,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if (notInJavadoc && hasPotentialDefaultAbstractMethods && currentType.isAbstract()){
+			if (notInJavadoc && hasPotentialDefaultAbstractMethods && (currentType.isAbstract() || currentType.isTypeVariable())){
 				findInterfacesMethods(
 					selector,
 					argTypes,
@@ -4514,7 +4605,7 @@ public final class CompletionEngine
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
-			currentType = notInJavadoc ? currentType.superclass() : null;
+			currentType = currentType.superclass();
 		}
 	}
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){

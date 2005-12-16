@@ -372,7 +372,7 @@ public class ASTParser {
 	 * client to retrieve the following pieces of information 
 	 * available there:
 	 * <ul>
-	 * <li>{@linkplain CompilationUnit#lineNumber(int) Line number map}. Line
+	 * <li>{@linkplain CompilationUnit#getLineNumber(int) Line number map}. Line
 	 * numbers start at 1 and only cover the subrange scanned
 	 * (<code>source[offset]</code> through <code>source[offset+length-1]</code>).</li>
 	 * <li>{@linkplain CompilationUnit#getMessages() Compiler messages}
@@ -849,7 +849,7 @@ public class ASTParser {
 	 * client to retrieve the following pieces of information 
 	 * available there:
 	 * <ul>
-	 * <li>{@linkplain CompilationUnit#lineNumber(int) Line number map}. Line
+	 * <li>{@linkplain CompilationUnit#getLineNumber(int) Line number map}. Line
 	 * numbers start at 1 and only cover the subrange scanned
 	 * (<code>source[offset]</code> through <code>source[offset+length-1]</code>).</li>
 	 * <li>{@linkplain CompilationUnit#getMessages() Compiler messages}
