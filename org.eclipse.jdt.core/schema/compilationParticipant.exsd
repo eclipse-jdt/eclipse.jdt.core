@@ -8,7 +8,7 @@
       <documentation>
          This extension point allows clients to participate in the JDT compilation process
          by receiving notifications at various stages of build and reconcile, via the
-         org.eclipse.jdt.core.compiler.ICompilationParticipant interface.
+         org.eclipse.jdt.core.compiler.CompilationParticipant interface.
       </documentation>
    </annotation>
 
@@ -50,17 +50,24 @@
             <annotation>
                <documentation>
                   the class that implements this compilation participant.
-         This class must implement a public subclass of &lt;code&gt;org.eclipse.jdt.core.compiler.ICompilationParticipant&lt;/code&gt; with a public 0-argument constructor.
+         This class must be a public subclass of &lt;code&gt;org.eclipse.jdt.core.compiler.CompilationParticipant&lt;/code&gt; with a public 0-argument constructor.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="eventMask" type="string" use="required">
-         	<annotation>
-         		<documentation>
-         			the set of events for which this compilation participant wishes to be notified.
-An integer value consisting of OR-ed together constants from &lt;code&gt;org.eclipse.jdt.core.compiler.ICompilationParticipant&lt;/code&gt;.
-         		</documentation>
-         	</annotation>
+            <annotation>
+               <documentation>
+                  the set of events for which this compilation participant wishes to be notified.
+An integer value consisting of OR-ed together constants from &lt;code&gt;org.eclipse.jdt.core.compiler.CompilationParticipant&lt;/code&gt;.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="loadEarly" type="boolean">
+            <annotation>
+               <documentation>
+                  true if the compilation participant is to be loaded during &lt;code&gt;JavaCore.startup()&lt;/code&gt;.
+               </documentation>
+            </annotation>
          </attribute>
       </complexType>
    </element>

@@ -14,9 +14,8 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.BrokenClasspathBuildFailureEvent;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -126,6 +125,19 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	if (DEBUG)
 		System.out.println("\nStarting build of " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
+	
+	if( javaProject == null )
+		javaProject = (JavaProject)JavaCore.create(currentProject);
+	final List cps = JavaCore.getCompilationParticipants(CompilationParticipant.PRE_BUILD_EVENT, javaProject);
+	for( int i=0, len=cps.size(); i<len; i++ ){
+		final CompilationParticipant cp = (CompilationParticipant)cps.get(i);
+		try{
+			cp.aboutToBuild(javaProject);
+		}catch(Throwable t){
+			Util.log(t, "Exception caught during aboutToBuild() on " + cp.getClass().getName() ); //$NON-NLS-1$
+		}
+	}
+
 	this.notifier = new BuildNotifier(monitor, currentProject);
 	notifier.begin();
 	boolean ok = false;
@@ -535,31 +547,10 @@ private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throw
 	return false;
 }
 
-private void notifyCompilationParticipants() {
-	
-	List cps = JavaCore
-		.getCompilationParticipants( ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT, javaProject );
-	if ( cps == null || cps.isEmpty() )
-		return;
-		
-	BrokenClasspathBuildFailureEvent event = new BrokenClasspathBuildFailureEvent( javaProject );
-	Iterator it = cps.iterator();
-	while ( it.hasNext() ) {
-		ICompilationParticipant cp = (ICompilationParticipant) it.next();
-		cp.notify( event );
-	}
-}
-
-
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds =
 		JavaCore.ABORT.equals(javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
 	if (!abortBuilds) return true;
-
-	
-	// if classpath is broken, let the compilation participants have a chance to fix it
-	if ( isClasspathBroken( javaProject.getRawClasspath(), currentProject ))
-		notifyCompilationParticipants();
 
 	// Abort build only if there are classpath errors
 	if (isClasspathBroken(javaProject.getRawClasspath(), currentProject)) {

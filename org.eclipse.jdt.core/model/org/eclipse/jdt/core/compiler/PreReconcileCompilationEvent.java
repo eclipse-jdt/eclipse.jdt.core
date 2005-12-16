@@ -16,10 +16,10 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * An event class passed into ICompilationParticipant's notify() method before a reconcile
+ * An event class passed into CompilationParticipant's notify() method before a reconcile
  * has begun.
  * 
- *  @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ *  @see CompilationParticipant#notify(CompilationParticipantEvent)
  *  @since 3.2
  */
 public class PreReconcileCompilationEvent extends CompilationParticipantEvent {
@@ -42,10 +42,10 @@ public class PreReconcileCompilationEvent extends CompilationParticipantEvent {
 	
 	/**
 	 * @return an integer flag indicating that this is a pre-reconcile event.
-	 * @see ICompilationParticipant#PRE_RECONCILE_EVENT
+	 * @see CompilationParticipant#PRE_RECONCILE_EVENT
 	 * @see CompilationParticipantEvent#getKind()
 	 */
-	public final int getKind() { return ICompilationParticipant.PRE_RECONCILE_EVENT; }
+	public final int getKind() { return CompilationParticipant.PRE_RECONCILE_EVENT; }
 
 	private ICompilationUnit _compilationUnit;
 	

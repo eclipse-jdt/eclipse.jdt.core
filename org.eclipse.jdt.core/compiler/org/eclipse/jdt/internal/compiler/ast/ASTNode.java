@@ -406,6 +406,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 					packageBinding.tagBits |= TagBits.AnnotationResolved;					
 					break;
 				case Binding.TYPE :				
+				case Binding.GENERIC_TYPE:
 					SourceTypeBinding type = (SourceTypeBinding) recipient;
 					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
 					type.tagBits |= TagBits.AnnotationResolved;

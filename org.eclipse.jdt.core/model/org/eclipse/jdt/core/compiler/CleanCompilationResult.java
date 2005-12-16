@@ -13,19 +13,19 @@
 package org.eclipse.jdt.core.compiler;
 
 /**
- * An result class returned from an ICompilationParticipant's notify() method in 
+ * An result class returned from an CompilationParticipant's notify() method in 
  * response to a clean event;
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public class CleanCompilationResult extends CompilationParticipantResult {
 
 	/**
 	 * @return an integer flag indicating that this is result for a post-build event.
-	 * @see ICompilationParticipant#CLEAN_EVENT
+	 * @see CompilationParticipant#CLEAN_EVENT
 	 * @see CompilationParticipantResult#getKind()
 	 */
-	public int getKind() { return ICompilationParticipant.CLEAN_EVENT; }
+	public int getKind() { return CompilationParticipant.CLEAN_EVENT; }
 	
 }

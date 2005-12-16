@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -234,7 +233,7 @@ protected void compile(SourceFile[] units) {
 
 
 /**
- *  notify the ICompilationParticipants of the pre-build event 
+ *  notify the CompilationParticipants of the pre-build event 
  *  @return a map that maps source units to problems encountered during the prebuild process.
  */
 private  Map notifyCompilationParticipants(
@@ -244,7 +243,7 @@ private  Map notifyCompilationParticipants(
 		Map extraDependencies,
 		int round) {
 	List cps = JavaCore
-			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT,
+			.getCompilationParticipants( CompilationParticipant.PRE_BUILD_EVENT,
 					javaBuilder.javaProject );
 	if ( cps.isEmpty() ) {
 		return null;
@@ -266,9 +265,8 @@ private  Map notifyCompilationParticipants(
 
 	java.util.Iterator it = cps.iterator();
 	Map ifiles2problems = new HashMap();
-	boolean classpathChanged = false;
 	while ( it.hasNext() ) {
-		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
+		CompilationParticipant p = ( CompilationParticipant ) it.next();
 
 		CompilationParticipantResult cpr = p.notify( pbce );
 		if ( cpr instanceof PreBuildCompilationResult ) {
@@ -288,17 +286,10 @@ private  Map notifyCompilationParticipants(
 			
 			mergeMaps( pbcr.getNewDependencies(), extraDependencies );
 			mergeMaps( pbcr.getProblems(), ifiles2problems );
-			
-			classpathChanged  |= pbcr.getProjectClasspathChanged();
 		}
 	}
 	
 	if ( newFiles.size() > 0 ) {
-		
-		// if project classpath has changed, then we need to reset the name environments
-		if ( classpathChanged )
-			resetNameEnvironment();
-		
 		Set newFiles_2 = new HashSet();
 		Set deletedFiles_2 = new HashSet();
 		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
@@ -401,28 +392,6 @@ private SourceFile[] ifileSet2SourceFileArray( Set ifiles ) {
 	SourceFile[] sf = new SourceFile[ ifiles.size() ];
 	ifileSet2SourceFileArray( ifiles, sf, 0 );
 	return sf;
-}
-
-private void resetNameEnvironment() {
-	
-	SimpleLookupTable binaryLocationsPerProject = new SimpleLookupTable(3);
-	NameEnvironment newNameEnvironment = null; 
-	try {
-		newNameEnvironment = new NameEnvironment(this.javaBuilder.workspaceRoot, this.javaBuilder.javaProject, binaryLocationsPerProject);
-	}
-	catch( CoreException ce ) {
-		// TODO:  log exception
-		ce.printStackTrace();
-	}
-	
-	if ( newNameEnvironment != null ) {
-		this.nameEnvironment.cleanup();
-		this.javaBuilder.binaryLocationsPerProject = new SimpleLookupTable(3);
-		this.javaBuilder.nameEnvironment = newNameEnvironment;
-		this.nameEnvironment = this.javaBuilder.nameEnvironment;
-		this.sourceLocations = this.nameEnvironment.sourceLocations;
-		this.compiler = newCompiler();
-	}
 }
 
 private SourceFile[] updateSourceUnits( SourceFile[] units, Set newFiles, Set deletedFiles ) {

@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.PreReconcileCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreReconcileCompilationResult;
@@ -132,17 +132,17 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		final IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 		
 		IJavaProject javaProject = workingCopy.getJavaProject();
-		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.PRE_RECONCILE_EVENT, javaProject);	
+		List l = JavaCore.getCompilationParticipants(CompilationParticipant.PRE_RECONCILE_EVENT, javaProject);	
 
-		// we want to go through ICompilationParticipant only if there are participants
+		// we want to go through CompilationParticipants only if there are participants
 		// and the compilation unit is not consistent or we are forcing problem detection
 		if ( ( l != null && l.size() > 0 ) && ( !workingCopy.isConsistent() || forceProblemDetection )) {	
 			PreReconcileCompilationEvent prce = new PreReconcileCompilationEvent( workingCopy, javaProject );
 			Iterator it = l.iterator();
 			while ( it.hasNext() ) {
-				ICompilationParticipant p = (ICompilationParticipant)it.next(); 
+				CompilationParticipant p = (CompilationParticipant)it.next(); 
 				final CompilationParticipantResult result = p.notify(prce);
-				if (result.getKind() == ICompilationParticipant.PRE_RECONCILE_EVENT) {
+				if (result.getKind() == CompilationParticipant.PRE_RECONCILE_EVENT) {
 					final PreReconcileCompilationResult postResult = (PreReconcileCompilationResult)result;
 					final IProblem[] problems = postResult.getProblems();	
 					if( problemRequestor != null && problems != null ){

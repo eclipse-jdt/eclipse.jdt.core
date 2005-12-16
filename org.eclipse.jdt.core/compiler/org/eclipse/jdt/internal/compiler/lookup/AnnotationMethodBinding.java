@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
  */
 public class AnnotationMethodBinding extends MethodBinding 
 {
+	private static Object NO_RESOLVED_VALUE = new Object();
 	private Object defaultValue = null;
 	/**
 	 * 
@@ -43,10 +44,14 @@ public class AnnotationMethodBinding extends MethodBinding
 	public void setDefaultValue()
 	{			
 		if (this.declaringClass instanceof SourceTypeBinding) {
-			TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
+			final SourceTypeBinding srcType = (SourceTypeBinding)this.declaringClass;
+			TypeDeclaration typeDecl = srcType.scope.referenceContext;
 			final AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(this);
 			if( methodDecl instanceof AnnotationMethodDeclaration){
-				this.defaultValue = SourceElementValuePair.getValue(((AnnotationMethodDeclaration)methodDecl).defaultValue);
+				final AnnotationMethodDeclaration annotationMethodDecl = (AnnotationMethodDeclaration)methodDecl;				
+				this.defaultValue = SourceElementValuePair.getValue(annotationMethodDecl.defaultValue);
+				if( this.defaultValue == null )
+					this.defaultValue = NO_RESOLVED_VALUE;
 			}
 		}
 	}
@@ -57,6 +62,27 @@ public class AnnotationMethodBinding extends MethodBinding
 	 */
 	public Object getDefaultValue()
 	{
+		if(this.defaultValue == NO_RESOLVED_VALUE )
+			return null;
+		else if(this.defaultValue != null)
+			return this.defaultValue;
+		else{
+			if (this.declaringClass instanceof SourceTypeBinding) {			
+				final SourceTypeBinding srcType = (SourceTypeBinding)this.declaringClass;
+				// we have already cut the AST. 
+				// default value is either already resolved or it is null.
+				if( srcType.scope == null ){
+					this.defaultValue = NO_RESOLVED_VALUE;
+					return null;
+				}
+				TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
+				final AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(this);
+				if( methodDecl instanceof AnnotationMethodDeclaration){				
+					final AnnotationMethodDeclaration annotationMethodDecl = (AnnotationMethodDeclaration)methodDecl;
+					annotationMethodDecl.resolveStatements();
+				}
+			}
+		}
 		return this.defaultValue;
 	}	
 }

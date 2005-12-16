@@ -16,10 +16,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * An event class passed into ICompilationParticipant's notify() method before a build
+ * An event class passed into CompilationParticipant's notify() method before a build
  * has completed.
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public class PreBuildCompilationEvent extends CompilationParticipantEvent {
@@ -59,10 +59,10 @@ public class PreBuildCompilationEvent extends CompilationParticipantEvent {
 	
 	/**
 	 * @return an integer flag indicating that this is a pre-build event.
-	 * @see ICompilationParticipant#PRE_BUILD_EVENT
+	 * @see CompilationParticipant#PRE_BUILD_EVENT
 	 * @see CompilationParticipantEvent#getKind()
 	 */
-	public final int getKind() { return ICompilationParticipant.PRE_BUILD_EVENT; }
+	public final int getKind() { return CompilationParticipant.PRE_BUILD_EVENT; }
 
 	private IFile[] _files;
 	

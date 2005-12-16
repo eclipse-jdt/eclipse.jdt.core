@@ -64,7 +64,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -1037,8 +1037,8 @@ public final class JavaCore extends Plugin {
 	 * @param eventMask the set of events for which the listener will be notified,
 	 * built by ORing together values from CompilationParticipantEvent.
 	 */
-	public static void addCompilationParticipant(ICompilationParticipant icp, int eventMask) {
-		JavaModelManager.getJavaModelManager().getCompilationParticipants().add(icp, eventMask);
+	public static void addCompilationParticipant(CompilationParticipant icp, int eventMask) {
+		JavaModelManager.getJavaModelManager().getCompilationParticipantManager().add(icp, eventMask);
 	}
 
 	/**
@@ -1599,13 +1599,17 @@ public final class JavaCore extends Plugin {
 	 * See <code>JavaModelManager.CompilationParticipants.getCompilationParticipants()</code>
 	 * for a complete description of the circumstances under which this deadlock can occur.
 	 * 
-	 * @param eventMask an ORed combination of values from ICompilationParticipant.
+	 * @param eventMask an ORed combination of values from CompilationParticipant.
 	 * @param project the java project that will the participants will operate against
-	 * @return an immutable list of ICompilationParticipant.
-	 * @see JavaModelManager.CompilationParticipants#getCompilationParticipants
+	 * @return an immutable list of CompilationParticipant.
+	 * @see JavaModelManager.CompilationParticipantManager#getCompilationParticipants
 	 */
 	public static List getCompilationParticipants(int eventMask, IJavaProject project) {
-		return JavaModelManager.getJavaModelManager().getCompilationParticipants().getCompilationParticipants(eventMask, project);
+		return JavaModelManager.getJavaModelManager().getCompilationParticipantManager().getCompilationParticipants(eventMask, project);
+	}
+	
+	public static void preloadCompilationParticipants(){
+		JavaModelManager.getJavaModelManager().getCompilationParticipantManager().preLoadCompilationParticipants();
 	}
 	
 	/**
@@ -3737,8 +3741,8 @@ public final class JavaCore extends Plugin {
 	 * addCompilationParticipant.
 	 * @param icp the listener to remove
 	 */
-	public static void removeCompilationParticipant(ICompilationParticipant icp) {
-		JavaModelManager.getJavaModelManager().getCompilationParticipants().remove(icp);
+	public static void removeCompilationParticipant(CompilationParticipant icp) {
+		JavaModelManager.getJavaModelManager().getCompilationParticipantManager().remove(icp);
 	}
 
 	/**

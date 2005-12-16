@@ -14,7 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.CleanCompilationEvent;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -103,7 +103,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 private void notifyCompilationParticipantsOfClean()
 {
 	List cps = JavaCore.getCompilationParticipants( 
-			ICompilationParticipant.CLEAN_EVENT, javaBuilder.javaProject );
+			CompilationParticipant.CLEAN_EVENT, javaBuilder.javaProject );
 		
 	if ( cps.isEmpty() ) 
 		return;
@@ -112,7 +112,7 @@ private void notifyCompilationParticipantsOfClean()
 
 	java.util.Iterator it = cps.iterator();
 	while ( it.hasNext() ) {
-		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
+		CompilationParticipant p = ( CompilationParticipant ) it.next();
 		p.notify( pbce );
 	}
 }

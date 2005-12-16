@@ -15,10 +15,10 @@ package org.eclipse.jdt.core.compiler;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * An event class passed into ICompilationParticipant's notify() method when a
+ * An event class passed into CompilationParticipant's notify() method when a
  * "clean" has been requested. 
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public class CleanCompilationEvent extends CompilationParticipantEvent {
@@ -27,9 +27,9 @@ public class CleanCompilationEvent extends CompilationParticipantEvent {
 	
 	/**
 	 * @return an integer flag indicating that this is a clean event.
-	 * @see ICompilationParticipant#CLEAN_EVENT
+	 * @see CompilationParticipant#CLEAN_EVENT
 	 * @see CompilationParticipantEvent#getKind()
 	 */
-	public int getKind() { return ICompilationParticipant.CLEAN_EVENT; }
+	public int getKind() { return CompilationParticipant.CLEAN_EVENT; }
 	
 }

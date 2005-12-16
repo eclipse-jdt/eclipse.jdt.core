@@ -17,10 +17,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 
 /**
- * An result class used as a return value from ICompilationParticipant's notify() method 
+ * An result class used as a return value from CompilationParticipant's notify() method 
  * when responding to a pre-build event.
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public class PreBuildCompilationResult extends CompilationParticipantResult {
@@ -35,13 +35,12 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	 *        for the IFile.  The JDT will record these new dependencies in its depdency
 	 *        matrix. 
 	 */
-	public PreBuildCompilationResult( IFile[] newFiles, IFile[] deletedFiles, Map newDependencyInfo, Map newProblems, boolean classPathChanged )
+	public PreBuildCompilationResult( IFile[] newFiles, IFile[] deletedFiles, Map newDependencyInfo, Map newProblems )
 	{
 		_newFiles = newFiles;
 		_deletedFiles = deletedFiles;
 		_newDependencyInfo = newDependencyInfo;
 		_newProblems = newProblems;
-		_projectClasspathChanged = classPathChanged;
 	}
 	
 	/** 
@@ -74,29 +73,13 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	
 	/**
 	 * @return an integer flag indicating that this is result for a pre-build event.
-	 * @see ICompilationParticipant#PRE_BUILD_EVENT
+	 * @see CompilationParticipant#PRE_BUILD_EVENT
 	 * @see CompilationParticipantEvent#getKind()
 	 */
-	public final int getKind() { return ICompilationParticipant.PRE_BUILD_EVENT; }
-	
-	/**
-	 * @return boolean indicating if the project's classpath was changed by the
-	 * compilation participant.  Defaults to false. 
-	 */
-	public boolean getProjectClasspathChanged() { return _projectClasspathChanged; }
-	
-	/**
-	 *  sets the value of this PreBuildCompilationResult _hasClasspathChanged member.
-	 *  Should be called by a client if the ICompilationParticipant has modified
-	 *  the projects ClasspathEntries in any way (for example, by adding a new source
-	 *  path to the project).  
-	 */
-	public void    setProjectClasspathChanged( boolean b ) { _projectClasspathChanged = b; }
+	public final int getKind() { return CompilationParticipant.PRE_BUILD_EVENT; }
 	
 	private IFile[] _newFiles;
 	private IFile[] _deletedFiles;
 	private Map     _newDependencyInfo;
 	private Map		_newProblems;
-	private boolean _projectClasspathChanged;
-	
 }

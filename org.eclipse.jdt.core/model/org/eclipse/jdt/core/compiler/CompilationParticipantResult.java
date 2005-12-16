@@ -13,19 +13,19 @@
 package org.eclipse.jdt.core.compiler;
 
 /**
- * A generic result object returned from ICompilationParticipant#notify.  This is subclassed
+ * A generic result object returned from CompilationParticipant#notify.  This is subclassed
  * to provide event-specific return information.
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public class CompilationParticipantResult {
 
 	/**
 	 * @return an integer flag indicating the kind of event this is a result for.  
-	 * One of the *_EVENT constants in ICompilationParticipant.
-	 * @see ICompilationParticipant#GENERIC_EVENT
+	 * One of the *_EVENT constants in CompilationParticipant.
+	 * @see CompilationParticipant#GENERIC_EVENT
 	 */
-	public int getKind() { return ICompilationParticipant.GENERIC_EVENT; }
+	public int getKind() { return CompilationParticipant.GENERIC_EVENT; }
 	
 }

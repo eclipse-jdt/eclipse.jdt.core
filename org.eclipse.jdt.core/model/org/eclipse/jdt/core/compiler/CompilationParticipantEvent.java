@@ -16,10 +16,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * Generic base class for an event passed into ICompilationParticipant's notify() method.  
+ * Generic base class for an event passed into CompilationParticipant's notify() method.  
  * This is subclassed to provide event-specific return information.
  * 
- * @see ICompilationParticipant#notify(CompilationParticipantEvent)
+ * @see CompilationParticipant#notify(CompilationParticipantEvent)
  * @since 3.2
  */
 public  class CompilationParticipantEvent {
@@ -35,10 +35,10 @@ public  class CompilationParticipantEvent {
 
 	/**
 	 * @return an integer flag indicating the kind of event.  One of the *_EVENT 
-	 * constants in ICompilationParticipant
-	 * @see ICompilationParticipant#GENERIC_EVENT
+	 * constants in CompilationParticipant
+	 * @see CompilationParticipant#GENERIC_EVENT
 	 */
-	public int           getKind()              { return ICompilationParticipant.GENERIC_EVENT; }
+	public int           getKind()              { return CompilationParticipant.GENERIC_EVENT; }
 	
 	/**
 	 * @return the IProject for this event

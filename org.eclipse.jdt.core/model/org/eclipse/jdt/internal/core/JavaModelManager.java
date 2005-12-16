@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -178,25 +178,31 @@ public class JavaModelManager implements ISaveParticipant {
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
-	public class CompilationParticipants {
+	public class CompilationParticipantManager {
 		
 		/** Map<ICompilationParticipant, eventMask> registered by plugins */
-		private Map pluginCPs;
+		private final Map pluginCPs = new HashMap();
 		
 		/** Map<ICompilationParticipant, eventMask> from calls to add() */
-		private Map dynamicCPs = new HashMap();
+		private final Map dynamicCPs = new HashMap();
+		
+		/** True after early-load plugins have been loaded. */
+		private boolean earlyPluginsLoaded = false;
+		
+		/** True after all plugins have been loaded (both early-load and normal). */
+		private boolean pluginsLoaded = false;
 		
 		/**
-		 * @see JavaCore#addCompilationParticipant(ICompilationParticipant, int)
+		 * @see JavaCore#addCompilationParticipant(CompilationParticipant, int)
 		 */
-		public synchronized void add(ICompilationParticipant icp, int eventMask) {
+		public synchronized void add(CompilationParticipant icp, int eventMask) {
 			dynamicCPs.put(icp, new Integer(eventMask));
 		}
 
 		/**
-		 * @see JavaCore#removeCompilationParticipant(ICompilationParticipant)
+		 * @see JavaCore#removeCompilationParticipant(CompilationParticipant)
 		 */
-		public synchronized void remove(ICompilationParticipant icp) {
+		public synchronized void remove(CompilationParticipant icp) {
 			dynamicCPs.remove(icp);
 		}
 		
@@ -208,10 +214,10 @@ public class JavaModelManager implements ISaveParticipant {
 		 * which may cause plugins to be loaded.  
 		 * 
 		 * <p>
-		 * The initialization of ICompilationParticipants  is synchronized.  A deadlock may 
+		 * The initialization of CompilationParticipants  is synchronized.  A deadlock may 
 		 * occur if all of the following conditions are true:  
 		 *  
-		 *  <li>A plugin defines <code>ICompilationParticipants</code></li>
+		 *  <li>A plugin defines <code>CompilationParticipants</code></li>
 		 *  <li>That plugin's <code>start()</code> method spawns a thread which causes 
 		 *  <code>getCompilationParticipants()</code> to be invoked</li>
 		 *  <li>The <code>start()</code> method blocks waiting for the spawned thread to complete.</li> 
@@ -219,13 +225,13 @@ public class JavaModelManager implements ISaveParticipant {
 		 *  Note that a build and reconcile operations will cause <code>getCompilationParticipants()</code> to 
 		 *  be called.
 		 *  
-		 * @param eventMask an ORed combination of values from ICompilationParticipant.
+		 * @param eventMask an ORed combination of values from CompilationParticipant.
 		 * @param project the java project on which the compilation participant will
 		 * operate
-		 * @return an immutable list of ICompilationParticipant.
+		 * @return an immutable list of CompilationParticipant.
 		 */
 		public List getCompilationParticipants(int eventMask, IJavaProject project) {
-			initPlugins();
+			initPlugins(false);
 			List filteredICPs = new ArrayList();
 			Iterator it;
 			synchronized(this) {
@@ -233,7 +239,7 @@ public class JavaModelManager implements ISaveParticipant {
 				while (it.hasNext()) {
 					Map.Entry cp = (Map.Entry)it.next();
 					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-						ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+						CompilationParticipant participant = (CompilationParticipant)cp.getKey();
 						if (participant.doesParticipateInProject(project))
 							filteredICPs.add(participant);
 					}
@@ -243,7 +249,7 @@ public class JavaModelManager implements ISaveParticipant {
 			while (it.hasNext()) {
 				Map.Entry cp = (Map.Entry)it.next();
 				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-					ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+					CompilationParticipant participant = (CompilationParticipant)cp.getKey();
 					if (participant.doesParticipateInProject(project))
 						filteredICPs.add(participant);
 				}
@@ -251,11 +257,35 @@ public class JavaModelManager implements ISaveParticipant {
 			return Collections.unmodifiableList(filteredICPs);
 		}
 		
-		private synchronized void initPlugins() {
-			if (null != pluginCPs) {
+		/**
+		 * Load all compilation participants that require early loading.
+		 * Early loading is specified by setting the attribute <code>loadEarly</code> 
+		 * of the <code>org.eclipse.jdt.core.compilationParticipant</code>
+		 * extension point to the value <code>true</code>.  It provides an
+		 * opportunity for compilation participants to register listeners
+		 * or perform other initialization, before the JDT does a build.
+		 * <p>
+		 * This method must be called exactly once, and no other method on
+		 * <code>CompilationParticipantManager</code> may be called until
+		 * it returns.  (This is achieved by calling it in 
+		 * @see JavaModelManager#startup() .)
+		 */
+		public void preLoadCompilationParticipants(){
+			initPlugins(true);
+		}
+		
+		/**
+		 * Load extensions of the compilationParticipant extension point.
+		 * @param early if true, load only those extensions with the 
+		 * <code>loadEarly</code> attribute true.  If false, load only
+		 * those extensions with the <code>loadEarly</code> false or absent.
+		 */
+		private synchronized void initPlugins(boolean early) {
+			if (pluginsLoaded || (early && earlyPluginsLoaded))
 				return;
-			}
-			pluginCPs = new HashMap();
+			
+			earlyPluginsLoaded = true;
+			pluginsLoaded = early;
 
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
 					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
@@ -273,22 +303,27 @@ public class JavaModelManager implements ISaveParticipant {
 							continue;
 						}
 						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
-						try {
-							Integer eventMask;
-							if (null != eventMaskStr) {
-								eventMask = Integer.decode(eventMaskStr);
+
+						String loadEarlyStr = configElements[j].getAttribute("loadEarly"); //$NON-NLS-1$ - name of attribute
+						boolean loadEarly = Boolean.valueOf(loadEarlyStr).booleanValue();
+						if (loadEarly == early) {
+							try {
+								Integer eventMask;
+								if (null != eventMaskStr) {
+									eventMask = Integer.decode(eventMaskStr);
+								}
+								else {
+									// if mask is unspecified, send it all events
+									eventMask = new Integer(-1); 
+								}
+								Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+								if (execExt instanceof CompilationParticipant){
+									pluginCPs.put(execExt, eventMask);
+								}
+							} catch(CoreException e) {
+								// TODO: what is the right way to handle exceptions?
+								e.printStackTrace();
 							}
-							else {
-								// if mask is unspecified, send it all events
-								eventMask = new Integer(-1); 
-							}
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-							if (execExt instanceof ICompilationParticipant){
-								pluginCPs.put(execExt, eventMask);
-							}
-						} catch(CoreException e) {
-							// TODO: what is the right way to handle exceptions?
-							e.printStackTrace();
 						}
 					}
 				}
@@ -296,7 +331,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 	
-	private final CompilationParticipants compilationParticipants = new CompilationParticipants();
+	private final CompilationParticipantManager cpManager = new CompilationParticipantManager();
 	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
@@ -1168,8 +1203,8 @@ public class JavaModelManager implements ISaveParticipant {
 		return container;			
 	}
 	
-	public CompilationParticipants getCompilationParticipants() {
-		return compilationParticipants;
+	public CompilationParticipantManager getCompilationParticipantManager() {
+		return cpManager;
 	}
 
 	public DeltaProcessor getDeltaProcessor() {
@@ -2637,7 +2672,7 @@ public class JavaModelManager implements ISaveParticipant {
 
 			// retrieve variable values
 			loadVariablesAndContainers();
-
+			JavaCore.preloadCompilationParticipants();
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				this.deltaState,
