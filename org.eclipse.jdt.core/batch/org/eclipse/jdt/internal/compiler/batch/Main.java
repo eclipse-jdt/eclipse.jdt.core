@@ -22,8 +22,8 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -116,7 +116,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String VALUE = "value"; //$NON-NLS-1$
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
 		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
-		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler SYSTEM \"compiler.dtd\">"; //$NON-NLS-1$
+		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.001 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_001.dtd\">"; //$NON-NLS-1$
 
 		private static final HashMap FIELD_TABLE = new HashMap();
 		static {
@@ -883,7 +883,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		public void setLog(String logFileName) throws InvalidInputException {
 			final Date date = new Date();
-			final SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm:ss", Locale.getDefault());//$NON-NLS-1$
+			final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.getDefault());
 			try {
 				this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 				int index = logFileName.lastIndexOf('.');
@@ -892,7 +892,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.isXml = true;
 						this.log.println(XML_HEADER);
 						// insert time stamp as comment
-						this.log.println("<!-- " + dateFormat.format(date) + " -->");//$NON-NLS-1$//$NON-NLS-2$
+						try {
+							this.log.println("<!-- " + new String(dateFormat.format(date).getBytes(), "UTF-8") + " -->");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
 						this.log.println(XML_DTD_DECLARATION);
 						this.tab = 0;
 						parameters.clear();
