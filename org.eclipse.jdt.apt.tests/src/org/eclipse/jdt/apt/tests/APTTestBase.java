@@ -47,6 +47,7 @@ public abstract class APTTestBase extends Tests{
 	 */
 	public void setUp() throws Exception
 	{	
+		runFinalizers();
 		ProcessorTestStatus.reset();
 		
 		super.setUp();
@@ -89,7 +90,16 @@ public abstract class APTTestBase extends Tests{
 		throws Exception
 	{
 		AptPlugin.trace("Tearing down " + getProjectName() );
+		runFinalizers();
 		super.tearDown();
+	}
+	
+	private static void runFinalizers() {
+        // GC in an attempt to release file lock on Classes.jar
+		System.gc();
+		System.runFinalization();
+		System.gc();
+		System.runFinalization();
 	}
 	
 	public String getProjectName()
