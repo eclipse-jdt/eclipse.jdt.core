@@ -20,7 +20,20 @@
 			<fileset dir=".">
 			  <include name="META-INF/**" />
 	        </fileset>
-	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"/>
+	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
+	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
+	        	<exclude name="org/eclipse/jdt/core/compiler/ICompilationParticipantResult.class"/>
+	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
+	        	<exclude name="org/eclipse/jdt/core/compiler/ITerminalSymbols*.class"/>
+	        	<exclude name="org/eclipse/jdt/core/compiler/ReconcileContext*.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/DocumentElementParser*.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/ISourceElementRequestor.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementParser*.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter*.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
+        	</fileset>
 		</zip>
 		<echo message="UPDATE jdtcomsrc.zip" />
 		<zip zipfile="${dest}/jdtcomsrc.zip">
