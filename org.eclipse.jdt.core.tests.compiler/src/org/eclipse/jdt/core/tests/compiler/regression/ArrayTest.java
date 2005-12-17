@@ -200,4 +200,28 @@ public void test008() {
 		},
 		"SUCCESS");
 }
+// check deep resolution of faulty initializer (no array expected type)
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120263 
+public void test009() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		X x = { 10, zork() };\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X x = { 10, zork() };\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from int[] to X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X x = { 10, zork() };\n" + 
+		"	            ^^^^\n" + 
+		"The method zork() is undefined for the type X\n" + 
+		"----------\n");
+}
 }

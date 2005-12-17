@@ -146,14 +146,13 @@ public class ArrayInitializer extends Expression {
 			    scope.problemReporter().illegalGenericArray(leafComponentType, this);
 			}
 		}
-			
-		if (expectedType.isArrayType()) {
+		if (expectedType instanceof ArrayBinding) {
 			this.resolvedType = this.binding = (ArrayBinding) expectedType;
 			if (this.expressions == null)
 				return this.binding;
 			TypeBinding elementType = this.binding.elementsType();
-			for (int i = 0, length = expressions.length; i < length; i++) {
-				Expression expression = expressions[i];
+			for (int i = 0, length = this.expressions.length; i < length; i++) {
+				Expression expression = this.expressions[i];
 				TypeBinding exprType = expression instanceof ArrayInitializer
 						? expression.resolveTypeExpecting(scope, elementType)
 						: expression.resolveType(scope);
@@ -179,33 +178,41 @@ public class ArrayInitializer extends Expression {
 					return null;
 				} 				
 			}
-			return binding;
+			return this.binding;
 		}
 		
 		// infer initializer type for error reporting based on first element
 		TypeBinding leafElementType = null;
 		int dim = 1;
-		if (expressions == null) {
+		if (this.expressions == null) {
 			leafElementType = scope.getJavaLangObject();
 		} else {
-			Expression currentExpression = expressions[0];
-			while(currentExpression != null && currentExpression instanceof ArrayInitializer) {
+			Expression expression = this.expressions[0];
+			while(expression != null && expression instanceof ArrayInitializer) {
 				dim++;
-				Expression[] subExprs = ((ArrayInitializer) currentExpression).expressions;
+				Expression[] subExprs = ((ArrayInitializer) expression).expressions;
 				if (subExprs == null){
 					leafElementType = scope.getJavaLangObject();
-					currentExpression = null;
+					expression = null;
 					break;
 				}
-				currentExpression = ((ArrayInitializer) currentExpression).expressions[0];
+				expression = ((ArrayInitializer) expression).expressions[0];
 			}
-			if (currentExpression != null) {
-				leafElementType = currentExpression.resolveType(scope);
+			if (expression != null) {
+				leafElementType = expression.resolveType(scope);
 			}
 		}
 		if (leafElementType != null) {
-			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
-			scope.problemReporter().typeMismatchError(probableTb, expectedType, this);
+			this.resolvedType = scope.createArrayType(leafElementType, dim);
+			if (expectedType != null)
+				scope.problemReporter().typeMismatchError(this.resolvedType, expectedType, this);
+		}
+		// fault-tolerance - resolve other expressions as well
+		for (int i = 1, length = this.expressions.length; i < length; i++) {
+			Expression expression = this.expressions[i];
+			if (expression != null) {
+				expression.resolveType(scope)	;
+			}
 		}
 		return null;
 	}
@@ -213,10 +220,10 @@ public class ArrayInitializer extends Expression {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			if (expressions != null) {
-				int expressionsLength = expressions.length;
+			if (this.expressions != null) {
+				int expressionsLength = this.expressions.length;
 				for (int i = 0; i < expressionsLength; i++)
-					expressions[i].traverse(visitor, scope);
+					this.expressions[i].traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

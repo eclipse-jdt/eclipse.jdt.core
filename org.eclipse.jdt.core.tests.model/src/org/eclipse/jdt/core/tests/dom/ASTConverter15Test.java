@@ -6199,5 +6199,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertFalse("Declaration and reference keys should not be the same", bindings[0].getKey().equals(bindings[1].getKey()));
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=120263
+	 */
+	public void test0206() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" + 
+    		"        public @interface Annot {\n" + 
+    		"        }\n" + 
+    		"        @Annot(newAttrib= {1, 2})\n" + 
+    		"        public void foo() {\n" + 
+    		"        }\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 1, "The attribute newAttrib is undefined for the annotation type X.Annot");
+    	node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List modifiers = methodDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not a normal annotation", extendedModifier instanceof NormalAnnotation);
+		NormalAnnotation annotation = (NormalAnnotation) extendedModifier;
+		List values = annotation.values();
+		assertEquals("Wrong size", 1, values.size());
+		MemberValuePair memberValuePair = (MemberValuePair) values.get(0);
+		Expression value = memberValuePair.getValue();
+		assertEquals("Not an array initializer", ASTNode.ARRAY_INITIALIZER, value.getNodeType());
+		ArrayInitializer arrayInitializer = (ArrayInitializer) value;
+		ITypeBinding typeBinding = arrayInitializer.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding);
+	}	
 
 }

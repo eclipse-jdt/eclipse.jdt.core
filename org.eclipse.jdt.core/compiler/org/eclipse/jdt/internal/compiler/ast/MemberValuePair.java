@@ -51,10 +51,17 @@ public class MemberValuePair extends ASTNode {
 	
 	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
 		
-		if (requiredType == null) 
-			return;
 		if (this.value == null) 
 			return;
+		if (requiredType == null) {
+			// fault tolerance: keep resolving
+			if (this.value instanceof ArrayInitializer) {
+				this.value.resolveTypeExpecting(scope, null);
+			} else {
+				this.value.resolveType(scope);
+			}
+			return;
+		}
 
 		this.value.setExpectedType(requiredType); // needed in case of generic method invocation
 		if (this.value instanceof ArrayInitializer) {

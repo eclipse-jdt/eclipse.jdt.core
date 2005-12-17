@@ -279,6 +279,7 @@ public abstract class Annotation extends Expression {
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {
 				scope.problemReporter().undefinedAnnotationValue(annotationType, pairs[i]);
+				pairs[i].resolveTypeExpecting(scope, null); // resilient
 			}
 		}
 		// recognize standard annotations ?
