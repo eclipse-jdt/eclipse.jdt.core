@@ -126,6 +126,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project);
 	}
+
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
+		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, resolveBindings);
+	}
 	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
 		ASTParser parser = ASTParser.newParser(astLevel);
@@ -450,22 +454,32 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 	
 	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(astLevel);
-		parser.setSource(source);
-		parser.setUnitName(unitName);
-		parser.setProject(project);
-		return parser.createAST(null);
+		return runConversion(astLevel, source, unitName, project, false);
+	}
+	
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
+		return runConversion(astLevel, source, unitName, project, null, resolveBindings);
 	}
 
-	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options) {
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
-		parser.setCompilerOptions(options);
+		if (options != null) {
+			parser.setCompilerOptions(options);
+		}
+		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 	
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options) {
+		return runConversion(astLevel, source, unitName, project, options, false);
+	}
+	
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
+		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options, resolveBindings);
+	}
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options);
 	}	

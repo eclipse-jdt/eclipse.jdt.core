@@ -774,7 +774,7 @@ public class ASTParser {
 							throw new IllegalStateException();
 						}
 					} else if (this.rawSource != null) {
-						needToResolveBindings = this.unitName != null && this.project != null && this.compilerOptions != null;
+						needToResolveBindings = this.resolveBindings && this.unitName != null && this.project != null && this.compilerOptions != null;
 						sourceUnit = new BasicCompilationUnit(this.rawSource, null, this.unitName == null ? "" : this.unitName, this.project); //$NON-NLS-1$
 					} else {
 						throw new IllegalStateException();
@@ -782,7 +782,7 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
-					if (needToResolveBindings && this.project != null) {
+					if (needToResolveBindings) {
 						try {
 							// parse and resolve
 							compilationUnitDeclaration = 

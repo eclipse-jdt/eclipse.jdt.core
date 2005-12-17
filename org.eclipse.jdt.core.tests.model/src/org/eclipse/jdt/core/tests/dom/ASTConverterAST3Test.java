@@ -7123,13 +7123,13 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	 */
 	public void test0305() {
 		char[] source = 
-				("package test0304;\n" +  //$NON-NLS-1$
+				("package test0305;\n" +  //$NON-NLS-1$
 				"\n" +  //$NON-NLS-1$
 				"class Test {\n" +  //$NON-NLS-1$
 				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
 				"}").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
-		ASTNode result = runConversion(AST.JLS3, source, "Test.java", project); //$NON-NLS-1$
+		ASTNode result = runConversion(AST.JLS3, source, "Test.java", project, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -7139,7 +7139,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		assertEquals("Wrong package", "test0304", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "test0305", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue("Not an interface", typeBinding.isClass()); //$NON-NLS-1$
 	}
 
@@ -7154,7 +7154,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
 				"}").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
-		ASTNode result = runConversion(AST.JLS3, source, "Object.java", project); //$NON-NLS-1$
+		ASTNode result = runConversion(AST.JLS3, source, "Object.java", project, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;

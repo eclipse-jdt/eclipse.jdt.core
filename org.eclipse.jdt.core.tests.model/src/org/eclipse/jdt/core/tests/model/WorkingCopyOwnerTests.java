@@ -1063,12 +1063,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		parser.setUnitName("Z.java");
 		parser.setProject(getJavaProject("P"));
 		parser.setWorkingCopyOwner(owner);
+		parser.setResolveBindings(true);
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
 		List types = cu.types();
 		assertEquals("Unexpected number of types in AST", 1, types.size());
 		TypeDeclaration type = (TypeDeclaration)types.get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
 		assertEquals(
 			"Unexpected super type", 
 			"Y",

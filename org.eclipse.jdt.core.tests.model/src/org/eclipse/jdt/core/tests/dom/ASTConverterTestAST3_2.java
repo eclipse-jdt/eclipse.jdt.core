@@ -4420,7 +4420,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		ASTNode result = runConversion(AST.JLS3, source, "Test.java", project, options); //$NON-NLS-1$
+		ASTNode result = runConversion(AST.JLS3, source, "Test.java", project, options, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -7051,4 +7051,48 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=118897
+	 */
+	public void test0625() {
+		char[] source = 
+				("package test0305;\n" +  //$NON-NLS-1$
+				"\n" +  //$NON-NLS-1$
+				"class Test {\n" +  //$NON-NLS-1$
+				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
+				"}").toCharArray(); //$NON-NLS-1$
+		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
+		ASTNode result = runConversion(AST.JLS3, source, "Test.java", project); //$NON-NLS-1$
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNull("Got a type binding", typeBinding); //$NON-NLS-1$
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=118897
+	 */
+	public void test0626() {
+		char[] source = 
+				("package java.lang;\n" +  //$NON-NLS-1$
+				"\n" +  //$NON-NLS-1$
+				"class Object {\n" +  //$NON-NLS-1$
+				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
+				"}").toCharArray(); //$NON-NLS-1$
+		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
+		ASTNode result = runConversion(AST.JLS3, source, "Object.java", project); //$NON-NLS-1$
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNull("Got a type binding", typeBinding); //$NON-NLS-1$
+	}	
 }

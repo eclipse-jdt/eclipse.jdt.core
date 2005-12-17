@@ -4369,7 +4369,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		ASTNode result = runConversion(source, "Test.java", project, options); //$NON-NLS-1$
+		ASTNode result = runConversion(source, "Test.java", project, options, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;

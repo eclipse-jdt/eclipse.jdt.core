@@ -956,11 +956,12 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.JLS2);
-		c.setSource(source);
-		c.setUnitName(unitName);
-		c.setProject(project);
-		ASTNode result = c.createAST(null);
+		ASTParser astParser = ASTParser.newParser(AST.JLS2);
+		astParser.setSource(source);
+		astParser.setUnitName(unitName);
+		astParser.setProject(project);
+		astParser.setResolveBindings(project != null);
+		ASTNode result = astParser.createAST(null);
 		return (CompilationUnit) result;
 	}
 				
