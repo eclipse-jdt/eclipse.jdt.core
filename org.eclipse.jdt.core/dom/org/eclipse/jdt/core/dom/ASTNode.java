@@ -1694,7 +1694,7 @@ public abstract class ASTNode {
 	 * clutter up the API doc.
 	 * </p>
 	 * 
-	 * @param apiLevel the API level; one of the <code>AST.JLS&ast;</code> constants
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0

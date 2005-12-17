@@ -79,7 +79,7 @@ public class Javadoc extends Comment {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS&ast;</code> constants
+	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
@@ -275,7 +275,7 @@ public class Javadoc extends Comment {
 	 * <p>
 	 * The tag elements cover everything except the starting and ending
 	 * comment delimiters, and generally omit leading whitespace 
-	 * (including a leading "&ast;") and embedded line breaks.
+	 * (including a leading "*") and embedded line breaks.
 	 * The first tag element of a typical doc comment represents
 	 * all the material before the first explicit doc tag; this
 	 * first tag element has a <code>null</code> tag name and

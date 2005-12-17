@@ -85,7 +85,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *   <li><code>"QString;"</code> denotes <code>String</code> in source code</li>
  *   <li><code>"Qjava.lang.String;"</code> denotes <code>java.lang.String</code> in source code</li>
  *   <li><code>"[QString;"</code> denotes <code>String[]</code> in source code</li>
- *   <li><code>"QMap&lt;QString;&ast;&gt;;"</code> denotes <code>Map&lt;String,?&gt;</code> in source code</li>
+ *   <li><code>"QMap&lt;QString;*&gt;;"</code> denotes <code>Map&lt;String,?&gt;</code> in source code</li>
  *   <li><code>"Qjava.util.List&ltTV;&gt;;"</code> denotes <code>java.util.List&lt;V&gt;</code> in source code</li>
  * </ul>
  * </p>
@@ -208,7 +208,7 @@ public final class Signature {
 	/**
 	 * Character constant indicating an unbound wildcard type argument 
 	 * in a signature.
-	 * Value is <code>'&ast;'</code>.
+	 * Value is <code>'*'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_STAR	= '*';
