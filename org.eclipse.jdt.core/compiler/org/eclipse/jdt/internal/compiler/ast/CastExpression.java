@@ -337,7 +337,7 @@ public class CastExpression extends Expression {
 			codeStream,
 			valueRequired || needRuntimeCheckcast);
 		if (needRuntimeCheckcast 
-				&& this.expression.generatedType(currentScope) != this.resolvedType) { // no need to issue a checkcast if already done as genericCast
+				&& this.expression.postConversionType(currentScope) != this.resolvedType) { // no need to issue a checkcast if already done as genericCast
 			codeStream.checkcast(this.resolvedType);
 			if (valueRequired) {
 				codeStream.generateImplicitConversion(implicitConversion);

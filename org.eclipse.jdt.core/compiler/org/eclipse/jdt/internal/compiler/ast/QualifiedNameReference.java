@@ -323,14 +323,16 @@ public class QualifiedNameReference extends NameReference {
 		}
 		if (field != null) {
 			FieldBinding originalBinding = field.original();
-			if (originalBinding != field && originalBinding.type != field.type) {
-			    // extra cast needed if method return type has type variable
-			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
-			    		? compileTimeType  // unboxing: checkcast before conversion
-			    		: runtimeTimeType;
-			    	setGenericCast(length,originalBinding.type.genericCast(targetType));
-			    }
+			TypeBinding originalType = originalBinding.type;
+		    // extra cast needed if method return type has type variable
+			if (originalBinding != field 
+					&& originalType != field.type
+			    	&& runtimeTimeType.id != T_JavaLangObject
+			    	&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+		    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+		    		? compileTimeType  // unboxing: checkcast before conversion
+		    		: runtimeTimeType;
+		    	setGenericCast(length, originalType.genericCast(targetType));
 			} 	
 		}
 		super.computeConversion(scope, runtimeTimeType, compileTimeType);
@@ -486,48 +488,6 @@ public class QualifiedNameReference extends NameReference {
 		// equivalent to valuesRequired[maxOtherBindings]
 	}
 	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
-	 */
-	public TypeBinding generatedType(Scope scope) {
-		TypeBinding convertedType = this.resolvedType;
-		TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
-		if (requiredGenericCast != null) 
-			convertedType = requiredGenericCast;
-		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
-		switch (runtimeType) {
-			case T_boolean :
-				convertedType = BooleanBinding;
-				break;
-			case T_byte :
-				convertedType = ByteBinding;
-				break;
-			case T_short :
-				convertedType = ShortBinding;
-				break;
-			case T_char :
-				convertedType = CharBinding;
-				break;
-			case T_int :
-				convertedType = IntBinding;
-				break;
-			case T_float :
-				convertedType = FloatBinding;
-				break;
-			case T_long :
-				convertedType = LongBinding;
-				break;
-			case T_double :
-				convertedType = DoubleBinding;
-				break;
-			default :
-		}		
-		if ((this.implicitConversion & BOXING) != 0) {
-			convertedType = scope.environment().computeBoxingType(convertedType);
-		}
-		return convertedType;
-	}	
-	
 	public void generatePostIncrement(
 		BlockScope currentScope,
 		CodeStream codeStream,
@@ -582,7 +542,8 @@ public class QualifiedNameReference extends NameReference {
 		codeStream.generateImplicitConversion(
 			postIncrement.preAssignImplicitConversion);
 		fieldStore(codeStream, lastFieldBinding, syntheticWriteAccessor, false);
-	}
+	}	
+	
 	/*
 	 * Generate code for all bindings (local and fields) excluding the last one, which may then be generated code
 	 * for a read or write access.
@@ -687,14 +648,13 @@ public class QualifiedNameReference extends NameReference {
 	public void generateReceiver(CodeStream codeStream) {
 		codeStream.aload_0();
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
 	 */
 	public TypeBinding[] genericTypeArguments() {
 		return null;
 	}
-	
+
 	// get the matching codegenBinding
 	protected FieldBinding getCodegenBinding(int index) {
 	  if (index == 0){
@@ -703,7 +663,7 @@ public class QualifiedNameReference extends NameReference {
 			return this.otherCodegenBindings[index-1];
 		}
 	}
-
+	
 	// get the matching generic cast
 	protected TypeBinding getGenericCast(int index) {
 	   if (index == 0){
@@ -713,7 +673,7 @@ public class QualifiedNameReference extends NameReference {
 			return this.otherGenericCasts[index-1];
 		}
 	}
-	
+
 	public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 		int length = tokens.length;
@@ -782,7 +742,7 @@ public class QualifiedNameReference extends NameReference {
 						}
 					}				
 					FieldBinding originalBinding = previousField.original();
-				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && fieldReceiverType.id != T_JavaLangObject) {
+				    if ((originalBinding.type.tagBits &  TagBits.HasTypeVariable) != 0 && fieldReceiverType.id != T_JavaLangObject) {
 				    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
 				    }
 			    }
@@ -819,6 +779,7 @@ public class QualifiedNameReference extends NameReference {
 				? type.capture(scope, this.sourceEnd)
 				: type;		
 	}
+	
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		if (!flowInfo.isReachable()) return;
 		//If inlinable field, forget the access emulation, the code gen will directly target it
@@ -894,7 +855,6 @@ public class QualifiedNameReference extends NameReference {
 			}
 		}			
 	}
-
 	public Constant optimizedBooleanConstant() {
 
 		switch (this.resolvedType.id) {
@@ -911,6 +871,48 @@ public class QualifiedNameReference extends NameReference {
 				}
 		}
 		return Constant.NotAConstant;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
+	 */
+	public TypeBinding postConversionType(Scope scope) {
+		TypeBinding convertedType = this.resolvedType;
+		TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+		if (requiredGenericCast != null) 
+			convertedType = requiredGenericCast;
+		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+		switch (runtimeType) {
+			case T_boolean :
+				convertedType = BooleanBinding;
+				break;
+			case T_byte :
+				convertedType = ByteBinding;
+				break;
+			case T_short :
+				convertedType = ShortBinding;
+				break;
+			case T_char :
+				convertedType = CharBinding;
+				break;
+			case T_int :
+				convertedType = IntBinding;
+				break;
+			case T_float :
+				convertedType = FloatBinding;
+				break;
+			case T_long :
+				convertedType = LongBinding;
+				break;
+			case T_double :
+				convertedType = DoubleBinding;
+				break;
+			default :
+		}		
+		if ((this.implicitConversion & BOXING) != 0) {
+			convertedType = scope.environment().computeBoxingType(convertedType);
+		}
+		return convertedType;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -1012,6 +1014,10 @@ public class QualifiedNameReference extends NameReference {
 		}	    
 	}
 
+	public void setFieldIndex(int index) {
+		this.indexOfFirstFieldBinding = index;
+	}
+	
 	// set the matching codegenBinding and generic cast
 	protected void setGenericCast(int index, TypeBinding someGenericCast) {
 
@@ -1035,10 +1041,6 @@ public class QualifiedNameReference extends NameReference {
 			}
 			syntheticReadAccessors[index] = syntheticAccessor;
 	    }
-	}
-	
-	public void setFieldIndex(int index) {
-		this.indexOfFirstFieldBinding = index;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -20,10 +20,10 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SingleNameReference extends NameReference implements OperatorIds {
     
-	public char[] token;
-	public MethodBinding[] syntheticAccessors; // [0]=read accessor [1]=write accessor
 	public static final int READ = 0;
 	public static final int WRITE = 1;
+	public char[] token;
+	public MethodBinding[] syntheticAccessors; // [0]=read accessor [1]=write accessor
 	public TypeBinding genericCast;
 	
 	public SingleNameReference(char[] source, long pos) {
@@ -217,14 +217,16 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 			FieldBinding field = (FieldBinding) this.binding;
 			FieldBinding originalBinding = field.original();
-			if (originalBinding != field && originalBinding.type != field.type) {
-			    // extra cast needed if method return type has type variable
-			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
-			    		? compileTimeType  // unboxing: checkcast before conversion
-			    		: runtimeTimeType;
-			        this.genericCast = originalBinding.type.genericCast(scope.boxing(targetType));
-			    }
+			TypeBinding originalType = originalBinding.type;
+		    // extra cast needed if method return type is type variable
+			if (originalBinding != field 
+					&& originalType != field.type
+					&& runtimeTimeType.id != T_JavaLangObject
+					&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+		    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+		    		? compileTimeType  // unboxing: checkcast before conversion
+		    		: runtimeTimeType;
+		        this.genericCast = originalType.genericCast(scope.boxing(targetType));
 			} 	
 		}
 		super.computeConversion(scope, runtimeTimeType, compileTimeType);
@@ -529,47 +531,6 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 	}
 	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
-	 */
-	public TypeBinding generatedType(Scope scope) {
-		TypeBinding convertedType = this.resolvedType;
-		if (this.genericCast != null) 
-			convertedType = this.genericCast;
-		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
-		switch (runtimeType) {
-			case T_boolean :
-				convertedType = BooleanBinding;
-				break;
-			case T_byte :
-				convertedType = ByteBinding;
-				break;
-			case T_short :
-				convertedType = ShortBinding;
-				break;
-			case T_char :
-				convertedType = CharBinding;
-				break;
-			case T_int :
-				convertedType = IntBinding;
-				break;
-			case T_float :
-				convertedType = FloatBinding;
-				break;
-			case T_long :
-				convertedType = LongBinding;
-				break;
-			case T_double :
-				convertedType = DoubleBinding;
-				break;
-			default :
-		}		
-		if ((this.implicitConversion & BOXING) != 0) {
-			convertedType = scope.environment().computeBoxingType(convertedType);
-		}
-		return convertedType;
-	}	
-	
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // assigning to a field
@@ -648,16 +609,30 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					codeStream.store(localBinding, false);
 				}
 		}
-	}
+	}	
 	
 	public void generateReceiver(CodeStream codeStream) {
 		codeStream.aload_0();
 	}
-
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
 	 */
 	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
+
+	/**
+	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
+	 * or thru a cast expression etc...
+	 */
+	public LocalVariableBinding localVariableBinding() {
+		switch (bits & RestrictiveFlagMASK) {
+			case Binding.FIELD : // reading a field
+				break;
+			case Binding.LOCAL : // reading a local variable
+				return (LocalVariableBinding) this.binding;
+		}
 		return null;
 	}
 	
@@ -717,11 +692,51 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			}					
 		}
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
+	 */
+	public TypeBinding postConversionType(Scope scope) {
+		TypeBinding convertedType = this.resolvedType;
+		if (this.genericCast != null) 
+			convertedType = this.genericCast;
+		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+		switch (runtimeType) {
+			case T_boolean :
+				convertedType = BooleanBinding;
+				break;
+			case T_byte :
+				convertedType = ByteBinding;
+				break;
+			case T_short :
+				convertedType = ShortBinding;
+				break;
+			case T_char :
+				convertedType = CharBinding;
+				break;
+			case T_int :
+				convertedType = IntBinding;
+				break;
+			case T_float :
+				convertedType = FloatBinding;
+				break;
+			case T_long :
+				convertedType = LongBinding;
+				break;
+			case T_double :
+				convertedType = DoubleBinding;
+				break;
+			default :
+		}		
+		if ((this.implicitConversion & BOXING) != 0) {
+			convertedType = scope.environment().computeBoxingType(convertedType);
+		}
+		return convertedType;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 	
 		return output.append(token);
 	}
-	
 	public TypeBinding reportError(BlockScope scope) {
 		
 		//=====error cases=======
@@ -735,6 +750,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		return null;
 	}
+		
 	public TypeBinding resolveType(BlockScope scope) {
 		// for code gen, harm the restrictiveFlag 	
 	
@@ -797,7 +813,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		// error scenarii
 		return this.resolvedType = this.reportError(scope);
 	}
-		
+	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		
 		visitor.visit(this, scope);
@@ -807,19 +823,5 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public String unboundReferenceErrorName(){
 	
 		return new String(token);
-	}
-	
-	/**
-	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
-	 * or thru a cast expression etc...
-	 */
-	public LocalVariableBinding localVariableBinding() {
-		switch (bits & RestrictiveFlagMASK) {
-			case Binding.FIELD : // reading a field
-				break;
-			case Binding.LOCAL : // reading a local variable
-				return (LocalVariableBinding) this.binding;
-		}
-		return null;
 	}	
 }

@@ -19,13 +19,13 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class FieldReference extends Reference implements InvocationSite {
 
+	public static final int READ = 0;
+	public static final int WRITE = 1;
 	public Expression receiver;
 	public char[] token;
 	public FieldBinding binding;															// exact binding resulting from lookup
 	protected FieldBinding codegenBinding;									// actual binding used for code generation (if no synthetic accessor)
 	public MethodBinding[] syntheticAccessors; // [0]=read accessor [1]=write accessor
-	public static final int READ = 0;
-	public static final int WRITE = 1;
 	
 	public long nameSourcePosition; //(start<<32)+end
 	public TypeBinding receiverType;
@@ -115,14 +115,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 	if (this.binding != null && this.binding.isValidBinding()) {
 		FieldBinding originalBinding = this.binding.original();
-		if (originalBinding != this.binding && originalBinding.type != this.binding.type) {
-		    // extra cast needed if method return type has type variable
-		    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-		    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
-		    		? compileTimeType  // unboxing: checkcast before conversion
-		    		: runtimeTimeType;
-		        this.genericCast = originalBinding.type.genericCast(targetType);
-		    }
+		TypeBinding originalType = originalBinding.type;
+	    // extra cast needed if method return type is type variable
+		if (originalBinding != this.binding 
+				&& originalType != this.binding.type
+				&& runtimeTimeType.id != T_JavaLangObject
+				&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+	    		? compileTimeType  // unboxing: checkcast before conversion
+	    		: runtimeTimeType;
+	        this.genericCast = originalBinding.type.genericCast(targetType);
 		}
 	} 	
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
@@ -280,47 +282,6 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// no need for generic cast as value got dupped
 }
 
-/**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
- */
-public TypeBinding generatedType(Scope scope) {
-	TypeBinding convertedType = this.resolvedType;
-	if (this.genericCast != null) 
-		convertedType = this.genericCast;
-	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
-	switch (runtimeType) {
-		case T_boolean :
-			convertedType = BooleanBinding;
-			break;
-		case T_byte :
-			convertedType = ByteBinding;
-			break;
-		case T_short :
-			convertedType = ShortBinding;
-			break;
-		case T_char :
-			convertedType = CharBinding;
-			break;
-		case T_int :
-			convertedType = IntBinding;
-			break;
-		case T_float :
-			convertedType = FloatBinding;
-			break;
-		case T_long :
-			convertedType = LongBinding;
-			break;
-		case T_double :
-			convertedType = DoubleBinding;
-			break;
-		default :
-	}		
-	if ((this.implicitConversion & BOXING) != 0) {
-		convertedType = scope.environment().computeBoxingType(convertedType);
-	}
-	return convertedType;
-}	
-
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	boolean isStatic;
 	receiver.generateCode(
@@ -368,14 +329,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	codeStream.generateImplicitConversion(
 		postIncrement.preAssignImplicitConversion);
 	fieldStore(codeStream, this.codegenBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
-}
+}	
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
  */
 public TypeBinding[] genericTypeArguments() {
 	return null;
 }
-
 public boolean isSuperAccess() {
 	return receiver.isSuper();
 }
@@ -462,6 +423,47 @@ public Constant optimizedBooleanConstant() {
 		default :
 			return Constant.NotAConstant;
 	}
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
+ */
+public TypeBinding postConversionType(Scope scope) {
+	TypeBinding convertedType = this.resolvedType;
+	if (this.genericCast != null) 
+		convertedType = this.genericCast;
+	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+	switch (runtimeType) {
+		case T_boolean :
+			convertedType = BooleanBinding;
+			break;
+		case T_byte :
+			convertedType = ByteBinding;
+			break;
+		case T_short :
+			convertedType = ShortBinding;
+			break;
+		case T_char :
+			convertedType = CharBinding;
+			break;
+		case T_int :
+			convertedType = IntBinding;
+			break;
+		case T_float :
+			convertedType = FloatBinding;
+			break;
+		case T_long :
+			convertedType = LongBinding;
+			break;
+		case T_double :
+			convertedType = DoubleBinding;
+			break;
+		default :
+	}		
+	if ((this.implicitConversion & BOXING) != 0) {
+		convertedType = scope.environment().computeBoxingType(convertedType);
+	}
+	return convertedType;
 }
 
 public StringBuffer printExpression(int indent, StringBuffer output) {

@@ -479,6 +479,10 @@ public abstract class Expression extends Statement {
 		}
 	}	
 	
+	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+		// do nothing by default - see EqualExpression
+	}
+
 	public FlowInfo checkNullStatus(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int nullStatus) {
 
 		LocalVariableBinding local = this.localVariableBinding();
@@ -498,28 +502,7 @@ public abstract class Expression extends Statement {
 		}
 		return flowInfo;
 	}
-
-	private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
-		ArrayList collector = new ArrayList();
-		getAllInheritedMethods0(binding, collector);
-		return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
-	}
 	
-	private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
-		if (!binding.isInterface()) return;
-		MethodBinding[] methodBindings = binding.methods();
-		for (int i = 0, max = methodBindings.length; i < max; i++) {
-			collector.add(methodBindings[i]);
-		}
-		ReferenceBinding[] superInterfaces = binding.superInterfaces();
-		for (int i = 0, max = superInterfaces.length; i < max; i++) {
-			getAllInheritedMethods0(superInterfaces[i], collector);
-		}
-	}
-	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
-		// do nothing by default - see EqualExpression
-	}
-
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (match == castType) {
 			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
@@ -536,7 +519,6 @@ public abstract class Expression extends Statement {
 		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 		return true;
 	}
-	
 	/**
 	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
 	 * Also check unsafe type operations.
@@ -590,8 +572,8 @@ public abstract class Expression extends Statement {
 //				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
 //				}		
 		}
-	}	
-	
+	}
+
 	/**
 	 * Expression statements are plain expressions, however they generate like
 	 * normal expressions with no value required.
@@ -606,7 +588,7 @@ public abstract class Expression extends Statement {
 		}
 		generateCode(currentScope, codeStream, false);
 	}
-
+	
 	/**
 	 * Every expression is responsible for generating its implicit conversion when necessary.
 	 *
@@ -628,8 +610,8 @@ public abstract class Expression extends Statement {
 			// actual non-constant code generation
 			throw new ShouldNotImplement(Messages.ast_missingCode); 
 		}
-	}
-
+	}	
+	
 	/**
 	 * Default generation of a boolean value
 	 * @param currentScope
@@ -753,14 +735,98 @@ public abstract class Expression extends Statement {
 		}
 		codeStream.invokeStringConcatenationStringConstructor();
 	}
+
+	private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
+		ArrayList collector = new ArrayList();
+		getAllInheritedMethods0(binding, collector);
+		return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
+	}
+
+	private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
+		if (!binding.isInterface()) return;
+		MethodBinding[] methodBindings = binding.methods();
+		for (int i = 0, max = methodBindings.length; i < max; i++) {
+			collector.add(methodBindings[i]);
+		}
+		ReferenceBinding[] superInterfaces = binding.superInterfaces();
+		for (int i = 0, max = superInterfaces.length; i < max; i++) {
+			getAllInheritedMethods0(superInterfaces[i], collector);
+		}
+	}
 	
+	public boolean isCompactableOperation() {
+
+		return false;
+	}	
+
+	//Return true if the conversion is done AUTOMATICALLY by the vm
+	//while the javaVM is an int based-machine, thus for example pushing
+	//a byte onto the stack , will automatically create an int on the stack
+	//(this request some work d be done by the VM on signed numbers)
+	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
+
+		if (this.constant == Constant.NotAConstant)
+			return false;
+		if (constantType == targetType)
+			return true;
+		if (constantType.isBaseType() && targetType.isBaseType()) {
+			//No free assignment conversion from anything but to integral ones.
+			if ((constantType == IntBinding
+				|| BaseTypeBinding.isWidening(T_int, constantType.id))
+				&& (BaseTypeBinding.isNarrowing(targetType.id, T_int))) {
+				//use current explicit conversion in order to get some new value to compare with current one
+				return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
+			}
+		}
+		return false;
+	}
+
+	public boolean isTypeReference() {
+		return false;
+	}
+
+	/**
+	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
+	 * or thru a cast expression etc...
+	 */
+	public LocalVariableBinding localVariableBinding() {
+		return null;
+	}
+	
+	public int nullStatus(FlowInfo flowInfo) {
+		
+		if (this.constant != null && this.constant != Constant.NotAConstant)
+			return FlowInfo.NON_NULL; // constant expression cannot be null
+		
+		LocalVariableBinding local = localVariableBinding();
+		if (local != null) {
+			if (flowInfo.isDefinitelyNull(local))
+				return FlowInfo.NULL;
+			if (flowInfo.isDefinitelyNonNull(local))
+				return FlowInfo.NON_NULL;
+			return FlowInfo.UNKNOWN;
+		}
+		return FlowInfo.NON_NULL;
+	}
+	
+	/**
+	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
+	 * since it is not strictly equivalent to the definition of constant expressions.
+	 * In particular, some side-effects may be required to occur (only the end value
+	 * is known).
+	 * @return Constant known to be of boolean type
+	 */ 
+	public Constant optimizedBooleanConstant() {
+		return this.constant;
+	}
+
 	/**
 	 * Returns the type of the expression after required implicit conversions. When expression type gets promoted
 	 * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
 	 * #computeConversion(...)).
 	 * @return the type after conversion
 	 */
-	public TypeBinding generatedType(Scope scope) {
+	public TypeBinding postConversionType(Scope scope) {
 		TypeBinding convertedType = this.resolvedType;
 		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		switch (runtimeType) {
@@ -794,73 +860,15 @@ public abstract class Expression extends Statement {
 			convertedType = scope.environment().computeBoxingType(convertedType);
 		}
 		return convertedType;
-	}	
-
-	public boolean isCompactableOperation() {
-
-		return false;
-	}
-
-	//Return true if the conversion is done AUTOMATICALLY by the vm
-	//while the javaVM is an int based-machine, thus for example pushing
-	//a byte onto the stack , will automatically create an int on the stack
-	//(this request some work d be done by the VM on signed numbers)
-	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
-
-		if (this.constant == Constant.NotAConstant)
-			return false;
-		if (constantType == targetType)
-			return true;
-		if (constantType.isBaseType() && targetType.isBaseType()) {
-			//No free assignment conversion from anything but to integral ones.
-			if ((constantType == IntBinding
-				|| BaseTypeBinding.isWidening(T_int, constantType.id))
-				&& (BaseTypeBinding.isNarrowing(targetType.id, T_int))) {
-				//use current explicit conversion in order to get some new value to compare with current one
-				return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
-			}
-		}
-		return false;
-	}
-
-	public boolean isTypeReference() {
-		return false;
-	}
-	
-	public int nullStatus(FlowInfo flowInfo) {
-		
-		if (this.constant != null && this.constant != Constant.NotAConstant)
-			return FlowInfo.NON_NULL; // constant expression cannot be null
-		
-		LocalVariableBinding local = localVariableBinding();
-		if (local != null) {
-			if (flowInfo.isDefinitelyNull(local))
-				return FlowInfo.NULL;
-			if (flowInfo.isDefinitelyNonNull(local))
-				return FlowInfo.NON_NULL;
-			return FlowInfo.UNKNOWN;
-		}
-		return FlowInfo.NON_NULL;
-	}
-	
-	/**
-	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
-	 * since it is not strictly equivalent to the definition of constant expressions.
-	 * In particular, some side-effects may be required to occur (only the end value
-	 * is known).
-	 * @return Constant known to be of boolean type
-	 */ 
-	public Constant optimizedBooleanConstant() {
-		return this.constant;
 	}
 
 	public StringBuffer print(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		return printExpression(indent, output);
 	}
-
-	public abstract StringBuffer printExpression(int indent, StringBuffer output);
 	
+	public abstract StringBuffer printExpression(int indent, StringBuffer output);
+
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		return print(indent, output).append(";"); //$NON-NLS-1$
 	}
@@ -910,13 +918,13 @@ public abstract class Expression extends Statement {
 	public void setExpectedType(TypeBinding expectedType) {
 	    // do nothing by default
 	}
-
-	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
-	    // do nothing by default
-	}
 	
 	public void tagAsNeedCheckCast() {
 	    // do nothing by default		
+	}
+	
+	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
+	    // do nothing by default
 	}
 	
 	public Expression toTypeReference() {
@@ -929,7 +937,6 @@ public abstract class Expression extends Statement {
 
 		return this;
 	}
-	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		// do nothing by default
 	}
@@ -938,12 +945,5 @@ public abstract class Expression extends Statement {
 	}
 	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
 		// do nothing by default
-	}
-	/**
-	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
-	 * or thru a cast expression etc...
-	 */
-	public LocalVariableBinding localVariableBinding() {
-		return null;
 	}
 }

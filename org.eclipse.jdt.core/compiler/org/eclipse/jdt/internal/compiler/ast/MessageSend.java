@@ -67,14 +67,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 	if (this.binding != null && this.binding.isValidBinding()) {
 		MethodBinding originalBinding = this.binding.original();
-		if (originalBinding != this.binding && originalBinding.returnType != this.binding.returnType) {
-		    // extra cast needed if method return type has type variable
-		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-		    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
-		    		? compileTimeType  // unboxing: checkcast before conversion
-		    		: runtimeTimeType;
-		        this.valueCast = originalBinding.returnType.genericCast(targetType); 
-		    }
+		TypeBinding originalType = originalBinding.returnType;
+	    // extra cast needed if method return type is type variable
+		if (originalBinding != this.binding 
+				&& originalType != this.binding.returnType
+				&& runtimeTimeType.id != T_JavaLangObject
+				&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+	    		? compileTimeType  // unboxing: checkcast before conversion
+	    		: runtimeTimeType;
+	        this.valueCast = originalType.genericCast(targetType); 
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
 						&& this.binding.parameters == NoParameters 
@@ -153,52 +155,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 }
 
 /**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#generatedType(Scope)
- */
-public TypeBinding generatedType(Scope scope) {
-	TypeBinding convertedType = this.resolvedType;
-	if (this.valueCast != null) 
-		convertedType = this.valueCast;
-	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
-	switch (runtimeType) {
-		case T_boolean :
-			convertedType = BooleanBinding;
-			break;
-		case T_byte :
-			convertedType = ByteBinding;
-			break;
-		case T_short :
-			convertedType = ShortBinding;
-			break;
-		case T_char :
-			convertedType = CharBinding;
-			break;
-		case T_int :
-			convertedType = IntBinding;
-			break;
-		case T_float :
-			convertedType = FloatBinding;
-			break;
-		case T_long :
-			convertedType = LongBinding;
-			break;
-		case T_double :
-			convertedType = DoubleBinding;
-			break;
-		default :
-	}		
-	if ((this.implicitConversion & BOXING) != 0) {
-		convertedType = scope.environment().computeBoxingType(convertedType);
-	}
-	return convertedType;
-}	
-
-/**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
  */
 public TypeBinding[] genericTypeArguments() {
 	return this.genericTypeArguments;
-}
+}	
+
 public boolean isSuperAccess() {	
 	return receiver.isSuper();
 }
@@ -262,9 +224,49 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
 	}
 }
-
 public int nullStatus(FlowInfo flowInfo) {
 	return FlowInfo.UNKNOWN;
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
+ */
+public TypeBinding postConversionType(Scope scope) {
+	TypeBinding convertedType = this.resolvedType;
+	if (this.valueCast != null) 
+		convertedType = this.valueCast;
+	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+	switch (runtimeType) {
+		case T_boolean :
+			convertedType = BooleanBinding;
+			break;
+		case T_byte :
+			convertedType = ByteBinding;
+			break;
+		case T_short :
+			convertedType = ShortBinding;
+			break;
+		case T_char :
+			convertedType = CharBinding;
+			break;
+		case T_int :
+			convertedType = IntBinding;
+			break;
+		case T_float :
+			convertedType = FloatBinding;
+			break;
+		case T_long :
+			convertedType = LongBinding;
+			break;
+		case T_double :
+			convertedType = DoubleBinding;
+			break;
+		default :
+	}		
+	if ((this.implicitConversion & BOXING) != 0) {
+		convertedType = scope.environment().computeBoxingType(convertedType);
+	}
+	return convertedType;
 }
 	
 public StringBuffer printExpression(int indent, StringBuffer output){
@@ -452,18 +454,18 @@ public void setActualReceiverType(ReferenceBinding receiverType) {
 	if (receiverType == null) return; // error scenario only
 	this.actualReceiverType = receiverType;
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
- */
-public void setExpectedType(TypeBinding expectedType) {
-    this.expectedType = expectedType;
-}
-
 public void setDepth(int depth) {
 	bits &= ~DepthMASK; // flush previous depth if any
 	if (depth > 0) {
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+public void setExpectedType(TypeBinding expectedType) {
+    this.expectedType = expectedType;
 }
 public void setFieldIndex(int depth) {
 	// ignore for here
