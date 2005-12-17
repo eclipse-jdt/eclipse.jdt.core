@@ -261,9 +261,9 @@ public class ForeachStatement extends Statement {
 		this.action.generateCode(scope, codeStream);
 
 		// continuation point
-		int continuationPC = codeStream.position;
 		if (this.continueLabel != null) {
 			this.continueLabel.place();
+			int continuationPC = codeStream.position;
 			// generate the increments for next iteration
 			switch(this.kind) {
 				case ARRAY :
@@ -273,9 +273,12 @@ public class ForeachStatement extends Statement {
 				case GENERIC_ITERABLE :
 					break;
 			}
+			codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
 		}
 		// generate the condition
 		conditionLabel.place();
+		int conditionPC = codeStream.position;
+		
 		if (this.postCollectionInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, postCollectionInitStateIndex);
 		}
@@ -292,7 +295,7 @@ public class ForeachStatement extends Statement {
 				codeStream.ifne(actionLabel);
 				break;
 		}
-		codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
+		codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);
 
 		breakLabel.place();
 		codeStream.exitUserScope(scope);

@@ -875,7 +875,7 @@ public void test020() {
 		"        [pc: 4, line: 5]\n" + 
 		"        [pc: 12, line: 6]\n" + 
 		"        [pc: 24, line: 7]\n" + 
-		"        [pc: 35, line: 6]\n" + 
+		"        [pc: 32, line: 6]\n" + 
 		"        [pc: 40, line: 10]\n" + 
 		"        [pc: 48, line: 11]\n" + 
 		"      Local variable table:\n" + 
@@ -1020,7 +1020,7 @@ public void test021() {
 		"        [pc: 86, line: 11]\n" + 
 		"        [pc: 89, line: 12]\n" + 
 		"        [pc: 95, line: 13]\n" + 
-		"        [pc: 101, line: 8]\n" + 
+		"        [pc: 98, line: 8]\n" + 
 		"        [pc: 108, line: 6]\n" + 
 		"        [pc: 111, line: 19]\n" + 
 		"        [pc: 118, line: 20]\n" + 
@@ -2018,6 +2018,75 @@ public void test037() {
 		"        [pc: 18, pc: 34] local: s index: 1 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119175
+public void test038() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashSet;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		x.foo();\n" + 
+			"		System.out.println(\"SUCCESS\");	\n" + 
+			"	}\n" + 
+			"	public void foo() {\n" + 
+			"	    for(Object o : new HashSet<Object>()) {\n" + 
+			"	    	System.out.println(o);\n" + 
+			"	    	continue;\n" + 
+			"	    }\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public void foo();\n" + 
+		"     0  new java.util.HashSet [37]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial java.util.HashSet() [39]\n" + 
+		"     7  invokevirtual java.util.HashSet.iterator() : java.util.Iterator [40]\n" + 
+		"    10  astore_2\n" + 
+		"    11  goto 28\n" + 
+		"    14  aload_2\n" + 
+		"    15  invokeinterface java.util.Iterator.next() : java.lang.Object [44] [nargs: 1]\n" + 
+		"    20  astore_1 [o]\n" + 
+		"    21  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+		"    24  aload_1 [o]\n" + 
+		"    25  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [50]\n" + 
+		"    28  aload_2\n" + 
+		"    29  invokeinterface java.util.Iterator.hasNext() : boolean [53] [nargs: 1]\n" + 
+		"    34  ifne 14\n" + 
+		"    37  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 9]\n" + 
+		"        [pc: 21, line: 10]\n" + 
+		"        [pc: 28, line: 9]\n" + 
+		"        [pc: 37, line: 13]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 38] local: this index: 0 type: X\n" + 
+		"        [pc: 21, pc: 37] local: o index: 1 type: java.lang.Object\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
