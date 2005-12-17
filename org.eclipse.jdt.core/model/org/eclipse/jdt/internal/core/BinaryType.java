@@ -997,8 +997,12 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 		indexOfNextSummary = contents.indexOf(JavadocConstants.ENUM_CONSTANT_SUMMARY);
 	}
 	if (this.isAnnotation() && indexOfNextSummary == -1) {
-		// try to find enum constant summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_MEMBER_SUMMARY);
+		// try to find required enum constant summary start
+		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_REQUIRED_MEMBER_SUMMARY);
+		if (indexOfNextSummary == -1) {
+			// try to find optional enum constant summary start
+			indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_OPTIONAL_MEMBER_SUMMARY);
+		}
 	}
 	if (indexOfNextSummary == -1) {
 		// try to find field summary start
