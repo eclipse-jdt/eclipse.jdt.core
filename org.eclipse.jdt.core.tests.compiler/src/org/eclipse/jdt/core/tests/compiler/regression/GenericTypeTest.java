@@ -24722,5 +24722,21 @@ public void test870() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121231
+public void test871() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public Collection<? extends Integer> getCollection() {\n" + 
+			"        return Collections.emptyList();\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"");
+}
 }
 
