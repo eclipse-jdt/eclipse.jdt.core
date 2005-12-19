@@ -78,6 +78,7 @@ public interface ITypeBinding extends IBinding {
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
 	 * type of an array might be an array type.
+	 * <p>This is subject to change before 3.2 release.</p>
 	 *
 	 * @return the component type binding, or <code>null</code> if this is
 	 *   not an array type

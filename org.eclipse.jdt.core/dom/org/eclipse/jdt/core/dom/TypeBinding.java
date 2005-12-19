@@ -140,6 +140,17 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	/*
+	 * @see ITypeBinding#getComponentType()
+	 */
+	public ITypeBinding getComponentType() {
+		if (!this.isArray()) {
+			return null;
+		}
+		ArrayBinding arrayBinding = (ArrayBinding) binding;
+		return resolver.getTypeBinding(arrayBinding.elementsType());
+	}
+
+	/*
 	 * @see ITypeBinding#getDeclaredFields()
 	 */
 	public IVariableBinding[] getDeclaredFields() {
