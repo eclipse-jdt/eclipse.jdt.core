@@ -75,6 +75,16 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getBound();
 
 	/**
+	 * Returns the binding representing the component type of this array type,
+	 * or <code>null</code> if this is not an array type binding. The component
+	 * type of an array might be an array type.
+	 *
+	 * @return the component type binding, or <code>null</code> if this is
+	 *   not an array type
+	 */	
+	public ITypeBinding getComponentType();
+
+	/**
 	 * Returns a list of bindings representing all the fields declared
 	 * as members of this class, interface, or enum type. These include public, 
 	 * protected, default (package-private) access, and private fields declared

@@ -3928,6 +3928,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 		ITypeBinding parameterType = parameterTypes[0];
     	assertTrue("Not an array binding", parameterType.isArray());
+    	assertTrue("Not equals", parameterType.getComponentType() == parameterType.getElementType());
     	assertEquals("wrong dimension", 1, parameterType.getDimensions());
     }
     
@@ -3972,8 +3973,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 		ITypeBinding parameterType = parameterTypes[0];
     	assertTrue("Not an array binding", parameterType.isArray());
-    	assertEquals("wrong dimension", 3, parameterType.getDimensions());		
-    }
+       	assertEquals("wrong dimension", 3, parameterType.getDimensions());		
+       	ITypeBinding componentType = parameterType.getComponentType();
+       	assertEquals("wrong dimension", 2, componentType.getDimensions());
+       	assertTrue("Not equal", parameterType.getElementType() == componentType.getElementType());
+       	ITypeBinding componentType2 = componentType.getComponentType();
+       	assertEquals("wrong dimension", 1, componentType2.getDimensions());
+       	assertTrue("Not equal", parameterType.getElementType() == componentType2.getElementType());
+     }
     
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
     public void test0133() throws CoreException {
