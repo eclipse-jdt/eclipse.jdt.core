@@ -258,8 +258,25 @@ class BindingComparator {
 				}				
 				referenceBinding = (ReferenceBinding) typeBinding;
 				referenceBinding2 = (ReferenceBinding) typeBinding2;
+				char[] constantPoolName = referenceBinding.constantPoolName();
+				char[] constantPoolName2 = referenceBinding2.constantPoolName();
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=116833
+				if (constantPoolName == null) {
+					if (constantPoolName2 != null) {
+						return false;
+					}
+					if (!CharOperation.equals(referenceBinding.computeUniqueKey(), referenceBinding2.computeUniqueKey())) {
+						return false;
+					}
+				} else {
+					if (constantPoolName2 == null) {
+						return false;
+					}
+					if (!CharOperation.equals(constantPoolName, constantPoolName2)) {
+						return false;
+					}
+				}
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-					&& CharOperation.equals(referenceBinding.constantPoolName(), referenceBinding2.constantPoolName())
 					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
 					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))

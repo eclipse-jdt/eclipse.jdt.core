@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 624 };
+//		TESTS_NUMBERS =  new int[] { 627 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7094,5 +7094,65 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNull("Got a type binding", typeBinding); //$NON-NLS-1$
-	}	
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=116833
+	 */
+	public void test0627() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"    void m() {\n" + 
+				"        error();\n" + 
+				"        new Cloneable() {\n" + 
+				"            void xx() {}\n" + 
+				"        };\n" + 
+				"        new Cloneable() {\n" + 
+				"            void xx() {}\n" + 
+				"        };\n" + 				"    }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedOutput =
+				"The method error() is undefined for the type X";
+			assertProblemsSize(unit, 1, expectedOutput);
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			Expression expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+			AnonymousClassDeclaration anonymousClassDeclaration = ((ClassInstanceCreation) expression).getAnonymousClassDeclaration();
+			assertNotNull("No anonymous class declaration", anonymousClassDeclaration);
+			List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+			assertEquals("Wrong size", 1, bodyDeclarations.size());
+			BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+			
+			node = getASTNode(unit, 0, 0, 2);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+			anonymousClassDeclaration = ((ClassInstanceCreation) expression).getAnonymousClassDeclaration();
+			assertNotNull("No anonymous class declaration", anonymousClassDeclaration);
+			bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+			assertEquals("Wrong size", 1, bodyDeclarations.size());
+			bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+			methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+			
+			assertFalse("Should not be equal", methodBinding.isEqualTo(methodBinding2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
