@@ -297,11 +297,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)
-							|| CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						decodeAnnotations(readOffset, true);
-					}
-					else if(CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName )){
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						decodeAnnotations(readOffset, false);
 					}
 					break;
