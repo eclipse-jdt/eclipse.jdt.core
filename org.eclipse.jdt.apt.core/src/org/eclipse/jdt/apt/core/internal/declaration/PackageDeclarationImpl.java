@@ -174,8 +174,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			final int start = node.getStartPosition();			
 	        return new SourcePositionImpl(start,
 										  node.getLength(),
-	                                      unit.lineNumber(start),
-	                                      unit.columnNumber(start),
+	                                      unit.getLineNumber(start),
+	                                      unit.getColumnNumber(start),
 	                                      this);			
 		}
 		return null;

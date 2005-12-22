@@ -11,11 +11,13 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 
-class APTProblem implements IProblem 
+class APTProblem extends CategorizedProblem implements IProblem 
 {	
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
@@ -101,5 +103,16 @@ class APTProblem implements IProblem
 	public String toString()
 	{
 		return _message == null ? "<null message>" : _message ;  //$NON-NLS-1$
+	}
+	
+	@Override
+	public int getCategoryID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	public String getMarkerType() {
+		return AptPlugin.APT_COMPILATION_PROBLEM_MARKER;
 	}
 }

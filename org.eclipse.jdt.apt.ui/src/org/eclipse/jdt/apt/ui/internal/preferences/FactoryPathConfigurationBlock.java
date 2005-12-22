@@ -432,7 +432,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	@SuppressWarnings("unchecked") 
 	private List<FactoryPathEntry> getListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getElements();
 		return contents;
@@ -441,7 +441,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	@SuppressWarnings("unchecked") 
 	private List<FactoryPathEntry> getSelectedListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getSelectedElements();
 		return contents;

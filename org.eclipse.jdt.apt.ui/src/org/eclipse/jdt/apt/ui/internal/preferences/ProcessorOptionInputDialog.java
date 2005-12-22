@@ -120,7 +120,7 @@ public class ProcessorOptionInputDialog extends StatusDialog {
 		} else if (newVal.indexOf('=') >= 0) {
 			status.setError(Messages.ProcessorOptionInputDialog_equalsSignNotValid);
 		} else if (AptConfig.isAutomaticProcessorOption(newKey)) {
-			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions); //$NON-NLS-1$
+			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions); 
 		}
 		updateStatus(status);
 	}

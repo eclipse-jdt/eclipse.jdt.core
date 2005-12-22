@@ -234,7 +234,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	@SuppressWarnings("unchecked") 
 	private List<ProcessorOption> getListElements() {
 		return fProcessorOptionsField.getElements();
 	}
@@ -242,7 +242,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	@SuppressWarnings("unchecked") 
 	private List<ProcessorOption> getListSelection() {
 		return fProcessorOptionsField.getSelectedElements();
 	}

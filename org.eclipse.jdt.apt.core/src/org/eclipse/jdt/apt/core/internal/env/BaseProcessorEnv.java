@@ -644,7 +644,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	 * Any entry in the returned array may be <code>null</code>. 
 	 * This indicates an error while reading the file. 
 	 */
-	public static CompilationUnit[] createDietASTs(
+	public static CompilationUnit[] createASTs(
 			final IJavaProject javaProject, 
 			final ICompilationUnit[] parseUnits)
 	{
@@ -679,7 +679,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );
 		p.setProject( javaProject );
-		p.setFocalPosition( 0 );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( parseUnits, NO_KEYS,  requestor, null);
 		
@@ -689,7 +688,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	/**
 	 *  This should create an AST without imports or method-body statements
 	 */
-	public static CompilationUnit createDietAST(
+	public static CompilationUnit createAST(
 			IJavaProject javaProject, 
 			final ICompilationUnit compilationUnit)
 	{	
@@ -708,8 +707,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );
-		p.setProject( javaProject );		
-		p.setFocalPosition( 0 );
+		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
 		if( AptPlugin.DEBUG ){

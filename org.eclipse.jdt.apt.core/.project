@@ -2,9 +2,9 @@
 <projectDescription>
 	<name>org.eclipse.jdt.apt.core</name>
 	<comment></comment>
-	<projects>
+	<!--projects>
 		<project>cvs.org.eclipse.jdt.core</project>
-	</projects>
+	</projects-->
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>

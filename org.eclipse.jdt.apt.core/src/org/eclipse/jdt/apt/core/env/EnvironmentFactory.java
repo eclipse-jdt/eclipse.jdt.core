@@ -36,7 +36,7 @@ public class EnvironmentFactory {
 	 */
 	public static AnnotationProcessorEnvironment getEnvironment(ICompilationUnit compilationUnit, IJavaProject javaProject )
 	{	
-		CompilationUnit node = BaseProcessorEnv.createDietAST( javaProject, compilationUnit);
+		CompilationUnit node = BaseProcessorEnv.createAST( javaProject, compilationUnit);
        	BaseProcessorEnv env = new BaseProcessorEnv(
        			node,
        			(IFile)compilationUnit.getResource(),

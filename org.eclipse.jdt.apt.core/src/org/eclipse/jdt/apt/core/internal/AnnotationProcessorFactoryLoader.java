@@ -537,7 +537,7 @@ public class AnnotationProcessorFactoryLoader {
 			for (IJavaProject jp : jprojects) {
 				if (jp.exists()) {
 					IProject p = jp.getProject();
-					IMarker[] markers = p.findMarkers(AptPlugin.APT_BUILD_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					IMarker[] markers = p.findMarkers(AptPlugin.APT_LOADER_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 					if( markers != null ){
 						for( IMarker marker : markers )
 							marker.delete();
@@ -584,7 +584,7 @@ public class AnnotationProcessorFactoryLoader {
 				String message = Messages.bind(
 						Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary, 
 						new String[] {fc.getId(), project.getName()});
-				IMarker marker = project.createMarker(AptPlugin.APT_BUILD_PROBLEM_MARKER);
+				IMarker marker = project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
 				marker.setAttributes(
 						new String[] {
 							IMarker.MESSAGE, 
@@ -619,7 +619,7 @@ public class AnnotationProcessorFactoryLoader {
 			String message = Messages.bind(
 					Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass, 
 					new String[] {factoryName, project.getName()});
-			IMarker marker = project.createMarker(AptPlugin.APT_BUILD_PROBLEM_MARKER);
+			IMarker marker = project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
 			marker.setAttributes(
 					new String[] {
 						IMarker.MESSAGE, 
