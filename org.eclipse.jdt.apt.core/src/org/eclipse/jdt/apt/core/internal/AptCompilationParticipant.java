@@ -48,6 +48,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * The set is an order preserving. The order is determined by their first invocation.
 	 */
 	private Set<AnnotationProcessorFactory> _previousRoundsBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
+	private int _buildRound = 0;
 	private static AptCompilationParticipant INSTANCE;
 	
 	public static AptCompilationParticipant getInstance() {
@@ -82,8 +83,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		}			
 		
 		try {
-			// TODO: (theodora) bounce the class loader correctly.
-			if (isBatchBuild /* && the begining of the batch build*/ ) {
+			if (isBatchBuild && _buildRound == 0 ) {
 				AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(javaProject);
 				_previousRoundsBatchFactories.clear();
 			}
@@ -102,6 +102,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 				// classloaders we opened
 				AnnotationProcessorFactoryLoader.getLoader().closeBatchClassLoader();
 			}
+			_buildRound ++;
 		}
 	}
 	
@@ -184,6 +185,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			GeneratedFileManager manager = AptPlugin.getAptProject(project).getGeneratedFileManager();
 			manager.compilationStarted();
 		}		
+		_buildRound = 0; // reset
 		// TODO: (wharley) if the factory path is different we need a full build
 		return CompilationParticipant.READY_FOR_BUILD;
 	}
