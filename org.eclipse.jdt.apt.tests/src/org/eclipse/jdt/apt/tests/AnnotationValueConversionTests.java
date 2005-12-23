@@ -76,7 +76,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on byte. No boxing testing.
+	 * Test conversion on byte. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -118,7 +118,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on short. No boxing testing.
+	 * Test conversion on short. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -161,7 +161,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on char. No boxing testing.
+	 * Test conversion on char. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -204,7 +204,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on int. No boxing testing.
+	 * Test conversion on int. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -247,7 +247,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on long. No boxing testing.
+	 * Test conversion on long. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -282,7 +282,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on Float. No boxing testing.
+	 * Test conversion on Float. 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -315,7 +315,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	/**
-	 * Test conversion on double. No boxing testing.
+	 * Test conversion on double. No arrayification.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
@@ -346,11 +346,11 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}	
 	
 	/**
-	 * Test conversion on double. No boxing testing.
+	 * Convert "singleton" instance to array of the correct type
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
-	public void testAutoBoxing() throws Exception {
+	public void testArrayification() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
@@ -389,7 +389,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}	
 	
 	/**
-	 * Test conversion on double. No boxing testing.
+	 * Test conversion on double.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("nls")
