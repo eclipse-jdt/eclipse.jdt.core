@@ -1,14 +1,20 @@
+/*******************************************************************************
+ * Copyright (c) 2005 BEA Systems, Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    tyeung@bea.com - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
-
-
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
@@ -26,7 +32,6 @@ import com.sun.mirror.apt.Filer;
 public class ReconcileProcessorEnv extends CompilationProcessorEnv implements EclipseAnnotationProcessorEnvironment{
 	
 	private final ReconcileContext _reconcileContext;
-	private List<APTProblem> _problems = new ArrayList<APTProblem>();
 	
 	/**
 	 * Create a reconcile environment from the given context. 
