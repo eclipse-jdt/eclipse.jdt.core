@@ -986,8 +986,8 @@ protected void toStringName(StringBuffer buffer) {
 	else
 		buffer.append("<anonymous>"); //$NON-NLS-1$
 }
-public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
-	final String contents = getJavadocContents(monitor, defaultEncoding);
+public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
+	final String contents = getJavadocContents(monitor);
 	if (contents == null) return null;
 	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
 	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
@@ -1025,7 +1025,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncodin
 	}
 	return contents.substring(indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH, indexOfNextSummary);
 }
-public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+public String getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
 	String cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
@@ -1064,7 +1064,7 @@ public String getJavadocContents(IProgressMonitor monitor, String defaultEncodin
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
 	
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer), defaultEncoding);
+	final String contents = getURLContents(String.valueOf(pathBuffer));
 	synchronized (projectInfo.javadocCache) {
 		projectInfo.javadocCache.put(this, contents);
 	}

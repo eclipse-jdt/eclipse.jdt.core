@@ -14,6 +14,7 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -38,6 +39,10 @@ import org.eclipse.jdt.internal.core.util.Util;
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 //	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 
+	private static final byte[] CLOSING_DOUBLE_QUOTE = new byte[] { 34 };
+	private static final byte[] CHARSET = new byte[] {99, 104, 97, 114, 115, 101, 116, 61 };
+	private static final byte[] CONTENT_TYPE = new byte[] { 34, 67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 34 };
+	private static final byte[] CONTENT = new byte[] { 99, 111, 110, 116, 101, 110, 116, 61, 34 };
 	public static final char JEM_ESCAPE = '\\';
 	public static final char JEM_JAVAPROJECT = '=';
 	public static final char JEM_PACKAGEFRAGMENTROOT = '/';
@@ -684,20 +689,67 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	}
 	
 	/*
-	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor, String)
+	 * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
 	 */
-	public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 		return null;
 	}
+	public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
+		return getAttachedJavadoc(monitor);
+	}
+	
+	int getIndexOf(byte[] array, byte[] toBeFound, int start) {
+		if (array == null || toBeFound == null)
+			return -1;
+		final int toBeFoundLength = toBeFound.length;
+		final int arrayLength = array.length;
+		if (arrayLength < toBeFoundLength)
+			return -1;
+		loop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
+			if (array[i] == toBeFound[0]) {
+				for (int j = 1; j < toBeFoundLength; j++) {
+					if (array[i + j] != toBeFound[j])
+						continue loop;
+				}
+				return i;
+			}
+		}
+		return -1;
+	}	
 	/*
 	 * We don't use getContentEncoding() on the URL connection, because it might leave open streams behind.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117890 
 	 * 
 	 */
-	protected String getURLContents(String docUrlValue, String defaultEncoding) throws JavaModelException {
+	protected String getURLContents(String docUrlValue) throws JavaModelException {
 		InputStream stream = null;
+		JarURLConnection connection2 = null;
 		try {
-			String encoding = defaultEncoding;
+			URL docUrl = new URL(docUrlValue);
+			URLConnection connection = docUrl.openConnection();
+			if (connection instanceof JarURLConnection) {
+				connection2 = (JarURLConnection) connection;
+			}
+			stream = new BufferedInputStream(connection.getInputStream());
+			String encoding = connection.getContentEncoding();
+			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, connection.getContentLength());
+			if (encoding == null) {
+				int index = getIndexOf(contents, CONTENT_TYPE, 0);
+				if (index != -1) {
+					index = getIndexOf(contents, CONTENT, index);
+					if (index != -1) {
+						int offset = index + CONTENT.length;
+						int index2 = getIndexOf(contents, CLOSING_DOUBLE_QUOTE, offset);
+						if (index2 != -1) {
+							final int charsetIndex = getIndexOf(contents, CHARSET, offset);
+							if (charsetIndex != -1) {
+								int start = charsetIndex + CHARSET.length;
+								encoding = new String(contents, start, index2 - start, "UTF-8"); //$NON-NLS-1$
+							}
+						}
+					}
+				}
+			}
 			try {
 				if (encoding == null) {
 					encoding = this.getJavaProject().getProject().getDefaultCharset();
@@ -705,24 +757,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			} catch (CoreException e) {
 				// ignore
 			}
-			// long time = System.currentTimeMillis();
-			URL docUrl = new URL(docUrlValue);
-			URLConnection connection = docUrl.openConnection();
-			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for opening connection for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
-			// time = System.currentTimeMillis();
-			if ("jar".equals(docUrl.getProtocol())) { //$NON-NLS-1$
-				// if jar protocol is using a cache, some file descriptors are left behind and the resource cannot be deleted
-				connection.setUseCaches(false);
-			}
-			stream = new BufferedInputStream(connection.getInputStream());
-			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for getting stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
-			// time = System.currentTimeMillis();
-			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
-			// System.out.println("Time spent " + (System.currentTimeMillis() - time) + "ms for reading stream for " + docUrlValue); //$NON-NLS-1$//$NON-NLS-2$
 			if (contents != null) {
-				// System.out.println("Size = " + (contents.length / 1024) + "kb");//$NON-NLS-1$//$NON-NLS-2$
-				return String.valueOf(contents);
-			}
+				if (encoding != null) {
+					return new String(contents, encoding);
+				} else {
+					// platform encoding is used
+					return new String(contents);
+				}
+			}			
  		} catch (MalformedURLException e) {
  			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
@@ -734,9 +776,16 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				try {
 					stream.close();
 				} catch (IOException e) {
-					// ignore
+					e.printStackTrace();
 				}
 			}
+			if (connection2 != null) {
+				try {
+					connection2.getJarFile().close();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+ 			}
 		}
 		return null;
 	}

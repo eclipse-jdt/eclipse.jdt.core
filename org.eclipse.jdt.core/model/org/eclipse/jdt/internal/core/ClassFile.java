@@ -203,8 +203,8 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
 	}
 	return elt;
 }
-public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
-	return this.getType().getAttachedJavadoc(monitor, defaultEncoding);
+public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
+	return this.getType().getAttachedJavadoc(monitor);
 }
 /**
  * Returns the <code>ClassFileReader</code>specific for this IClassFile, based

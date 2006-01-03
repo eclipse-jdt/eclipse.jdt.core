@@ -205,7 +205,7 @@ public String[] getParameterNames() throws JavaModelException {
 				public void run() {
 					try {
 						// this call has a side-effect on the per project info cache
-						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null, "UTF-8")); //$NON-NLS-1$
+						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null));
 			        } catch (JavaModelException e) {
 	 		        	// ignore
 	 		        }
@@ -455,10 +455,10 @@ protected void toStringName(StringBuffer buffer, int flags) {
 		buffer.append(this.occurrenceCount);
 	}
 }
-public String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 	IType declaringType = this.getDeclaringType();
 
-	String contents = ((BinaryType) declaringType).getJavadocContents(monitor, defaultEncoding);
+	String contents = ((BinaryType) declaringType).getJavadocContents(monitor);
 	return extractJavadoc(declaringType, contents);
 }
 private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {

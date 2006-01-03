@@ -111,7 +111,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	public void test001() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
-		String javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 
@@ -121,7 +121,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 
@@ -134,7 +134,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IField field = type.getField("f"); //$NON-NLS-1$
 		assertNotNull(field);
-		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 
@@ -147,7 +147,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IMethod method = type.getMethod("foo", new String[] {"I", "J", "Ljava.lang.String;"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertTrue(method.exists());
-		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		// TODO (olivier) reenable once 117740 is fixed
 		if (false) {
@@ -169,7 +169,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IMethod method = type.getMethod("X", new String[] {"I"}); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(method.exists());
-		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		// TODO (olivier) reenable once 117740 is fixed
 		if (false) {
@@ -186,7 +186,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X$A.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 	
@@ -199,15 +199,12 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IMethod method = type.getMethod("A", new String[] {"Lp1.p2.X;", "F"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		assertTrue(method.exists());
-		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-		// TODO (olivier) reenable once 117740 is fixed
-		if (false) {
-			String[] paramNames = method.getParameterNames();
-			assertNotNull(paramNames);
-			assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
-			assertEquals("Wrong name for first param", "f", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "f", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	// for a method foo2
@@ -219,14 +216,11 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IMethod method = type.getMethod("foo2", new String[0]); //$NON-NLS-1$
 		assertTrue(method.exists());
-		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-		// TODO (olivier) reenable once 117740 is fixed
-		if (false) {
-			String[] paramNames = method.getParameterNames();
-			assertNotNull(paramNames);
-			assertEquals("Wrong size", 0, paramNames.length); //$NON-NLS-1$
-		}
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 0, paramNames.length); //$NON-NLS-1$
 	}
 	
 	// for a field f2
@@ -238,7 +232,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IField field = type.getField("f2"); //$NON-NLS-1$
 		assertNotNull(field);
-		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 	
@@ -279,7 +273,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IType type = classFile.getType();
 			IField field = type.getField("f"); //$NON-NLS-1$
 			assertNotNull(field);
-			String javadoc = field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+			String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		} finally {
 			// restore classpath
@@ -298,7 +292,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IType type = classFile.getType();
 		IField field = type.getField("out"); //$NON-NLS-1$
 		assertNotNull(field);
-		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
 	
@@ -308,7 +302,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to out", javadoc.indexOf("out") == -1);
 	}
@@ -319,7 +313,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("W.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
 	}
 	
@@ -329,7 +323,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("E.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to Constant C", javadoc.indexOf("Constant C") == -1);
 	}
@@ -340,7 +334,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Annot.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name", javadoc.indexOf("name") == -1);
 	}
@@ -368,7 +362,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IType type = classFile.getType();
 			IField field = type.getField("f"); //$NON-NLS-1$
 			assertNotNull(field);
-			field.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+			field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 			assertFalse("Should be unreachable", true);
 		} catch(JavaModelException e) {
 			assertTrue("Must occur", true);
@@ -387,7 +381,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Annot2.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor(), "UTF-8"); //$NON-NLS-1$
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name2", javadoc.indexOf("name2") == -1);
 	}
