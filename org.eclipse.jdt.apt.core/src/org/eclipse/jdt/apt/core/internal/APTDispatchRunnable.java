@@ -573,7 +573,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			}
 
 			final Map<IFile, Set<IFile>> allGeneratedFiles = processorEnv.getAllGeneratedFiles();
-			final Set<IFile> modifiedGeneratedFiles = processorEnv.getModifiedGeneratedFiles();
+			final Set<IFile> modifiedGeneratedSourceFiles = processorEnv.getModifiedGeneratedSourceFiles();
 			
 			// any files that were generated for this parent on the last
 			// run, but are no longer generated should be removed
@@ -595,7 +595,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					allDeletedFiles.addAll(deletedFiles);		
 			}		
 			
-			APTResult result = new APTResult( modifiedGeneratedFiles, 
+			APTResult result = new APTResult( modifiedGeneratedSourceFiles, 
 											  allDeletedFiles, 
 											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 

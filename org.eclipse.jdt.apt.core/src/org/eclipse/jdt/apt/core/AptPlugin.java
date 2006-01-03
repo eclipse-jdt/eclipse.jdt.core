@@ -123,6 +123,18 @@ public class AptPlugin extends Plugin {
 	}
 	
 	/**
+	 * Convenience wrapper around log(IStatus), to log an exception
+	 * with severity of WARNING.
+	 */
+	public static void logWarning(Throwable e, String message) {
+		// TODO: before ship, remove this printing. Instead just log
+		// Note: we don't include the stack here, but it goes in the log
+		System.err.println(message);
+		
+		log(createWarningStatus(e, message));
+	}
+	
+	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of ERROR.
 	 */

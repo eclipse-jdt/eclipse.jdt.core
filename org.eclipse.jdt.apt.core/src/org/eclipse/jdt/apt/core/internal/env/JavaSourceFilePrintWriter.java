@@ -24,6 +24,10 @@ import org.eclipse.jdt.core.ICompilationUnit;
 
 public class JavaSourceFilePrintWriter extends PrintWriter {
 
+	private final StringWriter _sw;
+    private final String _typeName;
+    private final ProcessorEnvImpl _env;
+	
     public JavaSourceFilePrintWriter( String typeName, StringWriter sw, ProcessorEnvImpl env )
     {
         super( sw );
@@ -58,16 +62,11 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	            throw new IllegalStateException( "Unexpected phase value: " + phase ); //$NON-NLS-1$
 	        }
 	        if (result != null) {
-	        	_env.addGeneratedFile(result.getFile(), result.isModified());
+	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }
     	}
     	catch (CoreException ce) {
     		AptPlugin.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
     	}
     }
-			
-	
-    private StringWriter _sw;
-    private String _typeName;
-    private ProcessorEnvImpl _env;
 }

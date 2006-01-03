@@ -197,6 +197,8 @@ public class GeneratedFileManager {
 	throws CoreException
 	{
 		if( _skipTypeGeneration ) return null;
+		// If the generated package fragment root wasn't set,
+		// then our classpath is incorrect. Add a marker and return
 		else if( _generatedPackageFragmentRoot == null ){			
 			String message = Messages.bind(
 					Messages.GeneratedFileManager_missing_classpath_entry, 
@@ -317,8 +319,9 @@ public class GeneratedFileManager {
 			// as refactorings then fail in the future, which is worse
 			// than allowing a user to modify a generated file.
 			
-			// during a batch build
-			if( parentFile != null ){
+			// during a batch build, parentFile will be null.
+			// Only keep track of ownership in iterative builds
+			if( parentFile != null ) {
 				addEntryToFileMaps( parentFile, file );
 			}
 			return new FileGenerationResult(file, contentsDiffer);
@@ -656,7 +659,13 @@ public class GeneratedFileManager {
 			final IFolder genFolder = getGeneratedSourceFolder();
 			assert genFolder != null : "Generated folder == null"; //$NON-NLS-1$
 			IContainer parent = generatedFile.getParent();
-			generatedFile.delete(true, true, progressMonitor);
+			try {
+				generatedFile.delete(true, true, progressMonitor);
+			}
+			catch (CoreException ce) {
+				// File was locked or read-only
+				AptPlugin.logWarning(ce, "Failed to delete file: " + generatedFile); //$NON-NLS-1$
+			}
 			// not deleting the generated source folder and only 
 			// delete generated folders containing the generated file.
 			while( !genFolder.equals(parent) && parent != null && parent.isDerived() ){				
@@ -1221,7 +1230,7 @@ public class GeneratedFileManager {
 		}
 	}
 	
-	private void addEntryToFileMaps( IFile parentFile, IFile generatedFile )
+	public void addEntryToFileMaps( IFile parentFile, IFile generatedFile )
 	{
 		synchronized ( this )
 		{

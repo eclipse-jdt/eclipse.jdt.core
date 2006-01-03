@@ -91,7 +91,7 @@ public class FilerImpl implements Filer {
     	path = path.append(name.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
     	
         IFile file = _env.getProject().getFile(path);
-        return new BinaryFileOutputStream(file);
+        return new BinaryFileOutputStream(file, _env);
     }
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
@@ -125,7 +125,7 @@ public class FilerImpl implements Filer {
     	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
-    	OutputStream binaryOut = new BinaryFileOutputStream(file);
+    	OutputStream binaryOut = new BinaryFileOutputStream(file, _env);
  
     	if (charsetName == null) {
     		return new PrintWriter(binaryOut);
@@ -161,7 +161,7 @@ public class FilerImpl implements Filer {
     	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
-    	return new BinaryFileOutputStream(file);
+    	return new BinaryFileOutputStream(file, _env);
     }
 	
     /**
