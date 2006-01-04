@@ -499,7 +499,7 @@ public class BlockScope extends Scope {
 			if ((mask & Binding.FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
-						(FieldBinding)binding,
+						((ProblemFieldBinding)binding).closestMatch,
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						binding.problemId());
 				break; // binding is now a field
