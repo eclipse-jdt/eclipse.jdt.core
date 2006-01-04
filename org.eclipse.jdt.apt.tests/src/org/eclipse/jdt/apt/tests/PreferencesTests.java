@@ -23,7 +23,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -242,8 +242,8 @@ public class PreferencesTests extends APTTestBase {
 		boolean aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 1: make sure apt is disabled by default
 		assertEquals(false, aptEnabled);
-		final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
-		IFolder srcFolder = gfm.getGeneratedSourceFolder();
+		final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
+		IFolder srcFolder = gsfm.getFolder();
 		String folderName = srcFolder.getProjectRelativePath().toOSString();
 		// test 2: apt is disabled, then folder should not exists 
 		assertEquals(srcFolder.exists(), false);
@@ -254,7 +254,7 @@ public class PreferencesTests extends APTTestBase {
 		// set folder name while apt is disabled
 		String newName = ".gensrcdir";
 		AptConfig.setGenSrcDir(javaProj, newName);
-		srcFolder = gfm.getGeneratedSourceFolder();
+		srcFolder = gsfm.getFolder();
 		folderName = srcFolder.getProjectRelativePath().toOSString();
 		// test 4: apt still disabled but folder name changed, make sure the folder is not on disk.
 		assertEquals(false, srcFolder.exists());
@@ -268,7 +268,7 @@ public class PreferencesTests extends APTTestBase {
 		aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 7: make sure it's enabled after we called the API to enable it. 
 		assertEquals(true, aptEnabled);
-		srcFolder = gfm.getGeneratedSourceFolder();		
+		srcFolder = gsfm.getFolder();		
 		folderName = srcFolder.getProjectRelativePath().toOSString();
 		// test 8: apt enabled, the source folder should be on disk
 		assertEquals(true, srcFolder.exists());
@@ -282,7 +282,7 @@ public class PreferencesTests extends APTTestBase {
 		aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 11: make sure it's disabled.
 		assertEquals(false, aptEnabled);
-		srcFolder = gfm.getGeneratedSourceFolder();
+		srcFolder = gsfm.getFolder();
 		folderName = srcFolder.getProjectRelativePath().toOSString();
 		// test 12: make sure we deleted the source folder when we disable apt
 		assertEquals(false, srcFolder.exists());

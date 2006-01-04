@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -58,8 +59,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		{
 			IProject p = (IProject)event.getResource();
 			IJavaProject jp = JavaCore.create(p);
-			GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
-			gfm.projectClosed();
+			AptPlugin.getAptProject(jp).projectClosed();
 		}
 		else if ( event.getType() == IResourceChangeEvent.PRE_DELETE )
 		{
@@ -67,8 +67,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			// in an async thread.  The resource tree is locked here.
 			IProject p = (IProject)event.getResource();
 			IJavaProject jp = JavaCore.create(p);
-			GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
-			gfm.projectDeleted();
+			AptPlugin.getAptProject(jp).projectDeleted();
 			AptPlugin.deleteAptProject(jp);
 		}
 	}
@@ -78,8 +77,8 @@ private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
 		for(IProject proj : projs ){
 			final IJavaProject javaProj = JavaCore.create(proj);
 			if(AptConfig.isEnabled(javaProj)){
-				final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
-				gfm.createGeneratedSourceFolder();
+				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
+				gsfm.createGeneratedSourceFolder();
 			}	
 		}
 
@@ -101,8 +100,9 @@ private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
 			
 			if( delta.getKind() == IResourceDelta.REMOVED ){
 				final IJavaProject javaProj = JavaCore.create(project);
-				final GeneratedFileManager gfm = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
+				final AptProject aptProj = AptPlugin.getAptProject(javaProj);
 				if( r instanceof IFile ){
+					final GeneratedFileManager gfm = aptProj.getGeneratedFileManager();
 					IFile f = (IFile)r;
 					if ( gfm.isParentFile( f ) )
 					{
@@ -114,9 +114,10 @@ private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
 					}
 				}				
 				else if( r instanceof IFolder ){			
+					final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager();
 					IFolder f = (IFolder) r;					
-					if ( gfm.isGeneratedSourceFolder( f ) ){
-						gfm.generatedSourceFolderDeleted();
+					if ( gsfm.isGeneratedSourceFolder( f ) ){
+						gsfm.generatedSourceFolderDeleted();
 						// all deletion occurs before any add (adding the generated source directory)
 						if( !_removedProjects.contains(project) ){
 							_addGenFolderTo.add(project);

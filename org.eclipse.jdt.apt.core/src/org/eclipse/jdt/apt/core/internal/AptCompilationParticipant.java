@@ -28,13 +28,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
-import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
@@ -214,8 +213,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		IJavaProject javaProject = cpe.getJavaProject();
 		IProject p = javaProject.getProject();
 		
-		GeneratedFileManager gfm = AptPlugin.getAptProject(javaProject).getGeneratedFileManager();
-		gfm.projectClean( true );
+		AptPlugin.getAptProject(javaProject).projectClean( true );
 		try{
 			// clear out all markers during a clean.
 			IMarker[] markers = p.findMarkers(AptPlugin.APT_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
@@ -245,8 +243,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			return;
 		}		
 		// setup the classpath and make sure the generated source folder is on disk.
-		GeneratedFileManager manager = AptPlugin.getAptProject(project).getGeneratedFileManager();
-		manager.compilationStarted();
+		AptPlugin.getAptProject(project).compilationStarted();
 	}
     
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$

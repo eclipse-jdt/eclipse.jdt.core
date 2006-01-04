@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -75,11 +75,11 @@ public class FilerImpl implements Filer {
 			return new NoOpOutputStream();
 		}
 		
-    	GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
+    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager();
     	IPath path;
     	try 
     	{
-    		 path = gfm.getGeneratedSourceFolderOutputLocation();
+    		 path = gsfm.getBinaryOutputLocation();
     	}
     	catch ( Exception e )
     	{
@@ -170,13 +170,13 @@ public class FilerImpl implements Filer {
     private IPath getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
     	throws IOException
     {
-    	GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
+    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager();
     	IPath path = null;
     	if ( loc == Filer.Location.CLASS_TREE )
     	{
     		try 
     		{
-    			path = gfm.getGeneratedSourceFolderOutputLocation();
+    			path = gsfm.getBinaryOutputLocation();
     		}
     		catch ( JavaModelException e )
     		{
@@ -185,7 +185,7 @@ public class FilerImpl implements Filer {
     		}
     	}
     	else if ( loc == Filer.Location.SOURCE_TREE ) {
-    		path = gfm.getGeneratedSourceFolder().getProjectRelativePath();
+    		path = gsfm.getFolder().getProjectRelativePath();
     	}
     	
         if( pkg != null )
