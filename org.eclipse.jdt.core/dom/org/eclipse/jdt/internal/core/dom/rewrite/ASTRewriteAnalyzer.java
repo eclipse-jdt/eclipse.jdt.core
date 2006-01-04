@@ -3009,7 +3009,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				handleException(e);
 			}
 		} else {
-			pos= doVisit(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, 0);
+			pos= doVisit(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, pos);
 		}
 		
 		if (isChanged(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY)) {
