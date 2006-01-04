@@ -103,6 +103,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
 	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
+	public static final String OPTION_ReportParameterAssignment =  "org.eclipse.jdt.core.compiler.problem.parameterAssignment"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -185,6 +186,7 @@ public class CompilerOptions {
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
 	public static final long RawTypeReference = ASTNode.Bit46L;
 	public static final long UnusedLabel = ASTNode.Bit47L;
+	public static final long ParameterAssignment = ASTNode.Bit48L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -393,6 +395,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
+		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
 		return optionsMap;		
 	}
 	
@@ -633,7 +636,8 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLabel)) != null) updateSeverity(UnusedLabel, optionValue);
-				
+		if ((optionValue = optionsMap.get(OPTION_ReportParameterAssignment)) != null) updateSeverity(ParameterAssignment, optionValue);
+
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -798,6 +802,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
 		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
 		buf.append("\n\t- treat optional error as fatal: ").append(this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- parameter assignment: ").append(getSeverityString(ParameterAssignment)); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -898,6 +903,7 @@ public class CompilerOptions {
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportVarargsArgumentNeedCast,
 			OPTION_ReportUnhandledWarningToken,
+			OPTION_ReportParameterAssignment,
 		};
 		return result;
 	}
@@ -949,6 +955,8 @@ public class CompilerOptions {
 					return "unchecked"; //$NON-NLS-1$
 				case (int) UnusedLabel:
 					return "unused"; //$NON-NLS-1$
+				case (int) (ParameterAssignment >>> 32) :
+					return "paramAssign"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -984,6 +992,10 @@ public class CompilerOptions {
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
 					return NonExternalizedString;
+				break;
+			case 'p' :
+				if ("paramAssign".equals(warningToken)) //$NON-NLS-1$
+					return ParameterAssignment;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$

@@ -72,6 +72,8 @@
  *     IBM Corporation - added the following constants
  *								   IllegalUsageOfQualifiedTypeReference
  *								   InvalidDigit
+ *     IBM Corporation - added the following constants
+ *								   ParameterAssignment
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -286,7 +288,9 @@ void setSourceStart(int sourceStart);
 	int TooManyArrayDimensions = Internal + 68;
 	/** @since 2.1 */
 	int BytecodeExceeds64KLimitForConstructor = Internal + 69;
-
+	/** @since 3.2 */
+	int ParameterAssignment = Internal + 860;
+	
 	// fields
 	int UndefinedField = FieldRelated + 70;
 	int NotVisibleField = FieldRelated + 71;

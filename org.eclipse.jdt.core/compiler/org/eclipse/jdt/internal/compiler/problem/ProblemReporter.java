@@ -1505,6 +1505,9 @@ public static long getIrritant(int problemID) {
 
 		case IProblem.JavadocMissing:
 			return CompilerOptions.MissingJavadocComments;
+
+		case IProblem.ParameterAssignment:
+			return CompilerOptions.ParameterAssignment;
 	}
 	return 0;
 }
@@ -4519,6 +4522,15 @@ public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl)
 		arguments,
 		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceStart,
 		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceEnd);
+}
+public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
+	String[] arguments = new String[] { new String(local.readableName())};
+	this.handle(
+		IProblem.ParameterAssignment,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
 }
 private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean makeShort) {
     StringBuffer nameBuffer = new StringBuffer(10);

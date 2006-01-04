@@ -1472,6 +1472,104 @@ public void test039() {
 		},
 		"a=11b=1");
 }
+// warn upon parameter assignment
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+public void test040() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    b = false;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The parameter b should not be assigned\n" + 
+		"----------\n",
+		null, true, options);
+}
+// warn upon parameter assignment
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+// diagnose within fake reachable code
+public void test041() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    if (false) {\n" + 
+			"      b = false;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The parameter b should not be assigned\n" + 
+		"----------\n",
+		null, true, options);
+}
+// warn upon parameter assignment
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+// diagnose within fake reachable code
+public void test042() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    if (true) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"    b = false;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The parameter b should not be assigned\n" + 
+		"----------\n",
+		null, true, options);
+}
+// warn upon parameter assignment
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+// we only show the 'assignment to final' error here
+public void test043() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(final boolean b) {\n" + 
+			"    if (false) {\n" + 
+			"      b = false;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The final local variable b cannot be assigned. It must be blank and not using a compound assignment\n" + 
+		"----------\n",
+		null, true, options);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

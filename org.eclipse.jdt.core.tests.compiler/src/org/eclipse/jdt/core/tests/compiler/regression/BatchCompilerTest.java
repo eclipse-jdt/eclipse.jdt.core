@@ -2084,6 +2084,43 @@ public void test036(){
         false);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+// complain on assignment to parameters
+public void test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo(int i, final int j) {\n" +
+			"    i =  0; // warning\n" +
+			"    j =  0; // error\n" +
+			"  }\n" +
+			"}\n"},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 "
+		+ " -cp \"" + OUTPUT_DIR + "\""
+		+ " -warn:+paramAssign"
+		+ " -proceedOnError"
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
+		File.separator + "X.java\n" +
+		" (at line 3)\n" +
+		"	i =  0; // warning\n" +
+		"	^\n" +
+		"The parameter i should not be assigned\n" +
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" +  File.separator + "X.java\n" +
+		" (at line 4)\n" +
+		"	j =  0; // error\n" +
+		"	^\n" +
+		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" +
+		"----------\n" +
+		"2 problems (1 error, 1 warning)",
+		true);
+}
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
