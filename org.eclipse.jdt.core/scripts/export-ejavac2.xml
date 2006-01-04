@@ -2,12 +2,12 @@
 <project name="export-executable" default="build" basedir="..">
 
 	<property name="version" value="32M4" />
-	<property name="gcc-path" value="D:\java_tools\thisiscool-gcc\gcc-4.0.old" />
-	<property name="binaryname" value="ejc${version}" />
+	<property name="gcc-path" value="/oliviert/gcj4.0.3/xgcc" />
+	<property name="binaryname" value="ejc${version}.exe" />
 	<property name="dest" value="../../bingcj" />
 	<property name="work" value="${dest}/tmp/" />
 	<property name="bin" value="${dest}/bin/" />
-	<property name="source" value="D:/eclipse/workspaces/head/org.eclipse.jdt.core" />
+	<property name="source" value="/oliviert/workspaces/head/org.eclipse.jdt.core" />
 	<property name="gcj_script_name" value="export-executable.xml"/>
 
     <target name="build">
@@ -46,9 +46,11 @@
 	
 		<echo message="generate build script" />
 		<java classname="GenerateBuildScript">
-			<sysproperty key="user.dir" value="${basedir}/scripts"/>
 			<arg value="${basedir}/scripts/${gcj_script_name}"/>
 			<arg value="${basedir}/${bin}"/>
+			<arg value="i686-pc-mingw32-gcj"/>
+			<arg value="${basedir}/${bin}"/>
+			<arg value="bin"/>
 			<classpath>
 				<pathelement path="${basedir}/scripts"/>
 			</classpath>
