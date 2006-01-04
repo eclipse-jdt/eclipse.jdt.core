@@ -1220,7 +1220,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		assertNotNull("No body", methodDeclaration.getBody());
 		assertNotNull("No binding", methodDeclaration.resolveBinding());
-		assertTrue("Not an abstract method", Modifier.isAbstract(methodDeclaration.getModifiers())); 
+		assertTrue("Not an abstract method", Modifier.isAbstract(methodDeclaration.getModifiers()));
+		List modifiers = methodDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		Modifier modifier1 = (Modifier) modifiers.get(0);
+		assertTrue("Not a public modifier", modifier1.isPublic());
+		Modifier modifier2 = (Modifier) modifiers.get(1);
+		assertTrue("Not an abstract modifier", modifier2.isAbstract());
 		assertTrue("Not malformed", isMalformed(methodDeclaration)); 
 	}
 
