@@ -11,6 +11,7 @@
 package org.eclipse.jdt.apt.core.env;
 
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -45,6 +46,11 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	 * @link{Phase.RECONCILE} or @link{Phase.BUILD}
 	 */
 	Phase getPhase();
+	
+	/**
+	 * @return the java project associated with the current processing phase
+	 */
+	IJavaProject getJavaProject();
 	
 	/**
 	 * Add a type dependency on the type named <code>fullyQualifiedTypeName</code>

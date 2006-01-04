@@ -29,7 +29,7 @@ import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
  */
 public class BinaryFileOutputStream extends ByteArrayOutputStream {
 
-	private final IFile _file;
+	protected final IFile _file;
 	private final ProcessorEnvImpl _env;
 	
 	public BinaryFileOutputStream(IFile file, ProcessorEnvImpl env) {

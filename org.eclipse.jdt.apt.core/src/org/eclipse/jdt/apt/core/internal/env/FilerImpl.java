@@ -125,7 +125,7 @@ public class FilerImpl implements Filer {
     	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
-    	OutputStream binaryOut = new BinaryFileOutputStream(file, _env);
+    	OutputStream binaryOut = new EncodedFileOutputStream(file, _env, charsetName);
  
     	if (charsetName == null) {
     		return new PrintWriter(binaryOut);
