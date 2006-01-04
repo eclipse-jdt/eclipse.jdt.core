@@ -51,6 +51,7 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new APIs for checking modifiers (<code>org.eclipse.jdt.core.dom.Modifier#isPublic(), org.eclipse.jdt.core.dom.Modifier#isStatic(), ...</code>). See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122460">122460</a> for details.</li>
 <li>Added new API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor)</code>. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122506">122506</a> for details.
 The former API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding)</code> has been deprecated.</li>
 <li>Added new API <code>org.eclipse.jdt.core.dom.ITypeBinding#getComponentType()</code> in order to retrieve the binding 
@@ -60,7 +61,9 @@ This API is still subject to change before 3.2 release.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120816">120816</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122460">122460</a>
+Why is checking a modifier so code intensive
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120816">120816</a>
 [search] NullPointerException at ...jdt.internal.compiler.lookup.SourceTypeBinding.getMethods
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76266">76266</a>
 [compiler] Access restriction should also apply to inherited members
