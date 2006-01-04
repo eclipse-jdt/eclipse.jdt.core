@@ -8462,7 +8462,31 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		List result = ast.newModifiers(all);
 		assertEquals(expectedOrder.length, result.size());
 		for (int i = 0; i< expectedOrder.length; i++) {
-			assertEquals(expectedOrder[i], ((Modifier) result.get(i)).getKeyword());
+			final Modifier modifier = ((Modifier) result.get(i));
+			assertEquals(expectedOrder[i], modifier.getKeyword());
+			if (modifier.isAbstract()) {
+				assertEquals(Modifier.ModifierKeyword.ABSTRACT_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isFinal()) {
+				assertEquals(Modifier.ModifierKeyword.FINAL_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isNative()) {
+				assertEquals(Modifier.ModifierKeyword.NATIVE_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isPrivate()) {
+				assertEquals(Modifier.ModifierKeyword.PRIVATE_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isProtected()) {
+				assertEquals(Modifier.ModifierKeyword.PROTECTED_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isPublic()) {
+				assertEquals(Modifier.ModifierKeyword.PUBLIC_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isStatic()) {
+				assertEquals(Modifier.ModifierKeyword.STATIC_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isStrictfp()) {
+				assertEquals(Modifier.ModifierKeyword.STRICTFP_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isSynchronized()) {
+				assertEquals(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isTransient()) {
+				assertEquals(Modifier.ModifierKeyword.TRANSIENT_KEYWORD, modifier.getKeyword());
+			} else {
+				assertEquals(Modifier.ModifierKeyword.VOLATILE_KEYWORD, modifier.getKeyword());
+			} 
 		}
 	}
 		
