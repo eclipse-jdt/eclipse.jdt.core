@@ -644,6 +644,9 @@ public long getAnnotationTagBits() {
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
+		if ((this.tagBits & AnnotationDeprecated) != 0) {
+			this.modifiers |= ClassFileConstants.AccDeprecated;
+		}
 	}
 	return this.tagBits;
 }
@@ -1085,6 +1088,9 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	
+	if (hasRestrictedAccess()) {
+		field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+	}
 	FieldDeclaration[] fieldDecls = scope.referenceContext.fields;
 	for (int f = 0, length = fieldDecls.length; f < length; f++) {
 		if (fieldDecls[f].binding != field)
@@ -1138,6 +1144,9 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+	if (hasRestrictedAccess()) {
+		method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+	}
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration

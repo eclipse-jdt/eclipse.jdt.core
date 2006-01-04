@@ -330,9 +330,12 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 		int problemId = in.readInt();
 		accessRules[i] = new ClasspathAccessRule(pattern, problemId);
 	}
-	String messageTemplate = in.readUTF();
+	String[] messageTemplates = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
+	for (int i = 0; i < 3; i++) {
+		messageTemplates[i] = in.readUTF();
+	}
 	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
-	accessRuleSet.messageTemplate = messageTemplate;
+	accessRuleSet.messageTemplates = messageTemplates;
 	return accessRuleSet;
 }
 
@@ -601,7 +604,8 @@ private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out)
 				writeName(accessRule.pattern, out);
 				out.writeInt(accessRule.problemId);
 			}
-			out.writeUTF(accessRuleSet.messageTemplate);
+			for (int i = 0; i < accessRuleSet.messageTemplates.length; i++)
+				out.writeUTF(accessRuleSet.messageTemplates[i]);
 		}
 	}
 }

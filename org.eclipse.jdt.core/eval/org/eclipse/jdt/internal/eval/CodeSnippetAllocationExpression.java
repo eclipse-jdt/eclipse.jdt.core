@@ -191,7 +191,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			return this.resolvedType;
 		}
 	}
-	if (isMethodUseDeprecated(this.binding, scope)) {
+	if (isMethodUseDeprecated(this.binding, scope, true)) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 	}
 	if (arguments != null) {

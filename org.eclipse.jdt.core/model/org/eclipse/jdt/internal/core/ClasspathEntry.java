@@ -220,7 +220,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		AccessRuleSet ruleSet = createAccessRuleSet(accessRules);
 		if (ruleSet != null) {
 			// compute message template
-			ruleSet.messageTemplate = getMessageTemplate();
+			ruleSet.messageTemplates = getMessageTemplates();
 		}
 		this.accessRuleSet = ruleSet;
 		
@@ -944,11 +944,21 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.extraAttributes;
 	}
 	
-	private String getMessageTemplate() {
+	private String[] getMessageTemplates() {
+		String [] result = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
 		if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
-			return Messages.bind(
+			result[0] = Messages.bind(
 				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_project,
 				new String[] {"{0}", getPath().segment(0)});  //$NON-NLS-1$
+			result[1] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_constructor_project,
+					new String[] {"{0}", getPath().segment(0)});  //$NON-NLS-1$
+			result[2] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_method_project,
+					new String[] {"{0}", "{1}", getPath().segment(0)});  //$NON-NLS-1$ //$NON-NLS-2$
+			result[3] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_field_project,
+					new String[] {"{0}", "{1}", getPath().segment(0)});  //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			IPath libPath = getPath();
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), libPath, false);
@@ -957,10 +967,20 @@ public class ClasspathEntry implements IClasspathEntry {
 				pathString = libPath.toOSString();
 			else
 				pathString = libPath.makeRelative().toString();
-			return Messages.bind(
+			result[0] = Messages.bind(
 				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_library,
 				new String[] {"{0}", pathString}); //$NON-NLS-1$ 
+			result[1] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_constructor_library,
+					new String[] {"{0}", pathString}); //$NON-NLS-1$ 
+			result[2] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_method_library,
+					new String[] {"{0}", "{1}", pathString}); //$NON-NLS-1$ //$NON-NLS-2$ 
+			result[3] = Messages.bind(
+					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_field_library,
+					new String[] {"{0}", "{1}", pathString}); //$NON-NLS-1$ //$NON-NLS-2$ 
 		}
+		return result;
 	}
 
 	/**

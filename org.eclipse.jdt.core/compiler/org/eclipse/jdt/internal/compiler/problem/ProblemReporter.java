@@ -1210,6 +1210,42 @@ public void forbiddenReference(TypeBinding type, ASTNode location, String messag
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void forbiddenReference(MethodBinding method, ASTNode location, 
+		String messageTemplate, int problemId) {
+	if (method.isConstructor())
+		this.handle(
+			problemId,
+			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
+			new String[] { 
+				MessageFormat.format(messageTemplate,
+						new String[]{new String(method.shortReadableName())})},
+			location.sourceStart,
+			location.sourceEnd);
+	else
+		this.handle(
+			problemId,
+			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
+			new String[] { 
+				MessageFormat.format(messageTemplate, 
+					new String[]{
+						new String(method.shortReadableName()),
+				        new String(method.declaringClass.shortReadableName())})},
+			location.sourceStart,
+			location.sourceEnd);
+}
+public void forbiddenReference(FieldBinding field, ASTNode location, 
+		String messageTemplate, int problemId) {
+	this.handle(
+		problemId,
+		new String[] { new String(field.readableName()) }, // distinct from msg arg for quickfix purpose
+		new String[] { 
+			MessageFormat.format(messageTemplate, 
+				new String[]{
+					new String(field.shortReadableName()),
+			        new String(field.declaringClass.shortReadableName())})},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void forwardReference(Reference reference, int indexInQualification, TypeBinding type) {
 	this.handle(
 		IProblem.ReferenceToForwardField,

@@ -330,7 +330,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				argumentTypes = new TypeBinding[] { scope.getJavaLangString(), BaseTypes.IntBinding };
 			}
 			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
-				if (isMethodUseDeprecated(binding, scope))
+				if (isMethodUseDeprecated(this.binding, scope, this.accessMode != ImplicitSuper))
 					scope.problemReporter().deprecatedMethod(binding, this);
 				checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate() || receiverType.isLocalType()) {

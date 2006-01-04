@@ -295,12 +295,20 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 	for (int j = 0; j < ruleCount; j++) {
 		String rule = tokenizer.nextToken();
 		int kind;
-		if (rule.charAt(0) == '+') {
-			kind = IAccessRule.K_ACCESSIBLE;
-		} else {
-			kind = IAccessRule.K_NON_ACCESSIBLE;
-			nonAccessibleRules++;
+		switch (rule.charAt(0)) {
+			case '+':
+				kind = IAccessRule.K_ACCESSIBLE;
+				break;
+			case '~':
+				kind = IAccessRule.K_DISCOURAGED;
+				break;
+			case '-':
+			default:		// TODO (maxime) consider forbidding unspecified rule start; this one tolerates
+							// 		shortcuts that only specify a path matching pattern
+				kind = IAccessRule.K_NON_ACCESSIBLE;
+				break;
 		}
+		nonAccessibleRules++;
 		accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), kind);
 	}
 

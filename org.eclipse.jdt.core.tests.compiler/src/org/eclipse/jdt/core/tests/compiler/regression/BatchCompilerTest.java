@@ -1496,9 +1496,11 @@ public void test027(){
         + " -1.5 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "-KO]" + File.pathSeparator
         + OUTPUT_DIR + File.separator + "p1[~Warn]\""
-        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        // TODO (maxime) reintroduce the -verbose option to check the number of files
+        //               generated, once able to avoid console echoing
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[5 .class files generated]\n", 
+        "", 
         "----------\n" + 
         "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
         " (at line 5)\n" + 

@@ -303,7 +303,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
-				if (isMethodUseDeprecated(binding, scope)) {
+				if (isMethodUseDeprecated(binding, scope, true)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
 				checkInvocationArguments(scope, null, allocationType, binding, this.arguments, argumentTypes, argsContainCast, this);

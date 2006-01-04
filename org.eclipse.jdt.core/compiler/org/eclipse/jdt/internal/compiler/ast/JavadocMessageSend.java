@@ -165,7 +165,7 @@ public class JavadocMessageSend extends MessageSend {
 				}
 			}
 		}
-		if (isMethodUseDeprecated(this.binding, scope)) {
+		if (isMethodUseDeprecated(this.binding, scope, true)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
 

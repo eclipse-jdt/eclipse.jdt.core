@@ -170,6 +170,12 @@ public final class Messages extends NLS {
 	public static String javamodel_initialization;
 	public static String restrictedAccess_project;
 	public static String restrictedAccess_library;
+	public static String restrictedAccess_constructor_project;
+	public static String restrictedAccess_constructor_library;
+	public static String restrictedAccess_field_project;
+	public static String restrictedAccess_field_library;
+	public static String restrictedAccess_method_project;
+	public static String restrictedAccess_method_library;
 	public static String convention_unit_nullName;
 	public static String convention_unit_notJavaName;
 	public static String convention_classFile_nullName;

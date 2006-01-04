@@ -265,6 +265,15 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 			// ignore cases where field is used from within inside itself 
 			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
+		
+		if ((field.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {
+			AccessRestriction restriction = 
+				scope.environment().getAccessRestriction(field.declaringClass);
+			if (restriction != null) {
+				scope.problemReporter().forbiddenReference(field, this,
+						restriction.getFieldAccessMessageTemplate(), restriction.getProblemId());
+			}
+		}
 	
 		if (!field.isViewedAsDeprecated()) return false;
 	
@@ -284,17 +293,44 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	/* Answer true if the method use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/
-	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope) {
-
+	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope,
+			boolean isExplicitUse) {
 		if ((method.isPrivate() || method.declaringClass.isLocalType()) && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from within inside itself (e.g. direct recursions)
 			method.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+		}
+		
+		// TODO (maxime) consider separating concerns between deprecation and access restriction.
+		// 				 Caveat: this was not the case when access restriction funtion was added.
+		if (isExplicitUse && (method.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {
+			// note: explicit constructors calls warnings are kept despite the 'new C1()' case (two
+			//       warnings, one on type, the other on constructor), because of the 'super()' case.
+			AccessRestriction restriction = 
+				scope.environment().getAccessRestriction(method.declaringClass);
+			if (restriction != null) {
+				if (method.isConstructor()) {
+					scope.problemReporter().forbiddenReference(method, this,
+							restriction.getConstructorAccessMessageTemplate(),
+							restriction.getProblemId());
+				}
+				else {
+					scope.problemReporter().forbiddenReference(method, this,
+							restriction.getMethodAccessMessageTemplate(),
+							restriction.getProblemId());
+				}
+			}
 		}
 		
 		if (!method.isViewedAsDeprecated()) return false;
 
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(method.declaringClass)) return false;
+		
+		// non explicit use and non explicitly deprecated - no report
+		if (!isExplicitUse && 
+				(method.modifiers & ClassFileConstants.AccDeprecated) == 0) {
+			return false;		
+		}
 		
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
@@ -334,7 +370,10 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}
 		}
-		
+
+		// force annotations resolution before deciding whether the type may be deprecated
+		refType.getAnnotationTagBits();
+	
 		if (!refType.isViewedAsDeprecated()) return false;
 		
 		// inside same unit - no report

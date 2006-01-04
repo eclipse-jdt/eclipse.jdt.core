@@ -56,7 +56,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
 		public int problemCount;
-		private char[] unitSource;
+		protected char[] unitSource;
 		public ProblemRequestor() {
 			initialize(null);
 		}

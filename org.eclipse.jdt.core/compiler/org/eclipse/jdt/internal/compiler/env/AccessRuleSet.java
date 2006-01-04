@@ -19,16 +19,31 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public class AccessRuleSet {
 
 	private AccessRule[] accessRules;
-	public String messageTemplate;
+	public String[] messageTemplates;
+	public static final int MESSAGE_TEMPLATES_LENGTH = 4;
 	
 	
 	public AccessRuleSet(AccessRule[] accessRules) {
-		this.accessRules = accessRules;
+		this(accessRules, null);
 	}
-	public AccessRuleSet(AccessRule[] accessRules, String messageTemplate) {
+	
+	/**
+	 * Make a new set of access rules.
+	 * @param accessRules the access rules to be contained by the new set
+	 * @param messageTemplates a Sting[4] array specifying the messages for type, 
+	 * constructor, method and field access violation; each should contain as many
+	 * placeholders as expected by the respective access violation message (that is,
+	 * one for type and constructor, two for method and field).
+	 */
+	// TODO (maxime) move to better support
+	public AccessRuleSet(AccessRule[] accessRules, String[] messageTemplates) {
 		this.accessRules = accessRules;
-		this.messageTemplate = messageTemplate;
+		if (messageTemplates != null && messageTemplates.length == MESSAGE_TEMPLATES_LENGTH)
+			this.messageTemplates = messageTemplates;
+		else
+			this.messageTemplates = new String[] {"{0}", "{0}", "{0} {1}", "{0} {1}"};  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 	}
+	
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -38,8 +53,12 @@ public class AccessRuleSet {
 		if (!(object instanceof AccessRuleSet))
 			return false;
 		AccessRuleSet otherRuleSet = (AccessRuleSet) object;
-		if (!this.messageTemplate.equals(otherRuleSet.messageTemplate)) 
-			return false;
+		if (this.messageTemplates.length != MESSAGE_TEMPLATES_LENGTH ||
+				otherRuleSet.messageTemplates.length != MESSAGE_TEMPLATES_LENGTH)
+			return false; // guard
+		for (int i = 0; i < MESSAGE_TEMPLATES_LENGTH; i++) 
+			if (!this.messageTemplates[i].equals(otherRuleSet.messageTemplates[i])) 
+				return false;
 		int rulesLength = this.accessRules.length;
 		if (rulesLength != otherRuleSet.accessRules.length) return false;
 		for (int i = 0; i < rulesLength; i++)
@@ -67,7 +86,7 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 			switch (accessRule.problemId) {
 				case IProblem.ForbiddenReference:
 				case IProblem.DiscouragedReference:
-					return new AccessRestriction(accessRule, this.messageTemplate);
+					return new AccessRestriction(accessRule, this.messageTemplates);
 				default:
 					return null;
 			}
@@ -95,10 +114,10 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 			else if (i < length-1)
 				buffer.append(", "); //$NON-NLS-1$
 		}
-		buffer
-			.append("} [template:\"") //$NON-NLS-1$
-			.append(this.messageTemplate)
-			.append("\"]"); //$NON-NLS-1$
+		buffer.append("} [templates:\""); //$NON-NLS-1$
+		for (int i = 0; i < messageTemplates.length; i++)
+			buffer.append(this.messageTemplates[i]);
+		buffer.append("\"]"); //$NON-NLS-1$
 		return buffer.toString();
 	}
 }

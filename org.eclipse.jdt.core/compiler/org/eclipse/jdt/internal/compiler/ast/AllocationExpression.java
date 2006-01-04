@@ -319,7 +319,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			scope.problemReporter().invalidConstructor(this, binding);
 			return this.resolvedType;
 		}
-		if (isMethodUseDeprecated(binding, scope))
+		if (isMethodUseDeprecated(binding, scope, true))
 			scope.problemReporter().deprecatedMethod(binding, this);
 		checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
 

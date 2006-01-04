@@ -272,6 +272,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 			this.fields = new FieldBinding[size];
 			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 			boolean isViewedAsDeprecated = isViewedAsDeprecated();
+			boolean hasRestrictedAccess = hasRestrictedAccess();
 			for (int i = 0; i < size; i++) {
 				IBinaryField binaryField = iFields[i];
 				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
@@ -290,6 +291,9 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 					field.tagBits |= binaryField.getTagBits();
 				if (isViewedAsDeprecated && !field.isDeprecated())
 					field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+				if (hasRestrictedAccess) {
+					field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+				}
 				if (fieldSignature != null)
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				this.fields[i] = field;
@@ -444,12 +448,16 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 	}
 
 	boolean isViewedAsDeprecated = isViewedAsDeprecated();
+	boolean hasRestrictedAccess = hasRestrictedAccess();
 	this.methods = new MethodBinding[total];
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++) {
 			MethodBinding method = createMethod(iMethods[i], sourceLevel);
 			if (isViewedAsDeprecated && !method.isDeprecated())
 				method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+			if (hasRestrictedAccess) {
+				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+			}
 			this.methods[i] = method;
 		}
 	} else {
@@ -458,6 +466,9 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 				MethodBinding method = createMethod(iMethods[i], sourceLevel);
 				if (isViewedAsDeprecated && !method.isDeprecated())
 					method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+				if (hasRestrictedAccess) {
+					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+				}
 				this.methods[index++] = method;
 			}
 		}

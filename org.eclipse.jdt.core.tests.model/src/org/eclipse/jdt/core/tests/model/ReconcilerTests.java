@@ -2083,15 +2083,10 @@ public void _testSuppressWarnings1() throws JavaModelException {
 			"----------\n" + 
 			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
 			"	public class Y extends X {\n" + 
-			"	             ^\n" + 
-			"The constructor X() is deprecated\n" + 
-			"----------\n" + 
-			"2. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
-			"	public class Y extends X {\n" + 
 			"	                       ^\n" + 
 			"The type X is deprecated\n" + 
 			"----------\n" + 
-			"3. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
+			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -2219,15 +2214,10 @@ public void testSuppressWarnings4() throws JavaModelException {
 			"----------\n" + 
 			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
 			"	public class Y extends X {\n" + 
-			"	             ^\n" + 
-			"The constructor X() is deprecated\n" + 
-			"----------\n" + 
-			"2. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
-			"	public class Y extends X {\n" + 
 			"	                       ^\n" + 
 			"The type X is deprecated\n" + 
 			"----------\n" + 
-			"3. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
+			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

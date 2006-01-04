@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -3704,8 +3705,8 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in Y.java (at line 1)\n" + 
 			"	public class Y extends X {\n" + 
-			"	             ^\n" + 
-			"The constructor X() is deprecated\n" + 
+			"	                       ^\n" + 
+			"The type X is deprecated\n" + 
 			"----------\n" + 
 			"2. WARNING in Y.java (at line 2)\n" + 
 			"	void foo(){ super.foo(); }\n" + 
@@ -3741,8 +3742,8 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in Y.java (at line 1)\n" + 
 			"	public class Y extends X {\n" + 
-			"	             ^\n" + 
-			"The constructor X() is deprecated\n" + 
+			"	                       ^\n" + 
+			"The type X is deprecated\n" + 
 			"----------\n" + 
 			"2. WARNING in Y.java (at line 2)\n" + 
 			"	void foo(){ super.foo(); }\n" + 
@@ -3955,8 +3956,8 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in Y.java (at line 1)\n" + 
 			"	public class Y extends X {\n" + 
-			"	             ^\n" + 
-			"The constructor X() is deprecated\n" + 
+			"	                       ^\n" + 
+			"The type X is deprecated\n" + 
 			"----------\n" + 
 			"2. ERROR in Y.java (at line 4)\n" + 
 			"	Zork z;\n" + 
@@ -4510,8 +4511,94 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			null);
     }        
+public void test142b() {
+	Map raiseInvalidJavadocSeverity = 
+		new HashMap(2);
+	raiseInvalidJavadocSeverity.put(
+			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	// admittingly, when these are errors, SuppressWarnings is not enough to 
+	// filter them out *but* the deprecation level being WARNING, we get them
+	// out anyway
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"@SuppressWarnings(\"deprecation\")\n" + 
+			"public class X extends p.OldStuff {\n" + 
+			"	/**\n" + 
+			"	 * @see p.OldStuff#foo()\n" + 
+			"	 */\n" + 
+			"	@Override\n" + 
+			"	public void foo() {\n" + 
+			"		super.foo();\n" + 
+			"	}\n" + 
+			"}\n",
+            "p/OldStuff.java",
+            "package p;\n" +
+            "@Deprecated\n" +
+			"public class OldStuff {\n" + 
+			"	public void foo() {\n" + 
+			"	}	\n" + 
+			"  Zork z;\n" +
+			"}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in p\\OldStuff.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true,
+		raiseInvalidJavadocSeverity);
+}        
+public void test142c() {
+	Map raiseDeprecationReduceInvalidJavadocSeverity = 
+		new HashMap(2);
+	raiseDeprecationReduceInvalidJavadocSeverity.put(
+			CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	raiseDeprecationReduceInvalidJavadocSeverity.put(
+			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"@SuppressWarnings(\"deprecation\")\n" + 
+			"public class X extends p.OldStuff {\n" + 
+			"	/**\n" + 
+			"	 * @see p.OldStuff#foo()\n" + 
+			"	 */\n" + 
+			"	@Override\n" + 
+			"	public void foo() {\n" + 
+			"		super.foo();\n" + 
+			"	}\n" + 
+			"}\n",
+            "p/OldStuff.java",
+            "package p;\n" +
+            "@Deprecated\n" +
+			"public class OldStuff {\n" + 
+			"	public void foo() {\n" + 
+			"	}	\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X extends p.OldStuff {\n" + 
+		"	                       ^^^^^^^^^^\n" + 
+		"The type OldStuff is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	super.foo();\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"The method foo() from the type OldStuff is deprecated\n" + 
+		"----------\n",
+		null,
+		true,
+		raiseDeprecationReduceInvalidJavadocSeverity);
+}        
     public void _test143() {
         this.runNegativeTest(
             new String[] {

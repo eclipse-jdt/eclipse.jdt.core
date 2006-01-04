@@ -335,7 +335,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(binding, scope))
+	if (isMethodUseDeprecated(binding, scope, true))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)

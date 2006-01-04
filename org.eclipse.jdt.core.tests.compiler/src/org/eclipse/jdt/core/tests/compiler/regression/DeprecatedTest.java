@@ -197,11 +197,6 @@ public void test005() {
 		"----------\n" + 
 		"1. WARNING in A.java (at line 1)\n" + 
 		"	public class A extends X.Y {}\n" + 
-		"	             ^\n" + 
-		"The constructor X.Y() is deprecated\n" + 
-		"----------\n" + 
-		"2. WARNING in A.java (at line 1)\n" + 
-		"	public class A extends X.Y {}\n" + 
 		"	                       ^^^\n" + 
 		"The type X.Y is deprecated\n" + 
 		"----------\n",// expected output

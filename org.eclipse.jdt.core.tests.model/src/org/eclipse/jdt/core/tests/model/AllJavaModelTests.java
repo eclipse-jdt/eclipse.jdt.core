@@ -125,6 +125,9 @@ private static Class[] getAllTestClasses() {
 		// Inclusion patterns tests
 		InclusionPatternsTests.class,
 		
+		// Access restrictions tests
+		AccessRestrictionsTests.class,
+		
 		// Signature tests
 		SignatureTests.class,
 		

@@ -121,7 +121,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				}
 			}
 		}
-		if (isMethodUseDeprecated(this.binding, scope)) {
+		if (isMethodUseDeprecated(this.binding, scope, true)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
 		return allocationType;

@@ -2537,8 +2537,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		if (rulesOK) {
-			AccessRuleSet accessRuleSet = new AccessRuleSet(
-					accessRules, "{0}"); //$NON-NLS-1$
+			AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
 			FileSystem.Classpath currentClasspath = FileSystem
 					.getClasspath(currentClasspathName,
 							customEncoding, 0, accessRuleSet);
