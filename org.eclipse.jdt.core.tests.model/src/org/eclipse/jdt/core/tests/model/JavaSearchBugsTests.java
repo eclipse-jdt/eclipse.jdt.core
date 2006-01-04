@@ -46,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
 //	TESTS_NAMES = new String[] { "testBug110336e" };
-//	TESTS_NUMBERS = new int[] { 110291, 110422 };
+//	TESTS_NUMBERS = new int[] { 120816 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -5608,6 +5608,52 @@ public void testBug119545() throws CoreException {
 	searchDeclarationsOfSentMessages(method, this.resultCollector);
 	assertSearchResults(
 		""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 120816: [search] NullPointerException at ...jdt.internal.compiler.lookup.SourceTypeBinding.getMethods
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=120816"
+ */
+public void testBug120816a() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b120816/Test.java",
+		"package b120816;\n" + 
+		"public class Test<E> {\n" + 
+		"	String foo(E e) { return \"\"; }\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b120816/Sub.java",
+		"package b120816;\n" + 
+		"public class Sub extends Test<Exception> {\n" +
+		"	String foo(RuntimeException e) { return \"\"; }\n" + 
+		"	String foo(Exception e) {\n" + 
+		"		return super.foo(e);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	search("* String (Exception)", METHOD, DECLARATIONS);
+	assertSearchResults(
+		"src/b120816/Sub.java String b120816.Sub.foo(Exception) [foo] EXACT_MATCH"
+	);
+}
+public void testBug120816b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b120816/Test.java",
+		"package b120816;\n" + 
+		"public class Test<E> {\n" + 
+		"	String foo(E e) { return \"\"; }\n" + 
+		"}\n" +
+		"class Sub extends Test<Exception> {\n" +
+		"	String foo(RuntimeException e) { return \"\"; }\n" + 
+		"	String foo(Exception e) {\n" + 
+		"		return super.foo(e);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	search("* String (Exception)", METHOD, DECLARATIONS);
+	assertSearchResults(
+		"src/b120816/Test.java String b120816.Sub.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
 }
