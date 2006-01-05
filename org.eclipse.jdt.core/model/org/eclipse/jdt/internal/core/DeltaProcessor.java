@@ -2398,10 +2398,13 @@ public class DeltaProcessor {
 							break;
 					case IResourceDelta.ADDED :
 						indexManager.addSource(file, file.getProject().getFullPath());
+						// Clean file from secondary types cache but do not update indexing secondary type cache as it will be updated through indexing itself
+						this.manager.secondaryTypesRemoving(file, false);
 						break;
 					case IResourceDelta.REMOVED :
 						indexManager.remove(Util.relativePath(file.getFullPath(), 1/*remove project segment*/), file.getProject().getFullPath());
-						this.manager.removeFromSecondaryTypesCache(file);
+						// Clean file from secondary types cache and update indexing secondary type cache as indexing cannot remove secondary types from cache
+						this.manager.secondaryTypesRemoving(file, true);
 						break;
 				}
 		}

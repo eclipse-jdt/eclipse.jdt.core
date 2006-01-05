@@ -723,11 +723,12 @@ public class BasicSearchEngine {
 	public void searchAllSecondaryTypeNames(
 			IPackageFragmentRoot[] sourceFolders,
 			final IRestrictedAccessTypeRequestor nameRequestor,
+			boolean waitForIndexes,
 			IProgressMonitor progressMonitor)  throws JavaModelException {
 
 		if (VERBOSE) {
-			Util.verbose("BasicSearchEngine.searchAllSecondaryTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
-			StringBuffer buffer = new StringBuffer(" -> source folders: "); //$NON-NLS-1$
+			Util.verbose("BasicSearchEngine.searchAllSecondaryTypeNames(IPackageFragmentRoot[], IRestrictedAccessTypeRequestor, boolean, IProgressMonitor)"); //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer("	- source folders: "); //$NON-NLS-1$
 			int length = sourceFolders.length;
 			for (int i=0; i<length; i++) {
 				if (i==0) {
@@ -737,7 +738,8 @@ public class BasicSearchEngine {
 				}
 				buffer.append(sourceFolders[i].getElementName());
 			}
-			buffer.append(']');
+			buffer.append("]\n	- waitForIndexes: "); //$NON-NLS-1$
+			buffer.append(waitForIndexes);
 			Util.verbose(buffer.toString());
 		}
 
@@ -792,14 +794,21 @@ public class BasicSearchEngine {
 		if (progressMonitor != null) {
 			progressMonitor.beginTask(Messages.engine_searching, 100); 
 		}
-		indexManager.performConcurrentJob(
-			new PatternSearchJob(
-				pattern, 
-				getDefaultSearchParticipant(), // Java search only
-				createJavaSearchScope(sourceFolders), 
-				searchRequestor),
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
+		try {
+			indexManager.performConcurrentJob(
+				new PatternSearchJob(
+					pattern, 
+					getDefaultSearchParticipant(), // Java search only
+					createJavaSearchScope(sourceFolders), 
+					searchRequestor),
+				waitForIndexes
+					? IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH
+					: IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH,
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
+		}
+		catch (OperationCanceledException oce) {
+			// do nothing
+		}
 	}
 
 	/**

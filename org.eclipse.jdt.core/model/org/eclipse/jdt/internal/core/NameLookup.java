@@ -509,14 +509,14 @@ public class NameLookup implements SuffixConstants {
 			Util.verbose("NameLookup FIND SECONDARY TYPES:"); //$NON-NLS-1$
 			Util.verbose(" -> pkg name: " + packageName);  //$NON-NLS-1$
 			Util.verbose(" -> type name: " + typeName);  //$NON-NLS-1$
-			Util.verbose(" -> projects: "+project.getElementName()); //$NON-NLS-1$
+			Util.verbose(" -> project: "+project.getElementName()); //$NON-NLS-1$
 		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IJavaProject javaProject = project;
-			HashMap secondaryTypePaths = manager.getSecondaryTypes(javaProject, waitForIndexes, monitor);
+			Map secondaryTypePaths = manager.secondaryTypes(javaProject, waitForIndexes, monitor);
 			if (secondaryTypePaths.size() > 0) {
-				HashMap types = (HashMap) secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
+				Map types = (Map) secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
 				if (types != null && types.size() > 0) {
 					IType type = (IType) types.get(typeName);
 					if (type != null) {
@@ -568,20 +568,24 @@ public class NameLookup implements SuffixConstants {
 		// Try to find type in package fragments list
 		IType type = null;
 		int length= packages.length;
-		IJavaProject project = null;
+		HashSet projects = null;
 		for (int i= 0; i < length; i++) {
 			type = findType(typeName, packages[i], partialMatch, acceptFlags);
 			if (type != null) {
 				return type;
 			}
-			if (considerSecondaryTypes && project == null) {
-				project = packages[i].getJavaProject();
+			if (considerSecondaryTypes) {
+				if (projects == null) projects = new HashSet(3);
+				projects.add(packages[i].getJavaProject());
 			}
 		}
 
 		// If type was not found, try to find it as secondary in source folders
-		if (considerSecondaryTypes && project != null) {
-			type = findSecondaryType(packageName, typeName, project, waitForIndexes, monitor);
+		if (considerSecondaryTypes && projects != null) {
+			Iterator allProjects = projects.iterator();
+			while (type == null && allProjects.hasNext()) {
+				type = findSecondaryType(packageName, typeName, (IJavaProject) allProjects.next(), waitForIndexes, monitor);
+			}
 		}
 		return type;
 	}

@@ -11,10 +11,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -92,9 +95,11 @@ public ReconcilerTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
+//	JavaModelManager.VERBOSE = true;
+//	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testBug36032";
-// TESTS_NAMES = new String[] { "testTypeWithDollarName" };
-//	TESTS_NUMBERS = new int[] { 114338 };
+//	TESTS_NAMES = new String[] { "testBug118823b" };
+//	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
@@ -104,7 +109,7 @@ protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
 }
 // Expect no error as soon as indexing is finished
-protected void assertNoProblem(char[] source) throws InterruptedException, JavaModelException {
+protected void assertNoProblem(char[] source, ICompilationUnit unit) throws InterruptedException, JavaModelException {
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 	if (this.problemRequestor.problemCount > 0) {
 		// If errors then wait for indexes to finish
@@ -113,7 +118,7 @@ protected void assertNoProblem(char[] source) throws InterruptedException, JavaM
 		}
 		// Reconcile again to see if error goes away
 		this.problemRequestor.initialize(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		unit.reconcile(AST.JLS3, true, null, null);
 		if (this.problemRequestor.problemCount > 0) {
 			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
 		}
@@ -2489,7 +2494,6 @@ public void testBug114338() throws CoreException {
 /**
  * Bug 36032:[plan] JavaProject.findType() fails to find second type in source file
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=36032"
- *
  */
 public void testBug36032a() throws CoreException, InterruptedException {
 	try {
@@ -2516,7 +2520,7 @@ public void testBug36032a() throws CoreException, InterruptedException {
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		assertNoProblem(sourceChars);
+		assertNoProblem(sourceChars, this.workingCopy);
 
 		// Add new secondary type
 		this.createFile(
@@ -2536,7 +2540,7 @@ public void testBug36032a() throws CoreException, InterruptedException {
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		assertNoProblem(sourceChars);
+		assertNoProblem(sourceChars, this.workingCopy);
 	} finally {
 		deleteProject("P");
 	}
@@ -2571,7 +2575,7 @@ public void testBug36032b() throws CoreException, InterruptedException {
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		assertNoProblem(sourceChars);
+		assertNoProblem(sourceChars, this.workingCopy);
 
 		// Delete secondary type => should get a problem
 		waitUntilIndexesReady();
@@ -2599,7 +2603,7 @@ public void testBug36032b() throws CoreException, InterruptedException {
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		assertNoProblem(sourceChars);
+		assertNoProblem(sourceChars, this.workingCopy);
 	} finally {
 		deleteProject("P");
 	}
@@ -2646,7 +2650,204 @@ public void testBug36032c() throws CoreException, InterruptedException {
 		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
-		assertNoProblem(sourceChars);
+		assertNoProblem(sourceChars, this.workingCopy);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * Bug 118823: [model] Secondary types cache not reset while removing _all_ secondary types from CU
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118823"
+ */
+public void testBug118823() throws CoreException, InterruptedException, IOException {
+	try {
+		// Resources creation
+		IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source1 = "class Test {}\n";
+		IFile file = createFile(
+			"/P1/Test.java", 
+			source1
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		String source2 = 
+			"class A {\n" +
+			"	Secondary s;\n" +
+			"}\n";
+		createFile(
+			"/P2/A.java",
+			source2
+		);
+		waitUntilIndexesReady();
+
+		// Get working copies and reconcile
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		this.problemRequestor.initialize(source2.toCharArray());
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
+		assertProblems("Working copy should have problem!",
+			"----------\n" +
+			"1. ERROR in /P2/A.java (at line 2)\n" +
+			"	Secondary s;\n" +
+			"	^^^^^^^^^\n" +
+			"Secondary cannot be resolved to a type\n" +
+			"----------\n"
+		);
+
+		// Delete file and recreate it with secondary outside eclipse
+		File ioFile = file.getLocation().toFile();
+		ioFile.delete();
+		source1 = 
+			"public class Test {}\n" + 
+			"class Secondary{}\n";
+		Util.createFile(ioFile.getAbsolutePath(), source1);
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+public void testBug118823b() throws CoreException, InterruptedException {
+	try {
+		// Resources creation
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source1 = "class Test {}\n";
+		createFile(
+			"/P1/Test.java", 
+			source1
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		String source2 = 
+			"class A {\n" +
+			"	Secondary s;\n" +
+			"}\n";
+		createFile(
+			"/P2/A.java",
+			source2
+		);
+		waitUntilIndexesReady();
+
+		// Get working copies and reconcile
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		this.problemRequestor.initialize(source2.toCharArray());
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
+		assertProblems("Working copy should have problem!",
+			"----------\n" +
+			"1. ERROR in /P2/A.java (at line 2)\n" +
+			"	Secondary s;\n" +
+			"	^^^^^^^^^\n" +
+			"Secondary cannot be resolved to a type\n" +
+			"----------\n"
+		);
+
+		// Add secondary and verify that there's no longer any error
+		source1 = 
+			"public class Test {}\n" + 
+			"class Secondary{}\n";
+		sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0].commitWorkingCopy(true, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+public void testBug118823c() throws CoreException, InterruptedException {
+	try {
+		// Resources creation
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source1 = "class Test {}\n";
+		createFile(
+			"/P1/Test.java", 
+			source1
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		String source2 = 
+			"class A {\n" +
+			"	Secondary s;\n" +
+			"}\n";
+		createFile(
+			"/P2/A.java",
+			source2
+		);
+		waitUntilIndexesReady();
+
+		// Get working copies and reconcile
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+		this.problemRequestor.initialize(source2.toCharArray());
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
+		assertProblems("Working copy should have problem!",
+			"----------\n" +
+			"1. ERROR in /P2/A.java (at line 2)\n" +
+			"	Secondary s;\n" +
+			"	^^^^^^^^^\n" +
+			"Secondary cannot be resolved to a type\n" +
+			"----------\n"
+		);
+
+		// Delete file and recreate it with secondary
+		deleteFile("/P1/Test.java");
+		source1 = 
+			"public class Test {}\n" + 
+			"class Secondary{}\n";
+		createFile(
+			"/P1/Test.java", 
+			source1
+		);
+		sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0].getBuffer().setContents(source1);
+		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");

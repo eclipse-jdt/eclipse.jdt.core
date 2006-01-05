@@ -30,8 +30,7 @@ public class InternalSearchDocument {
 				if (length > 1 && key[length-2] == IIndexConstants.SEPARATOR && key[length-1] == IIndexConstants.SECONDARY_SUFFIX ) {
 					// This is a key of a secondary type => reset java model manager secondary types cache for document path project
 					JavaModelManager manager = JavaModelManager.getJavaModelManager();
-					manager.resetSecondaryTypesCache(getPath());
-//					manager.addSecondaryType(getPath(), key);
+					manager.secondaryTypeAdding(getPath(), key);
 				}
 			}
 		}
