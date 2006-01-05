@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 public class SourceJavadocParser extends JavadocParser {
 
@@ -42,11 +43,34 @@ public boolean checkDeprecation(int commentPtr) {
 protected boolean parseIdentifierTag(boolean report) {
 	if (super.parseIdentifierTag(report)) {
 		if (this.tagValue == TAG_CATEGORY_VALUE) {
+			// Store first category id
 			int length = this.categories.length;
 			if (++this.categoriesPtr >= length) {
 				System.arraycopy(this.categories, 0, this.categories = new char[length+5][], 0, length);
+				length += 5;
 			}
 			this.categories[this.categoriesPtr] = this.identifierStack[this.identifierPtr--];
+			// Store optional additional category identifiers
+			consumeToken();
+			while (this.index < this.javadocEnd) {
+				if (readTokenSafely() == TerminalTokens.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter))) {
+					if (this.index > (this.lineEnd+1)) break;
+					// valid additional identifier
+					if (++this.categoriesPtr >= length) {
+						System.arraycopy(this.categories, 0, this.categories = new char[length+5][], 0, length);
+						length += 5;
+					}
+					this.categories[this.categoriesPtr] = this.scanner.getCurrentIdentifierSource();
+					consumeToken();
+				} else {
+					// TODO (frederic) raise warning for invalid syntax when javadoc spec will be finalized...
+					break;
+				}
+			}
+			// Reset position to end of line
+			this.index = this.lineEnd;
+			this.scanner.currentPosition = this.lineEnd;
+			consumeToken();
 		}
 		return true;
 	}
@@ -105,10 +129,7 @@ protected void parseSimpleTag() {
 						this.scanner.setSource(this.source);
 					}
 					this.scanner.resetTo(this.index, this.scanner.eofPosition);
-					while (this.index < this.lineEnd) {
-						parseIdentifierTag(false); // Do not report missing identifier
-						consumeToken();
-					}
+					parseIdentifierTag(false); // Do not report missing identifier
 				}
 	        }
 			break;

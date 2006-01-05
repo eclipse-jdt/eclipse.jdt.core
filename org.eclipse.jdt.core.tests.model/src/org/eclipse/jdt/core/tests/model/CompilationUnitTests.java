@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
@@ -20,6 +22,7 @@ import junit.framework.Test;
 public class CompilationUnitTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
 	ICompilationUnit workingCopy;
+	IJavaProject testProject;
 	
 public CompilationUnitTests(String name) {
 	super(name);
@@ -27,7 +30,7 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5");
+	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5");
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",
@@ -81,8 +84,8 @@ public void setUpSuite() throws Exception {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "test110172" };
+//	TESTS_PREFIX = "testGetChildren";
+//	TESTS_NAMES = new String[] { "testGetCategories12" };
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -104,6 +107,10 @@ private ICompilationUnit createWorkingCopy(String source) throws JavaModelExcept
 	this.workingCopy.getBuffer().setContents(source);
 	this.workingCopy.makeConsistent(null);
 	return workingCopy;
+}
+private ICompilationUnit createWorkingCopyComputingProblems(String source) throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/P/src/p/Y.java", source, true);
+	return this.workingCopy;
 }
 /**
  * Calls methods that do nothing to ensure code coverage
@@ -145,7 +152,7 @@ public void testDeprecatedFlag() throws JavaModelException {
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"/**\n" +
 		" * @category test\n" +
@@ -164,7 +171,7 @@ public void testGetCategories01() throws CoreException {
  * Ensures that the categories for an interface are correct.
  */
 public void testGetCategories02() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"/**\n" +
 		" * @category test\n" +
@@ -183,7 +190,7 @@ public void testGetCategories02() throws CoreException {
  * Ensures that the categories for an enumeration type are correct.
  */
 public void testGetCategories03() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"/**\n" +
 		" * @category test\n" +
@@ -202,7 +209,7 @@ public void testGetCategories03() throws CoreException {
  * Ensures that the categories for an annotation type type are correct.
  */
 public void testGetCategories04() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"/**\n" +
 		" * @category test\n" +
@@ -221,7 +228,7 @@ public void testGetCategories04() throws CoreException {
  * Ensures that the categories for a method are correct.
  */
 public void testGetCategories05() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -241,7 +248,7 @@ public void testGetCategories05() throws CoreException {
  * Ensures that the categories for a constructor are correct.
  */
 public void testGetCategories06() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -261,7 +268,7 @@ public void testGetCategories06() throws CoreException {
  * Ensures that the categories for a field are correct.
  */
 public void testGetCategories07() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -281,7 +288,7 @@ public void testGetCategories07() throws CoreException {
  * Ensures that the categories for a member type are correct.
  */
 public void testGetCategories08() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -301,7 +308,7 @@ public void testGetCategories08() throws CoreException {
  * Ensures that the categories for an element that has no categories is empty.
  */
 public void testGetCategories09() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -320,7 +327,7 @@ public void testGetCategories09() throws CoreException {
  * Ensures that the categories for an element that has multiple category tags is correct.
  */
 public void testGetCategories10() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -342,7 +349,7 @@ public void testGetCategories10() throws CoreException {
  * Ensures that the categories for an element that has multiple categories for one category tag is correct.
  */
 public void testGetCategories11() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -358,12 +365,29 @@ public void testGetCategories11() throws CoreException {
 		"test2\n",
 		categories);
 }
+public void testGetCategories12() throws CoreException {
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test1 test2\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\n" +
+		"test2\n",
+		categories);
+}
 
 /*
  * Ensures that the children of a type for a given category are correct.
  */
 public void testGetChildrenForCategory01() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -397,7 +421,7 @@ public void testGetChildrenForCategory01() throws CoreException {
  * Ensures that the children of a type for a given category are correct.
  */
 public void testGetChildrenForCategory02() throws CoreException {
-	createWorkingCopy(
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
 		"package p;\n" +
 		"public class Y {\n" +
 		"  /**\n" +
@@ -420,6 +444,56 @@ public void testGetChildrenForCategory02() throws CoreException {
 		"Member [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
 		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		children);
+}
+public void testGetChildrenForCategory03() throws CoreException, IOException {
+	createWorkingCopyComputingProblems( /* compute problems to parse javadoc comments */
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category fields test all\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"  /**\n" +
+		"   * @category methods test all\n" +
+		"   */\n" +
+		"  void foo1() {}\n" +
+		"  /**\n" +
+		"   * @category methods test all\n" +
+		"   */\n" +
+		"  void foo2() {}\n" +
+		"  /**\n" +
+		"   * @category methods other all\n" +
+		"   */\n" +
+		"  void foo3() {}\n" +
+		"}"
+	);
+	IJavaElement[] tests  = this.workingCopy.getType("Y").getChildrenForCategory("test");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		tests);
+	IJavaElement[] methods = this.workingCopy.getType("Y").getChildrenForCategory("methods");
+	assertElementsEqual(
+		"Unexpected children",
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		methods);
+	IJavaElement[] others = this.workingCopy.getType("Y").getChildrenForCategory("other");
+	assertElementsEqual(
+		"Unexpected children",
+		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		others);
+	IJavaElement[] all = this.workingCopy.getType("Y").getChildrenForCategory("all");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		all);
 }
 
 /**

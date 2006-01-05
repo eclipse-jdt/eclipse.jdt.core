@@ -34,7 +34,7 @@ public ClassFileTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_PREFIX = "testBug";
+//	TESTS_PREFIX = "testGetCategories";
 //	TESTS_NAMES = new String[] { "testWorkingCopy11"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
@@ -171,11 +171,26 @@ public void testGetCategories01() throws CoreException, IOException {
 		"test\n",
 		categories);
 }
+public void testGetCategories02() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test1 test2 test3 test4 test5 test6 test7 test8 test9 test10\n" +
+		" */\n" +
+		"public class X {\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7\ntest8\ntest9\ntest10\n",
+		categories);
+}
 
 /*
  * Ensure that the categories for a field are correct.
  */
-public void testGetCategories02() throws CoreException, IOException {
+public void testGetCategories03() throws CoreException, IOException {
 	createClassFile(
 		"package p;\n" +
 		"public class X {\n" +
@@ -191,16 +206,32 @@ public void testGetCategories02() throws CoreException, IOException {
 		"test\n",
 		categories);
 }
-
-/*
- * Ensure that the categories for a method are correct.
- */
-public void testGetCategories03() throws CoreException, IOException {
+public void testGetCategories04() throws CoreException, IOException {
 	createClassFile(
 		"package p;\n" +
 		"public class X {\n" +
 		"  /**\n" +
-		"   * @category test\n" +
+		"   * @category test1 test2\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getField("field").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\ntest2\n",
+		categories);
+}
+
+/*
+ * Ensure that the categories for a method are correct.
+ */
+public void testGetCategories05() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		" * @category test\n" +
 		"   */\n" +
 		"  void foo() {}\n" +
 		"}"
@@ -209,6 +240,22 @@ public void testGetCategories03() throws CoreException, IOException {
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
+		categories);
+}
+public void testGetCategories06() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		" * @category test1 test2 test3 test4 test5\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\ntest2\ntest3\ntest4\ntest5\n",
 		categories);
 }
 
@@ -244,6 +291,56 @@ public void testGetChildrenForCategory01() throws CoreException, IOException {
 		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
 		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
 		children);
+}
+public void testGetChildrenForCategory02() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category fields test all\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"  /**\n" +
+		"   * @category methods test all\n" +
+		"   */\n" +
+		"  void foo1() {}\n" +
+		"  /**\n" +
+		"   * @category methods test all\n" +
+		"   */\n" +
+		"  void foo2() {}\n" +
+		"  /**\n" +
+		"   * @category methods other all\n" +
+		"   */\n" +
+		"  void foo3() {}\n" +
+		"}"
+	);
+	IJavaElement[] tests  = this.classFile.getType().getChildrenForCategory("test");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		tests);
+	IJavaElement[] methods = this.classFile.getType().getChildrenForCategory("methods");
+	assertElementsEqual(
+		"Unexpected children",
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		methods);
+	IJavaElement[] others = this.classFile.getType().getChildrenForCategory("other");
+	assertElementsEqual(
+		"Unexpected children",
+		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		others);
+	IJavaElement[] all = this.classFile.getType().getChildrenForCategory("all");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		all);
 }
 
 /*
