@@ -216,6 +216,48 @@ public void test009() {
 	},
 	"SUCCESS");
 }
+public void test010() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	\n" + 
+		"	void foo(){\n" + 
+		"		switch(this){\n" + 
+		"			case 0 : \n" + 
+		"				Zork z;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	\n" + 
+		"	void bar(){\n" + 
+		"		switch(x){\n" + 
+		"			case 0 : \n" + 
+		"				Zork z;\n" + 
+		"		}\n" + 
+		"	}	\n" + 
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 4)\n" + 
+	"	switch(this){\n" + 
+	"	       ^^^^\n" + 
+	"Cannot switch on a value of type X. Only int values or enum constants are permitted\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 6)\n" + 
+	"	Zork z;\n" + 
+	"	^^^^\n" + 
+	"Zork cannot be resolved to a type\n" + 
+	"----------\n" + 
+	"3. ERROR in X.java (at line 11)\n" + 
+	"	switch(x){\n" + 
+	"	       ^\n" + 
+	"x cannot be resolved\n" + 
+	"----------\n" + 
+	"4. ERROR in X.java (at line 13)\n" + 
+	"	Zork z;\n" + 
+	"	^^^^\n" + 
+	"Zork cannot be resolved to a type\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

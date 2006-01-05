@@ -244,25 +244,24 @@ public class SwitchStatement extends Statement {
 	    try {
 			boolean isEnumSwitch = false;
 			TypeBinding expressionType = expression.resolveType(upperScope);
-			if (expressionType == null)
-				return;
-			expression.computeConversion(upperScope, expressionType, expressionType);
-			checkType: {
-				if (expressionType.isBaseType()) {
-					if (expression.isConstantValueOfTypeAssignableToType(expressionType, IntBinding))
+			if (expressionType != null) {
+				expression.computeConversion(upperScope, expressionType, expressionType);
+				checkType: {
+					if (expressionType.isBaseType()) {
+						if (expression.isConstantValueOfTypeAssignableToType(expressionType, IntBinding))
+							break checkType;
+						if (expressionType.isCompatibleWith(IntBinding))
+							break checkType;
+					} else if (expressionType.isEnum()) {
+						isEnumSwitch = true;
 						break checkType;
-					if (expressionType.isCompatibleWith(IntBinding))
+					} else if (upperScope.isBoxingCompatibleWith(expressionType, IntBinding)) {
+						expression.computeConversion(upperScope, IntBinding, expressionType);
 						break checkType;
-				} else if (expressionType.isEnum()) {
-					isEnumSwitch = true;
-					break checkType;
-				} else if (upperScope.isBoxingCompatibleWith(expressionType, IntBinding)) {
-					expression.computeConversion(upperScope, IntBinding, expressionType);
-					break checkType;
+					}
+					upperScope.problemReporter().incorrectSwitchType(expression, expressionType);
+					expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
 				}
-				upperScope.problemReporter().incorrectSwitchType(expression, expressionType);
-				// TODO (philippe) could keep analyzing switch statements in case of error
-				return;
 			}
 			if (statements != null) {
 				scope = /*explicitDeclarations == 0 ? upperScope : */new BlockScope(upperScope);

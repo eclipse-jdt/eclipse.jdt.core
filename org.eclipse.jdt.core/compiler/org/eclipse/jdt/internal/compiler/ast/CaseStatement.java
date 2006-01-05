@@ -80,11 +80,8 @@ public class CaseStatement extends Statement {
 	 * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
 	 * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SwitchStatement)
 	 */
-	public Constant resolveCase(
-		BlockScope scope,
-		TypeBinding switchExpressionType,
-		SwitchStatement switchStatement) {
-
+	public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+		// switchExpressionType maybe null in error case
 	    scope.enclosingCase = this; // record entering in a switch case block
 	    
 		if (constantExpression == null) {
@@ -99,7 +96,7 @@ public class CaseStatement extends Statement {
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
 		// tag constant name with enum type for privileged access to its members
-		if (switchExpressionType.isEnum() && (constantExpression instanceof SingleNameReference)) {
+		if (switchExpressionType != null && switchExpressionType.isEnum() && (constantExpression instanceof SingleNameReference)) {
 			((SingleNameReference) constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionType);
 		}
 		TypeBinding caseType = constantExpression.resolveType(scope);
