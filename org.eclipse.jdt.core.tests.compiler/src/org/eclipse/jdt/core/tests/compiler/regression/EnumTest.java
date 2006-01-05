@@ -811,6 +811,21 @@ public class EnumTest extends AbstractComparableTest {
 			"	void foo(Couleur c) {\n" + 
 			"	         ^^^^^^^\n" + 
 			"Couleur cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	case BLEU :\n" + 
+			"	     ^^^^\n" + 
+			"BLEU cannot be resolved\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	case BLANC :\n" + 
+			"	     ^^^^^\n" + 
+			"BLANC cannot be resolved\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	case ROUGE :\n" + 
+			"	     ^^^^^\n" + 
+			"ROUGE cannot be resolved\n" + 
 			"----------\n");
 	}	
 	// check enum name visibility
