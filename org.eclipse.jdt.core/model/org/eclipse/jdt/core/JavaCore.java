@@ -908,6 +908,23 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
 
+	/**
+	 * Possible configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String IMPORTREWRITE_IMPORT_ORDER= PLUGIN_ID + ".importRewrite.importOrder"; //$NON-NLS-1$
+	
+	/**
+	 * Possible configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String IMPORTREWRITE_ONDEMAND_THRESHOLD= PLUGIN_ID + ".importRewrite.onDemandImportThreshold"; //$NON-NLS-1$
+
+	
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -2484,11 +2501,21 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *     
-	 * </pre>
-	 * 
-	 * @return a mutable table containing the default settings of all known options
-	 *   (key type: <code>String</code>; value type: <code>String</code>)
-	 * @see #setOptions(Hashtable)
+	 *	IMPORTREWRITE / Import Order
+	 *    A list of semicolon separated import group names specifying the import order to be used in the import rewrite
+	 *    Imports are added to the group matching their qualified name most. The empty group name groups all imports not matching
+	 *    any other group. Static imports are managed in separate groups. Static import group names are prefixed with a '#' character.
+	 *    The empty static group '#' matches all static imports not matching any other static import group.
+	 *     - option id:         "org.eclipse.jdt.core.importRewrite.importOrder"
+	 *     - possible values:   { "&lt;groupName&gt;[;&lt;groupName&gt;]*" } where &lt;groupName&gt; is a valid Java package name (possibly empty)
+	 *                                  that is optionally prefixed with a '#' for static import groups.
+	 *     - default:           "java;javax;org;com"
+	 *     
+	 *	IMPORTREWRITE / On Demand Import Threshold
+	 *	 The number of imports added before a star-import declaration is used.
+	 *     - option id:         "org.eclipse.jdt.core.importRewrite.onDemandImportThreshold"
+	 *     - possible values:   "&lt;n&gt;", where n is a positive integer or zero
+	 *     - default:           "99"
 	 */
  	public static Hashtable getDefaultOptions(){
  		return JavaModelManager.getJavaModelManager().getDefaultOptions();

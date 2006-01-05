@@ -41,6 +41,7 @@
 	</td>
   </tr>
 </table>
+
 <a name="v_632"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
@@ -51,6 +52,9 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added Import Rewrite as API (<code>org.eclipse.jdt.core.dom.ImportRewrite</code>). The import rewriter is used to add new imports according
+to a user specified import order. The new preference options are <code>JavaCore.IMPORTREWRITE_IMPORT_ORDER</code> and
+<code>JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD</code>. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=73054">73054</a> for details.</li>
 <li>Added new APIs for checking modifiers (<code>org.eclipse.jdt.core.dom.Modifier#isPublic(), org.eclipse.jdt.core.dom.Modifier#isStatic(), ...</code>). See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122460">122460</a> for details.</li>
 <li>Added new API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor)</code>. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122506">122506</a> for details.
 The former API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding)</code> has been deprecated.</li>
@@ -61,7 +65,9 @@ This API is still subject to change before 3.2 release.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122618">122618</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73054">73054</a>
+[import rewrite] Make Import Rewriter API
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122618">122618</a>
 [assist][javadoc] Javadoc code assist should support @category tag
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122616">122616</a>
 [javadoc] IMember.getCategories() only returns first category

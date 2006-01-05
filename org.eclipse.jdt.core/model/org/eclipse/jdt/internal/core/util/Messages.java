@@ -212,6 +212,7 @@ public final class Messages extends NLS {
 	public static String dom_addAncestorAsSibling;
 	public static String dom_addNullInterface;
 	public static String dom_nullInterfaces;
+	public static String importRewrite_processDescription;
 	public static String correction_nullRequestor;
 	public static String correction_nullUnit;
 	public static String engine_searching;
