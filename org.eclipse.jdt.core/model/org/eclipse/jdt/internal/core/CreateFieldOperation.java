@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Iterator;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
@@ -64,6 +66,22 @@ protected IJavaElement generateResultHandle() {
 public String getMainTaskName(){
 	return Messages.operation_createFieldProgress; 
 }
+private VariableDeclarationFragment getFragment(ASTNode node) {
+	Iterator fragments =  ((FieldDeclaration) node).fragments().iterator();
+	if (this.anchorElement != null) {
+		VariableDeclarationFragment fragment = null;
+		String fragmentName = this.anchorElement.getElementName();
+		while (fragments.hasNext()) {
+			fragment = (VariableDeclarationFragment) fragments.next();
+			if (fragment.getName().getIdentifier().equals(fragmentName)) {
+				return fragment;
+			}
+		}
+		return fragment;
+	} else {
+		return (VariableDeclarationFragment) fragments.next();
+	}
+}
 /**
  * By default the new field is positioned after the last existing field
  * declaration, or as the first member in the type if there are no
@@ -109,11 +127,11 @@ protected IJavaModelStatus verifyNameCollision() {
 	return JavaModelStatus.VERIFIED_OK;
 }
 private String getASTNodeName() {
-	VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) this.createdNode).fragments().iterator().next();
-	return fragment.getName().getIdentifier();
+	if (this.alteredName != null) return this.alteredName;
+	return getFragment(this.createdNode).getName().getIdentifier();
 }
 protected SimpleName rename(ASTNode node, SimpleName newName) {
-	VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) node).fragments().iterator().next();
+	VariableDeclarationFragment fragment = getFragment(node);
 	SimpleName oldName = fragment.getName();
 	fragment.setName(newName);
 	return oldName;

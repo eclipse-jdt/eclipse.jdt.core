@@ -179,13 +179,17 @@ public void setUpSuite() throws Exception {
 		null
 	);
 }
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_PREFIX = "testCombineAccessRestrictions";
+//		TESTS_NAMES = new String[] {"testRenameFieldFragment"};
+//		TESTS_NUMBERS = new int[] { 5, 6 };
+//		TESTS_RANGE = new int[] { 21, 38 };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(RenameTests.class.getName());
-		suite.addTest(new RenameTests("testRenameEnum2"));
-		return suite;
-	}
-	return new Suite(RenameTests.class);
+	return buildTestSuite(RenameTests.class);
 }
 /**
  * Cleanup after the previous test.
@@ -468,6 +472,22 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 		"					bar[-]: {}"
 	);
 	ensureCorrectPositioning(type, type.getField("fred"), type.getField("other"));
+}
+/*
+ * Ensures that renaming a field fragment renames the right fragment
+ * (regression test for bug 121076 Wrong field gets renamed)
+ */
+public void testRenameFieldFragment() throws Exception {
+     this.createFile(
+            "/P/src/Y.java",
+            "public class Y {\n" +
+            "  int int1, int2, int3;\n" +
+            "}"
+    );
+    ICompilationUnit c = getCompilationUnit("/P/src/Y.java");
+    IType type = c.getType("Y");
+    IField field = type.getField("int2");
+    renamePositive(field, "int2_renamed", false);
 }
 /**
  * Ensures that fields can be renamed even if one of the renamings fails.  
