@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Alex Smirnoff (alexsmr@sympatico.ca) - part of the changes to support Java-like extension 
+ *                                                            (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
