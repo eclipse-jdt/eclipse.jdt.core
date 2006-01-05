@@ -115,8 +115,8 @@ private ICompilationUnit createWorkingCopy(String source) throws JavaModelExcept
  * (ie. done with checkDocComment = true) instead of a "light" parse when
  * problems are not computed.
  * 
- * @see CompilationUnit#buildStructure() line with comment: // disable javadoc parsing if not computing problems, not resolving and not creating ast
- * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#checkDeprecation(int)
+ * See CompilationUnit#buildStructure() line with comment: // disable javadoc parsing if not computing problems, not resolving and not creating ast
+ * and org.eclipse.jdt.internal.compiler.parser.JavadocParser#checkDeprecation(int)
  */
 private ICompilationUnit createWorkingCopyComputingProblems(String source) throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/P/src/p/Y.java", source, true);
