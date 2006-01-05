@@ -44,8 +44,17 @@ public void setUp() throws Exception {
 	
 	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
 }
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_PREFIX = "testCombineAccessRestrictions";
+//		TESTS_NAMES = new String[] {"testCopyFieldWithPositioning"};
+//		TESTS_NUMBERS = new int[] { 5, 6 };
+//		TESTS_RANGE = new int[] { 21, 38 };
+}
 public static Test suite() {
-	return new Suite(CopyMoveElementsTests.class);
+	return buildTestSuite(CopyMoveElementsTests.class);
 }
 /**
  * Cleanup after the previous test.
