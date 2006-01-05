@@ -83,7 +83,8 @@ public void test001() throws CoreException {
 			this.problemRequestor);	
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
@@ -96,7 +97,8 @@ public void test001() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, 
 				new String[] {"JCL_LIB"}, "bin");
@@ -118,7 +120,7 @@ public void test001() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n----------\n----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
 			"	public class Z extends X1 {\n" + 
 			"	                       ^^\n" + 
@@ -142,8 +144,6 @@ public void test001() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n" + 
-			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
 			"	foo(); // accesses X1.foo, should trigger an error\n" + 
@@ -191,7 +191,8 @@ public void test002() throws CoreException {
 			this.problemRequestor);	
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
@@ -204,7 +205,8 @@ public void test002() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, 
 				new String[] {"JCL_LIB"}, "bin");
@@ -226,7 +228,7 @@ public void test002() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n----------\n----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
 			"	public class Z extends X1 {\n" + 
 			"	                       ^^\n" + 
@@ -250,8 +252,6 @@ public void test002() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n" + 
-			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
 			"	int l1 = m1; // accesses X1.m1, should trigger an error\n" + 
@@ -303,7 +303,8 @@ public void test003() throws CoreException {
 			this.problemRequestor);	
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
@@ -317,7 +318,8 @@ public void test003() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, 
 				new String[] {"JCL_LIB"}, "bin");
@@ -339,7 +341,7 @@ public void test003() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n----------\n----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
 			"	public class Z extends X1 {\n" + 
 			"	                       ^^\n" + 
@@ -371,8 +373,6 @@ public void test003() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n" + 
-			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 3)\n" + 
 			"	class C3a extends C1 {      // error\n" + 
@@ -442,7 +442,8 @@ public void test004() throws CoreException {
 			this.problemRequestor);	
 		assertProblems(
 			"Unexpected problems", 
-			"----------\n----------\n----------\n----------\n"
+			"----------\n" + 
+			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, 
 				new String[] {"JCL_LIB"}, "bin");
@@ -463,8 +464,6 @@ public void test004() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
-			"----------\n" + 
-			"----------\n" + 
 			"----------\n" + 
 			"1. WARNING in /P2/src/p/Z.java (at line 2)\n" + 
 			"	public class Z extends X1 {\n" + 

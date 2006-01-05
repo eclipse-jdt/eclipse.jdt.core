@@ -133,6 +133,15 @@ public class TestingEnvironment {
 	 * Returns the path of the added package fragment root.
 	 */
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] exclusionPatterns, String specificOutputLocation) throws JavaModelException {
+		return addPackageFragmentRoot(projectPath, sourceFolderName, exclusionPatterns, true/*exclusion patterns*/, specificOutputLocation);
+	}
+	
+	/** Adds a package fragment root to the workspace.  If
+	 * a package fragment root with the same name already
+	 * exists, it is not replaced.  A workspace must be open.
+	 * Returns the path of the added package fragment root.
+	 */
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] patterns, boolean areExclusionPatterns, String specificOutputLocation) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath path = getPackageFragmentRootPath(projectPath, sourceFolderName);
 		createFolder(path);
@@ -141,7 +150,13 @@ public class TestingEnvironment {
 			outputPath = getPackageFragmentRootPath(projectPath, specificOutputLocation);
 			createFolder(outputPath);
 		}
-		IClasspathEntry entry = JavaCore.newSourceEntry(path, exclusionPatterns == null ? new Path[0] : exclusionPatterns, outputPath);
+		IClasspathEntry entry;
+		if (areExclusionPatterns)
+			// exclusion patterns
+			entry = JavaCore.newSourceEntry(path, patterns == null ? new Path[0] : patterns, outputPath);
+		else
+			// inclusion patterns
+			entry = JavaCore.newSourceEntry(path, patterns == null ? new Path[0] : patterns, new Path[0], outputPath);
 		addEntry(projectPath, entry);
 		return path;
 	}

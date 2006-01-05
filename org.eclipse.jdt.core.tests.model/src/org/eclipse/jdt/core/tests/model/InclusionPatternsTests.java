@@ -11,14 +11,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -32,7 +28,7 @@ public InclusionPatternsTests(String name) {
 }
 
 static {
-//	TESTS_NAMES = new String[] { "testSearchWithIncludedPackage2" };
+//	TESTS_NAMES = new String[] { "testIncludeCUOnly02" };
 }
 public static Test suite() {
 	return buildTestSuite(InclusionPatternsTests.class);
@@ -371,6 +367,74 @@ public void testCreateResourceIncludedPackage2() throws CoreException {
 		"Unexpected non-java resources",
 		"p1",
 		root.getNonJavaResources());
+}
+/*
+ * Ensure that a type can be resolved if it is included but not its super packages.
+ * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
+ */
+public void testIncludeCUOnly01() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/*.java|q/*.java"});
+	addLibraryEntry(getJavaProject("P"), getExternalJCLPathString(), false);
+	createFolder("/P/src/p1/p2");
+	createFile(
+		"/P/src/p1/p2/X.java",
+		"package p1.p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit workingCopy = null;
+	try {
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		workingCopy = getWorkingCopy(
+			"/P/src/Y.java", 
+			"import p1.p2.X;\n" +
+			"public class Y extends X {\n" +
+			"}",
+			null/*primary owner*/,
+			problemRequestor);
+		assertProblems(
+			"Unepected problems",
+			"----------\n" + 
+			"----------\n",
+			problemRequestor);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}	
+}
+/*
+ * Ensure that a type can be resolved if it is included but not its super packages.
+ * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
+ */
+public void testIncludeCUOnly02() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/*.java|q/*.java"});
+	addLibraryEntry(getJavaProject("P"), getExternalJCLPathString(), false);
+	createFolder("/P/src/p1/p2/p3");
+	createFile(
+		"/P/src/p1/p2/p3/X.java",
+		"package p1.p2.p3;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit workingCopy = null;
+	try {
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		workingCopy = getWorkingCopy(
+			"/P/src/Y.java", 
+			"import p1.p2.p3.X;\n" +
+			"public class Y extends X {\n" +
+			"}",
+			null/*primary owner*/,
+			problemRequestor);
+		assertProblems(
+			"Unepected problems",
+			"----------\n" + 
+			"----------\n",
+			problemRequestor);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}	
 }
 /*
  * Ensures that a cu that is not included is not on the classpath of the project.

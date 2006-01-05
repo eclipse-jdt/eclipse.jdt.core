@@ -1496,8 +1496,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return getWorkingCopy(path, source, owner, problemRequestor);
 	}
 	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
-		ICompilationUnit workingCopy = getCompilationUnit(path).getWorkingCopy(owner, problemRequestor, null/*no progress monitor*/);
+		ICompilationUnit workingCopy = getCompilationUnit(path);
+		if (owner != null)
+			workingCopy = workingCopy.getWorkingCopy(owner, problemRequestor, null/*no progress monitor*/);
+		else
+			workingCopy.becomeWorkingCopy(problemRequestor, null/*no progress monitor*/);
 		workingCopy.getBuffer().setContents(source);
+		if (problemRequestor instanceof ProblemRequestor)
+			((ProblemRequestor) problemRequestor).initialize(source.toCharArray());
 		workingCopy.makeConsistent(null/*no progress monitor*/);
 		return workingCopy;
 	}

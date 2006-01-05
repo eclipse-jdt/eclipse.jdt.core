@@ -49,7 +49,7 @@ String[] directoryList(String qualifiedPackageName) {
 
 	try {
 		IResource container = binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
-		if (container instanceof IContainer && !isExcluded(container)) {
+		if (container instanceof IContainer) {
 			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;

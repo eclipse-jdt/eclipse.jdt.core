@@ -341,22 +341,17 @@ public class SearchableEnvironment
 	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#isPackage(char[][], char[])
 	 */
 	public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
-		if (subPackageName == null || CharOperation.contains('.', subPackageName))
-			return false;
-		if (parentPackageName == null || parentPackageName.length == 0)
-			return isTopLevelPackage(subPackageName);
-		for (int i = 0, length = parentPackageName.length; i < length; i++)
-			if (parentPackageName[i] == null || CharOperation.contains('.', parentPackageName[i]))
-				return false;
-
-		String packageName = new String(CharOperation.concatWith(parentPackageName, subPackageName, '.'));
-		return this.nameLookup.findPackageFragments(packageName, false) != null;
-	}
-
-	public boolean isTopLevelPackage(char[] packageName) {
-		return packageName != null &&
-			!CharOperation.contains('.', packageName) &&
-			this.nameLookup.findPackageFragments(new String(packageName), false) != null;
+		String[] pkgName;
+		if (parentPackageName == null)
+			pkgName = new String[] {new String(subPackageName)};
+		else {
+			int length = parentPackageName.length;
+			pkgName = new String[length+1];
+			for (int i = 0; i < length; i++)
+				pkgName[i] = new String(parentPackageName[i]);
+			pkgName[length] = new String(subPackageName);
+		}
+		return this.nameLookup.isPackage(pkgName);
 	}
 
 	/**

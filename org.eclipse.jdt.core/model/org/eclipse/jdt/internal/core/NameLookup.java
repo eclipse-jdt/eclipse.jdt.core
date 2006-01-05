@@ -99,6 +99,12 @@ public class NameLookup implements SuffixConstants {
 	 * replaces the array.
 	 */
 	protected HashtableOfArrayToObject packageFragments;
+	
+	/*
+	 * A set of names (String[]) that are not to be package names.
+	 * Value is not null for known package.
+	 */
+	protected HashtableOfArrayToObject isPackageCache;
 
 	/**
 	 * Reverse map from root path to corresponding resolved CP entry
@@ -195,6 +201,21 @@ public class NameLookup implements SuffixConstants {
 						}
 					}
 				}
+			}
+		}
+		
+		// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+		// are actual packages
+		this.isPackageCache = new HashtableOfArrayToObject();
+		for (int i = 0, size = this.packageFragments.keyTable.length; i < size; i++) {
+			String[] pkgName = (String[]) this.packageFragments.keyTable[i];
+			if (pkgName == null) continue;
+			this.isPackageCache.put(pkgName, pkgName);
+			int length = pkgName.length;
+			for (int j = length-1; j > 0; j--) {
+				String[] subPkgName = new String[j];
+				System.arraycopy(pkgName, 0, subPkgName, 0, j);
+				this.isPackageCache.put(subPkgName, subPkgName);
 			}
 		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
@@ -465,20 +486,19 @@ public class NameLookup implements SuffixConstants {
 		} else {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
 			Object value = this.packageFragments.get(splittedName);
+			if (value == null)
+				return null;
 			if (value instanceof PackageFragmentRoot) {
 				return new IPackageFragment[] {((PackageFragmentRoot) value).getPackageFragment(splittedName)};
 			} else {
 				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-				if (roots != null) {
-					IPackageFragment[] result = new IPackageFragment[roots.length];
-					for (int i= 0; i < roots.length; i++) {
-						result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(splittedName);
-					}
-					return result;
+				IPackageFragment[] result = new IPackageFragment[roots.length];
+				for (int i= 0; i < roots.length; i++) {
+					result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(splittedName);
 				}
+				return result;
 			}
 		}
-		return null;
 	}
 
 	/*
@@ -665,6 +685,10 @@ public class NameLookup implements SuffixConstants {
 			type = type.getType(typeName);
 		}
 		return type;
+	}
+	
+	public boolean isPackage(String[] pkgName) {
+		return this.isPackageCache.get(pkgName) != null;
 	}
 
 	/**

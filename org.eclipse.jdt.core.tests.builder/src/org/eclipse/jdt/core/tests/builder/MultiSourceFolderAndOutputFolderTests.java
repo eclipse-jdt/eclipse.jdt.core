@@ -282,4 +282,29 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		expectingNoPresenceOf(projectPath.append("bin2").append("bin")); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingNoPresenceOf(projectPath.append("bin").append("bin2")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/*
+	 * Regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161
+	 */
+	public void test0012() throws JavaModelException {
+		IPath projectPath = env.addProject("P");
+		env.removePackageFragmentRoot(projectPath, "");
+		IPath src = env.addPackageFragmentRoot(projectPath, "", new IPath[] {new Path("p1/p2/p3/X.java"), new Path("Y.java")}, false/*inclusion*/, "");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		
+		env.addClass(src, "p1.p2.p3", "X", 
+			"package p1.p2.p3;\n" +
+			"public class X {}"
+		);
+		fullBuild();
+		expectingNoProblems();
+		
+		env.addClass(src, "", "Y",
+			"import p1.p2.p3.X;\n" +
+			"public class Y extends X {}"
+		);
+		incrementalBuild();
+		expectingNoProblems();
+	}
+
 }
