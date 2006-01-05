@@ -7,6 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
+ *                                                           before its contents
+ *                                                           (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422) 
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
