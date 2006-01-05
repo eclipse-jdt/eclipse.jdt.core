@@ -186,6 +186,6 @@ public class AptPlugin extends Plugin {
 		}
 	}
 	
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
 }

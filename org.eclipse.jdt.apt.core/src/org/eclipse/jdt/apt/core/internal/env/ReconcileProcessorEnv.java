@@ -31,8 +31,6 @@ import com.sun.mirror.apt.Filer;
 
 public class ReconcileProcessorEnv extends CompilationProcessorEnv implements EclipseAnnotationProcessorEnvironment{
 	
-	private final ReconcileContext _reconcileContext;
-	
 	/**
 	 * Create a reconcile environment from the given context. 
 	 * @param reconcileContext
@@ -51,17 +49,15 @@ public class ReconcileProcessorEnv extends CompilationProcessorEnv implements Ec
 		final ICompilationUnit workingCopy = reconcileContext.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
-       	return new ReconcileProcessorEnv(reconcileContext, compilationUnit, file, javaProject);
+       	return new ReconcileProcessorEnv(compilationUnit, file, javaProject);
     }
 	
 	private ReconcileProcessorEnv(
-			ReconcileContext reconcileContext, 
 			CompilationUnit astCompilationUnit,
 		    IFile file,
 		    IJavaProject javaProj)
 	{
-		super(astCompilationUnit, file, javaProj, Phase.RECONCILE);	
-		_reconcileContext = reconcileContext;
+		super(astCompilationUnit, file, javaProj, Phase.RECONCILE);
 	}
 	
 	void addMessage(
