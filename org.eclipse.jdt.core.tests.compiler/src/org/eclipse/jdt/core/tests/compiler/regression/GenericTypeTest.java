@@ -27235,4 +27235,20 @@ public void test878() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122610
+public void test879() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X<V, R> {\n" + 
+			"\n" + 
+			"    private class InnerClass1 {\n" + 
+			"            void foo() {\n" + 
+			"                    X<V, R> c = X.this;\n" + 
+			"            }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
 }

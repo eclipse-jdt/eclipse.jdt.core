@@ -74,17 +74,25 @@ public class QualifiedThisReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = Constant.NotAConstant;
+		// X.this is not a param/raw type as denoting enclosing instance
 		TypeBinding type = this.qualification.resolveType(scope, true /* check bounds*/);
 		if (type == null) return null;
 		// X.this is not a param/raw type as denoting enclosing instance
-		this.resolvedType = type = type.erasure();
-
+		type = type.erasure();
+		
+		// resolvedType needs to be converted to parameterized
+		if (type instanceof ReferenceBinding) {
+			this.resolvedType = scope.environment().convertToParameterizedType((ReferenceBinding) type);
+		} else {
+			// error case
+			this.resolvedType = type;
+		}
+		
 		// the qualification MUST exactly match some enclosing type name
 		// It is possible to qualify 'this' by the name of the current class
 		int depth = 0;
 		this.currentCompatibleType = scope.referenceType().binding;
-		while (this.currentCompatibleType != null
-			&& this.currentCompatibleType != type) {
+		while (this.currentCompatibleType != null && this.currentCompatibleType != type) {
 			depth++;
 			this.currentCompatibleType = this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
 		}
@@ -93,14 +101,15 @@ public class QualifiedThisReference extends ThisReference {
 
 		if (this.currentCompatibleType == null) {
 			scope.problemReporter().noSuchEnclosingInstance(type, this, false);
-			return type;
+			return this.resolvedType;
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
 		if (depth == 0) {
 			checkAccess(scope.methodScope());
 		} // if depth>0, path emulation will diagnose bad scenarii
-		return type;
+		
+		return  this.resolvedType;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
