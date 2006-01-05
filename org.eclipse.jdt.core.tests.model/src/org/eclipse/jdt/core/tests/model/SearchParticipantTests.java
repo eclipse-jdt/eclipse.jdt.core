@@ -115,8 +115,8 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	
 	public class TestResultCollector extends JavaSearchResultCollector {
 		protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws JavaModelException {
-			String path = resource.getLocation().toFile().getPath().replaceAll(".java", ".test");
-			String fileContent = Util.fileContent(path);
+			IPath path = resource.getLocation().removeFileExtension().addFileExtension("test");
+			String fileContent = Util.fileContent(path.toFile().getPath());
 			if (fileContent == null) return null;
 			return fileContent.toCharArray();
 		}
@@ -128,7 +128,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-	//	TESTS_NAMES = new String[] { "testSearch"};
+//		TESTS_NAMES = new String[] { "testSearch"};
 	//	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 	//	TESTS_RANGE = new int[] { 21, 38 };
 	}
