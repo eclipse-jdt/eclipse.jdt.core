@@ -145,7 +145,7 @@ protected void verifyCompletionOnJavadocTag(char[] tag, char[][] expectedTags, b
 protected void verifyAllTagsCompletion() {
 	char[][] allTags = {
 		// Block tags
-		TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION,
+		TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION, TAG_CATEGORY,
 		TAG_SINCE,
 		TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD , TAG_THROWS,
 		// Inline tags

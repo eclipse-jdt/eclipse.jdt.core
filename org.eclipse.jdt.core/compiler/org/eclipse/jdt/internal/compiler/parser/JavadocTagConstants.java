@@ -86,7 +86,7 @@ public interface JavadocTagConstants {
 	 */
 	public static final char[][][] BLOCK_TAGS = {
 		// since 1.0
-		{ TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION },
+		{ TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION, TAG_CATEGORY /* 1.6 tag but put here as we support it for all compliances */ },
 		// since 1.1
 		{ TAG_SINCE },
 		// since 1.2
@@ -98,7 +98,7 @@ public interface JavadocTagConstants {
 		// since 1.5
 		{},
 		// since 1.6
-		{ TAG_CATEGORY },
+		{},
 	};
 	public static final char[][][] INLINE_TAGS = {
 		// since 1.0
