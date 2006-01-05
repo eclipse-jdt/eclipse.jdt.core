@@ -43,7 +43,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0014; // changed access rule presentation
+public static final byte VERSION = 0x0015; // changed access rule presentation
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -331,7 +331,7 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 		accessRules[i] = new ClasspathAccessRule(pattern, problemId);
 	}
 	String[] messageTemplates = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++) {
 		messageTemplates[i] = in.readUTF();
 	}
 	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
@@ -604,7 +604,7 @@ private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out)
 				writeName(accessRule.pattern, out);
 				out.writeInt(accessRule.problemId);
 			}
-			for (int i = 0; i < accessRuleSet.messageTemplates.length; i++)
+			for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++)
 				out.writeUTF(accessRuleSet.messageTemplates[i]);
 		}
 	}
