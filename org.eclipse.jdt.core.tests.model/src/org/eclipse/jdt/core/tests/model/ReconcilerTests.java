@@ -2709,7 +2709,7 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		source1 = 
 			"public class Test {}\n" + 
 			"class Secondary{}\n";
-		Util.createFile(ioFile.getAbsolutePath(), source1);
+		Util.createFile(ioFile.getCanonicalPath(), source1);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
