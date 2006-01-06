@@ -404,7 +404,14 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return Collections.unmodifiableSet(_listeners);
 	}
 
-	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {		
+	/**
+	 * Add a generated source file (i.e. a Java source file)
+	 */
+	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {	
+		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
+			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
+		}
+		
 		// Add first to the map of parent -> child
 		IFile parent = getFile();
 		Set<IFile> children = _allGeneratedSourceFiles.get(parent);
@@ -417,11 +424,25 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		if (contentsChanged)
 			_modifiedGeneratedSourceFiles.add(f);
 	}
+	
+	public void addGeneratedNonSourceFile(final IFile file) {
+		// Add first to the map of parent -> child
+		IFile parent = getFile();
+		Set<IFile> children = _allGeneratedSourceFiles.get(parent);
+		if (children == null) {
+			children = new HashSet<IFile>();
+			_allGeneratedSourceFiles.put(parent, children);
+		}
+		children.add(file);
+	}
 
     public ICompilationUnit getCompilationUnit(){ return _unit; }
     
     public Map<IFile, Set<IFile>> getAllGeneratedFiles(){ return _allGeneratedSourceFiles; }
     
+    /**
+     * This returns all the modified *source* files (i.e. Java files)
+     */
     public Set<IFile> getModifiedGeneratedSourceFiles() { return _modifiedGeneratedSourceFiles; }
 
 	/**
