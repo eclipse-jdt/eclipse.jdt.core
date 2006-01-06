@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -1818,8 +1819,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void initializePreferences() {
 		
 		// Create lookups
-		preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
-		preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+		preferencesLookup[PREF_INSTANCE] = ((IScopeContext) new InstanceScope()).getNode(JavaCore.PLUGIN_ID);
+		preferencesLookup[PREF_DEFAULT] = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
 
 		// Listen to instance preferences node removal from parent in order to refresh stored one
 		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
@@ -1828,7 +1829,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			public void removed(IEclipsePreferences.NodeChangeEvent event) {
 				if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
-					preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+					preferencesLookup[PREF_INSTANCE] = ((IScopeContext) new InstanceScope()).getNode(JavaCore.PLUGIN_ID);
 					preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
 				}
 			}
@@ -1843,7 +1844,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			public void removed(IEclipsePreferences.NodeChangeEvent event) {
 				if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
-					preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+					preferencesLookup[PREF_DEFAULT] = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
 				}
 			}
 		};
