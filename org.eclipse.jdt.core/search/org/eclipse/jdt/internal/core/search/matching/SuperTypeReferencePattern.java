@@ -33,7 +33,7 @@ public char[][] typeParameterSignatures;
 protected int superRefKind;
 public static final int ALL_SUPER_TYPES = 0;
 public static final int ONLY_SUPER_INTERFACES = 1; // used for IMPLEMENTORS
-public static final int ONLY_SUPER_CLASSES = 2; // used for hierarachy with a class focus
+public static final int ONLY_SUPER_CLASSES = 2; // used for hierarchy with a class focus
 
 protected static char[][] CATEGORIES = { SUPER_REF };
 
