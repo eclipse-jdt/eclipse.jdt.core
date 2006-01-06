@@ -53,6 +53,18 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"}"
 		);
 		this.cu = getCompilationUnit("/P/p/X.java");
+		String cuSource = 
+			"package p;\n" +
+			"public class Constants {\n" +
+			"  static final long field1 = 938245798324893L;\n" +
+			"  static final long field2 = 938245798324893l;\n" +
+			"  static final long field3 = 938245798324893;\n" +
+			"  static final char field4 = ' ';\n" +
+			"  static final double field5 = 938245798324893D;\n" +
+			"  static final float field6 = 123456f;\n" +
+			"  static final int field7 = 1<<0;\n" +
+			"}";
+		createFile("/P/p/Constants.java", cuSource);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -328,87 +340,64 @@ public class GetSourceTests extends ModifyingResourceTests {
 	/**
 	 * Test the field constant
 	 */
-	public void testFieldConstant() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  static final long field1 = 938245798324893L;\n" +
-				"  static final long field2 = 938245798324893l;\n" +
-				"  static final long field3 = 938245798324893;\n" +
-				"  static final char field4 = ' ';\n" +
-				"  static final double field5 = 938245798324893D;\n" +
-				"  static final float field6 = 123456f;\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IType type = getCompilationUnit("/P/p/Y.java").getType("Y");
-			IField field = type.getField("field1");
-		
-			String actualSource = field.getSource();
-			String expectedSource = "static final long field1 = 938245798324893L;";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			Object constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Long", constant instanceof Long);
-			Long value = (Long) constant;
-			assertEquals("Wrong value", 938245798324893l, value.longValue());
-			
-			field = type.getField("field2");
-		
-			actualSource = field.getSource();
-			expectedSource = "static final long field2 = 938245798324893l;";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Long", constant instanceof Long);
-			value = (Long) constant;
-			assertEquals("Wrong value", 938245798324893l, value.longValue());
-			
-			field = type.getField("field3");
-		
-			actualSource = field.getSource();
-			expectedSource = "static final long field3 = 938245798324893;";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Long", constant instanceof Long);
-			value = (Long) constant;
-			assertEquals("Wrong value", 938245798324893l, value.longValue());
+	private IField getConstantField(String fieldName) {
+		IType type = getCompilationUnit("/P/p/Constants.java").getType("Constants");
+		IField field = type.getField(fieldName);
+		return field;
+	}
 
-			field = type.getField("field4");
-			
-			actualSource = field.getSource();
-			expectedSource = "static final char field4 = ' ';";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Character", constant instanceof Character);
-			Character character = (Character) constant;
-			assertEquals("Wrong value", ' ', character.charValue());
-			
-			field = type.getField("field5");
-			
-			actualSource = field.getSource();
-			expectedSource = "static final double field5 = 938245798324893D;";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Double", constant instanceof Double);
-			Double double1 = (Double) constant;
-			assertEquals("Wrong value", 938245798324893l, double1.doubleValue(), 0.01);			
+	public void testFieldConstant01() throws CoreException {
+		IField field = getConstantField("field1");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
+	
+	public void testFieldConstant02() throws CoreException {
+		IField field = getConstantField("field2");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
+		
+	public void testFieldConstant03() throws CoreException {
+		IField field = getConstantField("field3");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
 
-			field = type.getField("field6");
-			
-			actualSource = field.getSource();
-			expectedSource = "static final float field6 = 123456f;";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-			constant = field.getConstant();
-			assertNotNull("No constant", constant);
-			assertTrue("Not a Float", constant instanceof Float);
-			Float float1 = (Float) constant;
-			assertEquals("Wrong value", 123456, float1.floatValue(), 0.01f);			
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
+	public void testFieldConstant04() throws CoreException {
+		IField field = getConstantField("field4");
+	
+		Object constant = field.getConstant();
+		Character character = (Character) constant;
+		assertEquals("Wrong value", ' ', character.charValue());
+	}
+		
+	public void testFieldConstant05() throws CoreException {
+		IField field = getConstantField("field5");
+	
+		Object constant = field.getConstant();
+		Double double1 = (Double) constant;
+		assertEquals("Wrong value", 938245798324893l, double1.doubleValue(), 0.01);
+	}
+
+	public void testFieldConstant06() throws CoreException {
+		IField field = getConstantField("field6");
+	
+		Object constant = field.getConstant();
+		Float float1 = (Float) constant;
+		assertEquals("Wrong value", 123456, float1.floatValue(), 0.01f);
+	}
+
+	public void testFieldConstant07() throws CoreException {
+		IField field = getConstantField("field7");
+	
+		Object constant = field.getConstant();
+		assertNull("Should not be a constant", constant);
 	}
 }

@@ -11,10 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
@@ -54,36 +50,41 @@ public Object getConstant() throws JavaModelException {
 			
 	String constantSource = new String(constantSourceChars);
 	String signature = info.getTypeSignature();
-	if (signature.equals(Signature.SIG_INT)) {
-		constant = new Integer(constantSource);
-	} else if (signature.equals(Signature.SIG_SHORT)) {
-		constant = new Short(constantSource);
-	} else if (signature.equals(Signature.SIG_BYTE)) {
-		constant = new Byte(constantSource);
-	} else if (signature.equals(Signature.SIG_BOOLEAN)) {
-		constant = Boolean.valueOf(constantSource);
-	} else if (signature.equals(Signature.SIG_CHAR)) {
-		if (constantSourceChars.length != 3) {
-			return null;
-		}
-		constant = new Character(constantSourceChars[1]);
-	} else if (signature.equals(Signature.SIG_DOUBLE)) {
-		constant = new Double(constantSource);
-	} else if (signature.equals(Signature.SIG_FLOAT)) {
-		constant = new Float(constantSource);
-	} else if (signature.equals(Signature.SIG_LONG)) {
-		if (constantSource.endsWith("L") || constantSource.endsWith("l")) { //$NON-NLS-1$ //$NON-NLS-2$
-			int index = constantSource.lastIndexOf("L");//$NON-NLS-1$
-			if (index != -1) {
-				constant = new Long(constantSource.substring(0, index));
-			} else {
-				constant = new Long(constantSource.substring(0, constantSource.lastIndexOf("l")));//$NON-NLS-1$
+	try {
+		if (signature.equals(Signature.SIG_INT)) {
+			constant = new Integer(constantSource);
+		} else if (signature.equals(Signature.SIG_SHORT)) {
+			constant = new Short(constantSource);
+		} else if (signature.equals(Signature.SIG_BYTE)) {
+			constant = new Byte(constantSource);
+		} else if (signature.equals(Signature.SIG_BOOLEAN)) {
+			constant = Boolean.valueOf(constantSource);
+		} else if (signature.equals(Signature.SIG_CHAR)) {
+			if (constantSourceChars.length != 3) {
+				return null;
 			}
-		} else {
-			constant = new Long(constantSource);
+			constant = new Character(constantSourceChars[1]);
+		} else if (signature.equals(Signature.SIG_DOUBLE)) {
+			constant = new Double(constantSource);
+		} else if (signature.equals(Signature.SIG_FLOAT)) {
+			constant = new Float(constantSource);
+		} else if (signature.equals(Signature.SIG_LONG)) {
+			if (constantSource.endsWith("L") || constantSource.endsWith("l")) { //$NON-NLS-1$ //$NON-NLS-2$
+				int index = constantSource.lastIndexOf("L");//$NON-NLS-1$
+				if (index != -1) {
+					constant = new Long(constantSource.substring(0, index));
+				} else {
+					constant = new Long(constantSource.substring(0, constantSource.lastIndexOf("l")));//$NON-NLS-1$
+				}
+			} else {
+				constant = new Long(constantSource);
+			}
+		} else if (signature.equals("QString;")) {//$NON-NLS-1$
+			constant = constantSource;
 		}
-	} else if (signature.equals("QString;")) {//$NON-NLS-1$
-		constant = constantSource;
+	} catch (NumberFormatException e) {
+		// not a parsable constant
+		return null;
 	}
 	return constant;
 }
