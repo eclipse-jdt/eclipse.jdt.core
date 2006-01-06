@@ -1615,7 +1615,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		// collect all container paths
-		HashMap allContainerPaths = new HashMap();
+		final HashMap allContainerPaths = new HashMap();
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IProject project = projects[i];
@@ -1662,23 +1662,42 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// initialize all containers
 		boolean ok = false;
 		try {
-			Set keys = allContainerPaths.keySet();
-			int length = keys.size();
-			IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
-			keys.toArray(javaProjects);
-			for (int i = 0; i < length; i++) {
-				IJavaProject javaProject = javaProjects[i];
-				HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
-				if (pathSet == null) continue;
-				int length2 = pathSet.size();
-				IPath[] paths = new IPath[length2];
-				pathSet.toArray(paths); // clone as the following will have a side effect
-				for (int j = 0; j < length2; j++) {
-					IPath path = paths[j];
-					initializeContainer(javaProject, path);
-				}
-			}
+			// if possible run inside an IWokspaceRunnable with AVOID_UPATE to avoid unwanted builds
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=118507)
+			IWorkspaceRunnable runnable = 				
+				new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						Set keys = allContainerPaths.keySet();
+						int length = keys.size();
+						IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
+						keys.toArray(javaProjects);
+						for (int i = 0; i < length; i++) {
+							IJavaProject javaProject = javaProjects[i];
+							HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
+							if (pathSet == null) continue;
+							int length2 = pathSet.size();
+							IPath[] paths = new IPath[length2];
+							pathSet.toArray(paths); // clone as the following will have a side effect
+							for (int j = 0; j < length2; j++) {
+								IPath path = paths[j];
+								initializeContainer(javaProject, path);
+							}
+						}
+					}
+				};
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			if (workspace.isTreeLocked())
+				runnable.run(null/*no progress available*/);
+			else
+				workspace.run(
+					runnable,
+					null/*don't take any lock*/,
+					IWorkspace.AVOID_UPDATE,
+					null/*no progress available here*/);
 			ok = true;
+		} catch (CoreException e) {
+			// ignore
+			Util.log(e, "Exception while initializing all containers"); //$NON-NLS-1$
 		} finally {
 			if (!ok) { 
 				// if we're being traversed by an exception, ensure that that containers are 
@@ -1691,7 +1710,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return containerGet(javaProjectToInit, containerToInit);
 	}
 
-	private IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
+	IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
 
 		IClasspathContainer container = null;
 		final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
