@@ -57,10 +57,9 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
- * Ensures that a problem is created for a reference to a member of a type that is not
+ * Ensures that a problem is created for a reference to a method of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
- * accessible mother class.
- * Checking methods.
+ * accessible class.
  */
 public void test001() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null, z = null;
@@ -86,7 +85,6 @@ public void test001() throws CoreException {
 			"----------\n" + 
 			"----------\n"
 		);
-		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
 			"/P1/src/p/X2.java",
 			"package p;\n" +
@@ -166,13 +164,12 @@ public void test001() throws CoreException {
 
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
- * Ensures that a problem is created for a reference to a member of a type that is not
+ * Ensures that a problem is created for a reference to a field of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
- * accessible mother class.
- * Checking members.
+ * accessible class.
  */
 public void test002() throws CoreException {
-	ICompilationUnit x1 = null, x2 = null, y =  null, z = null;
+	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
@@ -194,7 +191,6 @@ public void test002() throws CoreException {
 			"----------\n" + 
 			"----------\n"
 		);
-		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
 			"/P1/src/p/X2.java",
 			"package p;\n" +
@@ -215,28 +211,7 @@ public void test002() throws CoreException {
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
 		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
 		p2.setRawClasspath(classpath, null);
-		// check the most basic case
-		String src =
-			"package p;\n" +
-			"public class Z extends X1 {\n" +
-			"}";
-		this.problemRequestor = new ProblemRequestor(src);
-		z = getWorkingCopy(			
-			"/P2/src/p/Z.java", 
-			src,
-			owner,
-			this.problemRequestor);
-		assertProblems(
-			"Unexpected problems value", 
-			"----------\n" + 
-			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
-			"	public class Z extends X1 {\n" + 
-			"	                       ^^\n" + 
-			"Access restriction: The type X1 is not accessible due to restriction on required project P1\n" + 
-			"----------\n"
-		);
-		// check the specifics of this test case
-		src =
+		String src = 
 			"package p;\n" +
 			"public class Y extends X2 {\n" +
 			"	void foobar() {\n" +
@@ -266,21 +241,18 @@ public void test002() throws CoreException {
 			x2.discardWorkingCopy();
 		if (y != null)
 			y.discardWorkingCopy();
-		if (z != null)
-			z.discardWorkingCopy();
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
- * Ensures that a problem is created for a reference to a member of a type that is not
+ * Ensures that a problem is created for a reference to a member type of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
- * accessible mother class.
- * Checking member types.
+ * accessible class.
  */
 public void test003() throws CoreException {
-	ICompilationUnit x1 = null, x2 = null, y =  null, z = null;
+	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
@@ -306,7 +278,6 @@ public void test003() throws CoreException {
 			"----------\n" + 
 			"----------\n"
 		);
-		this.problemRequestor = new ProblemRequestor();
 		x2 = getWorkingCopy(			
 			"/P1/src/p/X2.java",
 			"package p;\n" +
@@ -328,28 +299,7 @@ public void test003() throws CoreException {
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
 		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
 		p2.setRawClasspath(classpath, null);
-		// check the most basic case
 		String src =
-			"package p;\n" +
-			"public class Z extends X1 {\n" +
-			"}";
-		this.problemRequestor = new ProblemRequestor(src);
-		z = getWorkingCopy(			
-			"/P2/src/p/Z.java", 
-			src,
-			owner,
-			this.problemRequestor);
-		assertProblems(
-			"Unexpected problems value", 
-			"----------\n" + 
-			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
-			"	public class Z extends X1 {\n" + 
-			"	                       ^^\n" + 
-			"Access restriction: The type X1 is not accessible due to restriction on required project P1\n" + 
-			"----------\n"
-		);
-		// check the specifics of this test case
-		src =
 			"package p;\n" +
 			"public class Y extends X2 {\n" +
 			"	class C3a extends C1 {      // error\n" +
@@ -412,8 +362,6 @@ public void test003() throws CoreException {
 			x2.discardWorkingCopy();
 		if (y != null)
 			y.discardWorkingCopy();
-		if (z != null)
-			z.discardWorkingCopy();
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
@@ -476,6 +424,118 @@ public void test004() throws CoreException {
 			x1.discardWorkingCopy();
 		if (z != null)
 			z.discardWorkingCopy();
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
+ * Ensures that a problem is created for a reference to a method of a type that is not
+ * accessible in a prereq project, even though it is accessed through an intermediate 
+ * class that implements an interface that defines the same method, both the second
+ * class and the interface being accessible.
+ * The point here is that the existence of the accessible interface may imply that the
+ * foo method be accessible through X2. By design, the lookup returns X1#foo though, 
+ * like it does for a press upon F3 in the interface, and hence the access restriction
+ * gets triggered. Rule of thumb: if pressing F3 on a method or field directs the
+ * interface to a definition within a restricted type, then the use of the said method
+ * or field is restricted.
+ */
+public void test005() throws CoreException {
+	ICompilationUnit x1 = null, i1 = null, x2 = null, y =  null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner(){};
+		createJavaProject(
+			"P1", 
+			new String[] {"src"}, 
+			new String[] {"JCL_LIB"}, 
+			"bin");
+		this.problemRequestor = new ProblemRequestor();
+		x1 = getWorkingCopy(
+			"/P1/src/p/X1.java",
+			"package p;\n" +
+			"public class X1 {\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"}",
+			owner,
+			this.problemRequestor);	
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+		i1 = getWorkingCopy(			
+			"/P1/src/q/I1.java",
+			"package q;\n" +
+			"interface I1 {\n" +
+			"	void foo();\n" +
+			"}",			
+			owner,
+			this.problemRequestor);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+		x2 = getWorkingCopy(			
+			"/P1/src/q/X2.java",
+			"package q;\n" +
+			"public class X2 extends p.X1 {\n" +
+			"	public void bar() {\n" +
+			"	  foo();\n" +
+			"	}\n" +
+			"}",
+			owner,
+			this.problemRequestor);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+		IJavaProject p2 = createJavaProject(
+			"P2", 
+			new String[] {"src"}, 
+			new String[] {"JCL_LIB"}, 
+			"bin");
+		IClasspathEntry[] classpath = p2.getRawClasspath();
+		int length = classpath.length;
+		System.arraycopy(classpath, 0, 
+				classpath = new IClasspathEntry[length + 1], 0, length);
+		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
+		p2.setRawClasspath(classpath, null);
+		String src = 
+			"package r;\n" +
+			"public class Y {\n" +
+			"	void foobar() {\n" +
+			"		(new q.X2()).foo(); // accesses p.X1#foo, should trigger an error\n" +
+			"		(new q.X2()).bar(); // accesses q.X2#bar, OK\n" +
+			"	}\n" +
+			"}";
+		this.problemRequestor = new ProblemRequestor(src);
+		y = getWorkingCopy(			
+			"/P2/src/r/Y.java", 
+			src,
+			owner,
+			this.problemRequestor);
+		assertProblems(
+			"Unexpected problems value", 
+			"----------\n" + 
+			"1. ERROR in /P2/src/r/Y.java (at line 4)\n" + 
+			"	(new q.X2()).foo(); // accesses p.X1#foo, should trigger an error\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"Access restriction: The method foo() from the type X1 is not accessible due to restriction on required project P1\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (x1 != null)
+			x1.discardWorkingCopy();
+		if (i1 != null)
+			i1.discardWorkingCopy();
+		if (x2 != null)
+			x2.discardWorkingCopy();
+		if (y != null)
+			y.discardWorkingCopy();
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
