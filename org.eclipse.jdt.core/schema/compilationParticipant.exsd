@@ -45,7 +45,7 @@
    <element name="compilationParticipant">
       <annotation>
          <documentation>
-            definition of a compilation participant. This definition allows to order participants. Participants are run by group. The group of participants that modify the environment is run first, then te group of participants that create problems is run, finally the group of other participants is run. Inside each group, participants are ordered using their &apos;requires&apos; attributes. If a &apos;requires&apos; attribute point to a participant that doesn&apos;t belong to the group, it is ignored.
+            definition of a compilation participant. This definition allows to order participants. Participants are run by group. The group of participants that modify the environment is run first, then the group of participants that create problems is run, finally the group of other participants is run. Inside each group, participants are ordered using their &apos;requires&apos; attributes. If a &apos;requires&apos; attribute point to a participant that doesn&apos;t belong to the group, it is ignored.
          </documentation>
       </annotation>
       <complexType>
