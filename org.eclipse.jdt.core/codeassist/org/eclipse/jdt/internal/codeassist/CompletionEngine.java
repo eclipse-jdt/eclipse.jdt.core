@@ -3003,12 +3003,13 @@ public final class CompletionEngine
 				proposal.setName(possibleTag);
 				int tagLength = possibleTag.length;
 //				boolean inlineTagStarted = javadocTag.completeInlineTagStarted();
-				char[] completion = new char[2+tagLength+2];
+				char[] completion = new char[2+tagLength+1];
 				completion[0] = '{';
 				completion[1] = '@';
 				System.arraycopy(possibleTag, 0, completion, 2, tagLength);
-				completion[tagLength+2] = ' ';
-				completion[tagLength+3] = '}';
+				// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
+				//completion[tagLength+2] = ' ';
+				completion[tagLength+2] = '}';
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setRelevance(relevance);
@@ -6430,14 +6431,15 @@ public final class CompletionEngine
 	private char[] inlineTagCompletion(char[] completionName, char[] inlineTag) {
 		int tagLength= inlineTag.length;
 		int completionLength = completionName.length;
-		int inlineLength = 2+tagLength+1+completionLength+2;
+		int inlineLength = 2+tagLength+1+completionLength+1;
 		char[] inlineCompletion = new char[inlineLength];
 		inlineCompletion[0] = '{';
 		inlineCompletion[1] = '@';
 		System.arraycopy(inlineTag, 0, inlineCompletion, 2, tagLength);
 		inlineCompletion[tagLength+2] = ' ';
 		System.arraycopy(completionName, 0, inlineCompletion, tagLength+3, completionLength);
-		inlineCompletion[inlineLength-2] = ' ';
+		// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
+		//inlineCompletion[inlineLength-2] = ' '; 
 		inlineCompletion[inlineLength-1] = '}';
 		return inlineCompletion;
 	}

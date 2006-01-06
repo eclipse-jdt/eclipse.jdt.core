@@ -432,7 +432,7 @@ public void testBug114341a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Secondary.Mem");
 	assertSortedResults(
-		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member}, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
@@ -486,7 +486,7 @@ public void testBug114341d() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.Secondary.Mem");
 	assertSortedResults(
-		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member }, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"Secondary.Member[JAVADOC_TYPE_REF]{{@link Member}, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"Secondary.Member[TYPE_REF]{Member, javadoc.text, Ljavadoc.text.Secondary$Member;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
@@ -600,8 +600,8 @@ public void testBug117183a() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Reference#A_");
 	assertSortedResults(
-		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}\n" + 
-		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}"
+		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD}, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD}, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICNRIT+"}"
 	);
 }
 public void testBug117183b() throws JavaModelException {
@@ -622,8 +622,8 @@ public void testBug117183b() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Reference#A_STATIC_FIELD");
 	assertSortedResults(
-		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}\n" + 
-		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD }, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}"
+		"A_STATIC_FIELD[JAVADOC_FIELD_REF]{{@link Reference#A_STATIC_FIELD}, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}\n" + 
+		"A_STATIC_FIELD[JAVADOC_VALUE_REF]{{@value Reference#A_STATIC_FIELD}, Ljavadoc.bugs.Reference;, I, A_STATIC_FIELD, null, "+this.positions+R_DICENNRIT+"}"
 	);
 }
 public void testBug117183c() throws JavaModelException {
@@ -638,7 +638,7 @@ public void testBug117183c() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Obj");
 	assertSortedResults(
-		"Object[JAVADOC_TYPE_REF]{{@link Object }, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"Object[JAVADOC_TYPE_REF]{{@link Object}, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
@@ -654,7 +654,7 @@ public void testBug117183d() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Str");
 	assertSortedResults(
-		"String[JAVADOC_TYPE_REF]{{@link String }, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"String[JAVADOC_TYPE_REF]{{@link String}, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICUNR+"}"
 	);
 }
@@ -710,10 +710,10 @@ public void testBug118311() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b118311/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 

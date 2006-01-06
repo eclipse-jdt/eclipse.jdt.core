@@ -52,10 +52,10 @@ public void test001() throws JavaModelException {
 		"public class BasicTestTextIns {}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -82,10 +82,10 @@ public void test003() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -101,7 +101,7 @@ public void test004() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@d");
 	assertResults(
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -116,11 +116,11 @@ public void test005() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc }, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -148,8 +148,8 @@ public void test007() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@l");
 	assertResults(
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -164,8 +164,8 @@ public void test008() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@li");
 	assertResults(
-		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -181,7 +181,7 @@ public void test009() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@inh");
 	assertResults(
-		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc }, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -197,7 +197,7 @@ public void test010() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@inh");
 	assertResults(
-		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc }, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -212,7 +212,7 @@ public void test011() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@docRoot");
 	assertResults(
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -229,7 +229,7 @@ public void test020() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
@@ -264,8 +264,8 @@ public void test022() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(R_DICENUNR+R_INLINE_TAG)+"}\n" +
-		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException }, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(R_DICENUNR+R_INLINE_TAG)+"}\n" +
+		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException}, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNRIT+"}\n" + 
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}\n" +
 		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNR+"}"
 	);
@@ -284,8 +284,8 @@ public void test023() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
 	assertSortedResults(
-		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException }, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNREETIT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" +
+		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException}, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNREETIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" +
 		"BasicTestTextInsException[TYPE_REF]{BasicTestTextInsException, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DICUNREET+"}\n" + 
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
@@ -302,7 +302,7 @@ public void test024() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
@@ -318,7 +318,7 @@ public void test025() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns }, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNRIT+"}\n" + 
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DICENUNR+"}"
 	);
 }
@@ -351,8 +351,8 @@ public void test027() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
 	assertSortedResults(
-		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException }, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
-		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException }, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException}, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException}, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}\n" +
 		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNR+"}"
 	);
@@ -370,8 +370,8 @@ public void test028() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
 	assertSortedResults(
-		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException }, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNREETIT+"}\n" + 
-		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException }, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException}, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNREETIT+"}\n" + 
+		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException}, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNRIT+"}\n" + 
 		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNREET+"}\n" + 
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}"
 	);
@@ -391,7 +391,7 @@ public void test030() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link #foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -406,8 +406,8 @@ public void test031() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
-		"foo[JAVADOC_VALUE_REF]{{@value BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link BasicTestTextIns#foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"foo[JAVADOC_VALUE_REF]{{@value BasicTestTextIns#foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRIT+"}"
 	);
 }
 
@@ -422,7 +422,7 @@ public void test032() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link javadoc.text.BasicTestTextIns#foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link javadoc.text.BasicTestTextIns#foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -444,8 +444,8 @@ public void test033() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherFields#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
-		"foo[JAVADOC_VALUE_REF]{{@value OtherFields#foo }, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link OtherFields#foo}, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}\n" + 
+		"foo[JAVADOC_VALUE_REF]{{@value OtherFields#foo}, Ljavadoc.text.OtherFields;, I, foo, null, "+this.positions+R_DICNRIT+"}"
 	);
 }
 
@@ -461,7 +461,7 @@ public void test034() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link #foo }, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+		"foo[JAVADOC_FIELD_REF]{{@link #foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -565,7 +565,7 @@ public void test041() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -581,7 +581,7 @@ public void test042() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -597,7 +597,7 @@ public void test043() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
+		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -613,7 +613,7 @@ public void test044() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#param");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -629,7 +629,7 @@ public void test045() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
+		"method[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -699,7 +699,7 @@ public void test049() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherTypes#meth");
 	assertSortedResults(
-		"method[JAVADOC_METHOD_REF]{{@link OtherTypes#method() }, Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
+		"method[JAVADOC_METHOD_REF]{{@link OtherTypes#method()}, Ljavadoc.text.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}"
 	);
 }
 
@@ -737,20 +737,20 @@ public void test051() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"clone[JAVADOC_METHOD_REF]{{@link #clone() }, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object) }, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"finalize[JAVADOC_METHOD_REF]{{@link #finalize() }, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"getClass[JAVADOC_METHOD_REF]{{@link #getClass() }, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode() }, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notify[JAVADOC_METHOD_REF]{{@link #notify() }, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll() }, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
-		"toString[JAVADOC_METHOD_REF]{{@link #toString() }, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int) }, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long) }, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait() }, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object)}, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"finalize[JAVADOC_METHOD_REF]{{@link #finalize()}, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"getClass[JAVADOC_METHOD_REF]{{@link #getClass()}, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode()}, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notify[JAVADOC_METHOD_REF]{{@link #notify()}, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll()}, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
+		"toString[JAVADOC_METHOD_REF]{{@link #toString()}, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int)}, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long)}, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait()}, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
 	);
 }
 
@@ -766,20 +766,20 @@ public void test052() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"clone[JAVADOC_METHOD_REF]{{@link #clone() }, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object) }, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"finalize[JAVADOC_METHOD_REF]{{@link #finalize() }, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"getClass[JAVADOC_METHOD_REF]{{@link #getClass() }, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode() }, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"method[JAVADOC_METHOD_REF]{{@link #method() }, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notify[JAVADOC_METHOD_REF]{{@link #notify() }, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll() }, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
-		"toString[JAVADOC_METHOD_REF]{{@link #toString() }, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int) }, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long) }, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait() }, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object)}, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"finalize[JAVADOC_METHOD_REF]{{@link #finalize()}, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"getClass[JAVADOC_METHOD_REF]{{@link #getClass()}, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode()}, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notify[JAVADOC_METHOD_REF]{{@link #notify()}, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll()}, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICNRNSIT+"}\n" + 
+		"toString[JAVADOC_METHOD_REF]{{@link #toString()}, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int)}, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long)}, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait()}, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
 	);
 }
 
@@ -853,7 +853,7 @@ public void test055() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
 	);
 }
 
@@ -901,7 +901,7 @@ public void test058() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(String str,");
 	assertSortedResults(
-		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object) }, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
+		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DICENUNRIT+"}"
 	);
 }
 
@@ -936,8 +936,8 @@ public void test070() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTest");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -993,7 +993,7 @@ public void test073() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "OtherTypes#O");
 	assertSortedResults(
-		"OtherTypes[JAVADOC_METHOD_REF]{{@link OtherTypes#OtherTypes() }, Ljavadoc.text.OtherTypes;, ()V, OtherTypes, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"OtherTypes[JAVADOC_METHOD_REF]{{@link OtherTypes#OtherTypes()}, Ljavadoc.text.OtherTypes;, ()V, OtherTypes, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1030,19 +1030,19 @@ public void test075() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"clone[JAVADOC_METHOD_REF]{{@link #clone() }, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object) }, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"finalize[JAVADOC_METHOD_REF]{{@link #finalize() }, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"getClass[JAVADOC_METHOD_REF]{{@link #getClass() }, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode() }, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notify[JAVADOC_METHOD_REF]{{@link #notify() }, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll() }, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"toString[JAVADOC_METHOD_REF]{{@link #toString() }, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int) }, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long) }, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait() }, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object)}, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"finalize[JAVADOC_METHOD_REF]{{@link #finalize()}, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"getClass[JAVADOC_METHOD_REF]{{@link #getClass()}, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode()}, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notify[JAVADOC_METHOD_REF]{{@link #notify()}, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll()}, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"toString[JAVADOC_METHOD_REF]{{@link #toString()}, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int)}, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long)}, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait()}, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1058,19 +1058,19 @@ public void test076() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
-		"clone[JAVADOC_METHOD_REF]{{@link #clone() }, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object) }, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"finalize[JAVADOC_METHOD_REF]{{@link #finalize() }, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"getClass[JAVADOC_METHOD_REF]{{@link #getClass() }, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode() }, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notify[JAVADOC_METHOD_REF]{{@link #notify() }, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll() }, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"toString[JAVADOC_METHOD_REF]{{@link #toString() }, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int) }, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait(long) }, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"wait[JAVADOC_METHOD_REF]{{@link #wait() }, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"equals[JAVADOC_METHOD_REF]{{@link #equals(Object)}, Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"finalize[JAVADOC_METHOD_REF]{{@link #finalize()}, Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"getClass[JAVADOC_METHOD_REF]{{@link #getClass()}, Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"hashCode[JAVADOC_METHOD_REF]{{@link #hashCode()}, Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notify[JAVADOC_METHOD_REF]{{@link #notify()}, Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"notifyAll[JAVADOC_METHOD_REF]{{@link #notifyAll()}, Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"toString[JAVADOC_METHOD_REF]{{@link #toString()}, Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long, int)}, Ljava.lang.Object;, (JI)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait(long)}, Ljava.lang.Object;, (J)V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"wait[JAVADOC_METHOD_REF]{{@link #wait()}, Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DICNRNSIT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1131,7 +1131,7 @@ public void test079() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(int,");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1149,8 +1149,8 @@ public void test080() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
-			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
-			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}\n" + 
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1166,7 +1166,7 @@ public void test081() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1183,7 +1183,7 @@ public void test082() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1200,7 +1200,7 @@ public void test083() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.Cla");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
@@ -1218,7 +1218,7 @@ public void test084() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, Class");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
+		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE_IT+"}"
 	);
 }
 
