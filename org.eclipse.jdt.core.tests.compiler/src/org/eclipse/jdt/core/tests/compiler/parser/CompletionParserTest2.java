@@ -9213,4 +9213,63 @@ public void test0164() {
 		expectedReplacedSource,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122755
+public void test0165() {
+
+	String str = 
+		"public class X {\n" +
+		"	void foo() {" +
+		"	/**" +
+		"	 *" +
+		"	 */." +
+		"	}" +
+		"}\n"; 
+
+	String completeBehind = "/.";
+	int cursorLocation = str.lastIndexOf("/.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <CompleteOnName:>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

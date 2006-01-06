@@ -892,8 +892,8 @@ public class CompletionJavadocParser extends JavadocParser {
 	 */
 	protected void updateDocComment() {
 		super.updateDocComment();
-		getCompletionParser().assistNodeParent = this.docComment;
 		if (completionNode instanceof Expression) {
+			getCompletionParser().assistNodeParent = this.docComment;
 			getCompletionParser().assistNode = (ASTNode) this.completionNode;
 			getCompletionJavadoc().completionNode = (Expression) completionNode;
 		}
