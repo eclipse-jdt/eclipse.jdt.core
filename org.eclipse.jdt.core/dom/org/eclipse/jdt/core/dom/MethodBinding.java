@@ -200,14 +200,20 @@ class MethodBinding implements IMethodBinding {
 			// case of method not in the created AST, or a binary method
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = this.binding.original();
 			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
+			boolean isBinary = declaringType.isBinary();
+			ReferenceBinding enclosingType = original.declaringClass.enclosingType();
+			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && enclosingType != null;
 			TypeBinding[] parameters = original.parameters;
 			int length = parameters == null ? 0 : parameters.length;
-			String[] parameterSignatures = new String[length];
+			int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
+			String[] parameterSignatures = new String[declaringIndex + length];
+			if (isInnerBinaryTypeConstructor)
+				parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
 			for (int i = 0;  i < length; i++) {
-				parameterSignatures[i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
+				parameterSignatures[declaringIndex + i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
 			}
 			IMethod result = declaringType.getMethod(selector, parameterSignatures);
-			if (declaringType.isBinary())
+			if (isBinary)
 				return (JavaElement) result;
 			IMethod[] methods = null;
 			try {

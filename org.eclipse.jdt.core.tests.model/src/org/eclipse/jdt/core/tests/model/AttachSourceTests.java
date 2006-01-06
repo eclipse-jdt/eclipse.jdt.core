@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 	static {
-//		TESTS_NAMES = new String[] { "testRootPath13" };
+//		TESTS_NAMES = new String[] { "testClassFileGetElementAt04" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -109,6 +109,8 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"    }\n" +
 		"  }\n" +
 		"  class V {\n" +
+		"    V(String s) {\n" +
+		"    }\n" +
 		"  }\n" +
 		"}"
 	};
@@ -218,29 +220,52 @@ public void testChangeSourceAttachmentFile() throws CoreException {
 /**
  * Ensure that a class file with an attached source can retrieve its children given a source index.
  */
-public void testClassFileGetElementAt() throws JavaModelException {
-	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
-	IJavaElement elt = null;
-	
-	elt = cf.getElementAt(15);
-	assertTrue("should have found \"A\"",
-		elt != null &&
-		elt.getElementType() == IJavaElement.TYPE &&
-		elt.getElementName().equals("A"));
-	
-	elt = cf.getElementAt(53);
-	assertTrue("should have found \"public A()\"",
-		elt != null &&
-		elt.getElementType() == IJavaElement.METHOD &&
-		elt.getElementName().equals("A"));
-
-	elt = cf.getElementAt(72);
-	assertTrue("should have found \"public void foo()\"",
-		elt != null &&
-		elt.getElementType() == IJavaElement.METHOD &&
-		elt.getElementName().equals("foo"));
+public void testClassFileGetElementAt01() throws JavaModelException {
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+	String source = classFile.getSource();
+	IJavaElement element = classFile.getElementAt(source.indexOf("class A"));
+	assertElementEquals(
+		"Unexpected element",
+		"A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]",
+		element);
+}
+/**
+ * Ensure that a class file with an attached source can retrieve its children given a source index.
+ */
+public void testClassFileGetElementAt02() throws JavaModelException {
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+	String source = classFile.getSource();
+	IJavaElement element = classFile.getElementAt(source.indexOf("public A"));
+	assertElementEquals(
+		"Unexpected element",
+		"A() [in A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]]",
+		element);
+}
+/**
+ * Ensure that a class file with an attached source can retrieve its children given a source index.
+ */
+public void testClassFileGetElementAt03() throws JavaModelException {
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+	String source = classFile.getSource();
+	IJavaElement element = classFile.getElementAt(source.indexOf("void foo"));
+	assertElementEquals(
+		"Unexpected element",
+		"foo() [in A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]]",
+		element);
 }
 /*
+ * Ensure that a constructor of a binary member type can be retrieved with its source position.
+ * (regression test for bug 119249 codeResolve, search, etc. don't work on constructor of binary inner class)
+ */
+public void testClassFileGetElementAt04() throws JavaModelException {
+	IClassFile classFile = this.innerClasses.getClassFile("X$V.class");
+	String source = classFile.getSource();
+	IJavaElement element = classFile.getElementAt(source.indexOf("V(String s)"));
+	assertElementEquals(
+		"Unexpected element",
+		"V(inner.X, java.lang.String) [in V [in X$V.class [in inner [in innerClasses.jar [in AttachSourceTests]]]]]",
+		element);
+}/*
  * Ensures that the source of a .class file is implicetely attached when prj=src=bin
  * (regression test for bug 41444 [navigation] error dialog on opening class file)
  */
@@ -300,20 +325,27 @@ public void testGeneric2() throws JavaModelException {
  * Ensures that name ranges exists for BinaryMembers that have
  * mapped source.
  */
-public void testGetNameRange() throws JavaModelException {
-	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
-	IMethod method = cf.getType().getMethod("foo", null);
-	assertTrue("method name range not correct", method.getNameRange().getOffset() != -1 && method.getNameRange().getLength() != 0);
-
-	IClassFile objectCF = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
-	ISourceRange range= objectCF.getType().getNameRange();
-	int start, end;
-	start= range.getOffset();
-	end= start + range.getLength() - 1;
-
-	assertTrue("source code does not exist for the entire attached compilation unit", start != -1 && end != -1);
-	String source= objectCF.getSource().substring(start, end + 1);
-	assertSourceEquals("name should be 'A'", "A", source);
+public void testGetNameRange01() throws JavaModelException {
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+	IMethod method = classFile.getType().getMethod("foo", null);
+	assertSourceEquals("Unexpected name source", "foo", getNameSource(classFile.getSource(), method));
+}
+/**
+ * Ensures that name ranges exists for BinaryMembers that have
+ * mapped source.
+ */
+public void testGetNameRange02() throws JavaModelException {
+	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+	assertSourceEquals("Unexpected name source", "A", getNameSource(classFile.getSource(), classFile.getType()));
+}
+/*
+ * Ensure that the name range for a constructor of a binary member type is correct.
+ * (regression test for bug 119249 codeResolve, search, etc. don't work on constructor of binary inner class)
+ */
+public void testGetNameRange03() throws JavaModelException {
+	IClassFile classFile = this.innerClasses.getClassFile("X$V.class");
+	IMethod constructor = classFile.getType().getMethod("V", new String[] {"Linner.X;", "Ljava.lang.String;"});
+	assertSourceEquals("Unexpected name source", "V", getNameSource(classFile.getSource(), constructor));
 }
 /**
  * Retrieves the source attachment paths for jar root.
@@ -366,6 +398,8 @@ public void testInnerClass1() throws JavaModelException {
 		"    }\n" + 
 		"  }\n" + 
 		"  class V {\n" + 
+		"    V(String s) {\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}",
 		type.getSource());
@@ -444,6 +478,8 @@ public void testInnerClass8() throws JavaModelException {
 	assertSourceEquals(
 		"Unexpected source",
 		"class V {\n" + 
+		"    V(String s) {\n" + 
+		"    }\n" + 
 		"  }",
 		type.getSource());
 }

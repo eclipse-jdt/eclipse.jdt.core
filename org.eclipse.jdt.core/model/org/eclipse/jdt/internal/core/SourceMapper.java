@@ -687,10 +687,19 @@ public class SourceMapper
 			this.memberNameRange[typeDepth] =
 				new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
 			this.memberDeclarationStart[typeDepth] = methodInfo.declarationStart;
-			this.methodParameterTypes[typeDepth] = methodInfo.parameterTypes;
-			this.methodParameterNames[typeDepth] = methodInfo. parameterNames;
-			
 			IType currentType = this.types[typeDepth];
+			char[][] parameterTypes = methodInfo.parameterTypes;
+			if (parameterTypes != null && methodInfo.isConstructor && currentType.getDeclaringType() != null) {
+				int length = parameterTypes.length;
+				char[][] newParameterTypes = new char[length+1][];
+				newParameterTypes[0] = currentType.getDeclaringType().getElementName().toCharArray();
+				System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+				this.methodParameterTypes[typeDepth] = newParameterTypes;
+			} else {
+				this.methodParameterTypes[typeDepth] = parameterTypes;
+			}
+			this.methodParameterNames[typeDepth] = methodInfo.parameterNames;
+			
 			IMethod method = currentType.getMethod(
 					this.memberName[typeDepth],
 					convertTypeNamesToSigs(this.methodParameterTypes[typeDepth]));

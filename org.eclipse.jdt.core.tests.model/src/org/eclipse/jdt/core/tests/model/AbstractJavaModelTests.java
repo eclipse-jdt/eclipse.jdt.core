@@ -1395,6 +1395,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		ISourceReference cu = getCompilationUnit(cuPath);
 		return getLocalVariable(cu, selectAt, selection);
 	}
+	protected String getNameSource(String cuSource, IJavaElement element) throws JavaModelException {
+		ISourceRange nameRange = element instanceof ITypeParameter ? ((ITypeParameter) element).getNameRange() : ((IMember) element).getNameRange();
+		int start = nameRange.getOffset();
+		int end = start+nameRange.getLength();
+		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
+		return actualSource;
+	}
 	/**
 	 * Returns the specified package fragment in the given project and root, or
 	 * <code>null</code> if it does not exist.

@@ -209,14 +209,6 @@ public class GetSourceTests extends ModifyingResourceTests {
 		}
 	}
 	
-	private String getNameSource(String cuSource, IJavaElement element) throws JavaModelException {
-		ISourceRange nameRange = element instanceof ITypeParameter ? ((ITypeParameter) element).getNameRange() : ((IMember) element).getNameRange();
-		int start = nameRange.getOffset();
-		int end = start+nameRange.getLength();
-		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
-		return actualSource;
-	}
-
 	/*
 	 * Ensures the name range for a type parameter is correct.
 	 */

@@ -36,7 +36,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testLocalType2" };
+//		TESTS_NAMES = new String[] { "testBinaryMemberTypeConstructor" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -93,6 +93,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"  }/*end*/\n" +
 				"  void foo() {\n" +
 				"    new Member() {};\n" +
+				"  }\n" +
+				"}",
+				"p/W.java",
+				"package p;\n" +
+				"public class W {\n" +
+				"  class Member {\n" +
+				"    /*start*/Member(String s) {\n" +
+				"    }/*end*/\n" +
 				"  }\n" +
 				"}",
 				"Z.java",
@@ -233,6 +241,28 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a constructor of a binary member type is correct.
+	 * (regression test for bug 119249 codeResolve, search, etc. don't work on constructor of binary inner class)
+	 */
+	public void testBinaryMemberTypeConstructor() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", "/P/lib.jar", "p", "W$Member.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Member(p.W, java.lang.String) [in Member [in W$Member.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
