@@ -247,27 +247,31 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		org.eclipse.jdt.internal.core.CompilationUnit destCU = new org.eclipse.jdt.internal.core.CompilationUnit(dest, destName, DefaultWorkingCopyOwner.PRIMARY);
 		if (!destFile.equals(sourceResource)) {
 			try {
-				if (destFile.exists()) {
-					if (this.force) {
-						// we can remove it
-						deleteResource(destFile, IResource.KEEP_HISTORY);
-						destCU.close(); // ensure the in-memory buffer for the dest CU is closed
-					} else {
-						// abort
-						throw new JavaModelException(new JavaModelStatus(
-							IJavaModelStatusConstants.NAME_COLLISION, 
-							Messages.bind(Messages.status_nameCollision, destFile.getFullPath().toString()))); 
+				if (!destCU.isWorkingCopy()) {
+					if (destFile.exists()) {
+						if (this.force) {
+							// we can remove it
+							deleteResource(destFile, IResource.KEEP_HISTORY);
+							destCU.close(); // ensure the in-memory buffer for the dest CU is closed
+						} else {
+							// abort
+							throw new JavaModelException(new JavaModelStatus(
+								IJavaModelStatusConstants.NAME_COLLISION, 
+								Messages.bind(Messages.status_nameCollision, destFile.getFullPath().toString()))); 
+						}
 					}
-				}
-				int flags = this.force ? IResource.FORCE : IResource.NONE;
-				if (this.isMove()) {
-					flags |= IResource.KEEP_HISTORY;
-					sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
+					int flags = this.force ? IResource.FORCE : IResource.NONE;
+					if (this.isMove()) {
+						flags |= IResource.KEEP_HISTORY;
+						sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
+					} else {
+						if (rewrite != null) flags |= IResource.KEEP_HISTORY;
+						sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
+					}
+					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 				} else {
-					if (rewrite != null) flags |= IResource.KEEP_HISTORY;
-					sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
+					destCU.getBuffer().setContents(source.getBuffer().getContents());
 				}
-				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 			} catch (JavaModelException e) {
 				throw e;
 			} catch (CoreException e) {

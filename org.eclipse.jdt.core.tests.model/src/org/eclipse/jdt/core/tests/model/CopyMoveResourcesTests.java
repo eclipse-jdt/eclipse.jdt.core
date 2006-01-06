@@ -196,8 +196,11 @@ public void setUp() throws Exception {
 	
 	this.createJavaProject("P", new String[] {"src", "src2"}, "bin");
 }
+static {
+//	TESTS_NAMES = new String[] { "testCopyWorkingCopyDestination"};
+}
 public static Test suite() {
-	return new Suite(CopyMoveResourcesTests.class);
+	return buildTestSuite(CopyMoveResourcesTests.class);
 }
 /**
  * Cleanup after the previous test.
@@ -553,6 +556,40 @@ public void testCopyWorkingCopy() throws CoreException {
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 	
 		copyPositive(copy, pkgDest, null, null, false);
+	} finally {
+		if (copy != null) copy.discardWorkingCopy();
+	}
+}
+/*
+ * Ensures that a CU can be copied over an existing primary working copy in a different package.
+ * (regression test for bug 117282 Package declaration inserted on wrong CU while copying class if names collide and editor opened)
+ */
+public void testCopyWorkingCopyDestination() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		createFolder("/P/src/p1");
+		createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"  void foo() {}\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	
+		createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+		createFile(
+			"/P/src/p2/X.java",
+			"\n" +
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		copy = getCompilationUnit("/P/src/p2/X.java");
+		copy.becomeWorkingCopy(null, null);
+	
+		copyPositive(cuSource, pkgDest, null, null, true/*force*/);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
 	}
