@@ -2703,6 +2703,13 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			"----------\n"
 		);
 
+		// DEBUG
+		JavaModelManager.VERBOSE = true;
+		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
+		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
+		System.out.println("--------------------------------------------------------------------------------");
+		System.out.println("Running test "+getName()+"...");
+
 		// Delete file and recreate it with secondary outside eclipse
 		File ioFile = file.getLocation().toFile();
 		ioFile.delete();
@@ -2725,6 +2732,12 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopies[1]);
 	} finally {
+		// DEBUG
+		System.out.println("--------------------------------------------------------------------------------");
+		JavaModelManager.VERBOSE = false;
+		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = false;
+		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = false;
+
 		deleteProject("P1");
 		deleteProject("P2");
 	}
