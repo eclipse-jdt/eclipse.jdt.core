@@ -423,6 +423,7 @@ public class CastExpression extends Expression {
 						}
 					} else { // illegal cast
 						scope.problemReporter().typeCastError(this, castType, expressionType);
+						this.bits |= DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 					}
 				}
 				this.resolvedType = castType.capture(scope, this.sourceEnd);

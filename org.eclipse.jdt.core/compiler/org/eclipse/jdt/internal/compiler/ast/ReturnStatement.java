@@ -211,14 +211,14 @@ public class ReturnStatement extends Statement {
 			    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 			}
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
+					&& (this.expression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
 			}			
 			return;
 		} else if (scope.isBoxingCompatibleWith(expressionType, methodType)) {
 			this.expression.computeConversion(scope, methodType, expressionType);
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
+					&& (this.expression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
 			}			return;
 		}

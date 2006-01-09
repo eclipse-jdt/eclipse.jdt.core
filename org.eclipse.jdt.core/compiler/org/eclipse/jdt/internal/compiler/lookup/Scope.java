@@ -219,11 +219,11 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 	 * 
 	 */
 	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
-		
+		if (originalType == null) return null;
 		switch (originalType.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
-				return substitution.substitute( (TypeVariableBinding) originalType);
+				return substitution.substitute((TypeVariableBinding) originalType);
 				
 			case Binding.PARAMETERIZED_TYPE:
 				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
