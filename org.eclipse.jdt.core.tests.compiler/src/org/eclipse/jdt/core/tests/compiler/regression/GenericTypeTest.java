@@ -27251,4 +27251,128 @@ public void test879() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369
+public void test880() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"class Foo {\n" + 
+			"	static <T, U extends java.util.List<T>> U foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	{\n" + 
+			"		String s = (String) Foo.foo();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s = (String) Foo.foo();\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
+public void _test881() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"class Foo {\n" + 
+			"	static <T, U extends java.util.List<U>> U foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	{\n" + 
+			"		String s = (String) Foo.foo();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s = (String) Foo.foo();\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
+public void test882() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <U extends List<U>> U foo(U u) {\n" + 
+			"		String s = (String) foo(u);\n" + 
+			"		return u;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	String s = (String) foo(u);\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from U to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
+public void _test883() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <U extends List<U>> U foo(U u) {\n" + 
+			"		List<U> v = null;\n" + 
+			"		String s = (String) foo(v);\n" + 
+			"		return u;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	String s = (String) foo(v);\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<U> to String\n" + // shouldn't it infer: List<List<U>> ?
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123078
+public void test884() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public abstract class X<C extends X<C>> {\n" + 
+			"	public static <T extends X<T>> T getDefault(Class<T> clz) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Object getDefault() {\n" + 
+			"		String s = getClass();\n" + 
+			"		return (String) getDefault(getClass());\n" + 
+			"	}\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	String s = getClass();\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture-of ? extends X> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return (String) getDefault(getClass());\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from capture-of ? extends X to String\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	return (String) getDefault(getClass());\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation getDefault(Class<capture-of ? extends X>) of the generic method getDefault(Class<T>) of type X<C>\n" + 
+		"----------\n");
+}
 }

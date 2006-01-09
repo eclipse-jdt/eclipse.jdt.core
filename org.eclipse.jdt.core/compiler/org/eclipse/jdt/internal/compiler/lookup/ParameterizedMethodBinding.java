@@ -114,7 +114,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	}
 
 	/**
-	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends |X|> where |X| is X's erasure.
+	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends raw(X)>
 	 */
 	public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
 		ParameterizedMethodBinding method = new ParameterizedMethodBinding();
@@ -126,9 +126,11 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.parameters = originalMethod.parameters;
 		method.thrownExceptions = originalMethod.thrownExceptions;
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
-		method.returnType = scope.environment().createParameterizedType(
+		LookupEnvironment environment = scope.environment();
+		TypeBinding rawType = environment.convertToRawType(receiverType);
+		method.returnType = environment.createParameterizedType(
 			genericClassType,
-			new TypeBinding[] {  scope.environment().createWildcard(genericClassType, 0, receiverType.erasure(), null /*no extra bound*/, Wildcard.EXTENDS) },
+			new TypeBinding[] {  environment.createWildcard(genericClassType, 0, rawType, null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);
 		return method;
 	}

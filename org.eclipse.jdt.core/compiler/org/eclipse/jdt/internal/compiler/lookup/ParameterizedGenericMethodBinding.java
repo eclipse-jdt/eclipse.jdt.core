@@ -405,18 +405,20 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
 					// e.g. given: <E extends Object, S extends Collection<E>> S test1(S param)
 					//                   invocation: test1(new Vector<String>())    will infer: S=Vector<String>  and with code below: E=String
-					if (argAlreadyInferred)
+					if (argAlreadyInferred) {
 						substitutedBound.collectSubstitutes(scope, argument, collectedSubstitutes, CONSTRAINT_EXTENDS);
 						if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
+					}
 				}
 				for (int j = 0, max = originalVariable.superInterfaces.length; j < max; j++) {
 					TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superInterfaces[j]);
 					argument.collectSubstitutes(scope, substitutedBound, collectedSubstitutes, CONSTRAINT_SUPER);
 					if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 					// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
-					if (argAlreadyInferred)
+					if (argAlreadyInferred) {
 						substitutedBound.collectSubstitutes(scope, argument, collectedSubstitutes, CONSTRAINT_EXTENDS);
 						if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
+					}
 				}
 			}
 			substitutes = resolveSubstituteConstraints(scope, originalVariables, substitutes, true/*consider Ti<:Uk*/, collectedSubstitutes);
@@ -441,7 +443,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		    		this.typeArguments[i] = originalVariables[i].upperBound();
 		    	}
 	    	}
-		}		
+		}
+		// may still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
+		// to properly substitute a remaining unresolved variable which also appear in a formal bound
+		this.typeArguments = Scope.substitute(this, this.typeArguments);
 		// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
 		this.returnType = Scope.substitute(this, this.returnType);
