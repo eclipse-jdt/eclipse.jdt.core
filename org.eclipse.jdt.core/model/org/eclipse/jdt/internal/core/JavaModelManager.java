@@ -14,7 +14,9 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,6 +41,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -113,7 +116,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 	public final static IPath CP_ENTRY_IGNORE_PATH = new Path(CP_ENTRY_IGNORE);
 	
-	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 1;
+	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 2;
 
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
@@ -1994,35 +1997,39 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		DataInputStream in = null;
 		try {
 			in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-			if (VARIABLES_AND_CONTAINERS_FILE_VERSION == in.readInt()) {
-				
-				// variables
-				int size = in.readInt();
-				while (size-- > 0) {
-					String varName = in.readUTF();
-					String pathString = in.readUTF();
-					if (CP_ENTRY_IGNORE.equals(pathString))
-						continue;
-					IPath varPath = Path.fromPortableString(pathString);
-					this.variables.put(varName, varPath);
-					this.previousSessionVariables.put(varName, varPath);
-				}
-				
-				// containers
-				IJavaModel model = getJavaModel();
-				int projectSize = in.readInt();
-				while (projectSize-- > 0) {
-					String projectName = in.readUTF();
-					IJavaProject project = model.getJavaProject(projectName);
-					int containerSize = in.readInt();
-					while (containerSize-- > 0) {
-						IPath containerPath = Path.fromPortableString(in.readUTF());
-						int length = in.readInt();
-						byte[] containerString = new byte[length];
-						in.readFully(containerString);
-						recreatePersistedContainer(project, containerPath, new String(containerString), true/*add to container values*/);
+			switch (in.readInt()) {
+				case 2 :
+					new VariablesAndContainersLoadHelper(in).load();
+					break;
+				case 1 : // backward compatibility, load old format
+					// variables
+					int size = in.readInt();
+					while (size-- > 0) {
+						String varName = in.readUTF();
+						String pathString = in.readUTF();
+						if (CP_ENTRY_IGNORE.equals(pathString))
+							continue;
+						IPath varPath = Path.fromPortableString(pathString);
+						this.variables.put(varName, varPath);
+						this.previousSessionVariables.put(varName, varPath);
 					}
-				}
+					
+					// containers
+					IJavaModel model = getJavaModel();
+					int projectSize = in.readInt();
+					while (projectSize-- > 0) {
+						String projectName = in.readUTF();
+						IJavaProject project = model.getJavaProject(projectName);
+						int containerSize = in.readInt();
+						while (containerSize-- > 0) {
+							IPath containerPath = Path.fromPortableString(in.readUTF());
+							int length = in.readInt();
+							byte[] containerString = new byte[length];
+							in.readFully(containerString);
+							recreatePersistedContainer(project, containerPath, new String(containerString), true/*add to container values*/);
+						}
+					}
+					break;
 			}
 		} catch (IOException e) {
 			if (file.exists())
@@ -2048,6 +2055,286 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		// override persisted values for containers which have a registered initializer
 		containersReset(getRegisteredContainerIDs());
+	}
+
+	private static final class PersistedClasspathContainer implements
+			IClasspathContainer {
+
+		private final IPath containerPath;
+
+		private final IClasspathEntry[] entries;
+
+		private final IJavaProject project;
+
+		PersistedClasspathContainer(IJavaProject project, IPath containerPath,
+				IClasspathEntry[] entries) {
+			super();
+			this.containerPath = containerPath;
+			this.entries = entries;
+			this.project = project;
+		}
+
+		public IClasspathEntry[] getClasspathEntries() {
+			return entries;
+		}
+
+		public String getDescription() {
+			return "Persisted container [" + containerPath //$NON-NLS-1$
+					+ " for project [" + project.getElementName() //$NON-NLS-1$
+					+ "]]"; //$NON-NLS-1$  
+		}
+
+		public int getKind() {
+			return 0;
+		}
+
+		public IPath getPath() {
+			return containerPath;
+		}
+
+		public String toString() {
+			return getDescription();
+		}
+	}
+
+	private final class VariablesAndContainersLoadHelper {
+
+		private static final int ARRAY_INCREMENT = 200;
+
+		private IClasspathEntry[] allClasspathEntries;
+		private int allClasspathEntryCount;
+
+		private final Map allPaths; // String -> IPath
+
+		private String[] allStrings;
+		private int allStringsCount;
+
+		private final DataInputStream in;
+
+		VariablesAndContainersLoadHelper(DataInputStream in) {
+			super();
+			this.allClasspathEntries = null;
+			this.allClasspathEntryCount = 0;
+			this.allPaths = new HashMap();
+			this.allStrings = null;
+			this.allStringsCount = 0;
+			this.in = in;
+		}
+
+		void load() throws IOException {
+			loadProjects(JavaModelManager.this.getJavaModel());
+			loadVariables();
+		}
+
+		private IAccessRule loadAccessRule() throws IOException {
+			int kind = loadInt();
+			IPath pattern = loadPath();
+
+			return new ClasspathAccessRule(pattern, kind);
+		}
+
+		private IAccessRule[] loadAccessRules() throws IOException {
+			int count = loadInt();
+
+			if (count == 0)
+				return ClasspathEntry.NO_ACCESS_RULES;
+
+			IAccessRule[] rules = new IAccessRule[count];
+
+			for (int i = 0; i < count; ++i)
+				rules[i] = loadAccessRule();
+
+			return rules;
+		}
+
+		private IClasspathAttribute loadAttribute() throws IOException {
+			String name = loadString();
+			String value = loadString();
+
+			return new ClasspathAttribute(name, value);
+		}
+
+		private IClasspathAttribute[] loadAttributes() throws IOException {
+			int count = loadInt();
+
+			if (count == 0)
+				return ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+
+			IClasspathAttribute[] attributes = new IClasspathAttribute[count];
+
+			for (int i = 0; i < count; ++i)
+				attributes[i] = loadAttribute();
+
+			return attributes;
+		}
+
+		private boolean loadBoolean() throws IOException {
+			return this.in.readBoolean();
+		}
+
+		private IClasspathEntry[] loadClasspathEntries() throws IOException {
+			int count = loadInt();
+			IClasspathEntry[] entries = new IClasspathEntry[count];
+
+			for (int i = 0; i < count; ++i)
+				entries[i] = loadClasspathEntry();
+
+			return entries;
+		}
+
+		private IClasspathEntry loadClasspathEntry() throws IOException {
+			int id = loadInt();
+
+			if (id < 0 || id > this.allClasspathEntryCount)
+				throw new IOException("Unexpected classpathentry id"); //$NON-NLS-1$
+
+			if (id < this.allClasspathEntryCount)
+				return this.allClasspathEntries[id];
+
+			int contentKind = loadInt();
+			int entryKind = loadInt();
+			IPath path = loadPath();
+			IPath[] inclusionPatterns = loadPaths();
+			IPath[] exclusionPatterns = loadPaths();
+			IPath sourceAttachmentPath = loadPath();
+			IPath sourceAttachmentRootPath = loadPath();
+			IPath specificOutputLocation = loadPath();
+			boolean isExported = loadBoolean();
+			IAccessRule[] accessRules = loadAccessRules();
+			boolean combineAccessRules = loadBoolean();
+			IClasspathAttribute[] extraAttributes = loadAttributes();
+
+			IClasspathEntry entry = new ClasspathEntry(contentKind, entryKind,
+					path, inclusionPatterns, exclusionPatterns,
+					sourceAttachmentPath, sourceAttachmentRootPath,
+					specificOutputLocation, isExported, accessRules,
+					combineAccessRules, extraAttributes);
+
+			IClasspathEntry[] array = this.allClasspathEntries;
+
+			if (array == null || id == array.length) {
+				array = new IClasspathEntry[id + ARRAY_INCREMENT];
+
+				if (id != 0)
+					System.arraycopy(this.allClasspathEntries, 0, array, 0, id);
+
+				this.allClasspathEntries = array;
+			}
+
+			array[id] = entry;
+			this.allClasspathEntryCount = id + 1;
+
+			return entry;
+		}
+
+		private void loadContainers(IJavaProject project) throws IOException {
+			boolean projectIsAccessible = project.getProject().isAccessible();
+			int count = loadInt();
+			for (int i = 0; i < count; ++i) {
+				IPath path = loadPath();
+				IClasspathEntry[] entries = loadClasspathEntries();
+				
+				if (!projectIsAccessible) 
+					// avoid leaking deleted project's persisted container,
+					// but still read the container as it is is part of the file format
+					continue; 
+
+				IClasspathContainer container = new PersistedClasspathContainer(project, path, entries);
+
+				JavaModelManager.this.containerPut(project, path, container);
+
+				Map oldContainers = (Map) JavaModelManager.this.previousSessionContainers.get(project);
+
+				if (oldContainers == null) {
+					oldContainers = new HashMap();
+					JavaModelManager.this.previousSessionContainers.put(project, oldContainers);
+				}
+
+				oldContainers.put(path, container);
+			}
+		}
+
+		private int loadInt() throws IOException {
+			return this.in.readInt();
+		}
+
+		private IPath loadPath() throws IOException {
+			if (loadBoolean())
+				return null;
+
+			String portableString = loadString();
+			IPath path = (IPath) this.allPaths.get(portableString);
+
+			if (path == null) {
+				path = Path.fromPortableString(portableString);
+				this.allPaths.put(portableString, path);
+			}
+
+			return path;
+		}
+
+		private IPath[] loadPaths() throws IOException {
+			int count = loadInt();
+			IPath[] pathArray = new IPath[count];
+
+			for (int i = 0; i < count; ++i)
+				pathArray[i] = loadPath();
+
+			return pathArray;
+		}
+
+		private void loadProjects(IJavaModel model) throws IOException {
+			int count = loadInt();
+
+			for (int i = 0; i < count; ++i) {
+				String projectName = loadString();
+
+				loadContainers(model.getJavaProject(projectName));
+			}
+		}
+
+		private String loadString() throws IOException {
+			int id = loadInt();
+
+			if (id < 0 || id > this.allStringsCount)
+				throw new IOException("Unexpected string id"); //$NON-NLS-1$
+
+			if (id < this.allStringsCount)
+				return this.allStrings[id];
+
+			String string = this.in.readUTF();
+			String[] array = this.allStrings;
+
+			if (array == null || id == array.length) {
+				array = new String[id + ARRAY_INCREMENT];
+
+				if (id != 0)
+					System.arraycopy(this.allStrings, 0, array, 0, id);
+
+				this.allStrings = array;
+			}
+
+			array[id] = string;
+			this.allStringsCount = id + 1;
+
+			return string;
+		}
+
+		private void loadVariables() throws IOException {
+			int size = loadInt();
+			Map loadedVars = new HashMap(size);
+
+			for (int i = 0; i < size; ++i) {
+				String varName = loadString();
+				IPath varPath = loadPath();
+
+				if (varPath != null)
+					loadedVars.put(varName, varPath);
+			}
+
+			JavaModelManager.this.previousSessionVariables.putAll(loadedVars);
+			JavaModelManager.this.variables.putAll(loadedVars);
+		}
 	}
 
 	/**
@@ -2388,6 +2675,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
+			if (VARIABLES_AND_CONTAINERS_FILE_VERSION == 2)
+				new VariablesAndContainersSaveHelper(out).save();
+			else if (VARIABLES_AND_CONTAINERS_FILE_VERSION == 1) {
+				// old code retained for performance comparisons
 			
 			// variables
 			out.writeInt(this.variables.size());
@@ -2448,7 +2739,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					out.writeBytes(containerString);
 				}
 			}
-			
+			}
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
 			throw new CoreException(status);
@@ -2463,13 +2754,209 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
+	private final class VariablesAndContainersSaveHelper {
+
+		private final HashtableOfObjectToInt classpathEntryIds; // IClasspathEntry -> int
+		private final DataOutputStream out;
+		private final HashtableOfObjectToInt stringIds; // Strings -> int
+
+		VariablesAndContainersSaveHelper(DataOutputStream out) {
+			super();
+			this.classpathEntryIds = new HashtableOfObjectToInt();
+			this.out = out;
+			this.stringIds = new HashtableOfObjectToInt();
+		}
+
+		void save() throws IOException, JavaModelException {
+			saveProjects(JavaModelManager.this.getJavaModel().getJavaProjects());
+			saveVariables(JavaModelManager.this.variables);
+		}
+
+		private void saveAccessRule(IAccessRule rule) throws IOException {
+			saveInt(rule.getKind());
+			savePath(rule.getPattern());
+		}
+
+		private void saveAccessRules(IAccessRule[] rules) throws IOException {
+			int count = rules == null ? 0 : rules.length;
+
+			saveInt(count);
+			for (int i = 0; i < count; ++i)
+				saveAccessRule(rules[i]);
+		}
+
+		private void saveAttribute(IClasspathAttribute attribute)
+				throws IOException {
+			saveString(attribute.getName());
+			saveString(attribute.getValue());
+		}
+
+		private void saveAttributes(IClasspathAttribute[] attributes)
+				throws IOException {
+			int count = attributes == null ? 0 : attributes.length;
+
+			saveInt(count);
+			for (int i = 0; i < count; ++i)
+				saveAttribute(attributes[i]);
+		}
+
+		private void saveClasspathEntries(IClasspathEntry[] entries)
+				throws IOException {
+			int count = entries == null ? 0 : entries.length;
+
+			saveInt(count);
+			for (int i = 0; i < count; ++i)
+				saveClasspathEntry(entries[i]);
+		}
+
+		private void saveClasspathEntry(IClasspathEntry entry)
+				throws IOException {
+			if (saveNewId(entry, this.classpathEntryIds)) {
+				saveInt(entry.getContentKind());
+				saveInt(entry.getEntryKind());
+				savePath(entry.getPath());
+				savePaths(entry.getInclusionPatterns());
+				savePaths(entry.getExclusionPatterns());
+				savePath(entry.getSourceAttachmentPath());
+				savePath(entry.getSourceAttachmentRootPath());
+				savePath(entry.getOutputLocation());
+				this.out.writeBoolean(entry.isExported());
+				saveAccessRules(entry.getAccessRules());
+				this.out.writeBoolean(entry.combineAccessRules());
+				saveAttributes(entry.getExtraAttributes());
+			}
+		}
+
+		private void saveContainers(IJavaProject project, Map containerMap)
+				throws IOException {
+			saveInt(containerMap.size());
+
+			for (Iterator i = containerMap.entrySet().iterator(); i.hasNext();) {
+				Entry entry = (Entry) i.next();
+				IPath path = (IPath) entry.getKey();
+				IClasspathContainer container = (IClasspathContainer) entry.getValue();
+				IClasspathEntry[] cpEntries = null;
+
+				if (container == null) {
+					// container has not been initialized yet, use previous
+					// session value
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
+					container = JavaModelManager.this.getPreviousSessionContainer(path, project);
+				}
+
+				if (container != null)
+					cpEntries = container.getClasspathEntries();
+
+				savePath(path);
+				saveClasspathEntries(cpEntries);
+			}
+		}
+
+		private void saveInt(int value) throws IOException {
+			this.out.writeInt(value);
+		}
+
+		private boolean saveNewId(Object key, HashtableOfObjectToInt map) throws IOException {
+			int id = map.get(key);
+
+			if (id == -1) {
+				int newId = map.size();
+
+				map.put(key, newId);
+
+				saveInt(newId);
+
+				return true;
+			} else {
+				saveInt(id);
+
+				return false;
+			}
+		}
+
+		private void savePath(IPath path) throws IOException {
+			if (path == null) {
+				this.out.writeBoolean(true);
+			} else {
+				this.out.writeBoolean(false);
+				saveString(path.toPortableString());
+			}
+		}
+
+		private void savePaths(IPath[] paths) throws IOException {
+			int count = paths == null ? 0 : paths.length;
+
+			saveInt(count);
+			for (int i = 0; i < count; ++i)
+				savePath(paths[i]);
+		}
+
+		private void saveProjects(IJavaProject[] projects) throws IOException,
+				JavaModelException {
+			int count = projects.length;
+
+			saveInt(count);
+
+			for (int i = 0; i < count; ++i) {
+				IJavaProject project = projects[i];
+
+				saveString(project.getElementName());
+
+				Map containerMap = (Map) JavaModelManager.this.containers.get(project);
+
+				if (containerMap == null) {
+					containerMap = Collections.EMPTY_MAP;
+				} else {
+					// clone while iterating
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
+					containerMap = new HashMap(containerMap);
+				}
+
+				saveContainers(project, containerMap);
+			}
+		}
+
+		private void saveString(String string) throws IOException {
+			if (saveNewId(string, this.stringIds))
+				this.out.writeUTF(string);
+		}
+
+		private void saveVariables(Map map) throws IOException {
+			saveInt(map.size());
+
+			for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+				Entry entry = (Entry) i.next();
+				String varName = (String) entry.getKey();
+				IPath varPath = (IPath) entry.getValue();
+
+				saveString(varName);
+				savePath(varPath);
+			}
+		}
+	}
+
+	private void traceVariableAndContainers(String action, long start) {
+
+		Long delta = new Long(System.currentTimeMillis() - start);
+		Long length = new Long(getVariableAndContainersFile().length());
+		String pattern = "{0} {1} bytes in variablesAndContainers.dat in {2}ms"; //$NON-NLS-1$
+		String message = MessageFormat.format(pattern, new Object[]{action, length, delta});
+
+		System.out.println(message);
+	}
+
 	/**
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
 		
 	    // save variable and container values on snapshot/full save
+		long start = -1;
+		if (VERBOSE)
+			start = System.currentTimeMillis();
 		saveVariablesAndContainers();
+		if (VERBOSE)
+			traceVariableAndContainers("Saved", start); //$NON-NLS-1$
 		
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
 			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
@@ -3044,7 +3531,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
 
 			// retrieve variable values
-			loadVariablesAndContainers();
+			long start = -1;
+			if (VERBOSE)
+				start = System.currentTimeMillis();
+ 			loadVariablesAndContainers();
+ 			if (VERBOSE)
+				traceVariableAndContainers("Loaded", start); //$NON-NLS-1$
 
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
