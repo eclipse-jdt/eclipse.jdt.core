@@ -489,7 +489,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (receiverCast) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
 		if (((CastExpression)this.receiver).expression.resolvedType == this.receiverType) { 
-					scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
+				scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
 		}
 	}		
 	// the case receiverType.isArrayType and token = 'length' is handled by the scope API
