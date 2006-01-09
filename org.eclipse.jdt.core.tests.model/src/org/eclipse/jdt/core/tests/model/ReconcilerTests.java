@@ -118,7 +118,11 @@ protected void assertNoProblem(char[] source, ICompilationUnit unit) throws Inte
 		}
 		// Reconcile again to see if error goes away
 		this.problemRequestor.initialize(source);
-		unit.reconcile(AST.JLS3, true, null, null);
+		unit.getBuffer().setContents(source); // need to set contents again to be sure that following reconcile will be really done
+		unit.reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		if (this.problemRequestor.problemCount > 0) {
 			assertEquals("Working copy should NOT have any problem!", "", this.problemRequestor.problems.toString());
 		}
@@ -2679,20 +2683,18 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			source2
 		);
 		waitUntilIndexesReady();
-
-		// Get working copies and reconcile
 		this.workingCopies = new ICompilationUnit[2];
 		this.wcOwner = new WorkingCopyOwner() {};
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get first working copy and verify that there's no error
 		char[] sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -2703,41 +2705,35 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			"----------\n"
 		);
 
-		// DEBUG
-		JavaModelManager.VERBOSE = true;
-		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = true;
-		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("Running test "+getName()+"...");
-
-		// Delete file and recreate it with secondary outside eclipse
+		// Delete first workding copy file and recreate it with secondary outside eclipse
 		File ioFile = file.getLocation().toFile();
 		ioFile.delete();
 		source1 = 
 			"public class Test {}\n" + 
 			"class Secondary{}\n";
-		String sourceFilePath = ioFile.getCanonicalPath();
-		Util.createFile(sourceFilePath, source1);
-		// Debug
-		System.out.println("File "+sourceFilePath+":");
-		System.out.println(Util.fileContent(sourceFilePath));
+		Util.createFile(ioFile.getCanonicalPath(), source1);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		// Get first working copy and verify that there's still no error
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
+
+		// Get second working copy and verify that there's any longer error
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		assertNoProblem(sourceChars, this.workingCopies[1]);
 	} finally {
-		// DEBUG
-		System.out.println("--------------------------------------------------------------------------------");
-		JavaModelManager.VERBOSE = false;
-		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = false;
-		org.eclipse.jdt.internal.core.NameLookup.VERBOSE = false;
-
 		deleteProject("P1");
 		deleteProject("P2");
 	}
@@ -2761,20 +2757,17 @@ public void testBug118823b() throws CoreException, InterruptedException {
 			source2
 		);
 		waitUntilIndexesReady();
-
-		// Get working copies and reconcile
 		this.workingCopies = new ICompilationUnit[2];
-		this.wcOwner = new WorkingCopyOwner() {};
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get first working copy and verify that there's no error
 		char[] sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -2785,19 +2778,28 @@ public void testBug118823b() throws CoreException, InterruptedException {
 			"----------\n"
 		);
 
-		// Add secondary and verify that there's no longer any error
+		// Modify first working copy and verify that there's still no error
 		source1 = 
 			"public class Test {}\n" + 
 			"class Secondary{}\n";
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		this.workingCopies[0].commitWorkingCopy(true, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
+
+		// Get second working copy and verify that there's any longer error
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		assertNoProblem(sourceChars, this.workingCopies[1]);
 	} finally {
 		deleteProject("P1");
@@ -2823,20 +2825,18 @@ public void testBug118823c() throws CoreException, InterruptedException {
 			source2
 		);
 		waitUntilIndexesReady();
-
-		// Get working copies and reconcile
 		this.workingCopies = new ICompilationUnit[2];
 		this.wcOwner = new WorkingCopyOwner() {};
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get first working copy and verify that there's no error
 		char[] sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, this.problemRequestor, null);
+
+		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -2856,14 +2856,26 @@ public void testBug118823c() throws CoreException, InterruptedException {
 			"/P1/Test.java", 
 			source1
 		);
+
+		// Get first working copy and verify that there's still no error
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[0].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
+		this.workingCopies[0].commitWorkingCopy(true, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
+
+		// Get second working copy and verify that there's any longer error
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[1].reconcile(AST.JLS3, true, null, null);
+		this.workingCopies[1].getBuffer().setContents(source2);
+		this.workingCopies[1].reconcile(AST.JLS3,
+			true, // force problem detection to see errors if any
+			null,	// do not use working copy owner to not use working copies in name lookup
+			null);
 		assertNoProblem(sourceChars, this.workingCopies[1]);
 	} finally {
 		deleteProject("P1");
