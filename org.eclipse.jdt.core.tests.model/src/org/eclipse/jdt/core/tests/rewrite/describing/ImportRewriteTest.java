@@ -355,6 +355,37 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 	
+	public void testAddImports_bug121428() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");		
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, false);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.io.Exception;\n");
+		buf.append("\n");		
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+	
 	public void testAddStaticImports1() throws Exception {
 
 		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);

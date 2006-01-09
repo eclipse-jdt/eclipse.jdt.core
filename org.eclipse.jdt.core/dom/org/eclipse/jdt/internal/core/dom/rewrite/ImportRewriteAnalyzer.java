@@ -458,7 +458,7 @@ public final class ImportRewriteAnalyzer {
 			ImportDeclaration first= (ImportDeclaration) imports.get(0);
 			ImportDeclaration last= (ImportDeclaration) imports.get(imports.size() - 1);
 			
-			int startPos= root.getExtendedStartPosition(first);
+			int startPos= first.getStartPosition(); // no extended range for first: bug 121428
 			int endPos= root.getExtendedStartPosition(last) + root.getExtendedLength(last);
 			int endLine= root.getLineNumber(endPos);
 			if (endLine > 0) {
