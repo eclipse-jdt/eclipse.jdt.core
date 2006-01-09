@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -462,7 +463,31 @@ public class GeneratedSourceFolderManager {
 		if( recreate )
 			ensureGeneratedSourceFolder();
 		
-		removeFolder(srcFolder);
+		// delete the generated source folder as well as
+		// all of its derived ancestors that are containers only to the 
+		// generated source folder
+		if( srcFolder != null ){
+			IFolder folderToDelete = srcFolder;		
+			for( IContainer c = srcFolder.getParent(); 
+			 	 c != null && (c instanceof IFolder); 
+			 	 c = c.getParent() ){
+				
+				try{
+					// members can't be empty, there has to be at least 1.
+					// will only delete the parent if it contains only the 
+					// folder that we want to delete.
+					if( c.isDerived() && c.members().length == 1 ){
+						folderToDelete = (IFolder)c;
+					}
+					else
+						break;
+				}catch(CoreException e){
+					AptPlugin.log(e, "failure while accessing member of " + c.getName() ); //$NON-NLS-1$
+					break;
+				}
+			}
+			removeFolder(folderToDelete);
+		}
 	}
 
 	/**
