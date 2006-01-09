@@ -67,7 +67,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public final class ImportRewrite {
 	
 	/**
-	 * A {@link ImportRewriteContext} can optionally be used in e.g. {@link ImportRewrite#addImport(String, ImportRewriteContext)} to
+	 * A {@link ImportRewrite.ImportRewriteContext} can optionally be used in e.g. {@link ImportRewrite#addImport(String, ImportRewrite.ImportRewriteContext)} to
 	 * give more information about the types visible in the scope. These types can be for example inherited inner types where it is
 	 * unnecessary to add import statements for. 
 	 * 
