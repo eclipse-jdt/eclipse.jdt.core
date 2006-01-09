@@ -56,6 +56,8 @@
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING
  *     IBM Corporation - added the following constants:
  *                                 TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_PARAMETER_ASSIGNMENT
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -574,6 +576,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.2
 	 */
 	public static final String COMPILER_PB_FATAL_OPTIONAL_ERROR = PLUGIN_ID + ".compiler.problem.fatalOptionalError"; //$NON-NLS-1$	
+	/**
+	 * Possible configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_PARAMETER_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.parameterAssignment"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2262,6 +2270,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
+	 * COMPILER / Reporting Parameter Assignment
+	 *    When enabled, the compiler will issue an error or a warning if a parameter is
+	 *    assigned to.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.parameterAssignment"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:         "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"

@@ -62,6 +62,17 @@ The former API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc
 corresponding to the component type of the array binding. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=120264">120264</a> for details.
 This API is still subject to change before 3.2 release.
 </li>
+<li>
+Added optional compiler diagnosis for signaling method parameter assignments.
+<pre>
+* COMPILER / Reporting Parameter Assignment
+*    When enabled, the compiler will issue an error or a warning if a parameter is
+*    assigned to.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.parameterAssignment"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

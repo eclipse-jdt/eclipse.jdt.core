@@ -888,6 +888,7 @@ public class CompilerOptions {
 			OPTION_ReportNonStaticAccessToStatic,
 			OPTION_ReportNullReference,
 			OPTION_ReportOverridingPackageDefaultMethod,
+			OPTION_ReportParameterAssignment,
 			OPTION_ReportPossibleAccidentalBooleanAssignment,
 			OPTION_ReportSyntheticAccessEmulation,
 			OPTION_ReportTypeParameterHiding,
@@ -903,7 +904,6 @@ public class CompilerOptions {
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportVarargsArgumentNeedCast,
 			OPTION_ReportUnhandledWarningToken,
-			OPTION_ReportParameterAssignment,
 		};
 		return result;
 	}
@@ -955,8 +955,6 @@ public class CompilerOptions {
 					return "unchecked"; //$NON-NLS-1$
 				case (int) UnusedLabel:
 					return "unused"; //$NON-NLS-1$
-				case (int) (ParameterAssignment >>> 32) :
-					return "paramAssign"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -992,10 +990,6 @@ public class CompilerOptions {
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
 					return NonExternalizedString;
-				break;
-			case 'p' :
-				if ("paramAssign".equals(warningToken)) //$NON-NLS-1$
-					return ParameterAssignment;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
