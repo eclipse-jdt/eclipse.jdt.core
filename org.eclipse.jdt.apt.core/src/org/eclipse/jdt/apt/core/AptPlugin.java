@@ -43,11 +43,13 @@ public class AptPlugin extends Plugin {
 	public static final int STATUS_CANTLOADPLUGINFACTORY = 3;
 	public static final String ERRTXT_NOTOOLSJAR = Messages.AptPlugin_couldNotFindToolsDotJar;
 	
-	public static final String APT_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
+	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 	/** Marker ID used for build problem, e.g., missing factory jar */
-	public static final String APT_BUILD_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$
+	public static final String APT_LOADER_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$
 	/** Marker ID used for configuration problem, e.g generated source folder not on classpath */
 	public static final String APT_CONFIG_PROBLEM_MARKER = PLUGIN_ID + ".configproblem"; //$NON-NLS-1$
+	/** Marker ID used for posting problems during reconcile/build */
+	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$	
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	

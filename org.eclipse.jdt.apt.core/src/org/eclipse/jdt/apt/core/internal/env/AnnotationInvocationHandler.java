@@ -65,7 +65,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
         
         final String qName = retType.getTypeDeclaration().getQualifiedName();
         // type of annotation member is java.lang.Class
-        if( retType.isClass() && JAVA_LANG_CLASS.equals(qName) ){ //$NON-NLS-1$
+        if( retType.isClass() && JAVA_LANG_CLASS.equals(qName) ){ 
             // need to figure out the class that's being accessed
             final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
             TypeMirror mirrorType = null;
@@ -80,7 +80,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
             final ITypeBinding leafType = retType.getElementType();
             final String leafQName = leafType.getTypeDeclaration().getQualifiedName();
             // type of annotation member is java.lang.Class[]
-            if( leafType.isClass() && JAVA_LANG_CLASS.equals(leafQName) ){ //$NON-NLS-1$
+            if( leafType.isClass() && JAVA_LANG_CLASS.equals(leafQName) ){ 
                 final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
                 final Collection<TypeMirror> mirrorTypes;
                 if( classTypes == null || classTypes.length == 0 )

@@ -44,7 +44,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			try
 			{ 
 				if( AptPlugin.DEBUG )
-					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
+					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$
 				final PreBuildVisitor visitor = new PreBuildVisitor();
 				event.getDelta().accept( visitor );
 				addGeneratedSrcFolderTo(visitor.getProjectsThatNeedGenSrcFolder());

@@ -191,8 +191,8 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
         return new SourcePositionImpl(
         		start,
 				node.getLength(),
-				unit.lineNumber(start),
-				unit.columnNumber(start),
+				unit.getLineNumber(start),
+				unit.getColumnNumber(start),
 				this);
     
 	}

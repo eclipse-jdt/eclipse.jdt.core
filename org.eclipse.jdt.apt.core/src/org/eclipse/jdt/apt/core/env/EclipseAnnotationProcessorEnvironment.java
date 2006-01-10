@@ -24,17 +24,12 @@ public interface EclipseAnnotationProcessorEnvironment extends
 		AnnotationProcessorEnvironment 
 {	
 	/**
+	 * Return the AST of the file currently being processed. 
 	 * @return the root of the fully flushed out DOM/AST of the file that is currently being processed.	 
-	 *         This AST will not contain any binding information. 
+	 *         This AST will contain binding information.
+	 *         Return <code>null</code> for if called by a batch processor. 
 	 */	
 	CompilationUnit getAST();
-	
-	/**
-	 * @return the root of an abridged AST of the file that is currently being processed.
-	 * 		   This AST will contain binding information, but method bodies and imports
-	 * 		   may be removed for performance reasons
-	 */
-	CompilationUnit getAbridgedASTWithBindings();
 	
 	/**
 	 * @return a messager for registering diagnostics.

@@ -92,7 +92,7 @@ public class APTQuickFixProcessor implements IQuickFixProcessor {
     private void addProposalsFromProviders(String key, IInvocationContext context, 
             List<IProblemLocation> sortedLocations, List<IJavaCompletionProposal> proposals ) throws CoreException
     {
-        List<IAPTQuickFixProvider> providers = fFixProviders.get(key); //$NON-NLS-2$
+        List<IAPTQuickFixProvider> providers = fFixProviders.get(key); 
         for (IAPTQuickFixProvider fix : providers)
         {
             IJavaCompletionProposal [] fixProposals = fix.getProposals(context, 

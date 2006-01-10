@@ -12,7 +12,6 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,20 +23,23 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
-import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
+import org.eclipse.jdt.apt.core.internal.env.CompilationProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.ReconcileProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-import org.eclipse.jdt.apt.core.util.ScannerUtil;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
+import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -45,47 +47,76 @@ import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.RoundCompleteListener;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-/*package*/ class APTDispatchRunnable implements IWorkspaceRunnable
-{	
-	public static final APTResult EMPTY_APT_RESULT = new APTResult();
-	public static final IFile[] NO_FILES = new IFile[0];
-	// The files that requires processing.
-	private IFile[] /*final*/ _allFilesRequireProcessing = null;
-	// The original set of files - <code>_allFilesRequireProcessing</code> 
-	private /*final*/ IFile[] _remainingFiles = null;
-	private final ICompilationUnit _compilationUnit;
+public class APTDispatchRunnable implements IWorkspaceRunnable
+{
+	private static final ICompilationParticipantResult[] NO_FILES_TO_PROCESS = new ICompilationParticipantResult[0];
+	private /*final*/ ICompilationParticipantResult[] _filesWithAnnotation = null;
+	// TODO: This is not set correctly since we don't have the correct API from jdt.core
+	private /*final*/ IFile[] _filesWithoutAnnotation = null;
 	private final AptProject _aptProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
+	/** Batch processor dispatched in the previous rounds */
 	private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
-	private  APTResult _result;
+	/** Batch processor dispatched in the current round */
+	private Set<AnnotationProcessorFactory> _currentDispatchBatchFactories = Collections.emptySet();
 	private final boolean _isFullBuild;
 	
-	/*package*/ APTDispatchRunnable( 
-			IFile[] files, 
+	
+	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
+			ICompilationParticipantResult[] filesWithAnnotations, 
+			AptProject aptProject, 
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
+			boolean isFullBuild){
+		
+		 if( filesWithAnnotations == null ){
+			 filesWithAnnotations = NO_FILES_TO_PROCESS;
+		 }
+		// If we're building, types can be generated, so we
+		// want to run this as an atomic workspace operation
+		 APTDispatchRunnable runnable = new APTDispatchRunnable( filesWithAnnotations, aptProject, factories, dispatchedBatchFactories, isFullBuild );
+		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		 try {
+			 workspace.run(runnable, aptProject.getJavaProject().getResource(), IWorkspace.AVOID_UPDATE, null);
+		 }
+		 catch (CoreException ce) {
+			 AptPlugin.log(ce, "Could not run APT"); //$NON-NLS-1$
+		 }
+		 return runnable._currentDispatchBatchFactories;
+	}
+	
+	public static void runAPTDuringReconcile(
+			ReconcileContext reconcileContext,
+			AptProject aptProject, 
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
+	{
+		// Reconciling, so we do not want to run this as an atomic workspace
+		// operation. If we do, it is easy to have locking issues when someone
+		// calls a reconcile from within a workspace lock
+		APTDispatchRunnable runnable = new APTDispatchRunnable( aptProject, factories );	
+		runnable.reconcile(reconcileContext, aptProject.getJavaProject());
+	}
+	
+	/** create a runnable used during build */
+	private APTDispatchRunnable( 
+			ICompilationParticipantResult[] filesWithAnnotation, 
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 			boolean isFullBuild)
 	{
-		assert files != null : "missing files"; //$NON-NLS-1$
-		_compilationUnit = null;
-		filterFilesForProcessing(files);
+		assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$
+		_filesWithAnnotation = filesWithAnnotation;
 		_aptProject = aptProject;
 		_factories = factories;
 		_dispatchedBatchFactories = dispatchedBatchFactories;
 		_isFullBuild = isFullBuild;
 	}	
-	/*package*/ APTDispatchRunnable( 
-			ICompilationUnit cu, 
-			AptProject aptProject, 
+	/** create a runnable used during reconcile */
+	private APTDispatchRunnable(
+			AptProject aptProject,
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
-	{
-		_compilationUnit = cu;
-		final IFile file = (IFile)cu.getResource();
-		final boolean hasAnnotation = ScannerUtil.hasAnnotationInstance(file);
-		_allFilesRequireProcessing = hasAnnotation ?
-				new IFile[]{file} : NO_FILES;
-		_remainingFiles = hasAnnotation ? NO_FILES : new IFile[]{file};
+	{	
 		_aptProject = aptProject;
 		_factories = factories;
 		_isFullBuild = false;
@@ -94,43 +125,34 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_dispatchedBatchFactories = Collections.emptySet();
 	}
 	
-	public APTResult getResult() { return _result; }
+	private void reconcile(ReconcileContext reconcileContext,
+			   IJavaProject javaProject)
+	{
+		if (_factories.size() == 0) {
+			if (AptPlugin.DEBUG)
+				trace("runAPT: leaving early because there are no factories", //$NON-NLS-1$
+						null);
+			return;
+		}
+		ReconcileProcessorEnv processorEnv = CompilationProcessorEnv
+				.newReconcileEnv(reconcileContext, javaProject);
+		dispatchToFileBasedProcessor(processorEnv);
+
+		final List<? extends CategorizedProblem> problemList = processorEnv
+				.getProblems();
+		final int numProblems = problemList.size();
+		if (numProblems > 0) {
+			final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
+			reconcileContext.putProblems(
+					AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
+							.toArray(aptCatProblems));
+		}
+		processorEnv.close();
+	}	
 	
-	private void filterFilesForProcessing(final IFile[] orig)
-	{			
-		int numFiles = orig.length;
-		if( numFiles == 0 ){
-			_allFilesRequireProcessing = NO_FILES;
-			_remainingFiles = orig;
-			return;
-		}
-		int count = 0;
-		boolean[] needProcess = new boolean[numFiles];
-		for( int i=0; i<numFiles; i++ ){
-			if( ScannerUtil.hasAnnotationInstance(orig[i]) ){
-				count ++;
-				needProcess[i] = true;
-			}
-			else{
-				needProcess[i] = false;
-			}
-		}
-		if( count == 0 ){
-			_allFilesRequireProcessing = NO_FILES;
-			_remainingFiles = orig;
-			return;
-		}
-		
-		_allFilesRequireProcessing = new IFile[count];
-		_remainingFiles = count == numFiles ? NO_FILES : new IFile[numFiles-count];
-		int pIndex = 0;
-		int rIndex = 0;
-		for( int i=0; i<numFiles; i++ ){
-			if( needProcess[i] )
-				_allFilesRequireProcessing[pIndex++] = orig[i];
-			else
-				_remainingFiles[rIndex++] = orig[i];
-		}
+	public void run(IProgressMonitor monitor) 
+	{	
+		build();
 	}
 	
 	/**
@@ -142,16 +164,18 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * 1) There are files with annotations 
 	 * 2) There are factories dispatched in an earlier round
 	 */
-	private boolean shouldProcess()
+	private boolean shouldBuild()
 	{
 		if( (_factories == null || _factories.size() == 0) && _dispatchedBatchFactories.isEmpty() )
 			return false;
-		return _allFilesRequireProcessing.length > 0 || !_dispatchedBatchFactories.isEmpty() ;
+	
+		int totalFiles = _filesWithAnnotation == null ? 0 : _filesWithAnnotation.length;
+		return totalFiles > 0 || !_dispatchedBatchFactories.isEmpty();
 	}
 	
-	public void run(IProgressMonitor monitor) 
-	{	
-		if ( !shouldProcess() )
+	private void build(){
+	
+		if ( !shouldBuild() )
 		{
 			// tracing
 			if ( AptPlugin.DEBUG ) 
@@ -164,50 +188,18 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				trace( "run():  leaving early because there are " + msg, //$NON-NLS-1$
 					   null);
 			}
-
-			Set<IFile> allDeletedFiles = new HashSet<IFile>();
-			if( !_isFullBuild ){
-				for( int i=0, len = _allFilesRequireProcessing.length; i<len; i++ ){
-					IFile f = _allFilesRequireProcessing[i];
-					final Set<IFile> deletedFiles = 
-						cleanupAllGeneratedFilesForParent( f, _compilationUnit, null );
-					if( deletedFiles != null )
-						allDeletedFiles.addAll(deletedFiles);
-				}
-				for( int i=0, len=_remainingFiles.length; i<len; i++ ){
-					IFile f = _remainingFiles[i];
-					final Set<IFile> deletedFiles = 
-						cleanupAllGeneratedFilesForParent( f, _compilationUnit, null );
-					if( deletedFiles != null )
-						allDeletedFiles.addAll(deletedFiles);
-				}
-			}
-			
-			if ( allDeletedFiles.size() == 0 )
-				_result =  EMPTY_APT_RESULT;
-			else
-				_result = new APTResult( Collections.<IFile>emptySet(), 
-										 allDeletedFiles,
-										 Collections.<AnnotationProcessorFactory>emptySet(),
-										 Collections.<IFile, Set<String>>emptyMap(),
-										 Collections.<IFile, List<IProblem>>emptyMap(), 
-										 false );
+		
+			/*Set<IFile> allDeletedFiles = */cleanupAllGeneratedFiles();
+			// TODO: 
+			// 1) don't know how to report this set of files.
+			// 2) currently, we don't get called unless there are files with annotations.
 		}
 		else
 		{
-			ProcessorEnvImpl processorEnv;
-			
-			if ( _compilationUnit != null )
-			{
-				processorEnv = ProcessorEnvImpl
-					.newReconcileEnv(_compilationUnit, _aptProject.getJavaProject());
-			}
-			else
-			{
-				processorEnv = ProcessorEnvImpl
-					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _aptProject.getJavaProject());
-			}			
-			_result = runAPT(_factories, processorEnv);
+			assert _filesWithAnnotation != null :
+				   "should never be invoked unless we are in build mode!"; //$NON-NLS-1$
+			ProcessorEnvImpl processorEnv = ProcessorEnvImpl.newBuildEnv( _filesWithAnnotation, _filesWithoutAnnotation, _aptProject.getJavaProject());
+			build(processorEnv); 
 		}
 	}
 	
@@ -215,54 +207,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * @param factories
 	 * @return <code>true</code> iff there are factories that can only be run in batch mode.
 	 */
-	public static boolean hasBatchFactory(final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
+	private boolean hasBatchFactory()
 	{
-		for( FactoryPath.Attributes attr : factories.values() ){
+		for( FactoryPath.Attributes attr : _factories.values() ){
 			if( attr.runInBatchMode() )
 				return true;
 		}
 		return false;
 		
-	}
-	
-	private static void addFileWithMissingTypeError(
-			final IFile file, 
-			final List<IFile> filesWithMissingType,
-			final List<ICompilationUnit> unitsForFilesWithMissingType,
-			final ProcessorEnvImpl processorEnv)
-	{
-		if( processorEnv.getPhase() != Phase.BUILD )
-			return;
-		final CompilationUnit domUnit = processorEnv.getAstCompilationUnit(file);
-		assert domUnit != null : "cannot locate compilation unit for " + file.getName(); //$NON-NLS-1$
-		final IProblem[] problems = domUnit.getProblems();
-		if(problems == null)
-			return;
-		for( IProblem problem : problems ){
-			if( problem.getID() == IProblem.UndefinedType ){						
-				filesWithMissingType.add(file);
-				final ICompilationUnit unit = processorEnv.getICompilationUnitForFile(file);
-				assert unit != null : "cannot locate ICompilationUnit for file " + file.getName(); //$NON-NLS-1$
-				unitsForFilesWithMissingType.add(unit);
-				if( AptPlugin.DEBUG )
-					AptPlugin.trace(unit.getElementName() + " has missing type " + problem.getMessage() ); //$NON-NLS-1$
-				break;
-			}
-		}	
-	}
-	
-	private static void addAllFilesWithMissingTypeError(
-			final List<IFile> filesWithMissingType,
-			final List<ICompilationUnit> unitsForFilesWithMissingType,
-			final ProcessorEnvImpl processorEnv)
-	{
-		if( processorEnv.getPhase() != Phase.BUILD )
-			return;
-		final IFile[] files = processorEnv.getFiles();
-		for( int i=0, len=files.length; i<len; i++ ){
-			final IFile file = files[i];
-			addFileWithMissingTypeError(file, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
-		}
 	}
 	
 	/**
@@ -273,78 +225,111 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * Return <code>false</code> otherwise. Return <code>false</code> if
 	 * there are no batch processors.
 	 */
-	private boolean shouldDispatchToBatchProcessor(final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
-										 		   final ProcessorEnvImpl processorEnv )
+	private boolean shouldDispatchToBatchProcessor(final CompilationProcessorEnv processorEnv )
 	{	
-		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory(factories) );
+		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory() );
 	}
 	
-	private void runAPTInFileBasedMode(
-			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
-			final ProcessorEnvImpl processorEnv,
-			final List<IFile> filesWithMissingType,
-			final List<ICompilationUnit> unitsForFilesWithMissingType)
+	private void runAPTInFileBasedMode(final ProcessorEnvImpl processorEnv,
+									   final Map<IFile, Set<IFile>> lastGeneratedFiles)
 	{
-		final IFile[] files = processorEnv.getFiles();
-		for (IFile curFile : files ) {
-			processorEnv.setFileProcessing(curFile);
-			Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypesInFile();
-			for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : factories.entrySet() ){
-				if( entry.getValue().runInBatchMode() ) continue;
-				AnnotationProcessorFactory factory = entry.getKey();
-				Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
-				if( factoryDecls != null ){
-					if(factoryDecls.size() == 0 ){
-						factoryDecls = new HashSet(annotationDecls.values());
-						annotationDecls.clear();
-					}
-				}
-				if (factoryDecls != null && factoryDecls.size() > 0) {
-					final AnnotationProcessor processor = factory
-							.getProcessorFor(factoryDecls, processorEnv);
-					if (processor != null)
-					{
-						if ( AptPlugin.DEBUG ) {
-							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile, //$NON-NLS-1$ //$NON-NLS-2$ 
-									processorEnv); 
-						}
-						processor.process();						
-					}
-				}
-	
-				if (annotationDecls.isEmpty())
-					break;
-			}
-			addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
-			
-			if( ! annotationDecls.isEmpty() )
-				; // TODO: (theodora) log unclaimed annotations.
-		}	
+		final ICompilationParticipantResult[] cpResults = processorEnv.getFilesWithAnnotation();
+		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		for (ICompilationParticipantResult curResult : cpResults ) {			
+			processorEnv.beginFileProcessing(curResult);
+			dispatchToFileBasedProcessor(processorEnv);
+			final IFile curFile = curResult.getFile();
+			reportResult(
+					curResult,
+					lastGeneratedFiles.get(curFile),
+					processorEnv.getAllGeneratedFiles(),
+					processorEnv.getModifiedGeneratedFiles(),
+					processorEnv.getProblems(),
+					processorEnv.getTypeDependencies(),
+					gfm,
+					processorEnv);
+			processorEnv.completedFileProcessing();
+		}
 	}
 	
 	/**
-	 * mixed mode - allow batch processor to be run as well as filed based ones.
-	 * @param factories
+	 * @param curResult
+	 * @param lastGeneratedFiles files generated from previous apt run.
+	 * @param generatedFiles all files generated from current apt run.
+	 * @param modifiedGeneratedFiles new generated files or files differs from those from
+	 *        previous run.   
+	 * @param problems problems from current apt run.
+	 * @param deps
+	 * @param gfm
 	 * @param processorEnv
-	 * @param filesWithMissingType at return contains files (<code>IFile</code>) that has 
-	 * missing types.
+	 */
+	private void reportResult(
+			ICompilationParticipantResult curResult,
+			Set<IFile> lastGeneratedFiles,
+			Set<IFile> generatedFiles,
+			Set<IFile> modifiedGeneratedFiles,
+			List<? extends CategorizedProblem> problems,
+			Set<String> deps,
+			GeneratedFileManager gfm, 
+			ProcessorEnvImpl processorEnv){
+		
+		
+		if (lastGeneratedFiles == null)
+			lastGeneratedFiles = Collections.emptySet();
+		if (generatedFiles == null )
+			generatedFiles = Collections.emptySet();
+		final IFile file = curResult.getFile();
+		// figure out exactly what got deleted
+		final Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( 
+				file, 
+				lastGeneratedFiles, 
+				generatedFiles, 
+				gfm,
+				processorEnv,
+				null);
+		// report newly created or modified generated files
+		int numNewFiles = modifiedGeneratedFiles.size();
+		if( numNewFiles > 0 ){
+			final IFile[] newFilesArray = new IFile[numNewFiles];
+			curResult.recordAddedGeneratedFiles(modifiedGeneratedFiles.toArray(newFilesArray));
+		}
+		
+		// report deleted file.
+		int numDeletedFiles = deletedFiles.size();
+		if(numDeletedFiles > 0){
+			final IFile[] deletedFilesArray = new IFile[numDeletedFiles];
+			curResult.recordDeletedGeneratedFiles(deletedFiles.toArray(deletedFilesArray));
+		}
+		
+		// report problems
+		final int numProblems = problems.size();
+		if( numProblems > 0 ){
+			final CategorizedProblem[] catProblemsArray = new CategorizedProblem[numProblems];
+			curResult.recordNewProblems(problems.toArray(catProblemsArray));
+		}
+		
+		// report dependency
+		final int numDeps = deps.size();
+		if( numDeps > 0 ){
+			final String[] depsArray = new String[numDeps];
+			curResult.recordDependencies(deps.toArray(depsArray));
+		}
+	}
+							  
+	
+	/**
+	 * mixed mode - allow batch processor to be run as well as filed based ones.	
+	 * @param processorEnv
 	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the 
 	 * set of batch factories that has been dispatched.
-	 * @param sourceForFilesWithMissingType at return contains source (<code>char[]</code>)
-	 * for files that has missing types. Parallel to entries in <code>filesWithMissingType</code> 
-	 * @param internalRound the current round number, 0-based.
 	 */
 	private void runAPTInMixedMode(
-			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
-			final Set<AnnotationProcessorFactory> currentRoundDispatchedBatchFactories,
-			final ProcessorEnvImpl processorEnv,
-			final List<IFile> filesWithMissingType,
-			final List<ICompilationUnit> unitsForFilesWithMissingType,
-			final int internalRound)
+			final Map<IFile, Set<IFile>> lastGeneratedFiles,
+			final ProcessorEnvImpl processorEnv)
 	{
-		final IFile[] files = processorEnv.getFiles();
-		final Map<IFile, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
-			new HashMap<IFile, Set<AnnotationTypeDeclaration>>(files.length * 4/3 + 1);
+		final ICompilationParticipantResult[] cpResults = processorEnv.getFilesWithAnnotation();
+		final Map<ICompilationParticipantResult, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
+			new HashMap<ICompilationParticipantResult, Set<AnnotationTypeDeclaration>>(cpResults.length * 4/3 + 1);
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
 		
@@ -361,13 +346,13 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
-			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );
+			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( _factories.size() * 4/3 + 1 );
 		
 		// batch processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> batchFactory2Annos =
-			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );		
+			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( _factories.size() * 4/3 + 1 );		
 		
-		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : factories.entrySet() ){
+		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
 			AnnotationProcessorFactory factory = entry.getKey();
 			Set<AnnotationTypeDeclaration> annotationTypes = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( annotationTypes != null ){
@@ -393,19 +378,19 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		if( ! annotationDecls.isEmpty() )
 			; // TODO: (theodora) log unclaimed annotations.
 		
-		addAllFilesWithMissingTypeError(filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
-		
 		// Dispatch to the batch process factories first.
-		// Batch processors only get executed on a full/clean build and only get called once
-		// within one round APT dispatch.		
-		if( internalRound == 0 ){
+		// Batch processors only get executed on a full/clean build
+		if( !batchFactory2Annos.isEmpty() || 
+			(_dispatchedBatchFactories != null && !_dispatchedBatchFactories.isEmpty()) ){ 
+				
+			processorEnv.beginBatchProcessing();
 			if( !batchFactory2Annos.isEmpty()){
-				processorEnv.setBatchProcessing();
 				// Once we figure out which factory claims what annotation,
 				// the order of the factory doesn't matter.
 				// But in order to make things consists between runs, will 
 				// dispatch base on factory order.
-				for(AnnotationProcessorFactory factory : factories.keySet() ){			
+				_currentDispatchBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
+				for(AnnotationProcessorFactory factory : _factories.keySet() ){			
 					final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
 					if( annotationTypes == null ) continue;
 					final AnnotationProcessor processor = 
@@ -414,14 +399,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 						if ( AptPlugin.DEBUG ) 
 							trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 									processorEnv);
-						currentRoundDispatchedBatchFactories.add(factory);
+						_currentDispatchBatchFactories.add(factory);
 						processor.process();
 					}
-				}			
-			}
-			processorEnv.setBatchProcessing();
+				}
+			}	
+			// We have to dispatch to factories even though we may not have discovered any annotations.
+			// This is a documented APT behavior that we have to observe. 
+			// TODO: where do we put the results in the case?
 			for( AnnotationProcessorFactory prevRoundFactory : _dispatchedBatchFactories ){
-				if(currentRoundDispatchedBatchFactories.contains(prevRoundFactory))
+				if(_currentDispatchBatchFactories.contains(prevRoundFactory))
 					continue;
 				final AnnotationProcessor processor = 
 					prevRoundFactory.getProcessorFor(Collections.<AnnotationTypeDeclaration>emptySet(), processorEnv);
@@ -432,21 +419,39 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					processor.process();
 				}
 			}
+			
+			// Currently, we are putting everything in the first file with annotations.
+			// TODO: is this the correct thing to do? 
+			// what about the case where there are no files with annotations? 
+			// where to put the result? 
+			if( cpResults.length >  0 ){
+				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+				reportResult(
+						cpResults[0],  // just put it all in 
+						lastGeneratedFiles.get(null), 
+						processorEnv.getAllGeneratedFiles(),
+						processorEnv.getModifiedGeneratedFiles(), 
+						processorEnv.getProblems(),  // this is empty in batch mode.
+						processorEnv.getTypeDependencies(),  // this is empty in batch mode.
+						gfm, 
+						processorEnv);
+				processorEnv.completedBatchProcessing();
+			}
 		}
 		
 		// Now, do the file based dispatch
 		if( !fileFactory2Annos.isEmpty() ){
-			for( int fileIndex=0, numFiles=files.length; fileIndex<numFiles; fileIndex ++ ){
-				final Set<AnnotationTypeDeclaration> annotationTypesInFile = file2AnnotationDecls.get(files[fileIndex]);
+			for(ICompilationParticipantResult curResult : cpResults ){
+				final Set<AnnotationTypeDeclaration> annotationTypesInFile = file2AnnotationDecls.get(curResult);
 				if( annotationTypesInFile == null || annotationTypesInFile.isEmpty() )
 					continue;
-				for(AnnotationProcessorFactory factory : factories.keySet() ){
+				for(AnnotationProcessorFactory factory : _factories.keySet() ){
 					final Set<AnnotationTypeDeclaration> annotationTypesForFactory = fileFactory2Annos.get(factory);
 					if( annotationTypesForFactory == null || annotationTypesForFactory.isEmpty() ) 
 						continue;
 					final Set<AnnotationTypeDeclaration> intersect = setIntersect(annotationTypesInFile, annotationTypesForFactory);
 					if( intersect != null && !intersect.isEmpty() ){
-						processorEnv.setFileProcessing(files[fileIndex]);
+						processorEnv.beginFileProcessing(curResult);
 						final AnnotationProcessor processor = 
 							factory.getProcessorFor(intersect, processorEnv);
 						if( processor != null ){
@@ -457,107 +462,83 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 						}
 					}
 				}
+				
+				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+				final IFile curFile = curResult.getFile();
+				reportResult(
+						curResult,
+						lastGeneratedFiles.get(curFile),
+						processorEnv.getAllGeneratedFiles(),
+						processorEnv.getModifiedGeneratedFiles(),
+						processorEnv.getProblems(),
+						processorEnv.getTypeDependencies(),
+						gfm,
+						processorEnv);
+				processorEnv.completedFileProcessing();
 			}
 		}
 	}
 	
-	private APTResult runAPT(
-			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
-			final ProcessorEnvImpl processorEnv) 
-	{
-		final List<IFile> filesWithMissingType = new ArrayList<IFile>();
-		final List<ICompilationUnit> unitsForFiles = new ArrayList<ICompilationUnit>();
-		final APTResult result = runAPT(factories, processorEnv, filesWithMissingType, unitsForFiles, 0);
-	
-		if( processorEnv.getPhase() == Phase.BUILD )
-		{	
-			boolean generatedTypes = result.hasGeneratedTypes();
-			int internalRound = 1;
-			while( generatedTypes && !filesWithMissingType.isEmpty() ){
-				// compile all generated files and try to satisfy the missing generated types.
-							
-				final int numFiles = filesWithMissingType.size();
-				assert numFiles == unitsForFiles.size() :
-					"size mismatch"; //$NON-NLS-1$			
-				// we are about to re-process the file, wipe out the problems and
-				// type dependencies recorded from the previous run.
-				for( IFile file :  filesWithMissingType ){
-					result.removeDependenciesFrom(file);
-					result.removeProblemsFrom(file);
+	private void dispatchToFileBasedProcessor(
+			final CompilationProcessorEnv processorEnv){
+		
+		Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypes();
+		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
+			if( entry.getValue().runInBatchMode() ) continue;
+			AnnotationProcessorFactory factory = entry.getKey();
+			Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
+			if( factoryDecls != null ){
+				if(factoryDecls.size() == 0 ){
+					factoryDecls = new HashSet(annotationDecls.values());
+					annotationDecls.clear();
 				}
-				
-				final IFile[] files = new IFile[numFiles];
-				final ICompilationUnit[] units = new ICompilationUnit[numFiles];
-				for(int i=0; i<numFiles; i++ ){
-					files[i] = filesWithMissingType.get(i);
-					units[i] = unitsForFiles.get(i);
-				}
-				ProcessorEnvImpl newEnv = ProcessorEnvImpl.newBuildEnvInternalRounding(
-						files, units, processorEnv.getJavaProject() );
-
-				filesWithMissingType.clear();
-				unitsForFiles.clear();
-				APTResult newResult = runAPT(factories, newEnv, filesWithMissingType, unitsForFiles, internalRound++);
-				// Only have generated types if there are *new* generated files
-				generatedTypes = hasNewFiles(result, newResult);
-				
-				result.merge(newResult);
-				newEnv.close();
 			}
+			if (factoryDecls != null && factoryDecls.size() > 0) {
+				final AnnotationProcessor processor = factory
+						.getProcessorFor(factoryDecls, processorEnv);
+				if (processor != null)
+				{
+					if ( AptPlugin.DEBUG ) {
+						trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + processorEnv.getFile(), //$NON-NLS-1$ //$NON-NLS-2$ 
+								processorEnv); 
+					}
+					processor.process();						
+				}
+			}
+
+			if (annotationDecls.isEmpty())
+				break;
 		}
-	
-		return result;
+		if( ! annotationDecls.isEmpty() )
+			; // TODO: (theodora) log unclaimed annotations.
+		
 	}
 	
 	/**
-	 * Diff the sets of files -- if the new result has
-	 * files that the old one does not, we have new files.
+	 * @param processorEnv 
+	 * @param filesWithMissingType
+	 * @param internalRound
+	 * @param result output parameter
+	 * @return 
 	 */
-	private boolean hasNewFiles(APTResult oldResult, APTResult newResult) {
-		Set<IFile> oldFiles = oldResult.getNewFiles();
-		Set<IFile> newFiles = newResult.getNewFiles();
-		for (IFile file : newFiles) {
-			if (!oldFiles.contains(file)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private APTResult runAPT(
-			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
-			final ProcessorEnvImpl processorEnv,
-			final List<IFile> filesWithMissingType,
-			final List<ICompilationUnit> unitsForFiles,
-			final int internalRound) 
+	private Set<AnnotationProcessorFactory> build(final ProcessorEnvImpl processorEnv)
 	{
 		try {
-			if (factories.size() == 0)
-			{
-				if ( AptPlugin.DEBUG ) 
-					trace( "runAPT: leaving early because there are no factories", //$NON-NLS-1$ 
-							processorEnv );
-				return EMPTY_APT_RESULT;
-			}
-		
-			final IFile[] files = processorEnv.getFiles();
+			final ICompilationParticipantResult[] results = processorEnv.getFilesWithAnnotation();
 			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 			final Map<IFile,Set<IFile>> lastGeneratedFiles = new HashMap<IFile,Set<IFile>>();
-			for( IFile parentIFile : files ){
+			for( ICompilationParticipantResult result : results ){
+				final IFile parentIFile = result.getFile();
 				lastGeneratedFiles.put(parentIFile, gfm.getGeneratedFilesForParent(parentIFile));
 			}
 			
-			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(factories, processorEnv);
-			final Set<AnnotationProcessorFactory> currentRoundDispatchedBatchFactories;
+			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(processorEnv);
 			if( mixedModeDispatch ){
-				currentRoundDispatchedBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
-				runAPTInMixedMode(factories, currentRoundDispatchedBatchFactories, processorEnv, filesWithMissingType, unitsForFiles, internalRound);
+				runAPTInMixedMode(lastGeneratedFiles, processorEnv);
 			}
 			else{
-				currentRoundDispatchedBatchFactories = Collections.emptySet();
-				runAPTInFileBasedMode(factories, processorEnv, filesWithMissingType, unitsForFiles);
+				runAPTInFileBasedMode(processorEnv, lastGeneratedFiles);
 			}
-			
 
 			// notify the processor listeners
 			final Set<AnnotationProcessorListener> listeners = processorEnv
@@ -571,44 +552,23 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					rcListener.roundComplete(event);
 				}
 			}
-
-			final Map<IFile, Set<IFile>> allGeneratedFiles = processorEnv.getAllGeneratedFiles();
-			final Set<IFile> modifiedGeneratedSourceFiles = processorEnv.getModifiedGeneratedSourceFiles();
 			
-			// any files that were generated for this parent on the last
-			// run, but are no longer generated should be removed
 			
-			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
-			Set<IFile> allDeletedFiles = new HashSet<IFile>();
-			for( IFile file : files ){
-				Set<IFile> generatedFiles = allGeneratedFiles.get(file);
-				if (generatedFiles == null)
-					generatedFiles = Collections.emptySet();
-				final Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( 
-							file, 
-							processorEnv.getCompilationUnit(), 
-							lastGeneratedFiles.get(file), 
-							generatedFiles, 
-							gfm,
-							processorEnv);
-				if(deletedFiles != null )
-					allDeletedFiles.addAll(deletedFiles);		
-			}		
 			
-			APTResult result = new APTResult( modifiedGeneratedSourceFiles, 
-											  allDeletedFiles, 
-											  currentRoundDispatchedBatchFactories,
-											  processorEnv.getTypeDependencies(), 
-											  processorEnv.getProblems(), 
-											  processorEnv.hasGeneratedClassFiles() || processorEnv.hasGeneratedSourceFiles());
+			if( _filesWithoutAnnotation != null ){
+				/*final Set<IFile> deletedFiles = */ 
+					cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation, null);
+				// TODO: figure out where to report <code>deletedFiles</code>
+			}
+			
 			processorEnv.close();
-			return result;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
 			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
-		return EMPTY_APT_RESULT;
+		
+		return Collections.emptySet();
 	}
 	
 	/**
@@ -627,32 +587,71 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		}
 		return intersect;
 	}
+	
+	private Set<IFile> cleanupAllGeneratedFiles(){
+		Set<IFile> deletedFiles = cleanupAllGeneratedFilesFrom(_filesWithAnnotation, null);
+		cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation, deletedFiles);
+		return deletedFiles;
+	}
+	
+	private Set<IFile> cleanupAllGeneratedFilesFrom(
+			ICompilationParticipantResult[] cpResults,
+			Set<IFile> deletedFiles){
+		if( deletedFiles == null )
+			deletedFiles = new HashSet<IFile>();
+		if( cpResults != null ){
+			for( ICompilationParticipantResult cpResult : cpResults){
+				IFile f = cpResult.getFile();
+				cleanupAllGeneratedFilesForParent( f, null, deletedFiles );
+			}
+		}
+		return deletedFiles;
+	}
+	
+	private Set<IFile> cleanupAllGeneratedFilesFrom(
+			IFile[] files,
+			Set<IFile> deletedFiles){
+		if( deletedFiles == null )
+			deletedFiles = new HashSet<IFile>();
+		
+		if( files != null ){
+			for(IFile f : files ){				
+				cleanupAllGeneratedFilesForParent( f, null, deletedFiles );
+			}
+		}
+		return deletedFiles;
+	}
+	
+	
 
 	private Set<IFile> cleanupAllGeneratedFilesForParent( 
-			IFile parent, 
-			ICompilationUnit parentCompilationUnit,
-			ProcessorEnvImpl processorEnv)
+			IFile parent,
+			ProcessorEnvImpl processorEnv,
+			Set<IFile> deletedFiles)
 	{
 		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
 		return cleanupNoLongerGeneratedFiles( 
 				parent, 
-				parentCompilationUnit, 
 				lastGeneratedFiles, 
 				Collections.<IFile>emptySet(), 
 				gfm,
-				processorEnv);
+				processorEnv, 
+				deletedFiles);
 	}
 	
-	private Set<IFile> cleanupNoLongerGeneratedFiles( 
-		IFile parentFile, 
-		ICompilationUnit parentCompilationUnit, 
-		Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
-		GeneratedFileManager gfm,		
-		ProcessorEnvImpl processorEnv)
+	// Note: only work under build mode. 
+	private Set<IFile> cleanupNoLongerGeneratedFiles(
+			IFile parentFile,
+			Set<IFile> lastGeneratedFiles, 
+			Set<IFile> newGeneratedFiles,
+			GeneratedFileManager gfm,		
+			ProcessorEnvImpl processorEnv,
+			Set<IFile> deletedFiles)
 	{
-		HashSet<IFile> deletedFiles = new HashSet<IFile>();
-			
+		if( deletedFiles == null )
+			deletedFiles = new HashSet<IFile>();
+		
 		// make a copy into an array to avoid concurrent modification exceptions
 		IFile[] files = lastGeneratedFiles.toArray( new IFile[ lastGeneratedFiles.size() ] );
 		for ( IFile f : files )
@@ -664,19 +663,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							processorEnv );
 				try
 				{
-					// _compialtionUnit == null means we are in a build phase. 
-					if ( (processorEnv != null && processorEnv.getPhase() == Phase.BUILD) || 
-						  _compilationUnit == null )
-					{
-						if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
-							deletedFiles.add( f );
-					}
-					else 
-					{  
-						assert parentCompilationUnit != null : "missing compilation unit"; //$NON-NLS-1$
-						if ( gfm.deleteGeneratedTypeInMemory( f, parentCompilationUnit, null ) )
-							deletedFiles.add( f );
-					}
+					if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
+						deletedFiles.add( f );
 				}
 				catch ( CoreException ce )
 				{
@@ -738,14 +726,23 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return fDecls.isEmpty() ? null : fDecls;
 	}
 	
-	private static void trace( String s, ProcessorEnvImpl processorEnv )
+	private static void trace( String s, CompilationProcessorEnv processorEnv )
 	{
 		if (AptPlugin.DEBUG)
 		{
 			if (processorEnv != null) {
 				s = "[ phase = " + processorEnv.getPhase() + ", file = " + getFileNamesForPrinting(processorEnv) +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
-			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.out.println( "[" + APTDispatchRunnable.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+	}
+	
+	private static String getFileNamesForPrinting(final CompilationProcessorEnv env){
+		if( env instanceof ReconcileProcessorEnv ){
+			return env.getFile().getName();
+		}
+		else{
+			return getFileNamesForPrinting((ProcessorEnvImpl)env);
 		}
 	}
 	
@@ -754,30 +751,28 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * @return the names of the files that we are currently processing. 
 	 */
 	private static String getFileNamesForPrinting(final ProcessorEnvImpl processorEnv){
-		if( processorEnv != null ){
-			final IFile file = processorEnv.getFile();
-			if( file != null )
-				return file.getName();
-		}
-		final IFile[] files = processorEnv.getFiles();
-		final int len = files.length;
+		final IFile file = processorEnv.getFile();
+		if( file != null )
+			return file.getName();
+		final ICompilationParticipantResult[] results = processorEnv.getFilesWithAnnotation();
+		final int len = results.length;
 		switch( len )
 		{
 		case 0:
 			return "no file(s)"; //$NON-NLS-1$
 		case 1:
-			return files[0].getName();
+			return results[0].getFile().getName();
 		default:
 			StringBuilder sb = new StringBuilder();
 			boolean firstItem = true;
-			for (IFile file : files) {
+			for (ICompilationParticipantResult curResult : results) {
 				if (firstItem) {
 					firstItem = false;
 				}
 				else {
 					sb.append(", "); //$NON-NLS-1$
 				}
-				sb.append(file.getName());
+				sb.append(curResult.getFile().getName());
 			}
 			return sb.toString();
 		}

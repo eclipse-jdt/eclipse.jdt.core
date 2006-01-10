@@ -16,12 +16,10 @@ import java.io.StringWriter;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
-import org.eclipse.jdt.core.ICompilationUnit;
 
-
+// note: only works in BUILD phase.
 public class JavaSourceFilePrintWriter extends PrintWriter {
 
 	private final StringWriter _sw;
@@ -37,30 +35,13 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
     }
 	
     public void close()
-    {
-    	
+    {	
     	try {
 	    	String contents = _sw.toString();
 	        super.close();
 	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
-	        Phase phase = _env.getPhase();
-		
-	        FileGenerationResult result = null;
-	        if ( phase == Phase.RECONCILE )
-	        {
-	        	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
-	            result  = gfm.generateFileDuringReconcile( 
-	                parentCompilationUnit, _typeName, contents, parentCompilationUnit.getOwner(), null, null );
-	        }
-	        else if ( phase == Phase.BUILD)	
-	        {
-				result = gfm.generateFileDuringBuild( 
-						_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );
-	        }
-	        else
-	        {
-	            throw new IllegalStateException( "Unexpected phase value: " + phase ); //$NON-NLS-1$
-	        }
+	        FileGenerationResult result = gfm.generateFileDuringBuild( 
+					_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );;
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }

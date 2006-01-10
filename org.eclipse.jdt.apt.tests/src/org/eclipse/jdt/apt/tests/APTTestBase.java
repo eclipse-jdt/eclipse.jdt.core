@@ -203,11 +203,11 @@ public abstract class APTTestBase extends Tests{
 		try {
 			IMarker[] markers = null;
 			int total = 0;
-			final IMarker[] processorMarkers = resource.findMarkers(AptPlugin.APT_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			final IMarker[] processorMarkers = resource.findMarkers(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			total = processorMarkers.length;
 			markers = processorMarkers;
 				
-			final IMarker[] factoryPathMarkers = resource.findMarkers(AptPlugin.APT_BUILD_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);			
+			final IMarker[] factoryPathMarkers = resource.findMarkers(AptPlugin.APT_LOADER_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);			
 			if( factoryPathMarkers.length != 0 ){
 				if( total != 0 ){
 					final int len = factoryPathMarkers.length;

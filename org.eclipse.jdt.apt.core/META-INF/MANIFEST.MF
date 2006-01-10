@@ -25,5 +25,5 @@ Require-Bundle: org.eclipse.jdt.core,
  org.eclipse.core.resources,
  org.apache.ant
 Bundle-Activator: org.eclipse.jdt.apt.core.AptPlugin
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Bundle-Vendor: Eclipse.org

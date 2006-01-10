@@ -108,8 +108,8 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
             final int offset = node.getStartPosition();    		
             return new SourcePositionImpl(offset, 
             		                      node.getLength(), 
-            							  unit.lineNumber(offset), 
-            							  unit.columnNumber(offset),
+            							  unit.getLineNumber(offset), 
+            							  unit.getColumnNumber(offset),
             							  this);
         }
         else

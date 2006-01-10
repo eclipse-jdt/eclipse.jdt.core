@@ -109,8 +109,8 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
             final int start = node.getStartPosition();    		
             return new SourcePositionImpl(start,
 					node.getLength(),
-					unit.lineNumber(start),
-					unit.columnNumber(start),
+					unit.getLineNumber(start),
+					unit.getColumnNumber(start),
 					this);
         }
         return null;

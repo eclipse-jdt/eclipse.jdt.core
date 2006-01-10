@@ -98,7 +98,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		for( IResolvedMemberValuePair pair : pairs ){
 			 final String name = pair.getName();
              if( name == null ) continue;
-             IMethodBinding elementMethod = pair.getMemberBinding();            
+             IMethodBinding elementMethod = pair.getMethodBinding();            
              if( elementMethod != null ){           
                  final EclipseDeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
                  if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  )
@@ -128,8 +128,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			final int offset = astNode.getStartPosition();			
 			return new SourcePositionImpl(astNode.getStartPosition(),
 										  astNode.getLength(),
-						                  unit.lineNumber(offset),
-						                  unit.columnNumber(offset), 
+						                  unit.getLineNumber(offset),
+						                  unit.getColumnNumber(offset), 
 						                  _annotated);
 		}
 		return null;
@@ -154,7 +154,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		for( IResolvedMemberValuePair pair : declaredPairs ){			
 			if( membername.equals(pair.getName()) ){
 				final Object value = pair.getValue();
-				return getValueTypeBinding(value, pair.getMemberBinding().getReturnType());
+				return getValueTypeBinding(value, pair.getMethodBinding().getReturnType());
 			}
 		}
       
