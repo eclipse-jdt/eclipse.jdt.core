@@ -1100,7 +1100,7 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 	if (CharOperation.equals(TypeConstants.SERIALVERSIONUID, field.name)
 			&& field.isStatic()
 			&& field.isFinal()
-			&& BaseTypes.LongBinding == field.type) {
+			&& TypeBinding.LONG == field.type) {
 				return; // do not report unused serialVersionUID field
 	}
 	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
@@ -2532,7 +2532,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		case ProblemReasons.TypeParameterArityMismatch :
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			shownConstructor = problemConstructor.closestMatch;
-			if (shownConstructor.typeVariables == TypeConstants.NoTypeVariables) {
+			if (shownConstructor.typeVariables == Binding.NO_TYPE_VARIABLES) {
 				this.handle(
 					IProblem.NonGenericConstructor,
 					new String[] { 
@@ -2954,7 +2954,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		case ProblemReasons.TypeParameterArityMismatch :
 			problemMethod = (ProblemMethodBinding) method;
 			shownMethod = problemMethod.closestMatch;
-			if (shownMethod.typeVariables == TypeConstants.NoTypeVariables) {
+			if (shownMethod.typeVariables == Binding.NO_TYPE_VARIABLES) {
 				this.handle(
 					IProblem.NonGenericMethod ,
 					new String[] { 
@@ -3516,7 +3516,7 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		case ProblemReasons.TypeParameterArityMismatch :
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			shownConstructor = problemConstructor.closestMatch;
-			if (shownConstructor.typeVariables == TypeConstants.NoTypeVariables) {
+			if (shownConstructor.typeVariables == Binding.NO_TYPE_VARIABLES) {
 				this.handle(
 					IProblem.JavadocNonGenericConstructor,
 					new String[] { 
@@ -3714,7 +3714,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 		case ProblemReasons.TypeParameterArityMismatch :
 			problemMethod = (ProblemMethodBinding) method;
 			shownMethod = problemMethod.closestMatch;
-			if (shownMethod.typeVariables == TypeConstants.NoTypeVariables) {
+			if (shownMethod.typeVariables == Binding.NO_TYPE_VARIABLES) {
 				this.handle(
 					IProblem.JavadocNonGenericMethod ,
 					new String[] { 
@@ -5725,7 +5725,7 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 	if (CharOperation.equals(TypeConstants.SERIALVERSIONUID, field.name)
 			&& field.isStatic()
 			&& field.isFinal()
-			&& BaseTypes.LongBinding == field.type) {
+			&& TypeBinding.LONG == field.type) {
 				return; // do not report unused serialVersionUID field
 	}
 	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
@@ -5756,7 +5756,7 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	
 	// no report for serialization support 'void readObject(ObjectInputStream)'
 	if (!method.isStatic()
-			&& BaseTypes.VoidBinding == method.returnType
+			&& TypeBinding.VOID == method.returnType
 			&& method.parameters.length == 1
 			&& method.parameters[0].dimensions() == 0
 			&& CharOperation.equals(method.selector, TypeConstants.READOBJECT)
@@ -5765,7 +5765,7 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	}
 	// no report for serialization support 'void writeObject(ObjectOutputStream)'
 	if (!method.isStatic()
-			&& BaseTypes.VoidBinding == method.returnType
+			&& TypeBinding.VOID == method.returnType
 			&& method.parameters.length == 1
 			&& method.parameters[0].dimensions() == 0
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEOBJECT)

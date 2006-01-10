@@ -17,7 +17,7 @@ public final class BaseTypeBinding extends TypeBinding {
 
 	BaseTypeBinding(int id, char[] name, char[] constantPoolName) {
 
-		this.tagBits |= IsBaseType;
+		this.tagBits |= TagBits.IsBaseType;
 		this.id = id;
 		this.simpleName = name;
 		this.constantPoolName = constantPoolName;
@@ -49,57 +49,57 @@ public final class BaseTypeBinding extends TypeBinding {
 		if (this == right)
 			return true;
 		if (!right.isBaseType())
-			return this == NullBinding;
+			return this == TypeBinding.NULL;
 
 		switch (right.id) {
-			case T_boolean :
-			case T_byte :
-			case T_char :
+			case TypeIds.T_boolean :
+			case TypeIds.T_byte :
+			case TypeIds.T_char :
 				return false;
-			case T_double :
+			case TypeIds.T_double :
 				switch (id) {
-					case T_byte :
-					case T_char :
-					case T_short :
-					case T_int :
-					case T_long :
-					case T_float :
+					case TypeIds.T_byte :
+					case TypeIds.T_char :
+					case TypeIds.T_short :
+					case TypeIds.T_int :
+					case TypeIds.T_long :
+					case TypeIds.T_float :
 						return true;
 					default :
 						return false;
 				}
-			case T_float :
+			case TypeIds.T_float :
 				switch (id) {
-					case T_byte :
-					case T_char :
-					case T_short :
-					case T_int :
-					case T_long :
+					case TypeIds.T_byte :
+					case TypeIds.T_char :
+					case TypeIds.T_short :
+					case TypeIds.T_int :
+					case TypeIds.T_long :
 						return true;
 					default :
 						return false;
 				}
-			case T_long :
+			case TypeIds.T_long :
 				switch (id) {
-					case T_byte :
-					case T_char :
-					case T_short :
-					case T_int :
+					case TypeIds.T_byte :
+					case TypeIds.T_char :
+					case TypeIds.T_short :
+					case TypeIds.T_int :
 						return true;
 					default :
 						return false;
 				}
-			case T_int :
+			case TypeIds.T_int :
 				switch (id) {
-					case T_byte :
-					case T_char :
-					case T_short :
+					case TypeIds.T_byte :
+					case TypeIds.T_char :
+					case TypeIds.T_short :
 						return true;
 					default :
 						return false;
 				}
-			case T_short :
-				return (id == T_byte);
+			case TypeIds.T_short :
+				return (id == TypeIds.T_byte);
 		}
 		return false;
 	}
@@ -109,28 +109,28 @@ public final class BaseTypeBinding extends TypeBinding {
 		//can "left" store a "right" using some narrowing conversion
 		//(is left smaller than right)
 		switch (left) {
-			case T_boolean :
-				return right == T_boolean;
-			case T_char :
-			case T_byte :
-				if (right == T_byte)
+			case TypeIds.T_boolean :
+				return right == TypeIds.T_boolean;
+			case TypeIds.T_char :
+			case TypeIds.T_byte :
+				if (right == TypeIds.T_byte)
 					return true;
-			case T_short :
-				if (right == T_short)
+			case TypeIds.T_short :
+				if (right == TypeIds.T_short)
 					return true;
-				if (right == T_char)
+				if (right == TypeIds.T_char)
 					return true;
-			case T_int :
-				if (right == T_int)
+			case TypeIds.T_int :
+				if (right == TypeIds.T_int)
 					return true;
-			case T_long :
-				if (right == T_long)
+			case TypeIds.T_long :
+				if (right == TypeIds.T_long)
 					return true;
-			case T_float :
-				if (right == T_float)
+			case TypeIds.T_float :
+				if (right == TypeIds.T_float)
 					return true;
-			case T_double :
-				if (right == T_double)
+			case TypeIds.T_double :
+				if (right == TypeIds.T_double)
 					return true;
 			default :
 				return false;
@@ -141,36 +141,36 @@ public final class BaseTypeBinding extends TypeBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isUncheckedException(boolean)
 	 */
 	public boolean isUncheckedException(boolean includeSupertype) {
-		return this == NullBinding;
+		return this == TypeBinding.NULL;
 	}
 	public static final boolean isWidening(int left, int right) {
 
 		//can "left" store a "right" using some widening conversion
 		//(is left "bigger" than right)
 		switch (left) {
-			case T_boolean :
-				return right == T_boolean;
-			case T_char :
-				return right == T_char;
-			case T_double :
-				if (right == T_double)
+			case TypeIds.T_boolean :
+				return right == TypeIds.T_boolean;
+			case TypeIds.T_char :
+				return right == TypeIds.T_char;
+			case TypeIds.T_double :
+				if (right == TypeIds.T_double)
 					return true;
-			case T_float :
-				if (right == T_float)
+			case TypeIds.T_float :
+				if (right == TypeIds.T_float)
 					return true;
-			case T_long :
-				if (right == T_long)
+			case TypeIds.T_long :
+				if (right == TypeIds.T_long)
 					return true;
-			case T_int :
-				if (right == T_int)
+			case TypeIds.T_int :
+				if (right == TypeIds.T_int)
 					return true;
-				if (right == T_char)
+				if (right == TypeIds.T_char)
 					return true;
-			case T_short :
-				if (right == T_short)
+			case TypeIds.T_short :
+				if (right == TypeIds.T_short)
 					return true;
-			case T_byte :
-				if (right == T_byte)
+			case TypeIds.T_byte :
+				if (right == TypeIds.T_byte)
 					return true;
 			default :
 				return false;

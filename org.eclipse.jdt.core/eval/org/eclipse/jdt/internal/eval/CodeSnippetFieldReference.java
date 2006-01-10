@@ -56,7 +56,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 		}
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		if (valueRequired) {
-			if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+			if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();
@@ -196,7 +196,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// current stack is:
 		// field receiver value
 		if (valueRequired) {
-			if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+			if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();
@@ -219,13 +219,13 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		}
 		if (valueRequired) {
 			if (isStatic) {
-				if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+				if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2();
 				} else {
 					codeStream.dup();
 				}
 			} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-				if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+				if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2_x1();
 				} else {
 					codeStream.dup_x1();
@@ -257,13 +257,13 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		// value field receiver newvalue 				 	generate constant + op
 		// value 											store
 		if (valueRequired) {
-			if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+			if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x1();
 			} else {
 				codeStream.dup_x1();
 			}
 		}
-		if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+		if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 			codeStream.dup2_x1();
 			codeStream.pop2();
 		} else {
@@ -273,7 +273,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		((CodeSnippetCodeStream) codeStream).generateEmulationForField(this.codegenBinding);
 		codeStream.swap();
 		
-		if ((this.codegenBinding.type == LongBinding) || (this.codegenBinding.type == DoubleBinding)) {
+		if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
 			codeStream.dup2_x2();
 		} else {
 			codeStream.dup2_x1();

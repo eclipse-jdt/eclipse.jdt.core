@@ -200,13 +200,13 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		
 		for(int i = this.extendedExceptions.size()-1; i >= 0; i--){
 			switch(Scope.compareTypes(newException, (TypeBinding)this.extendedExceptions.get(i))){
-				case MoreGeneric :
+				case Scope.MORE_GENERIC :
 					this.extendedExceptions.remove(i);
 					break;
-				case EqualOrMoreSpecific :
+				case Scope.EQUAL_OR_MORE_SPECIFIC :
 					isRedundant = true;
 					break;
-				case NotRelated :
+				case Scope.NOT_RELATED :
 					break;
 			}
 		}

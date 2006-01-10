@@ -112,7 +112,7 @@ public void generateCode(
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
 				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
-				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
+				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
 					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
 				}
 				codeStream.aastore();
@@ -227,7 +227,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	}
 	// will check for null after args are resolved
-	TypeBinding[] argumentTypes = NoParameters;
+	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	if (this.arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
 		int length = this.arguments.length;
@@ -340,7 +340,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
-			&& this.binding.parameters == NoParameters 
+			&& this.binding.parameters == Binding.NO_PARAMETERS 
 			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;

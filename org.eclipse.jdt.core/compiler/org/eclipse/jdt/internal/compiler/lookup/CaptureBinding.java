@@ -24,7 +24,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public int position;
 	
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position) {
-		super(WILDCARD_CAPTURE_NAME, null, 0);
+		super(TypeConstants.WILDCARD_CAPTURE_NAME, null, 0);
 		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
@@ -43,7 +43,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			buffer.append(this.sourceType.computeUniqueKey(false/*not a leaf*/));
 			buffer.append('&');
 		}
-		buffer.append(WILDCARD_CAPTURE);
+		buffer.append(TypeConstants.WILDCARD_CAPTURE);
 		buffer.append(this.wildcard.computeUniqueKey(false/*not a leaf*/));
 		buffer.append(this.position);
 		buffer.append(';');
@@ -62,7 +62,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	
 	public char[] genericTypeSignature() {
 		if (this.genericTypeSignature == null) {
-			this.genericTypeSignature = CharOperation.concat(WILDCARD_CAPTURE, this.wildcard.genericTypeSignature());
+			this.genericTypeSignature = CharOperation.concat(TypeConstants.WILDCARD_CAPTURE, this.wildcard.genericTypeSignature());
 		}
 		return this.genericTypeSignature;
 	}
@@ -96,7 +96,7 @@ public class CaptureBinding extends TypeVariableBinding {
 				if (wildcard.bound.isInterface()) {
 					this.superclass = substitutedVariableSuperclass;
 					// merge wildcard bound into variable superinterfaces using glb
-					if (substitutedVariableInterfaces == NoSuperInterfaces) {
+					if (substitutedVariableInterfaces == Binding.NO_SUPERINTERFACES) {
 						this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) substitutedWildcardBound };
 					} else {
 						int length = substitutedVariableInterfaces.length;
@@ -110,13 +110,13 @@ public class CaptureBinding extends TypeVariableBinding {
 					this.superInterfaces = substitutedVariableInterfaces;
 				}
 				this.firstBound =  substitutedWildcardBound;
-				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
-					this.tagBits &= ~HasTypeVariable;
+				if ((substitutedWildcardBound.tagBits & TagBits.HasTypeVariable) == 0)
+					this.tagBits &= ~TagBits.HasTypeVariable;
 				break;
 			case Wildcard.UNBOUND :
 				this.superclass = substitutedVariableSuperclass;
 				this.superInterfaces = substitutedVariableInterfaces;
-				this.tagBits &= ~HasTypeVariable;
+				this.tagBits &= ~TagBits.HasTypeVariable;
 				break;
 			case Wildcard.SUPER :
 				this.superclass = substitutedVariableSuperclass;
@@ -125,8 +125,8 @@ public class CaptureBinding extends TypeVariableBinding {
 				}
 				this.superInterfaces = substitutedVariableInterfaces;
 				this.lowerBound = originalWildcardBound;
-				if ((originalWildcardBound.tagBits & HasTypeVariable) == 0)
-					this.tagBits &= ~HasTypeVariable;
+				if ((originalWildcardBound.tagBits & TagBits.HasTypeVariable) == 0)
+					this.tagBits &= ~TagBits.HasTypeVariable;
 				break;
 		}		
 	}

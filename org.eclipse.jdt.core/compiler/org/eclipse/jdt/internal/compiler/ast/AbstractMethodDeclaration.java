@@ -246,7 +246,7 @@ public abstract class AbstractMethodDeclaration
 		int size = 1; // an abstact method or a native method cannot be static
 		for (int i = 0, max = parameters.length; i < max; i++) {
 			TypeBinding parameter = parameters[i];
-			if (parameter == LongBinding || parameter == DoubleBinding) {
+			if (parameter == TypeBinding.LONG || parameter == TypeBinding.DOUBLE) {
 				size += 2;
 			} else {
 				size++;

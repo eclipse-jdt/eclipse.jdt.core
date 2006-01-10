@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstants {
+public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -258,21 +258,21 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 	TypeBinding boxedType;
 	switch (type.id) {
 		case TypeIds.T_JavaLangBoolean :
-			return BooleanBinding;
+			return TypeBinding.BOOLEAN;
 		case TypeIds.T_JavaLangByte :
-			return ByteBinding;
+			return TypeBinding.BYTE;
 		case TypeIds.T_JavaLangCharacter :
-			return CharBinding;
+			return TypeBinding.CHAR;
 		case TypeIds.T_JavaLangShort :
-			return ShortBinding;
+			return TypeBinding.SHORT;
 		case TypeIds.T_JavaLangDouble :
-			return DoubleBinding;
+			return TypeBinding.DOUBLE;
 		case TypeIds.T_JavaLangFloat :
-			return FloatBinding;
+			return TypeBinding.FLOAT;
 		case TypeIds.T_JavaLangInteger :
-			return IntBinding;
+			return TypeBinding.INT;
 		case TypeIds.T_JavaLangLong :
-			return LongBinding;
+			return TypeBinding.LONG;
 
 		case TypeIds.T_int :
 			boxedType = getType(JAVA_LANG_INTEGER);
@@ -313,21 +313,21 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 		case Binding.TYPE_PARAMETER :
 			switch (type.erasure().id) {
 				case TypeIds.T_JavaLangBoolean :
-					return BooleanBinding;
+					return TypeBinding.BOOLEAN;
 				case TypeIds.T_JavaLangByte :
-					return ByteBinding;
+					return TypeBinding.BYTE;
 				case TypeIds.T_JavaLangCharacter :
-					return CharBinding;
+					return TypeBinding.CHAR;
 				case TypeIds.T_JavaLangShort :
-					return ShortBinding;
+					return TypeBinding.SHORT;
 				case TypeIds.T_JavaLangDouble :
-					return DoubleBinding;
+					return TypeBinding.DOUBLE;
 				case TypeIds.T_JavaLangFloat :
-					return FloatBinding;
+					return TypeBinding.FLOAT;
 				case TypeIds.T_JavaLangInteger :
-					return IntBinding;
+					return TypeBinding.INT;
 				case TypeIds.T_JavaLangLong :
-					return LongBinding;
+					return TypeBinding.LONG;
 			}
 	}
 	return type;
@@ -828,31 +828,31 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	if (start == end) {
 		switch (signature[start]) {
 			case 'I' :
-				binding = IntBinding;
+				binding = TypeBinding.INT;
 				break;
 			case 'Z' :
-				binding = BooleanBinding;
+				binding = TypeBinding.BOOLEAN;
 				break;
 			case 'V' :
-				binding = VoidBinding;
+				binding = TypeBinding.VOID;
 				break;
 			case 'C' :
-				binding = CharBinding;
+				binding = TypeBinding.CHAR;
 				break;
 			case 'D' :
-				binding = DoubleBinding;
+				binding = TypeBinding.DOUBLE;
 				break;
 			case 'B' :
-				binding = ByteBinding;
+				binding = TypeBinding.BYTE;
 				break;
 			case 'F' :
-				binding = FloatBinding;
+				binding = TypeBinding.FLOAT;
 				break;
 			case 'J' :
-				binding = LongBinding;
+				binding = TypeBinding.LONG;
 				break;
 			case 'S' :
-				binding = ShortBinding;
+				binding = TypeBinding.SHORT;
 				break;
 			default :
 				problemReporter.corruptedSignature(enclosingType, signature, start);

@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
-public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
+public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
 
@@ -163,7 +163,7 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	private static boolean checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType, TypeBinding originalParameterType) {
 		argument.computeConversion(scope, parameterType, argumentType);
 
-		if (argumentType != NullBinding && parameterType.isWildcard()) {
+		if (argumentType != TypeBinding.NULL && parameterType.isWildcard()) {
 			WildcardBinding wildcard = (WildcardBinding) parameterType;
 			if (wildcard.boundKind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
 		    	return true; // unsafeWildcardInvocation
@@ -223,7 +223,7 @@ public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 					int varargIndex = paramLength - 1;
 					ArrayBinding varargType = (ArrayBinding) params[varargIndex];
 					TypeBinding lastArgType = argumentTypes[varargIndex];
-					if (lastArgType == NullBinding) {
+					if (lastArgType == TypeBinding.NULL) {
 						if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 					} else if (varargType.dimensions <= lastArgType.dimensions()) {

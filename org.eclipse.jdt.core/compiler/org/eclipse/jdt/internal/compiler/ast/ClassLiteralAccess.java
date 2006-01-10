@@ -80,7 +80,7 @@ public class ClassLiteralAccess extends Expression {
 			return null;
 
 		if (targetType.isArrayType()
-			&& ((ArrayBinding) targetType).leafComponentType == VoidBinding) {
+			&& ((ArrayBinding) targetType).leafComponentType == TypeBinding.VOID) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
 		} else if (targetType.isTypeVariable()) {

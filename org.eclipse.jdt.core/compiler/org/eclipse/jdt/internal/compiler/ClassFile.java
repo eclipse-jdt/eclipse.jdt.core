@@ -133,7 +133,7 @@ public class ClassFile
 	
 		// add its fields
 		FieldBinding[] fields = typeBinding.fields;
-		if ((fields != null) && (fields != NoFields)) {
+		if ((fields != null) && (fields != Binding.NO_FIELDS)) {
 			classFile.addFieldInfos();
 		} else {
 			// we have to set the number of fields to be equals to 0
@@ -1510,7 +1510,7 @@ public class ClassFile
 					this.contents[localContentsOffset++] = 0;
 				} else {
 					int nameIndex;
-					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
+					if (exceptionHandler.exceptionType == TypeBinding.NULL) {
 						/* represents ClassNotFoundException, see class literal access*/
 						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
@@ -1674,7 +1674,7 @@ public class ClassFile
 			final boolean currentInstanceIsGeneric = 
 				!methodDeclarationIsStatic
 				&& declaringClassBinding != null 
-				&& declaringClassBinding.typeVariables != NoTypeVariables;
+				&& declaringClassBinding.typeVariables != Binding.NO_TYPE_VARIABLES;
 			if (genericLocalVariablesCounter != 0 || currentInstanceIsGeneric) {
 				// add the local variable type table attribute
 				numberOfGenericEntries += (currentInstanceIsGeneric ? 1 : 0);
@@ -1822,7 +1822,7 @@ public class ClassFile
 					this.contents[localContentsOffset++] = 0;
 				} else {
 					int nameIndex;
-					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
+					if (exceptionHandler.exceptionType == TypeBinding.NULL) {
 						/* represents denote ClassNotFoundException, see class literal access*/
 						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
@@ -2427,8 +2427,8 @@ public class ClassFile
 						descriptorIndex = constantPool.literalIndex(argumentBinding.signature());
 						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) descriptorIndex;
-						if ((argumentBinding == BaseTypes.LongBinding)
-							|| (argumentBinding == BaseTypes.DoubleBinding))
+						if ((argumentBinding == TypeBinding.LONG)
+							|| (argumentBinding == TypeBinding.DOUBLE))
 							argSize += 2;
 						else
 							argSize++;
@@ -2450,7 +2450,7 @@ public class ClassFile
 			final boolean currentInstanceIsGeneric = 
 				!methodDeclarationIsStatic
 				&& declaringClassBinding != null
-				&& declaringClassBinding.typeVariables != NoTypeVariables;
+				&& declaringClassBinding.typeVariables != Binding.NO_TYPE_VARIABLES;
 			if (genericLocalVariablesCounter != 0 || genericArgumentsCounter != 0 || currentInstanceIsGeneric) {
 				// add the local variable type table attribute
 				numberOfEntries = numberOfGenericEntries + genericArgumentsCounter + (currentInstanceIsGeneric ? 1 : 0);
@@ -3138,7 +3138,7 @@ public class ClassFile
 		// Exception attribute
 		ReferenceBinding[] thrownsExceptions;
 		int attributeNumber = 0;
-		if ((thrownsExceptions = methodBinding.thrownExceptions) != NoExceptions) {
+		if ((thrownsExceptions = methodBinding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
 			// The method has a throw clause. So we need to add an exception attribute
 			// check that there is enough space to write all the bytes for the exception attribute
 			int length = thrownsExceptions.length;

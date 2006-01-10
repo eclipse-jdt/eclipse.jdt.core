@@ -516,15 +516,15 @@ public class QualifiedNameReference extends NameReference {
 		// duplicate the old field value
 		if (valueRequired) {
 			if (lastFieldBinding.isStatic()) {
-				if ((lastFieldBinding.type == LongBinding)
-					|| (lastFieldBinding.type == DoubleBinding)) {
+				if ((lastFieldBinding.type == TypeBinding.LONG)
+					|| (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2();
 				} else {
 					codeStream.dup();
 				}
 			} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-				if ((lastFieldBinding.type == LongBinding)
-					|| (lastFieldBinding.type == DoubleBinding)) {
+				if ((lastFieldBinding.type == TypeBinding.LONG)
+					|| (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2_x1();
 				} else {
 					codeStream.dup_x1();
@@ -884,28 +884,28 @@ public class QualifiedNameReference extends NameReference {
 		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		switch (runtimeType) {
 			case T_boolean :
-				convertedType = BooleanBinding;
+				convertedType = TypeBinding.BOOLEAN;
 				break;
 			case T_byte :
-				convertedType = ByteBinding;
+				convertedType = TypeBinding.BYTE;
 				break;
 			case T_short :
-				convertedType = ShortBinding;
+				convertedType = TypeBinding.SHORT;
 				break;
 			case T_char :
-				convertedType = CharBinding;
+				convertedType = TypeBinding.CHAR;
 				break;
 			case T_int :
-				convertedType = IntBinding;
+				convertedType = TypeBinding.INT;
 				break;
 			case T_float :
-				convertedType = FloatBinding;
+				convertedType = TypeBinding.FLOAT;
 				break;
 			case T_long :
-				convertedType = LongBinding;
+				convertedType = TypeBinding.LONG;
 				break;
 			case T_double :
-				convertedType = DoubleBinding;
+				convertedType = TypeBinding.DOUBLE;
 				break;
 			default :
 		}		

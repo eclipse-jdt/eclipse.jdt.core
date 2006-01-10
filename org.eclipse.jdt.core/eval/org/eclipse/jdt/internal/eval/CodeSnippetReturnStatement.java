@@ -57,12 +57,12 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	codeStream.aload_0();
 
 	// push the 2 parameters of "setResult(Object, Class)"
-	if (this.expression == null || this.expression.resolvedType == VoidBinding) { // expressionType == VoidBinding if code snippet is the expression "System.out.println()"
+	if (this.expression == null || this.expression.resolvedType == TypeBinding.VOID) { // expressionType == VoidBinding if code snippet is the expression "System.out.println()"
 		// push null
 		codeStream.aconst_null();
 
 		// void.class
-		codeStream.generateClassLiteralAccessForType(VoidBinding, null);
+		codeStream.generateClassLiteralAccessForType(TypeBinding.VOID, null);
 	} else {
 		// swap with expression
 		int valueTypeID = this.expression.resolvedType.id;
@@ -74,7 +74,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		}
 
 		// generate wrapper if needed
-		if (this.expression.resolvedType.isBaseType() && this.expression.resolvedType != NullBinding) { 
+		if (this.expression.resolvedType.isBaseType() && this.expression.resolvedType != TypeBinding.NULL) { 
 			((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.expression.resolvedType);
 		}
 

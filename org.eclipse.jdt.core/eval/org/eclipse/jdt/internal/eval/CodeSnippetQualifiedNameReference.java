@@ -69,7 +69,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 		codeStream.swap();
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		if (valueRequired) {
-			if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+			if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();
@@ -198,7 +198,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// current stack is:
 		// field receiver value
 		if (valueRequired) {
-			if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+			if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();
@@ -222,13 +222,13 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		// duplicate the old field value
 		if (valueRequired) {
 			if (lastFieldBinding.isStatic()) {
-				if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+				if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2();
 				} else {
 					codeStream.dup();
 				}
 			} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-				if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+				if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2_x1();
 				} else {
 					codeStream.dup_x1();
@@ -243,14 +243,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	} else {
 		((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
 		if (valueRequired) {
-			if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+			if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();
 			}
 		}
 		((CodeSnippetCodeStream) codeStream).generateEmulationForField(lastFieldBinding);
-		if ((lastFieldBinding.type == LongBinding) || (lastFieldBinding.type == DoubleBinding)) {
+		if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 			codeStream.dup_x2();
 			codeStream.pop();
 			if (lastFieldBinding.isStatic()) {

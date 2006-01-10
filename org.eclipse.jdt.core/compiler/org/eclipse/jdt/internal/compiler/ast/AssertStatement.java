@@ -120,7 +120,7 @@ public class AssertStatement extends Statement {
 
 	public void resolve(BlockScope scope) {
 
-		assertExpression.resolveTypeExpecting(scope, BooleanBinding);
+		assertExpression.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		if (exceptionArgument != null) {
 			TypeBinding exceptionArgumentType = exceptionArgument.resolveType(scope);
 			if (exceptionArgumentType != null){

@@ -51,7 +51,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding#createParameterizedMethod(org.eclipse.jdt.internal.compiler.lookup.MethodBinding)
 	 */
 	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
-		if (originalMethod.typeVariables == NoTypeVariables || originalMethod.isStatic()) {
+		if (originalMethod.typeVariables == Binding.NO_TYPE_VARIABLES || originalMethod.isStatic()) {
 			return super.createParameterizedMethod(originalMethod);
 		}
 		return new ParameterizedGenericMethodBinding(originalMethod, this, this.environment);

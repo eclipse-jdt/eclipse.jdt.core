@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public interface TypeConstants {
+	
 	char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
@@ -114,13 +115,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_ANNOTATION_RETENTIONPOLICY = {JAVA, LANG, ANNOTATION, "RetentionPolicy".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_ELEMENTTYPE = {JAVA, LANG, ANNOTATION, "ElementType".toCharArray()}; //$NON-NLS-1$
 	
-
-	// Constants used by the flow analysis
-	int EqualOrMoreSpecific = -1;
-	int NotRelated = 0;
-	int MoreGeneric = 1;
-	
-    // Constraints for generic type argument inference
+	// Constraints for generic type argument inference
     int CONSTRAINT_EQUAL = 0;		// Actual = Formal
     int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
     int CONSTRAINT_SUPER = 2;		// Actual >> Formal
@@ -130,17 +125,6 @@ public interface TypeConstants {
 	int UNCHECKED = 1;
 	int MISMATCH = 2;
 
-	// Shared binding collections
-	TypeBinding[] NoTypes = new TypeBinding[0];
-	TypeBinding[] NoParameters = new TypeBinding[0];
-	ReferenceBinding[] NoExceptions = new ReferenceBinding[0];
-	ReferenceBinding[] AnyException = new ReferenceBinding[] { null }; // special handler for all exceptions
-	FieldBinding[] NoFields = new FieldBinding[0];
-	MethodBinding[] NoMethods = new MethodBinding[0];
-	ReferenceBinding[] NoSuperInterfaces = new ReferenceBinding[0];
-	ReferenceBinding[] NoMemberTypes = new ReferenceBinding[0];
-	TypeVariableBinding[] NoTypeVariables = new TypeVariableBinding[0];
-	
 	// Synthetics
 	char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
 	char[] CLINIT = "<clinit>".toCharArray(); //$NON-NLS-1$

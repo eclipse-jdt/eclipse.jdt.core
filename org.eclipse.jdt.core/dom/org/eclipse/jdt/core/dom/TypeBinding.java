@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -1097,7 +1096,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isNullType()
 	 */
 	public boolean isNullType() {
-		return this.binding == BaseTypes.NullBinding;
+		return this.binding == org.eclipse.jdt.internal.compiler.lookup.TypeBinding.NULL;
 	}
 
 	/* (non-Javadoc)

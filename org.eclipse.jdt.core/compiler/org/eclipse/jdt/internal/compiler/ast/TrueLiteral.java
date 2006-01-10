@@ -56,7 +56,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
-	return BooleanBinding;
+	return TypeBinding.BOOLEAN;
 }
 /**
  * 

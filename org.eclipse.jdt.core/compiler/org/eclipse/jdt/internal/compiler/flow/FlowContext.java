@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -82,7 +83,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 			ExceptionHandlingFlowContext exceptionContext =
 				(ExceptionHandlingFlowContext) traversedContext;
 			ReferenceBinding[] caughtExceptions;
-			if ((caughtExceptions = exceptionContext.handledExceptions) != NoExceptions) {
+			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
 				int caughtCount = caughtExceptions.length;
 				boolean[] locallyCaught = new boolean[raisedCount]; // at most
 
@@ -92,10 +93,10 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 						TypeBinding raisedException;
 						if ((raisedException = raisedExceptions[raisedIndex]) != null) {
 						    int state = caughtException == null 
-						    	? EqualOrMoreSpecific /* any exception */
+						    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 						        : Scope.compareTypes(raisedException, caughtException);
 							switch (state) {
-								case EqualOrMoreSpecific :
+								case Scope.EQUAL_OR_MORE_SPECIFIC :
 									exceptionContext.recordHandlingException(
 										caughtException,
 										flowInfo.unconditionalInits(),
@@ -109,7 +110,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 										remainingCount--;
 									}
 									break;
-								case MoreGeneric :
+								case Scope.MORE_GENERIC :
 									exceptionContext.recordHandlingException(
 										caughtException,
 										flowInfo.unconditionalInits(),
@@ -201,17 +202,17 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 			ExceptionHandlingFlowContext exceptionContext =
 				(ExceptionHandlingFlowContext) traversedContext;
 			ReferenceBinding[] caughtExceptions;
-			if ((caughtExceptions = exceptionContext.handledExceptions) != NoExceptions) {
+			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
 				boolean definitelyCaught = false;
 				for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
 					caughtIndex < caughtCount;
 					caughtIndex++) {
 					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
 				    int state = caughtException == null 
-				    	? EqualOrMoreSpecific /* any exception */
+				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 				        : Scope.compareTypes(raisedException, caughtException);						
 					switch (state) {
-						case EqualOrMoreSpecific :
+						case Scope.EQUAL_OR_MORE_SPECIFIC :
 							exceptionContext.recordHandlingException(
 								caughtException,
 								flowInfo.unconditionalInits(),
@@ -221,7 +222,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 							// was it already definitely caught ?
 							definitelyCaught = true;
 							break;
-						case MoreGeneric :
+						case Scope.MORE_GENERIC :
 							exceptionContext.recordHandlingException(
 								caughtException,
 								flowInfo.unconditionalInits(),

@@ -164,7 +164,7 @@ public class TypeDeclaration
 				methodDeclaration.modifiers, //methodDeclaration
 				methodBinding.selector,
 				methodBinding.returnType,
-				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
+				argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
 				methodBinding.thrownExceptions, //exceptions
 				binding); //declaringClass
 				
@@ -428,7 +428,7 @@ public class TypeDeclaration
 		//============BINDING UPDATE==========================
 		cd.binding = new MethodBinding(
 				cd.modifiers, //methodDeclaration
-				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
+				argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
 				inheritedConstructorBinding.thrownExceptions, //exceptions
 				binding); //declaringClass
 				
@@ -656,7 +656,7 @@ public class TypeDeclaration
 					/*if (field.isField()){
 						staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
-					staticInitializerContext.handledExceptions = AnyException; // tolerate them all, and record them
+					staticInitializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 					/*}*/
 					staticFieldInfo =
 						field.analyseCode(
@@ -676,7 +676,7 @@ public class TypeDeclaration
 					/*if (field.isField()){
 						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
-						initializerContext.handledExceptions = AnyException; // tolerate them all, and record them
+						initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 					/*}*/
 					nonStaticFieldInfo =
 						field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
@@ -1034,7 +1034,7 @@ public class TypeDeclaration
 							if (needSerialVersion
 									&& ((fieldBinding.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal)) == (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal))
 									&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
-									&& BaseTypes.LongBinding == fieldBinding.type) {
+									&& TypeBinding.LONG == fieldBinding.type) {
 								needSerialVersion = false;
 							}
 							this.maxFieldCount++;

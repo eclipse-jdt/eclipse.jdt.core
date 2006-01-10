@@ -112,7 +112,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
-	return LongBinding;
+	return TypeBinding.LONG;
 }
 public final boolean mayRepresentMIN_VALUE(){
 	//a special autorized int literral is 9223372036854775808L

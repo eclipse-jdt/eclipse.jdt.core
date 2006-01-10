@@ -11,11 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -240,7 +235,7 @@ public class MethodScope extends BlockScope {
 			// assign variable position
 			local.resolvedPosition = this.offset;
 
-			if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
+			if ((local.type == TypeBinding.LONG) || (local.type == TypeBinding.DOUBLE)) {
 				this.offset += 2;
 			} else {
 				this.offset++;
@@ -257,7 +252,7 @@ public class MethodScope extends BlockScope {
 			for (int iarg = 0, maxArguments = extraSyntheticArguments.length; iarg < maxArguments; iarg++){
 				SyntheticArgumentBinding argument = extraSyntheticArguments[iarg];
 				argument.resolvedPosition = this.offset;
-				if ((argument.type == LongBinding) || (argument.type == DoubleBinding)){
+				if ((argument.type == TypeBinding.LONG) || (argument.type == TypeBinding.DOUBLE)){
 					this.offset += 2;
 				} else {
 					this.offset++;
@@ -310,7 +305,7 @@ public class MethodScope extends BlockScope {
 		TypeParameter[] typeParameters = method.typeParameters();
 	    // do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
-		    method.binding.typeVariables = NoTypeVariables;
+		    method.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 		} else {
 			method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 			method.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;

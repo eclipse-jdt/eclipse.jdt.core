@@ -254,7 +254,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					codeStream.addVisibleLocalVariable(argBinding = arguments[i].binding);
 					argBinding.recordInitializationStartPC(0);
 					TypeBinding argType;
-					if ((argType = argBinding.type) == LongBinding || (argType == DoubleBinding)) {
+					if ((argType = argBinding.type) == TypeBinding.LONG || (argType == TypeBinding.DOUBLE)) {
 						argSlotSize += 2;
 					} else {
 						argSlotSize++;

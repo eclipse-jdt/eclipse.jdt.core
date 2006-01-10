@@ -278,7 +278,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		
 		// buffering the arguments' types
 		boolean argsContainCast = false;
-		TypeBinding[] argumentTypes = NoParameters;
+		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 		if (arguments != null) {
 			boolean argHasError = false;
 			int length = arguments.length;

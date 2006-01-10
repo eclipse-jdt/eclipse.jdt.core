@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -385,25 +384,25 @@ public class BindingKeyResolver extends BindingKeyParser {
 	private TypeBinding getBaseTypeBinding(char[] signature) {
 		switch (signature[0]) {
 			case 'I' :
-				return BaseTypes.IntBinding;
+				return TypeBinding.INT;
 			case 'Z' :
-				return BaseTypes.BooleanBinding;
+				return TypeBinding.BOOLEAN;
 			case 'V' :
-				return BaseTypes.VoidBinding;
+				return TypeBinding.VOID;
 			case 'C' :
-				return BaseTypes.CharBinding;
+				return TypeBinding.CHAR;
 			case 'D' :
-				return BaseTypes.DoubleBinding;
+				return TypeBinding.DOUBLE;
 			case 'B' :
-				return BaseTypes.ByteBinding;
+				return TypeBinding.BYTE;
 			case 'F' :
-				return BaseTypes.FloatBinding;
+				return TypeBinding.FLOAT;
 			case 'J' :
-				return BaseTypes.LongBinding;
+				return TypeBinding.LONG;
 			case 'S' :
-				return BaseTypes.ShortBinding;
+				return TypeBinding.SHORT;
 			case 'N':
-				return BaseTypes.NullBinding;
+				return TypeBinding.NULL;
 			default :
 				return null;
 		}

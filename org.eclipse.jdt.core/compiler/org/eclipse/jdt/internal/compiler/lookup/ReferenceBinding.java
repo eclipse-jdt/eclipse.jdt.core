@@ -200,7 +200,7 @@ public final boolean canBeSeenBy(Scope scope) {
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 
 	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
-	if (typeVariables == NoTypeVariables && !isMemberOfGeneric) {
+	if (typeVariables == Binding.NO_TYPE_VARIABLES && !isMemberOfGeneric) {
 		return signature();
 	}
 	StringBuffer sig = new StringBuffer(10);
@@ -217,7 +217,7 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 	    	sig.append(typeSig[i]);
 	    }
 	}
-	if (typeVariables == NoTypeVariables) {
+	if (typeVariables == Binding.NO_TYPE_VARIABLES) {
 	    sig.append(';');
 	} else {
 	    sig.append('<');
@@ -236,17 +236,17 @@ public void computeId() {
 	switch (compoundName.length) {
 
 		case 3 :
-			if (!CharOperation.equals(JAVA, compoundName[0]))
+			if (!CharOperation.equals(TypeConstants.JAVA, compoundName[0]))
 				return;
 		
 			// remaining types MUST be in java.*.*
-			if (!CharOperation.equals(LANG, compoundName[1])) {
-				if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
-					id = T_JavaIoPrintStream;
-				else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
-					id = T_JavaUtilIterator;
-				else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
-				    id = T_JavaIoSerializable;
+			if (!CharOperation.equals(TypeConstants.LANG, compoundName[1])) {
+				if (CharOperation.equals(TypeConstants.JAVA_IO_PRINTSTREAM, compoundName))
+					id = TypeIds.T_JavaIoPrintStream;
+				else if (CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR, compoundName))
+					id = TypeIds.T_JavaUtilIterator;
+				else if (CharOperation.equals(TypeConstants.JAVA_IO_SERIALIZABLE, compoundName))
+				    id = TypeIds.T_JavaIoSerializable;
 				return;
 			}
 		
@@ -255,134 +255,134 @@ public void computeId() {
 			if (typeName.length == 0) return; // just to be safe
 			switch (typeName[0]) {
 				case 'A' :
-					if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
-						id = T_JavaLangAssertionError;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ASSERTIONERROR[2]))
+						id = TypeIds.T_JavaLangAssertionError;
 					return;
 				case 'B' :
-					if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
-						id = T_JavaLangBoolean;
-					else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
-						id = T_JavaLangByte;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BOOLEAN[2]))
+						id = TypeIds.T_JavaLangBoolean;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BYTE[2]))
+						id = TypeIds.T_JavaLangByte;
 					return;
 				case 'C' :
-					if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
-						id = T_JavaLangCharacter;
-					else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
-						id = T_JavaLangClass;
-					else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
-						id = T_JavaLangClassNotFoundException;
-					else if (CharOperation.equals(typeName, JAVA_LANG_CLONEABLE[2]))
-					    id = T_JavaLangCloneable;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CHARACTER[2]))
+						id = TypeIds.T_JavaLangCharacter;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASS[2]))
+						id = TypeIds.T_JavaLangClass;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
+						id = TypeIds.T_JavaLangClassNotFoundException;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLONEABLE[2]))
+					    id = TypeIds.T_JavaLangCloneable;
 					return;
 				case 'D' :
-					if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
-						id = T_JavaLangDouble;
-					else if (CharOperation.equals(typeName, JAVA_LANG_DEPRECATED[2]))
-						id = T_JavaLangDeprecated;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DOUBLE[2]))
+						id = TypeIds.T_JavaLangDouble;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DEPRECATED[2]))
+						id = TypeIds.T_JavaLangDeprecated;
 					return;
 				case 'E' :
-					if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
-						id = T_JavaLangError;
-					else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
-						id = T_JavaLangException;
-					else if (CharOperation.equals(typeName, JAVA_LANG_ENUM[2]))
-						id = T_JavaLangEnum;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ERROR[2]))
+						id = TypeIds.T_JavaLangError;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_EXCEPTION[2]))
+						id = TypeIds.T_JavaLangException;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ENUM[2]))
+						id = TypeIds.T_JavaLangEnum;
 					return;
 				case 'F' :
-					if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
-						id = T_JavaLangFloat;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_FLOAT[2]))
+						id = TypeIds.T_JavaLangFloat;
 					return;
 				case 'I' :
-					if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
-						id = T_JavaLangInteger;
-					else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
-						id = T_JavaLangIterable;
-					else if (CharOperation.equals(typeName, JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
-						id = T_JavaLangIllegalArgumentException;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INTEGER[2]))
+						id = TypeIds.T_JavaLangInteger;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ITERABLE[2]))
+						id = TypeIds.T_JavaLangIterable;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
+						id = TypeIds.T_JavaLangIllegalArgumentException;
 					return;
 				case 'L' :
-					if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
-						id = T_JavaLangLong;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_LONG[2]))
+						id = TypeIds.T_JavaLangLong;
 					return;
 				case 'N' :
-					if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
-						id = T_JavaLangNoClassDefError;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_NOCLASSDEFERROR[2]))
+						id = TypeIds.T_JavaLangNoClassDefError;
 					return;
 				case 'O' :
-					if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
-						id = T_JavaLangObject;
-					else if (CharOperation.equals(typeName, JAVA_LANG_OVERRIDE[2]))
-						id = T_JavaLangOverride;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OBJECT[2]))
+						id = TypeIds.T_JavaLangObject;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OVERRIDE[2]))
+						id = TypeIds.T_JavaLangOverride;
 					return;
 				case 'R' :
-					if (CharOperation.equals(typeName, JAVA_LANG_RUNTIMEEXCEPTION[2]))
-						id = 	T_JavaLangRuntimeException;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION[2]))
+						id = 	TypeIds.T_JavaLangRuntimeException;
 					break;
 				case 'S' :
-					if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
-						id = T_JavaLangString;
-					else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
-						id = T_JavaLangStringBuffer;
-					else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUILDER[2])) 
-						id = T_JavaLangStringBuilder;
-					else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
-						id = T_JavaLangSystem;
-					else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
-						id = T_JavaLangShort;
-					else if (CharOperation.equals(typeName, JAVA_LANG_SUPPRESSWARNINGS[2]))
-						id = T_JavaLangSuppressWarnings;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRING[2]))
+						id = TypeIds.T_JavaLangString;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUFFER[2]))
+						id = TypeIds.T_JavaLangStringBuffer;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUILDER[2])) 
+						id = TypeIds.T_JavaLangStringBuilder;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SYSTEM[2]))
+						id = TypeIds.T_JavaLangSystem;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SHORT[2]))
+						id = TypeIds.T_JavaLangShort;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SUPPRESSWARNINGS[2]))
+						id = TypeIds.T_JavaLangSuppressWarnings;
 					return;
 				case 'T' :
-					if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
-						id = T_JavaLangThrowable;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_THROWABLE[2]))
+						id = TypeIds.T_JavaLangThrowable;
 					return;
 				case 'V' :
-					if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
-						id = T_JavaLangVoid;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_VOID[2]))
+						id = TypeIds.T_JavaLangVoid;
 					return;
 			}
 		break;
 			
 		case 4:
-			if (!CharOperation.equals(JAVA, compoundName[0]))
+			if (!CharOperation.equals(TypeConstants.JAVA, compoundName[0]))
 				return;
-			if (!CharOperation.equals(LANG, compoundName[1]))
+			if (!CharOperation.equals(TypeConstants.LANG, compoundName[1]))
 				return;
 			char[] packageName = compoundName[2];
 			if (packageName.length == 0) return; // just to be safe			
 			typeName = compoundName[3];
 			if (typeName.length == 0) return; // just to be safe			
-			if (CharOperation.equals(packageName, REFLECT)) {
-				if (CharOperation.equals(typeName, JAVA_LANG_REFLECT_CONSTRUCTOR[3]))
-					id = T_JavaLangReflectConstructor;
+			if (CharOperation.equals(packageName, TypeConstants.REFLECT)) {
+				if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_CONSTRUCTOR[3]))
+					id = TypeIds.T_JavaLangReflectConstructor;
 				return;
-			} else if (CharOperation.equals(packageName, ANNOTATION)) {
+			} else if (CharOperation.equals(packageName, TypeConstants.ANNOTATION)) {
 				switch (typeName[0]) {
 					case 'A' :			
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ANNOTATION[3]))
-							id = T_JavaLangAnnotationAnnotation;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION[3]))
+							id = TypeIds.T_JavaLangAnnotationAnnotation;
 						return;
 					case 'D' :
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
-							id = T_JavaLangAnnotationDocumented;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
+							id = TypeIds.T_JavaLangAnnotationDocumented;
 						return;
 					case 'E' :
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ELEMENTTYPE[3]))
-							id = T_JavaLangAnnotationElementType;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE[3]))
+							id = TypeIds.T_JavaLangAnnotationElementType;
 						return;
 					case 'I' :
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_INHERITED[3]))
-							id = T_JavaLangAnnotationInherited;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED[3]))
+							id = TypeIds.T_JavaLangAnnotationInherited;
 						return;
 					case 'R' :
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_RETENTION[3]))
-							id = T_JavaLangAnnotationRetention;
-						else if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
-							id = T_JavaLangAnnotationRetentionPolicy;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION[3]))
+							id = TypeIds.T_JavaLangAnnotationRetention;
+						else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
+							id = TypeIds.T_JavaLangAnnotationRetentionPolicy;
 						return;
 					case 'T' :
-						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_TARGET[3]))
-							id = T_JavaLangAnnotationTarget;
+						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_TARGET[3]))
+							id = TypeIds.T_JavaLangAnnotationTarget;
 						return;
 				}				
 			}
@@ -452,7 +452,7 @@ public int fieldCount() {
 	return fields().length;
 }
 public FieldBinding[] fields() {
-	return NoFields;
+	return Binding.NO_FIELDS;
 }
 /**
  * Find supertype which erases to a given well-known type, or null if not found
@@ -478,7 +478,7 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
 	int lastPosition = -1;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -492,7 +492,7 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
 				return currentType;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -522,7 +522,7 @@ public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 	int lastPosition = -1;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -536,7 +536,7 @@ public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 				return currentType;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -581,7 +581,7 @@ public ReferenceBinding getMemberType(char[] typeName) {
 	return null;
 }
 public MethodBinding[] getMethods(char[] selector) {
-	return NoMethods;
+	return Binding.NO_METHODS;
 }
 public PackageBinding getPackage() {
 	return fPackage;
@@ -627,7 +627,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 					return true;
 		}
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -644,7 +644,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 						return true;				
 			}
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -654,7 +654,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 	return false;
 }
 
-/* Answer true if the receiver implements anInterface or is identical to anInterface.
+/** Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
 * NOTE: Assume that anInterface is an interface.
@@ -668,7 +668,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	ReferenceBinding currentType = this;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -682,7 +682,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 				return true;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -691,8 +691,8 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	}
 	return false;
 }
-// Internal method... assume its only sent to classes NOT interfaces
 
+// Internal method... assume its only sent to classes NOT interfaces
 boolean implementsMethod(MethodBinding method) {
 	ReferenceBinding type = this;
 	while (type != null) {
@@ -704,9 +704,10 @@ boolean implementsMethod(MethodBinding method) {
 	}
 	return false;
 }
-/* Answer true if the receiver is an abstract type
-*/
 
+/**
+ * Answer true if the receiver is an abstract type
+*/
 public final boolean isAbstract() {
 	return (modifiers & ClassFileConstants.AccAbstract) != 0;
 }
@@ -714,24 +715,28 @@ public boolean isAnnotationType() {
 	return (modifiers & ClassFileConstants.AccAnnotation) != 0;
 }
 public final boolean isBinaryBinding() {
-	return (tagBits & IsBinaryBinding) != 0;
+	return (tagBits & TagBits.IsBinaryBinding) != 0;
 }
+
 public boolean isClass() {
 	return (modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
 }
-/*
+
+/**
  * Returns true if the type hierarchy is being connected
  */
 public boolean isHierarchyBeingConnected() {
-	return (this.tagBits & EndHierarchyCheck) == 0 && (this.tagBits & BeginHierarchyCheck) != 0;
+	return (this.tagBits & TagBits.EndHierarchyCheck) == 0 && (this.tagBits & TagBits.BeginHierarchyCheck) != 0;
 }
-/* Answer true if the receiver type can be assigned to the argument type (right)
-*/
+
+/**
+ * Answer true if the receiver type can be assigned to the argument type (right)
+ */
 public boolean isCompatibleWith(TypeBinding otherType) {
     
 	if (otherType == this) 
 		return true;
-	if (otherType.id == T_JavaLangObject) 
+	if (otherType.id == TypeIds.T_JavaLangObject) 
 		return true;
 	// equivalence may allow compatibility with array type through wildcard bound
 	if (this.isEquivalentTo(otherType)) 
@@ -771,70 +776,82 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	}
 }
 
-/* Answer true if the receiver has default visibility
-*/
+/**
+ * Answer true if the receiver has default visibility
+ */
 public final boolean isDefault() {
 	return (modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate)) == 0;
 }
 
-/* Answer true if the receiver is a deprecated type
-*/
+/**
+ * Answer true if the receiver is a deprecated type
+ */
 public final boolean isDeprecated() {
 	return (modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
+
 public boolean isEnum() {
 	return (modifiers & ClassFileConstants.AccEnum) != 0;
 }
-/* Answer true if the receiver is final and cannot be subclassed
-*/
+
+/**
+ * Answer true if the receiver is final and cannot be subclassed
+ */
 public final boolean isFinal() {
 	return (modifiers & ClassFileConstants.AccFinal) != 0;
 }
+
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (modifiers & ClassFileConstants.AccInterface) != 0;
 }
 	
-/* Answer true if the receiver has private visibility
-*/
+/** 
+ * Answer true if the receiver has private visibility
+ */
 public final boolean isPrivate() {
 	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
-/* Answer true if the receiver has private visibility and is used locally
-*/
 
+/**
+ * Answer true if the receiver has private visibility and is used locally
+ */
 public final boolean isUsed() {
 	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
-/* Answer true if the receiver has protected visibility
-*/
 
+/**
+ * Answer true if the receiver has protected visibility
+ */
 public final boolean isProtected() {
 	return (modifiers & ClassFileConstants.AccProtected) != 0;
 }
-/* Answer true if the receiver has public visibility
-*/
 
+/**
+ * Answer true if the receiver has public visibility
+ */
 public final boolean isPublic() {
 	return (modifiers & ClassFileConstants.AccPublic) != 0;
 }
-/* Answer true if the receiver is a static member type (or toplevel)
+
+/**
+ * Answer true if the receiver is a static member type (or toplevel)
  */
-
 public final boolean isStatic() {
-	return (modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccInterface)) != 0 || (tagBits & IsNestedType) == 0;
+	return (this.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccInterface)) != 0 || (this.tagBits & TagBits.IsNestedType) == 0;
 }
-/* Answer true if all float operations must adher to IEEE 754 float/double rules
-*/
 
+/**
+ * Answer true if all float operations must adher to IEEE 754 float/double rules
+ */
 public final boolean isStrictfp() {
 	return (modifiers & ClassFileConstants.AccStrictfp) != 0;
 }
-/* Answer true if the receiver is in the superclass hierarchy of aType
-*
-* NOTE: Object.isSuperclassOf(Object) -> false
-*/
 
+/**
+ * Answer true if the receiver is in the superclass hierarchy of aType
+ * NOTE: Object.isSuperclassOf(Object) -> false
+ */
 public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
 		if (otherType.isEquivalentTo(this)) return true;
@@ -879,11 +896,11 @@ public final boolean isViewedAsDeprecated() {
 	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
 public ReferenceBinding[] memberTypes() {
-	return NoMemberTypes;
+	return Binding.NO_MEMBER_TYPES;
 }
 
 public MethodBinding[] methods() {
-	return NoMethods;
+	return Binding.NO_METHODS;
 }
 public final ReferenceBinding outermostEnclosingType() {
 	ReferenceBinding current = this;
@@ -913,7 +930,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 		readableName = CharOperation.concatWith(compoundName, '.');
 	}
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(readableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {
@@ -936,7 +953,7 @@ public char[] shortReadableName() /*Object*/ {
 		shortReadableName = this.sourceName;
 	}
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(shortReadableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {
@@ -970,7 +987,7 @@ public ReferenceBinding superclass() {
 	return null;
 }
 public ReferenceBinding[] superInterfaces() {
-	return NoSuperInterfaces;
+	return Binding.NO_SUPERINTERFACES;
 }
 public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 	if (isStatic()) return null;

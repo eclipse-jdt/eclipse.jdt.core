@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 public final class ArrayBinding extends TypeBinding {
 	// creation and initialization of the length field
 	// the declaringClass of this field is intentionally set to null so it can be distinguished.
-	public static final FieldBinding ArrayLength = new FieldBinding(LENGTH, IntBinding, ClassFileConstants.AccPublic | ClassFileConstants.AccFinal, null, Constant.NotAConstant);
+	public static final FieldBinding ArrayLength = new FieldBinding(TypeConstants.LENGTH, TypeBinding.INT, ClassFileConstants.AccPublic | ClassFileConstants.AccFinal, null, Constant.NotAConstant);
 
 	public TypeBinding leafComponentType;
 	public int dimensions;
@@ -27,14 +27,14 @@ public final class ArrayBinding extends TypeBinding {
 	char[] genericTypeSignature;
 	
 public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
-	this.tagBits |= IsArrayType;
+	this.tagBits |= TagBits.IsArrayType;
 	this.leafComponentType = type;
 	this.dimensions = dimensions;
 	this.environment = environment;
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this);
 	else
-    	this.tagBits |= type.tagBits & (HasTypeVariable | HasDirectWildcard);
+    	this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
 }
 
 /**
@@ -48,7 +48,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 	
 	if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-	if (actualType == NullBinding) return;
+	if (actualType == TypeBinding.NULL) return;
 	
 	switch(actualType.kind()) {
 		case Binding.ARRAY_TYPE :
@@ -131,12 +131,12 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 	int otherDim = otherType.dimensions();
 	if (this.dimensions != otherDim) {
 		switch(otherType.id) {
-			case T_JavaLangObject :
-			case T_JavaIoSerializable :
-			case T_JavaLangCloneable :
+			case TypeIds.T_JavaLangObject :
+			case TypeIds.T_JavaIoSerializable :
+			case TypeIds.T_JavaLangCloneable :
 				return otherType;
 		}
-		if (otherDim < this.dimensions & otherType.leafComponentType().id == T_JavaLangObject) {
+		if (otherDim < this.dimensions & otherType.leafComponentType().id == TypeIds.T_JavaLangObject) {
 			return otherType; // X[][] has Object[] as an implicit supertype
 		}
 		return null;
@@ -202,9 +202,9 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
 	switch (otherType.leafComponentType().id) {
-	    case T_JavaLangObject :
-	    case T_JavaLangCloneable :
-	    case T_JavaIoSerializable :
+	    case TypeIds.T_JavaLangObject :
+	    case TypeIds.T_JavaLangCloneable :
+	    case TypeIds.T_JavaIoSerializable :
 	        return true;
 	}
 	return false;
@@ -266,7 +266,7 @@ public char[] sourceName() {
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
 		this.leafComponentType = env.convertToRawType(resolvedType);
-		this.tagBits |= this.leafComponentType.tagBits & (HasTypeVariable | HasDirectWildcard);
+		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
 	}
 }
 public String toString() {

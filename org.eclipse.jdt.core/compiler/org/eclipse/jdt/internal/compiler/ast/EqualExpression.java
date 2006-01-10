@@ -752,12 +752,12 @@ public class EqualExpression extends BinaryExpression {
 		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding leftType = originalLeftType, rightType = originalRightType;
 		if (use15specifics) {
-			if (leftType != NullBinding && leftType.isBaseType()) {
+			if (leftType != TypeBinding.NULL && leftType.isBaseType()) {
 				if (!rightType.isBaseType()) {
 					rightType = scope.environment().computeBoxingType(rightType);
 				}
 			} else {
-				if (rightType != NullBinding && rightType.isBaseType()) {
+				if (rightType != TypeBinding.NULL && rightType.isBaseType()) {
 					leftType = scope.environment().computeBoxingType(leftType);
 				}
 			}
@@ -785,13 +785,13 @@ public class EqualExpression extends BinaryExpression {
 				CastExpression.checkNeedForArgumentCasts(scope, EQUAL_EQUAL, operatorSignature, left, leftType.id, leftIsCast, right, rightType.id, rightIsCast);
 			}
 			computeConstant(leftType, rightType);
-			return this.resolvedType = BooleanBinding;
+			return this.resolvedType = TypeBinding.BOOLEAN;
 		}
 	
 		// Object references 
 		// spec 15.20.3
-		if ((!leftType.isBaseType() || leftType == NullBinding) // cannot compare: Object == (int)0
-				&& (!rightType.isBaseType() || rightType == NullBinding)
+		if ((!leftType.isBaseType() || leftType == TypeBinding.NULL) // cannot compare: Object == (int)0
+				&& (!rightType.isBaseType() || rightType == TypeBinding.NULL)
 				&& (this.checkCastTypesCompatibility(scope, leftType, rightType, null) 
 						|| this.checkCastTypesCompatibility(scope, rightType, leftType, null))) {
 
@@ -816,7 +816,7 @@ public class EqualExpression extends BinaryExpression {
 					if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
 				}
 			}
-			return this.resolvedType = BooleanBinding;
+			return this.resolvedType = TypeBinding.BOOLEAN;
 		}
 		constant = Constant.NotAConstant;
 		scope.problemReporter().notCompatibleTypesError(this, leftType, rightType);

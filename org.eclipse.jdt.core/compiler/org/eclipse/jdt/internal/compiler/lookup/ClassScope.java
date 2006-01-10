@@ -49,7 +49,7 @@ public class ClassScope extends Scope {
 			sourceType.superInterfaces = new ReferenceBinding[] { supertype };
 		} else {
 			sourceType.superclass = supertype;
-			sourceType.superInterfaces = TypeConstants.NoSuperInterfaces;
+			sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
 		}
 		connectMemberTypes();
 		buildFieldsAndMethods();
@@ -63,9 +63,9 @@ public class ClassScope extends Scope {
 			if (hierarchyIsInconsistent) { // 72468
 				referenceContext.binding.fields = new FieldBinding[1];
 				referenceContext.binding.fields[0] =
-					new FieldBinding(IncompleteHierarchy, IntBinding, ClassFileConstants.AccPrivate, referenceContext.binding, null);
+					new FieldBinding(IncompleteHierarchy, TypeBinding.INT, ClassFileConstants.AccPrivate, referenceContext.binding, null);
 			} else {
-				referenceContext.binding.fields = NoFields;
+				referenceContext.binding.fields = Binding.NO_FIELDS;
 			}
 			return;
 		}
@@ -136,7 +136,7 @@ public class ClassScope extends Scope {
 			fieldBindings = newFieldBindings;
 		}
 		if (hierarchyIsInconsistent)
-			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, IntBinding, ClassFileConstants.AccPrivate, referenceContext.binding, null);
+			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, TypeBinding.INT, ClassFileConstants.AccPrivate, referenceContext.binding, null);
 
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
@@ -173,7 +173,7 @@ public class ClassScope extends Scope {
 		buildTypeVariables();
 		
 		// Look at member types
-		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
+		ReferenceBinding[] memberTypeBindings = Binding.NO_MEMBER_TYPES;
 		if (referenceContext.memberTypes != null) {
 			int size = referenceContext.memberTypes.length;
 			memberTypeBindings = new ReferenceBinding[size];
@@ -226,7 +226,7 @@ public class ClassScope extends Scope {
 	
 	private void buildMemberTypes(AccessRestriction accessRestriction) {
 	    SourceTypeBinding sourceType = referenceContext.binding;
-		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
+		ReferenceBinding[] memberTypeBindings = Binding.NO_MEMBER_TYPES;
 		if (referenceContext.memberTypes != null) {
 			int length = referenceContext.memberTypes.length;
 			memberTypeBindings = new ReferenceBinding[length];
@@ -273,7 +273,7 @@ public class ClassScope extends Scope {
 	private void buildMethods() {
 		boolean isEnum = TypeDeclaration.kind(referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
 		if (referenceContext.methods == null && !isEnum) {
-			referenceContext.binding.methods = NoMethods;
+			referenceContext.binding.methods = Binding.NO_METHODS;
 			return;
 		}
 
@@ -344,10 +344,10 @@ public class ClassScope extends Scope {
 		
 	    // do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
-		    sourceType.typeVariables = NoTypeVariables;
+		    sourceType.typeVariables = Binding.NO_TYPE_VARIABLES;
 		    return;
 		}
-		sourceType.typeVariables = NoTypeVariables; // safety
+		sourceType.typeVariables = Binding.NO_TYPE_VARIABLES; // safety
 
 		if (sourceType.id == T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			problemReporter().objectCannotBeGeneric(referenceContext);
@@ -650,7 +650,7 @@ public class ClassScope extends Scope {
 				return;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (itsInterfaces == null)
 					return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 				if (interfacesToVisit == null)
@@ -674,7 +674,7 @@ public class ClassScope extends Scope {
 
 						needToTag = true;
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 							if (itsInterfaces == null)
 								return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 							if (++lastPosition == interfacesToVisit.length)
@@ -720,7 +720,7 @@ public class ClassScope extends Scope {
 		}
 		// propagate to member types
 		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
-		if (memberTypes != null && memberTypes != NoMemberTypes) {
+		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
 			for (int i = 0, size = memberTypes.length; i < size; i++)
 				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
 		}		
@@ -729,7 +729,7 @@ public class ClassScope extends Scope {
 	private void connectMemberTypes() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
-		if (memberTypes != null && memberTypes != NoMemberTypes) {
+		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
 			for (int i = 0, size = memberTypes.length; i < size; i++)
 				 ((SourceTypeBinding) memberTypes[i]).scope.connectTypeHierarchy();
 		}
@@ -749,7 +749,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if (sourceType.id == T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			sourceType.superclass = null;
-			sourceType.superInterfaces = NoSuperInterfaces;
+			sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
 			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
 			if (referenceContext.superclass != null || (referenceContext.superInterfaces != null && referenceContext.superInterfaces.length > 0))
@@ -795,7 +795,7 @@ public class ClassScope extends Scope {
 		boolean foundCycle = detectHierarchyCycle(sourceType, rootEnumType, null);
 		// arity check for well-known Enum<E>
 		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();
-		if (refTypeVariables == NoTypeVariables) { // check generic
+		if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
 			problemReporter().nonGenericTypeCannotBeParameterized(null, rootEnumType, new TypeBinding[]{ sourceType });
 			return false; // cannot reach here as AbortCompilation is thrown
 		} else if (1 != refTypeVariables.length) { // check arity
@@ -824,7 +824,7 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		sourceType.superInterfaces = NoSuperInterfaces;
+		sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
 		if (referenceContext.superInterfaces == null) {
 			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
@@ -1060,7 +1060,7 @@ public class ClassScope extends Scope {
 			}
 
 			ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				for (int i = 0, length = itsInterfaces.length; i < length; i++) {
 					ReferenceBinding anInterface = itsInterfaces[i];
 					if (sourceType == anInterface) {

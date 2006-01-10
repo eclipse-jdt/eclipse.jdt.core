@@ -30,6 +30,7 @@ package org.eclipse.jdt.internal.codeassist.select;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -46,7 +47,7 @@ public class SelectionOnMessageSend extends MessageSend {
 	private MethodBinding findNonDefaultAbstractMethod(MethodBinding methodBinding) {
 
 		ReferenceBinding[] itsInterfaces = methodBinding.declaringClass.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -71,7 +72,7 @@ public class SelectionOnMessageSend extends MessageSend {
 						}
 
 						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(

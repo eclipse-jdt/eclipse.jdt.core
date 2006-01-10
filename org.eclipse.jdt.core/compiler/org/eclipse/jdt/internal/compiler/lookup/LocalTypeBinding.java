@@ -31,9 +31,9 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 		enclosingType);
 	
 	if (this.sourceName == TypeDeclaration.ANONYMOUS_EMPTY_NAME)
-		this.tagBits |= AnonymousTypeMask;
+		this.tagBits |= TagBits.AnonymousTypeMask;
 	else
-		this.tagBits |= LocalTypeMask;
+		this.tagBits |= TagBits.LocalTypeMask;
 	this.enclosingCase = switchCase;
 	this.sourceStart = scope.referenceContext.sourceStart;
 	MethodScope methodScope = scope.enclosingMethodScope();
@@ -127,7 +127,7 @@ public char[] genericTypeSignature() {
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isAnonymousType()) {
-		if (superInterfaces == NoSuperInterfaces)
+		if (superInterfaces == Binding.NO_SUPERINTERFACES)
 			readableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.readableName(), TypeConstants.ANONYM_SUFFIX);
 		else
 			readableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].readableName(), TypeConstants.ANONYM_SUFFIX);
@@ -137,7 +137,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 		readableName = this.sourceName;
 	}    
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(readableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {
@@ -155,7 +155,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 public char[] shortReadableName() /*Object*/ {
     char[] shortReadableName;
 	if (isAnonymousType()) {
-		if (superInterfaces == NoSuperInterfaces)
+		if (superInterfaces == Binding.NO_SUPERINTERFACES)
 			shortReadableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.shortReadableName(), TypeConstants.ANONYM_SUFFIX);
 		else
 			shortReadableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].shortReadableName(), TypeConstants.ANONYM_SUFFIX);
@@ -165,7 +165,7 @@ public char[] shortReadableName() /*Object*/ {
 		shortReadableName = sourceName;
 	}
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(shortReadableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {
@@ -182,7 +182,7 @@ public char[] shortReadableName() /*Object*/ {
 
 // Record that the type is a local member type
 public void setAsMemberType() {
-	tagBits |= MemberTypeMask;
+	this.tagBits |= TagBits.MemberTypeMask;
 }
 
 public void setConstantPoolName(char[] computedConstantPoolName) /* java/lang/Object */ {
@@ -204,7 +204,7 @@ public char[] signature() {
 }
 public char[] sourceName() {
 	if (isAnonymousType()) {
-		if (superInterfaces == NoSuperInterfaces)
+		if (superInterfaces == Binding.NO_SUPERINTERFACES)
 			return CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.sourceName(), TypeConstants.ANONYM_SUFFIX);
 		else
 			return CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].sourceName(), TypeConstants.ANONYM_SUFFIX);

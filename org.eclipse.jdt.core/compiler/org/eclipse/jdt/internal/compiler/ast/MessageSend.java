@@ -51,7 +51,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	}
 	ReferenceBinding[] thrownExceptions;
-	if ((thrownExceptions = binding.thrownExceptions) != NoExceptions) {
+	if ((thrownExceptions = binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
 		// must verify that exceptions potentially thrown by this expression are caught in the method
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
 	}
@@ -79,7 +79,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	        this.valueCast = originalType.genericCast(targetType); 
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
-						&& this.binding.parameters == NoParameters 
+						&& this.binding.parameters == Binding.NO_PARAMETERS 
 						&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
@@ -238,28 +238,28 @@ public TypeBinding postConversionType(Scope scope) {
 	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 	switch (runtimeType) {
 		case T_boolean :
-			convertedType = BooleanBinding;
+			convertedType = TypeBinding.BOOLEAN;
 			break;
 		case T_byte :
-			convertedType = ByteBinding;
+			convertedType = TypeBinding.BYTE;
 			break;
 		case T_short :
-			convertedType = ShortBinding;
+			convertedType = TypeBinding.SHORT;
 			break;
 		case T_char :
-			convertedType = CharBinding;
+			convertedType = TypeBinding.CHAR;
 			break;
 		case T_int :
-			convertedType = IntBinding;
+			convertedType = TypeBinding.INT;
 			break;
 		case T_float :
-			convertedType = FloatBinding;
+			convertedType = TypeBinding.FLOAT;
 			break;
 		case T_long :
-			convertedType = LongBinding;
+			convertedType = TypeBinding.LONG;
 			break;
 		case T_double :
-			convertedType = DoubleBinding;
+			convertedType = TypeBinding.DOUBLE;
 			break;
 		default :
 	}		
@@ -325,7 +325,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	}	
 	// will check for null after args are resolved
-	TypeBinding[] argumentTypes = NoParameters;
+	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	if (arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
 		int length = arguments.length;
@@ -438,7 +438,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
-			&& this.binding.parameters == NoParameters 
+			&& this.binding.parameters == Binding.NO_PARAMETERS 
 			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;

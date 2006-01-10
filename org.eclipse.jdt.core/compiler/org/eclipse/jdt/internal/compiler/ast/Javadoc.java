@@ -191,7 +191,7 @@ public class Javadoc extends ASTNode {
 			if (reportMissing && methDecl != null) {
 				if (methDecl.isMethod()) {
 					MethodDeclaration meth = (MethodDeclaration) methDecl;
-					if (meth.binding.returnType != VoidBinding) {
+					if (meth.binding.returnType != TypeBinding.VOID) {
 						// method with return should have @return tag
 						methScope.problemReporter().javadocMissingReturnTag(meth.returnType.sourceStart, meth.returnType.sourceEnd, methDecl.binding.modifiers);
 					}

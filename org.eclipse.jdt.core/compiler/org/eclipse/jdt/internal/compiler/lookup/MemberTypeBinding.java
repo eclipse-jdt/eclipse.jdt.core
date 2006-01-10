@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 public final class MemberTypeBinding extends NestedTypeBinding {
 public MemberTypeBinding(char[][] compoundName, ClassScope scope, SourceTypeBinding enclosingType) {
 	super(compoundName, scope, enclosingType);
-	this.tagBits |= MemberTypeMask;
+	this.tagBits |= TagBits.MemberTypeMask;
 }
 void checkSyntheticArgsAndFields() {
 	if (this.isStatic()) return;

@@ -161,7 +161,7 @@ public class DoStatement extends Statement {
 	}
 	public void resolve(BlockScope scope) {
 
-		TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);
+		TypeBinding type = condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		condition.computeConversion(scope, type, type);
 		if (action != null)
 			action.resolve(scope);

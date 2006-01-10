@@ -109,9 +109,9 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				if (binding.resolvedPosition != -1) {
 					// 26903, need extra cast to store null in array local var	
 					if (binding.type.isArrayType() 
-						&& (initialization.resolvedType == NullBinding	// arrayLoc = null
+						&& (initialization.resolvedType == TypeBinding.NULL	// arrayLoc = null
 							|| ((initialization instanceof CastExpression)	// arrayLoc = (type[])null
-								&& (((CastExpression)initialization).innermostCastedExpression().resolvedType == NullBinding)))){
+								&& (((CastExpression)initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
 						codeStream.checkcast(binding.type); 
 					}					
 					codeStream.store(binding, false);
@@ -124,7 +124,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						//					codeStream.lastInitStateIndexWhenAddingInits = -2; // reinitialize add index 
 					}
 				} else {
-					if ((binding.type == LongBinding) || (binding.type == DoubleBinding)) {
+					if ((binding.type == TypeBinding.LONG) || (binding.type == TypeBinding.DOUBLE)) {
 						codeStream.pop2();
 					} else {
 						codeStream.pop();
@@ -149,11 +149,11 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 
 		checkModifiers();
 		if (variableType != null) {
-			if (variableType == VoidBinding) {
+			if (variableType == TypeBinding.VOID) {
 				scope.problemReporter().variableTypeCannotBeVoid(this);
 				return;
 			}
-			if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == VoidBinding) {
+			if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == TypeBinding.VOID) {
 				scope.problemReporter().variableTypeCannotBeVoidArray(this);
 				return;
 			}

@@ -82,7 +82,7 @@ boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null && this.type.superclass().isAbstract())
 		return false;
-	return this.type.superInterfaces() == NoSuperInterfaces;
+	return this.type.superInterfaces() == Binding.NO_SUPERINTERFACES;
 }
 boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
 	return two == null // already know one is not null
@@ -132,7 +132,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			continue nextMethod;
 		}
 
-		if (currentMethod.thrownExceptions != NoExceptions)
+		if (currentMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 			checkExceptions(currentMethod, inheritedMethod);
 		if (inheritedMethod.isFinal())
 			problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
@@ -161,7 +161,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	if (!concreteMethod.isPublic())
 		// Cannot reduce visibility of a public method specified by an interface
 		problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
-	if (concreteMethod.thrownExceptions != NoExceptions)
+	if (concreteMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 		for (int i = abstractMethods.length; --i >= 0;)
 			checkExceptions(concreteMethod, abstractMethods[i]);
 }
@@ -368,7 +368,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
 	int lastPosition = -1;
 	ReferenceBinding[] itsInterfaces = superInterfaces;
-	if (itsInterfaces != NoSuperInterfaces)
+	if (itsInterfaces != Binding.NO_SUPERINTERFACES)
 		interfacesToVisit[++lastPosition] = itsInterfaces;
 
 	ReferenceBinding superType = superclass;
@@ -379,7 +379,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	    if (allSuperclassesAreAbstract) {
 		    if (superType.isAbstract()) {
 				// only need to include superinterfaces if immediate superclasses are abstract
-				if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+				if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 					if (++lastPosition == interfacesToVisit.length)
 						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 					interfacesToVisit[lastPosition] = itsInterfaces;
@@ -453,7 +453,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 			if ((superType.tagBits & InterfaceVisited) == 0) {
 				superType.tagBits |= InterfaceVisited;
 				if (superType.isValidBinding()) {
-					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 						if (++lastPosition == interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 						interfacesToVisit[lastPosition] = itsInterfaces;
@@ -571,7 +571,7 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 		return exceptions;
 
 	if (!(method.declaringClass instanceof BinaryTypeBinding))
-		return TypeConstants.NoExceptions; // safety check
+		return Binding.NO_EXCEPTIONS; // safety check
 
 	for (int i = exceptions.length; --i >= 0;)
 		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);

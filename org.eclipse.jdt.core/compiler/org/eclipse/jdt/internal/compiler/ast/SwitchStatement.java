@@ -248,15 +248,15 @@ public class SwitchStatement extends Statement {
 				expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (expressionType.isBaseType()) {
-						if (expression.isConstantValueOfTypeAssignableToType(expressionType, IntBinding))
+						if (expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
-						if (expressionType.isCompatibleWith(IntBinding))
+						if (expressionType.isCompatibleWith(TypeBinding.INT))
 							break checkType;
 					} else if (expressionType.isEnum()) {
 						isEnumSwitch = true;
 						break checkType;
-					} else if (upperScope.isBoxingCompatibleWith(expressionType, IntBinding)) {
-						expression.computeConversion(upperScope, IntBinding, expressionType);
+					} else if (upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
+						expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
 					}
 					upperScope.problemReporter().incorrectSwitchType(expression, expressionType);

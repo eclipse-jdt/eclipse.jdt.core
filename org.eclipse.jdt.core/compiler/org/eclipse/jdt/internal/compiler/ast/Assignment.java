@@ -77,7 +77,7 @@ public class Assignment extends Expression {
 	void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
 		
 		FieldBinding leftField = getLastField(this.lhs);
-		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
+		if (leftField != null &&  rhsType != TypeBinding.NULL && lhsType.isWildcard() && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
 		    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
 		} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
@@ -233,8 +233,8 @@ public class Assignment extends Expression {
 		TypeBinding lhsType = this.resolvedType; 
 		TypeBinding rhsType = this.expression.resolvedType;
 		// signal possible accidental boolean assignment (instead of using '==' operator)
-		if (expectedType == BooleanBinding 
-				&& lhsType == BooleanBinding 
+		if (expectedType == TypeBinding.BOOLEAN 
+				&& lhsType == TypeBinding.BOOLEAN 
 				&& (this.lhs.bits & IsStrictlyAssigned) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}

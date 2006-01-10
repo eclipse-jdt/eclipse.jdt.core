@@ -259,7 +259,7 @@ public abstract class Expression extends Statement {
 		switch(expressionType.kind()) {
 			case Binding.BASE_TYPE :
 				//-----------cast to something which is NOT a base type--------------------------	
-				if (expressionType == NullBinding) {
+				if (expressionType == TypeBinding.NULL) {
 					tagAsUnnecessaryCast(scope, castType);
 					return true; //null is compatible with every thing
 				}
@@ -532,7 +532,7 @@ public abstract class Expression extends Statement {
 		// it is possible for a Byte to be unboxed to a byte & then converted to an int
 		// but it is not possible for a byte to become Byte & then assigned to an Integer,
 		// or to become an int before boxed into an Integer
-		if (runtimeType != NullBinding && runtimeType.isBaseType()) {
+		if (runtimeType != TypeBinding.NULL && runtimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
 				TypeBinding unboxedType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = UNBOXING;
@@ -540,7 +540,7 @@ public abstract class Expression extends Statement {
 				compileTimeType = unboxedType;
 			}
 		} else {
-			if (compileTimeType != NullBinding && compileTimeType.isBaseType()) {
+			if (compileTimeType != TypeBinding.NULL && compileTimeType.isBaseType()) {
 				TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
 				if (boxedType == runtimeType) // Object o = 12;
 					boxedType = compileTimeType; 
@@ -771,7 +771,7 @@ public abstract class Expression extends Statement {
 			return true;
 		if (constantType.isBaseType() && targetType.isBaseType()) {
 			//No free assignment conversion from anything but to integral ones.
-			if ((constantType == IntBinding
+			if ((constantType == TypeBinding.INT
 				|| BaseTypeBinding.isWidening(T_int, constantType.id))
 				&& (BaseTypeBinding.isNarrowing(targetType.id, T_int))) {
 				//use current explicit conversion in order to get some new value to compare with current one
@@ -831,28 +831,28 @@ public abstract class Expression extends Statement {
 		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		switch (runtimeType) {
 			case T_boolean :
-				convertedType = BooleanBinding;
+				convertedType = TypeBinding.BOOLEAN;
 				break;
 			case T_byte :
-				convertedType = ByteBinding;
+				convertedType = TypeBinding.BYTE;
 				break;
 			case T_short :
-				convertedType = ShortBinding;
+				convertedType = TypeBinding.SHORT;
 				break;
 			case T_char :
-				convertedType = CharBinding;
+				convertedType = TypeBinding.CHAR;
 				break;
 			case T_int :
-				convertedType = IntBinding;
+				convertedType = TypeBinding.INT;
 				break;
 			case T_float :
-				convertedType = FloatBinding;
+				convertedType = TypeBinding.FLOAT;
 				break;
 			case T_long :
-				convertedType = LongBinding;
+				convertedType = TypeBinding.LONG;
 				break;
 			case T_double :
-				convertedType = DoubleBinding;
+				convertedType = TypeBinding.DOUBLE;
 				break;
 			default :
 		}		

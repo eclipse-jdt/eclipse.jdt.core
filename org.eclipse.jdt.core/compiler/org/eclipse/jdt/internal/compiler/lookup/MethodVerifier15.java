@@ -84,7 +84,7 @@ boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null)
 		if (this.type.superclass().isAbstract() || this.type.superclass().isParameterizedType())
 			return false;
-	return this.type.superInterfaces() == NoSuperInterfaces;
+	return this.type.superInterfaces() == Binding.NO_SUPERINTERFACES;
 }
 boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
 	return two == null // already know one is not null
@@ -220,7 +220,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 		int lastPosition = -1;
 		ReferenceBinding[] itsInterfaces = null;
 		ReferenceBinding superType = inheritedMethod.declaringClass;
-		if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -233,7 +233,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 				if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
 					return;
 			}
-			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -252,7 +252,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 						if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
 							return;
 					}
-					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 						if (++lastPosition == interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 						interfacesToVisit[lastPosition] = itsInterfaces;
@@ -407,7 +407,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 		((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
 
 	TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables;
-	if (inheritedTypeVariables == NoTypeVariables) return inheritedMethod;
+	if (inheritedTypeVariables == Binding.NO_TYPE_VARIABLES) return inheritedMethod;
 	int inheritedLength = inheritedTypeVariables.length;
 	TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
 	int length = typeVariables.length;
@@ -483,7 +483,7 @@ boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substit
 		return false;
 
 	// also allow a method such as Number foo(Number) to override <U> T foo(T) where T extends Number
-	if (method.typeVariables != NoTypeVariables || !substituteMethod.hasSubstitutedParameters())
+	if (method.typeVariables != Binding.NO_TYPE_VARIABLES || !substituteMethod.hasSubstitutedParameters())
 		return false;
 	if (method.declaringClass.findSuperTypeWithSameErasure(substituteMethod.declaringClass) == null)
 		return false;
@@ -517,7 +517,7 @@ boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	// one has type variables and substituteTwo did not pass bounds check in computeSubstituteMethod()
-	return one.typeVariables != NoTypeVariables && !(substituteTwo instanceof ParameterizedGenericMethodBinding);
+	return one.typeVariables != Binding.NO_TYPE_VARIABLES && !(substituteTwo instanceof ParameterizedGenericMethodBinding);
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
 	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())
@@ -537,7 +537,7 @@ void verify(SourceTypeBinding someType) {
 	for (int i = someType.typeVariables.length; --i >= 0;) {
 		TypeVariableBinding var = someType.typeVariables[i];
 		// must verify bounds if the variable has more than 1
-		if (var.superInterfaces == NoSuperInterfaces) continue;
+		if (var.superInterfaces == Binding.NO_SUPERINTERFACES) continue;
 		if (var.superInterfaces.length == 1 && var.superclass.id == TypeIds.T_JavaLangObject) continue;
 
 		this.currentMethods = new HashtableOfObject(0);

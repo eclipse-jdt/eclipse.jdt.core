@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -1370,7 +1369,7 @@ class DefaultBindingResolver extends BindingResolver {
 			 * that is a constructor declaration. It prevents null from being returned
 			 */
 			if (((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.VOID) {
-				return this.getTypeBinding(BaseTypes.VoidBinding);
+				return this.getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.TypeBinding.VOID);
 			}
 		}
 		return null;

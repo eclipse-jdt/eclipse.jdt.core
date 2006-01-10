@@ -106,7 +106,7 @@ public class FloatLiteral extends NumberLiteral {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	public TypeBinding literalType(BlockScope scope) {
-		return FloatBinding;
+		return TypeBinding.FLOAT;
 	}
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		visitor.visit(this, blockScope);

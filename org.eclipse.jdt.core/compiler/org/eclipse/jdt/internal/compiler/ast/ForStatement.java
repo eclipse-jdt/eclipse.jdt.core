@@ -308,7 +308,7 @@ public class ForStatement extends Statement {
 			for (int i = 0, length = initializations.length; i < length; i++)
 				initializations[i].resolve(scope);
 		if (condition != null) {
-			TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);
+			TypeBinding type = condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			condition.computeConversion(scope, type, type);
 		}
 		if (increments != null)

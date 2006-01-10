@@ -76,7 +76,7 @@ public abstract class Statement extends ASTNode {
 			} else if (argLength == paramLength) {
 				// right number of arguments - could be inexact - pass argument as is
 				TypeBinding lastType = arguments[varArgIndex].resolvedType;
-				if (lastType == NullBinding
+				if (lastType == TypeBinding.NULL
 					|| (varArgsType.dimensions() == lastType.dimensions()
 						&& lastType.isCompatibleWith(varArgsType))) {
 					// foo(1, new int[]{2, 3}) or foo(1, null) --> last arg is passed as-is

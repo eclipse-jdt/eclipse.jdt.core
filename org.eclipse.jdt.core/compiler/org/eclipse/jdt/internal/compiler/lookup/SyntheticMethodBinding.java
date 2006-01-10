@@ -49,7 +49,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (isReadAccess) {
 			this.returnType = targetField.type;
 			if (targetField.isStatic()) {
-				this.parameters = NoParameters;
+				this.parameters = Binding.NO_PARAMETERS;
 			} else {
 				this.parameters = new TypeBinding[1];
 				this.parameters[0] = declaringSourceType;
@@ -57,7 +57,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			this.targetReadField = targetField;
 			this.kind = FieldReadAccess;
 		} else {
-			this.returnType = VoidBinding;
+			this.returnType = TypeBinding.VOID;
 			if (targetField.isStatic()) {
 				this.parameters = new TypeBinding[1];
 				this.parameters[0] = targetField.type;
@@ -69,7 +69,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			this.targetWriteField = targetField;
 			this.kind = FieldWriteAccess;
 		}
-		this.thrownExceptions = NoExceptions;
+		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
 	
 		// check for method collision
@@ -139,12 +139,12 @@ public class SyntheticMethodBinding extends MethodBinding {
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;
 		this.selector = selector;
-		this.returnType = declaringSourceType.scope.createArrayType(BaseTypes.IntBinding, 1);
-		this.parameters = NoParameters;
+		this.returnType = declaringSourceType.scope.createArrayType(TypeBinding.INT, 1);
+		this.parameters = Binding.NO_PARAMETERS;
 		this.targetReadField = targetField;
 		this.targetEnumType = enumBinding;
 		this.kind = SwitchTable;
-		this.thrownExceptions = NoExceptions;
+		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
   
 		if (declaringSourceType.isStrictfp()) {
@@ -221,10 +221,10 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccFinal | ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
 		this.tagBits |= TagBits.AnnotationResolved;
-	    this.thrownExceptions = NoExceptions;
+	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
 		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
-		    this.parameters = NoParameters;
+		    this.parameters = Binding.NO_PARAMETERS;
 		    this.kind = EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
 		    this.returnType = declaringEnum;

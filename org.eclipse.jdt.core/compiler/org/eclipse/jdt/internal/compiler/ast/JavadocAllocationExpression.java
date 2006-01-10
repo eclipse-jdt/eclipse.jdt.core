@@ -41,7 +41,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 	
 		// buffering the arguments' types
-		TypeBinding[] argumentTypes = NoParameters;
+		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 		boolean hasTypeVarArgs = false;
 		if (this.arguments != null) {
 			boolean argHasError = false;

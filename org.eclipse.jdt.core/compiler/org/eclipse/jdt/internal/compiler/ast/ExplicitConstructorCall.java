@@ -68,7 +68,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			}
 
 			ReferenceBinding[] thrownExceptions;
-			if ((thrownExceptions = binding.thrownExceptions) != NoExceptions) {
+			if ((thrownExceptions = binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
 				// check exceptions
 				flowContext.checkExceptionHandlers(
 					thrownExceptions,
@@ -301,7 +301,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			}			
 	
 			// arguments buffering for the method lookup
-			TypeBinding[] argumentTypes = NoParameters;
+			TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 			boolean argsContainCast = false;
 			if (arguments != null) {
 				boolean argHasError = false; // typeChecks all arguments
@@ -327,7 +327,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				}
 			} else if (receiverType.erasure().id == T_JavaLangEnum) {
 				// TODO (philippe) get rid of once well-known binding is available
-				argumentTypes = new TypeBinding[] { scope.getJavaLangString(), BaseTypes.IntBinding };
+				argumentTypes = new TypeBinding[] { scope.getJavaLangString(), TypeBinding.INT };
 			}
 			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(this.binding, scope, this.accessMode != ImplicitSuper))

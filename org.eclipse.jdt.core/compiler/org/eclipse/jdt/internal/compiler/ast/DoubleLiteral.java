@@ -104,7 +104,7 @@ public class DoubleLiteral extends NumberLiteral {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	public TypeBinding literalType(BlockScope scope) {
-		return DoubleBinding;
+		return TypeBinding.DOUBLE;
 	}
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		visitor.visit(this, blockScope);

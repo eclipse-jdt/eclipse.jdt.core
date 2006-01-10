@@ -503,7 +503,7 @@ MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
 
 	do {
 		MethodBinding[] methods = currentType.getMethods(selector);
-		if (methods != NoMethods) {
+		if (methods != Binding.NO_METHODS) {
 			for (int i = methods.length; --i >= 0;) {
 				MethodBinding method = methods[i];
 				if (method.isStatic() && method.canBeSeenBy(fPackage))

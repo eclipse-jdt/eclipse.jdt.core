@@ -42,7 +42,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		final int length = originalVariables.length;
 		final boolean isStatic = originalMethod.isStatic();
 		if (length == 0) {
-			this.typeVariables = NoTypeVariables;
+			this.typeVariables = Binding.NO_TYPE_VARIABLES;
 			if (!isStatic) substitution = parameterizedDeclaringClass;
 		} else {
 			// at least fix up the declaringElement binding + bound substitution if non static
@@ -121,7 +121,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.modifiers = originalMethod.modifiers;
 		method.selector = originalMethod.selector;
 		method.declaringClass = originalMethod.declaringClass;
-		method.typeVariables = NoTypeVariables;
+		method.typeVariables = Binding.NO_TYPE_VARIABLES;
 		method.originalMethod = originalMethod;
 		method.parameters = originalMethod.parameters;
 		method.thrownExceptions = originalMethod.thrownExceptions;

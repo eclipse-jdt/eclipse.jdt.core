@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
-public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
+public class MethodBinding extends Binding implements TypeConstants {
 	
 	public int modifiers;
 	public char[] selector;
@@ -25,7 +25,7 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public TypeBinding[] parameters;
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
-	public TypeVariableBinding[] typeVariables = NoTypeVariables;
+	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
 	public long tagBits;
 	
@@ -36,8 +36,8 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	this.modifiers = modifiers;
 	this.selector = selector;
 	this.returnType = returnType;
-	this.parameters = (parameters == null || parameters.length == 0) ? NoParameters : parameters;
-	this.thrownExceptions = (thrownExceptions == null || thrownExceptions.length == 0) ? NoExceptions : thrownExceptions;
+	this.parameters = (parameters == null || parameters.length == 0) ? Binding.NO_PARAMETERS : parameters;
+	this.thrownExceptions = (thrownExceptions == null || thrownExceptions.length == 0) ? Binding.NO_EXCEPTIONS : thrownExceptions;
 	this.declaringClass = declaringClass;
 	
 	// propagate the strictfp & deprecated modifiers
@@ -48,7 +48,7 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	}
 }
 public MethodBinding(int modifiers, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
-	this(modifiers, TypeConstants.INIT, VoidBinding, parameters, thrownExceptions, declaringClass);
+	this(modifiers, TypeConstants.INIT, TypeBinding.VOID, parameters, thrownExceptions, declaringClass);
 }
 // special API used to change method declaring class for runtime visibility check
 public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declaringClass) {
@@ -356,7 +356,7 @@ public final char[] constantPoolName() {
 public char[] genericSignature() {
 	if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;
 	StringBuffer sig = new StringBuffer(10);
-	if (this.typeVariables != NoTypeVariables) {
+	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
 		sig.append('<');
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 			sig.append(this.typeVariables[i].genericSignature());
@@ -499,7 +499,7 @@ public final boolean isOverriding() {
 public final boolean isMain() {
 	if (this.selector.length == 4 && CharOperation.equals(this.selector, MAIN)
 			&& ((this.modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccStatic)) != 0)
-			&& VoidBinding == this.returnType  
+			&& TypeBinding.VOID == this.returnType  
 			&& this.parameters.length == 1) {
 		TypeBinding paramType = this.parameters[0];
 		if (paramType.dimensions() == 1 && paramType.leafComponentType().id == TypeIds.T_JavaLangString) {
@@ -589,7 +589,7 @@ public char[] readableName() /* foo(int, Thread) */ {
 	else
 		buffer.append(selector);
 	buffer.append('(');
-	if (parameters != NoParameters) {
+	if (parameters != Binding.NO_PARAMETERS) {
 		for (int i = 0, length = parameters.length; i < length; i++) {
 			if (i > 0)
 				buffer.append(", "); //$NON-NLS-1$
@@ -610,7 +610,7 @@ public char[] shortReadableName() {
 	else
 		buffer.append(selector);
 	buffer.append('(');
-	if (parameters != NoParameters) {
+	if (parameters != Binding.NO_PARAMETERS) {
 		for (int i = 0, length = parameters.length; i < length; i++) {
 			if (i > 0)
 				buffer.append(", "); //$NON-NLS-1$
@@ -646,7 +646,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	boolean isConstructor = isConstructor();
 	if (isConstructor && declaringClass.isEnum()) { // insert String name,int ordinal 
 		buffer.append(ConstantPool.JavaLangStringSignature);
-		buffer.append(BaseTypes.IntBinding.signature());
+		buffer.append(TypeBinding.INT.signature());
 	}
 	boolean needSynthetics = isConstructor && declaringClass.isNestedType();
 	if (needSynthetics) {
@@ -662,7 +662,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 		}
 	}
 
-	if (targetParameters != NoParameters) {
+	if (targetParameters != Binding.NO_PARAMETERS) {
 		for (int i = 0; i < targetParameters.length; i++) {
 			buffer.append(targetParameters[i].signature());
 		}
@@ -734,7 +734,7 @@ public String toString() {
 
 	s += "("; //$NON-NLS-1$
 	if (parameters != null) {
-		if (parameters != NoParameters) {
+		if (parameters != Binding.NO_PARAMETERS) {
 			for (int i = 0, length = parameters.length; i < length; i++) {
 				if (i  > 0)
 					s += ", "; //$NON-NLS-1$
@@ -747,7 +747,7 @@ public String toString() {
 	s += ") "; //$NON-NLS-1$
 
 	if (thrownExceptions != null) {
-		if (thrownExceptions != NoExceptions) {
+		if (thrownExceptions != Binding.NO_EXCEPTIONS) {
 			s += "throws "; //$NON-NLS-1$
 			for (int i = 0, length = thrownExceptions.length; i < length; i++) {
 				if (i  > 0)

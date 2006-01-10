@@ -46,7 +46,7 @@ public class NullLiteral extends MagicLiteral {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	public TypeBinding literalType(BlockScope scope) {
-		return NullBinding;
+		return TypeBinding.NULL;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {

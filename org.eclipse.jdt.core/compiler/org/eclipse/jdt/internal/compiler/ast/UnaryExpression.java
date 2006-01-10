@@ -248,25 +248,25 @@ public class UnaryExpression extends OperatorExpression {
 		this.bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // only switch on possible result type.....
 			case T_boolean :
-				this.resolvedType = BooleanBinding;
+				this.resolvedType = TypeBinding.BOOLEAN;
 				break;
 			case T_byte :
-				this.resolvedType = ByteBinding;
+				this.resolvedType = TypeBinding.BYTE;
 				break;
 			case T_char :
-				this.resolvedType = CharBinding;
+				this.resolvedType = TypeBinding.CHAR;
 				break;
 			case T_double :
-				this.resolvedType = DoubleBinding;
+				this.resolvedType = TypeBinding.DOUBLE;
 				break;
 			case T_float :
-				this.resolvedType = FloatBinding;
+				this.resolvedType = TypeBinding.FLOAT;
 				break;
 			case T_int :
-				this.resolvedType = IntBinding;
+				this.resolvedType = TypeBinding.INT;
 				break;
 			case T_long :
-				this.resolvedType = LongBinding;
+				this.resolvedType = TypeBinding.LONG;
 				break;
 			default : //error........
 				this.constant = Constant.NotAConstant;

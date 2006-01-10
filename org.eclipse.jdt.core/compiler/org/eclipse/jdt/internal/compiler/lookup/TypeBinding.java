@@ -24,33 +24,47 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  *
  * null is NOT a valid value for a non-public field... it just means the field is not initialized.
  */
-abstract public class TypeBinding extends Binding implements BaseTypes, TagBits, TypeConstants, TypeIds {
-	public int id = NoId;
+abstract public class TypeBinding extends Binding {
+	
+	public int id = TypeIds.NoId;
 	public long tagBits = 0; // See values in the interface TagBits below
+	
+	/** Base type definitions */
+	public final static BaseTypeBinding INT = new BaseTypeBinding(TypeIds.T_int, TypeConstants.INT, new char[] {'I'});
+	public final static BaseTypeBinding BYTE = new BaseTypeBinding(TypeIds.T_byte, TypeConstants.BYTE, new char[] {'B'});
+	public final static BaseTypeBinding SHORT = new BaseTypeBinding(TypeIds.T_short, TypeConstants.SHORT, new char[] {'S'});
+	public final static BaseTypeBinding CHAR = new BaseTypeBinding(TypeIds.T_char, TypeConstants.CHAR, new char[] {'C'});
+	public final static BaseTypeBinding LONG = new BaseTypeBinding(TypeIds.T_long, TypeConstants.LONG, new char[] {'J'});
+	public final static BaseTypeBinding FLOAT = new BaseTypeBinding(TypeIds.T_float, TypeConstants.FLOAT, new char[] {'F'});
+	public final static BaseTypeBinding DOUBLE = new BaseTypeBinding(TypeIds.T_double, TypeConstants.DOUBLE, new char[] {'D'});
+	public final static BaseTypeBinding BOOLEAN = new BaseTypeBinding(TypeIds.T_boolean, TypeConstants.BOOLEAN, new char[] {'Z'});
+	public final static BaseTypeBinding NULL = new BaseTypeBinding(TypeIds.T_null, TypeConstants.NULL, new char[] {'N'}); //N stands for null even if it is never internally used
+	public final static BaseTypeBinding VOID = new BaseTypeBinding(TypeIds.T_void, TypeConstants.VOID, new char[] {'V'});
+	
 /**
  * Match a well-known type id to its binding
  */
 public static final TypeBinding wellKnownType(Scope scope, int id) {
 		switch (id) { 
-			case T_boolean :
-				return BooleanBinding;
-			case T_byte :
-				return ByteBinding;
-			case T_char :
-				return CharBinding;
-			case T_short :
-				return ShortBinding;
-			case T_double :
-				return DoubleBinding;
-			case T_float :
-				return FloatBinding;
-			case T_int :
-				return IntBinding;
-			case T_long :
-				return LongBinding;
-			case T_JavaLangObject :
+			case TypeIds.T_boolean :
+				return TypeBinding.BOOLEAN;
+			case TypeIds.T_byte :
+				return TypeBinding.BYTE;
+			case TypeIds.T_char :
+				return TypeBinding.CHAR;
+			case TypeIds.T_short :
+				return TypeBinding.SHORT;
+			case TypeIds.T_double :
+				return TypeBinding.DOUBLE;
+			case TypeIds.T_float :
+				return TypeBinding.FLOAT;
+			case TypeIds.T_int :
+				return TypeBinding.INT;
+			case TypeIds.T_long :
+				return TypeBinding.LONG;
+			case TypeIds.T_JavaLangObject :
 				return scope.getJavaLangObject();
-			case T_JavaLangString :
+			case TypeIds.T_JavaLangString :
 				return scope.getJavaLangString();
 			default : 
 				return null;
@@ -133,7 +147,7 @@ public char[] genericTypeSignature() {
 public abstract PackageBinding getPackage();
 
 public final boolean isAnonymousType() {
-	return (tagBits & IsAnonymousType) != 0;
+	return (this.tagBits & TagBits.IsAnonymousType) != 0;
 }
 public boolean isAnnotationType() {
 	return false;
@@ -141,12 +155,12 @@ public boolean isAnnotationType() {
 /* Answer true if the receiver is an array
 */
 public final boolean isArrayType() {
-	return (tagBits & IsArrayType) != 0;
+	return (this.tagBits & TagBits.IsArrayType) != 0;
 }
 /* Answer true if the receiver is a base type
 */
 public final boolean isBaseType() {
-	return (tagBits & IsBaseType) != 0;
+	return (this.tagBits & TagBits.IsBaseType) != 0;
 }
 
 	
@@ -193,7 +207,7 @@ public boolean isGenericType() {
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
 public final boolean isHierarchyInconsistent() {
-	return (tagBits & HierarchyHasProblems) != 0;
+	return (this.tagBits & TagBits.HierarchyHasProblems) != 0;
 }
 public boolean isInterface() {
 	return false;
@@ -211,25 +225,25 @@ public boolean isIntersectionType() {
 	return false;
 }
 public final boolean isLocalType() {
-	return (tagBits & IsLocalType) != 0;
+	return (this.tagBits & TagBits.IsLocalType) != 0;
 }
 
 public final boolean isMemberType() {
-	return (tagBits & IsMemberType) != 0;
+	return (this.tagBits & TagBits.IsMemberType) != 0;
 }
 
 public final boolean isNestedType() {
-	return (tagBits & IsNestedType) != 0;
+	return (this.tagBits & TagBits.IsNestedType) != 0;
 }
 public final boolean isNumericType() {
 	switch (id) {
-		case T_int :
-		case T_float :
-		case T_double :
-		case T_short :
-		case T_byte :
-		case T_long :
-		case T_char :
+		case TypeIds.T_int :
+		case TypeIds.T_float :
+		case TypeIds.T_double :
+		case TypeIds.T_short :
+		case TypeIds.T_byte :
+		case TypeIds.T_long :
+		case TypeIds.T_char :
 			return true;
 		default :
 			return false;
@@ -408,7 +422,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
             	if (enclosing != null) {
             		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
             		if (otherEnclosing == null) return false;
-            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+            		if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
 						if (enclosing != otherEnclosing) return false;
             		} else {
             			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
@@ -684,6 +698,6 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 	// subclasses must override if they wrap another type binding
 }
 public TypeVariableBinding[] typeVariables() {
-	return NoTypeVariables;
+	return Binding.NO_TYPE_VARIABLES;
 }
 }

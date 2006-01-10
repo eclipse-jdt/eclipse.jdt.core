@@ -299,7 +299,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	boolean notVisible = false; // we could hold onto the not visible field for extra error reporting
 	while (keepLooking) {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			if (interfacesToVisit == null)
 				interfacesToVisit = new ReferenceBinding[5][];
 			if (++lastPosition == interfacesToVisit.length)
@@ -340,7 +340,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 						}
 					} else {
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 							interfacesToVisit[lastPosition] = itsInterfaces;
@@ -491,7 +491,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 	if (methodBinding != null) {
 		// handle the method clone() specially... cannot be protected or throw exceptions
-		if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
+		if (argumentTypes == Binding.NO_PARAMETERS && CharOperation.equals(selector, CLONE))
 			return new MethodBinding((methodBinding.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic, CLONE, methodBinding.returnType, argumentTypes, null, object);
 		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
 			return methodBinding;
@@ -630,7 +630,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 		}
 	}
 	MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
-	if (methods == NoMethods) {
+	if (methods == Binding.NO_METHODS) {
 		return new ProblemMethodBinding(TypeConstants.INIT, argumentTypes, ProblemReasons.NotFound);
 	}
 	MethodBinding[] compatible = new MethodBinding[methods.length];
@@ -745,7 +745,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 					insideProblem = new ProblemMethodBinding(methodBinding, methodBinding.selector, methodBinding.parameters, ProblemReasons.NonStaticReferenceInStaticContext);
 				}
 			}
-			if (receiverType == methodBinding.declaringClass || (receiverType.getMethods(selector)) != NoMethods) {
+			if (receiverType == methodBinding.declaringClass || (receiverType.getMethods(selector)) != Binding.NO_METHODS) {
 				// found a valid method in the 'immediate' scope (ie. not inherited)
 				// OR the receiverType implemented a method with the correct name
 				if (foundMethod == null) {

@@ -39,7 +39,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.declaringElement = declaringElement;
 		this.rank = rank;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
-		this.tagBits |= HasTypeVariable;
+		this.tagBits |= TagBits.HasTypeVariable;
 	}
 
 	public int kind() {
@@ -51,7 +51,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 */
 	public int boundCheck(Substitution substitution, TypeBinding argumentType) {
 
-		if (argumentType == NullBinding || argumentType == this)
+		if (argumentType == TypeBinding.NULL || argumentType == this)
 			return TypeConstants.OK;
 		boolean hasSubstitution = substitution != null;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
@@ -71,7 +71,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
-						if (superclassBound.id != T_JavaLangObject) {
+						if (superclassBound.id != TypeIds.T_JavaLangObject) {
 							if (isArrayBound) {
 								if (!wildcardBound.isCompatibleWith(superclassBound))
 									return TypeConstants.MISMATCH;
@@ -118,7 +118,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return TypeConstants.OK;
 		}
 		boolean unchecked = false;
-		if (this.superclass.id != T_JavaLangObject) {
+		if (this.superclass.id != TypeIds.T_JavaLangObject) {
 			TypeBinding superType = this.superclass;
 			if (superType != argumentType) { // check identity before substituting (104649)
 				TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, superType) : superType;
@@ -176,7 +176,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		// cannot infer anything from a null type
 		switch (actualType.kind()) {
 			case Binding.BASE_TYPE :
-				if (actualType == NullBinding) return;
+				if (actualType == TypeBinding.NULL) return;
 				TypeBinding boxedType = scope.environment().computeBoxingType(actualType);
 				if (boxedType == actualType) return;
 				actualType = boxedType;
@@ -190,15 +190,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 		// reverse constraint, to reflect variable on rhs:   A << T --> T >: A
 		int variableConstraint;
 		switch(constraint) {
-			case CONSTRAINT_EQUAL :
-				variableConstraint = CONSTRAINT_EQUAL;
+			case TypeConstants.CONSTRAINT_EQUAL :
+				variableConstraint = TypeConstants.CONSTRAINT_EQUAL;
 				break;
-			case CONSTRAINT_EXTENDS :
-				variableConstraint = CONSTRAINT_SUPER;
+			case TypeConstants.CONSTRAINT_EXTENDS :
+				variableConstraint = TypeConstants.CONSTRAINT_SUPER;
 				break;
 			default:
 			//case CONSTRAINT_SUPER :
-				variableConstraint = CONSTRAINT_EXTENDS;
+				variableConstraint =TypeConstants.CONSTRAINT_EXTENDS;
 				break;
 		}
 	    TypeBinding[][] variableSubstitutes = (TypeBinding[][])substitutes.get(this);
@@ -454,7 +454,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (this.superclass != null && this.firstBound == this.superclass) {
 		    buffer.append(" extends ").append(this.superclass.debugName()); //$NON-NLS-1$
 		}
-		if (this.superInterfaces != null && this.superInterfaces != NoSuperInterfaces) {
+		if (this.superInterfaces != null && this.superInterfaces != Binding.NO_SUPERINTERFACES) {
 		   if (this.firstBound != this.superclass) {
 		        buffer.append(" extends "); //$NON-NLS-1$
 	        }

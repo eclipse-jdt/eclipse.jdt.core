@@ -92,7 +92,7 @@ public class ReturnStatement extends Statement {
 			}
 		} else {
 			this.saveValueVariable = null;
-			if (!isSynchronized && this.expression != null && this.expression.resolvedType == BooleanBinding) {
+			if (!isSynchronized && this.expression != null && this.expression.resolvedType == TypeBinding.BOOLEAN) {
 				this.expression.bits |= IsReturnedValue;
 			}
 		}
@@ -178,9 +178,9 @@ public class ReturnStatement extends Statement {
 				? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null 
 					? null 
 					: methodBinding.returnType)
-				: VoidBinding;
+				: TypeBinding.VOID;
 		TypeBinding expressionType;
-		if (methodType == VoidBinding) {
+		if (methodType == TypeBinding.VOID) {
 			// the expression should be null
 			if (this.expression == null)
 				return;
@@ -194,7 +194,7 @@ public class ReturnStatement extends Statement {
 		}
 		this.expression.setExpectedType(methodType); // needed in case of generic method invocation
 		if ((expressionType = this.expression.resolveType(scope)) == null) return;
-		if (expressionType == VoidBinding) {
+		if (expressionType == TypeBinding.VOID) {
 			scope.problemReporter().attemptToReturnVoidValue(this);
 			return;
 		}

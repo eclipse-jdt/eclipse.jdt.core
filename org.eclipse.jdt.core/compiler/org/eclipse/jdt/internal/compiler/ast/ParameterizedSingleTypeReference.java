@@ -148,7 +148,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 
 		TypeVariableBinding[] typeVariables = currentType.typeVariables();
-		if (typeVariables == NoTypeVariables) { // check generic
+		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
 			scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
 			return null;
 		} else if (argLength != typeVariables.length) { // check arity

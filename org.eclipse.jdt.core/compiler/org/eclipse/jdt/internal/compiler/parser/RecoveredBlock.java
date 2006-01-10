@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-/**
- * Internal block structure for parsing recovery 
- */
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -22,9 +19,9 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class RecoveredBlock extends RecoveredStatement implements TerminalTokens, BaseTypes {
+public class RecoveredBlock extends RecoveredStatement implements TerminalTokens {
 
 	public Block blockDeclaration;
 	public RecoveredStatement[] statements;
@@ -310,7 +307,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	if ((fieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 // local var can only be final 
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
-			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
+			&& CharOperation.equals(fieldTypeName[0], TypeBinding.VOID.sourceName()))){ 
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
 		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}

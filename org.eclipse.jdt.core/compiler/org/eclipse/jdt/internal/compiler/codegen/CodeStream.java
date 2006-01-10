@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CodeStream implements OperatorIds, Opcodes, BaseTypes, TypeConstants, TypeIds {
+public class CodeStream implements OperatorIds, Opcodes, TypeConstants, TypeIds {
 
 	public static final boolean DEBUG = false;
 	
@@ -1266,7 +1266,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	Label endLabel;
 	ExceptionLabel anyExceptionHandler;
 	int saveStackSize;
-	if (accessedType.isBaseType() && accessedType != NullBinding) {
+	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
 		this.getTYPE(accessedType.id);
 		return;
 	}
@@ -1294,8 +1294,8 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	
 		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 	
-		anyExceptionHandler = new ExceptionLabel(this, BaseTypes.NullBinding /* represents ClassNotFoundException*/);
-		this.ldc(accessedType == BaseTypes.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
+		anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /* represents ClassNotFoundException*/);
+		this.ldc(accessedType == TypeBinding.NULL ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
 		this.invokeClassForName();
 	
 		/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565
@@ -1895,7 +1895,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
 			load((type = syntheticArguments[i].type), resolvedPosition);
-			if ((type == DoubleBinding) || (type == LongBinding))
+			if ((type == TypeBinding.DOUBLE) || (type == TypeBinding.LONG))
 				resolvedPosition += 2;
 			else
 				resolvedPosition++;
@@ -1903,7 +1903,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	}
 	for (int i = 0; i < length; i++) {
 		load(parameters[i], resolvedPosition);
-		if ((parameters[i] == DoubleBinding) || (parameters[i] == LongBinding))
+		if ((parameters[i] == TypeBinding.DOUBLE) || (parameters[i] == TypeBinding.LONG))
 			resolvedPosition += 2;
 		else
 			resolvedPosition++;
@@ -1915,7 +1915,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
 			load((type = syntheticArguments[i].type), resolvedPosition);
-			if ((type == DoubleBinding) || (type == LongBinding))
+			if ((type == TypeBinding.DOUBLE) || (type == TypeBinding.LONG))
 				resolvedPosition += 2;
 			else
 				resolvedPosition++;
@@ -2027,7 +2027,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 			FieldBinding fieldBinding = fields[i];
 			if ((fieldBinding.getAccessFlags() & ClassFileConstants.AccEnum) != 0) {
 				final Label endLabel = new Label(this);
-				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, BaseTypes.LongBinding /* represents NoSuchFieldError*/);
+				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, TypeBinding.LONG /* represents NoSuchFieldError*/);
 				this.aload_0();
 				this.getstatic(fieldBinding);
 				this.invokeEnumOrdinal(enumBinding.constantPoolName());
@@ -2122,7 +2122,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 	    } else {
 			load(parameter, resolvedPosition);
 		}
-		if ((parameter == DoubleBinding) || (parameter == LongBinding))
+		if ((parameter == TypeBinding.DOUBLE) || (parameter == TypeBinding.LONG))
 			resolvedPosition += 2;
 		else
 			resolvedPosition++;
@@ -3341,7 +3341,7 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 		if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
 			for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 				TypeBinding argType;
-				if (((argType = syntheticArguments[i].type) == LongBinding) || (argType == DoubleBinding)) {
+				if (((argType = syntheticArguments[i].type) == TypeBinding.LONG) || (argType == TypeBinding.DOUBLE)) {
 					this.maxLocals += 2;
 				} else {
 					this.maxLocals++;
@@ -3353,7 +3353,7 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 	if ((arguments = methodBinding.parameters) != null) {
 		for (int i = 0, max = arguments.length; i < max; i++) {
 			TypeBinding argType;
-			if (((argType = arguments[i]) == LongBinding) || (argType == DoubleBinding)) {
+			if (((argType = arguments[i]) == TypeBinding.LONG) || (argType == TypeBinding.DOUBLE)) {
 				this.maxLocals += 2;
 			} else {
 				this.maxLocals++;
@@ -4735,7 +4735,7 @@ public final void load(LocalVariableBinding localBinding) {
 	TypeBinding typeBinding = localBinding.type;
 	int resolvedPosition = localBinding.resolvedPosition;
 	// Using dedicated int bytecode
-	if (typeBinding == IntBinding) {
+	if (typeBinding == TypeBinding.INT) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.iload_0();
@@ -4758,7 +4758,7 @@ public final void load(LocalVariableBinding localBinding) {
 		return;
 	}
 	// Using dedicated float bytecode
-	if (typeBinding == FloatBinding) {
+	if (typeBinding == TypeBinding.FLOAT) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.fload_0();
@@ -4778,7 +4778,7 @@ public final void load(LocalVariableBinding localBinding) {
 		return;
 	}
 	// Using dedicated long bytecode
-	if (typeBinding == LongBinding) {
+	if (typeBinding == TypeBinding.LONG) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.lload_0();
@@ -4798,7 +4798,7 @@ public final void load(LocalVariableBinding localBinding) {
 		return;
 	}
 	// Using dedicated double bytecode
-	if (typeBinding == DoubleBinding) {
+	if (typeBinding == TypeBinding.DOUBLE) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.dload_0();
@@ -4818,7 +4818,7 @@ public final void load(LocalVariableBinding localBinding) {
 		return;
 	}
 	// boolean, byte, char and short are handled as int
-	if ((typeBinding == ByteBinding) || (typeBinding == CharBinding) || (typeBinding == BooleanBinding) || (typeBinding == ShortBinding)) {
+	if ((typeBinding == TypeBinding.BYTE) || (typeBinding == TypeBinding.CHAR) || (typeBinding == TypeBinding.BOOLEAN) || (typeBinding == TypeBinding.SHORT)) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.iload_0();
@@ -4859,7 +4859,7 @@ public final void load(LocalVariableBinding localBinding) {
 public final void load(TypeBinding typeBinding, int resolvedPosition) {
 	countLabels = 0;
 	// Using dedicated int bytecode
-	if (typeBinding == IntBinding) {
+	if (typeBinding == TypeBinding.INT) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.iload_0();
@@ -4879,7 +4879,7 @@ public final void load(TypeBinding typeBinding, int resolvedPosition) {
 		return;
 	}
 	// Using dedicated float bytecode
-	if (typeBinding == FloatBinding) {
+	if (typeBinding == TypeBinding.FLOAT) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.fload_0();
@@ -4899,7 +4899,7 @@ public final void load(TypeBinding typeBinding, int resolvedPosition) {
 		return;
 	}
 	// Using dedicated long bytecode
-	if (typeBinding == LongBinding) {
+	if (typeBinding == TypeBinding.LONG) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.lload_0();
@@ -4919,7 +4919,7 @@ public final void load(TypeBinding typeBinding, int resolvedPosition) {
 		return;
 	}
 	// Using dedicated double bytecode
-	if (typeBinding == DoubleBinding) {
+	if (typeBinding == TypeBinding.DOUBLE) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.dload_0();
@@ -4939,7 +4939,7 @@ public final void load(TypeBinding typeBinding, int resolvedPosition) {
 		return;
 	}
 	// boolean, byte, char and short are handled as int
-	if ((typeBinding == ByteBinding) || (typeBinding == CharBinding) || (typeBinding == BooleanBinding) || (typeBinding == ShortBinding)) {
+	if ((typeBinding == TypeBinding.BYTE) || (typeBinding == TypeBinding.CHAR) || (typeBinding == TypeBinding.BOOLEAN) || (typeBinding == TypeBinding.SHORT)) {
 		switch (resolvedPosition) {
 			case 0 :
 				this.iload_0();
@@ -5996,7 +5996,7 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 }
 public final void store(TypeBinding type, int localPosition) {
 	// Using dedicated int bytecode
-	if ((type == IntBinding) || (type == CharBinding) || (type == ByteBinding) || (type == ShortBinding) || (type == BooleanBinding)) {
+	if ((type == TypeBinding.INT) || (type == TypeBinding.CHAR) || (type == TypeBinding.BYTE) || (type == TypeBinding.SHORT) || (type == TypeBinding.BOOLEAN)) {
 		switch (localPosition) {
 			case 0 :
 				this.istore_0();
@@ -6016,7 +6016,7 @@ public final void store(TypeBinding type, int localPosition) {
 		return;
 	}
 	// Using dedicated float bytecode
-	if (type == FloatBinding) {
+	if (type == TypeBinding.FLOAT) {
 		switch (localPosition) {
 			case 0 :
 				this.fstore_0();
@@ -6036,7 +6036,7 @@ public final void store(TypeBinding type, int localPosition) {
 		return;
 	}
 	// Using dedicated long bytecode
-	if (type == LongBinding) {
+	if (type == TypeBinding.LONG) {
 		switch (localPosition) {
 			case 0 :
 				this.lstore_0();
@@ -6056,7 +6056,7 @@ public final void store(TypeBinding type, int localPosition) {
 		return;
 	}
 	// Using dedicated double bytecode
-	if (type == DoubleBinding) {
+	if (type == TypeBinding.DOUBLE) {
 		switch (localPosition) {
 			case 0 :
 				this.dstore_0();

@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class ForeachStatement extends Statement {
     
@@ -186,8 +185,8 @@ public class ForeachStatement extends Statement {
 							ClassFileConstants.AccPublic,
 							"iterator".toCharArray(),//$NON-NLS-1$
 							scope.getJavaUtilIterator(),
-							TypeConstants.NoParameters,
-							TypeConstants.NoExceptions,
+							Binding.NO_PARAMETERS,
+							Binding.NO_EXCEPTIONS,
 							(ReferenceBinding) this.iteratorReceiverType.erasure());
 				if (this.iteratorReceiverType.isInterface()) {
 					codeStream.invokeinterface(iteratorMethodBinding);
@@ -429,12 +428,12 @@ public class ForeachStatement extends Statement {
 			switch(this.kind) {
 				case ARRAY :
 					// allocate #index secret variable (of type int)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, ClassFileConstants.AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					
 					// allocate #max secret variable
-					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, ClassFileConstants.AccDefault, false);
+					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.maxVariable);
 					this.maxVariable.setConstant(Constant.NotAConstant); // not inlinable
 					// add #array secret variable (of collection type)

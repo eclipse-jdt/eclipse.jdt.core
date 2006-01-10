@@ -68,7 +68,7 @@ public class CastExpression extends Expression {
 		// obvious identity cast
 		if (castedExpressionType == enclosingInstanceType) { 
 			scope.problemReporter().unnecessaryCast((CastExpression)enclosingInstance);
-		} else if (castedExpressionType == NullBinding){
+		} else if (castedExpressionType == TypeBinding.NULL){
 			return; // tolerate null enclosing instance cast
 		} else {
 			TypeBinding alternateEnclosingInstanceType = castedExpressionType; 
@@ -138,7 +138,7 @@ public class CastExpression extends Expression {
 				// obvious identity cast
 				if (castedExpressionType == argumentTypes[i]) { 
 					scope.problemReporter().unnecessaryCast((CastExpression)argument);
-				} else if (castedExpressionType == NullBinding){
+				} else if (castedExpressionType == TypeBinding.NULL){
 					continue; // tolerate null argument cast
 				} else if ((argument.implicitConversion & BOXING) != 0) {
 					continue; // boxing has a side effect: (int) char   is not boxed as simple char

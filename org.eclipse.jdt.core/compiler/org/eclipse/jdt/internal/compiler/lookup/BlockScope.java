@@ -250,7 +250,7 @@ public class BlockScope extends Scope {
 					// assign variable position
 					local.resolvedPosition = this.offset;
 
-					if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
+					if ((local.type == TypeBinding.LONG) || (local.type == TypeBinding.DOUBLE)) {
 						this.offset += 2;
 					} else {
 						this.offset++;

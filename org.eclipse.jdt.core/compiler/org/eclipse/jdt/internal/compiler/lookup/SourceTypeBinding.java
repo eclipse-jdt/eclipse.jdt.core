@@ -56,8 +56,8 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.scope = scope;
 
 	// expect the fields & methods to be initialized correctly later
-	this.fields = NoFields;
-	this.methods = NoMethods;
+	this.fields = Binding.NO_FIELDS;
+	this.methods = Binding.NO_METHODS;
 
 	computeId();
 }
@@ -76,9 +76,9 @@ private void addDefaultAbstractMethod(MethodBinding abstractMethod) {
 	methods = temp;
 }
 public void addDefaultAbstractMethods() {
-	if ((tagBits & KnowsDefaultAbstractMethods) != 0) return;
+	if ((tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
-	tagBits |= KnowsDefaultAbstractMethods;
+	tagBits |= TagBits.KnowsDefaultAbstractMethods;
 	if (isClass() && isAbstract()) {
 		if (this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_2)
 			return; // no longer added for post 1.2 targets
@@ -99,7 +99,7 @@ public void addDefaultAbstractMethods() {
 					}
 
 					ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-					if (itsInterfaces != NoSuperInterfaces) {
+					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 						if (++lastPosition == interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 						interfacesToVisit[lastPosition] = itsInterfaces;
@@ -250,7 +250,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			TypeConstants.SYNTHETIC_ASSERT_DISABLED,
-			BooleanBinding,
+			TypeBinding.BOOLEAN,
 			ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
 			Constant.NotAConstant,
@@ -382,7 +382,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			fieldName,
-			scope.createArrayType(BaseTypes.IntBinding,1),
+			scope.createArrayType(TypeBinding.INT,1),
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
 			Constant.NotAConstant,
@@ -510,7 +510,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	return accessMethod;
 }
 public int kind() {
-	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
+	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
 }
 public char[] computeUniqueKey(boolean isLeaf) {
@@ -549,7 +549,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
-	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
+	if ((this.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0) {
 		this.modifiers |= ClassFileConstants.AccDeprecated;
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
@@ -563,7 +563,7 @@ void faultInTypesForFieldsAndMethods() {
 }
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
-	if ((tagBits & AreFieldsComplete) != 0)
+	if ((tagBits & TagBits.AreFieldsComplete) != 0)
 		return fields;	
 
 	int failed = 0;
@@ -579,7 +579,7 @@ public FieldBinding[] fields() {
 			// ensure fields are consistent reqardless of the error
 			int newSize = fields.length - failed;
 			if (newSize == 0)
-				return fields = NoFields;
+				return fields = Binding.NO_FIELDS;
 
 			FieldBinding[] newFields = new FieldBinding[newSize];
 			for (int i = 0, j = 0, length = fields.length; i < length; i++)
@@ -588,7 +588,7 @@ public FieldBinding[] fields() {
 			fields = newFields;
 		}
 	}
-	tagBits |= AreFieldsComplete;
+	tagBits |= TagBits.AreFieldsComplete;
 	return fields;
 }
 /**
@@ -605,7 +605,7 @@ public char[] genericTypeSignature() {
  */
 public char[] genericSignature() {
     StringBuffer sig = null;
-	if (this.typeVariables != NoTypeVariables) {
+	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
 	    sig = new StringBuffer(10);
 	    sig.append('<');
 	    for (int i = 0, length = this.typeVariables.length; i < length; i++)
@@ -635,7 +635,7 @@ public char[] genericSignature() {
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 public long getAnnotationTagBits() {
-	if ((this.tagBits & AnnotationResolved) == 0) {
+	if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
@@ -644,7 +644,7 @@ public long getAnnotationTagBits() {
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
-		if ((this.tagBits & AnnotationDeprecated) != 0) {
+		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
 			this.modifiers |= ClassFileConstants.AccDeprecated;
 		}
 	}
@@ -655,7 +655,7 @@ public MethodBinding[] getDefaultAbstractMethods() {
 	for (int i = methods.length; --i >= 0;)
 		if (methods[i].isDefaultAbstract())
 			count++;
-	if (count == 0) return NoMethods;
+	if (count == 0) return Binding.NO_METHODS;
 
 	MethodBinding[] result = new MethodBinding[count];
 	count = 0;
@@ -668,7 +668,7 @@ public MethodBinding[] getDefaultAbstractMethods() {
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
 
-	if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
+	if ((tagBits & TagBits.AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
 			if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
@@ -702,7 +702,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	int selectorLength = selector.length;
 	boolean foundNothing = true;
 
-	if ((tagBits & AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
+	if ((tagBits & TagBits.AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
 			if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
@@ -718,7 +718,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 		}
 	} else {
 		MethodBinding[] matchingMethods = getMethods(selector); // takes care of duplicates & default abstract methods
-		foundNothing = matchingMethods == NoMethods;
+		foundNothing = matchingMethods == Binding.NO_METHODS;
 		nextMethod : for (int m = matchingMethods.length; --m >= 0;) {
 			MethodBinding method = matchingMethods[m];
 			TypeBinding[] toMatch = method.parameters;
@@ -762,7 +762,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 					// ensure fields are consistent reqardless of the error
 					int newSize = fields.length - 1;
 					if (newSize == 0) {
-						fields = NoFields;
+						fields = Binding.NO_FIELDS;
 					} else {
 						FieldBinding[] newFields = new FieldBinding[newSize];
 						System.arraycopy(fields, 0, newFields, 0, i);
@@ -778,7 +778,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] getMethods(char[] selector) {
 	int selectorLength = selector.length;
-	boolean methodsAreResolved = (tagBits & AreMethodsComplete) != 0; // have resolved all arg types & return type of the methods
+	boolean methodsAreResolved = (tagBits & TagBits.AreMethodsComplete) != 0; // have resolved all arg types & return type of the methods
 	java.util.ArrayList matchingMethods = null;
 	for (int i = 0, length = methods.length; i < length; i++) {
 		MethodBinding method = methods[i];
@@ -793,7 +793,7 @@ public MethodBinding[] getMethods(char[] selector) {
 		}
 	}
 	if (matchingMethods == null)
-		return NoMethods;
+		return Binding.NO_METHODS;
 
 	MethodBinding[] result = new MethodBinding[matchingMethods.size()];
 	matchingMethods.toArray(result);
@@ -868,7 +868,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 			return ((WildcardBinding) otherType).boundCheck(this);
 
 		case Binding.PARAMETERIZED_TYPE :
-			if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+			if ((otherType.tagBits & TagBits.HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
 				return false; // should have been identical
 			ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 			if (this != otherParamType.type) 
@@ -878,7 +878,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
             	if (enclosing != null) {
             		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
             		if (otherEnclosing == null) return false;
-            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+            		if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
 						if (enclosing != otherEnclosing) return false;
             		} else {
             			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
@@ -901,7 +901,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	return false;
 }
 public boolean isGenericType() {
-    return this.typeVariables != NoTypeVariables;
+    return this.typeVariables != Binding.NO_TYPE_VARIABLES;
 }
 public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
@@ -947,7 +947,7 @@ public boolean hasMemberTypes() {
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
-	if ((tagBits & AreMethodsComplete) != 0)
+	if ((tagBits & TagBits.AreMethodsComplete) != 0)
 		return methods;
 
 	int failed = 0;
@@ -996,7 +996,7 @@ public MethodBinding[] methods() {
 							// duplicates regardless of return types
 						} else if (method.returnType.erasure() == subMethod.returnType.erasure() && (equalParams || method.areParameterErasuresEqual(method2))) {
 							// name clash for sure if not duplicates, report as duplicates
-						} else if (!equalTypeVars && vars != NoTypeVariables && vars2 != NoTypeVariables) {
+						} else if (!equalTypeVars && vars != Binding.NO_TYPE_VARIABLES && vars2 != Binding.NO_TYPE_VARIABLES) {
 							// type variables are different so we can distinguish between methods
 							continue nextMethod;
 						} else if (pLength > 0) {
@@ -1007,7 +1007,7 @@ public MethodBinding[] methods() {
 									break;
 								if (params1[index] == params2[index]) {
 									TypeBinding type = params1[index].leafComponentType();
-									if (type instanceof SourceTypeBinding && type.typeVariables() != NoTypeVariables) {
+									if (type instanceof SourceTypeBinding && type.typeVariables() != Binding.NO_TYPE_VARIABLES) {
 										index = pLength; // handle comparing identical source types like X<T>... its erasure is itself BUT we need to answer false
 										break;
 									}
@@ -1062,7 +1062,7 @@ public MethodBinding[] methods() {
 		if (failed > 0) {
 			int newSize = methods.length - failed;
 			if (newSize == 0) {
-				methods = NoMethods;
+				methods = Binding.NO_METHODS;
 			} else {
 				MethodBinding[] newMethods = new MethodBinding[newSize];
 				for (int i = 0, j = 0, length = methods.length; i < length; i++)
@@ -1074,7 +1074,7 @@ public MethodBinding[] methods() {
 
 		// handle forward references to potential default abstract methods
 		addDefaultAbstractMethods();
-		tagBits |= AreMethodsComplete;
+		tagBits |= TagBits.AreMethodsComplete;
 	}		
 	return methods;
 }
@@ -1083,7 +1083,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		return field;
 
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			field.modifiers |= ClassFileConstants.AccDeprecated;
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
@@ -1113,12 +1113,12 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					fieldDecls[f].binding = null;
 					return null;
 				}
-				if (fieldType == VoidBinding) {
+				if (fieldType == TypeBinding.VOID) {
 					scope.problemReporter().variableTypeCannotBeVoid(fieldDecls[f]);
 					fieldDecls[f].binding = null;
 					return null;
 				}
-				if (fieldType.isArrayType() && ((ArrayBinding) fieldType).leafComponentType == VoidBinding) {
+				if (fieldType.isArrayType() && ((ArrayBinding) fieldType).leafComponentType == TypeBinding.VOID) {
 					scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecls[f]);
 					fieldDecls[f].binding = null;
 					return null;
@@ -1139,7 +1139,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		return method;
 
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			method.modifiers |= ClassFileConstants.AccDeprecated;
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
@@ -1195,10 +1195,10 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				foundArgProblem = true;
-			} else if (parameterType == VoidBinding) {
+			} else if (parameterType == TypeBinding.VOID) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
 				foundArgProblem = true;
-			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == VoidBinding) {
+			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == TypeBinding.VOID) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
 			} else {
@@ -1223,7 +1223,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		    TypeBinding methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
-			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == VoidBinding) {
+			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == TypeBinding.VOID) {
 				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);
 				foundReturnTypeProblem = true;
 			} else {
@@ -1236,7 +1236,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	if (foundArgProblem) {
 		methodDecl.binding = null;
-		method.parameters = NoParameters; // see 107004
+		method.parameters = Binding.NO_PARAMETERS; // see 107004
 		// nullify type parameter bindings as well as they have a backpointer to the method binding
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=81134)
 		if (typeParameters != null)
@@ -1346,7 +1346,7 @@ public FieldBinding[] syntheticFields() {
 public String toString() {
     StringBuffer buffer = new StringBuffer(30);
     buffer.append("(id="); //$NON-NLS-1$
-    if (id == NoId) 
+    if (id == TypeIds.NoId) 
         buffer.append("NoId"); //$NON-NLS-1$
     else 
         buffer.append(id);
@@ -1367,7 +1367,7 @@ public String toString() {
 
 	if (this.typeVariables == null) {
 		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
-	} else if (this.typeVariables != NoTypeVariables) {
+	} else if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
 		buffer.append("\n\t<"); //$NON-NLS-1$
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 			if (i  > 0)
@@ -1380,7 +1380,7 @@ public String toString() {
 	buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
 
 	if (superInterfaces != null) {
-		if (superInterfaces != NoSuperInterfaces) {
+		if (superInterfaces != Binding.NO_SUPERINTERFACES) {
 			buffer.append("\n\timplements : "); //$NON-NLS-1$
 			for (int i = 0, length = superInterfaces.length; i < length; i++) {
 				if (i  > 0)
@@ -1398,7 +1398,7 @@ public String toString() {
 	}
 
 	if (fields != null) {
-		if (fields != NoFields) {
+		if (fields != Binding.NO_FIELDS) {
 			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
 			for (int i = 0, length = fields.length; i < length; i++)
 			    buffer.append('\n').append((fields[i] != null) ? fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$ 
@@ -1408,7 +1408,7 @@ public String toString() {
 	}
 
 	if (methods != null) {
-		if (methods != NoMethods) {
+		if (methods != Binding.NO_METHODS) {
 			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 			for (int i = 0, length = methods.length; i < length; i++)
 				buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
@@ -1418,7 +1418,7 @@ public String toString() {
 	}
 
 	if (memberTypes != null) {
-		if (memberTypes != NoMemberTypes) {
+		if (memberTypes != Binding.NO_MEMBER_TYPES) {
 			buffer.append("\n/*   members   */"); //$NON-NLS-1$
 			for (int i = 0, length = memberTypes.length; i < length; i++)
 				buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$

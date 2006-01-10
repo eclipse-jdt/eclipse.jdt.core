@@ -302,7 +302,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (valueRequired) {
 							codeStream.generateImplicitConversion(assignment.implicitConversion); // implicit conversion
 						} else {
-							if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+							if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 								codeStream.pop2();
 							} else {
 								codeStream.pop();
@@ -313,9 +313,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				}
 				// 26903, need extra cast to store null in array local var	
 				if (localBinding.type.isArrayType() 
-					&& (assignment.expression.resolvedType == NullBinding	// arrayLoc = null
+					&& (assignment.expression.resolvedType == TypeBinding.NULL	// arrayLoc = null
 						|| ((assignment.expression instanceof CastExpression)	// arrayLoc = (type[])null
-							&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == NullBinding)))){
+							&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
 					codeStream.checkcast(localBinding.type); 
 				}
 				
@@ -524,7 +524,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			case Binding.LOCAL : // assigning to a local variable
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (valueRequired) {
-					if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+					if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2();
 					} else {
 						codeStream.dup();
@@ -561,13 +561,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				}
 				if (valueRequired) {
 					if (fieldBinding.isStatic()) {
-						if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.dup2();
 						} else {
 							codeStream.dup();
 						}
 					} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-						if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.dup2_x1();
 						} else {
 							codeStream.dup_x1();
@@ -586,7 +586,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			case Binding.LOCAL : // assigning to a local variable
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				// using incr bytecode if possible
-				if (localBinding.type == IntBinding) {
+				if (localBinding.type == TypeBinding.INT) {
 					if (valueRequired) {
 						codeStream.load(localBinding);
 					}
@@ -598,7 +598,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				} else {
 					codeStream.load(localBinding);
 					if (valueRequired){
-						if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.dup2();
 						} else {
 							codeStream.dup();
@@ -705,28 +705,28 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
 		switch (runtimeType) {
 			case T_boolean :
-				convertedType = BooleanBinding;
+				convertedType = TypeBinding.BOOLEAN;
 				break;
 			case T_byte :
-				convertedType = ByteBinding;
+				convertedType = TypeBinding.BYTE;
 				break;
 			case T_short :
-				convertedType = ShortBinding;
+				convertedType = TypeBinding.SHORT;
 				break;
 			case T_char :
-				convertedType = CharBinding;
+				convertedType = TypeBinding.CHAR;
 				break;
 			case T_int :
-				convertedType = IntBinding;
+				convertedType = TypeBinding.INT;
 				break;
 			case T_float :
-				convertedType = FloatBinding;
+				convertedType = TypeBinding.FLOAT;
 				break;
 			case T_long :
-				convertedType = LongBinding;
+				convertedType = TypeBinding.LONG;
 				break;
 			case T_double :
-				convertedType = DoubleBinding;
+				convertedType = TypeBinding.DOUBLE;
 				break;
 			default :
 		}		

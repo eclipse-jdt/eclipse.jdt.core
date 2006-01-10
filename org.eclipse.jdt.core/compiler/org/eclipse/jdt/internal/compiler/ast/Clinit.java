@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -41,7 +40,7 @@ public class Clinit extends AbstractMethodDeclaration {
 				new ExceptionHandlingFlowContext(
 					staticInitializerFlowContext.parent,
 					this,
-					NoExceptions,
+					Binding.NO_EXCEPTIONS,
 					scope,
 					FlowInfo.DEAD_END);
 

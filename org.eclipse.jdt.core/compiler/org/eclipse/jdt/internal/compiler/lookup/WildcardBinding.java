@@ -48,7 +48,7 @@ public class WildcardBinding extends ReferenceBinding {
 			((UnresolvedReferenceBinding) genericType).addWrapper(this);
 		if (bound instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) bound).addWrapper(this);
-		this.tagBits |=  HasUnresolvedTypeVariables; // cleared in resolve()
+		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
 	public int kind() {
@@ -93,7 +93,7 @@ public class WildcardBinding extends ReferenceBinding {
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-		if (actualType == NullBinding) return;
+		if (actualType == TypeBinding.NULL) return;
 	
 		if (actualType.isCapture()) {
 			CaptureBinding capture = (CaptureBinding) actualType;
@@ -101,7 +101,7 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		
 		switch (constraint) {
-			case CONSTRAINT_EXTENDS : // A << F
+			case TypeConstants.CONSTRAINT_EXTENDS : // A << F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
 //						if (otherType.isWildcard()) {
@@ -124,16 +124,16 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.UNBOUND: // A={?} << F={? extends U}  --> 0
 									break;
 								case Wildcard.EXTENDS: // A={? extends V} << F={? extends U} ---> V << U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_EXTENDS);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_EXTENDS);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_EXTENDS);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_EXTENDS);
 						        	}									
 									break;
 								case Wildcard.SUPER: // A={? super V} << F={? extends U} ---> 0
 									break;
 							}
 						} else { // A=V << F={? extends U} ---> V << U
-							this.bound.collectSubstitutes(scope, actualType, substitutes, CONSTRAINT_EXTENDS);
+							this.bound.collectSubstitutes(scope, actualType, substitutes, TypeConstants.CONSTRAINT_EXTENDS);
 						}
 						break;
 					case Wildcard.SUPER: // F={? super U}
@@ -145,19 +145,19 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.EXTENDS: // A={? extends V} << F={? super U} ---> 0
 									break;
 								case Wildcard.SUPER: // A={? super V} << F={? super U} ---> 0
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_SUPER);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	}									
 									break;
 							}
 						} else { // A=V << F={? super U} ---> V >> U
-							this.bound.collectSubstitutes(scope, actualType, substitutes, CONSTRAINT_SUPER);							
+							this.bound.collectSubstitutes(scope, actualType, substitutes, TypeConstants.CONSTRAINT_SUPER);							
 						}						
 						break;
 				}
 				break;
-			case CONSTRAINT_EQUAL : // A == F
+			case TypeConstants.CONSTRAINT_EQUAL : // A == F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
 //						if (otherType.isWildcard()) {
@@ -180,9 +180,9 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.UNBOUND: // A={?} == F={? extends U}  --> 0
 									break;
 								case Wildcard.EXTENDS: // A={? extends V} == F={? extends U} ---> V == U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_EQUAL);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_EQUAL);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_EQUAL);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_EQUAL);
 						        	}											
 									break;
 								case Wildcard.SUPER: // A={? super V} == F={? extends U} ---> 0
@@ -200,9 +200,9 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.EXTENDS: // A={? extends V} == F={? super U} ---> 0
 									break;
 								case Wildcard.SUPER: // A={? super V} == F={? super U} ---> 0
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_EQUAL);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_EQUAL);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_EQUAL);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_EQUAL);
 						        	}	
 						        	break;
 							}
@@ -211,7 +211,7 @@ public class WildcardBinding extends ReferenceBinding {
 						break;
 				}
 				break;
-			case CONSTRAINT_SUPER : // A >> F
+			case TypeConstants.CONSTRAINT_SUPER : // A >> F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
 //						if (otherType.isWildcard()) {
@@ -234,9 +234,9 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.UNBOUND: // A={?} >> F={? extends U}  --> 0
 									break;
 								case Wildcard.EXTENDS: // A={? extends V} >> F={? extends U} ---> V >> U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_SUPER);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	}										
 									break;
 								case Wildcard.SUPER: // A={? super V} >> F={? extends U} ---> 0
@@ -254,9 +254,9 @@ public class WildcardBinding extends ReferenceBinding {
 								case Wildcard.EXTENDS: // A={? extends V} >> F={? super U} ---> 0
 									break;
 								case Wildcard.SUPER: // A={? super V} >> F={? super U} ---> V >> U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, CONSTRAINT_SUPER);
+									this.bound.collectSubstitutes(scope, actualWildcard.bound, substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], substitutes, TypeConstants.CONSTRAINT_SUPER);
 						        	}	
 						        	break;
 							}
@@ -277,13 +277,13 @@ public class WildcardBinding extends ReferenceBinding {
 		char[] wildCardKey;
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                wildCardKey = WILDCARD_STAR;
+                wildCardKey = TypeConstants.WILDCARD_STAR;
                 break;
             case Wildcard.EXTENDS :
-                wildCardKey = CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey(false/*not a leaf*/));
+                wildCardKey = CharOperation.concat(TypeConstants.WILDCARD_PLUS, this.bound.computeUniqueKey(false/*not a leaf*/));
                 break;
 			default: // SUPER
-			    wildCardKey = CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey(false/*not a leaf*/));
+			    wildCardKey = CharOperation.concat(TypeConstants.WILDCARD_MINUS, this.bound.computeUniqueKey(false/*not a leaf*/));
 				break;
         }
         return CharOperation.concat(genericTypeKey, wildCardKey);
@@ -312,13 +312,13 @@ public class WildcardBinding extends ReferenceBinding {
         if (this.genericSignature == null) {
             switch (this.boundKind) {
                 case Wildcard.UNBOUND : 
-                    this.genericSignature = WILDCARD_STAR;
+                    this.genericSignature = TypeConstants.WILDCARD_STAR;
                     break;
                 case Wildcard.EXTENDS :
-                    this.genericSignature = CharOperation.concat(WILDCARD_PLUS, this.bound.genericTypeSignature());
+                    this.genericSignature = CharOperation.concat(TypeConstants.WILDCARD_PLUS, this.bound.genericTypeSignature());
 					break;
 				default: // SUPER
-				    this.genericSignature = CharOperation.concat(WILDCARD_MINUS, this.bound.genericTypeSignature());
+				    this.genericSignature = CharOperation.concat(TypeConstants.WILDCARD_MINUS, this.bound.genericTypeSignature());
             }
         } 
         return this.genericSignature;
@@ -336,7 +336,7 @@ public class WildcardBinding extends ReferenceBinding {
 			this.fPackage = someGenericType.getPackage();
 		}
 		if (someBound != null) {
-			this.tagBits |= someBound.tagBits & HasTypeVariable;
+			this.tagBits |= someBound.tagBits & TagBits.HasTypeVariable;
 		}
 	}
 
@@ -348,7 +348,7 @@ public class WildcardBinding extends ReferenceBinding {
             if (this.bound instanceof ReferenceBinding) {
                 return ((ReferenceBinding) this.bound).isSuperclassOf(otherType);
             } else { // array bound
-                return otherType.id == T_JavaLangObject;
+                return otherType.id == TypeIds.T_JavaLangObject;
             }
         }
         return false;
@@ -381,10 +381,10 @@ public class WildcardBinding extends ReferenceBinding {
     public char[] readableName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                return WILDCARD_NAME;
+                return TypeConstants.WILDCARD_NAME;
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null) 
-	                return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.readableName());
+	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.readableName());
             	StringBuffer buffer = new StringBuffer(10);
             	buffer.append(this.bound.readableName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
@@ -395,15 +395,15 @@ public class WildcardBinding extends ReferenceBinding {
 				buffer.getChars(0, length, result, 0);
 				return result;	            	
 			default: // SUPER
-			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.readableName());
+			    return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_SUPER, this.bound.readableName());
         }
     }
     
 	ReferenceBinding resolve() {
-		if ((this.tagBits & HasUnresolvedTypeVariables) == 0)
+		if ((this.tagBits & TagBits.HasUnresolvedTypeVariables) == 0)
 			return this;
 
-		this.tagBits &= ~HasUnresolvedTypeVariables;
+		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables;
 		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0);
 	    switch(this.boundKind) {
 	        case Wildcard.EXTENDS :
@@ -421,10 +421,10 @@ public class WildcardBinding extends ReferenceBinding {
     public char[] shortReadableName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                return WILDCARD_NAME;
+                return TypeConstants.WILDCARD_NAME;
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null) 
-	                return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.shortReadableName());
+	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.shortReadableName());
             	StringBuffer buffer = new StringBuffer(10);
             	buffer.append(this.bound.shortReadableName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
@@ -435,7 +435,7 @@ public class WildcardBinding extends ReferenceBinding {
 				buffer.getChars(0, length, result, 0);
 				return result;	            	
 			default: // SUPER
-			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.shortReadableName());
+			    return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_SUPER, this.bound.shortReadableName());
         }
     }
     
@@ -462,11 +462,11 @@ public class WildcardBinding extends ReferenceBinding {
     public char[] sourceName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                return WILDCARD_NAME;
+                return TypeConstants.WILDCARD_NAME;
             case Wildcard.EXTENDS :
-                return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.sourceName());
+                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.sourceName());
 			default: // SUPER
-			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.sourceName());
+			    return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_SUPER, this.bound.sourceName());
         }        
     }
 
@@ -484,7 +484,7 @@ public class WildcardBinding extends ReferenceBinding {
 			}
 			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
 				? (ReferenceBinding) superType
-				: environment.getType(JAVA_LANG_OBJECT);
+				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
 		}
 
 		return this.superclass;
@@ -497,7 +497,7 @@ public class WildcardBinding extends ReferenceBinding {
 				: null;
 			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
 				? (ReferenceBinding) superType
-				: environment.getType(JAVA_LANG_OBJECT);
+				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
 			
 //			TypeBinding superType = null;
 //			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
@@ -521,7 +521,7 @@ public class WildcardBinding extends ReferenceBinding {
         	if (this.typeVariable() != null) {
         		this.superInterfaces = this.typeVariable.superInterfaces();
         	} else {
-        		this.superInterfaces = NoSuperInterfaces;
+        		this.superInterfaces = Binding.NO_SUPERINTERFACES;
         	}
 			if (this.boundKind == Wildcard.EXTENDS) {
 				if (this.bound.isInterface()) {
@@ -560,10 +560,10 @@ public class WildcardBinding extends ReferenceBinding {
 					int otherLength = this.otherBounds.length;
         			System.arraycopy(this.otherBounds, 0, this.superInterfaces = new ReferenceBinding[otherLength], 0, otherLength);
         		} else {
-        			this.superInterfaces = NoSuperInterfaces;
+        			this.superInterfaces = Binding.NO_SUPERINTERFACES;
         		}
         	} else { 
-        		this.superInterfaces = NoSuperInterfaces;
+        		this.superInterfaces = Binding.NO_SUPERINTERFACES;
         	}
         }
         return this.superInterfaces;
@@ -588,17 +588,17 @@ public class WildcardBinding extends ReferenceBinding {
 	public String toString() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                return new String(WILDCARD_NAME);
+                return new String(TypeConstants.WILDCARD_NAME);
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null)
-                	return new String(CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.debugName().toCharArray()));
+                	return new String(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.debugName().toCharArray()));
             	StringBuffer buffer = new StringBuffer(this.bound.debugName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
             		buffer.append('&').append(this.otherBounds[i].debugName());
             	}
             	return buffer.toString();
 			default: // SUPER
-			    return new String(CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.debugName().toCharArray()));
+			    return new String(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_SUPER, this.bound.debugName().toCharArray()));
         }        
 	}		
 	/**

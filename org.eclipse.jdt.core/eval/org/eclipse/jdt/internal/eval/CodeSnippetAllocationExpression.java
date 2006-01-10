@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -86,7 +87,7 @@ public void generateCode(
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
 				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
-				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
+				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
 					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
 				}
 				codeStream.aastore();
@@ -126,7 +127,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// buffering the arguments' types
 	boolean argsContainCast = false;
-	TypeBinding[] argumentTypes = NoParameters;
+	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	if (this.arguments != null) {
 		boolean argHasError = false;
 		int length = this.arguments.length;

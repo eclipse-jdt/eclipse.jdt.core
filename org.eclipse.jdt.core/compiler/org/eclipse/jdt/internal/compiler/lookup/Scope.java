@@ -28,30 +28,40 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
-public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
+public abstract class Scope implements TypeConstants, TypeIds {
 	
+	/* Scope kinds */
 	public final static int BLOCK_SCOPE = 1;
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
 	public final static int METHOD_SCOPE = 2;
 
+	/* Argument Compatibilities */
 	public final static int NOT_COMPATIBLE = -1;
 	public final static int COMPATIBLE = 0;
 	public final static int AUTOBOX_COMPATIBLE = 1;
 	public final static int VARARGS_COMPATIBLE = 2;
 
+	/* Type Compatibilities */
+	public static final int EQUAL_OR_MORE_SPECIFIC = -1;
+	public static final int NOT_RELATED = 0;
+	public static final int MORE_GENERIC = 1;	
+
+	public int kind;
+	public Scope parent;
+	
 	/* Answer an int describing the relationship between the given types.
 	*
-	* 		NotRelated 
-	* 		EqualOrMoreSpecific : left is compatible with right
-	* 		MoreGeneric : right is compatible with left
+	* 		NOT_RELATED 
+	* 		EQUAL_OR_MORE_SPECIFIC : left is compatible with right
+	* 		MORE_GENERIC : right is compatible with left
 	*/
 	public static int compareTypes(TypeBinding left, TypeBinding right) {
 		if (left.isCompatibleWith(right))
-			return EqualOrMoreSpecific;
+			return Scope.EQUAL_OR_MORE_SPECIFIC;
 		if (right.isCompatibleWith(left))
-			return MoreGeneric;
-		return NotRelated;
+			return Scope.MORE_GENERIC;
+		return Scope.NOT_RELATED;
 	}
 	public static TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
@@ -60,11 +70,11 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			switch (name[0]) {
 				case 'i' :
 					if (length == 3 && name[1] == 'n' && name[2] == 't')
-						return IntBinding;
+						return TypeBinding.INT;
 					break;
 				case 'v' :
 					if (length == 4 && name[1] == 'o' && name[2] == 'i' && name[3] == 'd')
-						return VoidBinding;
+						return TypeBinding.VOID;
 					break;
 				case 'b' :
 					if (length == 7
@@ -74,13 +84,13 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 						&& name[4] == 'e'
 						&& name[5] == 'a'
 						&& name[6] == 'n')
-						return BooleanBinding;
+						return TypeBinding.BOOLEAN;
 					if (length == 4 && name[1] == 'y' && name[2] == 't' && name[3] == 'e')
-						return ByteBinding;
+						return TypeBinding.BYTE;
 					break;
 				case 'c' :
 					if (length == 4 && name[1] == 'h' && name[2] == 'a' && name[3] == 'r')
-						return CharBinding;
+						return TypeBinding.CHAR;
 					break;
 				case 'd' :
 					if (length == 6
@@ -89,7 +99,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 						&& name[3] == 'b'
 						&& name[4] == 'l'
 						&& name[5] == 'e')
-						return DoubleBinding;
+						return TypeBinding.DOUBLE;
 					break;
 				case 'f' :
 					if (length == 5
@@ -97,11 +107,11 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 						&& name[2] == 'o'
 						&& name[3] == 'a'
 						&& name[4] == 't')
-						return FloatBinding;
+						return TypeBinding.FLOAT;
 					break;
 				case 'l' :
 					if (length == 4 && name[1] == 'o' && name[2] == 'n' && name[3] == 'g')
-						return LongBinding;
+						return TypeBinding.LONG;
 					break;
 				case 's' :
 					if (length == 5
@@ -109,7 +119,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 						&& name[2] == 'o'
 						&& name[3] == 'r'
 						&& name[4] == 't')
-						return ShortBinding;
+						return TypeBinding.SHORT;
 			}
 		}
 		return null;
@@ -340,10 +350,6 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 	    return substitutedTypes;
 	}
 
-	public int kind;
-
-	public Scope parent;	
-
 	protected Scope(int kind, Scope parent) {
 		this.kind = kind;
 		this.parent = parent;
@@ -400,7 +406,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		if (parameters == arguments
 			&& (method.returnType.tagBits & TagBits.HasTypeVariable) == 0 
 			&& genericTypeArguments == null
-			&& typeVariables == NoTypeVariables)
+			&& typeVariables == Binding.NO_TYPE_VARIABLES)
 				return method;
 
 		int argLength = arguments.length;
@@ -410,7 +416,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			if (!isVarArgs || argLength < paramLength - 1)
 				return null; // incompatible
 
-		if (typeVariables != NoTypeVariables) { // generic method
+		if (typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
 			TypeBinding[] newArgs = null;
 			for (int i = 0; i < argLength; i++) {
 				TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
@@ -457,7 +463,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			if (typeVariable == null) return false;
 
 			typeVariable.superclass = getJavaLangObject();
-			typeVariable.superInterfaces = NoSuperInterfaces;
+			typeVariable.superInterfaces = Binding.NO_SUPERINTERFACES;
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
 
@@ -593,9 +599,9 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
 		// do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5)
-			return NoTypeVariables;
+			return Binding.NO_TYPE_VARIABLES;
 
-		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
+		TypeVariableBinding[] typeVariableBindings = Binding.NO_TYPE_VARIABLES;
 		PackageBinding unitPackage = compilationUnitScope().fPackage;
 		int length = typeParameters.length;
 		typeVariableBindings = new TypeVariableBinding[length];
@@ -799,20 +805,20 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
-		if (exactMethod != null && exactMethod.typeVariables == NoTypeVariables) {
+		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES) {
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 				if (receiverType.id != T_JavaLangObject
-					&& argumentTypes == NoParameters
+					&& argumentTypes == Binding.NO_PARAMETERS
 				    && CharOperation.equals(selector, GETCLASS)
 				    && exactMethod.returnType.isParameterizedType()/*1.5*/) {
 						return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
 			    }
 				// targeting a generic method could find an exact match with variable return type
-				if (exactMethod.typeVariables != NoTypeVariables || invocationSite.genericTypeArguments() != null) {
+				if (exactMethod.typeVariables != Binding.NO_TYPE_VARIABLES || invocationSite.genericTypeArguments() != null) {
 					MethodBinding compatibleMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
-					if (!compatibleMethod.isValidBinding() && exactMethod.typeVariables != NoTypeVariables) {
+					if (!compatibleMethod.isValidBinding() && exactMethod.typeVariables != Binding.NO_TYPE_VARIABLES) {
 						return null; // could be a better generic method match (90423), which will be found by non exact match
 					}
 					exactMethod = compatibleMethod;
@@ -889,7 +895,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 				itsInterfaces = currentType.superInterfaces();
 			}
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
 				if (++lastPosition == interfacesToVisit.length)
@@ -934,7 +940,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							}
 						} else {
 							ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-							if (itsInterfaces != NoSuperInterfaces) {
+							if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 								if (++lastPosition == interfacesToVisit.length)
 									System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 								interfacesToVisit[lastPosition] = itsInterfaces;
@@ -996,7 +1002,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 				itsInterfaces = currentType.superInterfaces();
 			}
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
 				if (++lastPosition == interfacesToVisit.length)
@@ -1043,7 +1049,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							}
 						} else {
 							ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-							if (itsInterfaces != NoSuperInterfaces) {
+							if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 								if (++lastPosition == interfacesToVisit.length)
 									System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 								interfacesToVisit[lastPosition] = itsInterfaces;
@@ -1121,7 +1127,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
-							if (matchingMethod.typeVariables != NoTypeVariables && invocationSite.genericTypeArguments() == null)
+							if (matchingMethod.typeVariables != Binding.NO_TYPE_VARIABLES && invocationSite.genericTypeArguments() == null)
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
@@ -1337,14 +1343,14 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		TypeBinding leafType = receiverType.leafComponentType();
 		if (leafType instanceof ReferenceBinding) {
 			if (!((ReferenceBinding) leafType).canBeSeenBy(this))
-				return new ProblemMethodBinding(selector, TypeConstants.NoParameters, (ReferenceBinding)leafType, ProblemReasons.ReceiverTypeNotVisible);
+				return new ProblemMethodBinding(selector, Binding.NO_PARAMETERS, (ReferenceBinding)leafType, ProblemReasons.ReceiverTypeNotVisible);
 		}
 
 		ReferenceBinding object = getJavaLangObject();
 		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 		if (methodBinding != null) {
 			// handle the method clone() specially... cannot be protected or throw exceptions
-			if (argumentTypes == NoParameters) {
+			if (argumentTypes == Binding.NO_PARAMETERS) {
 			    switch (selector[0]) {
 			        case 'c': 
 			            if (CharOperation.equals(selector, CLONE)) {
@@ -1393,7 +1399,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		MethodBinding matchingMethod) {
 
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = -1;
 			if (++lastPosition == interfacesToVisit.length)
@@ -1424,7 +1430,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							found.addAll(currentMethods);
 						}
 						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
 									interfacesToVisit, 0,
@@ -1724,7 +1730,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 				return methodBinding;
 			}
 			MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
-			if (methods == NoMethods)
+			if (methods == Binding.NO_METHODS)
 				return new ProblemMethodBinding(
 					TypeConstants.INIT,
 					argumentTypes,
@@ -1939,7 +1945,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 								}
 	
 								if (receiverType == methodBinding.declaringClass
-									|| (receiverType.getMethods(selector)) != NoMethods
+									|| (receiverType.getMethods(selector)) != Binding.NO_METHODS
 									|| ((fuzzyProblem == null || fuzzyProblem.problemId() != ProblemReasons.NotVisible) && compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
 									// found a valid method in the 'immediate' scope (ie. not inherited)
 									// OR the receiverType implemented a method with the correct name
@@ -2233,7 +2239,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			}
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.id != T_JavaLangObject
-				&& argumentTypes == NoParameters
+				&& argumentTypes == Binding.NO_PARAMETERS
 			    && CharOperation.equals(selector, GETCLASS)
 			    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
 					return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
@@ -2920,7 +2926,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 								TypeBinding lub = lowerUpperBound(new TypeBinding[]{wildU.bound,wildV.bound}, lubStack);
 								if (lub == null) return null;
 								// int is returned to denote cycle detected in lub computation - stop recursion by answering unbound wildcard
-								if (lub == IntBinding) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
+								if (lub == TypeBinding.INT) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
 								return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);	
 							// ? extends U, ? SUPER V
 							case Wildcard.SUPER : 
@@ -2944,7 +2950,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 						TypeBinding lub = lowerUpperBound(new TypeBinding[]{u,wildV.bound}, lubStack);
 						if (lub == null) return null;
 						// int is returned to denote cycle detected in lub computation - stop recursion by answering unbound wildcard
-						if (lub == IntBinding) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
+						if (lub == TypeBinding.INT) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
 						return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);	
 					// U, ? super V
 					case Wildcard.SUPER :
@@ -2962,7 +2968,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 					TypeBinding lub = lowerUpperBound(new TypeBinding[]{wildU.bound, v}, lubStack);
 					if (lub == null) return null;
 					// int is returned to denote cycle detected in lub computation - stop recursion by answering unbound wildcard
-					if (lub == IntBinding) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
+					if (lub == TypeBinding.INT) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
 					return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);	
 				// U, ? super V
 				case Wildcard.SUPER :
@@ -2975,7 +2981,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		TypeBinding lub = lowerUpperBound(new TypeBinding[]{u,v}, lubStack);
 		if (lub == null) return null;
 		// int is returned to denote cycle detected in lub computation - stop recursion by answering unbound wildcard
-		if (lub == IntBinding) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
+		if (lub == TypeBinding.INT) return environment().createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
 		return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);
 	}
 
@@ -2988,7 +2994,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		int typeLength = types.length;
 		if (typeLength == 1) {
 			TypeBinding type = types[0];
-			return type == null ? VoidBinding : type;
+			return type == null ? TypeBinding.VOID : type;
 		}		
 		return lowerUpperBound(types, new ArrayList(1));
 	}
@@ -2999,7 +3005,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		int typeLength = types.length;
 		if (typeLength == 1) {
 			TypeBinding type = types[0];
-			return type == null ? VoidBinding : type;
+			return type == null ? TypeBinding.VOID : type;
 		}
 		// cycle detection
 		int stackLength = lubStack.size();
@@ -3018,7 +3024,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 				continue nextLubCheck; // type not found in current lubTypes
 			}
 			// all types are included in some lub, cycle detected - stop recursion by answering special value (int)
-			return IntBinding;
+			return TypeBinding.INT;
 		}
 
 		lubStack.add(types);
@@ -3026,7 +3032,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 		TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
 		if (mecs == null) return null;
 		int length = mecs.length;
-		if (length == 0) return VoidBinding;
+		if (length == 0) return TypeBinding.VOID;
 		int count = 0;
 		TypeBinding firstBound = null;
 		int commonDim = -1;
@@ -3045,7 +3051,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			mecs[count++] = mec; // recompact them to the front
 		}
 		switch (count) {
-			case 0 : return VoidBinding;
+			case 0 : return TypeBinding.VOID;
 			case 1 : return mecs[0];
 			case 2 : 
 				if ((commonDim == 0 ? mecs[1].id : mecs[1].leafComponentType().id) == T_JavaLangObject) return mecs[0];
@@ -3092,7 +3098,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 			actualLength ++;
 		}
 		switch (actualLength) {
-			case 0: return NoTypes;
+			case 0: return Binding.NO_TYPES;
 			case 1: return types;
 		}
 		TypeBinding firstType = types[indexOfFirst];
@@ -3443,7 +3449,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 									}
 								}
 							}
-							if (method.typeVariables != NoTypeVariables)
+							if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
 								method2 = method.computeSubstitutedMethod(method2, environment());
 							if (method2 == null || !method.areParametersEqual(method2)) {
 								skipValues[j] = -1;
@@ -3451,7 +3457,7 @@ public abstract class Scope implements BaseTypes, TypeConstants, TypeIds {
 							}
 							// method overrides method2, accept it
 						} else if (!original.areTypeVariableErasuresEqual(original2)) {
-							if (original.typeVariables != NoTypeVariables) {
+							if (original.typeVariables != Binding.NO_TYPE_VARIABLES) {
 								skipValues[j] = -1;
 								continue nextVisible; // method is not better since variables are not equal
 							}

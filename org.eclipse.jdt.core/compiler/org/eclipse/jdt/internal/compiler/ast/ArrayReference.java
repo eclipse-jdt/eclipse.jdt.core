@@ -65,7 +65,7 @@ public class ArrayReference extends Reference {
 		int pc = codeStream.position;
 		receiver.generateCode(currentScope, codeStream, true);
 		if (receiver instanceof CastExpression	// ((type[])null)[0]
-				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == NullBinding){
+				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
 			codeStream.checkcast(receiver.resolvedType); 
 		}	
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -88,7 +88,7 @@ public class ArrayReference extends Reference {
 		int pc = codeStream.position;
 		receiver.generateCode(currentScope, codeStream, true);
 		if (receiver instanceof CastExpression	// ((type[])null)[0]
-				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == NullBinding){
+				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
 			codeStream.checkcast(receiver.resolvedType); 
 		}			
 		position.generateCode(currentScope, codeStream, true);
@@ -97,8 +97,8 @@ public class ArrayReference extends Reference {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		} else {
-			if (this.resolvedType == LongBinding
-				|| this.resolvedType == DoubleBinding) {
+			if (this.resolvedType == TypeBinding.LONG
+				|| this.resolvedType == TypeBinding.DOUBLE) {
 				codeStream.pop2();
 			} else {
 				codeStream.pop();
@@ -117,7 +117,7 @@ public class ArrayReference extends Reference {
 
 		receiver.generateCode(currentScope, codeStream, true);
 		if (receiver instanceof CastExpression	// ((type[])null)[0]
-				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == NullBinding){
+				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
 			codeStream.checkcast(receiver.resolvedType); 
 		}	
 		position.generateCode(currentScope, codeStream, true);
@@ -155,15 +155,15 @@ public class ArrayReference extends Reference {
 
 		receiver.generateCode(currentScope, codeStream, true);
 		if (receiver instanceof CastExpression	// ((type[])null)[0]
-				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == NullBinding){
+				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
 			codeStream.checkcast(receiver.resolvedType); 
 		}	
 		position.generateCode(currentScope, codeStream, true);
 		codeStream.dup2();
 		codeStream.arrayAt(this.resolvedType.id);
 		if (valueRequired) {
-			if ((this.resolvedType == LongBinding)
-				|| (this.resolvedType == DoubleBinding)) {
+			if ((this.resolvedType == TypeBinding.LONG)
+				|| (this.resolvedType == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();
@@ -202,9 +202,9 @@ public class ArrayReference extends Reference {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}
 		}
-		TypeBinding positionType = position.resolveTypeExpecting(scope, IntBinding);
+		TypeBinding positionType = position.resolveTypeExpecting(scope, TypeBinding.INT);
 		if (positionType != null) {
-			position.computeConversion(scope, IntBinding, positionType);
+			position.computeConversion(scope, TypeBinding.INT, positionType);
 		}
 		return this.resolvedType;
 	}

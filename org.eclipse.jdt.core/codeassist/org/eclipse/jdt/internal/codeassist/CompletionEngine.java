@@ -154,15 +154,15 @@ public final class CompletionEngine
 				"volatile".toCharArray()};
 	*/
 	static final BaseTypeBinding[] BASE_TYPES = {
-		BaseTypes.BooleanBinding,
-		BaseTypes.ByteBinding,
-		BaseTypes.CharBinding,
-		BaseTypes.DoubleBinding,
-		BaseTypes.FloatBinding,
-		BaseTypes.IntBinding,
-		BaseTypes.LongBinding,
-		BaseTypes.ShortBinding,
-		BaseTypes.VoidBinding
+		TypeBinding.BOOLEAN,
+		TypeBinding.BYTE,
+		TypeBinding.CHAR,
+		TypeBinding.DOUBLE,
+		TypeBinding.FLOAT,
+		TypeBinding.INT,
+		TypeBinding.LONG,
+		TypeBinding.SHORT,
+		TypeBinding.VOID
 	};
 	static final int BASE_TYPES_LENGTH = BASE_TYPES.length;
 	static final char[][] BASE_TYPE_NAMES = new char[BASE_TYPES_LENGTH][];
@@ -2515,7 +2515,7 @@ public final class CompletionEngine
 		do {
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (notInJavadoc && itsInterfaces != NoSuperInterfaces) {
+			if (notInJavadoc && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
@@ -2575,7 +2575,7 @@ public final class CompletionEngine
 						}
 
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
 									interfacesToVisit,
@@ -2627,7 +2627,7 @@ public final class CompletionEngine
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token,lengthField);
-				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
+				relevance += computeRelevanceForExpectingType(TypeBinding.INT);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for length field
 				
 				this.noProposal = false;
@@ -3038,7 +3038,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 					
 					if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
-						relevance += computeRelevanceForExpectingType(BaseTypes.BooleanBinding);
+						relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 						relevance += computeRelevanceForQualification(false);
 					}
 					this.noProposal = false;
@@ -3058,7 +3058,7 @@ public final class CompletionEngine
 	private void findTrueOrFalseKeywords(char[][] choices) {
 		if(choices == null || choices.length == 0) return;
 		
-		if(this.expectedTypesPtr != 0 || this.expectedTypes[0] != BaseTypes.BooleanBinding) return;
+		if(this.expectedTypesPtr != 0 || this.expectedTypes[0] != TypeBinding.BOOLEAN) return;
 		
 		for (int i = 0; i < choices.length; i++) {
 			if (CharOperation.equals(choices[i], Keywords.TRUE) ||
@@ -3068,7 +3068,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choices[i]);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
-				relevance += computeRelevanceForExpectingType(BaseTypes.BooleanBinding);
+				relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 				relevance += computeRelevanceForQualification(false);
 				relevance += R_TRUE_OR_FALSE;
 
@@ -3358,7 +3358,7 @@ public final class CompletionEngine
 		do {
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
@@ -3425,7 +3425,7 @@ public final class CompletionEngine
 							checkQualification);
 								
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
@@ -3551,7 +3551,7 @@ public final class CompletionEngine
 		if (selector == null)
 			return;
 
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -3598,7 +3598,7 @@ public final class CompletionEngine
 						}
 
 						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
@@ -4309,7 +4309,7 @@ public final class CompletionEngine
 		    completion.append(' ');
 		    createType(typeVariable.superclass, completion);
 		}
-		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != NoSuperInterfaces) {
+		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != Binding.NO_SUPERINTERFACES) {
 		   if (typeVariable.firstBound != typeVariable.superclass) {
 			   completion.append(' ');
 			   completion.append(EXTENDS);
@@ -5777,28 +5777,28 @@ public final class CompletionEngine
 			} else if(parent instanceof BinaryExpression) {
 				switch(operator) {
 					case OperatorIds.PLUS :
-						addExpectedType(BaseTypes.ShortBinding);
-						addExpectedType(BaseTypes.IntBinding);
-						addExpectedType(BaseTypes.LongBinding);
-						addExpectedType(BaseTypes.FloatBinding);
-						addExpectedType(BaseTypes.DoubleBinding);
-						addExpectedType(BaseTypes.CharBinding);
-						addExpectedType(BaseTypes.ByteBinding);
+						addExpectedType(TypeBinding.SHORT);
+						addExpectedType(TypeBinding.INT);
+						addExpectedType(TypeBinding.LONG);
+						addExpectedType(TypeBinding.FLOAT);
+						addExpectedType(TypeBinding.DOUBLE);
+						addExpectedType(TypeBinding.CHAR);
+						addExpectedType(TypeBinding.BYTE);
 						addExpectedType(scope.getJavaLangString());
 						break;
 					case OperatorIds.AND_AND :
 					case OperatorIds.OR_OR :
 					case OperatorIds.XOR :
-						addExpectedType(BaseTypes.BooleanBinding);
+						addExpectedType(TypeBinding.BOOLEAN);
 						break;
 					default :
-						addExpectedType(BaseTypes.ShortBinding);
-						addExpectedType(BaseTypes.IntBinding);
-						addExpectedType(BaseTypes.LongBinding);
-						addExpectedType(BaseTypes.FloatBinding);
-						addExpectedType(BaseTypes.DoubleBinding);
-						addExpectedType(BaseTypes.CharBinding);
-						addExpectedType(BaseTypes.ByteBinding);
+						addExpectedType(TypeBinding.SHORT);
+						addExpectedType(TypeBinding.INT);
+						addExpectedType(TypeBinding.LONG);
+						addExpectedType(TypeBinding.FLOAT);
+						addExpectedType(TypeBinding.DOUBLE);
+						addExpectedType(TypeBinding.CHAR);
+						addExpectedType(TypeBinding.BYTE);
 						break;
 				}
 				BinaryExpression binaryExpression = (BinaryExpression) parent;
@@ -5818,33 +5818,33 @@ public final class CompletionEngine
 			} else if(parent instanceof UnaryExpression) {
 				switch(operator) {
 					case OperatorIds.NOT :
-						addExpectedType(BaseTypes.BooleanBinding);
+						addExpectedType(TypeBinding.BOOLEAN);
 						break;
 					case OperatorIds.TWIDDLE :
-						addExpectedType(BaseTypes.ShortBinding);
-						addExpectedType(BaseTypes.IntBinding);
-						addExpectedType(BaseTypes.LongBinding);
-						addExpectedType(BaseTypes.CharBinding);
-						addExpectedType(BaseTypes.ByteBinding);
+						addExpectedType(TypeBinding.SHORT);
+						addExpectedType(TypeBinding.INT);
+						addExpectedType(TypeBinding.LONG);
+						addExpectedType(TypeBinding.CHAR);
+						addExpectedType(TypeBinding.BYTE);
 						break;
 					case OperatorIds.PLUS :
 					case OperatorIds.MINUS :
 					case OperatorIds.PLUS_PLUS :
 					case OperatorIds.MINUS_MINUS :
-						addExpectedType(BaseTypes.ShortBinding);
-						addExpectedType(BaseTypes.IntBinding);
-						addExpectedType(BaseTypes.LongBinding);
-						addExpectedType(BaseTypes.FloatBinding);
-						addExpectedType(BaseTypes.DoubleBinding);
-						addExpectedType(BaseTypes.CharBinding);
-						addExpectedType(BaseTypes.ByteBinding);
+						addExpectedType(TypeBinding.SHORT);
+						addExpectedType(TypeBinding.INT);
+						addExpectedType(TypeBinding.LONG);
+						addExpectedType(TypeBinding.FLOAT);
+						addExpectedType(TypeBinding.DOUBLE);
+						addExpectedType(TypeBinding.CHAR);
+						addExpectedType(TypeBinding.BYTE);
 						break;
 				}
 			}
 		} else if(parent instanceof ArrayReference) {
-			addExpectedType(BaseTypes.ShortBinding);
-			addExpectedType(BaseTypes.IntBinding);
-			addExpectedType(BaseTypes.LongBinding);
+			addExpectedType(TypeBinding.SHORT);
+			addExpectedType(TypeBinding.INT);
+			addExpectedType(TypeBinding.LONG);
 		} else if(parent instanceof ParameterizedSingleTypeReference) {
 			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
@@ -5956,7 +5956,7 @@ public final class CompletionEngine
 		boolean isStatic) {
 
 		ReferenceBinding[] itsInterfaces = binding.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -5981,7 +5981,7 @@ public final class CompletionEngine
 							isStatic);
 
 						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
+						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(

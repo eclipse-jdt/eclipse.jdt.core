@@ -1744,13 +1744,13 @@ public class BinaryExpression extends OperatorExpression {
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
 			if (leftTypeID == T_JavaLangString) {
 				this.left.computeConversion(scope, leftType, leftType);
-				if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == CharBinding) {
+				if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == TypeBinding.CHAR) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
 				}
 			}
 			if (rightTypeID == T_JavaLangString) {
 				this.right.computeConversion(scope, rightType, rightType);
-				if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == CharBinding) {
+				if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == TypeBinding.CHAR) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
 				}
 			}
@@ -1772,25 +1772,25 @@ public class BinaryExpression extends OperatorExpression {
 		switch (operatorSignature & 0xF) { // record the current ReturnTypeID
 			// only switch on possible result type.....
 			case T_boolean :
-				this.resolvedType = BooleanBinding;
+				this.resolvedType = TypeBinding.BOOLEAN;
 				break;
 			case T_byte :
-				this.resolvedType = ByteBinding;
+				this.resolvedType = TypeBinding.BYTE;
 				break;
 			case T_char :
-				this.resolvedType = CharBinding;
+				this.resolvedType = TypeBinding.CHAR;
 				break;
 			case T_double :
-				this.resolvedType = DoubleBinding;
+				this.resolvedType = TypeBinding.DOUBLE;
 				break;
 			case T_float :
-				this.resolvedType = FloatBinding;
+				this.resolvedType = TypeBinding.FLOAT;
 				break;
 			case T_int :
-				this.resolvedType = IntBinding;
+				this.resolvedType = TypeBinding.INT;
 				break;
 			case T_long :
-				this.resolvedType = LongBinding;
+				this.resolvedType = TypeBinding.LONG;
 				break;
 			case T_JavaLangString :
 				this.resolvedType = scope.getJavaLangString();

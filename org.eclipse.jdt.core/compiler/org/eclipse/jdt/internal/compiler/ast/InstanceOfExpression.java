@@ -88,14 +88,14 @@ public class InstanceOfExpression extends OperatorExpression {
 				scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 			}
 		}
-		return this.resolvedType = BooleanBinding;
+		return this.resolvedType = TypeBinding.BOOLEAN;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#tagAsUnnecessaryCast(Scope,TypeBinding)
 	 */
 	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
 		// null is not instanceof Type, recognize direct scenario
-		if (expression.resolvedType != NullBinding)
+		if (expression.resolvedType != TypeBinding.NULL)
 			scope.problemReporter().unnecessaryInstanceof(this, castType);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -88,8 +88,8 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		// generate the synchronization expression
 		expression.generateCode(scope, codeStream, true);
 		if (block.isEmptyBlock()) {
-			if ((synchroVariable.type == LongBinding)
-				|| (synchroVariable.type == DoubleBinding)) {
+			if ((synchroVariable.type == TypeBinding.LONG)
+				|| (synchroVariable.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();

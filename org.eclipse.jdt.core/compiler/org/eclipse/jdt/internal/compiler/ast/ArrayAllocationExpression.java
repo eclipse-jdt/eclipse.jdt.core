@@ -117,7 +117,7 @@ public class ArrayAllocationExpression extends Expression {
 		
 		// will check for null after dimensions are checked
 		constant = Constant.NotAConstant;
-		if (referenceType == VoidBinding) {
+		if (referenceType == TypeBinding.VOID) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			referenceType = null;
 		}
@@ -151,9 +151,9 @@ public class ArrayAllocationExpression extends Expression {
 		// dimensions resolution 
 		for (int i = 0; i <= explicitDimIndex; i++) {
 			if (dimensions[i] != null) {
-				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, IntBinding);
+				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, TypeBinding.INT);
 				if (dimensionType != null) {
-					dimensions[i].computeConversion(scope, IntBinding, dimensionType);
+					dimensions[i].computeConversion(scope, TypeBinding.INT, dimensionType);
 				}
 			}
 		}

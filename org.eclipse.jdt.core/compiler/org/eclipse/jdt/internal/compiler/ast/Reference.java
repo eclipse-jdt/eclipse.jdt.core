@@ -36,7 +36,7 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 	int pc = codeStream.position;
 	if (fieldBinding.isStatic()) {
 		if (valueRequired) {
-			if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+			if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();
@@ -49,7 +49,7 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 		}
 	} else { // Stack:  [owner][new field value]  ---> [new field value][owner][new field value]
 		if (valueRequired) {
-			if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+			if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x1();
 			} else {
 				codeStream.dup_x1();

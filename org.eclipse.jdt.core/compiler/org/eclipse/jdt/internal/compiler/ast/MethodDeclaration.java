@@ -89,7 +89,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 			// check for missing returning path
 			TypeBinding returnTypeBinding = binding.returnType;
-			if ((returnTypeBinding == VoidBinding) || isAbstract()) {
+			if ((returnTypeBinding == TypeBinding.VOID) || isAbstract()) {
 				this.needFreeReturn = flowInfo.isReachable();
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) { 

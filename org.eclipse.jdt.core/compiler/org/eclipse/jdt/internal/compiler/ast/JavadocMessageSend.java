@@ -51,7 +51,7 @@ public class JavadocMessageSend extends MessageSend {
 
 		// will check for null after args are resolved
 		
-		TypeBinding[] argumentTypes = NoParameters;
+		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 		boolean hasArgsTypeVar = false;
 		if (this.arguments != null) {
 			boolean argHasError = false; // typeChecks all arguments 

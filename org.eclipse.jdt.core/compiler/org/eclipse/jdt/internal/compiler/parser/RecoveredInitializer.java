@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-/**
- * Internal initializer structure for parsing recovery 
- */
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -22,9 +19,9 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class RecoveredInitializer extends RecoveredField implements TerminalTokens, BaseTypes {
+public class RecoveredInitializer extends RecoveredField implements TerminalTokens {
 
 	public RecoveredType[] localTypes;
 	public int localTypeCount;
@@ -71,7 +68,7 @@ public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBal
 	if ((newFieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 /* local var can only be final */
 			|| (newFieldDeclaration.type == null) // initializer
 			|| ((fieldTypeName = newFieldDeclaration.type.getTypeName()).length == 1 // non void
-				&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
+				&& CharOperation.equals(fieldTypeName[0], TypeBinding.VOID.sourceName()))){ 
 		if (this.parent == null) return this; // ignore
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(newFieldDeclaration.declarationSourceStart - 1));
 		return this.parent.add(newFieldDeclaration, bracketBalanceValue);

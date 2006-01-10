@@ -166,7 +166,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				}
 				assignment.expression.generateCode(currentScope, codeStream, true);
 				if (valueRequired) {
-					if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2_x2();
 					} else {
 						codeStream.dup_x2();
@@ -195,7 +195,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 					if (valueRequired) {
 						codeStream.generateImplicitConversion(assignment.implicitConversion); // implicit conversion
 					} else {
-						if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.pop2();
 						} else {
 							codeStream.pop();
@@ -403,7 +403,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				// current stack is:
 				// field receiver value
 				if (valueRequired) {
-					if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2_x2();
 					} else {
 						codeStream.dup_x2();
@@ -417,7 +417,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (valueRequired) {
-				if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+				if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup2();
 				} else {
 					codeStream.dup();
@@ -446,13 +446,13 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				}
 				if (valueRequired) {
 					if (fieldBinding.isStatic()) {
-						if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.dup2();
 						} else {
 							codeStream.dup();
 						}
 					} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-						if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 							codeStream.dup2_x1();
 						} else {
 							codeStream.dup_x1();
@@ -477,14 +477,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				}
 				((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(fieldBinding);
 				if (valueRequired) {
-					if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2();
 					} else {
 						codeStream.dup();
 					}
 				}
 				((CodeSnippetCodeStream) codeStream).generateEmulationForField(fieldBinding);
-				if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
+				if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup_x2();
 					codeStream.pop();
 					if (fieldBinding.isStatic()) {
@@ -514,7 +514,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// using incr bytecode if possible
-			if (localBinding.type == IntBinding) {
+			if (localBinding.type == TypeBinding.INT) {
 				if (valueRequired) {
 					codeStream.load(localBinding);
 				}
@@ -526,7 +526,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			} else {
 				codeStream.load(localBinding);
 				if (valueRequired){
-					if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
+					if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2();
 					} else {
 						codeStream.dup();

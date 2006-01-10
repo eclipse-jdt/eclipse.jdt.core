@@ -27,13 +27,13 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * Internal method structure for parsing recovery 
  */
 
-public class RecoveredMethod extends RecoveredElement implements TerminalTokens, BaseTypes {
+public class RecoveredMethod extends RecoveredElement implements TerminalTokens {
 
 	public AbstractMethodDeclaration methodDeclaration;
 
@@ -89,7 +89,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	if ((fieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 // local var can only be final 
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
-			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
+			&& CharOperation.equals(fieldTypeName[0], TypeBinding.VOID.sourceName()))){ 
 
 		if (this.parent == null){
 			return this; // ignore
@@ -385,7 +385,7 @@ public void updateFromParserState(){
 						char[][] argTypeName = argument.type.getTypeName();
 						if ((argument.modifiers & ~ClassFileConstants.AccFinal) != 0
 							|| (argTypeName.length == 1
-								&& CharOperation.equals(argTypeName[0], VoidBinding.sourceName()))){
+								&& CharOperation.equals(argTypeName[0], TypeBinding.VOID.sourceName()))){
 							parser.astLengthStack[parser.astLengthPtr] = count; 
 							parser.astPtr = argStart+count-1; 
 							parser.listLength = count;

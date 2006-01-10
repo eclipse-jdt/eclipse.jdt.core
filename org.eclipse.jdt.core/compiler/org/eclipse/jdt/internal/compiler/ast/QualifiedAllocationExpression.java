@@ -278,7 +278,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		
 		// will check for null after args are resolved
-		TypeBinding[] argumentTypes = NoParameters;
+		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 		if (arguments != null) {
 			int length = arguments.length;
 			argumentTypes = new TypeBinding[length];

@@ -40,44 +40,44 @@ public static final TypeReference baseTypeReference(int baseType, int dim) {
 	if (dim == 0) {
 		switch (baseType) {
 			case (T_void) :
-				return new SingleTypeReference(VoidBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.VOID.simpleName, 0);
 			case (T_boolean) :
-				return new SingleTypeReference(BooleanBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.BOOLEAN.simpleName, 0);
 			case (T_char) :
-				return new SingleTypeReference(CharBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.CHAR.simpleName, 0);
 			case (T_float) :
-				return new SingleTypeReference(FloatBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.FLOAT.simpleName, 0);
 			case (T_double) :
-				return new SingleTypeReference(DoubleBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.DOUBLE.simpleName, 0);
 			case (T_byte) :
-				return new SingleTypeReference(ByteBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.BYTE.simpleName, 0);
 			case (T_short) :
-				return new SingleTypeReference(ShortBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.SHORT.simpleName, 0);
 			case (T_int) :
-				return new SingleTypeReference(IntBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.INT.simpleName, 0);
 			default : //T_long	
-				return new SingleTypeReference(LongBinding.simpleName, 0);
+				return new SingleTypeReference(TypeBinding.LONG.simpleName, 0);
 		}
 	}
 	switch (baseType) {
 		case (T_void) :
-			return new ArrayTypeReference(VoidBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.VOID.simpleName, dim, 0);
 		case (T_boolean) :
-			return new ArrayTypeReference(BooleanBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.BOOLEAN.simpleName, dim, 0);
 		case (T_char) :
-			return new ArrayTypeReference(CharBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.CHAR.simpleName, dim, 0);
 		case (T_float) :
-			return new ArrayTypeReference(FloatBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.FLOAT.simpleName, dim, 0);
 		case (T_double) :
-			return new ArrayTypeReference(DoubleBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.DOUBLE.simpleName, dim, 0);
 		case (T_byte) :
-			return new ArrayTypeReference(ByteBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.BYTE.simpleName, dim, 0);
 		case (T_short) :
-			return new ArrayTypeReference(ShortBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.SHORT.simpleName, dim, 0);
 		case (T_int) :
-			return new ArrayTypeReference(IntBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.INT.simpleName, dim, 0);
 		default : //T_long	
-			return new ArrayTypeReference(LongBinding.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.LONG.simpleName, dim, 0);
 	}
 }
 public void checkBounds(Scope scope) {

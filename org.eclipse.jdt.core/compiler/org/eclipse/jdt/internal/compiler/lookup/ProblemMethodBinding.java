@@ -17,12 +17,12 @@ public class ProblemMethodBinding extends MethodBinding {
 	
 public ProblemMethodBinding(char[] selector, TypeBinding[] args, int problemReason) {
 	this.selector = selector;
-	this.parameters = (args == null || args.length == 0) ? NoParameters : args;
+	this.parameters = (args == null || args.length == 0) ? Binding.NO_PARAMETERS : args;
 	this.problemReason = problemReason;
 }
 public ProblemMethodBinding(char[] selector, TypeBinding[] args, ReferenceBinding declaringClass, int problemReason) {
 	this.selector = selector;
-	this.parameters = (args == null || args.length == 0) ? NoParameters : args;
+	this.parameters = (args == null || args.length == 0) ? Binding.NO_PARAMETERS : args;
 	this.declaringClass = declaringClass;
 	this.problemReason = problemReason;
 }

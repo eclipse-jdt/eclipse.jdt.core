@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -33,7 +34,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		super(
 			parent,
 			associatedNode,
-			NoExceptions, // no exception allowed by default
+			Binding.NO_EXCEPTIONS, // no exception allowed by default
 			scope, 
 			FlowInfo.DEAD_END);
 	}
