@@ -2098,100 +2098,57 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	}
-	
+
 	public final ReferenceBinding getJavaIoSerializable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_IO_SERIALIZABLE);
-		ReferenceBinding type = environment().getType(JAVA_IO_SERIALIZABLE);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_IO_SERIALIZABLE, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_IO_SERIALIZABLE, this);
 	}
-
+	
 	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
-		ReferenceBinding type = environment().getType(JAVA_LANG_ANNOTATION_ANNOTATION);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_ANNOTATION_ANNOTATION, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_ANNOTATION_ANNOTATION, this);
 	}
-
+	
 	public final ReferenceBinding getJavaLangAssertionError() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
-		ReferenceBinding type = environment().getType(JAVA_LANG_ASSERTIONERROR);
-		if (type != null) return type;
-		problemReporter().isClassPathCorrect(JAVA_LANG_ASSERTIONERROR, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_ASSERTIONERROR, this);
 	}
+
 	public final ReferenceBinding getJavaLangClass() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLASS);
-		ReferenceBinding type = environment().getType(JAVA_LANG_CLASS);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_CLASS, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_CLASS, this);
 	}
 
 	public final ReferenceBinding getJavaLangCloneable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLONEABLE);
-		ReferenceBinding type = environment().getType(JAVA_LANG_CLONEABLE);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_CLONEABLE, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_CLONEABLE, this);
 	}
 	public final ReferenceBinding getJavaLangEnum() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ENUM);
-		ReferenceBinding type = environment().getType(JAVA_LANG_ENUM);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_ENUM, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_ENUM, this);
 	}
 
 	public final ReferenceBinding getJavaLangIterable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ITERABLE);
-		ReferenceBinding type = environment().getType(JAVA_LANG_ITERABLE);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_ITERABLE, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_ITERABLE, this);
 	}
-
 	public final ReferenceBinding getJavaLangObject() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_OBJECT);
-		ReferenceBinding type = environment().getType(JAVA_LANG_OBJECT);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_OBJECT, this);
 	}
+
 	public final ReferenceBinding getJavaLangString() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_STRING);
-		ReferenceBinding type = environment().getType(JAVA_LANG_STRING);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_STRING, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_STRING, this);
 	}
 
 	public final ReferenceBinding getJavaLangThrowable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_THROWABLE);
-		ReferenceBinding type = environment().getType(JAVA_LANG_THROWABLE);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_THROWABLE, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_LANG_THROWABLE, this);
 	}
-
 	public final ReferenceBinding getJavaUtilIterator() {
 		compilationUnitScope().recordQualifiedReference(JAVA_UTIL_ITERATOR);
-		ReferenceBinding type = environment().getType(JAVA_UTIL_ITERATOR);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_UTIL_ITERATOR, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
+		return environment().getResolvedType(JAVA_UTIL_ITERATOR, this);
 	}
 
 	/* Answer the type binding corresponding to the typeName argument, relative to the enclosingType.

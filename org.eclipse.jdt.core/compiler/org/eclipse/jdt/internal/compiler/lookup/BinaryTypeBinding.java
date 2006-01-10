@@ -14,11 +14,10 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.IBinaryField;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
 Not all fields defined by this type are initialized when it is created.
@@ -33,18 +32,66 @@ null is NOT a valid value for a non-public field... it just means the field is n
 
 public final class BinaryTypeBinding extends ReferenceBinding {
 
-// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
-private ReferenceBinding superclass;
-private ReferenceBinding enclosingType;
-private ReferenceBinding[] superInterfaces;
-private FieldBinding[] fields;
-private MethodBinding[] methods;
-private ReferenceBinding[] memberTypes;
-protected TypeVariableBinding[] typeVariables;
+	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
+	private ReferenceBinding superclass;
+	private ReferenceBinding enclosingType;
+	private ReferenceBinding[] superInterfaces;
+	private FieldBinding[] fields;
+	private MethodBinding[] methods;
+	private ReferenceBinding[] memberTypes;
+	protected TypeVariableBinding[] typeVariables;
 
-// For the link with the principle structure
-private LookupEnvironment environment;
+	// For the link with the principle structure
+	private LookupEnvironment environment;
 
+	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+
+static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
+	if (binaryValue == null) return null;
+	if (binaryValue instanceof Constant)
+		return binaryValue;
+	if (binaryValue instanceof ClassSignature)
+		return env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null);
+	if (binaryValue instanceof IBinaryAnnotation)
+		return createAnnotation((IBinaryAnnotation) binaryValue, env);
+	if (binaryValue instanceof EnumConstantSignature) {
+		EnumConstantSignature ref = (EnumConstantSignature) binaryValue;
+		ReferenceBinding enumType =
+			(ReferenceBinding) env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
+		enumType = resolveType(enumType, env, false);
+		return enumType.getField(ref.getEnumConstantName(), false);
+	}
+	if (binaryValue instanceof Object[]) {
+		Object[] objects = (Object[]) binaryValue;
+		int length = objects.length;
+		if (length == 0) return objects;
+		Object[] values = new Object[length];
+		for (int i = 0; i < length; i++)
+			values[i] = convertMemberValue(objects[i], env);
+		return values;
+	}
+
+	// should never reach here.
+	throw new IllegalStateException();
+}
+static AnnotationBinding createAnnotation(IBinaryAnnotation annotationInfo, LookupEnvironment env) {
+	IBinaryElementValuePair[] binaryPairs = annotationInfo.getElementValuePairs();
+	int length = binaryPairs == null ? 0 : binaryPairs.length;
+	ElementValuePair[] pairs = length == 0 ? Binding.NO_ELEMENT_VALUE_PAIRS : new ElementValuePair[length];
+	for (int i = 0; i < length; i++)
+		pairs[i] = new ElementValuePair(binaryPairs[i].getName(), convertMemberValue(binaryPairs[i].getValue(), env), null);
+
+	char[] typeName = annotationInfo.getTypeName();
+	ReferenceBinding annotationType = env.getTypeFromConstantPoolName(typeName, 1, typeName.length - 1, false);
+	return AnnotationBinding.createUnresolvedAnnotation(annotationType, pairs, env);
+}
+public static AnnotationBinding[] createAnnotations(IBinaryAnnotation[] annotationInfos, LookupEnvironment env) {
+	int length = annotationInfos == null ? 0 : annotationInfos.length;
+	AnnotationBinding[] result = length == 0 ? Binding.NO_ANNOTATIONS : new AnnotationBinding[length];
+	for (int i = 0; i < length; i++)
+		result[i] = createAnnotation(annotationInfos[i], env);
+	return result;
+}
 public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironment environment, boolean convertGenericToRawType) {
 	if (type instanceof UnresolvedReferenceBinding)
 		return ((UnresolvedReferenceBinding) type).resolve(environment, convertGenericToRawType);
@@ -263,6 +310,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.fields = Binding.NO_FIELDS;
 		this.methods = Binding.NO_METHODS;
 	}
+	if (this.environment.storeAnnotations)
+		setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment));	
 }
 private void createFields(IBinaryField[] iFields, long sourceLevel) {
 	this.fields = Binding.NO_FIELDS;
@@ -286,14 +335,15 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved, 
 						this, 
 						binaryField.getConstant());
+				if (this.environment.storeAnnotations)
+					field.setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment));
 				field.id = i; // ordinal
 				if (use15specifics)
 					field.tagBits |= binaryField.getTagBits();
 				if (isViewedAsDeprecated && !field.isDeprecated())
 					field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-				if (hasRestrictedAccess) {
+				if (hasRestrictedAccess)
 					field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-				}
 				if (fieldSignature != null)
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				this.fields[i] = field;
@@ -308,6 +358,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	ReferenceBinding[] exceptions = Binding.NO_EXCEPTIONS;
 	TypeBinding[] parameters = Binding.NO_PARAMETERS;
 	TypeVariableBinding[] typeVars = Binding.NO_TYPE_VARIABLES;
+	AnnotationBinding[][] paramAnnotations = null; 
 	TypeBinding returnType = null;
 
 	final boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
@@ -330,6 +381,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 		int size = numOfParams - startIndex;
 		if (size > 0) {
 			parameters = new TypeBinding[size];
+			if (this.environment.storeAnnotations)
+				paramAnnotations = new AnnotationBinding[size][];
 			index = 1;
 			int end = 0;   // first character is always '(' so skip it
 			for (int i = 0; i < numOfParams; i++) {
@@ -337,8 +390,13 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				if (nextChar == 'L')
 					while ((nextChar = methodDescriptor[++end]) != ';'){/*empty*/}
 
-				if (i >= startIndex)   // skip the synthetic arg if necessary
+				if (i >= startIndex) {   // skip the synthetic arg if necessary
 					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false, this);
+					// 'paramAnnotations' line up with 'parameters'
+					// int parameter to method.getParameterAnnotations() include the synthetic arg
+					if (paramAnnotations != null)
+						paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i), this.environment);
+				}
 				index = end + 1;
 			}
 		}
@@ -376,8 +434,14 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				while (wrapper.signature[wrapper.start] != ')')
 					types.add(environment.getTypeFromTypeSignature(wrapper, typeVars, this));
 				wrapper.start++; // skip ')'
-				parameters = new TypeBinding[types.size()];
+				int numParam = types.size();
+				parameters = new TypeBinding[numParam];
 				types.toArray(parameters);
+				if (this.environment.storeAnnotations) {
+					paramAnnotations = new AnnotationBinding[numParam][];
+					for (int i = 0; i < numParam; i++)
+						paramAnnotations[i] = createAnnotations(method.getParameterAnnotations(i), this.environment);
+				}
 			}
 		}
 
@@ -409,6 +473,12 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
+	if (this.environment.storeAnnotations)
+		result.setAnnotations(
+			createAnnotations(method.getAnnotations(), this.environment),
+			paramAnnotations,
+			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment) : null);
+
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
@@ -455,9 +525,8 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 			MethodBinding method = createMethod(iMethods[i], sourceLevel);
 			if (isViewedAsDeprecated && !method.isDeprecated())
 				method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-			if (hasRestrictedAccess) {
+			if (hasRestrictedAccess)
 				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-			}
 			this.methods[i] = method;
 		}
 	} else {
@@ -466,9 +535,8 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 				MethodBinding method = createMethod(iMethods[i], sourceLevel);
 				if (isViewedAsDeprecated && !method.isDeprecated())
 					method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-				if (hasRestrictedAccess) {
+				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-				}
 				this.methods[index++] = method;
 			}
 		}
@@ -670,7 +738,7 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 	wrapper.start = colon + 1; // skip name + ':'
 	ReferenceBinding type, firstBound = null;
 	if (wrapper.signature[wrapper.start] == ':') {
-		type = environment.getType(TypeConstants.JAVA_LANG_OBJECT);
+		type = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 	} else {
 		type = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, existingVariables, this);
 		firstBound = type;
@@ -766,6 +834,17 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 		method.typeVariables[i].resolve(this.environment);
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
+}
+AnnotationBinding[] retrieveAnnotations(Binding binding) {
+	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
+}
+SimpleLookupTable storedAnnotations(boolean forceInitialize) {
+	if (forceInitialize && this.storedAnnotations == null) {
+		if (!this.environment.storeAnnotations)
+			return null; // not supported during this compile
+		this.storedAnnotations = new SimpleLookupTable(3);
+	}
+	return this.storedAnnotations;
 }
 /* Answer the receiver's superclass... null if the receiver is Object or an interface.
 *

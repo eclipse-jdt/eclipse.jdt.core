@@ -25,15 +25,14 @@ public class InnerClassInfo extends ClassFileStruct implements IBinaryNestedType
 	private char[] outerClassName;
 	private char[] innerName;
 	private int accessFlags = -1;
-	private int[] constantPoolOffsets;
 	private boolean readInnerClassName = false;
 	private boolean readOuterClassName = false;
 	private boolean readInnerName = false;
+
 public InnerClassInfo(byte classFileBytes[], int offsets[], int offset) {
-	super(classFileBytes, offset);
-	constantPoolOffsets = offsets;
-	innerClassNameIndex = u2At(0);
-	outerClassNameIndex = u2At(2);
+	super(classFileBytes, offsets, offset);
+	this.innerClassNameIndex = u2At(0);
+	this.outerClassNameIndex = u2At(2);
 	this.innerNameIndex = u2At(4);
 }
 /**
@@ -134,9 +133,5 @@ void initialize() {
 	getSourceName();
 	getEnclosingTypeName();
 	reset();
-}
-protected void reset() {
-	this.constantPoolOffsets = null;
-	super.reset();
 }
 }

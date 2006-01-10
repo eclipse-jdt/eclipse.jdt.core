@@ -26,6 +26,13 @@ char[] getContents();
 IFile getFile();
 
 /**
+ * Returns whether the compilation unit contained any annotations when it was compiled.
+ * 
+ * NOTE: Only valid during CompilationParticipant.processAnnotations(files)
+ */
+boolean hasAnnotations();
+
+/**
  * Record the added/changed generated files that need to be compiled.
  */
 void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles);

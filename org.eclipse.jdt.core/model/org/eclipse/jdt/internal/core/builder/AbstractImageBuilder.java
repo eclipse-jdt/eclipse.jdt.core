@@ -49,7 +49,7 @@ protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
 
-protected SimpleSet filesDeclaringAnnotation = null;
+protected SimpleSet filesWithAnnotations = null;
 
 public static int MAX_AT_ONCE = 1000;
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
@@ -93,7 +93,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, S
 					// initialize this set so the builder knows to gather CUs that define Annotation types
 					// each Annotation processor participant is then asked to process these files AFTER
 					// the compile loop. The normal dependency loop will then recompile all affected types
-					this.filesDeclaringAnnotation = new SimpleSet(1);
+					this.filesWithAnnotations = new SimpleSet(1);
 					break;
 				}
 			}
@@ -180,8 +180,8 @@ public void acceptResult(CompilationResult result) {
 					createProblemFor(compilationUnit.resource, null, Messages.build_inconsistentClassFile, JavaCore.ERROR); 
 			}
 		}
-		if (result.declaresAnnotations && this.filesDeclaringAnnotation != null) // only initialized if an annotation processor is attached
-			this.filesDeclaringAnnotation.add(compilationUnit);
+		if (result.hasAnnotations && this.filesWithAnnotations != null) // only initialized if an annotation processor is attached
+			this.filesWithAnnotations.add(compilationUnit);
 
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 		notifier.compiled(compilationUnit);
@@ -204,14 +204,17 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(SourceFile[] units) {
-	if (this.filesDeclaringAnnotation != null && this.filesDeclaringAnnotation.elementSize > 0)
-		// will add files that declare annotations in acceptResult() & then processAnnotations() before exitting this method
-		this.filesDeclaringAnnotation.clear();
+	if (this.filesWithAnnotations != null && this.filesWithAnnotations.elementSize > 0)
+		// will add files that have annotations in acceptResult() & then processAnnotations() before exitting this method
+		this.filesWithAnnotations.clear();
 
-	// notify CompilationParticipants (that !isAnnotationProcessor()) which source files are about to be compiled
-	CompilationParticipantResult[] participantResults = notifyParticipants(units);
-	if (participantResults != null)
-		units = processParticipantResults(participantResults, units);
+	// notify CompilationParticipants which source files are about to be compiled
+	CompilationParticipantResult[] participantResults = this.javaBuilder.participants == null ? null : notifyParticipants(units);
+	if (participantResults != null && participantResults.length > units.length) {
+		units = new SourceFile[participantResults.length];
+		for (int i = participantResults.length; --i >= 0;)
+			units[i] = participantResults[i].sourceFile;
+	}
 
 	int unitsLength = units.length;
 	this.compiledAllAtOnce = unitsLength <= MAX_AT_ONCE;
@@ -247,13 +250,13 @@ protected void compile(SourceFile[] units) {
 		}
 	}
 
-	if (participantResults != null)
+	if (participantResults != null) {
 		for (int i = participantResults.length; --i >= 0;)
 			if (participantResults[i] != null)
 				recordParticipantResult(participantResults[i]);
 
-	if (this.filesDeclaringAnnotation != null)
-		processAnnotations();
+		processAnnotations(participantResults);
+	}
 }
 
 void compile(SourceFile[] units, SourceFile[] additionalUnits) {
@@ -423,44 +426,19 @@ protected Compiler newCompiler() {
 }
 
 protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
+	CompilationParticipantResult[] results = new CompilationParticipantResult[unitsAboutToCompile.length];
+	for (int i = unitsAboutToCompile.length; --i >= 0;)
+		results[i] = new CompilationParticipantResult(unitsAboutToCompile[i]);
+
 	// TODO (kent) do we expect to have more than one participant?
 	// and if so should we pass the generated files from the each processor to the others to process?
-	CompilationParticipantResult[] results = null;
-	for (int i = 0, l = this.javaBuilder.participants == null ? 0 : this.javaBuilder.participants.length; i < l; i++) {
-		if (!this.javaBuilder.participants[i].isAnnotationProcessor()) {
-			if (results == null) {
-				results = new CompilationParticipantResult[unitsAboutToCompile.length];
-				for (int j = unitsAboutToCompile.length; --j >= 0;)
-					results[j] = new CompilationParticipantResult(unitsAboutToCompile[j]);
-			}
-			this.javaBuilder.participants[i].buildStarting(results);
-		}
-	}
-	return results;
-}
-
-protected abstract void processAnnotationResults(CompilationParticipantResult[] results);
-
-protected void processAnnotations() {
-	int size = this.filesDeclaringAnnotation.elementSize;
-	if (size == 0) return;
-
-	Object[] values = this.filesDeclaringAnnotation.values;
-	CompilationParticipantResult[] results = new CompilationParticipantResult[size];
-	for (int i = values.length; --i >= 0 && size > 0;)
-		if (values[i] != null)
-			results[--size] = new CompilationParticipantResult((SourceFile) values[i]);
-
- 	// TODO (kent) do we expect to have more than one annotation processor participant?
-	// and if so should we pass the generated files from the each processor to the others to process?
+	// and what happens if some participants do not expect to be called with only a few files, after seeing 'all' the files?
 	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
-		if (this.javaBuilder.participants[i].isAnnotationProcessor())
-			this.javaBuilder.participants[i].processAnnotations(results, this instanceof BatchImageBuilder);
-	processAnnotationResults(results);
-}
+		this.javaBuilder.participants[i].buildStarting(results, this instanceof BatchImageBuilder);
 
-protected SourceFile[] processParticipantResults(CompilationParticipantResult[] results, SourceFile[] unitsAboutToCompile) {
-	SimpleSet newUnits = null;
+	SimpleSet uniqueFiles = null;
+	CompilationParticipantResult[] toAdd = null;
+	int added = 0;
 	for (int i = results.length; --i >= 0;) {
 		CompilationParticipantResult result = results[i];
 		if (result == null) continue;
@@ -474,21 +452,52 @@ protected SourceFile[] processParticipantResults(CompilationParticipantResult[] 
 			for (int j = addedGeneratedFiles.length; --j >= 0;) {
 				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j]);
 				if (sourceFile == null) continue;
-				if (newUnits == null)
-					newUnits = new SimpleSet(unitsAboutToCompile.length + 3);
-				if (!newUnits.includes(sourceFile))
-					newUnits.add(sourceFile);
+				if (uniqueFiles == null) {
+					uniqueFiles = new SimpleSet(unitsAboutToCompile.length + 3);
+					for (int f = unitsAboutToCompile.length; --f >= 0;)
+						uniqueFiles.add(unitsAboutToCompile[f]);
+				}
+				if (!uniqueFiles.includes(sourceFile))
+					uniqueFiles.add(sourceFile);
+					CompilationParticipantResult newResult = new CompilationParticipantResult(sourceFile);
+					// is there enough room to add all the addedGeneratedFiles.length ?
+					if (toAdd == null) {
+						toAdd = new CompilationParticipantResult[addedGeneratedFiles.length];
+					} else {
+						int length = toAdd.length;
+						if (added == length)
+							System.arraycopy(toAdd, 0, toAdd = new CompilationParticipantResult[length + addedGeneratedFiles.length], 0, length);
+					}
+					toAdd[added++] = newResult;
 			}
 		}
 	}
-	if (newUnits == null)
-		return unitsAboutToCompile;
 
-	for (int i = unitsAboutToCompile.length; --i >= 0;)
-		newUnits.add(unitsAboutToCompile[i]);
-	SourceFile[] result = new SourceFile[newUnits.elementSize];
-	newUnits.asArray(result);
-	return result;
+	if (added >0 ) {
+		int length = results.length;
+		System.arraycopy(results, 0, results = new CompilationParticipantResult[length + added], 0 , length);
+		System.arraycopy(toAdd, 0, results, length, added);
+	}
+	return results;
+}
+
+protected abstract void processAnnotationResults(CompilationParticipantResult[] results);
+
+protected void processAnnotations(CompilationParticipantResult[] results) {
+	boolean hasAnnotationProcessor = false;
+	for (int i = 0, l = this.javaBuilder.participants.length; !hasAnnotationProcessor && i < l; i++)
+		hasAnnotationProcessor = this.javaBuilder.participants[i].isAnnotationProcessor();
+	if (!hasAnnotationProcessor) return;
+
+	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.elementSize > 0;
+	for (int i = results.length; --i >= 0;)
+		results[i].reset(foundAnnotations && this.filesWithAnnotations.includes(results[i].sourceFile));
+
+	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
+	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
+		if (this.javaBuilder.participants[i].isAnnotationProcessor())
+			this.javaBuilder.participants[i].processAnnotations(results);
+	processAnnotationResults(results);
 }
 
 protected void recordParticipantResult(CompilationParticipantResult result) {

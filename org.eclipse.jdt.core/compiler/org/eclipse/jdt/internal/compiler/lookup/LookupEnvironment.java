@@ -52,6 +52,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public byte[] sharedClassFileContents = null;
 	public byte[] sharedClassFileHeader = null;
 
+	public boolean storeAnnotations = false; // unless enabled by the client
+
 	// indicate in which step on the compilation we are.
 	// step 1 : build the reference binding
 	// step 2 : conect the hierarchy (connect bindings)
@@ -277,35 +279,51 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 		case TypeIds.T_int :
 			boxedType = getType(JAVA_LANG_INTEGER);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_INTEGER, null, NotFound);				
 		case TypeIds.T_byte :
 			boxedType = getType(JAVA_LANG_BYTE);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_BYTE, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_BYTE, null, NotFound);				
 		case TypeIds.T_short :
 			boxedType = getType(JAVA_LANG_SHORT);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_SHORT, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_SHORT, null, NotFound);				
 		case TypeIds.T_char :
 			boxedType = getType(JAVA_LANG_CHARACTER);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_CHARACTER, null, NotFound);				
 		case TypeIds.T_long :
 			boxedType = getType(JAVA_LANG_LONG);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_LONG, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_LONG, null, NotFound);				
 		case TypeIds.T_float :
 			boxedType = getType(JAVA_LANG_FLOAT);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_FLOAT, null, NotFound);				
 		case TypeIds.T_double :
 			boxedType = getType(JAVA_LANG_DOUBLE);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_DOUBLE, null, NotFound);				
 		case TypeIds.T_boolean :
 			boxedType = getType(JAVA_LANG_BOOLEAN);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, null, NotFound);				
+			return new ProblemReferenceBinding(JAVA_LANG_BOOLEAN, null, NotFound);				
+//		case TypeIds.T_int :
+//			return getResolvedType(JAVA_LANG_INTEGER, null);
+//		case TypeIds.T_byte :
+//			return getResolvedType(JAVA_LANG_BYTE, null);
+//		case TypeIds.T_short :
+//			return getResolvedType(JAVA_LANG_SHORT, null);
+//		case TypeIds.T_char :
+//			return getResolvedType(JAVA_LANG_CHARACTER, null);
+//		case TypeIds.T_long :
+//			return getResolvedType(JAVA_LANG_LONG, null);
+//		case TypeIds.T_float :
+//			return getResolvedType(JAVA_LANG_FLOAT, null);
+//		case TypeIds.T_double :
+//			return getResolvedType(JAVA_LANG_DOUBLE, null);
+//		case TypeIds.T_boolean :
+//			return getResolvedType(JAVA_LANG_BOOLEAN, null);
 	}
 	// allow indirect unboxing conversion for wildcards and type parameters
 	switch (type.kind()) {
@@ -698,6 +716,17 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 PackageBinding getPackage0(char[] name) {
 	return knownPackages.get(name);
 }
+/* Answer the type corresponding to the compoundName.
+* Ask the name environment for the type if its not in the cache.
+* Fail with a classpath error if the type cannot be found.
+*/
+public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
+	ReferenceBinding type = getType(compoundName);
+	if (type != null) return type;
+
+	problemReporter.isClassPathCorrect(compoundName, scope == null ? null : scope.referenceCompilationUnit());
+	return null; // will not get here since the above error aborts the compilation
+}
 /* Answer the top level package named name.
 * Ask the oracle for the package if its not in the cache.
 * Answer null if the package cannot be found.
@@ -777,6 +806,30 @@ private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, Ty
 	args.toArray(typeArguments);
 	return typeArguments;
 }
+/* Answer the type corresponding to the compound name.
+* Does not ask the oracle for the type if its not found in the cache... instead an
+* unresolved type is returned which must be resolved before used.
+*
+* NOTE: Does NOT answer base types nor array types!
+*
+* NOTE: Aborts compilation if the class file cannot be found.
+*/
+
+ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParameterized) {
+	ReferenceBinding binding = getCachedType(compoundName);
+	if (binding == null) {
+		PackageBinding packageBinding = computePackageFrom(compoundName);
+		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
+		packageBinding.addType(binding);
+	} else if (binding == TheNotFoundType) {
+		problemReporter.isClassPathCorrect(compoundName, null);
+		return null; // will not get here since the above error aborts the compilation
+	} else if (!isParameterized) {
+	    // check raw type, only for resolved types
+        binding = (ReferenceBinding)convertToRawType(binding);
+	}
+	return binding;
+}
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
 * unresolved type is returned which must be resolved before used.
@@ -791,19 +844,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 		end = signature.length;
 
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
-	ReferenceBinding binding = getCachedType(compoundName);
-	if (binding == null) {
-		PackageBinding packageBinding = computePackageFrom(compoundName);
-		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
-		packageBinding.addType(binding);
-	} else if (binding == TheNotFoundType) {
-		problemReporter.isClassPathCorrect(compoundName, null);
-		return null; // will not get here since the above error aborts the compilation
-	} else if (!isParameterized) {
-	    // check raw type, only for resolved types
-        binding = (ReferenceBinding)convertToRawType(binding);
-	}
-	return binding;
+	return getTypeFromCompoundName(compoundName, isParameterized);
 }
 /* Answer the type corresponding to the signature from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an

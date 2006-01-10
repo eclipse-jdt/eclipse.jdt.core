@@ -1154,4 +1154,16 @@ void setSourceStart(int sourceStart);
 	int JavadocParameterizedConstructorArgumentTypeMismatch = Javadoc + Internal + 858;
 	/** @since 3.1 */
 	int JavadocTypeArgumentsForRawGenericConstructor = Javadoc + Internal + 859;
+
+	/**
+	 * External problems -- These are problems defined by other plugins
+	 */
+
+	/** @since 3.2 */
+	int ExternalProblemNotFixable = 900;
+
+	// indicates an externally defined problem that has a quick-assist processor
+	// associated with it
+	/** @since 3.2 */
+	int ExternalProblemFixable = 901;
 }

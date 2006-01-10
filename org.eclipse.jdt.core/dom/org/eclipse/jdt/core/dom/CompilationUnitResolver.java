@@ -133,6 +133,7 @@ class CompilationUnitResolver extends Compiler {
 		IProgressMonitor monitor) {
 
 		super(environment, policy, settings, requestor, problemFactory, false);
+		this.lookupEnvironment.storeAnnotations = true; // store annotations in the bindings
 		this.hasCompilationAborted = false;
 		this.monitor =monitor;
 	}
@@ -197,7 +198,9 @@ class CompilationUnitResolver extends Compiler {
 		for (int i = 0; i < keyLength; i++) {
 			BindingKeyResolver resolver = new BindingKeyResolver(bindingKeys[i], this, this.lookupEnvironment);
 			resolver.parse(true/*pause after fully qualified name*/);
-			CompilationUnitDeclaration parsedUnit = resolver.getCompilationUnitDeclaration();
+			// If it doesn't have a type name, then it is either an array type, package or base type, which will definitely not have a compilation unit. 
+			// Skipping it will speed up performance because the call will open jars. (theodora)
+			CompilationUnitDeclaration parsedUnit = resolver.hasTypeName() ? resolver.getCompilationUnitDeclaration() : null;
 			if (parsedUnit != null) {
 				char[] fileName = parsedUnit.compilationResult.getFileName();
 				Object existing = this.requestedKeys.get(fileName);

@@ -164,5 +164,18 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	int memSize() {
 		return BASE_NODE_SIZE + 1 * 4;
 	}
-}
 
+	/**
+	 * Resolves and returns the resolved annotation for this annotation.
+	 * <p>
+	 * Note that bindings (which includes resolved annotations) are generally unavailable unless
+	 * requested when the AST is being built.
+	 * </p>
+	 * 
+	 * @return the resolved annotation, or <code>null</code> if the annotation cannot be resolved
+	 * @since 3.2
+	 */	
+	public IResolvedAnnotation resolveAnnotation() {
+	    return this.ast.getBindingResolver().resolveAnnotation(this);
+	}
+}

@@ -53,11 +53,13 @@ public int aboutToBuild(IJavaProject project) {
 /**
  * Notifies this participant that a compile operation is about to start and provides it the opportunity to
  * generate source files based on the source files about to be compiled.
- * Only sent to participants interested in the current build project and answer false to isAnnotationProcessor().
+ * When isBatchBuild is true, then files contains all source files in the project.
+ * Only sent to participants interested in the current build project.
  *
  * @param files is an array of CompilationParticipantResult
+ * @param isBatch identifies when the build is a batch build
   */
-public void buildStarting(ICompilationParticipantResult[] files) {
+public void buildStarting(ICompilationParticipantResult[] files, boolean isBatch) {
 	// do nothing by default
 }
 
@@ -98,14 +100,13 @@ public boolean isAnnotationProcessor() {
 }
 
 /**
- * Notifies this participant that a compile operation has found source files that define Annotations.
- * When isBatchBuild is true, then filesWithAnnotations contains all source files in the project that
- * declare annotations.
- * Only sent to participants interested in the current build project and answer true to isAnnotationProcessor().
+ * Notifies this participant that a compile operation has found source files using Annotations.
+ * Only sent to participants interested in the current build project that answer true to isAnnotationProcessor().
+ * Each CompilationParticipantResult was informed whether its source file currently hasAnnotations().
  *
- * @param filesWithAnnotations is an array of CompilationParticipantResult
+ * @param files is an array of CompilationParticipantResult
   */
-public void processAnnotations(ICompilationParticipantResult[] filesWithAnnotations, boolean isBatchBuild) {
+public void processAnnotations(ICompilationParticipantResult[] files) {
 	// do nothing by default
 }
 

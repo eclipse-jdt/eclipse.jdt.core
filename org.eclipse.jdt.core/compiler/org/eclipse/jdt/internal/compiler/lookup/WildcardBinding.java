@@ -484,12 +484,12 @@ public class WildcardBinding extends ReferenceBinding {
 			}
 			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
 				? (ReferenceBinding) superType
-				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
+				: environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 		}
 
 		return this.superclass;
     }
-    
+  /*
     public ReferenceBinding superclass2() {
 		if (this.superclass == null) {
 			TypeBinding superType = (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) 
@@ -497,7 +497,7 @@ public class WildcardBinding extends ReferenceBinding {
 				: null;
 			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
 				? (ReferenceBinding) superType
-				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
+				: environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 			
 //			TypeBinding superType = null;
 //			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
@@ -508,11 +508,11 @@ public class WildcardBinding extends ReferenceBinding {
 //			}
 //			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
 //				? (ReferenceBinding) superType
-//				: environment.getType(JAVA_LANG_OBJECT);
+//				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
 		}
-
 		return this.superclass;
     }
+*/
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
      */

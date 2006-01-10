@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
@@ -46,7 +47,9 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public final static int RECEIVER_TYPE_EMUL = 3;
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
-	
+
+	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
@@ -644,9 +647,8 @@ public long getAnnotationTagBits() {
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
-		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
+		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
 			this.modifiers |= ClassFileConstants.AccDeprecated;
-		}
 	}
 	return this.tagBits;
 }
@@ -1088,9 +1090,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	
-	if (hasRestrictedAccess()) {
+	if (hasRestrictedAccess())
 		field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-	}
 	FieldDeclaration[] fieldDecls = scope.referenceContext.fields;
 	for (int f = 0, length = fieldDecls.length; f < length; f++) {
 		if (fieldDecls[f].binding != field)
@@ -1144,9 +1145,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-	if (hasRestrictedAccess()) {
+	if (hasRestrictedAccess())
 		method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-	}
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration
@@ -1250,11 +1250,25 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
 }
+AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
+	if (forceInitialization)
+		binding.getAnnotationTagBits(); // ensure annotations are up to date
+	return super.retrieveAnnotationHolder(binding, false);
+}
 public final int sourceEnd() {
 	return scope.referenceContext.sourceEnd;
 }
 public final int sourceStart() {
 	return scope.referenceContext.sourceStart;
+}
+SimpleLookupTable storedAnnotations(boolean forceInitialize) {
+	if (forceInitialize && this.storedAnnotations == null) {
+		if (!this.scope.environment().storeAnnotations)
+			return null; // not supported during this compile
+		this.storedAnnotations = new SimpleLookupTable(3);
+		this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
+	}
+	return this.storedAnnotations;
 }
 public ReferenceBinding superclass() {
 	return superclass;

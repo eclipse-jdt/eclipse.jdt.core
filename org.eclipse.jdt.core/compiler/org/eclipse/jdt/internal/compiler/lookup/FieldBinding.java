@@ -36,6 +36,7 @@ public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaring
 	super(initialFieldBinding.name, initialFieldBinding.type, initialFieldBinding.modifiers, initialFieldBinding.constant());
 	this.declaringClass = declaringClass;
 	this.id = initialFieldBinding.id;
+	setAnnotations(initialFieldBinding.getAnnotations());
 }
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
@@ -232,7 +233,12 @@ public final int getAccessFlags() {
 public long getAnnotationTagBits() {
 	FieldBinding originalField = this.original();
 	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
-		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
+		ClassScope scope = ((SourceTypeBinding) originalField.declaringClass).scope;
+		if (scope == null) { // synthetic fields do not have a scope nor any annotations
+			this.tagBits |= TagBits.AnnotationResolved;
+			return 0;
+		}
+		TypeDeclaration typeDecl = scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 		if (fieldDecl != null) {
 			MethodScope initializationScope = isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
@@ -249,6 +255,11 @@ public long getAnnotationTagBits() {
 		}
 	}
 	return originalField.tagBits;
+}
+
+public AnnotationBinding[] getAnnotations() {
+	FieldBinding originalField = this.original();
+	return originalField.declaringClass.retrieveAnnotations(originalField);
 }
 
 /* Answer true if the receiver has default visibility
@@ -322,6 +333,9 @@ public final boolean isVolatile() {
  */
 public FieldBinding original() {
 	return this;
+}
+public void setAnnotations(AnnotationBinding[] annotations) {
+	this.declaringClass.storeAnnotations(this, annotations);
 }
 public FieldDeclaration sourceField() {
 	SourceTypeBinding sourceType;

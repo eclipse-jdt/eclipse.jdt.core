@@ -26,6 +26,17 @@ public class NormalAnnotation extends Annotation {
 		this.sourceEnd = type.sourceEnd;
 	}
 
+	public ElementValuePair[] computeElementValuePairs() {
+		int numberOfPairs = this.memberValuePairs == null ? 0 : this.memberValuePairs.length;
+		if (numberOfPairs == 0)
+			return Binding.NO_ELEMENT_VALUE_PAIRS;
+
+		ElementValuePair[] pairs = new ElementValuePair[numberOfPairs];
+		for (int i = 0; i < numberOfPairs; i++)
+			pairs[i] = this.memberValuePairs[i].compilerElementPair;
+		return pairs;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
 	 */

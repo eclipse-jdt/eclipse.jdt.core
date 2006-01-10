@@ -431,6 +431,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	 * for recognized standard annotations
 	 */
 	public static void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+		AnnotationBinding[] instances = null;
+		int length = annotations == null ? 0 : annotations.length;
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :
@@ -444,33 +446,51 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					ReferenceBinding type = (ReferenceBinding) recipient;
 					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
 					type.tagBits |= TagBits.AnnotationResolved;
+					if (length > 0) {
+						instances = new AnnotationBinding[length];
+						type.setAnnotations(instances);
+					}
 					break;
 				case Binding.METHOD :
 					MethodBinding method = (MethodBinding) recipient;
 					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return;
 					method.tagBits |= TagBits.AnnotationResolved;
+					if (length > 0) {
+						instances = new AnnotationBinding[length];
+						method.setAnnotations(instances);
+					}
 					break;
 				case Binding.FIELD :
 					FieldBinding field = (FieldBinding) recipient;
 					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return;
 					field.tagBits |= TagBits.AnnotationResolved;
+					if (length > 0) {
+						instances = new AnnotationBinding[length];
+						field.setAnnotations(instances);
+					}
 					break;
 				case Binding.LOCAL :
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
 					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return;
 					local.tagBits |= TagBits.AnnotationResolved;
+					if (length > 0) {
+						instances = new AnnotationBinding[length];
+						local.setAnnotations(instances);
+					}
 					break;
 			}			
 		}
 		if (annotations == null) 
 			return;
-		int length = annotations.length;
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
 			annotation.recipient = recipient;
 			annotationTypes[i] = annotation.resolveType(scope);
 			
+			// null if receiver is a package binding
+			if (instances != null)				
+				instances[i] = annotation.getCompilerAnnotation();
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {

@@ -12,14 +12,50 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 abstract public class ClassFileStruct {
 	byte[] reference;
+	int[] constantPoolOffsets;
 	int structOffset;
-public ClassFileStruct(byte classFileBytes[], int off) {
-	reference = classFileBytes;
-	structOffset = off;
+
+public static String printTypeModifiers(int modifiers) {
+
+	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+	java.io.PrintWriter print = new java.io.PrintWriter(out);
+
+	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	print.flush();
+	return out.toString();
 }
-public ClassFileStruct (byte classFileBytes[], int off, boolean verifyStructure) {
+public static void verifyMethodNameAndSignature(char[] name, char[] signature) throws ClassFormatException {
+
+	// ensure name is not empty 
+	if (name.length == 0) {
+		throw new ClassFormatException(ClassFormatException.ErrInvalidMethodName);
+	}
+
+	// if name begins with the < character it must be clinit or init
+	if (name[0] == '<') {
+		if (new String(name).equals("<clinit>") || new String(name).equals("<init>")) { //$NON-NLS-2$ //$NON-NLS-1$
+			int signatureLength = signature.length;
+			if (!((signatureLength > 2)
+				&& (signature[0] == '(')
+				&& (signature[signatureLength - 2] == ')')
+				&& (signature[signatureLength - 1] == 'V'))) {
+				throw new ClassFormatException(ClassFormatException.ErrInvalidMethodSignature);
+			}
+		} else {
+			throw new ClassFormatException(ClassFormatException.ErrInvalidMethodName);
+		}
+	}
+}
+
+public ClassFileStruct(byte[] classFileBytes, int[] offsets, int offset) {
 	reference = classFileBytes;
-	structOffset = off;
+	constantPoolOffsets = offsets;
+	structOffset = offset;
 }
 public double doubleAt(int relativeOffset) {
 	return (Double.longBitsToDouble(this.i8At(relativeOffset)));
@@ -49,19 +85,9 @@ public long i8At(int relativeOffset) {
 					+ (((long) (reference[position++] & 0xFF)) << 8) 
 					+ (reference[position++] & 0xFF);
 }
-public static String printTypeModifiers(int modifiers) {
-
-	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-	java.io.PrintWriter print = new java.io.PrintWriter(out);
-
-	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
-	print.flush();
-	return out.toString();
+protected void reset() {
+	this.reference = null;
+	this.constantPoolOffsets = null;
 }
 public int u1At(int relativeOffset) {
 	return (reference[relativeOffset + structOffset] & 0xFF);
@@ -100,11 +126,6 @@ public char[] utf8At(int relativeOffset, int bytesAvailable) {
 	}
 	return outputBuf;
 }
-
-protected void reset() {
-	this.reference = null;
-}
-
 public char[] utf8At(int relativeOffset, int bytesAvailable, boolean testValidity) throws ClassFormatException {
 	int x, y, z;
 	int length = bytesAvailable;
@@ -162,27 +183,5 @@ public char[] utf8At(int relativeOffset, int bytesAvailable, boolean testValidit
 		System.arraycopy(outputBuf, 0, (outputBuf = new char[outputPos]), 0, outputPos);
 	}
 	return outputBuf;
-}
-public static void verifyMethodNameAndSignature(char[] name, char[] signature) throws ClassFormatException {
-
-	// ensure name is not empty 
-	if (name.length == 0) {
-		throw new ClassFormatException(ClassFormatException.ErrInvalidMethodName);
-	}
-
-	// if name begins with the < character it must be clinit or init
-	if (name[0] == '<') {
-		if (new String(name).equals("<clinit>") || new String(name).equals("<init>")) { //$NON-NLS-2$ //$NON-NLS-1$
-			int signatureLength = signature.length;
-			if (!((signatureLength > 2)
-				&& (signature[0] == '(')
-				&& (signature[signatureLength - 2] == ')')
-				&& (signature[signatureLength - 1] == 'V'))) {
-				throw new ClassFormatException(ClassFormatException.ErrInvalidMethodSignature);
-			}
-		} else {
-			throw new ClassFormatException(ClassFormatException.ErrInvalidMethodName);
-		}
-	}
 }
 }

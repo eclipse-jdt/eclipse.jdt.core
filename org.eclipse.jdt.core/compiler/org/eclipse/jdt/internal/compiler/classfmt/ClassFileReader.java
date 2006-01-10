@@ -16,9 +16,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
-import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -80,7 +78,7 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
 	private char[] className;
 	private int classNameIndex;
 	private int constantPoolCount;
-	private int[] constantPoolOffsets;
+	private AnnotationInfo[] annotations;
 	private FieldInfo[] fields;
 	private int fieldsCount;
 	// initialized in case the .class file is a nested type
@@ -123,7 +121,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	// in 3 passes.  All non-primitive constant pool members that usually refer to other members
 	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
 	// all subsequent uses of the constant pool element faster.
-	super(classFileBytes, 0);
+	super(classFileBytes, null, 0);
 	this.classFileName = fileName;
 	int readOffset = 10;
 	try {
@@ -210,28 +208,29 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 				readOffset += 2;
 			}
 		}
-		// Read the this.fields, use exception handlers to catch bad format
+		// Read the fields, use exception handlers to catch bad format
 		this.fieldsCount = u2At(readOffset);
 		readOffset += 2;
 		if (this.fieldsCount != 0) {
 			FieldInfo field;
 			this.fields = new FieldInfo[this.fieldsCount];
 			for (int i = 0; i < this.fieldsCount; i++) {
-				field = new FieldInfo(reference, this.constantPoolOffsets, readOffset);
+				field = FieldInfo.createField(reference, this.constantPoolOffsets, readOffset);
 				this.fields[i] = field;
 				readOffset += field.sizeInBytes();
 			}
 		}
-		// Read the this.methods
+		// Read the methods
 		this.methodsCount = u2At(readOffset);
 		readOffset += 2;
 		if (this.methodsCount != 0) {
 			this.methods = new MethodInfo[this.methodsCount];
-			MethodInfo method;
+			boolean isAnnotationType = (this.accessFlags & ClassFileConstants.AccAnnotation) != 0;
 			for (int i = 0; i < this.methodsCount; i++) {
-				method = new MethodInfo(reference, this.constantPoolOffsets, readOffset);
-				this.methods[i] = method;
-				readOffset += method.sizeInBytes();
+				this.methods[i] = isAnnotationType
+					? AnnotationMethodInfo.createAnnotationMethod(reference, this.constantPoolOffsets, readOffset)
+					: MethodInfo.createMethod(reference, this.constantPoolOffsets, readOffset);
+				readOffset += this.methods[i].sizeInBytes();
 			}
 		}
 
@@ -294,9 +293,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)
-							|| CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
-						decodeStandardAnnotations(readOffset);
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
+						decodeAnnotations(readOffset, true);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
+						decodeAnnotations(readOffset, false);
 					}
 					break;
 			}
@@ -322,191 +322,39 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 public int accessFlags() {
 	return this.accessFlags;
 }
-private int decodeAnnotation(int offset) {
-	int readOffset = offset;
-	int utf8Offset = this.constantPoolOffsets[u2At(offset)];
-	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-	int numberOfPairs = u2At(offset + 2);
-	readOffset += 4;
-	switch(typeName.length) {
-		case 21 :
-			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
-				this.tagBits |= TagBits.AnnotationInherited;
-				return readOffset;		
-			}
-			break;
-		case 22 :
-			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_DEPRECATED)) {
-				this.tagBits |= TagBits.AnnotationDeprecated;
-				return readOffset;		
-			}
-			break;
-		case 29 :
-			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_TARGET)) {
-				for (int i = 0; i < numberOfPairs; i++) {
-					readOffset += 2;
-					readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
-				}
-				return readOffset;		
-			}
-			break;
-		case 33 :
-			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
-				this.tagBits |= TagBits.AnnotationDocumented;
-				return readOffset;		
-			}
-			break;
-		case 32 :
-			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTION)) {
-				for (int i = 0; i < numberOfPairs; i++) {
-					readOffset += 2;
-					readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
-				}
-				return readOffset;
-			}
-			break;
-	}
-	for (int i = 0; i < numberOfPairs; i++) {
-		readOffset += 2;
-		readOffset = decodeElementValue(readOffset);
-	}
-	return readOffset;
-}
-private int decodeElementValue(int offset) {
-	int readOffset = offset;
-	int tag = u1At(readOffset);
-	readOffset++;
-	switch(tag) {
-		case 'B' :
-		case 'C' :
-		case 'D' :
-		case 'F' :
-		case 'I' :
-		case 'J' :
-		case 'S' :
-		case 'Z' :
-		case 's' :
-			readOffset += 2;
-			break;
-		case 'e' :
-			readOffset += 4;
-			break;
-		case 'c' :
-			readOffset += 2;
-			break;
-		case '@' :
-			readOffset = decodeAnnotation(readOffset);
-			break;
-		case '[' :
-			int numberOfValues = u2At(readOffset);
-			readOffset += 2;
-			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValue(readOffset);
-			}
-			break;
-	}
-	return readOffset;
-}
-private int decodeElementValueForJavaLangAnnotationTarget(int offset) {
-	int readOffset = offset;
-	int tag = u1At(readOffset);
-	readOffset++;
-	switch(tag) {
-		case 'B' :
-		case 'C' :
-		case 'D' :
-		case 'F' :
-		case 'I' :
-		case 'J' :
-		case 'S' :
-		case 'Z' :
-		case 's' :
-			readOffset += 2;
-			break;
-		case 'e' :
-			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
-			char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			readOffset += 2;
-			utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
-			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			readOffset += 2;
-			if (typeName.length == 34 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_ELEMENTTYPE)) {
-				this.tagBits |= Annotation.getTargetElementType(constName);
-			}
-			break;
-		case 'c' :
-			readOffset += 2;
-			break;
-		case '@' :
-			readOffset = decodeAnnotation(readOffset);
-			break;
-		case '[' :
-			int numberOfValues = u2At(readOffset);
-			readOffset += 2;
-			if (numberOfValues == 0) {
-				this.tagBits |= TagBits.AnnotationTarget;
-			} else {
-				for (int i = 0; i < numberOfValues; i++) {
-					readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
-				}
-			}
-			break;
-	}
-	return readOffset;
-}
-private int decodeElementValueForJavaLangAnnotationRetention(int offset) {
-	int readOffset = offset;
-	int tag = u1At(readOffset);
-	readOffset++;
-	switch(tag) {
-		case 'B' :
-		case 'C' :
-		case 'D' :
-		case 'F' :
-		case 'I' :
-		case 'J' :
-		case 'S' :
-		case 'Z' :
-		case 's' :
-			readOffset += 2;
-			break;
-		case 'e' :
-			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
-			char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			readOffset += 2;
-			utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
-			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			readOffset += 2;
-			this.tagBits |= Annotation.getRetentionPolicy(constName);
-			if (typeName.length == 38 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTIONPOLICY)) {
-				this.tagBits |= Annotation.getRetentionPolicy(constName);
-			}
-			break;
-		case 'c' :
-			readOffset += 2;
-			break;
-		case '@' :
-			readOffset = decodeAnnotation(readOffset);
-			break;
-		case '[' :
-			int numberOfValues = u2At(readOffset);
-			readOffset += 2;
-			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValue(readOffset); // retention policy cannot be in an array initializer
-			}
-			break;
-	}
-	return readOffset;
-}
-/**
- * @param offset the offset is located at the beginning of the runtime visible 
- * annotation attribute.
- */
-private void decodeStandardAnnotations(int offset) {
+private void decodeAnnotations(int offset, boolean runtimeVisible) {
 	int numberOfAnnotations = u2At(offset + 6);
-	int readOffset = offset + 8;
-	for (int i = 0; i < numberOfAnnotations; i++) {
-		readOffset = decodeAnnotation(readOffset);
+	if (numberOfAnnotations > 0) {
+		int readOffset = offset + 8;
+		AnnotationInfo[] newInfos = null;
+		int newInfoCount = 0;
+		for (int i = 0; i < numberOfAnnotations; i++) {
+			// With the last parameter being 'false', the data structure will not be flushed out
+			AnnotationInfo newInfo = new AnnotationInfo(this.reference, this.constantPoolOffsets, readOffset, runtimeVisible, false);
+			readOffset += newInfo.readOffset;
+			long standardTagBits = newInfo.standardAnnotationTagBits;
+			if (standardTagBits != 0) {
+				this.tagBits |= standardTagBits;
+			} else {
+				if (newInfos == null)
+					newInfos = new AnnotationInfo[numberOfAnnotations - i];
+				newInfos[newInfoCount++] = newInfo;
+			}
+		}
+		if (newInfos == null)
+			return; // nothing to record in this.annotations
+
+		if (this.annotations == null) {
+			if (newInfoCount != newInfos.length)
+				System.arraycopy(newInfos, 0, newInfos = new AnnotationInfo[newInfoCount], 0, newInfoCount);
+			this.annotations = newInfos;
+		} else {
+			int length = this.annotations.length;
+			AnnotationInfo[] temp = new AnnotationInfo[length + newInfoCount];
+			System.arraycopy(this.annotations, 0, temp, 0, length);
+			System.arraycopy(newInfos, 0, temp, length, newInfoCount);
+			this.annotations = temp;
+		}
 	}
 }
 /**
@@ -655,6 +503,12 @@ public IBinaryNestedType[] getMemberTypes() {
  */
 public IBinaryMethod[] getMethods() {
 	return this.methods;
+}
+/**
+ * @return the annotations or null if there is none.
+ */
+public IBinaryAnnotation[] getAnnotations() {
+	return this.annotations;
 }
 /**
  * Answer an int whose bits are set according the access constants
@@ -983,6 +837,11 @@ private void initialize() throws ClassFormatException {
 				innerInfos[i].initialize();
 			}
 		}
+		if (annotations != null) {
+			for (int i = 0, max = annotations.length; i < max; i++) {
+				annotations[i].initialize();
+			}
+		}
 		this.reset();
 	} catch(RuntimeException e) {
 		ClassFormatException exception = new ClassFormatException(e, this.classFileName);
@@ -1038,10 +897,6 @@ public boolean isMember() {
 public boolean isNestedType() {
 	return this.innerInfo != null;
 }
-protected void reset() {
-	this.constantPoolOffsets = null;
-	super.reset();
-}
 /**
  * Answer the source file name attribute. Return null if there is no source file attribute for the receiver.
  * 
@@ -1060,4 +915,52 @@ public String toString() {
 	print.flush();
 	return out.toString();
 }
+
+/*
+public static void main(String[] args) throws ClassFormatException, IOException {
+	if (args == null || args.length != 1) {
+		System.err.println("ClassFileReader <filename>"); //$NON-NLS-1$
+		System.exit(1);
+	}
+	File file = new File(args[0]);
+	ClassFileReader reader = read(file, true);
+	if (reader.annotations != null) {
+		System.err.println();
+		for (int i = 0; i < reader.annotations.length; i++)
+			System.err.println(reader.annotations[i]);
+	}
+	System.err.print("class "); //$NON-NLS-1$
+	System.err.print(reader.getName());
+	char[] superclass = reader.getSuperclassName();
+	if (superclass != null) {
+		System.err.print(" extends "); //$NON-NLS-1$
+		System.err.print(superclass);
+	}
+	System.err.println();
+	char[][] interfaces = reader.getInterfaceNames();
+	if (interfaces != null && interfaces.length > 0) {
+		System.err.print(" implements "); //$NON-NLS-1$
+		for (int i = 0; i < interfaces.length; i++) {
+			if (i != 0) System.err.print(", "); //$NON-NLS-1$		
+			System.err.println(interfaces[i]);
+		}
+	}
+	System.err.println();
+	System.err.println('{');
+	if (reader.fields != null) {
+		for (int i = 0; i < reader.fields.length; i++) {
+			System.err.println(reader.fields[i]);
+			System.err.println();
+		}
+	}
+	if (reader.methods != null) {
+		for (int i = 0; i < reader.methods.length; i++) {
+			System.err.println(reader.methods[i]);
+			System.err.println();
+		}
+	}
+	System.err.println();
+	System.err.println('}');
+}
+*/
 }

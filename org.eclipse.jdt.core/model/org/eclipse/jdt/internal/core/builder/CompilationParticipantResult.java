@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.compiler.*;
 
 public class CompilationParticipantResult implements ICompilationParticipantResult {
 	SourceFile sourceFile;
+	boolean hasAnnotations; // only set during processAnnotations
 	IFile[] addedFiles; // added/changed generated source files that need to be compiled
 	IFile[] deletedFiles; // previously generated source files that should be deleted
 	IProblem[] problems; // new problems to report against this compilationUnit
@@ -24,6 +25,7 @@ public class CompilationParticipantResult implements ICompilationParticipantResu
 
 CompilationParticipantResult(SourceFile sourceFile) {
 	this.sourceFile = sourceFile;
+	this.hasAnnotations = false;
 	this.addedFiles = null;
 	this.deletedFiles = null;
 	this.problems = null;
@@ -36,6 +38,10 @@ public char[] getContents() {
 
 public IFile getFile() {
 	return this.sourceFile.resource;
+}
+
+public boolean hasAnnotations() {
+	return this.hasAnnotations; // only set during processAnnotations
 }
 
 public void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles) {
@@ -84,6 +90,15 @@ public void recordNewProblems(IProblem[] newProblems) {
 		System.arraycopy(this.problems, 0, merged, 0, length1);
 	System.arraycopy(problems, 0, merged, length1, length2);
 	this.problems = merged;
+}
+
+void reset(boolean detectedAnnotations) {
+	// called prior to processAnnotations
+	this.hasAnnotations = detectedAnnotations;
+	this.addedFiles = null;
+	this.deletedFiles = null;
+	this.problems = null;
+	this.dependencies = null;
 }
 
 public String toString() {

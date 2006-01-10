@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -90,7 +92,31 @@ public class LocalVariableBinding extends VariableBinding {
 		buffer.getChars(0, length, uniqueKey, 0);
 		return uniqueKey;
 	}
-	
+
+	public AnnotationBinding[] getAnnotations() {
+		if (this.declaringScope == null)
+			return Binding.NO_ANNOTATIONS;
+		SourceTypeBinding sourceType = this.declaringScope.enclosingSourceType();
+		if (sourceType == null)
+			return Binding.NO_ANNOTATIONS;
+
+		AnnotationBinding[] annotations = sourceType.retrieveAnnotations(this);
+		if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
+			if (this.isArgument && this.declaration != null) {
+				Annotation[] annotationNodes = declaration.annotations;
+				int length = annotationNodes == null ? 0 : annotationNodes.length;
+				if (length > 0) {
+					ASTNode.resolveAnnotations(this.declaringScope, annotationNodes, this);
+					annotations = new AnnotationBinding[length];
+					for (int i = 0; i < length; i++)
+						annotations[i] = new AnnotationBinding(annotationNodes[i]);
+					setAnnotations(annotations);
+				}
+			}
+		}
+		return annotations;
+	}
+
 	private void getScopeKey(BlockScope scope, StringBuffer buffer) {
 		int scopeIndex = scope.scopeIndex();
 		if (scopeIndex != -1) {
@@ -127,6 +153,14 @@ public class LocalVariableBinding extends VariableBinding {
 			initializationPCs[index + 1] = -1;
 			initializationCount++;
 		}
+	}
+
+	public void setAnnotations(AnnotationBinding[] annotations) {
+		if (this.declaringScope == null) return;
+
+		SourceTypeBinding sourceType = this.declaringScope.enclosingSourceType();
+		if (sourceType != null)
+			sourceType.storeAnnotations(this, annotations);
 	}
 
 	public String toString() {

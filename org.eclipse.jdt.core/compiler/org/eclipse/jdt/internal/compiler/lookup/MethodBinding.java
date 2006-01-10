@@ -58,6 +58,7 @@ public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declar
 	this.parameters = initialMethodBinding.parameters;
 	this.thrownExceptions = initialMethodBinding.thrownExceptions;
 	this.declaringClass = declaringClass;
+	declaringClass.storeAnnotationHolder(this, initialMethodBinding.declaringClass.retrieveAnnotationHolder(initialMethodBinding, true));
 }
 /* Answer true if the argument types & the receiver's parameters have the same erasure
 */
@@ -391,6 +392,20 @@ public char[] genericSignature() {
 	sig.getChars(0, sigLength, genericSignature, 0);	
 	return genericSignature;
 }
+public AnnotationBinding[] getAnnotations() {
+	MethodBinding originalMethod = this.original();
+	return originalMethod.declaringClass.retrieveAnnotations(originalMethod);
+}
+/**
+ * @param index the index of the parameter of interest
+ * @return the annotations on the <code>index</code>th parameter
+ * @throws ArrayIndexOutOfBoundsException when <code>index</code> is not valid 
+ */
+public AnnotationBinding[] getParameterAnnotations(int index) {
+	MethodBinding originalMethod = this.original();
+	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
+	return holder == null ? Binding.NO_ANNOTATIONS : holder.getParameterAnnotations(index);
+}
 public final int getAccessFlags() {
 	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
@@ -410,7 +425,14 @@ public long getAnnotationTagBits() {
 	}
 	return originalMethod.tagBits;
 }
-
+/**
+ * @return the default value for this annotation method or <code>null</code> if there is no default value
+ */
+public Object getDefaultValue() {
+	MethodBinding originalMethod = this.original();
+	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
+	return holder == null ? null : holder.getDefaultValue();
+}
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	for (int i = this.typeVariables.length; --i >= 0;)
 		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))
@@ -599,7 +621,26 @@ public char[] readableName() /* foo(int, Thread) */ {
 	buffer.append(')');
 	return buffer.toString().toCharArray();
 }
-
+public void setAnnotations(AnnotationBinding[] annotations) {
+	this.declaringClass.storeAnnotations(this, annotations);
+}
+public void setAnnotations(AnnotationBinding[] annotations, AnnotationBinding[][] parameterAnnotations, Object defaultValue) {
+	this.declaringClass.storeAnnotationHolder(this,  AnnotationHolder.storeAnnotations(annotations, parameterAnnotations, defaultValue));
+}
+public void setDefaultValue(Object defaultValue) {
+	AnnotationHolder holder = this.declaringClass.retrieveAnnotationHolder(this, false);
+	if (holder == null)
+		setAnnotations(null, null, defaultValue);
+	else
+		setAnnotations(holder.getAnnotations(), holder.getParameterAnnotations(), defaultValue);
+}
+public void setParameterAnnotations(AnnotationBinding[][] parameterAnnotations) {
+	AnnotationHolder holder = this.declaringClass.retrieveAnnotationHolder(this, false);
+	if (holder == null)
+		setAnnotations(null, parameterAnnotations, null);
+	else
+		setAnnotations(holder.getAnnotations(), parameterAnnotations, holder.getDefaultValue());
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
  */

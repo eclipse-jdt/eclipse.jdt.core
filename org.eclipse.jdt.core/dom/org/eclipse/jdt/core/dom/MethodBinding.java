@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
@@ -56,7 +57,11 @@ class MethodBinding implements IMethodBinding {
 		this.resolver = resolver;
 		this.binding = binding;
 	}
-	
+
+	public boolean isAnnotationMember() {
+		return getDeclaringClass().isAnnotation();
+	}
+
 	/*
 	 * @see IMethodBinding#isConstructor()
 	 */
@@ -97,6 +102,16 @@ class MethodBinding implements IMethodBinding {
 		return name;
 	}
 
+	public IResolvedAnnotation[] getAnnotations() { 
+		AnnotationBinding[] annotations = this.binding.getAnnotations();
+		int length = annotations == null ? 0 : annotations.length;
+		IResolvedAnnotation[] domInstances =
+			length == 0 ? ResolvedAnnotation.NoAnnotations : new ResolvedAnnotation[length];
+		for (int i = 0; i < length; i++)
+			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
+		return domInstances; 
+	}
+
 	/*
 	 * @see IMethodBinding#getDeclaringClass()
 	 */
@@ -105,6 +120,16 @@ class MethodBinding implements IMethodBinding {
 			this.declaringClass = this.resolver.getTypeBinding(this.binding.declaringClass);
 		}
 		return declaringClass;
+	}
+
+	public IResolvedAnnotation[] getParameterAnnotations(int index) {
+		AnnotationBinding[] annotations = this.binding.getParameterAnnotations(index);
+		int length = annotations == null ? 0 : annotations.length;
+		IResolvedAnnotation[] domInstances =
+			length == 0 ? ResolvedAnnotation.NoAnnotations : new ResolvedAnnotation[length];
+		for (int i = 0; i < length; i++)
+			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
+		return domInstances; 
 	}
 
 	/*
@@ -136,7 +161,13 @@ class MethodBinding implements IMethodBinding {
 		}
 		return this.returnType;
 	}
-	
+
+	public Object getDefaultValue() {
+		if (isAnnotationMember())
+			return ResolvedMemberValuePair.buildDOMValue(this.binding.getDefaultValue(), this.resolver);
+		return null;
+	}
+
 	/*
 	 * @see IMethodBinding#getExceptionTypes()
 	 */

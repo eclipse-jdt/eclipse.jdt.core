@@ -27,6 +27,10 @@ public abstract class Annotation extends Expression {
 	public Binding recipient;
 	
 	public TypeReference type;
+	/** 
+	 *  The representation of this annotation in the type system. 
+	 */
+	private AnnotationBinding compilerAnnotation = null;
 	
 	public static long getRetentionPolicy(char[] policyName) {
 		if (policyName == null || policyName.length == 0)
@@ -85,7 +89,11 @@ public abstract class Annotation extends Expression {
 		}
 		return 0; // unknown
 	}		
-	
+
+	public ElementValuePair[] computeElementValuePairs() {
+		return Binding.NO_ELEMENT_VALUE_PAIRS;
+	}
+
 	/**
 	 * Compute the bit pattern for recognized standard annotations the compiler may need to act upon
 	 */
@@ -155,7 +163,11 @@ public abstract class Annotation extends Expression {
 		}
 		return tagBits;
 	}
-	
+
+	public AnnotationBinding getCompilerAnnotation() {
+		return this.compilerAnnotation;
+	}
+
 	public abstract MemberValuePair[] memberValuePairs();
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -210,15 +222,20 @@ public abstract class Annotation extends Expression {
 	
 	public TypeBinding resolveType(BlockScope scope) {
 		
+		if (this.compilerAnnotation != null)
+			return this.resolvedType;
 		this.constant = Constant.NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
-		if (typeBinding == null)
+		if (typeBinding == null) {
+			this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
+		}
 		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
 		if (!typeBinding.isAnnotationType()) {
 			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type);
+			this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
 		}
 
@@ -275,6 +292,7 @@ public abstract class Annotation extends Expression {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}
+		this.compilerAnnotation = new AnnotationBinding(this);
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {

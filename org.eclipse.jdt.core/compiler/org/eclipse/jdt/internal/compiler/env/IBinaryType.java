@@ -19,6 +19,11 @@ public interface IBinaryType extends IGenericType {
 	IBinaryField[] NoField = new IBinaryField[0];
 	IBinaryMethod[] NoMethod = new IBinaryMethod[0];
 /**
+ * Answer the runtime visible and invisible annoations for this type or null if none.
+ */
+
+IBinaryAnnotation[] getAnnotations();
+/**
  * Answer the resolved name of the enclosing type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
  * or null if the receiver is a top level type.
@@ -32,6 +37,14 @@ char[] getEnclosingTypeName();
  */
 
 IBinaryField[] getFields();
+/**
+ * Answer the receiver's signature which describes the parameter &
+ * return types as specified in section 4.4.4 of the Java 2 VM spec 3rd edition.
+ * Returns null if none.
+ * 
+ * @return the receiver's signature, null if none
+ */
+char[] getGenericSignature();
 /**
  * Answer the resolved names of the receiver's interfaces in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
@@ -65,15 +78,6 @@ IBinaryMethod[] getMethods();
  */
 
 char[] getName();
-
-/**
- * Answer the receiver's signature which describes the parameter &
- * return types as specified in section 4.4.4 of the Java 2 VM spec 3rd edition.
- * Returns null if none.
- * 
- * @return the receiver's signature, null if none
- */
-char[] getGenericSignature();
 
 /**
  * Answer the resolved name of the receiver's superclass in the

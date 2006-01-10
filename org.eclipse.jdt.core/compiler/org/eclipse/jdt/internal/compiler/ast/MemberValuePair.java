@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -27,6 +28,10 @@ public class MemberValuePair extends ASTNode {
 	public char[] name;
 	public Expression value;
 	public MethodBinding binding;
+	/** 
+	 *  The representation of this pair in the type system. 
+	 */
+	ElementValuePair compilerElementPair = null;
 	
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
 		this.name = token;
@@ -51,8 +56,10 @@ public class MemberValuePair extends ASTNode {
 	
 	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
 		
-		if (this.value == null) 
+		if (this.value == null) {
+			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 			return;
+		}
 		if (requiredType == null) {
 			// fault tolerance: keep resolving
 			if (this.value instanceof ArrayInitializer) {
@@ -60,6 +67,7 @@ public class MemberValuePair extends ASTNode {
 			} else {
 				this.value.resolveType(scope);
 			}
+			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 			return;
 		}
 
@@ -72,6 +80,7 @@ public class MemberValuePair extends ASTNode {
 		} else {
 			this.value.resolveType(scope);
 		}
+		this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 		TypeBinding valueType = this.value.resolvedType;
 		if (valueType == null)
 			return;

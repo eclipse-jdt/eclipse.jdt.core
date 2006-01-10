@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
 Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -551,6 +552,13 @@ public final int getAccessFlags() {
 }
 
 /**
+ * @return the JSR 175 annotations for this type.
+ */
+public AnnotationBinding[] getAnnotations() {
+	return retrieveAnnotations(this);
+}
+
+/**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 public long getAnnotationTagBits() {
@@ -944,7 +952,17 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	}
 	return readableName;
 }
-
+AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
+	SimpleLookupTable store = storedAnnotations(false);
+	return store == null ? null : (AnnotationHolder) store.get(binding);
+}
+AnnotationBinding[] retrieveAnnotations(Binding binding) {
+	AnnotationHolder holder = retrieveAnnotationHolder(binding, true);
+	return holder == null ? Binding.NO_ANNOTATIONS : holder.getAnnotations();
+}
+public void setAnnotations(AnnotationBinding[] annotations) {
+	storeAnnotations(this, annotations);
+}
 public char[] shortReadableName() /*Object*/ {
     char[] shortReadableName;
 	if (isMemberType()) {
@@ -982,7 +1000,36 @@ public char[] signature() /* Ljava/lang/Object; */ {
 public char[] sourceName() {
 	return sourceName;
 }
-
+void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
+	if (holder == null) {
+		SimpleLookupTable store = storedAnnotations(false);
+		if (store != null)
+			store.removeKey(binding);
+	} else {
+		SimpleLookupTable store = storedAnnotations(true);
+		if (store != null)
+			store.put(binding, holder);
+	}
+}
+void storeAnnotations(Binding binding, AnnotationBinding[] annotations) {
+	AnnotationHolder holder = null;
+	if (annotations == null || annotations.length == 0) {
+		SimpleLookupTable store = storedAnnotations(false);
+		if (store != null)
+			holder = (AnnotationHolder) store.get(binding);
+		if (holder == null) return; // nothing to delete
+	} else {
+		SimpleLookupTable store = storedAnnotations(true);
+		if (store == null) return; // not supported
+		holder = (AnnotationHolder) store.get(binding);
+		if (holder == null)
+			holder = new AnnotationHolder();
+	}
+	storeAnnotationHolder(binding, holder.setAnnotations(annotations));
+}
+SimpleLookupTable storedAnnotations(boolean forceInitialize) {
+	return null; // overrride if interested in storing annotations for the receiver, its fields and methods
+}
 public ReferenceBinding superclass() {
 	return null;
 }

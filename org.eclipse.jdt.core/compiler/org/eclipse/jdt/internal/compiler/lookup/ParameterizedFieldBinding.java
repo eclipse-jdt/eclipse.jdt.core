@@ -58,6 +58,5 @@ public FieldBinding original() {
  */
 public void setConstant(Constant constant) {
 	this.originalField.setConstant(constant);
-}	
 }
-
+}

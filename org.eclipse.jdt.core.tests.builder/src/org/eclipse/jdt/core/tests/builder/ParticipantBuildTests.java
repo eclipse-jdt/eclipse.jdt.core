@@ -58,7 +58,7 @@ public class ParticipantBuildTests extends Tests {
 		// install compilationParticipant
 		new BuildTestParticipant() {
 			boolean createFile = true;
-			public void buildStarting(ICompilationParticipantResult[] files) {
+			public void buildStarting(ICompilationParticipantResult[] files, boolean isBatchBuild) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				if (!this.createFile) return;
 				this.createFile = false;
@@ -98,11 +98,11 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] filesWithAnnotations, boolean isBatchBuild) {
+			public void processAnnotations(ICompilationParticipantResult[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				if (this.count == 2) {
 					this.count--;
-					ICompilationParticipantResult result = filesWithAnnotations[0];
+					ICompilationParticipantResult result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("MissingAnnotation.java")); //$NON-NLS-1$
 					try {
 						genedType.create(new ByteArrayInputStream("public @interface MissingAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
@@ -112,7 +112,7 @@ public class ParticipantBuildTests extends Tests {
 					result.recordAddedGeneratedFiles(new IFile[] {genedType});
 				} else if (this.count == 1) {
 					this.count--;
-					ICompilationParticipantResult result = filesWithAnnotations[0];
+					ICompilationParticipantResult result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 					try {
 						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$

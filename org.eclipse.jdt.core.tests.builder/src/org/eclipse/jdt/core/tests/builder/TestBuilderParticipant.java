@@ -25,8 +25,8 @@ public void cleanStarting(IJavaProject project) {
 	PARTICIPANT.cleanStarting(project);
 }
 
-public void buildStarting(ICompilationParticipantResult[] files) {
-	PARTICIPANT.buildStarting(files);
+public void buildStarting(ICompilationParticipantResult[] files, boolean isBatchBuild) {
+	PARTICIPANT.buildStarting(files, isBatchBuild);
 }
 
 public boolean isActive(IJavaProject project) {
@@ -37,7 +37,7 @@ public boolean isAnnotationProcessor() {
 	return PARTICIPANT != null && PARTICIPANT.isAnnotationProcessor();
 }
 
-public void processAnnotations(ICompilationParticipantResult[] filesWithAnnotations, boolean isBatchBuild) {
-	PARTICIPANT.processAnnotations(filesWithAnnotations, isBatchBuild);
+public void processAnnotations(ICompilationParticipantResult[] files) {
+	PARTICIPANT.processAnnotations(files);
 }
 }

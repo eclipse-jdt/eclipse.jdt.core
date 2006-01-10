@@ -60,6 +60,7 @@ void buildFieldsAndMethods() {
 }
 void buildTypeBindings(AccessRestriction accessRestriction) {
 	topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
+	boolean firstIsSynthetic = false;
 	if (referenceContext.compilationResult.compilationUnit != null) {
 		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
 		if (expectedPackageName != null 
@@ -83,6 +84,16 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		if ((fPackage = environment.createPackage(currentPackageName)) == null) {
 			problemReporter().packageCollidesWithType(referenceContext);
 			return;
+		} else if (referenceContext.isPackageInfo() && referenceContext.currentPackage.annotations != null) {
+			// resolve package annotations now if this is "package-info.java".				
+			if (referenceContext.types == null || referenceContext.types.length == 0) {
+				referenceContext.types = new TypeDeclaration[1];
+				TypeDeclaration declaration = new TypeDeclaration(referenceContext.compilationResult);
+				referenceContext.types[0] = declaration;
+				declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+				declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+				firstIsSynthetic = true;
+			}
 		}
 		recordQualifiedReference(currentPackageName); // always dependent on your own package
 	}
@@ -119,9 +130,10 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 
 		ClassScope child = new ClassScope(this, typeDecl);
 		SourceTypeBinding type = child.buildType(null, fPackage, accessRestriction);
-		if(type != null) {
+		if (firstIsSynthetic && i == 0)
+			type.modifiers |= ClassFileConstants.AccSynthetic;
+		if (type != null)
 			topLevelTypes[count++] = type;
-		}
 	}
 
 	// shrink topLevelTypes... only happens if an error was reported

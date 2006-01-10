@@ -136,6 +136,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				MemberValuePair pair = new MemberValuePair(this.selector, this.sourceStart, this.sourceEnd, this.defaultValue);
 				pair.binding = this.binding;
 				pair.resolveTypeExpecting(scope, returnTypeBinding);
+				this.binding.setDefaultValue(org.eclipse.jdt.internal.compiler.lookup.ElementValuePair.getValue(this.defaultValue));
 			}
 		}
 	}

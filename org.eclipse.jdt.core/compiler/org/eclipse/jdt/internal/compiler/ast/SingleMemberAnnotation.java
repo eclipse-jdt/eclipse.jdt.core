@@ -11,8 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * SingleMemberAnnotation node
@@ -27,7 +26,11 @@ public class SingleMemberAnnotation extends Annotation {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = type.sourceEnd;
 	}
-	
+
+	public ElementValuePair[] computeElementValuePairs() {
+		return new ElementValuePair[] {memberValuePairs()[0].compilerElementPair};
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
 	 */
