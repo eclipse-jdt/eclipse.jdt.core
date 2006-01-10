@@ -278,7 +278,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Init tags arrays for current source level.
 	 */
 	private void initLevelTags() {
-		int level = ((int)(this.sourceLevel >>> 16)) - ClassFileConstants.MAJOR_VERSION_1_1 + 1;
+		int level = ((int)(this.complianceLevel >>> 16)) - ClassFileConstants.MAJOR_VERSION_1_1 + 1;
 		// Init block tags
 		this.levelTags[BLOCK_IDX] = new char[BLOCK_ALL_TAGS_LENGTH][];
 		this.levelTagsLength[BLOCK_IDX] = 0;

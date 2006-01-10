@@ -47,6 +47,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	// Options
 	public boolean checkDocComment = false;
 	public boolean reportProblems;
+	protected long complianceLevel;
 	protected long sourceLevel;
 	
 	// Results
@@ -100,6 +101,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		if (sourceParser != null) {
 			this.checkDocComment = this.sourceParser.options.docCommentSupport;
 			this.sourceLevel = this.sourceParser.options.sourceLevel;
+			this.complianceLevel = this.sourceParser.options.complianceLevel;
 		}
 	}
 

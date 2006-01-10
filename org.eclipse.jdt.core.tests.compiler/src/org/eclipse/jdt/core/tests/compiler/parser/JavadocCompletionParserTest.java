@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import junit.framework.Test;
@@ -41,6 +42,7 @@ public class JavadocCompletionParserTest extends AbstractCompletionTest implemen
 	}
 
 	CompletionJavadoc javadoc;
+	String sourceLevel;
 
 public JavadocCompletionParserTest(String testName) {
 	super(testName);
@@ -61,6 +63,7 @@ public static Test suite() {
  */
 protected void setUp() throws Exception {
 	super.setUp();
+	this.sourceLevel = null;
 }
 
 protected void assertCompletionNodeResult(String source, String expected) {
@@ -82,7 +85,14 @@ protected void assertCompletionNodeResult(String source, String expected) {
 		actual
 	);
 }
-
+protected Map getCompilerOptions() {
+	Map options = super.getCompilerOptions();
+	if (this.sourceLevel == null) {
+		return options;
+	}
+	options.put(CompilerOptions.OPTION_Source, this.sourceLevel);
+	return options;
+}
 protected void verifyCompletionInJavadoc(String source, String after) {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	CompletionParser parser = new CompletionParser(new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -279,6 +289,21 @@ public void test007() {
 		" * 			+ \"@ {@linkplain }\"\n" + 
 		" * 			+ \"@ {@literal }\"\n" + 
 		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@");
+	verifyAllTagsCompletion();
+}
+/**
+ * @bug [javadoc][assist] @linkplain no longer proposed when 1.4 compliance is used
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123096"
+ */
+public void test008() {
+	this.sourceLevel = CompilerOptions.VERSION_1_3;
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * Completion on empty tag name:\n" +
+		" * 	@\n" +
+		" */\n" +
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "@");
 	verifyAllTagsCompletion();
