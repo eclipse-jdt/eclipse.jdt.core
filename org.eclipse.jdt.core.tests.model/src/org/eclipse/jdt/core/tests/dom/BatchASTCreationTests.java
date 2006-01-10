@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -1532,4 +1533,66 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		}
 	}
 
+	/*
+	 * Ensures that requesting a CU needing a constant in a previously processed CU doesn't throw an NPE
+	 * (regression test for bug 111822 DOMParser.createASTs() NPE at FieldReference.getConstantFor(FieldReference.java:408))
+	 */
+	public void test069() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+			"/P/pkg/RefAnnoAndClassWithAnno.java",
+			"package pkg;\n" +
+			"public class RefMyAnnoAndClassWithAnno {\n" + 
+			"	final Class anno = MyAnno.class;\n" + 
+			"	final Class withAnno = ClassWithAnnotation.class;\n" + 
+			"}",
+			"/P/pkg/MyAnno.java",
+			"package pkg;\n" +
+			"public @interface MyAnno {\n" + 
+			"	public enum EnumColor{\n" + 
+			"		BLUE, RED, WHITE;\n" + 
+			"	}\n" + 
+			"	EnumColor aEnum();\n" + 
+			"}",
+			"/P/pkg/ClassWithAnnotation.java",
+			"package pkg;\n" +
+			"import pkg.MyAnno.EnumColor;\n" + 
+			"@MyAnno(aEnum = EnumColor.BLUE)\n" + 
+			"public class ClassWithAnnotation {}"
+		});
+		String key = BindingKey.createTypeBindingKey("pkg.RefMyAnnoAndClassWithAnno");
+		BindingResolver resolver = new BindingResolver(new MarkerInfo[0]);
+		resolveASTs(new ICompilationUnit[0],  new String[] {key}, resolver, getJavaProject("P"), this.owner);
+		assertStringsEqual(
+			"Unexpected bindings",
+			"Lpkg/RefAnnoAndClassWithAnno~RefMyAnnoAndClassWithAnno;\n",
+			resolver.getFoundKeys());
+	}
+	
+	/*
+	 * Ensures that unrequested compilation units are not resolved
+	 * (regression test for bug 114935 ASTParser.createASTs parses more CUs then required)
+	 */
+	public void test070() throws CoreException {
+		MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X extends /*start*/Y/*end*/ {\n" +
+			"}",
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  static final int CONST = 2 + 3;\n" +
+			"}",
+		});
+		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
+		TestASTRequestor requestor = new TestASTRequestor();
+		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
+		
+		// get the binding for Y
+		Type y = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
+		ITypeBinding yBinding = y.resolveBinding();
+		
+		// ensure that the fields for Y are not resolved
+		assertBindingsEqual("", yBinding.getDeclaredFields());
+	}
 }
