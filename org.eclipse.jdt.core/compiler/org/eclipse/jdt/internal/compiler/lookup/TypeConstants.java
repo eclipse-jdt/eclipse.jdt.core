@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+// TODO should rename into TypeNames (once extracted last non name constants)
 public interface TypeConstants {
 	
 	char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
