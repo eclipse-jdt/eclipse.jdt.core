@@ -1,4 +1,0 @@
-class One {}
-
-
-class Two {}

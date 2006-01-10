@@ -1,2 +1,0 @@
-Element x = (Element)
-object;
