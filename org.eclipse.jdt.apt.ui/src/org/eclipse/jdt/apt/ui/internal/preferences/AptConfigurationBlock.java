@@ -326,9 +326,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			elements = getListElements();
 		}
 		saveProcessorOptions(elements);
-		fAptProject.getGeneratedFileManager().handlePreferenceChange(
+		fAptProject.handlePreferenceChange(
 				AptPreferenceConstants.APT_GENSRCDIR, fOriginalGenSrcDir, fGenSrcDirField.getText());
-		fAptProject.getGeneratedFileManager().handlePreferenceChange(
+		fAptProject.handlePreferenceChange(
 				AptPreferenceConstants.APT_ENABLED, 
 				Boolean.toString(fOriginalAptEnabled), 
 				Boolean.toString(fAptEnabledField.isSelected()));

@@ -155,8 +155,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 	
 	public void cleanStarting(IJavaProject javaProject){
 		IProject p = javaProject.getProject();
-		GeneratedFileManager gfm = AptPlugin.getAptProject(javaProject).getGeneratedFileManager();
-		gfm.projectClean( true );
+		
+		AptPlugin.getAptProject(javaProject).projectClean( true );
 		try{
 			// clear out all markers during a clean.
 			IMarker[] markers = p.findMarkers(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
@@ -181,9 +181,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 	
 	public int aboutToBuild(IJavaProject project) {
 		if (AptConfig.isEnabled(project)) {
-			//	setup the classpath and make sure the generated source folder is on disk.
-			GeneratedFileManager manager = AptPlugin.getAptProject(project).getGeneratedFileManager();
-			manager.compilationStarted();
+			// setup the classpath and make sure the generated source folder is on disk.
+		AptPlugin.getAptProject(project).compilationStarted();
 		}		
 		_buildRound = 0; // reset
 		// TODO: (wharley) if the factory path is different we need a full build

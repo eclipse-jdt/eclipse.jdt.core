@@ -63,8 +63,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	private static final boolean ENABLE_GENERATED_FILE_LISTENER = false;
 	private boolean _hasRaisedErrors = false;
 
-    private Set<IFile> _allGeneratedFiles = new HashSet<IFile>();
-    private Set<IFile> _modifiedGeneratedFiles = new HashSet<IFile>();	
+    private Set<IFile> _allGeneratedSourceFiles = new HashSet<IFile>();
+    private Set<IFile> _modifiedGeneratedSourceFiles = new HashSet<IFile>();	
 	private final FilerImpl _filer;	
 
 	/**
@@ -189,21 +189,29 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		return null;
     }  
 
-	public void addGeneratedFile( IFile f, boolean contentsChanged ) {
-		_allGeneratedFiles.add(f);
+	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {
+		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
+			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
+		}
+		
+		_allGeneratedSourceFiles.add(f);
 		if (contentsChanged)
-			_modifiedGeneratedFiles.add(f);
+			_modifiedGeneratedSourceFiles.add(f);
 	}
 	
-    public Set<IFile> getAllGeneratedFiles(){ return _allGeneratedFiles; }
+	public void addGeneratedNonSourceFile(final IFile file) {
+		_allGeneratedSourceFiles.add(file);
+	}
+	
+    public Set<IFile> getAllGeneratedFiles(){ return _allGeneratedSourceFiles; }
     
-    public Set<IFile> getModifiedGeneratedFiles() { return _modifiedGeneratedFiles; }
+    public Set<IFile> getModifiedGeneratedFiles() { return _modifiedGeneratedSourceFiles; }
 
 	/**
 	 * @return true iff source files has been generated.
 	 *         Always return false when this environment is closed.
 	 */
-	public boolean hasGeneratedSourceFiles(){ return !_allGeneratedFiles.isEmpty();  }
+	public boolean hasGeneratedSourceFiles(){ return !_allGeneratedSourceFiles.isEmpty();  }
 
 	/**
 	 * @return true iff class files has been generated.
@@ -244,8 +252,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
     	_filesWithAnnotation = null;
     	_problems = null;
         _modelCompUnit2astCompUnit.clear();		
-		_allGeneratedFiles = null;
-		_modifiedGeneratedFiles = null;
+		_allGeneratedSourceFiles = null;
+		_modifiedGeneratedSourceFiles = null;
 		_hasRaisedErrors = false;
 		super.close();
     }
@@ -501,7 +509,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	
 	private void completedProcessing(){
 		_problems.clear();
-		_modifiedGeneratedFiles.clear();
+		_modifiedGeneratedSourceFiles.clear();
 		_typeDependencies.clear();
 	}
 	

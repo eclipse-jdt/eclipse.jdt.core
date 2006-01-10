@@ -29,35 +29,67 @@ import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
  */
 public class BinaryFileOutputStream extends ByteArrayOutputStream {
 
-	private final IFile _file;
+	protected final IFile _file;
+	private final ProcessorEnvImpl _env;
 	
-	public BinaryFileOutputStream(IFile file) {
+	public BinaryFileOutputStream(IFile file, ProcessorEnvImpl env) {
 		_file = file;
+		_env = env;
 	}
 	
 	@Override
 	public void close() throws IOException {
 		super.close();
+		
 		InputStream contents = new ByteArrayInputStream(toByteArray());
-		if (!_file.exists()) {
-			saveToDisk(contents, true);
-			return;
-		}
-		boolean needToWriteData = true;
 		try {
-			// Only write the contents if the data is different
-			InputStream in = new ByteArrayInputStream(toByteArray());
-			InputStream oldData = new BufferedInputStream(_file.getContents());
-			if (FileSystemUtil.compareStreams(in, oldData)) {
-				needToWriteData = false;
+			
+			boolean contentsChanged = true;
+			if (!_file.exists()) {
+				saveToDisk(contents, true);
+			}
+			else {
+				InputStream in = null;
+				InputStream oldData = null;
+				try {
+					// Only write the contents if the data is different
+					in = new ByteArrayInputStream(toByteArray());
+					oldData = new BufferedInputStream(_file.getContents());
+					if (FileSystemUtil.compareStreams(in, oldData)) {
+						contentsChanged = false;
+					}
+				}
+				catch (CoreException ce) {
+					// Ignore -- couldn't read the old data, so assume it's different
+					contentsChanged = true;
+				}
+				finally {
+					closeInputStream(in);
+					closeInputStream(oldData);
+				}
+				if (contentsChanged) {
+					contents.reset();
+					saveToDisk(contents, false);
+				}
 			}
 		}
-		catch (CoreException ce) {
-			// Ignore -- couldn't read the old data, so assume it's different
+		finally {
+			closeInputStream(contents);
 		}
-		if (needToWriteData) {
-			contents.reset();
-			saveToDisk(contents, false);
+			
+		IFile parentFile = _env.getFile();
+		if (parentFile != null) {
+			_env.getAptProject().getGeneratedFileManager().addEntryToFileMaps(parentFile, _file);
+			_env.addGeneratedNonSourceFile(_file);
+		}
+	}
+	
+	private void closeInputStream(InputStream stream) {
+		if (stream != null) {
+			try {
+				stream.close();
+			}
+			catch (IOException ioe) {}
 		}
 	}
 	

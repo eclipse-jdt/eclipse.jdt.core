@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -592,8 +592,8 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoProblems();
 		expectingNoMarkers();
 		
-		GeneratedFileManager mgr = AptPlugin.getAptProject(javaProj).getGeneratedFileManager();
-		IFolder srcFolder = mgr.getGeneratedSourceFolder();
+		GeneratedSourceFolderManager mgr = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
+		IFolder srcFolder = mgr.getFolder();
 		assertEquals(true, srcFolder.exists());
 		// delete the gen source folder
 		srcFolder.delete(true, false, null);

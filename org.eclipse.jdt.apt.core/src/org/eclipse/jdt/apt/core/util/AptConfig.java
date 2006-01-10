@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.AptProject;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -640,11 +639,12 @@ public class AptConfig {
 		IScopeContext context = (null != jproject) ? 
 				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
+		// get old val as a String, so it can be null if setting doesn't exist yet
+		String oldValue = node.get(optionName, null);
 		node.putBoolean(optionName, value);
 		if (jproject != null) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			GeneratedFileManager gfm = aproj.getGeneratedFileManager();
-			gfm.handlePreferenceChange(optionName, null, Boolean.toString(value));
+			aproj.handlePreferenceChange(optionName, oldValue, Boolean.toString(value));
 		}
 		flushPreference(optionName, node);
 	}
@@ -657,8 +657,7 @@ public class AptConfig {
 		node.put(optionName, value);
 		if (jproject != null) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			GeneratedFileManager gfm = aproj.getGeneratedFileManager();
-			gfm.handlePreferenceChange(optionName, oldValue, value);
+			aproj.handlePreferenceChange(optionName, oldValue, value);
 		}
 		flushPreference(optionName, node);
 	}

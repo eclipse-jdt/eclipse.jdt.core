@@ -22,6 +22,10 @@ import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 // note: only works in BUILD phase.
 public class JavaSourceFilePrintWriter extends PrintWriter {
 
+	private final StringWriter _sw;
+    private final String _typeName;
+    private final ProcessorEnvImpl _env;
+	
     public JavaSourceFilePrintWriter( String typeName, StringWriter sw, ProcessorEnvImpl env )
     {
         super( sw );
@@ -39,16 +43,11 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        FileGenerationResult result = gfm.generateFileDuringBuild( 
 					_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );;
 	        if (result != null) {
-	        	_env.addGeneratedFile(result.getFile(), result.isModified());
+	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }
     	}
     	catch (CoreException ce) {
     		AptPlugin.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
     	}
     }
-			
-	
-    private StringWriter _sw;
-    private String _typeName;
-    private ProcessorEnvImpl _env;
 }
