@@ -512,9 +512,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	boolean isImplicitThisRcv = receiver.isImplicitThis();
 	constant = isImplicitThisRcv ? fieldBinding.constant() : Constant.NotAConstant;
-	if (!isImplicitThisRcv) {
-		constant = Constant.NotAConstant;
-	}
 	if (fieldBinding.isStatic()) {
 		// static field accessed through receiver? legal but unoptimal (optional warning)
 		if (!(isImplicitThisRcv

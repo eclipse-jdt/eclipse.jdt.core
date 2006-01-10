@@ -380,7 +380,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// check for this.x in static is done in the resolution of the receiver
 	this.constant = this.receiver.isImplicitThis() ? this.binding.constant() : Constant.NotAConstant;
-	if (!this.receiver.isThis()) {
+	if (!this.receiver.isThis()) { // TODO need to check if shouldn't be isImplicitThis check (and then removed)
 		this.constant = Constant.NotAConstant;
 	}
 	return this.resolvedType = this.binding.type;
