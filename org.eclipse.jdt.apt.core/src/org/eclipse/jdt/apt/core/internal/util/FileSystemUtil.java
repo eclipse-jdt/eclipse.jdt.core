@@ -51,24 +51,22 @@ public final class FileSystemUtil
         }
     }    
   
-    public static void makeDerivedParentFolders (IContainer container) throws CoreException {
+    public static synchronized void makeDerivedParentFolders (IContainer container) throws CoreException {
     	// synchronize the "does it exist - if not, create it" sequence.
-    	synchronized(container.getProject()) {
-			if ((container instanceof IFolder) && !container.exists()) {
-				makeDerivedParentFolders(container.getParent());
-		    	try {
-		    		((IFolder)container).create(true, true, null);
-		    	}
-		    	catch (CoreException e) {
-		    		// Ignore race condition where another thread created the folder at the
-		    		// same time, causing checkDoesNotExist() to throw within create(). 
-		    		if (!container.exists()) {
-		    			throw e;
-		    		}
-		    	}
-				container.setDerived(true);
-			}
-    	}
+		if ((container instanceof IFolder) && !container.exists()) {
+			makeDerivedParentFolders(container.getParent());
+	    	try {
+	    		((IFolder)container).create(true, true, null);
+	    	}
+	    	catch (CoreException e) {
+	    		// Ignore race condition where another thread created the folder at the
+	    		// same time, causing checkDoesNotExist() to throw within create(). 
+	    		if (!container.exists()) {
+	    			throw e;
+	    		}
+	    	}
+			container.setDerived(true);
+		}
     }
     
     /**
