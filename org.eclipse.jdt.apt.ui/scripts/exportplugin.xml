@@ -22,7 +22,7 @@
 
 <target name="export plug-in [_1.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="plugin_version" value="3.1.1.apt02"/>
+		<param name="plugin_version" value="3.1.1.apt03"/>
 	</antcall>
 </target>
 
