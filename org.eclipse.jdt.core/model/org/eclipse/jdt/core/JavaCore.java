@@ -932,6 +932,14 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String IMPORTREWRITE_ONDEMAND_THRESHOLD= PLUGIN_ID + ".importRewrite.onDemandImportThreshold"; //$NON-NLS-1$
 
+	/**
+	 * Possible configurable option ID.
+	 * The name of this option is subject to change before 3.2 release.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD= PLUGIN_ID + ".importRewrite.staticOnDemandImportThreshold"; //$NON-NLS-1$
+
 	
 	// *************** Possible values for configurable options. ********************
 	
@@ -2526,10 +2534,16 @@ public final class JavaCore extends Plugin {
 	 *                                  that is optionally prefixed with a '#' for static import groups.
 	 *     - default:           "java;javax;org;com"
 	 *     
-	 *	IMPORTREWRITE / On Demand Import Threshold
+	 *	IMPORTREWRITE / On Demand Import Threshold for Normal (Non-Static) Imports
 	 *	 The number of imports added before a star-import declaration is used.
 	 *     - option id:         "org.eclipse.jdt.core.importRewrite.onDemandImportThreshold"
-	 *     - possible values:   "&lt;n&gt;", where n is a positive integer or zero
+	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
+	 *     - default:           "99"
+	 *     
+	 *	IMPORTREWRITE / On Demand Import Threshold for Static Imports
+	 *	 The number of static imports added before a star-import declaration is used.
+	 *     - option id:         "org.eclipse.jdt.core.importRewrite.staticOnDemandImportThreshold"
+	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
 	 *     - default:           "99"
 	 */
  	public static Hashtable getDefaultOptions(){

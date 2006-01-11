@@ -14,36 +14,21 @@ package org.eclipse.jdt.core.dom.rewrite;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
 
 
 /**
@@ -59,7 +44,11 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * works on the import statements. It is possible to combine the result of an import rewrite with the result of a {@link org.eclipse.jdt.core.dom.rewrite.ASTRewrite}
  * as long as no import statements are modified by the AST rewrite.
  * </p>
- * 
+ * <p>The options controlling the import order and on-demand thresholds are:
+ * <ul><li>{@link JavaCore#IMPORTREWRITE_IMPORT_ORDER} specifies the import groups and their preferred order</li>
+ * <li>{@link JavaCore#IMPORTREWRITE_ONDEMAND_THRESHOLD} specifies the number of imports in a group needed for a on-demand import statement (star import)</li>
+ * <li>{@link JavaCore#IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD} specifies the number of static imports in a group needed for a on-demand import statement (star import)</li>
+ *</ul>
  * This class is not intended to be subclassed.
  * </p>
  * @since 3.2
@@ -933,12 +922,8 @@ public final class ImportRewrite {
 				parser.setResolveBindings(false);
 				usedAstRoot= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 1));
 			}
-			
-			IJavaProject project= this.compilationUnit.getJavaProject();
-			String[] order= getImportOrderPreference(project);
-			int threshold= getImportNumberThreshold(project);
-			
-			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, order, threshold, this.restoreExistingImports);
+						
+			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.restoreExistingImports);
 			computer.setFilterImplicitImports(this.filterImplicitImports);
 			
 			if (this.addedImports != null) {
@@ -1049,26 +1034,6 @@ public final class ImportRewrite {
 			}
 		}
 		return (String[]) res.toArray(new String[res.size()]);
-	}
-	
-	private static int getImportNumberThreshold(IJavaProject project) {
-		Object threshold= project.getOption(JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD, true);
-		if (threshold instanceof String) {
-			try {
-				return Integer.parseInt((String) threshold);
-			} catch (NumberFormatException e) {	
-				// use default
-			}
-		}
-		return 999;
-	}
-	
-	private static String[] getImportOrderPreference(IJavaProject project) {
-		Object order= project.getOption(JavaCore.IMPORTREWRITE_IMPORT_ORDER, true);
-		if (order instanceof String) {
-			return ((String) order).split(String.valueOf(';'));
-		}
-		return new String[0];
 	}
 		
 }

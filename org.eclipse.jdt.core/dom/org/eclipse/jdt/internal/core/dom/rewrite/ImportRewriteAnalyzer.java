@@ -16,22 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.text.edits.InsertEdit;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
-
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -45,22 +35,28 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
+import org.eclipse.text.edits.DeleteEdit;
+import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
 
 public final class ImportRewriteAnalyzer {
 	
-	private ICompilationUnit compilationUnit;
-	private ArrayList packageEntries;
+	private final ICompilationUnit compilationUnit;
+	private final ArrayList packageEntries;
 	
-	private int importOnDemandThreshold;
-	
+	private final List importsCreated;
+	private final List staticImportsCreated;
+
+	private final IRegion replaceRange;
+
 	private boolean filterImplicitImports;
 	private boolean findAmbiguousImports;
 	
-	private List importsCreated;
-	private List staticImportsCreated;
-
-	private IRegion replaceRange;
-
 	private int flags= 0;
 	
 	private static final int F_NEEDS_LEADING_DELIM= 2;
@@ -68,10 +64,9 @@ public final class ImportRewriteAnalyzer {
 	
 	private static final String JAVA_LANG= "java.lang"; //$NON-NLS-1$
 	
-	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] preferenceOrder, int importThreshold, boolean restoreExistingImports) {
+	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, boolean restoreExistingImports) {
 		this.compilationUnit= cu;
 				
-		this.importOnDemandThreshold= importThreshold;
 		this.filterImplicitImports= true;
 		this.findAmbiguousImports= true; //!restoreExistingImports;
 		
@@ -85,6 +80,7 @@ public final class ImportRewriteAnalyzer {
 			addExistingImports(root);
 		}
 
+		String[] preferenceOrder= getImportOrderPreference(cu.getJavaProject());
 		PackageEntry[] order= new PackageEntry[preferenceOrder.length];
 		for (int i= 0; i < order.length; i++) {
 			String curr= preferenceOrder[i];
@@ -483,7 +479,11 @@ public final class ImportRewriteAnalyzer {
 		if (monitor == null) {
 			monitor= new NullProgressMonitor();
 		}
-		try {	
+		try {
+			IJavaProject project= this.compilationUnit.getJavaProject();
+			int importOnDemandThreshold= getImportNumberThreshold(project, JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD);
+			int staticImportOnDemandThreshold= getImportNumberThreshold(project, JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD);
+			
 			int importsStart=  this.replaceRange.getOffset();
 			int importsLen= this.replaceRange.getLength();
 					
@@ -504,7 +504,7 @@ public final class ImportRewriteAnalyzer {
 			
 			Set onDemandConflicts= null;
 			if (this.findAmbiguousImports) {
-				onDemandConflicts= evaluateStarImportConflicts(monitor);
+				onDemandConflicts= evaluateStarImportConflicts(importOnDemandThreshold, monitor);
 			}
 			
 			ArrayList stringsToInsert= new ArrayList();
@@ -535,8 +535,9 @@ public final class ImportRewriteAnalyzer {
 				lastPackage= pack;
 				
 				boolean isStatic= pack.isStatic();
+				int threshold= isStatic ? staticImportOnDemandThreshold : importOnDemandThreshold;
 				
-				boolean doStarImport= pack.hasStarImport(this.importOnDemandThreshold, onDemandConflicts);
+				boolean doStarImport= pack.hasStarImport(threshold, onDemandConflicts);
 				if (doStarImport && (pack.find("*") == null)) { //$NON-NLS-1$
 					String starImportString= pack.getName() + ".*"; //$NON-NLS-1$
 					String str= getNewImportString(starImportString, isStatic, lineDelim);
@@ -653,7 +654,7 @@ public final class ImportRewriteAnalyzer {
 		return true;
 	}
 
-	private Set evaluateStarImportConflicts(IProgressMonitor monitor) throws JavaModelException {
+	private Set evaluateStarImportConflicts(int importOnDemandThreshold, IProgressMonitor monitor) throws JavaModelException {
 		//long start= System.currentTimeMillis();
 		
 		final HashSet/*String*/ onDemandConflicts= new HashSet();
@@ -665,7 +666,7 @@ public final class ImportRewriteAnalyzer {
 		int nPackageEntries= this.packageEntries.size();
 		for (int i= 0; i < nPackageEntries; i++) {
 			PackageEntry pack= (PackageEntry) this.packageEntries.get(i);
-			if (!pack.isStatic() && pack.hasStarImport(this.importOnDemandThreshold, null)) {
+			if (!pack.isStatic() && pack.hasStarImport(importOnDemandThreshold, null)) {
 				starImportPackages.add(pack.getName().toCharArray());
 				for (int k= 0; k < pack.getNumberOfImports(); k++) {
 					ImportDeclEntry curr= pack.getImportAt(k);
@@ -1044,5 +1045,25 @@ public final class ImportRewriteAnalyzer {
 	
 	public String[] getCreatedStaticImports() {
 	    return (String[]) this.staticImportsCreated.toArray(new String[this.staticImportsCreated.size()]);
+	}
+	
+	private static int getImportNumberThreshold(IJavaProject project, String option) {
+		Object threshold= project.getOption(option, true);
+		if (threshold instanceof String) {
+			try {
+				return Integer.parseInt((String) threshold);
+			} catch (NumberFormatException e) {	
+				// use default
+			}
+		}
+		return 999;
+	}
+	
+	private static String[] getImportOrderPreference(IJavaProject project) {
+		Object order= project.getOption(JavaCore.IMPORTREWRITE_IMPORT_ORDER, true);
+		if (order instanceof String) {
+			return ((String) order).split(String.valueOf(';'));
+		}
+		return new String[0];
 	}
 }

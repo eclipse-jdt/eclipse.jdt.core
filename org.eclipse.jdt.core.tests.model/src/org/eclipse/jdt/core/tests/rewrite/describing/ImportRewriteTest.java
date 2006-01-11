@@ -101,7 +101,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		
 		String[] order= new String[] { "java", "com", "pack" };
 		
-		ImportRewrite imports= newImportsRewrite(cu, order, 2, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
 		imports.addImport("java.net.Socket");
 		imports.addImport("p.A");
 		imports.addImport("com.something.Foo");
@@ -143,7 +143,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java", "java.util", "com", "pack" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 2, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
 		imports.addImport("java.x.Socket");
 
 		apply(imports);
@@ -176,7 +176,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java", "java.util", "com", "pack" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addImport("java.util.Vector");
 
 		apply(imports);
@@ -211,7 +211,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		
 		String[] order= new String[] { "java", "com", "pack" };
 		
-		ImportRewrite imports= newImportsRewrite(cu, order, 2, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
 		imports.removeImport("java.util.Set");
 		imports.removeImport("pack.List");
 		
@@ -245,7 +245,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		
 		String[] order= new String[] { "java", "com", "pack" };
 		
-		ImportRewrite imports= newImportsRewrite(cu, order, 2, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
 		imports.removeImport("java.util.Vector");
 		
 		apply(imports);
@@ -275,7 +275,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 2, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
 		imports.addImport("p.Inner");
 
 		apply(imports);
@@ -307,7 +307,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java.awt", "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addImport("java.applet.Applet");
 
 		apply(imports);
@@ -339,7 +339,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addImport("java.io.Exception");
 
 		apply(imports);
@@ -370,7 +370,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, false);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, false);
 		imports.addImport("java.io.Exception");
 
 		apply(imports);
@@ -400,7 +400,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "#", "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addStaticImport("java.lang.Math", "min", true);
 		imports.addImport("java.lang.Math");
 		imports.addStaticImport("java.lang.Math", "max", true);
@@ -434,7 +434,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "#", "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addStaticImport("xx.MyConstants", "SIZE", true);
 		imports.addStaticImport("xy.MyConstants", "*", true);
 		imports.addImport("xy.MyConstants");
@@ -455,6 +455,52 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
+	
+	public void testAddStaticImports3() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");		
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "#", "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 3, true);
+		imports.addStaticImport("java.lang.Math", "min", true);
+		imports.addStaticImport("java.lang.Math", "max", true);
+		imports.addStaticImport("java.lang.Math", "abs", true);
+		
+		imports.addStaticImport("java.io.File", "pathSeparator", true);
+		imports.addStaticImport("java.io.File", "separator", true);
+		
+		imports.addImport("java.util.List");
+		imports.addImport("java.util.Vector");
+		imports.addImport("java.util.ArrayList");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import static java.io.File.pathSeparator;\n");
+		buf.append("import static java.io.File.separator;\n");
+		buf.append("import static java.lang.Math.*;\n");
+		buf.append("\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("import java.util.ArrayList;\n");
+		buf.append("import java.util.List;\n");
+		buf.append("import java.util.Vector;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+	
 	
 	private void createClassStub(String pack, String typeName, String typeKind) throws JavaModelException {
 		IPackageFragment pack1= sourceFolder.createPackageFragment(pack, false, null);
@@ -505,7 +551,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String[] order= new String[] { "java.util", "java.io", "java.net" };
 		int threshold= 99;
 		AST ast= AST.newAST(AST.JLS3);
-		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, true);
+		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, threshold, true);
 		{
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("IOException"), "IOException".length());
 			assertEquals(1, elements.length);
@@ -578,7 +624,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String[] order= new String[] { "java.util", "java.io", "java.net" };
 		int threshold= 99;
 		AST ast= AST.newAST(AST.JLS3);
-		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, true);
+		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, threshold, true);
 		{
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("Map"), "Map".length());
 			assertEquals(1, elements.length);
@@ -619,7 +665,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "#", "java" };
 
-		ImportRewrite imports= newImportsRewrite(cu, order, 99, true);
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
 		imports.addStaticImport("java.lang.Math", "min", true);
 		imports.addImport("java.lang.Math");
 
@@ -689,7 +735,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		StringAsserts.assertEqualStringIgnoreDelim(actual, expected);
 	}
 	
-	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int threshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
+	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
 		StringBuffer buf= new StringBuffer();
 		for (int i= 0; i < order.length; i++) {
 			buf.append(order[i]);
@@ -697,11 +743,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		}
 		IJavaProject javaProject= cu.getJavaProject();
 		javaProject.setOption(JavaCore.IMPORTREWRITE_IMPORT_ORDER, buf.toString());
-		javaProject.setOption(JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD, String.valueOf(threshold));
-
+		javaProject.setOption(JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD, String.valueOf(normalThreshold));
+		javaProject.setOption(JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD, String.valueOf(staticThreshold));
 		return ImportRewrite.create(cu, restoreExistingImports);
 	}
-		
+	
 	private void apply(ImportRewrite rewrite) throws CoreException, MalformedTreeException, BadLocationException {
 		TextEdit edit= rewrite.rewriteImports(null);
 		
