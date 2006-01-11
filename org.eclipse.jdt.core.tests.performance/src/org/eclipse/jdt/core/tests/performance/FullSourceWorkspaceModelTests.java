@@ -101,14 +101,16 @@ private void setUpBigProject() throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		long start = System.currentTimeMillis();
-		if (PRINT) System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
+
+		// Print for log in case of project creation troubles...
+		System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
+		System.out.println("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
 
 		// setup projects with several source folders and several packages per source folder
 		final String[] sourceFolders = new String[FOLDERS_COUNT];
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
 		}
-		if (PRINT) System.out.println("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
 		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
@@ -118,19 +120,23 @@ private void setUpBigProject() throws CoreException {
 			}
 			if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
 		}
-		if (PRINT) {
-			System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
-			start = System.currentTimeMillis();
-			System.out.print("	- add project to full source workspace...");
-		}
+
+		// Print for log in case of project creation troubles...
+		System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
+		start = System.currentTimeMillis();
+		System.out.print("	- add project to full source workspace...");
+
+		// Add project to workspace
 		ENV.addProject(BIG_PROJECT_NAME);
 		BIG_PROJECT = (JavaProject) createJavaProject(BIG_PROJECT_NAME, sourceFolders, "bin", "1.4");
 		BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
-		if (PRINT) {
-			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-			start = System.currentTimeMillis();
-			System.out.print("	- Create compilation unit with secondary type...");
-		}
+
+		// Print for log in case of project creation troubles...
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		start = System.currentTimeMillis();
+		System.out.print("	- Create compilation unit with secondary type...");
+
+		// Add CU with secondary type
 		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
 		String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT-1) + ".performance" + (PACKAGES_COUNT-1) + ";\n" +
@@ -158,9 +164,7 @@ private void setUpBigProject() throws CoreException {
 			"class TestSecondary {}\n";
 		file.create(new ByteArrayInputStream(content.getBytes()), true, null);
 		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
-		if (PRINT) {
-			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-		}
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	} finally {
 		// do not delete project
 	}

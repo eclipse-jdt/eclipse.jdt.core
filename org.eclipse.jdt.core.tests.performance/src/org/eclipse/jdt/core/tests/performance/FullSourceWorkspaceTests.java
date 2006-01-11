@@ -535,13 +535,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
+			// Print for log in case of project creation troubles...
 			long start = System.currentTimeMillis();
-			if (PRINT) {
-				System.out.println("Unzipping "+fullSourceZipPath);
-				System.out.print("	in "+targetWorkspacePath+"...");
-			}
+			System.out.println("Unzipping "+fullSourceZipPath);
+			System.out.print("	in "+targetWorkspacePath+"...");
+			
+			// Unzip file
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
-		
+
+			// Create and open projects
 			workspace.run(new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					File targetWorkspaceDir = new File(targetWorkspacePath);
@@ -555,14 +557,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					}
 				}
 			}, null);
-			if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 		}
 		String jdkLib = Util.getJavaClassLibs()[0];
 		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
 		
-		// workaround bug 73253 Project references not set on project open 
+		// Set classpaths (workaround bug 73253 Project references not set on project open)
+		System.out.print("Set projects classpaths...");
 		long start = System.currentTimeMillis();
-		if (PRINT) System.out.print("Set projects classpaths...");
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
@@ -582,7 +584,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
 		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
 		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
-		if (PRINT) System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	}
 
 	/*
