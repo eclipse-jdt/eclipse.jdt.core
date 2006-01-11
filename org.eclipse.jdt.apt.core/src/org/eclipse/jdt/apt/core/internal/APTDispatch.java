@@ -189,25 +189,15 @@ public class APTDispatch
 		 * @param source moving everything into <code>destination</code
 		 *
 		 */
-		private void mergeMaps(final Map destination, final Map source )
+		private <K,V extends Collection<T>,T> void mergeMaps(final Map<K,V> destination, final Map<K,V> source )
 		{		
-			for( Object o : source.entrySet() )
+			for( Map.Entry<K,V> sourceEntry : source.entrySet() )
 			{
-				final Map.Entry entry = (Map.Entry)o;
-				final Object destValue = destination.get(entry.getKey());
+				final Collection<T> destValue = destination.get(sourceEntry.getKey());
 				if( destValue == null )
-					destination.put( entry.getKey(), entry.getValue() );
+					destination.put( sourceEntry.getKey(), sourceEntry.getValue() );
 				else{
-					if( destValue instanceof Collection )
-					{
-						final Collection destCollection = (Collection)destination;
-						// A ClassCastException would occur if entry.getValue() doesn't return
-						// a collection. 
-						final Collection sourceCollection = (Collection)entry.getValue();
-						destCollection.addAll(sourceCollection);
-					}
-					else
-						throw new IllegalStateException("keys collided"); //$NON-NLS-1$
+					destValue.addAll(sourceEntry.getValue());
 				}
 			}
 		}		
