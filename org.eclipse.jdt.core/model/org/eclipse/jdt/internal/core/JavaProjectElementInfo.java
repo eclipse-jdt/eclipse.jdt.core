@@ -18,9 +18,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
@@ -38,9 +35,10 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 class JavaProjectElementInfo extends OpenableElementInfo {
 
 	static class ProjectCache {
-		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map rootToResolvedEntries) {
+		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, HashtableOfArrayToObject isPackageCache, Map rootToResolvedEntries) {
 			this.allPkgFragmentRootsCache = allPkgFragmentRootsCache;
 			this.allPkgFragmentsCache = allPkgFragmentsCache;
+			this.isPackageCache = isPackageCache;
 			this.rootToResolvedEntries = rootToResolvedEntries;
 		}
 		
@@ -54,6 +52,11 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name)
 		 */
 		public HashtableOfArrayToObject allPkgFragmentsCache;
+		
+		/*
+		 * A set of package names (String[]) that are known to be packages.
+		 */
+		public HashtableOfArrayToObject isPackageCache;
 	
 		public Map rootToResolvedEntries;		
 	}
@@ -64,6 +67,20 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	private Object[] nonJavaResources;
 	
 	ProjectCache projectCache;
+	
+	/*
+	 * Adds the given name and its super names to the given set
+	 * (e.g. for {"a", "b", "c"}, adds {"a", "b", "c"}, {"a", "b"}, and {"a"})
+	 */
+	public static void addNames(String[] name, HashtableOfArrayToObject set) {
+		set.put(name, name);
+		int length = name.length;
+		for (int i = length-1; i > 0; i--) {
+			String[] superName = new String[i];
+			System.arraycopy(name, 0, superName, 0, i);
+			set.put(superName, superName);
+		}
+	}
 	
 	/**
 	 * Create and initialize a new instance of the receiver
@@ -188,6 +205,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				reverseMap.clear();
 			}
 			HashtableOfArrayToObject fragmentsCache = new HashtableOfArrayToObject();
+			HashtableOfArrayToObject isPackageCache = new HashtableOfArrayToObject();
 			for (int i = 0, length = roots.length; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
 				IJavaElement[] frags = null;
@@ -203,6 +221,9 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					Object existing = fragmentsCache.get(pkgName);
 					if (existing == null) {
 						fragmentsCache.put(pkgName, root);
+						// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+						// are actual packages
+						addNames(pkgName, isPackageCache);
 					} else {
 						if (existing instanceof PackageFragmentRoot) {
 							fragmentsCache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
@@ -216,7 +237,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					}
 				}
 			}
-			cache = new ProjectCache(roots, fragmentsCache, reverseMap);
+			cache = new ProjectCache(roots, fragmentsCache, isPackageCache, reverseMap);
 			this.projectCache = cache;
 		}
 		return cache;
@@ -258,7 +279,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
 		ProjectCache cache = getProjectCache(project);
-		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries);
+		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, cache.isPackageCache, workingCopies, cache.rootToResolvedEntries);
 	}
 	
 	/*

@@ -96,7 +96,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 	
 	private int hashCode(Object[] element, int length) {
 		int hash = 0;
-		for (int i = 0; i < length; i++)
+		for (int i = length-1; i >= 0; i--)
 			hash = Util.combineHashCodes(hash, element[i].hashCode());
 		return hash & 0x7FFFFFFF;
 	}

@@ -500,7 +500,9 @@ public class Util {
 
 		int len = a.length;
 		if (len != b.length) return false;
-		for (int i = 0; i < len; ++i) {
+		// walk array from end to beginning as this optimizes package name cases 
+		// where the first part is always the same (e.g. org.eclipse.jdt)
+		for (int i = len-1; i >= 0; i--) {
 			if (a[i] == null) {
 				if (b[i] != null) return false;
 			} else {

@@ -101,7 +101,7 @@ public class NameLookup implements SuffixConstants {
 	protected HashtableOfArrayToObject packageFragments;
 	
 	/*
-	 * A set of names (String[]) that are not to be package names.
+	 * A set of names (String[]) that are known to be package names.
 	 * Value is not null for known package.
 	 */
 	protected HashtableOfArrayToObject isPackageCache;
@@ -121,7 +121,12 @@ public class NameLookup implements SuffixConstants {
 	public long timeSpentInSeekTypesInSourcePackage = 0;
 	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
-	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
+	public NameLookup(
+			IPackageFragmentRoot[] packageFragmentRoots, 
+			HashtableOfArrayToObject packageFragments, 
+			HashtableOfArrayToObject isPackage, 
+			ICompilationUnit[] workingCopies, 
+			Map rootToResolvedEntries) {
 		long start = -1;
 		if (VERBOSE) {
 			Util.verbose(" BUILDING NameLoopkup");  //$NON-NLS-1$
@@ -131,12 +136,17 @@ public class NameLookup implements SuffixConstants {
 			start = System.currentTimeMillis();
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
-		try {
-			this.packageFragments = (HashtableOfArrayToObject) packageFragments.clone();
-		} catch (CloneNotSupportedException e1) {
-			// ignore (implementation of HashtableOfArrayToObject supports cloning)
-		}
-		if (workingCopies != null) {
+		if (workingCopies == null) {
+			this.packageFragments = packageFragments;
+			this.isPackageCache = isPackage;
+		} else {
+			// clone tables as we're adding packages from working copies
+			try {
+				this.packageFragments = (HashtableOfArrayToObject) packageFragments.clone();
+				this.isPackageCache = (HashtableOfArrayToObject) isPackage.clone();
+			} catch (CloneNotSupportedException e1) {
+				// ignore (implementation of HashtableOfArrayToObject supports cloning)
+			}
 			this.typesInWorkingCopies = new HashMap();
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
@@ -180,6 +190,9 @@ public class NameLookup implements SuffixConstants {
 				Object existing = this.packageFragments.get(pkgName);
 				if (existing == null) {
 					this.packageFragments.put(pkgName, root);
+					// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+					// are actual packages
+					JavaProjectElementInfo.addNames(pkgName, this.isPackageCache);
 				} else {
 					if (existing instanceof PackageFragmentRoot) {
 						if (!existing.equals(root))
@@ -204,23 +217,9 @@ public class NameLookup implements SuffixConstants {
 			}
 		}
 		
-		// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
-		// are actual packages
-		this.isPackageCache = new HashtableOfArrayToObject();
-		for (int i = 0, size = this.packageFragments.keyTable.length; i < size; i++) {
-			String[] pkgName = (String[]) this.packageFragments.keyTable[i];
-			if (pkgName == null) continue;
-			this.isPackageCache.put(pkgName, pkgName);
-			int length = pkgName.length;
-			for (int j = length-1; j > 0; j--) {
-				String[] subPkgName = new String[j];
-				System.arraycopy(pkgName, 0, subPkgName, 0, j);
-				this.isPackageCache.put(subPkgName, subPkgName);
-			}
-		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
         if (VERBOSE) {
-            Util.verbose(" -> spent: " + (start - System.currentTimeMillis()) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+            Util.verbose(" -> spent: " + (System.currentTimeMillis() - start) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
         }
 	}
 
