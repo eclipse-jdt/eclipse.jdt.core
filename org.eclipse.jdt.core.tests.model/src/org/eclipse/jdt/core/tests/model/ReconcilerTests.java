@@ -2664,8 +2664,7 @@ public void testBug36032c() throws CoreException, InterruptedException {
  * Bug 118823: [model] Secondary types cache not reset while removing _all_ secondary types from CU
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118823"
  */
-// TODO (frederic) enable to trace problem on releng Linux test box
-public void _testBug118823() throws CoreException, InterruptedException, IOException {
+public void testBug118823() throws CoreException, InterruptedException, IOException {
 	try {
 		// Resources creation
 		IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
