@@ -310,7 +310,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.fields = Binding.NO_FIELDS;
 		this.methods = Binding.NO_METHODS;
 	}
-	if (this.environment.storeAnnotations)
+	if (this.environment.globalOptions.storeAnnotations)
 		setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment));	
 }
 private void createFields(IBinaryField[] iFields, long sourceLevel) {
@@ -335,7 +335,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved, 
 						this, 
 						binaryField.getConstant());
-				if (this.environment.storeAnnotations)
+				if (this.environment.globalOptions.storeAnnotations)
 					field.setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment));
 				field.id = i; // ordinal
 				if (use15specifics)
@@ -381,7 +381,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 		int size = numOfParams - startIndex;
 		if (size > 0) {
 			parameters = new TypeBinding[size];
-			if (this.environment.storeAnnotations)
+			if (this.environment.globalOptions.storeAnnotations)
 				paramAnnotations = new AnnotationBinding[size][];
 			index = 1;
 			int end = 0;   // first character is always '(' so skip it
@@ -437,7 +437,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				int numParam = types.size();
 				parameters = new TypeBinding[numParam];
 				types.toArray(parameters);
-				if (this.environment.storeAnnotations) {
+				if (this.environment.globalOptions.storeAnnotations) {
 					paramAnnotations = new AnnotationBinding[numParam][];
 					for (int i = 0; i < numParam; i++)
 						paramAnnotations[i] = createAnnotations(method.getParameterAnnotations(i), this.environment);
@@ -473,7 +473,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	if (this.environment.storeAnnotations)
+	if (this.environment.globalOptions.storeAnnotations)
 		result.setAnnotations(
 			createAnnotations(method.getAnnotations(), this.environment),
 			paramAnnotations,
@@ -840,7 +840,7 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 }
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	if (forceInitialize && this.storedAnnotations == null) {
-		if (!this.environment.storeAnnotations)
+		if (!this.environment.globalOptions.storeAnnotations)
 			return null; // not supported during this compile
 		this.storedAnnotations = new SimpleLookupTable(3);
 	}

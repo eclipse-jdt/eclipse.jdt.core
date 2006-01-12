@@ -52,8 +52,6 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public byte[] sharedClassFileContents = null;
 	public byte[] sharedClassFileHeader = null;
 
-	public boolean storeAnnotations = false; // unless enabled by the client
-
 	// indicate in which step on the compilation we are.
 	// step 1 : build the reference binding
 	// step 2 : conect the hierarchy (connect bindings)
@@ -84,9 +82,6 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
-	if (globalOptions != null) {
-		this.storeAnnotations = globalOptions.storeAnnotations;
-	}
 }
 
 /**

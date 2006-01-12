@@ -1264,7 +1264,7 @@ public final int sourceStart() {
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	if (forceInitialize && this.storedAnnotations == null) {
 		this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
-		if (!this.scope.environment().storeAnnotations)
+		if (!this.scope.environment().globalOptions.storeAnnotations)
 			return null; // not supported during this compile
 		this.storedAnnotations = new SimpleLookupTable(3);
 	}
