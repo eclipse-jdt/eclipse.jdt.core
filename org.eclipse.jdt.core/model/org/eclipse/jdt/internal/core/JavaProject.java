@@ -3171,7 +3171,7 @@ public class JavaProject
 			    }
 			}
 			try {
-				// save immediately old preferences
+				// save immediately new preferences
 				preferences.flush();
 			} catch (BackingStoreException e) {
 				// fails silently
