@@ -132,8 +132,7 @@ class CompilationUnitResolver extends Compiler {
 		IProblemFactory problemFactory,
 		IProgressMonitor monitor) {
 
-		super(environment, policy, settings, requestor, problemFactory, false);
-		this.lookupEnvironment.storeAnnotations = true; // store annotations in the bindings
+		super(environment, policy, settings, requestor, problemFactory, false, true/*store annotations in the bindings*/);
 		this.hasCompilationAborted = false;
 		this.monitor =monitor;
 	}

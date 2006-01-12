@@ -84,6 +84,9 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
+	if (globalOptions != null) {
+		this.storeAnnotations = globalOptions.storeAnnotations;
+	}
 }
 
 /**

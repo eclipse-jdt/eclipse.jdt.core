@@ -154,11 +154,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		Map settings,
 		final ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
-		boolean parseLiteralExpressionsAsConstants) {
+		boolean parseLiteralExpressionsAsConstants,
+		boolean storeAnnotations) {
 
 		// create a problem handler given a handling policy
 		this.options = new CompilerOptions(settings);
 		this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
+		this.options.storeAnnotations = storeAnnotations;
 		
 		// wrap requestor in DebugRequestor if one is specified
 		if(DebugRequestor == null) {

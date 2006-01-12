@@ -77,9 +77,16 @@ public class CompilationUnitProblemFinder extends Compiler {
 		Map settings,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
-		boolean parseLiteralExpressionsAsConstants ) {
+		boolean creatingAST) {
 
-		super(environment, policy, settings, requestor, problemFactory, parseLiteralExpressionsAsConstants );
+		super(environment,
+			policy,
+			settings,
+			requestor,
+			problemFactory,
+			creatingAST/*parse literal expressions as constants if creating ast*/,
+			creatingAST/*store annotations in the bindings if creating ast*/
+		);
 	}
 
 	/**

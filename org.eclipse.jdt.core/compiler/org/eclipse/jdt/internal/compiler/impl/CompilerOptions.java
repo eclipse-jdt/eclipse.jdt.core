@@ -187,7 +187,7 @@ public class CompilerOptions {
 	public static final long RawTypeReference = ASTNode.Bit46L;
 	public static final long UnusedLabel = ASTNode.Bit47L;
 	public static final long ParameterAssignment = ASTNode.Bit48L;
-	
+
 	// Default severity level for handlers
 	public long errorThreshold = 0;
 		
@@ -296,6 +296,9 @@ public class CompilerOptions {
 	// treat optional error as fatal or just like warning?
 	public boolean treatOptionalErrorAsFatal = true;
 	
+	// store annotations
+	public boolean storeAnnotations = false;
+
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
