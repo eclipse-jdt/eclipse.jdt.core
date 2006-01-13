@@ -288,6 +288,23 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 
 	super.checkInheritedMethods(methods, length);
 }
+boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
+	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
+	for (int i = 0, l = length - 1; i < l;) {
+		MethodBinding method = methods[i++];
+		for (int j = i; j <= l; j++) {
+			if (!areReturnTypesEqual(method, methods[j])) {
+				if (this.type.isInterface())
+					for (int m = length; --m >= 0;)
+						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
+							return false; // do not complain since the super interface already got blamed
+				problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+				return false;
+			}
+		}
+	}
+	return true;
+}
 void checkMethods() {
 	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
@@ -324,6 +341,8 @@ void checkMethods() {
 					}
 				}
 				if (index >= 0) {
+					if (currentMethod.declaringClass.isInterface())
+						checkInheritedReturnTypes(matchingInherited, index + 1);
 					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1, inherited); // pass in the length of matching
 					while (index >= 0) matchingInherited[index--] = null; // clear the contents of the matching methods
 				}

@@ -4557,4 +4557,39 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T,S>foo() and <T,S>foo() have the same erasure
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	public void test077() {
+		this.runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {}\n" +
+				"interface J {}\n" +
+				"interface K extends I, J {}\n" +
+				"interface L { K getI(); }\n" +
+				"interface M { I getI(); }\n" +
+				"interface N { J getI(); }\n" +
+				"interface O extends L, M, N { K getI(); }\n" +
+				"interface P extends L, M, N {}\n" +
+				"class X implements L, M, N { public K getI() { return null; } }\n" +
+				"abstract class Y implements L, M, N {}\n" +
+				"abstract class Z implements L, M, N { public K getI() { return null; } }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 7)\r\n" + 
+			"	interface O extends L, M, N { K getI(); }\r\n" + 
+			"	          ^\n" + 
+			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 8)\r\n" + 
+			"	interface P extends L, M, N {}\r\n" + 
+			"	          ^\n" + 
+			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"----------\n" + 
+			"3. ERROR in I.java (at line 10)\r\n" + 
+			"	abstract class Y implements L, M, N {}\r\n" + 
+			"	               ^\n" + 
+			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"----------\n"
+		);
+	}
 }

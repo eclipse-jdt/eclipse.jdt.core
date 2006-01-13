@@ -187,17 +187,8 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// no op before 1.5
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
-	MethodBinding first = methods[0];
-	int index = length;
-	while (--index > 0 && areReturnTypesEqual(first, methods[index])){/*empty*/}
-	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
-		if (this.type.isInterface())
-			for (int i = length; --i >= 0;)
-				if (methods[i].declaringClass.id == TypeIds.T_JavaLangObject)
-					return; // do not complain since the super interface already got blamed
-		problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+	if (!checkInheritedReturnTypes(methods, length))
 		return;
-	}
 
 	MethodBinding concreteMethod = null;
 	if (!type.isInterface()) {  // ignore concrete methods for interfaces
@@ -227,11 +218,26 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	}
 
 	MethodBinding[] abstractMethods = new MethodBinding[length - 1];
-	index = 0;
+	int index = 0;
 	for (int i = length; --i >= 0;)
 		if (methods[i] != concreteMethod)
 			abstractMethods[index++] = methods[i];
 	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
+}
+boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
+	MethodBinding first = methods[0];
+	int index = length;
+	while (--index > 0 && areReturnTypesEqual(first, methods[index])){/*empty*/}
+	if (index == 0) 
+		return true;
+
+	// All inherited methods do NOT have the same vmSignature
+	if (this.type.isInterface())
+		for (int i = length; --i >= 0;)
+			if (methods[i].declaringClass.id == TypeIds.T_JavaLangObject)
+				return false; // do not complain since the super interface already got blamed
+	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+	return false;
 }
 /*
 For each inherited method identifier (message pattern - vm signature minus the return type)
