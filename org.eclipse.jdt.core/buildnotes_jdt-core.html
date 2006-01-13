@@ -52,12 +52,16 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added the support to compute the stack map frames (requires a 6.0 VM to run). See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=109980">109980</a> for details.
+<br>This is still experimental and the 6.0 mode cannot be activated in the UI (<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=123786">123786</a>).</li>
 <li>Added new option to Import Rewrite <code>JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD</code>. See bug
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=103615">103615</a> for details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122995">122995</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=109980">109980</a>
+[plan] Add support for StackMapTable attribute as per jsr-202
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122995">122995</a>
 [1.5][compiler] Access rules don't apply to generic types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=123721">123721</a>
 two types of 'remove' for TODO task tags
