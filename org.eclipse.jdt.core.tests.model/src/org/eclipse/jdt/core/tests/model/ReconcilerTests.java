@@ -2665,6 +2665,35 @@ public void testBug36032c() throws CoreException, InterruptedException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118823"
  */
 public void testBug118823() throws CoreException, InterruptedException, IOException {
+	
+	// Class to listen for deltas on a compilation unit
+	class TestDeltaListener implements IElementChangedListener {
+		String unitName;
+		boolean updated;
+		TestDeltaListener(ICompilationUnit cu) {
+			this.unitName = cu.getElementName();
+		}
+		public void elementChanged(ElementChangedEvent event) {
+			if (isEventOnUnit((IJavaElementDelta)event.getSource())) {
+				this.updated = true;
+			}
+		}
+		private boolean isEventOnUnit(IJavaElementDelta delta) {
+			IJavaElementDelta[] children = delta.getAffectedChildren();
+			if (children != null && children.length > 0) {
+				for (int i=0, l=children.length; i<l ; i++) {
+					if (isEventOnUnit(children[i])) return true;
+				}
+			} else {
+				if (this.unitName.equals(delta.getElement().getElementName()) && delta.getKind() == IJavaElementDelta.CHANGED) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	// Start test
 	try {
 		// Resources creation
 		IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
@@ -2692,6 +2721,10 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
 
+		// Create delta listener on first working copy
+		TestDeltaListener dListener = new TestDeltaListener(this.workingCopies[0]);
+		JavaCore.addElementChangedListener(dListener);
+
 		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
 		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
@@ -2705,7 +2738,7 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			"----------\n"
 		);
 
-		// Delete first workding copy file and recreate it with secondary outside eclipse
+		// Delete first working copy file and recreate it with secondary outside eclipse
 		File ioFile = file.getLocation().toFile();
 		ioFile.delete();
 		source1 = 
@@ -2713,6 +2746,13 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			"class Secondary{}\n";
 		Util.createFile(ioFile.getCanonicalPath(), source1);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		// Wait for deltas on updated working copy
+		int max = 0;
+		while (!dListener.updated && max++ < 10) {
+			Thread.sleep(100);
+		}
+		assertTrue("We should have compilation unit updated", dListener.updated);
 
 		// Get first working copy and verify that there's still no error
 		sourceChars = source1.toCharArray();
