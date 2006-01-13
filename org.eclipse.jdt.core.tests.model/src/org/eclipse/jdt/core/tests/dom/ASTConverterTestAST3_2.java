@@ -5366,15 +5366,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		domType.getComment();
 		assertTrue("Not an interface", Flags.isInterface(domType.getFlags()));
 	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78305
-	 */
-	public void test0577() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0577", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
-		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
-	}
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
