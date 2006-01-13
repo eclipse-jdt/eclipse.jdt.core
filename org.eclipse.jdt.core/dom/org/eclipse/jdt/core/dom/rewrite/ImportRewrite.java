@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
@@ -45,9 +44,9 @@ import org.eclipse.text.edits.TextEdit;
  * as long as no import statements are modified by the AST rewrite.
  * </p>
  * <p>The options controlling the import order and on-demand thresholds are:
- * <ul><li>{@link JavaCore#IMPORTREWRITE_IMPORT_ORDER} specifies the import groups and their preferred order</li>
- * <li>{@link JavaCore#IMPORTREWRITE_ONDEMAND_THRESHOLD} specifies the number of imports in a group needed for a on-demand import statement (star import)</li>
- * <li>{@link JavaCore#IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD} specifies the number of static imports in a group needed for a on-demand import statement (star import)</li>
+ * <ul><li>{@link #setImportOrder(String[])} specifies the import groups and their preferred order</li>
+ * <li>{@link #setOnDemandImportThreshold(int)} specifies the number of imports in a group needed for a on-demand import statement (star import)</li>
+ * <li>{@link #setStaticOnDemandImportThreshold(int)} specifies the number of static imports in a group needed for a on-demand import statement (star import)</li>
  *</ul>
  * This class is not intended to be subclassed.
  * </p>
@@ -120,6 +119,10 @@ public final class ImportRewrite {
 	
 	private final boolean restoreExistingImports;
 	private final List existingImports;
+	
+	private String[] importOrder;
+	private int importOnDemandThreshold;
+	private int staticImportOnDemandThreshold;
 	
 	private List addedImports;
 	private List removedImports;
@@ -221,7 +224,58 @@ public final class ImportRewrite {
 		this.removedImports= null; // Initialized on use
 		this.createdImports= null;
 		this.createdStaticImports= null;
+		
+		this.importOrder= new String[0];
+		this.importOnDemandThreshold= 99;
+		this.staticImportOnDemandThreshold= 99;
 	}
+	
+	
+	 /**
+	 * Defines the import groups and order to be used by the {@link ImportRewrite}.
+	 * Imports are added to the group matching their qualified name most. The empty group name groups all imports not matching
+	 * any other group. Static imports are managed in separate groups. Static import group names are prefixed with a '#' character.
+	 * @param order A list of strings defining the import groups. A group name must be a valid package name or empty. If can be
+	 * prefixed by the '#' character for static import groups 
+	 */
+	public void setImportOrder(String[] order) {
+		if (order == null)
+			throw new IllegalArgumentException("Order must not be null"); //$NON-NLS-1$
+		this.importOrder= order;
+	}
+	
+	 /**
+	 *	Sets the on-demand import threshold for normal (non-static) imports.
+	 *	This threshold defines the number of imports that need to be in a group to use
+	 * a on-demand (star) import declaration instead.
+	 * 
+	 * @param threshold a positive number defining the on-demand import threshold
+	 * for normal (non-static) imports.
+	 * @throws IllegalArgumentException a {@link IllegalArgumentException} is thrown
+	 * if the number is not positive.
+     */
+	public void setOnDemandImportThreshold(int threshold) {
+		if (threshold <= 0)
+			throw new IllegalArgumentException("Threshold must be positive."); //$NON-NLS-1$
+		this.importOnDemandThreshold= threshold;
+	}
+	
+	 /**
+	 *	Sets the on-demand import threshold for static imports.
+	 *	This threshold defines the number of imports that need to be in a group to use
+	 * a on-demand (star) import declaration instead.
+	 * 
+	 * @param threshold a positive number defining the on-demand import threshold
+	 * for normal (non-static) imports.
+	 * @throws IllegalArgumentException a {@link IllegalArgumentException} is thrown
+	 * if the number is not positive.
+     */
+	public void setStaticOnDemandImportThreshold(int threshold) {
+		if (threshold <= 0)
+			throw new IllegalArgumentException("Threshold must be positive."); //$NON-NLS-1$
+		this.staticImportOnDemandThreshold= threshold;
+	}
+	
 	
 	/**
 	 * The compilation unit for which this import rewrite was created for.
@@ -923,7 +977,7 @@ public final class ImportRewrite {
 				usedAstRoot= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 1));
 			}
 						
-			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.restoreExistingImports);
+			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.importOrder, this.importOnDemandThreshold, this.staticImportOnDemandThreshold, this.restoreExistingImports);
 			computer.setFilterImplicitImports(this.filterImplicitImports);
 			
 			if (this.addedImports != null) {

@@ -736,16 +736,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 	
 	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
-		StringBuffer buf= new StringBuffer();
-		for (int i= 0; i < order.length; i++) {
-			buf.append(order[i]);
-			buf.append(';');
-		}
-		IJavaProject javaProject= cu.getJavaProject();
-		javaProject.setOption(JavaCore.IMPORTREWRITE_IMPORT_ORDER, buf.toString());
-		javaProject.setOption(JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD, String.valueOf(normalThreshold));
-		javaProject.setOption(JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD, String.valueOf(staticThreshold));
-		return ImportRewrite.create(cu, restoreExistingImports);
+		ImportRewrite rewrite= ImportRewrite.create(cu, restoreExistingImports);
+		rewrite.setImportOrder(order);
+		rewrite.setOnDemandImportThreshold(normalThreshold);
+		rewrite.setStaticOnDemandImportThreshold(staticThreshold);
+		return rewrite;
 	}
 	
 	private void apply(ImportRewrite rewrite) throws CoreException, MalformedTreeException, BadLocationException {

@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -53,6 +52,9 @@ public final class ImportRewriteAnalyzer {
 	private final List staticImportsCreated;
 
 	private final IRegion replaceRange;
+	
+	private final int importOnDemandThreshold;
+	private final int staticImportOnDemandThreshold;
 
 	private boolean filterImplicitImports;
 	private boolean findAmbiguousImports;
@@ -64,9 +66,11 @@ public final class ImportRewriteAnalyzer {
 	
 	private static final String JAVA_LANG= "java.lang"; //$NON-NLS-1$
 	
-	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, boolean restoreExistingImports) {
+	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, boolean restoreExistingImports) {
 		this.compilationUnit= cu;
-				
+		this.importOnDemandThreshold= threshold;
+		this.staticImportOnDemandThreshold= staticThreshold;
+		
 		this.filterImplicitImports= true;
 		this.findAmbiguousImports= true; //!restoreExistingImports;
 		
@@ -80,10 +84,9 @@ public final class ImportRewriteAnalyzer {
 			addExistingImports(root);
 		}
 
-		String[] preferenceOrder= getImportOrderPreference(cu.getJavaProject());
-		PackageEntry[] order= new PackageEntry[preferenceOrder.length];
+		PackageEntry[] order= new PackageEntry[importOrder.length];
 		for (int i= 0; i < order.length; i++) {
-			String curr= preferenceOrder[i];
+			String curr= importOrder[i];
 			if (curr.length() > 0 && curr.charAt(0) == '#') {
 				curr= curr.substring(1);
 				order[i]= new PackageEntry(curr, curr, true); // static import group
@@ -479,11 +482,7 @@ public final class ImportRewriteAnalyzer {
 		if (monitor == null) {
 			monitor= new NullProgressMonitor();
 		}
-		try {
-			IJavaProject project= this.compilationUnit.getJavaProject();
-			int importOnDemandThreshold= getImportNumberThreshold(project, JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD);
-			int staticImportOnDemandThreshold= getImportNumberThreshold(project, JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD);
-			
+		try {			
 			int importsStart=  this.replaceRange.getOffset();
 			int importsLen= this.replaceRange.getLength();
 					
@@ -504,7 +503,7 @@ public final class ImportRewriteAnalyzer {
 			
 			Set onDemandConflicts= null;
 			if (this.findAmbiguousImports) {
-				onDemandConflicts= evaluateStarImportConflicts(importOnDemandThreshold, monitor);
+				onDemandConflicts= evaluateStarImportConflicts(monitor);
 			}
 			
 			ArrayList stringsToInsert= new ArrayList();
@@ -654,7 +653,7 @@ public final class ImportRewriteAnalyzer {
 		return true;
 	}
 
-	private Set evaluateStarImportConflicts(int importOnDemandThreshold, IProgressMonitor monitor) throws JavaModelException {
+	private Set evaluateStarImportConflicts(IProgressMonitor monitor) throws JavaModelException {
 		//long start= System.currentTimeMillis();
 		
 		final HashSet/*String*/ onDemandConflicts= new HashSet();
@@ -1047,23 +1046,4 @@ public final class ImportRewriteAnalyzer {
 	    return (String[]) this.staticImportsCreated.toArray(new String[this.staticImportsCreated.size()]);
 	}
 	
-	private static int getImportNumberThreshold(IJavaProject project, String option) {
-		Object threshold= project.getOption(option, true);
-		if (threshold instanceof String) {
-			try {
-				return Integer.parseInt((String) threshold);
-			} catch (NumberFormatException e) {	
-				// use default
-			}
-		}
-		return 999;
-	}
-	
-	private static String[] getImportOrderPreference(IJavaProject project) {
-		Object order= project.getOption(JavaCore.IMPORTREWRITE_IMPORT_ORDER, true);
-		if (order instanceof String) {
-			return ((String) order).split(String.valueOf(';'));
-		}
-		return new String[0];
-	}
 }

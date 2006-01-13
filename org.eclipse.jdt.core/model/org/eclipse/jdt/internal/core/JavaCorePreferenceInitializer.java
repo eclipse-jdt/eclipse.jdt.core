@@ -69,11 +69,6 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 			defaultOptionsMap.put(optionName, entry.getValue());
 			optionNames.add(optionName);
 		}
-		
-		// ImportRewrite settings
-		defaultOptionsMap.put(JavaCore.IMPORTREWRITE_IMPORT_ORDER, "java;javax;org;com"); //$NON-NLS-1$
-		defaultOptionsMap.put(JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD, String.valueOf(99));
-		defaultOptionsMap.put(JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD, String.valueOf(99));
 
 		// CodeAssist settings
 		defaultOptionsMap.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
