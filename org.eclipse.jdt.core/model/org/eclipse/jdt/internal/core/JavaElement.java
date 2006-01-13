@@ -783,7 +783,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				try {
 					connection2.getJarFile().close();
 				} catch(IOException e) {
-					e.printStackTrace();
+					// ignore
 				}
  			}
 		}
