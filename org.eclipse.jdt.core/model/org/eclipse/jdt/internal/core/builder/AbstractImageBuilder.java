@@ -52,13 +52,14 @@ private boolean inCompiler;
 
 public static int MAX_AT_ONCE = 1000;
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
-					IMarker.MESSAGE, 
-					IMarker.SEVERITY, 
-					IJavaModelMarker.ID, 
-					IMarker.CHAR_START, 
-					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER, 
-					IJavaModelMarker.ARGUMENTS};
+	IMarker.MESSAGE, 
+	IMarker.SEVERITY, 
+	IJavaModelMarker.ID, 
+	IMarker.CHAR_START, 
+	IMarker.CHAR_END, 
+	IMarker.LINE_NUMBER, 
+	IJavaModelMarker.ARGUMENTS,
+};
 public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.MESSAGE, 
 	IMarker.PRIORITY, 
@@ -66,7 +67,8 @@ public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.CHAR_START, 
 	IMarker.CHAR_END, 
 	IMarker.LINE_NUMBER, 
-	IJavaModelMarker.ARGUMENTS};
+	IMarker.USER_EDITABLE,
+};
 public final static Integer S_ERROR = new Integer(IMarker.SEVERITY_ERROR);
 public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
 public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
