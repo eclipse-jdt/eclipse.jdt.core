@@ -96,7 +96,7 @@ public class AssertStatement extends Statement {
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
 			codeStream.ifne(assertionActivationLabel);
 			
-			Label falseLabel = new Label(codeStream);
+			Label falseLabel;
 			this.assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new Label(codeStream)), null , true);
 			codeStream.newJavaLangAssertionError();
 			codeStream.dup();
@@ -107,14 +107,19 @@ public class AssertStatement extends Statement {
 				codeStream.invokeJavaLangAssertionErrorDefaultConstructor();
 			}
 			codeStream.athrow();
+			
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (preAssertInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
+			}	
 			falseLabel.place();
 			assertionActivationLabel.place();
+		} else {			
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (preAssertInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
+			}			
 		}
-		
-		// May loose some local variable initializations : affecting the local variable attributes
-		if (preAssertInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
-		}	
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 

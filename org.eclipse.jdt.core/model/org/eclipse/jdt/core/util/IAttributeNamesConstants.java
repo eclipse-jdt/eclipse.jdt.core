@@ -135,4 +135,10 @@ public interface IAttributeNamesConstants {
 	 * @since 3.2
 	 */
 	char[] STACK_MAP_TABLE = "StackMapTable".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "StackMap" attribute (added in cldc1.0).
+	 * @since 3.2
+	 */
+	char[] STACK_MAP = "StackMap".toCharArray(); //$NON-NLS-1$
 }

@@ -199,10 +199,13 @@ public class ForeachStatement extends Statement {
 		
 		// label management
 		Label actionLabel = new Label(codeStream);
+		actionLabel.tagBits |= Label.USED;
 		Label conditionLabel = new Label(codeStream);
+		conditionLabel.tagBits |= Label.USED;
 		breakLabel.initialize(codeStream);
 		if (this.continueLabel != null) {
 			this.continueLabel.initialize(codeStream);
+			this.continueLabel.tagBits |= Label.USED;
 		}
 		// jump over the actionBlock
 		codeStream.goto_(conditionLabel);
@@ -274,13 +277,13 @@ public class ForeachStatement extends Statement {
 			}
 			codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
 		}
-		// generate the condition
-		conditionLabel.place();
-		int conditionPC = codeStream.position;
 		
 		if (this.postCollectionInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, postCollectionInitStateIndex);
 		}
+		// generate the condition
+		conditionLabel.place();
+		int conditionPC = codeStream.position;
 		switch(this.kind) {
 			case ARRAY :
 				codeStream.load(this.indexVariable);
@@ -296,12 +299,12 @@ public class ForeachStatement extends Statement {
 		}
 		codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);
 
-		breakLabel.place();
 		codeStream.exitUserScope(scope);
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);			
 		}
+		breakLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 

@@ -76,7 +76,7 @@ public void generateCode(
 		codeStream.invokespecial(this.codegenBinding);
 	} else {
 		// private emulation using reflect
-		((CodeSnippetCodeStream) codeStream).generateEmulationForConstructor(currentScope, this.codegenBinding);
+		codeStream.generateEmulationForConstructor(currentScope, this.codegenBinding);
 		// generate arguments
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
@@ -88,7 +88,7 @@ public void generateCode(
 				this.arguments[i].generateCode(currentScope, codeStream, true);
 				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
-					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
+					codeStream.generateBoxingConversion(this.codegenBinding.parameters[i].id);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -99,7 +99,7 @@ public void generateCode(
 			codeStream.generateInlinedValue(0);
 			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));			
 		}
-		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectConstructorNewInstance();
+		codeStream.invokeJavaLangReflectConstructorNewInstance();
 		codeStream.checkcast(allocatedType);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);

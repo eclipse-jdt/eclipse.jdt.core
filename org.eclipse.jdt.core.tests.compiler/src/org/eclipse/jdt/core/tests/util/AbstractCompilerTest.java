@@ -28,10 +28,12 @@ public class AbstractCompilerTest extends TestCase {
 	public static final String COMPLIANCE_1_3 = "1.3";
 	public static final String COMPLIANCE_1_4 = "1.4";
 	public static final String COMPLIANCE_1_5 = "1.5";
+	public static final String COMPLIANCE_1_6 = "1.6";
 
 	public static final int F_1_3 = 0x1;
 	public static final int F_1_4 = 0x2;
 	public static final int F_1_5 = 0x4;
+	public static final int F_1_6 = 0x8;
 
 	private static int possibleComplianceLevels = -1;
 
@@ -42,6 +44,9 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static String highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+			return COMPLIANCE_1_6;
+		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 			return COMPLIANCE_1_5;
 		}
@@ -64,6 +69,8 @@ public class AbstractCompilerTest extends TestCase {
 					possibleComplianceLevels = F_1_4;
 				} else if (COMPLIANCE_1_5.equals(compliance)) {
 					possibleComplianceLevels = F_1_5;
+				} else if (COMPLIANCE_1_6.equals(compliance)) {
+					possibleComplianceLevels = F_1_6;
 				} else {
 					System.out.println("Invalid compliance specified (" + compliance + ")");
 					System.out.println("Use one of " + COMPLIANCE_1_3 + ", " + COMPLIANCE_1_4 + ", " + COMPLIANCE_1_5);
@@ -80,6 +87,10 @@ public class AbstractCompilerTest extends TestCase {
 				boolean canRun1_5 = canRun1_4 && !"1.4".equals(specVersion);
 				if (canRun1_5) {
 					possibleComplianceLevels |= F_1_5;
+				}
+				boolean canRun1_6 = "1.6".equals(specVersion);
+				if (canRun1_6) {
+					possibleComplianceLevels |= F_1_6;
 				}
 			}
 		}
@@ -101,6 +112,9 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 			all.addTest(suiteForComplianceLevel(COMPLIANCE_1_5, setupClass, testClasses));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+			all.addTest(suiteForComplianceLevel(COMPLIANCE_1_6, setupClass, testClasses));
 		}
 		return all;
 	}
@@ -197,6 +211,10 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		} else if (COMPLIANCE_1_6.equals(this.complianceLevel)) {
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 		}
 		return options;
 	}

@@ -80,6 +80,9 @@ public interface TypeIds {
 
 	final int T_JavaIoPrintStream = 53;
 
+	final int T_JavaLangReflectField = 54;
+	final int T_JavaLangReflectMethod = 55;
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;

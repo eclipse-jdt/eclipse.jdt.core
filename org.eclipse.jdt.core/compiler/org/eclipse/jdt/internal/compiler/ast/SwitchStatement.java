@@ -122,8 +122,10 @@ public class SwitchStatement extends Statement {
 			boolean needSwitch = this.caseCount != 0;
 			for (int i = 0; i < caseCount; i++) {
 				cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
+				caseLabels[i].tagBits |= Label.USED;
 			}
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
+			if (needSwitch) defaultLabel.tagBits |= Label.USED;
 			if (defaultCase != null) {
 				defaultCase.targetLabel = defaultLabel;
 			}
@@ -202,11 +204,6 @@ public class SwitchStatement extends Statement {
 					statement.generateCode(scope, codeStream);
 				}
 			}
-			// place the trailing labels (for break and default case)
-			this.breakLabel.place();
-			if (defaultCase == null) {
-				defaultLabel.place();
-			}
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
@@ -214,6 +211,11 @@ public class SwitchStatement extends Statement {
 			}
 			if (scope != currentScope) {
 				codeStream.exitUserScope(this.scope);
+			}
+			// place the trailing labels (for break and default case)
+			this.breakLabel.place();
+			if (defaultCase == null) {
+				defaultLabel.place();
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 	    } finally {

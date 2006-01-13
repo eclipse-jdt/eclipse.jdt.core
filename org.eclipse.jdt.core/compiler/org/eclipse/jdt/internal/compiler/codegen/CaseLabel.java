@@ -33,7 +33,7 @@ void branch() {
 		codeStream.position += 4;
 		codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
-		codeStream.writeSignedWord(position - codeStream.position + 1);
+		codeStream.writeWidePosition(position - codeStream.position + 1);
 	}
 }
 
@@ -46,25 +46,30 @@ void branchWide() {
 		// Leave 4 bytes free to generate the jump offset afterwards
 		codeStream.position += 4;
 	} else { //Position is set. Write it!
-		codeStream.writeSignedWord(position - codeStream.position + 1);
+		codeStream.writeWidePosition(position - codeStream.position + 1);
 	}
 }
-
+public boolean isCaseLabel() {
+	return true;
+}
 public boolean isStandardLabel(){
 	return false;
 }
-
 /*
 * Put down  a reference to the array at the location in the codestream.
 */
 public void place() {
-	position = codeStream.position;
+	if ((this.tagBits & USED) != 0) {
+		position = codeStream.getPosition();
+	} else {
+		position = codeStream.position;
+	}
 	if (instructionPosition == POS_NOT_SET)
 		backwardsBranch = position;
 	else {
 		int offset = position - instructionPosition;
 		for (int i = 0; i < forwardReferenceCount; i++) {
-			codeStream.writeSignedWord(forwardReferences[i], offset);
+			codeStream.writeWidePosition(forwardReferences[i], offset);
 		}
 		// add the label int the codeStream labels collection
 		codeStream.addLabel(this);
@@ -80,7 +85,7 @@ void placeInstruction() {
 		if (backwardsBranch != POS_NOT_SET) {
 			int offset = backwardsBranch - instructionPosition;
 			for (int i = 0; i < forwardReferenceCount; i++)
-				codeStream.writeSignedWord(forwardReferences[i], offset);
+				codeStream.writeWidePosition(forwardReferences[i], offset);
 			backwardsBranch = POS_NOT_SET;
 		}
 	}

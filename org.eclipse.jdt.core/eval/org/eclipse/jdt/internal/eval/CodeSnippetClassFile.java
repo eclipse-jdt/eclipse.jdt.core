@@ -16,7 +16,9 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -112,8 +114,11 @@ public CodeSnippetClassFile(
 	this.produceDebugAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
 	this.innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 	this.creatingProblemType = creatingProblemType;
-	this.codeStream = new CodeSnippetCodeStream(this);
-
+	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
+		this.codeStream = new StackMapFrameCodeStream(this);
+	} else {
+		this.codeStream = new CodeStream(this);
+	}
 	// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 	// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
 	ClassFile outermostClassFile = this.outerMostEnclosingClassFile();

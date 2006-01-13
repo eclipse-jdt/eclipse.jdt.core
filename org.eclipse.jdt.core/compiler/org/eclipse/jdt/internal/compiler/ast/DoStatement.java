@@ -110,6 +110,7 @@ public class DoStatement extends Statement {
 
 		// labels management
 		Label actionLabel = new Label(codeStream);
+		if (action != null) actionLabel.tagBits |= Label.USED;
 		actionLabel.place();
 		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
@@ -136,14 +137,15 @@ public class DoStatement extends Statement {
 					true);
 			}
 		}
-		if (breakLabel.hasForwardReferences())
-			breakLabel.place();
-
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
+		if (breakLabel.hasForwardReferences()) {
+			breakLabel.place();
+		}
+
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 

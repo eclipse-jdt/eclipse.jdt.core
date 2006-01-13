@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -25,18 +24,17 @@ public class ConstantTest extends AbstractRegressionTest {
 public ConstantTest(String name) {
 	super(name);
 }
-public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new ConstantTest("test221"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
-	return setupSuite(testClass());
+// Use this static initializer to specify subset for tests
+// All specified tests which does not belong to the class are skipped...
+static {
+//	TESTS_PREFIX = "testBug95521";
+//	TESTS_NAMES = new String[] { "testBug83127a" };
+//	TESTS_NUMBERS = new int[] { 14, 15, 16 };
+//	TESTS_RANGE = new int[] { 23, -1 };
 }
-
+public static Test suite() {
+	return buildTestSuite(testClass());
+}
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -484,7 +482,7 @@ public void test009() {
 		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
 		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
 	
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		int index = actualOutput.indexOf(expectedOutput15);
 		if (index == -1 || expectedOutput15.length() == 0) {
 			System.out.println(Util.displayString(actualOutput, 2));
@@ -638,6 +636,7 @@ public void test013() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182
 public void test014() {
+	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -803,6 +802,7 @@ public void test014() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
 public void test015() {
+	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -967,6 +967,7 @@ public void test015() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
 public void test016() {
+	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -204,21 +204,22 @@ public class ForStatement extends Statement {
 		
 		// label management
 		Label actionLabel = new Label(codeStream);
+		actionLabel.tagBits |= Label.USED;
 		Label conditionLabel = new Label(codeStream);
 		breakLabel.initialize(codeStream);
-		if (continueLabel != null) {
-			continueLabel.initialize(codeStream);
+		if (this.continueLabel != null) {
+			this.continueLabel.initialize(codeStream);
 		}
 		// jump over the actionBlock
 		if ((condition != null)
 			&& (condition.constant == Constant.NotAConstant)
 			&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
+			conditionLabel.tagBits |= Label.USED;
 			int jumpPC = codeStream.position;
 			codeStream.goto_(conditionLabel);
 			codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);
 		}
 		// generate the loop action
-		actionLabel.place();
 		if (action != null) {
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (condIfTrueInitStateIndex != -1) {
@@ -227,7 +228,10 @@ public class ForStatement extends Statement {
 					currentScope,
 					condIfTrueInitStateIndex);
 			}
+			actionLabel.place();
 			action.generateCode(scope, codeStream);
+		} else {
+			actionLabel.place();
 		}
 		// continuation point
 		if (continueLabel != null) {
@@ -254,7 +258,6 @@ public class ForStatement extends Statement {
 				codeStream.goto_(actionLabel);
 			}
 		}
-		breakLabel.place();
 
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (neededScope) {
@@ -264,6 +267,7 @@ public class ForStatement extends Statement {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
+		breakLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 

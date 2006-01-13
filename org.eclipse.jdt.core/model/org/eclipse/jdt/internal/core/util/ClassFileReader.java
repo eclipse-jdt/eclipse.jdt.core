@@ -275,6 +275,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		} catch(ClassFormatException e) {
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ClassFormatException(ClassFormatException.ERROR_TRUNCATED_INPUT); 
 		}
 	}

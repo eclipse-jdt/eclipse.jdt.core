@@ -280,6 +280,7 @@ public final class Messages extends NLS {
 	public static String disassembler_runtimeinvisibleparameterannotationsattributeheader;
 	public static String disassembler_parameterannotationentrystart;
 	public static String disassembler_stackmaptableattributeheader;
+	public static String disassembler_stackmapattributeheader;
 	public static String classfileformat_versiondetails;
 	public static String classfileformat_methoddescriptor;
 	public static String classfileformat_fieldddescriptor;

@@ -268,8 +268,8 @@ public class TryStatement extends SubRoutineStatement {
 					if (preTryInitStateIndex != -1) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, preTryInitStateIndex);
 					}
+					codeStream.pushOnStack(exceptionLabels[i].exceptionType);
 					exceptionLabels[i].place();
-					codeStream.incrStackSize(1);
 					// optimizing the case where the exception variable is not actually used
 					LocalVariableBinding catchVar;
 					int varPC = codeStream.position;
@@ -309,26 +309,25 @@ public class TryStatement extends SubRoutineStatement {
 			// inside catch blocks) will run the finally block
 			int finallySequenceStartPC = codeStream.position;
 			if (subRoutineStartLabel != null) {
-				this.placeAllAnyExceptionHandlers();
-				if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
-				
+				codeStream.pushOnStack(scope.getJavaLangThrowable());
 				if (preTryInitStateIndex != -1) {
 					// reset initialization state, as for a normal catch block
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, preTryInitStateIndex);
 				}
+				this.placeAllAnyExceptionHandlers();
+				if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
+				
 
-				codeStream.incrStackSize(1);
 				switch(finallyMode) {
 					case FINALLY_SUBROUTINE :
 						codeStream.store(anyExceptionVariable, false);
 						codeStream.jsr(subRoutineStartLabel);
 						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
 						int position = codeStream.position;						
-						codeStream.load(anyExceptionVariable);
-						codeStream.athrow();
+						codeStream.throwAnyException(anyExceptionVariable);
 						codeStream.recordPositionsFrom(position, finallyBlock.sourceEnd);
 						subRoutineStartLabel.place();
-						codeStream.incrStackSize(1);
+						codeStream.pushOnStack(scope.getJavaLangThrowable());
 						position = codeStream.position;	
 						codeStream.store(returnAddressVariable, false);
 						codeStream.recordPositionsFrom(position, finallyBlock.sourceStart);
@@ -346,8 +345,7 @@ public class TryStatement extends SubRoutineStatement {
 						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
 						this.finallyBlock.generateCode(currentScope, codeStream);
 						position = codeStream.position;
-						codeStream.load(anyExceptionVariable);
-						codeStream.athrow();
+						codeStream.throwAnyException(anyExceptionVariable);
 						subRoutineStartLabel.place();
 						codeStream.recordPositionsFrom(position, finallyBlock.sourceEnd);
 						break;

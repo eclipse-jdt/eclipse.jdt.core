@@ -49,7 +49,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		fieldStore(codeStream, this.codegenBinding, null, valueRequired);
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulationForField(this.codegenBinding);
+		codeStream.generateEmulationForField(this.codegenBinding);
 		this.receiver.generateCode(currentScope, codeStream, !this.codegenBinding.isStatic());
 		if (this.codegenBinding.isStatic()) { // need a receiver?
 			codeStream.aconst_null();
@@ -62,7 +62,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				codeStream.dup_x2();
 			}
 		}
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(this.codegenBinding);
+		codeStream.generateEmulatedWriteAccessForField(this.codegenBinding);
 	}
 	if (valueRequired){
 		codeStream.generateImplicitConversion(assignment.implicitConversion);
@@ -102,7 +102,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							// we need a null on the stack to use the reflect emulation
 							codeStream.aconst_null();
 						}
-						((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(this.codegenBinding);
+						codeStream.generateEmulatedReadAccessForField(this.codegenBinding);
 					}
 				}
 				codeStream.generateImplicitConversion(this.implicitConversion);
@@ -160,21 +160,20 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
 		if (isStatic) {
 			// used to store the value
-			((CodeSnippetCodeStream) codeStream).generateEmulationForField(this.codegenBinding);
+			codeStream.generateEmulationForField(this.codegenBinding);
 			codeStream.aconst_null();
 
 			// used to retrieve the actual value
 			codeStream.aconst_null();
-			((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(this.codegenBinding);
+			codeStream.generateEmulatedReadAccessForField(this.codegenBinding);
 		} else {
 			// used to store the value
-			((CodeSnippetCodeStream) codeStream).generateEmulationForField(this.binding);
+			codeStream.generateEmulationForField(this.binding);
 			this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
 
 			// used to retrieve the actual value
 			codeStream.dup();
-			((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(this.codegenBinding);
-							
+			codeStream.generateEmulatedReadAccessForField(this.codegenBinding);
 		}
 		int operationTypeID;
 		if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
@@ -204,7 +203,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		}
 		// current stack is:
 		// value field receiver value				
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(this.codegenBinding);
+		codeStream.generateEmulatedWriteAccessForField(this.codegenBinding);
 	}
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
@@ -244,7 +243,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		// the actual stack is: receiver
 		codeStream.dup();
 		// the actual stack is: receiver receiver
-		((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(this.codegenBinding);
+		codeStream.generateEmulatedReadAccessForField(this.codegenBinding);
 		// the actual stack is: receiver value
 		// receiver value
 		// value receiver value 							dup_x1 or dup2_x1 if value required
@@ -270,7 +269,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			codeStream.dup_x1();
 			codeStream.pop();
 		}
-		((CodeSnippetCodeStream) codeStream).generateEmulationForField(this.codegenBinding);
+		codeStream.generateEmulationForField(this.codegenBinding);
 		codeStream.swap();
 		
 		if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
@@ -283,7 +282,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.codegenBinding.type.id);
 		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(this.codegenBinding);
+		codeStream.generateEmulatedWriteAccessForField(this.codegenBinding);
 	}
 }
 /*

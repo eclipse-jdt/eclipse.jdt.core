@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -156,5 +158,14 @@ public IBinaryAnnotation[] getAnnotations() {
 }
 public long getTagBits() {
 	return 0;
+}
+public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	return null;
+}
+public String getJavadocContents() {
+	return null;
+}
+public String getURLContents(String docUrlValue, String defaultEncoding) {
+	return null;
 }
 }

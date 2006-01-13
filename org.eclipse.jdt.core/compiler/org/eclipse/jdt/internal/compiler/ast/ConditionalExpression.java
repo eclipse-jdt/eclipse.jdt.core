@@ -139,11 +139,13 @@ public class ConditionalExpression extends OperatorExpression {
 
 		// Generate code for the condition
 		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
+		falseLabel = new Label(codeStream);
+		falseLabel.tagBits |= Label.USED;
 		condition.generateOptimizedBoolean(
 			currentScope,
 			codeStream,
 			null,
-			(falseLabel = new Label(codeStream)),
+			falseLabel,
 			needConditionValue);
 
 		if (trueInitStateIndex != -1) {
@@ -167,16 +169,23 @@ public class ConditionalExpression extends OperatorExpression {
 			}
 		}
 		if (needFalsePart) {
-			falseLabel.place();
 			if (falseInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
 					falseInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 			}
+			if (falseLabel.hasForwardReferences()) {
+				falseLabel.place();
+			}
 			valueIfFalse.generateCode(currentScope, codeStream, valueRequired);
-			// End of if statement
-			endifLabel.place();
+			if (valueRequired) {
+				codeStream.recordExpressionType(this.resolvedType);
+			}
+			if (needTruePart) {
+				// End of if statement
+				endifLabel.place();
+			}
 		}
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {

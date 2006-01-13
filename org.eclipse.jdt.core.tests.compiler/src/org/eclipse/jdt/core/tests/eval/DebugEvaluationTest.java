@@ -3815,7 +3815,7 @@ public void testNegative004() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102778
  */
 public void test063() {
-	if (!this.complianceLevel.equals(COMPLIANCE_1_5)) return;
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) return;
 	try {
 		String sourceA63 =
 			"public class A63 {\n" +

@@ -75,7 +75,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 
 		// generate wrapper if needed
 		if (this.expression.resolvedType.isBaseType() && this.expression.resolvedType != TypeBinding.NULL) { 
-			((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.expression.resolvedType);
+			codeStream.generateBoxingConversion(this.expression.resolvedType.id);
 		}
 
 		// generate the expression type

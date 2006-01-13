@@ -143,13 +143,13 @@ public class IfStatement extends Statement {
 				|| this.elseStatement.isEmptyBlock());
 
 		if (hasThenPart) {
-			Label falseLabel;
+			Label falseLabel = null;
 			// generate boolean condition
 			this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				null,
-				(falseLabel = new Label(codeStream)),
+				hasElsePart ? (falseLabel = new Label(codeStream)) : endifLabel,
 				true);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (thenInitStateIndex != -1) {
@@ -159,31 +159,34 @@ public class IfStatement extends Statement {
 			// generate then statement
 			this.thenStatement.generateCode(currentScope, codeStream);
 			// jump around the else statement
-			if (hasElsePart && !thenExit) {
-				this.thenStatement.branchChainTo(endifLabel);
-				int position = codeStream.position;
-				codeStream.goto_(endifLabel);
-				codeStream.updateLastRecordedEndPC((this.thenStatement instanceof Block) ? ((Block) this.thenStatement).scope : currentScope, position);
-				//goto is tagged as part of the thenAction block
-			}
-			falseLabel.place();
-		} else {
 			if (hasElsePart) {
-				// generate boolean condition
-				this.condition.generateOptimizedBoolean(
-					currentScope,
-					codeStream,
-					endifLabel,
-					null,
-					true);
-			} else {
-				// generate condition side-effects
-				this.condition.generateCode(currentScope, codeStream, false);
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				if (!thenExit) {
+					this.thenStatement.branchChainTo(endifLabel);
+					int position = codeStream.position;
+					codeStream.goto_(endifLabel);
+					//goto is tagged as part of the thenAction block
+					codeStream.updateLastRecordedEndPC((this.thenStatement instanceof Block) ? ((Block) this.thenStatement).scope : currentScope, position);
+					// generate else statement
+				}
+				// May loose some local variable initializations : affecting the local variable attributes
+				if (elseInitStateIndex != -1) {
+					codeStream.removeNotDefinitelyAssignedVariables(
+						currentScope,
+						elseInitStateIndex);
+					codeStream.addDefinitelyAssignedVariables(currentScope, elseInitStateIndex);
+				}
+				if (falseLabel != null) falseLabel.place();
+				this.elseStatement.generateCode(currentScope, codeStream);
 			}
-		}
-		// generate else statement
-		if (hasElsePart) {
+		} else if (hasElsePart) {
+			// generate boolean condition
+			this.condition.generateOptimizedBoolean(
+				currentScope,
+				codeStream,
+				endifLabel,
+				null,
+				true);
+			// generate else statement
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (elseInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
@@ -192,14 +195,19 @@ public class IfStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(currentScope, elseInitStateIndex);
 			}
 			this.elseStatement.generateCode(currentScope, codeStream);
+		} else {
+			// generate condition side-effects
+			this.condition.generateCode(currentScope, codeStream, false);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		}
-		endifLabel.place();
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
 				mergedInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
+		endifLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 

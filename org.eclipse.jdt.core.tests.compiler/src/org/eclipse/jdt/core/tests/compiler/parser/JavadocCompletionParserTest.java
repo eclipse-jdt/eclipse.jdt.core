@@ -167,8 +167,8 @@ protected void verifyAllTagsCompletion() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+	} else if (complianceLevel.equals(COMPLIANCE_1_5)
+			|| complianceLevel.equals(COMPLIANCE_1_6)) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -264,7 +264,7 @@ public void test006() {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
 	}
-	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+	else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -485,8 +485,7 @@ public void test025() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+	} else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -559,8 +558,7 @@ public void test028() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+	} else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL

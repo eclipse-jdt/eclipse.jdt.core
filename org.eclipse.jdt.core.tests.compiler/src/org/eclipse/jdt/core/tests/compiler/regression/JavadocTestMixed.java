@@ -768,7 +768,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "		return \"\";\n"
 					+ "	}\n"
 					+ "}\n" },
-					this.complianceLevel != COMPLIANCE_1_5
+					this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0
 					? "----------\n"
 						+ "1. ERROR in test\\X.java (at line 23)\n"
 						+ "	}\n"

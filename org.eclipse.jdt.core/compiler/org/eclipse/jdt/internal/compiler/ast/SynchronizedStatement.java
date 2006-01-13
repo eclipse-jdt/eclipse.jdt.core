@@ -97,6 +97,9 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			// only take the lock
 			codeStream.monitorenter();
 			codeStream.monitorexit();
+			if (scope != currentScope) {
+				codeStream.exitUserScope(scope);
+			}
 		} else {
 			// enter the monitor
 			codeStream.store(synchroVariable, true);
@@ -114,18 +117,18 @@ public class SynchronizedStatement extends SubRoutineStatement {
 				this.enterAnyExceptionHandler(codeStream);
 			}
 			// generate the body of the exception handler
+			codeStream.pushOnStack(scope.getJavaLangThrowable());
 			this.placeAllAnyExceptionHandlers();
-			codeStream.incrStackSize(1);
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
 			this.exitAnyExceptionHandler();
 			codeStream.athrow();
+			if (scope != currentScope) {
+				codeStream.exitUserScope(scope);
+			}
 			if (!blockExit) {
 				endLabel.place();
 			}
-		}
-		if (scope != currentScope) {
-			codeStream.exitUserScope(scope);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

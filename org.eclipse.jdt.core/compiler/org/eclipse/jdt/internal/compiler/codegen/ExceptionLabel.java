@@ -22,14 +22,14 @@ public class ExceptionLabel extends Label {
 
 		super(codeStream);
 		this.exceptionType = exceptionType;
-		this.placeStart();	
+		this.placeStart();
+		this.tagBits |= USED;
 	}
 
 	public boolean isStandardLabel(){
 
 		return false;
 	}
-
 	public void place() {
 
 		// register the handler inside the codeStream then normal place

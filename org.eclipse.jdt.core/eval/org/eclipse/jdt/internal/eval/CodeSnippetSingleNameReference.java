@@ -152,7 +152,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 					codeStream.generateImplicitConversion(assignment.implicitConversion);
 				}
 			} else {
-				((CodeSnippetCodeStream) codeStream).generateEmulationForField(fieldBinding);
+				codeStream.generateEmulationForField(fieldBinding);
 				if (!fieldBinding.isStatic()) { // need a receiver?
 					if ((this.bits & DepthMASK) != 0) {
 						// internal error, per construction we should have found it
@@ -172,7 +172,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 						codeStream.dup_x2();
 					}
 				}
-				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
+				codeStream.generateEmulatedWriteAccessForField(fieldBinding);
 				if (valueRequired) {
 					codeStream.generateImplicitConversion(assignment.implicitConversion);
 				}
@@ -260,7 +260,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 						} else {
 							codeStream.aconst_null();
 						}
-						((CodeSnippetCodeStream)codeStream).generateEmulatedReadAccessForField(fieldBinding);
+						codeStream.generateEmulatedReadAccessForField(fieldBinding);
 					}
 					if (this.genericCast != null) codeStream.checkcast(this.genericCast);		
 					codeStream.generateImplicitConversion(this.implicitConversion);
@@ -300,12 +300,12 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.getstatic(fieldBinding);
 				} else {
 					// used to store the value
-					((CodeSnippetCodeStream) codeStream).generateEmulationForField(fieldBinding);
+					codeStream.generateEmulationForField(fieldBinding);
 					codeStream.aconst_null();
 
 					// used to retrieve the actual value
 					codeStream.aconst_null();
-					((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(fieldBinding);
+					codeStream.generateEmulatedReadAccessForField(fieldBinding);
 				}
 			} else {
 				if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
@@ -325,12 +325,12 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 						currentScope.problemReporter().needImplementation();
 					}
 					// used to store the value
-					((CodeSnippetCodeStream) codeStream).generateEmulationForField(fieldBinding);
+					codeStream.generateEmulationForField(fieldBinding);
 					generateReceiver(codeStream);
 
 					// used to retrieve the actual value
 					codeStream.dup();
-					((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(fieldBinding);
+					codeStream.generateEmulatedReadAccessForField(fieldBinding);
 				}
 			}
 			break;
@@ -411,7 +411,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				}
 				// current stack is:
 				// value field receiver value				
-				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
+				codeStream.generateEmulatedWriteAccessForField(fieldBinding);
 			}
 			return;
 		case Binding.LOCAL : // assigning to a local variable
@@ -475,7 +475,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 						generateReceiver(codeStream);
 					}
 				}
-				((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(fieldBinding);
+				codeStream.generateEmulatedReadAccessForField(fieldBinding);
 				if (valueRequired) {
 					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 						codeStream.dup2();
@@ -483,7 +483,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 						codeStream.dup();
 					}
 				}
-				((CodeSnippetCodeStream) codeStream).generateEmulationForField(fieldBinding);
+				codeStream.generateEmulationForField(fieldBinding);
 				if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
 					codeStream.dup_x2();
 					codeStream.pop();
@@ -508,7 +508,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, fieldBinding.type.id);
 				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
+				codeStream.generateEmulatedWriteAccessForField(fieldBinding);
 			}
 			return;
 		case Binding.LOCAL : // assigning to a local variable

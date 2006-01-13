@@ -46,6 +46,9 @@ public class AssertionTest extends AbstractRegressionTest {
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 			suite.addTest(buildTestSuite(testClass(), COMPLIANCE_1_5));
 		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+			suite.addTest(buildTestSuite(testClass(), COMPLIANCE_1_6));
+		}
 		return suite;
 	}
 	

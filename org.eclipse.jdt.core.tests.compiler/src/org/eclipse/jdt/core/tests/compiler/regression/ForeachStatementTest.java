@@ -999,7 +999,7 @@ public void test021() {
 		"     89  iload 4 [e]\n" + 
 		"     91  iconst_5\n" + 
 		"     92  if_icmpne 98\n" + 
-		"     95  goto 108\n" + 
+		"     95  goto 52\n" + 
 		"     98  iinc 5 1\n" + 
 		"    101  iload 5\n" + 
 		"    103  iload 6\n" + 

@@ -65,7 +65,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		fieldStore(codeStream, lastFieldBinding, null, valueRequired);
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulationForField(lastFieldBinding);
+		codeStream.generateEmulationForField(lastFieldBinding);
 		codeStream.swap();
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		if (valueRequired) {
@@ -75,7 +75,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				codeStream.dup_x2();
 			}
 		}
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(lastFieldBinding);	
+		codeStream.generateEmulatedWriteAccessForField(lastFieldBinding);
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(assignment.implicitConversion);
@@ -110,7 +110,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							codeStream.getfield(lastFieldBinding);
 						}
 					} else {
-						((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
+						codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 					}	
 					codeStream.generateImplicitConversion(this.implicitConversion);
 				}
@@ -161,18 +161,18 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		fieldStore(codeStream, lastFieldBinding, null, valueRequired);
 	} else {
 		if (lastFieldBinding.isStatic()){
-			((CodeSnippetCodeStream) codeStream).generateEmulationForField(lastFieldBinding);
+			codeStream.generateEmulationForField(lastFieldBinding);
 			codeStream.swap();
 			codeStream.aconst_null();
 			codeStream.swap();
 
-			((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
+			codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 		} else {
-			((CodeSnippetCodeStream) codeStream).generateEmulationForField(lastFieldBinding);
+			codeStream.generateEmulationForField(lastFieldBinding);
 			codeStream.swap();
 			codeStream.dup();
 
-			((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
+			codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 		}
 		// the last field access is a write access
 		// perform the actual compound operation
@@ -206,7 +206,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		}
 		// current stack is:
 		// value field receiver value				
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(lastFieldBinding);
+		codeStream.generateEmulatedWriteAccessForField(lastFieldBinding);
 	}
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
@@ -241,7 +241,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		
 		fieldStore(codeStream, lastFieldBinding, null, false);
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
+		codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 		if (valueRequired) {
 			if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
@@ -249,7 +249,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				codeStream.dup();
 			}
 		}
-		((CodeSnippetCodeStream) codeStream).generateEmulationForField(lastFieldBinding);
+		codeStream.generateEmulationForField(lastFieldBinding);
 		if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
 			codeStream.dup_x2();
 			codeStream.pop();
@@ -274,7 +274,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, lastFieldBinding.type.id);
 		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(lastFieldBinding);
+		codeStream.generateEmulatedWriteAccessForField(lastFieldBinding);
 	}
 }
 /*
@@ -366,7 +366,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 							codeStream.getfield(lastFieldBinding);
 						}
 					} else {
-						((CodeSnippetCodeStream) codeStream).generateEmulatedReadAccessForField(lastFieldBinding);
+						codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 					}
 					if (lastGenericCast != null) codeStream.checkcast(lastGenericCast);
 				} else {

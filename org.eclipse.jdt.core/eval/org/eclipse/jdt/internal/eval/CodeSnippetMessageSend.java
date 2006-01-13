@@ -88,7 +88,7 @@ public void generateCode(
 			}
 		}
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulationForMethod(currentScope, this.codegenBinding);
+		codeStream.generateEmulationForMethod(currentScope, this.codegenBinding);
 		// generate receiver/enclosing instance access
 		boolean isStatic = this.codegenBinding.isStatic();
 		// outer access ?
@@ -113,7 +113,7 @@ public void generateCode(
 				this.arguments[i].generateCode(currentScope, codeStream, true);
 				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
-					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
+					codeStream.generateBoxingConversion(this.codegenBinding.parameters[i].id);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -124,7 +124,7 @@ public void generateCode(
 			codeStream.generateInlinedValue(0);
 			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));			
 		}
-		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectMethodInvoke();
+		codeStream.invokeJavaLangReflectMethodInvoke();
 
 		// convert the return value to the appropriate type for primitive types
 		if (this.codegenBinding.returnType.isBaseType()) {
@@ -133,8 +133,8 @@ public void generateCode(
 				// remove the null from the stack
 				codeStream.pop();
 			}
-			((CodeSnippetCodeStream) codeStream).checkcast(typeID);
-			((CodeSnippetCodeStream) codeStream).getBaseTypeValue(typeID);
+			codeStream.checkcast(typeID);
+			codeStream.getBaseTypeValue(typeID);
 		} else {
 			codeStream.checkcast(this.codegenBinding.returnType);
 		}

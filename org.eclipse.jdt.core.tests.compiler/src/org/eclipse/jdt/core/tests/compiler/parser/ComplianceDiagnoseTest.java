@@ -40,7 +40,7 @@ public void runComplianceParserTest(
 		this.runNegativeTest(testFiles, expected13ProblemLog);
 	} else if(COMPLIANCE_1_4.equals(this.complianceLevel)) {
 		this.runNegativeTest(testFiles, expected14ProblemLog);
-	} else if(COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	} else if(this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		this.runNegativeTest(testFiles, expected15ProblemLog);
 	}
 }

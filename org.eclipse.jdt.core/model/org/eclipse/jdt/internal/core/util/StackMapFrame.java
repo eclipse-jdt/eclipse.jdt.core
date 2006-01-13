@@ -49,7 +49,7 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 				this.offsetDelta = u2At(classFileBytes, 1, offset);
 				this.numberOfStackItems = 1;
 				this.stackItems = new VerificationInfo[1];
-				this.readOffset = 1;
+				this.readOffset = 3;
 				VerificationInfo info = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
 				this.stackItems[0] = info;
 				this.readOffset += info.sizeInBytes();
@@ -98,21 +98,29 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 				this.offsetDelta = u2At(classFileBytes, 1, offset);
 				int tempLocals = u2At(classFileBytes, 3, offset);
 				this.numberOfLocals = tempLocals;
-				this.locals = new IVerificationTypeInfo[tempLocals];
 				this.readOffset = 5;
-				for (int i = 0; i < tempLocals; i++) {
-					VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
-					this.locals[i] = verificationInfo;
-					this.readOffset += verificationInfo.sizeInBytes();
+				if (tempLocals != 0) {
+					this.locals = new IVerificationTypeInfo[tempLocals];
+					for (int i = 0; i < tempLocals; i++) {
+						VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
+						this.locals[i] = verificationInfo;
+						this.readOffset += verificationInfo.sizeInBytes();
+					}
+				} else {
+					this.locals = EMPTY_LOCALS_OR_STACK_ITEMS;
 				}
 				int tempStackItems = u2At(classFileBytes, readOffset, offset);
 				this.readOffset += 2;
 				this.numberOfStackItems = tempStackItems;
-				this.stackItems = new IVerificationTypeInfo[tempStackItems];
-				for (int i = 0; i < tempStackItems; i++) {
-					VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
-					this.stackItems[i] = verificationInfo;
-					this.readOffset += verificationInfo.sizeInBytes();
+				if (tempStackItems != 0) {
+					this.stackItems = new IVerificationTypeInfo[tempStackItems];
+					for (int i = 0; i < tempStackItems; i++) {
+						VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
+						this.stackItems[i] = verificationInfo;
+						this.readOffset += verificationInfo.sizeInBytes();
+					}
+				} else {
+					this.stackItems = EMPTY_LOCALS_OR_STACK_ITEMS;
 				}
 				break;
 			default:

@@ -102,6 +102,24 @@ public static Test suite() {
 		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+		ArrayList tests_1_6 = (ArrayList)standardTests.clone();
+		tests_1_6.addAll(RunComparableTests.ALL_CLASSES);
+		tests_1_6.add(AssertionTest.class);
+		tests_1_6.add(ClassFileReaderTest_1_5.class);
+		tests_1_6.add(GenericTypeSignatureTest.class);
+		tests_1_6.add(InternalHexFloatTest.class);
+		tests_1_6.add(JavadocTest_1_5.class);
+		tests_1_6.add(BatchCompilerTest.class);
+		tests_1_6.add(ExternalizeStringLiterals15Test.class);
+		tests_1_6.add(StackMapAttributeTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_6, RegressionTestSetup.class, tests_1_6));
+	}
 	return all;
 }
 }

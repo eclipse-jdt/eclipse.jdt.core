@@ -146,7 +146,7 @@ public class WhileStatement extends Statement {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 		if (isConditionOptimizedFalse) {
-			condition.generateCode(currentScope, 	codeStream, false);
+			condition.generateCode(currentScope, codeStream, false);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
@@ -181,9 +181,9 @@ public class WhileStatement extends Statement {
 			}
 		}
 		// generate the action
-		Label actionLabel;
-		(actionLabel = new Label(codeStream)).place();
+		Label actionLabel = new Label(codeStream);
 		if (action != null) {
+			actionLabel.tagBits |= Label.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (condIfTrueInitStateIndex != -1) {
 				// insert all locals initialized inside the condition into the action generated prior to the condition
@@ -191,12 +191,14 @@ public class WhileStatement extends Statement {
 					currentScope,
 					condIfTrueInitStateIndex);
 			}
+			actionLabel.place();
 			action.generateCode(currentScope, codeStream);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (preCondInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
 			}
-
+		} else {
+			actionLabel.place();			
 		}
 		// output condition and branch back to the beginning of the repeated action
 		if (continueLabel != null) {
@@ -208,13 +210,13 @@ public class WhileStatement extends Statement {
 				null,
 				true);
 		}
-		breakLabel.place();
 
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
+		breakLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
