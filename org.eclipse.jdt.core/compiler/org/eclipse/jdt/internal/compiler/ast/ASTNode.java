@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Matt McCutchen
+ *     		Partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -268,7 +270,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		
 		if ((field.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {
 			AccessRestriction restriction = 
-				scope.environment().getAccessRestriction(field.declaringClass);
+				scope.environment().getAccessRestriction(field.declaringClass.erasure());
 			if (restriction != null) {
 				scope.problemReporter().forbiddenReference(field, this,
 						restriction.getFieldAccessMessageTemplate(), restriction.getProblemId());
@@ -306,7 +308,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			// note: explicit constructors calls warnings are kept despite the 'new C1()' case (two
 			//       warnings, one on type, the other on constructor), because of the 'super()' case.
 			AccessRestriction restriction = 
-				scope.environment().getAccessRestriction(method.declaringClass);
+				scope.environment().getAccessRestriction(method.declaringClass.erasure());
 			if (restriction != null) {
 				if (method.isConstructor()) {
 					scope.problemReporter().forbiddenReference(method, this,
@@ -365,7 +367,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		
 		if (refType.hasRestrictedAccess()) {
-			AccessRestriction restriction = scope.environment().getAccessRestriction(type);
+			AccessRestriction restriction = scope.environment().getAccessRestriction(type.erasure());
 			if (restriction != null) {
 				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}
