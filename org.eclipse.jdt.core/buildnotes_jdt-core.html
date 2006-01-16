@@ -54,8 +54,9 @@ What's new in this drop</h2>
 <ul>
 <li>Added the support to compute the stack map frames (requires a 6.0 VM to run). See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=109980">109980</a> for details.
 <br>This is still experimental and the 6.0 mode cannot be activated in the UI (<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=123786">123786</a>).</li>
-<li>Added new option to Import Rewrite <code>JavaCore.IMPORTREWRITE_STATIC_ONDEMAND_THRESHOLD</code>. See bug
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=103615">103615</a> for details.</li>
+<li>Added API for the configuration of the Import Rewrite: <code>ImportRewrite#setImportOrder()</code>, <code>ImportRewrite#setOnDemandImportThreshold()</code> and
+<code>ImportRewrite#setStaticOnDemandImportThreshold()</code>. For compatibility reasons the actual configuration option values stay in
+JDT.UI</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -83,8 +84,7 @@ Eclipse SDK 3.2M5 - 10th January 2006
 What's new in this drop</h2>
 <ul>
 <li>Added Import Rewrite as API (<code>org.eclipse.jdt.core.dom.ImportRewrite</code>). The import rewriter is used to add new imports according
-to a user specified import order. The new preference options are <code>JavaCore.IMPORTREWRITE_IMPORT_ORDER</code> and
-<code>JavaCore.IMPORTREWRITE_ONDEMAND_THRESHOLD</code>. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=73054">73054</a> for details.</li>
+to a user specified import order. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=73054">73054</a> for details.</li>
 <li>Added new APIs for checking modifiers (<code>org.eclipse.jdt.core.dom.Modifier#isPublic(), org.eclipse.jdt.core.dom.Modifier#isStatic(), ...</code>). See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122460">122460</a> for details.</li>
 <li>Added new API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor)</code>. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122506">122506</a> for details.
 The former API <code>org.eclipse.jdt.core.IJavaElement#String getAttachedJavadoc(IProgressMonitor monitor, String defaultEncoding)</code> has been deprecated.</li>
