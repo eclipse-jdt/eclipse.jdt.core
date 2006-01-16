@@ -11,13 +11,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 
-import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -2665,42 +2662,13 @@ public void testBug36032c() throws CoreException, InterruptedException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118823"
  */
 public void testBug118823() throws CoreException, InterruptedException, IOException {
-	
-	// Class to listen for deltas on a compilation unit
-	class TestDeltaListener implements IElementChangedListener {
-		String unitName;
-		boolean updated;
-		TestDeltaListener(ICompilationUnit cu) {
-			this.unitName = cu.getElementName();
-		}
-		public void elementChanged(ElementChangedEvent event) {
-			if (isEventOnUnit((IJavaElementDelta)event.getSource())) {
-				this.updated = true;
-			}
-		}
-		private boolean isEventOnUnit(IJavaElementDelta delta) {
-			IJavaElementDelta[] children = delta.getAffectedChildren();
-			if (children != null && children.length > 0) {
-				for (int i=0, l=children.length; i<l ; i++) {
-					if (isEventOnUnit(children[i])) return true;
-				}
-			} else {
-				if (this.unitName.equals(delta.getElement().getElementName()) && delta.getKind() == IJavaElementDelta.CHANGED) {
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-
-	// Start test
 	try {
 		// Resources creation
-		IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
-		String source1 = "class Test {}\n";
-		IFile file = createFile(
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		String source = "class Test {}\n";
+		createFile(
 			"/P1/Test.java", 
-			source1
+			source
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
 		String source2 = 
@@ -2716,14 +2684,10 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		this.wcOwner = new WorkingCopyOwner() {};
 
 		// Get first working copy and verify that there's no error
-		char[] sourceChars = source1.toCharArray();
+		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
-
-		// Create delta listener on first working copy
-		TestDeltaListener dListener = new TestDeltaListener(this.workingCopies[0]);
-		JavaCore.addElementChangedListener(dListener);
 
 		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
@@ -2738,21 +2702,22 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 			"----------\n"
 		);
 
-		// Delete first working copy file and recreate it with secondary outside eclipse
-		File ioFile = file.getLocation().toFile();
-		ioFile.delete();
-		source1 = 
+		// Delete file and recreate it with secondary
+		final String source1 = 
 			"public class Test {}\n" + 
 			"class Secondary{}\n";
-		Util.createFile(ioFile.getCanonicalPath(), source1);
-		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-
-		// Wait for deltas on updated working copy
-		int max = 0;
-		while (!dListener.updated && max++ < 10) {
-			Thread.sleep(100);
-		}
-		assertTrue("We should have compilation unit updated", dListener.updated);
+		getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteFile("/P1/Test.java");
+					createFile(
+						"/P1/Test.java", 
+						source1
+					);
+				}
+			},
+			null
+		);
 
 		// Get first working copy and verify that there's still no error
 		sourceChars = source1.toCharArray();
