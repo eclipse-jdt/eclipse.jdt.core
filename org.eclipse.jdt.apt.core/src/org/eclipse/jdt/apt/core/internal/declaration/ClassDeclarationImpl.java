@@ -15,8 +15,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
@@ -42,11 +46,66 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
         super.accept(visitor);
         visitor.visitClassDeclaration(this);
     }
+    
+    private void getASTConstructor(
+    		final AbstractTypeDeclaration typeDecl,
+    		final List<ConstructorDeclaration> results){
+    	
+    	final List bodyDecls = typeDecl.bodyDeclarations();
+    	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
+    		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
+    		IFile file = null; 
+    		if( bodyDecl.getNodeType() == ASTNode.METHOD_DECLARATION ){
+    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 
+    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;    			
+    			
+    			if( methodDecl.isConstructor() ){
+    				final IMethodBinding methodBinding = methodDecl.resolveBinding();
+    				// built an ast based representation.
+    				if( methodBinding == null ){
+    					if( file == null )
+        					file = getResource();
+        				ConstructorDeclaration mirrorDecl = 
+        					(ConstructorDeclaration)Factory.createDeclaration(methodDecl, file, _env);
+        				if( mirrorDecl != null )
+        					results.add(mirrorDecl);
+    				}
+    			}
+    		}
+    	}
+    }
 
     public Collection<ConstructorDeclaration> getConstructors()
     {
+    	final List<ConstructorDeclaration> results = new ArrayList<ConstructorDeclaration>();
+    	if( isFromSource() ){
+    		// need to consult the ast since methods with broken signature 
+    		// do not appear in bindings.
+    		final ITypeBinding typeBinding = getDeclarationBinding();
+    		final ASTNode node = 
+    			_env.getASTNodeForBinding(typeBinding);
+    		if( node != null ){
+    			switch( node.getNodeType() )
+    			{
+    			case ASTNode.TYPE_DECLARATION:
+    			case ASTNode.ANNOTATION_TYPE_DECLARATION:
+    			case ASTNode.ENUM_DECLARATION:
+    				AbstractTypeDeclaration typeDecl = 
+    					(AbstractTypeDeclaration)node;
+    				// built the ast based methods first.
+    				getASTConstructor(typeDecl, results);
+    				break;
+    			default:
+    				// the ast node for a type binding should be a AbstractTypeDeclaration.
+    				throw new IllegalStateException("expecting a AbstractTypeDeclaration but got "  //$NON-NLS-1$
+    						+ node.getClass().getName() );
+    			}
+    		}
+    	}
+        // build methods for binding type or 
+    	// build the binding based method for source type.
+    	
         final IMethodBinding[] methods = getDeclarationBinding().getDeclaredMethods();
-        final List<ConstructorDeclaration> results = new ArrayList<ConstructorDeclaration>(methods.length);
         for( IMethodBinding method : methods ){
             if( method.isSynthetic() ) continue;
             if( method.isConstructor() ){

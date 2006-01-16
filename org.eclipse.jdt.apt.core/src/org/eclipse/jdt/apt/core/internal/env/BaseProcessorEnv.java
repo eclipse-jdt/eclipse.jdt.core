@@ -98,6 +98,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	private static final int SHORT_INDEX = 7;
 	private static final int VOID_INDEX = 8;
 	
+	private static final String DOT_JAVA = ".java"; //$NON-NLS-1$
+	
 	protected CompilationUnit _astRoot;
 	protected final Phase _phase;
 	protected IFile _file;
@@ -203,7 +205,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		if( type == null ) return;
 		typeBindings.add(type);
 		for( ITypeBinding nestedType : type.getDeclaredTypes() ) {
-			typeBindings.add(nestedType);
+			//typeBindings.add(nestedType);
 			getTypeBindings(nestedType, typeBindings);
 		}
 	}
@@ -371,7 +373,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			return Factory.createReferenceType(typeBinding, this);
 
 		// finally go search for it in the universe.
-		typeBinding = getTypeBinding(typeKey);
+		typeBinding = getTypeDefinitionBindingFromName(name);
 		if( typeBinding != null ){			
 			return Factory.createReferenceType(typeBinding, this);
 		}
@@ -380,14 +382,45 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     }
     
     /**
-	 * @param key the key to a type binding, could be reference type, array or primitive.
-	 * @return the binding corresponding to the given key or null if none is found.
-	 */
-	public ITypeBinding getTypeBinding(final String key)
-	{
+     * @param fullyQualifiedName the fully qualified name of a type.
+     * The name cannot contain type argument or array signature.
+     * @return the type binding corresponding to the parameter.
+     */
+    ITypeBinding getTypeDefinitionBindingFromName(
+    		final String fullyQualifiedName ){
+    	final int dollarIndex = fullyQualifiedName.indexOf('$');
+    	final String toplevelTypeName;
+    	if( dollarIndex < 0 )
+    		toplevelTypeName = fullyQualifiedName;
+    	else
+    		toplevelTypeName = fullyQualifiedName.substring(0, dollarIndex);
+    	
+    	// locate the compilation unit for the type of interest. 
+    	// we need this information so that when we request the binding for 'fullyQualifiedName'
+    	// we can get the dom pipeline to return back to us the ast compilation unit
+    	// which we will need to correctly compute the number of methods, fields and constructors.
+    	// see CR259011 -theodora
+    	ICompilationUnit unit = getICompilationUnitForTopLevelType(toplevelTypeName);
+       	final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
+    	return getTypeBindingFromKey(key, unit);
+    }
+    
+    /**
+     * @param key
+     * @param unit the unit that contains the definition of type whose type key is <code>key</code>
+     * if <code>key</code> is a wild card, primitive, array type or parameterized type, this should be null.
+     * @return return the type binding for the given key or null if none is found.
+     */
+    private ITypeBinding getTypeBindingFromKey(final String key, final ICompilationUnit unit){
+    	
 		class BindingRequestor extends ASTRequestor
 		{
 			private ITypeBinding _result = null;
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				if( source == unit ){		
+					_modelCompUnit2astCompUnit.put(source, ast);
+				}
+			}
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
 				if( binding != null && binding.getKind() == IBinding.TYPE )
@@ -399,8 +432,28 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(_javaProject);
-		parser.createASTs(NO_UNIT, new String[]{key}, requestor, null);
-		return requestor._result;
+		ICompilationUnit[] units = unit == null ? NO_UNIT : new ICompilationUnit[]{unit};
+		parser.createASTs(units, new String[]{key}, requestor, null);
+		final ITypeBinding result = requestor._result;
+		if(result != null && unit != null){
+			final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);	
+			// make sure everything is lining up properly.
+			if( astUnit.findDeclaringNode(result) != null ){
+				ITypeBinding declaringClass = getDeclaringClass(result);
+				_typeBinding2ModelCompUnit.put(declaringClass, unit);
+			}
+		}
+		return result;
+    }
+    
+    /**
+	 * @param key the key to a type binding, could be reference type, array or primitive.
+	 * @return the binding corresponding to the given key or null if none is found.
+	 */
+	public ITypeBinding getTypeBindingFromKey(final String key)
+	{
+		return getTypeBindingFromKey(key, null);
+		
 	}
 	
 	public TypeDeclaration getTypeDeclaration(final IType type) {
@@ -500,6 +553,28 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			return _astRoot;
 		return null;
 	}
+	
+	/**
+	 * Retrieve the <code>ICompilationUnit</code> whose top-level type has 
+	 * <code>topTypeQName</code> as its fully qualified name.
+	 * @param topTypeQName
+	 * @return the <code>ICompilationUnit</code> matching <code>topTypeQName</code> or 
+	 * <code>null</code> if one doesn't exist.
+	 */
+	private ICompilationUnit getICompilationUnitForTopLevelType(final String topTypeQName ){
+		final String pathname = topTypeQName.replace('.', File.separatorChar) + DOT_JAVA;		
+		final IPath path = Path.fromOSString(pathname);
+		try{
+			final IJavaElement element = _javaProject.findElement(path);
+			if( element instanceof ICompilationUnit )
+				return (ICompilationUnit)element;
+			else // dropping class files.
+				return null;
+		}
+		catch(JavaModelException e){
+			return null;
+		}
+	}
     
 	/**
      * @param binding must be correspond to a type, method or field declaration.
@@ -521,19 +596,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			}
 			else{
 				final ITypeBinding typeBinding = getDeclaringClass(binding);
+				// binary type don't have compilation unit.
+				if( !typeBinding.isFromSource() )
+					return null;
 				if( _typeBinding2ModelCompUnit.get(typeBinding) != null )
 					unit = _typeBinding2ModelCompUnit.get(typeBinding);
 				else{
 					final String qname = typeBinding.getQualifiedName();
-					final String pathname = qname.replace('.', File.separatorChar);
-					final IPath path = Path.fromOSString(pathname);
-					try{
-						unit = (ICompilationUnit)_javaProject.findElement(path);
-						_typeBinding2ModelCompUnit.put(typeBinding, unit);
-					}
-					catch(JavaModelException e){
-						throw new IllegalStateException(e);
-					}
+					unit = getICompilationUnitForTopLevelType(qname);
 				}
 			}
 			if( unit == null ) return null;
@@ -621,18 +691,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		else{
 			final ITypeBinding type = getDeclaringClass(binding);
 			assert type.isTopLevel() : "type must be top-level type"; //$NON-NLS-1$
+			ICompilationUnit unit = _typeBinding2ModelCompUnit.get(type);
+			if( unit != null )
+				return (IFile)unit.getResource();
 			final String qname = type.getQualifiedName();
-			final String pathname = qname.replace('.', File.separatorChar);
-			final IPath path = Path.fromOSString(pathname);
-			try{
-				// the element would be a compilation unit.
-				final IJavaElement element = _javaProject.findElement(path);
-				if( element == null ) return null;
-				return (IFile)element.getResource();
-			}
-			catch(JavaModelException e){
-				throw new IllegalStateException(e);
-			}
+			unit = getICompilationUnitForTopLevelType(qname);
+			if( unit == null )
+				return null;
+			return (IFile)unit.getResource();
 		}
 	}
 	

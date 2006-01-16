@@ -13,6 +13,7 @@ package org.eclipse.jdt.apt.tests.annotations;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.apt.Messager;
 
 public abstract class BaseProcessor implements AnnotationProcessor {
 
@@ -21,5 +22,33 @@ public abstract class BaseProcessor implements AnnotationProcessor {
 	public BaseProcessor(final AnnotationProcessorEnvironment env) {
 		_env = env;
 	}
-
+	
+	protected void assertEqual(final int expected, final int actual, final String message){
+		if(expected != actual){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + " expected: " + expected + " actual: " + actual );
+		}
+	}
+	
+	protected void assertEqual(final String expected, final String actual, final String message){
+		if( expected == null ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + " actual: " + actual );
+		}
+		else if( actual == null ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + "expected " + expected );
+		}
+		else if( !expected.equals(actual) ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + " expected: " + expected + " actual: " + actual );
+		}
+	}
+	
+	protected void assertNonNull(final Object obj, final String message){
+		if( obj == null ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message);
+		}
+	}
 }

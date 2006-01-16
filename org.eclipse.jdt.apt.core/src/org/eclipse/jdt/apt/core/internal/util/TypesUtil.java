@@ -86,7 +86,7 @@ public class TypesUtil implements Types
                 throw new IllegalArgumentException("illegal component type: " + componentType); //$NON-NLS-1$
 
             final String bindingKey = BindingKey.createArrayTypeBindingKey(leaf.getKey(), dimension);
-			final ITypeBinding arrayType = _env.getTypeBinding(bindingKey);
+			final ITypeBinding arrayType = _env.getTypeBindingFromKey(bindingKey);
 			if(arrayType == null)
 				return null;
 			return (ArrayType)Factory.createTypeMirror(arrayType, _env); 
@@ -168,7 +168,7 @@ public class TypesUtil implements Types
                         "but found " + numArgs ); //$NON-NLS-1$
 			
 			final String typeKey = BindingKey.createParameterizedTypeBindingKey(memberBinding.getKey(), argKeys);
-			final ITypeBinding resultBinding = _env.getTypeBinding(typeKey);
+			final ITypeBinding resultBinding = _env.getTypeBindingFromKey(typeKey);
 			return Factory.createReferenceType(resultBinding, _env);
 		}
 		else{ 
@@ -275,7 +275,7 @@ public class TypesUtil implements Types
             throw new IllegalArgumentException("Wildcard can only have a upper bound, a lower bound or be unbounded."); //$NON-NLS-1$
 
 		final String wildcardkey = BindingKey.createWilcardTypeBindingKey(boundKey, boundKind);
-		final ITypeBinding wildcard = _env.getTypeBinding(wildcardkey);
+		final ITypeBinding wildcard = _env.getTypeBindingFromKey(wildcardkey);
         return (WildcardType)Factory.createTypeMirror(wildcard, _env);
     }
 

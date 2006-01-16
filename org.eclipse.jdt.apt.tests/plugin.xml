@@ -83,6 +83,9 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.apitest.APIAnnotationProcessorFactory">
 	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.ASTBasedMirrorDeclarationProcessorFactory">
+	      </factory>  
 	   </factories>
    </extension>
 

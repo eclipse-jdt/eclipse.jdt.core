@@ -16,11 +16,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.declaration.*;
 import com.sun.mirror.type.DeclaredType;
@@ -65,11 +72,59 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     }
 
     public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
+    
+    private void getASTFields(
+    		final AbstractTypeDeclaration typeDecl, 
+    		final List<FieldDeclaration> results){
+    	final List bodyDecls = typeDecl.bodyDeclarations();
+    	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
+    		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
+    		IFile file = null; 
+    		if( bodyDecl.getNodeType() == ASTNode.FIELD_DECLARATION ){
+    			final List<VariableDeclarationFragment> fragments =
+                    ((org.eclipse.jdt.core.dom.FieldDeclaration)bodyDecl).fragments();
+    			for( VariableDeclarationFragment frag : fragments ){
+    				final IBinding fieldBinding = frag.resolveBinding();
+    				if( fieldBinding == null ){
+    					if( file == null )
+    						file = getResource();
+    					final EclipseDeclarationImpl decl = Factory.createDeclaration(frag, file, _env);
+    					if( decl != null )
+        					results.add((FieldDeclaration)decl);
+    				}
+    			}
+    		}
+    	}
+    }
 
     public Collection<FieldDeclaration> getFields()
     {
-        final IVariableBinding[] fields = getDeclarationBinding().getDeclaredFields();
-        final List<FieldDeclaration> results = new ArrayList<FieldDeclaration>(fields.length);
+    	final List<FieldDeclaration> results = new ArrayList<FieldDeclaration>();
+    	final ITypeBinding typeBinding = getDeclarationBinding();
+    	if( isFromSource() ){
+    		final ASTNode node = 
+    			_env.getASTNodeForBinding(typeBinding);
+    		if( node != null ){
+    			switch( node.getNodeType() )
+    			{
+    			case ASTNode.TYPE_DECLARATION:
+    			case ASTNode.ANNOTATION_TYPE_DECLARATION:
+    			case ASTNode.ENUM_DECLARATION:
+    				AbstractTypeDeclaration typeDecl = 
+    					(AbstractTypeDeclaration)node;
+    				// built the ast based methods first.
+    				getASTFields(typeDecl, results);
+    				break;
+    			default:
+    				// the ast node for a type binding should be a AbstractTypeDeclaration.
+    				throw new IllegalStateException("expecting a AbstractTypeDeclaration but got "  //$NON-NLS-1$
+    						+ node.getClass().getName() );
+    			}
+    		}
+    	}
+    	// either type is binary or 
+    	// constructing the binding based fields for source type.
+        final IVariableBinding[] fields = typeBinding.getDeclaredFields();
         for( IVariableBinding field : fields ){
         	// note that the name HAS_INCONSISTENT_TYPE_HIERACHY is not a legal java identifier
         	// so there is no chance that we are filtering out actual declared fields.
@@ -179,11 +234,83 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
         final ITypeBinding type = getTypeBinding();
         return type.getTypeDeclaration();
     }
+    
+    /**
+     * create mirror methods that does not have a binding represention.
+     */
+    protected void getASTMethods(
+    		final AbstractTypeDeclaration typeDecl, 
+    		final List<MethodDeclaration> results){
+    	final List bodyDecls = typeDecl.bodyDeclarations();
+    	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
+    		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
+    		IFile file = null; 
+    		switch(bodyDecl.getNodeType()){
+    		case ASTNode.METHOD_DECLARATION:
+    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 
+    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;    			
+    			
+    			if( !methodDecl.isConstructor() ){
+    				final IMethodBinding methodBinding = methodDecl.resolveBinding();
+    				// built an ast based representation.
+    				if( methodBinding == null ){
+    					if( file == null )
+        					file = getResource();
+        				MethodDeclaration mirrorDecl = 
+        					(MethodDeclaration)Factory.createDeclaration(methodDecl, file, _env);
+        				if( mirrorDecl != null )
+        					results.add(mirrorDecl);
+    				}
+    			}
+    			break;
+    		case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
+    			final AnnotationTypeMemberDeclaration memberDecl =
+    				(AnnotationTypeMemberDeclaration)bodyDecl;
+    			final IMethodBinding methodBinding = memberDecl.resolveBinding();
+				// built an ast based representation.
+				if( methodBinding == null ){
+					if( file == null )
+    					file = getResource();
+    				MethodDeclaration mirrorDecl = 
+    					(MethodDeclaration)Factory.createDeclaration(memberDecl, file, _env);
+    				if( mirrorDecl != null )
+    					results.add(mirrorDecl);
+				}
+				break;
+    		}
+    	}
+    }
 
     protected List<? extends MethodDeclaration> _getMethods()
     {
-        final IMethodBinding[] methods = getDeclarationBinding().getDeclaredMethods();
-        final List<MethodDeclaration> results = new ArrayList<MethodDeclaration>(methods.length);
+    	final List<MethodDeclaration> results = new ArrayList<MethodDeclaration>();
+    	if( isFromSource() ){
+    		// need to consult the ast since methods with broken signature 
+    		// do not appear in bindings.
+    		final ITypeBinding typeBinding = getDeclarationBinding();
+    		final ASTNode node = 
+    			_env.getASTNodeForBinding(typeBinding);
+    		if( node != null ){
+    			switch( node.getNodeType() )
+    			{
+    			case ASTNode.TYPE_DECLARATION:
+    			case ASTNode.ANNOTATION_TYPE_DECLARATION:
+    			case ASTNode.ENUM_DECLARATION:
+    				AbstractTypeDeclaration typeDecl = 
+    					(AbstractTypeDeclaration)node;
+    				// built the ast based methods first.
+    				getASTMethods(typeDecl, results);
+    				break;
+    			default:
+    				// the ast node for a type binding should be a AbstractTypeDeclaration.
+    				throw new IllegalStateException("expecting a AbstractTypeDeclaration but got "  //$NON-NLS-1$
+    						+ node.getClass().getName() );
+    			}
+    		}
+    	}
+        // build methods for binding type or 
+    	// build the binding based method for source type.
+    	final IMethodBinding[] methods = getDeclarationBinding().getDeclaredMethods();
         for( IMethodBinding method : methods ){
             if( method.isConstructor() || method.isSynthetic() ) continue;
             Declaration mirrorDecl = Factory.createDeclaration(method, _env);
