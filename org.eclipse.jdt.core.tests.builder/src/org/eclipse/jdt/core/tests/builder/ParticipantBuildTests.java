@@ -172,7 +172,7 @@ public class ParticipantBuildTests extends Tests {
 
 		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"@GeneratedAnnotation\n" + //$NON-NLS-1$
-			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
+			"public class Test extends p.GeneratedType {}\n" //$NON-NLS-1$
 			);
 
 		env.addClass(root, "", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
@@ -187,10 +187,15 @@ public class ParticipantBuildTests extends Tests {
 			public void processAnnotations(ICompilationParticipantResult[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				ICompilationParticipantResult result = files[0];
-				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
-				if (genedType.exists()) return;
+				if (!"Test.java".equals(result.getFile().getName())) return; //$NON-NLS-1$
+				IFile genedType = null;
 				try {
-					genedType.create(new ByteArrayInputStream("class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+					IFolder genedFolder = result.getFile().getParent().getFolder(new Path("p"));
+					if (!genedFolder.exists())
+						genedFolder.create(true, false, null);
+					genedType = genedFolder.getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
+					if (genedType.exists()) return;
+					genedType.create(new ByteArrayInputStream("package p; public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
