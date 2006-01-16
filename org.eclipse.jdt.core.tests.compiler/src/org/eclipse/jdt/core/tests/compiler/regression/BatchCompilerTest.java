@@ -167,12 +167,13 @@ public static Test suite() {
 		}
 		String outOutputString = Util.fileContent(outFileName), 
 		       errOutputString = Util.fileContent(errFileName);
-		boolean compareOK = false;
+		boolean compareOK = false, outCompareOK = false, errCompareOK = false;
 		if (compileOK == shouldCompileOK) {
-			compareOK = semiNormalizedComparison(expectedOutOutputString,
-					outOutputString, outputDirNormalizer)
-					&& semiNormalizedComparison(expectedErrOutputString,
-							errOutputString, outputDirNormalizer);
+			compareOK =
+				(outCompareOK = semiNormalizedComparison(expectedOutOutputString,
+					outOutputString, outputDirNormalizer))
+				&& (errCompareOK = semiNormalizedComparison(expectedErrOutputString,
+						errOutputString, outputDirNormalizer));
 		}
 		if (compileOK != shouldCompileOK || !compareOK) {
 			System.out.println(getClass().getName() + '#' + getName());
@@ -210,9 +211,22 @@ public static Test suite() {
 			assertTrue("Unexpected problems: " + errOutputString, compileOK);
 		else
 			assertTrue("Unexpected success: " + errOutputString, !compileOK);
-		assertTrue("Unexpected output for invocation with arguments ["
-				+ commandLine + "]:\n--[START]--\n" + outOutputString + "\n"
-				+ errOutputString + "\n---[END]---\n", compareOK);
+		if (!outCompareOK) {
+			// calling assertEquals to benefit from the comparison UI
+			// (need appropriate exception)
+			assertEquals(
+					"Unexpected standard output for invocation with arguments ["
+						+ commandLine + "]",
+					expectedOutOutputString,
+					outOutputString);
+		}
+		if (!errCompareOK) {
+			assertEquals(
+					"Unexpected error output for invocation with arguments ["
+						+ commandLine + "]",
+					expectedErrOutputString,
+					errOutputString);
+		}
 	}
 	
 	/**
@@ -472,10 +486,14 @@ public static Test suite() {
 	}
 private static boolean equals(String a, String b) {
 	StringBuffer aBuffer = new StringBuffer(a), bBuffer = new StringBuffer(b);
-	int length = aBuffer.length();
-	if (length != bBuffer.length()) {
+	int length = aBuffer.length(), bLength;
+	boolean result = true;
+	if (length != (bLength = bBuffer.length())) {
 		System.err.println("a and b lengths differ");
-		return false;
+		if (length > bLength) {
+			length = bLength;
+		}
+		result = false;
 	}
 	for (int i = 0; i < length; i++)
 		if (aBuffer.charAt(i) != bBuffer.charAt(i)) {
@@ -491,15 +509,16 @@ private static boolean equals(String a, String b) {
 					afterStart = length - 1;
 			}
 			System.err.println("a and b differ at rank: " + i 
-					+ " a: ..." + aBuffer.substring(beforeStart, beforeEnd) 
+					+ "\na: ..." + aBuffer.substring(beforeStart, beforeEnd) 
 						+ "<" + aBuffer.charAt(i) + ">"
 						+ aBuffer.substring(afterStart, afterEnd) + "..." 
-					+ " b: ..." + bBuffer.substring(beforeStart, beforeEnd) 
+					+ "\nb: ..." + bBuffer.substring(beforeStart, beforeEnd) 
 						+ "<" + bBuffer.charAt(i) + ">"
 						+ bBuffer.substring(afterStart, afterEnd) + "..."); 
 			return false;
 		}
-	return true;
+	return result; // may be false if one of the strings equals the beginning
+	               // of the other one, which is longer anyway
 }
 
 public void test001() {
