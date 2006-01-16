@@ -50,7 +50,7 @@ public class ParticipantBuildTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
 			);
@@ -82,12 +82,12 @@ public class ParticipantBuildTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"@interface TestAnnotation {}\n" + //$NON-NLS-1$
 			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "", "Other", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class Other { MissingAnnotation m; }\n" //$NON-NLS-1$
 			);
@@ -134,7 +134,7 @@ public class ParticipantBuildTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"@GeneratedAnnotation\n" + //$NON-NLS-1$
 			"public class Test {}\n" //$NON-NLS-1$
@@ -152,6 +152,45 @@ public class ParticipantBuildTests extends Tests {
 				if (genedType.exists()) return;
 				try {
 					genedType.create(new ByteArrayInputStream("@interface GeneratedAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+				result.recordAddedGeneratedFiles(new IFile[] {genedType});
+			}
+		};
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	public void testProcessAnnotationReferences2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"@GeneratedAnnotation\n" + //$NON-NLS-1$
+			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
+			);
+
+		env.addClass(root, "", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
+			"@interface GeneratedAnnotation{}\n"
+			);
+
+		// install compilationParticipant
+		new BuildTestParticipant() {
+			public boolean isAnnotationProcessor() {
+				return true;
+			}
+			public void processAnnotations(ICompilationParticipantResult[] files) {
+				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
+				ICompilationParticipantResult result = files[0];
+				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
+				if (genedType.exists()) return;
+				try {
+					genedType.create(new ByteArrayInputStream("class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
