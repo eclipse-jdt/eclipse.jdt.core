@@ -98,6 +98,10 @@ private void init() {
 		this.value = NoValue;
 }
 
+char[] internalName() {
+	return this.internalPair == null ? null : this.internalPair.getName();
+}
+
 public boolean isDefault() {
 	return false;
 }

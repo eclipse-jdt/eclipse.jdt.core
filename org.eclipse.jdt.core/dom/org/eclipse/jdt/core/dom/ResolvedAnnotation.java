@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.util.*;
 
 /**
  * Internal class
@@ -62,20 +59,15 @@ class ResolvedAnnotation implements IResolvedAnnotation {
 		if (declaredLength == methodLength)
 			return pairs;
 
-		// handle case of more methods than declared members
-		Object[] names = new Object[declaredLength];
+		HashtableOfObject table = new HashtableOfObject(declaredLength);
 		for (int i = 0; i < declaredLength; i++)
-			names[i] = pairs[i].getName();
-		Comparator comparator = new Comparator() {
-			public int compare(Object arg0, Object arg1) {
-				return CharOperation.compareWith((char[]) arg0, (char[]) arg1);
-			}
-		};
-		Arrays.sort(names, comparator);
+			table.put(((ResolvedMemberValuePair) pairs[i]).internalName(), pairs[i]);
+
+		// handle case of more methods than declared members
 		IResolvedMemberValuePair[] allPairs = new  IResolvedMemberValuePair[methodLength];
 		for (int i = 0; i < methodLength; i++) {
-			int index = Arrays.binarySearch(names, methods[i].selector, comparator);
-			allPairs[i] = index == -1 ? new ResolvedDefaultValuePair(methods[i], this.bindingResolver) : pairs[index];
+			Object pair = table.get(methods[i].selector);
+			allPairs[i] = pair == null ? new ResolvedDefaultValuePair(methods[i], this.bindingResolver) : (IResolvedMemberValuePair) pair;
 		}
 		return allPairs;
 	}
