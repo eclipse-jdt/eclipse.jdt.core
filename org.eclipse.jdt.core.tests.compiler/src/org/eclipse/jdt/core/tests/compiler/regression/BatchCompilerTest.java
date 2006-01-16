@@ -412,10 +412,22 @@ public static Test suite() {
 
 	/**
 	 * Normalizer instance that replaces occurrences of OUTPUT_DIR with 
-	 * OUTPUT_DIR_PLACEHOLDER.
+	 * OUTPUT_DIR_PLACEHOLDER and changes file separator to / if the 
+	 * platform file separator is different from /.
 	 */
-	private static Normalizer outputDirNormalizer = new StringNormalizer(null,
-			OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+	private static Normalizer outputDirNormalizer;
+	static {
+		if (File.separatorChar == '/') {
+			outputDirNormalizer = new StringNormalizer(
+					null, OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+		}
+		else {
+			outputDirNormalizer = new StringNormalizer(
+					new StringNormalizer(
+							null, File.separator, "/"),
+					OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+		}
+	}
 
 	/**
 	 * Normalizer instance for non XML log files. 
@@ -1073,7 +1085,7 @@ public void _test012(){
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"", 
 				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
 				" (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
@@ -1122,7 +1134,7 @@ public void _test012(){
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"", 
 				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
 				" (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
@@ -1502,19 +1514,19 @@ public void test027(){
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "", 
         "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
         " (at line 5)\n" + 
         "	Warn warn;\n" + 
         "	^^^^\n" + 
         "Discouraged access: Warn\n" + 
         "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
         " (at line 6)\n" + 
         "	KO ko;\n" + 
         "	^^\n" + 
         "Access restriction: KO\n" + 
         "----------\n" + 
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
         " (at line 7)\n" + 
         "	Zork z;\n" + 
         "	^^^^\n" + 
@@ -1754,31 +1766,31 @@ public void test032(){
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
 	        "----------\n" + 
-	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
 	        " (at line 25)\n" + 
 	        "	m1.put(p1, l1);\n" + 
 	        "	           ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
 	        "----------\n" + 
-	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
 	        " (at line 27)\n" + 
 	        "	return l1;\n" + 
 	        "	       ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
 	        "----------\n" + 
-	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
 	        " (at line 33)\n" + 
 	        "	m2.put((XX<?, XY>) p1, p2);\n" + 
 	        "	       ^^^^^^^^^^^^^^\n" + 
 	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
 	        "----------\n" + 
-	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
 	        " (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                ^^\n" + 
 	        "The local variable l1 is never read\n" + 
 	        "----------\n" + 
-	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
 	        " (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
@@ -1924,31 +1936,31 @@ public void test032(){
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
         "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
         " (at line 25)\n" + 
         "	m1.put(p1, l1);\n" + 
         "	           ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
         "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
         " (at line 27)\n" + 
         "	return l1;\n" + 
         "	       ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
         "----------\n" + 
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
         " (at line 33)\n" + 
         "	m2.put((XX<?, XY>) p1, p2);\n" + 
         "	       ^^^^^^^^^^^^^^\n" + 
         "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
         " (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                ^^\n" + 
         "The local variable l1 is never read\n" + 
         "----------\n" + 
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java\n" + 
         " (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
@@ -2072,15 +2084,14 @@ public void test036(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + 
-			"src2" + File.separator + "Y.java\n" + 
-		" (at line 2)\n" + 
-		"	public class Y extends p.X {\n" + 
-		"	                       ^^^\n" + 
-		"Discouraged access: X\n" + 
-		"----------\n" + 
-		"1 problem (1 warning)",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
+        " (at line 2)\n" + 
+        "	public class Y extends p.X {\n" + 
+        "	                       ^^^\n" + 
+        "Discouraged access: X\n" + 
+        "----------\n" + 
+        "1 problem (1 warning)",
         false);
 }
 
@@ -2103,20 +2114,19 @@ public void test037() {
 		+ " -proceedOnError"
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
-		File.separator + "X.java\n" +
-		" (at line 3)\n" +
-		"	i =  0; // warning\n" +
-		"	^\n" +
-		"The parameter i should not be assigned\n" +
-		"----------\n" +
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" +  File.separator + "X.java\n" +
-		" (at line 4)\n" +
-		"	j =  0; // error\n" +
-		"	^\n" +
-		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		" (at line 3)\n" + 
+		"	i =  0; // warning\n" + 
+		"	^\n" + 
+		"The parameter i should not be assigned\n" + 
+		"----------\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		" (at line 4)\n" + 
+		"	j =  0; // error\n" + 
+		"	^\n" + 
+		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" + 
+		"----------\n" + 
 		"2 problems (1 error, 1 warning)",
 		true);
 }
@@ -2156,33 +2166,25 @@ public void test039(){
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
 		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
-		File.separator + "src2" +
-		File.separator + "Y.java\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 3)\n" + 
 		"	X x1;\n" + 
 		"	^\n" + 
 		"Discouraged access: X<T>\n" + 
 		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
-		File.separator + "src2" +
-		File.separator + "Y.java\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	^\n" + 
 		"Discouraged access: X<String>\n" + 
 		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
-		File.separator + "src2" +
-		File.separator + "Y.java\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	               ^^^^^^^^^^^^^^^\n" + 
 		"Discouraged access: X<String>()\n" + 
 		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
-		File.separator + "src2" +
-		File.separator + "Y.java\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	                   ^\n" + 
