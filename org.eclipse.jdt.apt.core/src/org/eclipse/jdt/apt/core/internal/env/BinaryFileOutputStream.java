@@ -105,8 +105,14 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			}
 		}
 		catch (CoreException ce) {
-			AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
-			throw new IOException(ce.getMessage());
+			if (_file.exists()) {
+				// Do nothing. This is a case-insensitive file system mismatch,
+				// and the underlying platform has saved the contents already.
+			}
+			else {
+				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
+				throw new IOException(ce.getMessage());
+			}
 		}
 	}
 
