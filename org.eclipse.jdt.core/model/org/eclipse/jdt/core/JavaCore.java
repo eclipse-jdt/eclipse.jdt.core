@@ -1684,7 +1684,7 @@ public final class JavaCore extends Plugin {
 	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6" }
 	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
@@ -1694,16 +1694,18 @@ public final class JavaCore extends Plugin {
 	 *   Source level 1.5 is necessary to enable generics, autoboxing, covariance, annotations, enumerations
 	 *   enhanced for loop, static imports and varargs. Once toggled, the target VM level should be set to "1.5"
 	 *   and the compliance mode should be "1.5".
+	 *   Source level 1.6 is necessary to enable the computation of stack map tables. Once toggled, the target
+	 *   VM level should be set to "1.6" and the compliance mode should be "1.6".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6" }
 	 *     - default:           "1.3"
 	 * 
 	 * COMPILER / Defining Target Java Platform
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
-	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too. Similarily, "1.5" target require
-	 *    to toggle compliance mode to "1.5".
+	 *    Note that "1.4" target requires to toggle compliance mode to "1.4", "1.5" target requires
+	 *    to toggle compliance mode to "1.5" and "1.6" target requires to toggle compliance mode to "1.6".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5", "1.6" }
 	 *     - default:           "1.2"
 	 *
 	 * COMPILER / Generating Local Variable Debug Attribute
