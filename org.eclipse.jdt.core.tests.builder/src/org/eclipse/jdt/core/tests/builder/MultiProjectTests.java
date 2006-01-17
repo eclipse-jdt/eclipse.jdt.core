@@ -30,7 +30,7 @@ public class MultiProjectTests extends Tests {
 	}
 	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
 			suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule1"));
 			return suite;
