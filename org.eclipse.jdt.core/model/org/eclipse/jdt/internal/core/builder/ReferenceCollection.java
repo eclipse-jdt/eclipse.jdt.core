@@ -49,6 +49,7 @@ void addDependencies(String[] typeNameDependencies) {
 
 				qualifiedTypeName = CharOperation.subarray(qualifiedTypeName, 0, qualifiedTypeName.length - 1);
 				char[][][] temp = internQualifiedNames(new char[][][] {qualifiedTypeName});
+				if (temp == EmptyQualifiedNames) break; // qualifiedTypeName is a well known name
 				qualifiedTypeName = temp[0];
 			}		
 		}
