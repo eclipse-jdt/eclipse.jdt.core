@@ -52,11 +52,12 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added API <code>IClasspathAttribute#OPTIONAL</code> for the name of the optional attribute. 
-     The possible values for this attribute are <code>"true"</code> or <code>"false"</code>. 
+<li>Added support for optional classpath entries. When optional, a missing entry is not complained
+     against, and simply ignored.
+     In order to be optional, an entry must carry an <code>IClasspathAttribute#OPTIONAL</code> 
+     extra attribute. The possible values for this attribute are <code>"true"</code> or <code>"false"</code>. 
 	 When not present, <code>"false"</code> is assumed. If the value of this attribute is <code>"true"</code>, 
-	 the classpath entry is optional. If the underlying resource or jar file doesn't exist, no error is reported 
-	 and the classpath entry is ignored.</li>
+	 the classpath entry is optional. </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
