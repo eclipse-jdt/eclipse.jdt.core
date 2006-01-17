@@ -27,13 +27,14 @@ public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	}
 	
 	private static int toProblemId(int kind) {
-		switch (kind) {
+		boolean ignoreIfBetter = (kind & IAccessRule.IGNORE_IF_BETTER) != 0;
+		switch (kind & ~IAccessRule.IGNORE_IF_BETTER) {
 			case K_NON_ACCESSIBLE:
-				return IProblem.ForbiddenReference;
+				return ignoreIfBetter ? IProblem.ForbiddenReference | AccessRule.IgnoreIfBetter : IProblem.ForbiddenReference;
 			case K_DISCOURAGED:
-				return IProblem.DiscouragedReference;
+				return ignoreIfBetter ? IProblem.DiscouragedReference | AccessRule.IgnoreIfBetter : IProblem.DiscouragedReference;
 			default:
-				return -1;
+				return ignoreIfBetter ? AccessRule.IgnoreIfBetter : 0;
 		}
 	}
 
@@ -42,7 +43,7 @@ public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	}
 
 	public int getKind() {
-		switch (this.problemId) {
+		switch (getProblemId()) {
 			case IProblem.ForbiddenReference:
 				return K_NON_ACCESSIBLE;
 			case IProblem.DiscouragedReference:

@@ -52,6 +52,9 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>IAccessRule#IGNORE_IF_BETTER</code> that indicates that the rule should be ignored if a better rule is found.
+     E.g. if a rule <code>K_NON_ACCESSIBLE | IGNORE_IF_BETTER</code> matches type p.X and a rule <code>K_DISCOURAGED</code> 
+     that also matches p.X is found after the first one, then p.X will be reported as discouraged.</li>
 <li>Added the support to compute the stack map frames (requires a 6.0 VM to run). See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=109980">109980</a> for details.
 <br>This is still experimental.</li>
 <li>Added API for the configuration of the Import Rewrite: <code>ImportRewrite#setImportOrder()</code>, <code>ImportRewrite#setOnDemandImportThreshold()</code> and
@@ -60,7 +63,9 @@ JDT.UI</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122316">122316</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98127">98127</a>
+Access restrictions started showing up after switching to bundle
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122316">122316</a>
 Problems using new Compilation Participant extension point
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=123893">123893</a>
 CCE in ResolvedAnnotation

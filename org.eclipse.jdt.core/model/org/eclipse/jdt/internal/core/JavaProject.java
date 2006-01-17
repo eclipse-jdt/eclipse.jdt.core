@@ -1059,16 +1059,17 @@ public class JavaProject
 
 				// lookup type
 				NameLookup lookup = newNameLookup(owner);
-				IType type = lookup.findType(
+				NameLookup.Answer answer = lookup.findType(
 					qualifiedName,
 					false,
 					NameLookup.ACCEPT_ALL,
 					true/* consider secondary types */,
 					false/* do NOT wait for indexes */,
+					false/*don't check restrictions*/,
 					null);
 
-				if (type != null) {
-					return type.getParent();
+				if (answer != null) {
+					return answer.type.getParent();
 				} else {
 					return null;
 				}
@@ -1183,26 +1184,28 @@ public class JavaProject
 	 * Internal findType with instanciated name lookup
 	 */
 	IType findType(String fullyQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
-		IType type = lookup.findType(
+		NameLookup.Answer answer = lookup.findType(
 			fullyQualifiedName,
 			false,
 			NameLookup.ACCEPT_ALL,
 			considerSecondaryTypes,
 			true, /* wait for indexes (only if consider secondary types)*/
+			false/*don't check restrictions*/,
 			progressMonitor);
-		if (type == null) {
+		if (answer == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
 			if (lastDot == -1) return null;
-			type = findType(fullyQualifiedName.substring(0, lastDot), lookup, considerSecondaryTypes, progressMonitor);
+			IType type = findType(fullyQualifiedName.substring(0, lastDot), lookup, considerSecondaryTypes, progressMonitor);
 			if (type != null) {
 				type = type.getType(fullyQualifiedName.substring(lastDot+1));
 				if (!type.exists()) {
 					return null;
 				}
 			}
+			return type;
 		}
-		return type;
+		return answer.type;
 	}
 
 	/**
@@ -1245,14 +1248,16 @@ public class JavaProject
 	 * Internal findType with instanciated name lookup
 	 */
 	IType findType(String packageName, String typeQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
-		return lookup.findType(
+		NameLookup.Answer answer = lookup.findType(
 			typeQualifiedName, 
 			packageName,
 			false,
 			NameLookup.ACCEPT_ALL,
 			considerSecondaryTypes,
 			true, // wait for indexes (in case we need to consider secondary types)
+			false/*don't check restrictions*/,
 			progressMonitor);
+		return answer == null ? null : answer.type;
 	}	
 	
 	/**

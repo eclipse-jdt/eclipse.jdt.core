@@ -13,17 +13,10 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -81,43 +74,25 @@ public class SearchableEnvironment
 	protected NameEnvironmentAnswer find(String typeName, String packageName) {
 		if (packageName == null)
 			packageName = IPackageFragment.DEFAULT_PACKAGE_NAME;
-		IType type =
+		NameLookup.Answer answer =
 			this.nameLookup.findType(
 				typeName,
 				packageName,
-				false,
-				NameLookup.ACCEPT_ALL);
-		if (type != null) {
-			boolean isBinary = type instanceof BinaryType;
-			
-			// determine associated access restriction
-			AccessRestriction accessRestriction = null;
-			
-			if (this.checkAccessRestrictions && (isBinary || !type.getJavaProject().equals(this.project))) {
-				PackageFragmentRoot root = (PackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-				ClasspathEntry entry = (ClasspathEntry) this.nameLookup.rootToResolvedEntries.get(root);
-				if (entry != null) { // reverse map always contains resolved CP entry
-					AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
-					if (accessRuleSet != null) {
-						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-						char[] classFileChars = type.getElementName().toCharArray();
-						accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'));
-					}
-				}
-			}
-			
+				false/*exact match*/,
+				NameLookup.ACCEPT_ALL,
+				this.checkAccessRestrictions);
+		if (answer != null) {
 			// construct name env answer
-			if (isBinary) { // BinaryType
+			if (answer.type instanceof BinaryType) { // BinaryType
 				try {
-					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) type).getElementInfo(), accessRestriction);
+					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) answer.type).getElementInfo(), answer.restriction);
 				} catch (JavaModelException npe) {
 					return null;
 				}
 			} else { //SourceType
 				try {
 					// retrieve the requested type
-					SourceTypeElementInfo sourceType = (SourceTypeElementInfo)((SourceType)type).getElementInfo();
+					SourceTypeElementInfo sourceType = (SourceTypeElementInfo)((SourceType) answer.type).getElementInfo();
 					ISourceType topLevelType = sourceType;
 					while (topLevelType.getEnclosingType() != null) {
 						topLevelType = topLevelType.getEnclosingType();
@@ -135,7 +110,7 @@ public class SearchableEnvironment
 						if (!otherType.equals(topLevelType) && index < length) // check that the index is in bounds (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62861)
 							sourceTypes[index++] = otherType;
 					}
-					return new NameEnvironmentAnswer(sourceTypes, accessRestriction);
+					return new NameEnvironmentAnswer(sourceTypes, answer.restriction);
 				} catch (JavaModelException npe) {
 					return null;
 				}

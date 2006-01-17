@@ -11,21 +11,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.*;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IParent;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -295,12 +285,17 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 	for (int j = 0; j < ruleCount; j++) {
 		String rule = tokenizer.nextToken();
 		int kind;
+		boolean ignoreIfBetter = false;
 		switch (rule.charAt(0)) {
 			case '+':
 				kind = IAccessRule.K_ACCESSIBLE;
 				break;
 			case '~':
 				kind = IAccessRule.K_DISCOURAGED;
+				break;
+			case '?':
+				kind = IAccessRule.K_NON_ACCESSIBLE;
+				ignoreIfBetter = true;
 				break;
 			case '-':
 			default:		// TODO (maxime) consider forbidding unspecified rule start; this one tolerates
@@ -309,7 +304,7 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 				break;
 		}
 		nonAccessibleRules++;
-		accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), kind);
+		accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), ignoreIfBetter ? kind | IAccessRule.IGNORE_IF_BETTER : kind);
 	}
 
 	IPath folderPath = new Path(src);

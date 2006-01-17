@@ -79,7 +79,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testClasspathCrossProject"};
+//	TESTS_NAMES = new String[] {"testEncodeDecodeEntry05"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -2022,6 +2022,29 @@ public void testEncodeDecodeEntry04() {
 			new Path("/P/src.zip"),
 			new Path("root"),
 			new IAccessRule[] {JavaCore.newAccessRule(new Path("**/A*.java"), IAccessRule.K_ACCESSIBLE)},
+			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attr1", "val1")},
+			true)
+	);
+}
+/*
+ * Ensures that a library classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry05() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry exported=\"true\" sourcepath=\"src.zip\" kind=\"lib\" rootpath=\"root\" path=\"lib.jar\">\n" + 
+		"	<attributes>\n" + 
+		"		<attribute value=\"val1\" name=\"attr1\"/>\n" + 
+		"	</attributes>\n" + 
+		"	<accessrules>\n" + 
+		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\" ignoreifbetter=\"true\"/>\n" + 
+		"	</accessrules>\n" + 
+		"</classpathentry>\n",
+		JavaCore.newLibraryEntry(
+			new Path("/P/lib.jar"),
+			new Path("/P/src.zip"),
+			new Path("root"),
+			new IAccessRule[] {JavaCore.newAccessRule(new Path("**/A*.java"), IAccessRule.K_ACCESSIBLE | IAccessRule.IGNORE_IF_BETTER)},
 			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attr1", "val1")},
 			true)
 	);

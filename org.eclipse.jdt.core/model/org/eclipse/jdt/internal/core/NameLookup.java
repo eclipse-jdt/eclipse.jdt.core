@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -52,6 +54,29 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  */
 public class NameLookup implements SuffixConstants {
+	public static class Answer {
+		public IType type;
+		AccessRestriction restriction;
+		Answer(IType type, AccessRestriction restriction) {
+			this.type = type;
+			this.restriction = restriction;
+		}
+		public boolean ignoreIfBetter() {
+			return this.restriction != null && this.restriction.ignoreIfBetter();
+		}
+		/*
+		 * Returns whether this answer is better than the other awswer.
+		 * (accessible is better than discouraged, which is better than
+		 * non-accessible)
+		 */
+		public boolean isBetter(Answer otherAnswer) {
+			if (otherAnswer == null) return true;
+			if (this.restriction == null) return true;
+			return otherAnswer.restriction != null 
+				&& this.restriction.getProblemId() < otherAnswer.restriction.getProblemId();
+		}
+	}
+
 	// TODO (jerome) suppress the accept flags (qualified name is sufficient to find a type)
 	/**
 	 * Accept flag for specifying classes.
@@ -538,20 +563,29 @@ public class NameLookup implements SuffixConstants {
 	 * It means that secondary types may be not found under certain circumstances...
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118789"
 	 */
-	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags) {
+	public Answer findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean checkRestrictions) {
 		return findType(typeName,
 			packageName,
 			partialMatch,
 			acceptFlags,
 			true/* consider secondary types */,
 			false/* do NOT wait for indexes */,
+			checkRestrictions,
 			null);
 	}
 
 	/**
 	 * Find type. Considering secondary types and waiting for indexes depends on given corresponding parameters.
 	 */
-	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
+	public Answer findType(
+			String typeName, 
+			String packageName, 
+			boolean partialMatch, 
+			int acceptFlags, 
+			boolean considerSecondaryTypes, 
+			boolean waitForIndexes, 
+			boolean checkRestrictions,
+			IProgressMonitor monitor) {
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
@@ -568,16 +602,30 @@ public class NameLookup implements SuffixConstants {
 		IType type = null;
 		int length= packages.length;
 		HashSet projects = null;
+		Answer suggestedAnswer = null;
 		for (int i= 0; i < length; i++) {
 			type = findType(typeName, packages[i], partialMatch, acceptFlags);
 			if (type != null) {
-				return type;
+				AccessRestriction accessRestriction = null;
+				if (checkRestrictions) {
+					accessRestriction = getViolatedRestriction(typeName, packageName, type, accessRestriction);
+				}
+				Answer answer = new Answer(type, accessRestriction);
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
 			}
 			if (considerSecondaryTypes) {
 				if (projects == null) projects = new HashSet(3);
 				projects.add(packages[i].getJavaProject());
 			}
 		}
+		if (suggestedAnswer != null)
+			// no better answer was found
+			return suggestedAnswer;
 
 		// If type was not found, try to find it as secondary in source folders
 		if (considerSecondaryTypes && projects != null) {
@@ -586,7 +634,22 @@ public class NameLookup implements SuffixConstants {
 				type = findSecondaryType(packageName, typeName, (IJavaProject) allProjects.next(), waitForIndexes, monitor);
 			}
 		}
-		return type;
+		return type == null ? null : new Answer(type, null);
+	}
+
+	private AccessRestriction getViolatedRestriction(String typeName, String packageName, IType type, AccessRestriction accessRestriction) {
+		PackageFragmentRoot root = (PackageFragmentRoot) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		ClasspathEntry entry = (ClasspathEntry) this.rootToResolvedEntries.get(root);
+		if (entry != null) { // reverse map always contains resolved CP entry
+			AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
+			if (accessRuleSet != null) {
+				// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
+				char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+				char[] typeChars = typeName.toCharArray();
+				accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'));
+			}
+		}
+		return accessRestriction;
 	}
 
 	/**
@@ -665,9 +728,14 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
-		return findType(name, partialMatch, acceptFlags, true/*consider secondary types*/, true/*wait for indexes*/, null);
+		NameLookup.Answer answer = findType(name, partialMatch, acceptFlags, false/*don't check restrictions*/);
+		return answer == null ? null : answer.type;
 	}
-	public IType findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, IProgressMonitor monitor) {
+		
+	public Answer findType(String name, boolean partialMatch, int acceptFlags, boolean checkRestrictions) {
+		return findType(name, partialMatch, acceptFlags, true/*consider secondary types*/, true/*wait for indexes*/, checkRestrictions, null);
+	}
+	public Answer findType(String name, boolean partialMatch, int acceptFlags, boolean considerSecondaryTypes, boolean waitForIndexes, boolean checkRestrictions, IProgressMonitor monitor) {
 		int index= name.lastIndexOf('.');
 		String className= null, packageName= null;
 		if (index == -1) {
@@ -677,7 +745,7 @@ public class NameLookup implements SuffixConstants {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, monitor);
+		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, checkRestrictions, monitor);
 	}
 
 	private IType getMemberType(IType type, String name, int dot) {
@@ -1101,6 +1169,5 @@ public class NameLookup implements SuffixConstants {
 		}
 		return false;
 	}
-		
 	
 }

@@ -2127,10 +2127,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		private IAccessRule loadAccessRule() throws IOException {
-			int kind = loadInt();
+			int problemId = loadInt();
 			IPath pattern = loadPath();
-
-			return new ClasspathAccessRule(pattern, kind);
+			return new ClasspathAccessRule(pattern.toString().toCharArray(), problemId);
 		}
 
 		private IAccessRule[] loadAccessRules() throws IOException {
@@ -2675,9 +2674,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
-			if (VARIABLES_AND_CONTAINERS_FILE_VERSION == 2)
+			if (VARIABLES_AND_CONTAINERS_FILE_VERSION != 1)
 				new VariablesAndContainersSaveHelper(out).save();
-			else if (VARIABLES_AND_CONTAINERS_FILE_VERSION == 1) {
+			else {
 				// old code retained for performance comparisons
 			
 			// variables
@@ -2772,8 +2771,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			saveVariables(JavaModelManager.this.variables);
 		}
 
-		private void saveAccessRule(IAccessRule rule) throws IOException {
-			saveInt(rule.getKind());
+		private void saveAccessRule(ClasspathAccessRule rule) throws IOException {
+			saveInt(rule.problemId);
 			savePath(rule.getPattern());
 		}
 
@@ -2782,7 +2781,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			saveInt(count);
 			for (int i = 0; i < count; ++i)
-				saveAccessRule(rules[i]);
+				saveAccessRule((ClasspathAccessRule) rules[i]);
 		}
 
 		private void saveAttribute(IClasspathAttribute attribute)

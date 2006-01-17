@@ -85,4 +85,20 @@ public class NameEnvironmentAnswer {
 	public boolean isSourceType() {
 		return this.sourceTypes != null;
 	}
+	
+	public boolean ignoreIfBetter() {
+		return this.accessRestriction != null && this.accessRestriction.ignoreIfBetter();
+	}
+	
+	/*
+	 * Returns whether this answer is better than the other awswer.
+	 * (accessible is better than discouraged, which is better than
+	 * non-accessible)
+	 */
+	public boolean isBetter(NameEnvironmentAnswer otherAnswer) {
+		if (otherAnswer == null) return true;
+		if (this.accessRestriction == null) return true;
+		return otherAnswer.accessRestriction != null 
+			&& this.accessRestriction.getProblemId() < otherAnswer.accessRestriction.getProblemId();
+	}
 }

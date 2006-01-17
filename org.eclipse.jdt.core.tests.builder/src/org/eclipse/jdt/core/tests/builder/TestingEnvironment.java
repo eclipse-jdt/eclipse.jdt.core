@@ -192,6 +192,12 @@ public class TestingEnvironment {
 		IAccessRule[] accessRules = ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles);
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, accessRules, true, new IClasspathAttribute[0], isExported));
 	}
+	
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, IPath rule, int ruleKind) throws JavaModelException {
+		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
+		IAccessRule accessRule = JavaCore.newAccessRule(rule, ruleKind);
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, new IAccessRule[] {accessRule}, true, new IClasspathAttribute[0], false));
+	}
 
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {
 		addExternalJars(projectPath, jars, false);

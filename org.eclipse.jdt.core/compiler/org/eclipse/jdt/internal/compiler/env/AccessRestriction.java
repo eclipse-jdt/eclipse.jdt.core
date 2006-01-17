@@ -41,7 +41,10 @@ public class AccessRestriction {
 	}
 
 	public int getProblemId() {
-		return this.accessRule.problemId;
+		return this.accessRule.getProblemId();
 	}
 
+	public boolean ignoreIfBetter() {
+		return this.accessRule.ignoreIfBetter();
+	}
 }

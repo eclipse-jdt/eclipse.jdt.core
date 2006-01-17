@@ -2521,7 +2521,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				switch (key) {
 				case '+':
 					accessRules[j++] = new AccessRule(pattern
-							.toCharArray(), -1);
+							.toCharArray(), 0);
 					break;
 				case '~':
 					accessRules[j++] = new AccessRule(pattern
@@ -2532,6 +2532,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					accessRules[j++] = new AccessRule(pattern
 							.toCharArray(),
 							IProblem.ForbiddenReference);
+					break;
+				case '?':
+					accessRules[j++] = new AccessRule(pattern
+							.toCharArray(),
+							IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
 					break;
 				default:
 					rulesOK = false;

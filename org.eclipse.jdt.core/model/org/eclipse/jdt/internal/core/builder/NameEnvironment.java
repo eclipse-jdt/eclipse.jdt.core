@@ -301,10 +301,21 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	}
 
 	// NOTE: the output folders are added at the beginning of the binaryLocations
+	NameEnvironmentAnswer suggestedAnswer = null;
 	for (int i = 0, l = binaryLocations.length; i < l; i++) {
 		NameEnvironmentAnswer answer = binaryLocations[i].findClass(binaryFileName, qPackageName, qBinaryFileName);
-		if (answer != null) return answer;
+		if (answer != null) {
+			if (!answer.ignoreIfBetter()) {
+				if (answer.isBetter(suggestedAnswer))
+					return answer;
+			} else if (answer.isBetter(suggestedAnswer))
+				// remember suggestion and keep looking
+				suggestedAnswer = answer;
+		}
 	}
+	if (suggestedAnswer != null)
+		// no better answer was found
+		return suggestedAnswer;
 	return null;
 }
 

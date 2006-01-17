@@ -2998,9 +2998,16 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Creates and returns a new access rule with the given file pattern and kind.
+	 * <p>
+	 * The rule kind is one of {@link IAccessRule#K_ACCESSIBLE}, {@link IAccessRule#K_DISCOURAGED}, 
+	 * or {@link IAccessRule#K_NON_ACCESSIBLE}, optionally combined with {@link IAccessRule#IGNORE_IF_BETTER},
+	 * e..g. <code>IAccessRule.K_NON_ACCESSIBLE | IAccessRule.IGNORE_IF_BETTER</code>.
+	 * </p>
 	 * 
 	 * @param filePattern the file pattern this access rule should match
-	 * @param kind one of IAccessRule#K_ACCESSIBLE, IAcccessRule#K_STRICTLY_NON_ACCESSIBLE, or IAcccessRule#K_LOOSELY_NON_ACCESSIBLE
+	 * @param kind one of {@link IAccessRule#K_ACCESSIBLE}, {@link IAccessRule#K_DISCOURAGED}, 
+	 *                     or {@link IAccessRule#K_NON_ACCESSIBLE}, optionally combined with 
+	 *                     {@link IAccessRule#IGNORE_IF_BETTER}
 	 * @return a new access rule
 	 * @since 3.1
 	 */

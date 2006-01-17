@@ -70,6 +70,16 @@ public interface IAccessRule {
 	int K_DISCOURAGED = 2;
 
 	/**
+	 * Flag indicating that the rule should be ignored if a better rule is found.
+	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X
+	 * and a rule K_DISCOURAGED that also matches p.X is found after the first 
+	 * one, then p.X will be reported as discouraged.
+	 * 
+	 * @since 3.2
+	 */
+	int IGNORE_IF_BETTER = 0x100;
+
+	/**
 	 * Returns the file pattern for this access rule.
 	 * 
 	 * @return the file pattern for this access rule
@@ -83,5 +93,16 @@ public interface IAccessRule {
 	 * @return the kind of this access rule
 	 */
 	int getKind();
+	
+	/**
+	 * Returns whether the rule should be ignored if a better rule is found.
+	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X
+	 * and a rule K_DISCOURAGED that also matches p.X is found after the first 
+	 * one, then p.X will be reported as discouraged.
+	 * 
+	 * @return whether other classpath entries with matching rules should be considered first
+	 * @since 3.2
+	 */
+	boolean ignoreIfBetter();
 
 }

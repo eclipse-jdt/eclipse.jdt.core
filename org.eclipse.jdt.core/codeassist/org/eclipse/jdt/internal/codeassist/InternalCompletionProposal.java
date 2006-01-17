@@ -94,12 +94,14 @@ public class InternalCompletionProposal {
 			}
 		} else { 
 			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
-			type = this.nameLookup.findType(new String(tName),
+			NameLookup.Answer answer = this.nameLookup.findType(new String(tName),
 				false,
 				NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES,
 				true/* consider secondary types */,
 				false/* do NOT wait for indexes */,
+				false/*don't check restrictions*/,
 				null);
+			type = answer == null ? null : answer.type;
 			if(type instanceof BinaryType){
 				this.completionEngine.typeCache.put(tName, type);
 			} else {

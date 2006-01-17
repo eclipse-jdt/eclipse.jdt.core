@@ -83,7 +83,7 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 		AccessRule accessRule = this.accessRules[i];
 		if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, 
 				true/*case sensitive*/, '/')) {
-			switch (accessRule.problemId) {
+			switch (accessRule.getProblemId()) {
 				case IProblem.ForbiddenReference:
 				case IProblem.DiscouragedReference:
 					return new AccessRestriction(accessRule, this.messageTemplates);

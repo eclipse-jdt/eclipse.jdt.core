@@ -17,6 +17,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -29,9 +30,9 @@ public class MultiProjectTests extends Tests {
 	}
 	
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
-			suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject"));
+			suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule1"));
 			return suite;
 		}
 		return new TestSuite(MultiProjectTests.class);
@@ -1072,6 +1073,102 @@ public class MultiProjectTests extends Tests {
 		
 		incrementalBuild();
 		expectingNoProblems();
+	}
+	
+	/*
+	 * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
+	 * on another classpath entry.
+	 * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+	 */
+	public void testIgnoreIfBetterNonAccessibleRule1() throws JavaModelException {
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+			//----------------------------
+			//         Project3
+			//----------------------------
+		IPath project3Path = env.addProject("Project3"); //$NON-NLS-1$
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project3Path, project1Path, new Path("**/p/"), IAccessRule.K_NON_ACCESSIBLE | IAccessRule.IGNORE_IF_BETTER);
+		env.addRequiredProject(project3Path, project2Path, new Path("**/p/A"), IAccessRule.K_ACCESSIBLE);
+		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
+		env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n" + //$NON-NLS-1$
+			"public class B extends p.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		fullBuild();
+		expectingNoProblems();
+	}
+	
+	/*
+	 * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
+	 * on another classpath entry.
+	 * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+	 */
+	public void testIgnoreIfBetterNonAccessibleRule2() throws JavaModelException {
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+			//----------------------------
+			//         Project3
+			//----------------------------
+		IPath project3Path = env.addProject("Project3"); //$NON-NLS-1$
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project3Path, project1Path, new Path("**/p/"), IAccessRule.K_NON_ACCESSIBLE | IAccessRule.IGNORE_IF_BETTER);
+		env.addRequiredProject(project3Path, project2Path, new Path("**/p/A"), IAccessRule.K_DISCOURAGED);
+		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
+		IPath b = env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n" + //$NON-NLS-1$
+			"public class B extends p.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		fullBuild();
+		expectingSpecificProblemFor(project3Path, new Problem("", "Discouraged access: The type A is not accessible due to restriction on required project Project2", b)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public void testMissingRequiredBinaries() throws JavaModelException {

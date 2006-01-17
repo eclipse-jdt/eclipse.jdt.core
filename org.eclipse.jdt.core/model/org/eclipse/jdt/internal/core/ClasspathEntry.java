@@ -76,6 +76,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public static final String TAG_ACCESSIBLE = "accessible"; //$NON-NLS-1$
 	public static final String TAG_NON_ACCESSIBLE = "nonaccessible"; //$NON-NLS-1$
 	public static final String TAG_DISCOURAGED = "discouraged"; //$NON-NLS-1$
+	public static final String TAG_IGNORE_IF_BETTER = "ignoreifbetter"; //$NON-NLS-1$
 	
 	/**
 	 * Describes the kind of classpath entry - one of 
@@ -335,7 +336,8 @@ public class ClasspathEntry implements IClasspathEntry {
 					kind = IAccessRule.K_DISCOURAGED;
 				else
 					continue;
-				result[index++] = new ClasspathAccessRule(new Path(pattern), kind);
+				boolean ignoreIfBetter = "true".equals(elementAccessRule.getAttribute(TAG_IGNORE_IF_BETTER)); //$NON-NLS-1$
+				result[index++] = new ClasspathAccessRule(new Path(pattern), ignoreIfBetter ? kind | IAccessRule.IGNORE_IF_BETTER : kind);
 			}
 		}
 		if (index != length)
@@ -557,7 +559,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		HashMap parameters = new HashMap();
 		parameters.put(TAG_PATTERN, new String(accessRule.pattern));
 		
-		switch (accessRule.problemId) {
+		switch (accessRule.getProblemId()) {
 			case IProblem.ForbiddenReference:
 				parameters.put(TAG_KIND, TAG_NON_ACCESSIBLE);
 				break;
@@ -568,6 +570,8 @@ public class ClasspathEntry implements IClasspathEntry {
 				parameters.put(TAG_KIND, TAG_ACCESSIBLE);
 				break;
 		}
+		if (accessRule.ignoreIfBetter())
+			parameters.put(TAG_IGNORE_IF_BETTER, "true"); //$NON-NLS-1$
 		
 		writer.printTag(TAG_ACCESS_RULE, parameters, indent, newLine, true);
 
@@ -1075,6 +1079,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 	}
 
+	/*
+	 * Backward compatibility: only accessible and non-accessible files are suported.
+	 */
 	public static IAccessRule[] getAccessRules(IPath[] accessibleFiles, IPath[] nonAccessibleFiles) {
 		int accessibleFilesLength = accessibleFiles == null ? 0 : accessibleFiles.length;
 		int nonAccessibleFilesLength = nonAccessibleFiles == null ? 0 : nonAccessibleFiles.length;

@@ -94,8 +94,8 @@ public ReconcilerTests(String name) {
 static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_PREFIX = "testBug36032";
-//	TESTS_NAMES = new String[] { "testBug118823b" };
+//	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
+//	TESTS_NAMES = new String[] { "testIgnoreIfBetterNonAccessibleRule1" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -1112,6 +1112,174 @@ public void testGrowImports() throws JavaModelException {
 		"	import p2[+]: {}\n" +
 		"	import p[-]: {}"
 	);
+}
+/*
+ * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
+ * on another classpath entry.
+ * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+ */
+public void testIgnoreIfBetterNonAccessibleRule1() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P1", "?**/internal/", "/P2", "+**/internal/Y"});
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P1");
+		createFolder("/P1/p/internal");
+		createFile(
+			"/P1/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		createJavaProject("P2");
+		createFolder("/P2/p/internal");
+		createFile(
+			"/P2/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+/*
+ * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
+ * on another classpath entry.
+ * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+ */
+public void testIgnoreIfBetterNonAccessibleRule2() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P1", "?**/internal/", "/P2", "~**/internal/Y"});
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P1");
+		createFolder("/P1/p/internal");
+		createFile(
+			"/P1/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		createJavaProject("P2");
+		createFolder("/P2/p/internal");
+		createFile(
+			"/P2/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Discouraged access: The type Y is not accessible due to restriction on required project P2\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+/*
+ * Ensures that a type matching a ignore-if-better non-accessible rule is further found non-accessible
+ * on another classpath entry.
+ * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+ */
+public void testIgnoreIfBetterNonAccessibleRule3() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P1", "?**/internal/", "/P2", "-**/internal/Y"});
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P1");
+		createFolder("/P1/p/internal");
+		createFile(
+			"/P1/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		createJavaProject("P2");
+		createFolder("/P2/p/internal");
+		createFile(
+			"/P2/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+/*
+ * Ensures that a type matching a ignore-if-better non-accessible rule is found non-accessible
+ * if no other classpath entry matches it.
+ * (regression test for bug 98127 Access restrictions started showing up after switching to bundle)
+ */
+public void testIgnoreIfBetterNonAccessibleRule4() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P1", "?**/internal/"});
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P1");
+		createFolder("/P1/p/internal");
+		createFile(
+			"/P1/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProjects(new String[] {"P1"});
+	}
 }
 /**
  * Introduces a syntax error in the modifiers of a method.

@@ -160,10 +160,18 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			? "" //$NON-NLS-1$
 			: qualifiedBinaryFileName.substring(0, qualifiedTypeName.length() - typeName.length - 1);
 	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
+	NameEnvironmentAnswer suggestedAnswer = null;
 	if (qualifiedPackageName == qp2) {
 		for (int i = 0, length = this.classpaths.length; i < length; i++) {
 			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
-			if (answer != null) return answer;
+			if (answer != null) {
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
+			}
 		}
 	} else {
 		String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
@@ -172,9 +180,19 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			NameEnvironmentAnswer answer = (p instanceof ClasspathJar)
 				? p.findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName)
 				: p.findClass(typeName, qp2, qb2);
-			if (answer != null) return answer;
+			if (answer != null) {
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
+			}
 		}
 	}
+	if (suggestedAnswer != null)
+		// no better answer was found
+		return suggestedAnswer;
 	return null;
 }
 public NameEnvironmentAnswer findType(char[][] compoundName) {
