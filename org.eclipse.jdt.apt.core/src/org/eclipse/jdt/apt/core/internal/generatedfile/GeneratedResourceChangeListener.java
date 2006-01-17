@@ -44,7 +44,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			try
 			{ 
 				if( AptPlugin.DEBUG )
-					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$ //$NON-NLS-2$
+					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$
 				final PreBuildVisitor visitor = new PreBuildVisitor();
 				event.getDelta().accept( visitor );
 				addGeneratedSrcFolderTo(visitor.getProjectsThatNeedGenSrcFolder());
@@ -72,13 +72,13 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		}
 	}
 	
-private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
+	private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
 		
 		for(IProject proj : projs ){
 			final IJavaProject javaProj = JavaCore.create(proj);
 			if(AptConfig.isEnabled(javaProj)){
 				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
-				gsfm.createGeneratedSourceFolder();
+				gsfm.ensureFolderExists();
 			}	
 		}
 
@@ -117,7 +117,7 @@ private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
 					final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager();
 					IFolder f = (IFolder) r;					
 					if ( gsfm.isGeneratedSourceFolder( f ) ){
-						gsfm.generatedSourceFolderDeleted();
+						gsfm.folderDeleted();
 						// all deletion occurs before any add (adding the generated source directory)
 						if( !_removedProjects.contains(project) ){
 							_addGenFolderTo.add(project);

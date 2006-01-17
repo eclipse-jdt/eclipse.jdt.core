@@ -41,38 +41,6 @@ public class AptProject {
 	}
 	
 	/**
-	 * This method should be called whenever project preferences are
-	 * changed by the user.  It is safe to call it on every change; 
-	 * irrelevant changes will be efficiently ignored.  This may cause
-	 * the classpath and generated source folder to change, so this
-	 * should <em>not</em> be called from a resource change listener,
-	 * preference change listener, or other context where resources 
-	 * may be locked.
-	 * @param key a preference key such as @see AptPreferenceConstants#APT_ENABLED
-	 * @param oldValue the old value, or null if unknown
-	 * @param newValue the new value, which will be ignored if it is null
-	 */
-	public void handlePreferenceChange(String key, String oldValue, String newValue) {
-		if (newValue == null) {
-			// Null is used to indicate this preference has
-			// been removed, as the project has been deleted.
-			// We do nothing.
-			return;
-		}
-		if (newValue.equals(oldValue)) {
-			// Nothing has changed
-			return;
-		}
-		
-		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {
-			_gsfm.changeFolderName(oldValue, newValue);
-		}
-		else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
-			_gsfm.setEnabled(Boolean.parseBoolean(newValue));
-		}
-	}
-
-	/**
 	 * This method should be called whenever compilation begins, to perform
 	 * initialization and verify configuration.
 	 */
@@ -80,6 +48,25 @@ public class AptProject {
 		_gfm.compilationStarted();
 	}
 	
+	/**
+	 * This method should be called whenever project preferences are
+	 * changed by the user.  This may cause the classpath and generated 
+	 * source folder to change, so this should <em>not</em> be called 
+	 * from a context where resources may be locked, e.g., within
+	 * certain resource change listeners.
+	 * @param key a preference key such as @see AptPreferenceConstants#APT_ENABLED
+	 * @param oldValue the old value, or null if unknown
+	 * @param newValue the new value, which will be ignored if it is null
+	 */
+	public void preferenceChanged(String key) {
+		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {
+			_gsfm.folderNamePreferenceChanged();
+		}
+		else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
+			_gsfm.enabledPreferenceChanged();
+		}
+	}
+
 	/**
 	 * Invoked whenever a project is cleaned.  This will remove any state kept about
 	 * generated files for the given project.  If the deleteFiles flag is specified, 
@@ -135,5 +122,5 @@ public class AptProject {
 	{
 		_gfm.clearAllMaps();
 	}
-	
+
 }

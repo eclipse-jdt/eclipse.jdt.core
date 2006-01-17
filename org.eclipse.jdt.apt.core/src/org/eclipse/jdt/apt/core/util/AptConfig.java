@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -641,18 +642,18 @@ public class AptConfig {
 	}
     
     public static String getGenSrcDir(IJavaProject jproject) {
-    	String genSrcDir = getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
-    	if (genSrcDir == null) {
-    		throw new IllegalStateException("Generated Source Directory was null."); //$NON-NLS-1$
-    	}
-    	return genSrcDir;
+    	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
     }
     
     public static void setGenSrcDir(IJavaProject jproject, String dirString) {
-    	if (dirString == null) {
-    		throw new IllegalArgumentException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
+    	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
+    		throw new IllegalArgumentException("Illegal name for generated source folder: " + dirString); //$NON-NLS-1$
     	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
+    }
+    
+    public static boolean validateGenSrcDir(IJavaProject jproject, String dirName) {
+    	return GeneratedSourceFolderManager.validate(jproject, dirName);
     }
 	
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
@@ -662,9 +663,9 @@ public class AptConfig {
 		// get old val as a String, so it can be null if setting doesn't exist yet
 		String oldValue = node.get(optionName, null);
 		node.putBoolean(optionName, value);
-		if (jproject != null) {
+		if (jproject != null && oldValue == null || (value != Boolean.parseBoolean(oldValue))) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.handlePreferenceChange(optionName, oldValue, Boolean.toString(value));
+			aproj.preferenceChanged(optionName);
 		}
 		flushPreference(optionName, node);
 	}
@@ -675,9 +676,9 @@ public class AptConfig {
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		String oldValue = node.get(optionName, null);
 		node.put(optionName, value);
-		if (jproject != null) {
+		if (jproject != null && !value.equals(oldValue)) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.handlePreferenceChange(optionName, oldValue, value);
+			aproj.preferenceChanged(optionName);
 		}
 		flushPreference(optionName, node);
 	}

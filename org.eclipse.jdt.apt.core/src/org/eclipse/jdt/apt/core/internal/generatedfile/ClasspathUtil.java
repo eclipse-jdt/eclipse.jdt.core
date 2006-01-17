@@ -61,7 +61,7 @@ public class ClasspathUtil {
 	 * @return
 	 * @throws JavaModelException
 	 */
-	public static boolean isProjectClassPathUpToDate(		
+	public static boolean doesClasspathContainEntry(		
 			IJavaProject jp,
 			IClasspathEntry[] cp,
 			IPath path, 
@@ -88,7 +88,7 @@ public class ClasspathUtil {
 	{			
 		IClasspathEntry[] cp = jp.getRawClasspath();
 		IPath workspaceRelativePath = folder.getFullPath();
-		boolean found = isProjectClassPathUpToDate(jp, cp, workspaceRelativePath, progressMonitor);
+		boolean found = doesClasspathContainEntry(jp, cp, workspaceRelativePath, progressMonitor);
 		
 		if( found ){			
 			IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
@@ -150,7 +150,7 @@ public class ClasspathUtil {
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
 		IPath path = folder.getFullPath();
-		boolean found = ClasspathUtil.isProjectClassPathUpToDate(jp, cp, path, progressMonitor);
+		boolean found = ClasspathUtil.doesClasspathContainEntry(jp, cp, path, progressMonitor);
 		
 		if (!found) 
 		{

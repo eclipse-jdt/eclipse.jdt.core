@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -326,13 +325,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			elements = getListElements();
 		}
 		saveProcessorOptions(elements);
-		fAptProject.handlePreferenceChange(
-				AptPreferenceConstants.APT_GENSRCDIR, fOriginalGenSrcDir, fGenSrcDirField.getText());
-		fAptProject.handlePreferenceChange(
-				AptPreferenceConstants.APT_ENABLED, 
-				Boolean.toString(fOriginalAptEnabled), 
-				Boolean.toString(fAptEnabledField.isSelected()));
 		super.saveSettings();
+		if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
+			fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
+		if (fOriginalAptEnabled != fAptEnabledField.isSelected())
+			fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 	}
 
 	/**
@@ -383,20 +380,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * @return
 	 */
 	private IStatus validateGenSrcDir() {
-		// TODO: this check should be delegated to a validation routine in apt.core.
 		String dirName = fGenSrcDirField.getText();
-		Path path = null;
-		if (dirName != null) {
-			path= new Path(dirName);
-		}
-		if (path == null || 
-				path.isAbsolute() || 
-				path.isEmpty() || 
-				!path.isValidPath(dirName) ||
-				!dirName.trim().equals(dirName)) {
+		if (!AptConfig.validateGenSrcDir(fJProj, dirName)) {
 			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genSrcDirMustBeValidRelativePath);
 		}
-		// TODO: how can we tell whether dirName points to a "normal" src directory?
 		return new StatusInfo();
 	}
 
