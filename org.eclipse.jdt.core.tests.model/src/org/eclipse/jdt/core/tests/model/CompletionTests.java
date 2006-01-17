@@ -11222,8 +11222,7 @@ public void testLabel6() throws JavaModelException {
 			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
-// TODO (olivier) reenable once 117740 is fixed
-public void _testParameterNames1() throws CoreException, IOException {
+public void testParameterNames1() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/Test.java",
