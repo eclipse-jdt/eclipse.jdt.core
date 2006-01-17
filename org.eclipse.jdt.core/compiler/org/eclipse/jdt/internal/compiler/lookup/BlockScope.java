@@ -443,7 +443,9 @@ public class BlockScope extends Scope {
 		invocationSite.setFieldIndex(1);
 		if (binding instanceof VariableBinding) return binding;
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordSimpleReference(compoundName[0]);
+		// in the problem case, we want to ensure we record the qualified dependency in case a type is added
+		// and we do not know that its package was also added (can happen with CompilationParticipants)
+		unitScope.recordQualifiedReference(compoundName);
 		if (!binding.isValidBinding()) return binding;
 
 		int length = compoundName.length;

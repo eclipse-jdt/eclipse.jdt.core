@@ -128,6 +128,50 @@ public class ParticipantBuildTests extends Tests {
 		expectingNoProblems();
 	}
 
+	public void testProcessAnnotationQualifiedReferences() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$
+			"@GeneratedAnnotation\n" + //$NON-NLS-1$
+			"public class Test { public void method() { p1.p2.GeneratedType.method(); } }\n" //$NON-NLS-1$
+			);
+
+		env.addClass(root, "p1", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$
+			"@interface GeneratedAnnotation{}\n" //$NON-NLS-1$
+			);
+
+		// install compilationParticipant
+		new BuildTestParticipant() {
+			public boolean isAnnotationProcessor() {
+				return true;
+			}
+			public void processAnnotations(ICompilationParticipantResult[] files) {
+				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
+				ICompilationParticipantResult result = files[0];
+				IFile genedType = result.getFile().getProject().getFile(new Path("src/p1/p2/GeneratedType.java")); //$NON-NLS-1$
+				if (genedType.exists()) return;
+				try {
+					IFolder folder = (IFolder) genedType.getParent();
+					if(!folder.exists())
+						folder.create(true, true, null);				
+					genedType.create(new ByteArrayInputStream("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes()), true, null); //$NON-NLS-1$
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+				result.recordAddedGeneratedFiles(new IFile[] {genedType});
+			}
+		};
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testProcessAnnotationReferences() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -152,50 +196,6 @@ public class ParticipantBuildTests extends Tests {
 				if (genedType.exists()) return;
 				try {
 					genedType.create(new ByteArrayInputStream("@interface GeneratedAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-				result.recordAddedGeneratedFiles(new IFile[] {genedType});
-			}
-		};
-
-		fullBuild(projectPath);
-		expectingNoProblems();
-	}
-
-	public void testProcessAnnotationReferences2() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
-		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-
-		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"@GeneratedAnnotation\n" + //$NON-NLS-1$
-			"public class Test extends p.GeneratedType {}\n" //$NON-NLS-1$
-			);
-
-		env.addClass(root, "", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
-			"@interface GeneratedAnnotation{}\n"
-			);
-
-		// install compilationParticipant
-		new BuildTestParticipant() {
-			public boolean isAnnotationProcessor() {
-				return true;
-			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
-				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
-				ICompilationParticipantResult result = files[0];
-				if (!"Test.java".equals(result.getFile().getName())) return; //$NON-NLS-1$
-				IFile genedType = null;
-				try {
-					IFolder genedFolder = result.getFile().getParent().getFolder(new Path("p"));
-					if (!genedFolder.exists())
-						genedFolder.create(true, false, null);
-					genedType = genedFolder.getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
-					if (genedType.exists()) return;
-					genedType.create(new ByteArrayInputStream("package p; public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
