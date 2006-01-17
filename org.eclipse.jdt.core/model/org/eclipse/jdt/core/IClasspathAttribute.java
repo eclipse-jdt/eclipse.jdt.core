@@ -57,6 +57,18 @@ public interface IClasspathAttribute {
 	String JAVADOC_LOCATION_ATTRIBUTE_NAME = "javadoc_location"; //$NON-NLS-1$
 	
 	/**
+	 * Constant for the name of the optional attribute. The possible values
+	 * for this attributes are <code>"true"</code> or <code>"false"</code>. 
+	 * When not present, <code>"false"</code> is assumed.
+	 * If the value of this attribute is <code>"true"</code>, the classpath entry
+	 * is optional. If the underlying resource or jar file doesn't exist, no error
+	 * is reported and the classpath entry is ignored.
+	 * 
+	 * @since 3.2
+	 */
+	String OPTIONAL = "optional"; //$NON-NLS-1$
+	
+	/**
 	 * Returns the name of this classpath attribute.
 	 * 
 	 * @return the name of this classpath attribute.

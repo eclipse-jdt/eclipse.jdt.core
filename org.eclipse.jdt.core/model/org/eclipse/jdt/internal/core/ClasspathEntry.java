@@ -1035,6 +1035,15 @@ public class ClasspathEntry implements IClasspathEntry {
 	public boolean isExported() {
 		return this.isExported;
 	}
+	
+	public boolean isOptional() {
+		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
+			IClasspathAttribute attribute = this.extraAttributes[i];
+			if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.

@@ -79,7 +79,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testEncodeDecodeEntry05"};
+//	TESTS_NAMES = new String[] {"testOptionalEntry3"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -3474,6 +3474,66 @@ public void testNestedSourceFolders() throws CoreException {
 			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that no problems are reported for an optional source entry with no corresponding folder.
+ */
+public void testOptionalEntry1() throws CoreException {
+	try {
+		IJavaProject javaProject = this.createJavaProject("A", new String[] {}, "");
+		IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true");
+		IClasspathEntry[] classpath = 
+			new IClasspathEntry[] {
+				JavaCore.newSourceEntry(new Path("/A/src"), new IPath[0], new IPath[0], new Path("/A/bin"), new IClasspathAttribute[] {attribute})
+			};
+		javaProject.setRawClasspath(classpath, null);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			javaProject);
+	} finally {
+		this.deleteProject("A");
+	}
+}
+/*
+ * Ensures that no problems are reported for an optional libary entry with no corresponding folder.
+ */
+public void testOptionalEntry2() throws CoreException {
+	try {
+		IJavaProject javaProject = this.createJavaProject("A", new String[] {}, "");
+		IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true");
+		IClasspathEntry[] classpath = 
+			new IClasspathEntry[] {
+				JavaCore.newLibraryEntry(new Path("/A/lib"), null, null, null, new IClasspathAttribute[] {attribute}, false)
+			};
+		javaProject.setRawClasspath(classpath, null);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			javaProject);
+	} finally {
+		this.deleteProject("A");
+	}
+}
+/*
+ * Ensures that no problems are reported for an optional project entry with no corresponding project.
+ */
+public void testOptionalEntry3() throws CoreException {
+	try {
+		IJavaProject javaProject = this.createJavaProject("A", new String[] {}, "");
+		IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true");
+		IClasspathEntry[] classpath = 
+			new IClasspathEntry[] {
+				JavaCore.newProjectEntry(new Path("/B"), null, false, new IClasspathAttribute[] {attribute}, false)
+			};
+		javaProject.setRawClasspath(classpath, null);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			javaProject);
+	} finally {
+		this.deleteProject("A");
 	}
 }
 /*

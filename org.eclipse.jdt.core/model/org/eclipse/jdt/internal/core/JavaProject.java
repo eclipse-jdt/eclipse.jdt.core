@@ -2117,7 +2117,11 @@ public class JavaProject
 			/* validation if needed */
 			if (generateMarkerOnError || !ignoreUnresolvedEntry) {
 				status = ClasspathEntry.validateClasspathEntry(this, rawEntry, false /*ignore src attach*/, false /*do not recurse in containers, done later to accumulate*/);
-				if (generateMarkerOnError && !status.isOK()) createClasspathProblemMarker(status);
+				if (generateMarkerOnError && !status.isOK()) {
+					if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) rawEntry).isOptional())
+						continue; // ignore this entry
+					createClasspathProblemMarker(status);
+				}
 			}
 
 			switch (rawEntry.getEntryKind()){
@@ -3083,7 +3087,11 @@ public class JavaProject
 		 if (classpath != null && output != null) {
 		 	for (int i = 0; i < classpath.length; i++) {
 				IJavaModelStatus status = ClasspathEntry.validateClasspathEntry(this, classpath[i], false/*src attach*/, true /*recurse in container*/);
-				if (!status.isOK()) this.createClasspathProblemMarker(status);					 
+				if (!status.isOK()) {
+					if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) classpath[i]).isOptional())
+						continue; // ignore this entry
+					this.createClasspathProblemMarker(status);	
+				}
 			 }
 			IJavaModelStatus status = ClasspathEntry.validateClasspath(this, classpath, output);
 			if (!status.isOK()) this.createClasspathProblemMarker(status);

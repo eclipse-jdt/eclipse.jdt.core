@@ -42,6 +42,27 @@
   </tr>
 </table>
 
+<a name="v_634"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M5 - ?th January 2006
+<br>Project org.eclipse.jdt.core v_634
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_634">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API <code>IClasspathAttribute#OPTIONAL</code> for the name of the optional attribute. 
+     The possible values for this attributes are <code>"true"</code> or <code>"false"</code>. 
+	 When not present, <code>"false"</code> is assumed. If the value of this attribute is <code>"true"</code>, 
+	 the classpath entry is optional. If the underlying resource or jar file doesn't exist, no error is reported 
+	 and the classpath entry is ignored.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124117">124117</a>
+Optional classpath entry
+
 <a name="v_633"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
