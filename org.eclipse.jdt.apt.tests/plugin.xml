@@ -3,7 +3,7 @@
 <plugin
    id="org.eclipse.jdt.apt.tests"
    name="APT Tests"
-   version="1.0.0"
+   version="3.2.0"
 
    class="org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin">
    <runtime>

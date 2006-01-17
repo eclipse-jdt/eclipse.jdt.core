@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JDT APT Core
 Bundle-SymbolicName: org.eclipse.jdt.apt.core; singleton:=true
-Bundle-Version: 3.1.1.apt02
+Bundle-Version: 3.2.0
 Bundle-ClassPath: aptcore.jar,
- tools.jar
+ mirrorapi.jar
 Bundle-Localization: plugin
 Export-Package:  com.sun.mirror.apt,
  com.sun.mirror.declaration,
