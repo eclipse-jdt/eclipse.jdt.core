@@ -787,7 +787,7 @@ public interface IType extends IMember {
 	boolean isMember() throws JavaModelException;
 	/**
 	 * Returns whether this type represents a resolved type.
-	 * If a type is resoved, its key contains resolved information.
+	 * If a type is resolved, its key contains resolved information.
 	 * 
 	 * @return whether this type represents a resolved type.
 	 * @since 3.1
