@@ -34,7 +34,7 @@ public class BasicBuildTests extends Tests {
 	public static Test suite() {
 		if (false) {
 			TestSuite suite = new TestSuite(BasicBuildTests.class.getName());
-			suite.addTest(new BasicBuildTests("testTags"));
+			suite.addTest(new BasicBuildTests("testTags3"));
 			return suite;
 		}
 		return new TestSuite(BasicBuildTests.class);
@@ -301,6 +301,43 @@ public class BasicBuildTests extends Tests {
 			assertTrue(false);
 		}
 		JavaCore.setOptions(options);
+	}
+	
+	/*
+	 * Ensures that a task tag is not user editable
+	 * (regression test for bug 123721 two types of 'remove' for TODO task tags)
+	 */
+	public void testTags3() throws CoreException {
+		Hashtable options = JavaCore.getOptions();
+		
+		try {
+			Hashtable newOptions = JavaCore.getOptions();
+			newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
+			newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
+			
+			JavaCore.setOptions(newOptions);
+			
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+			IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p; \n"+ //$NON-NLS-1$
+				"// TODO need to review\n" + //$NON-NLS-1$
+				"public class A {\n" + //$NON-NLS-1$
+				"}");
+	
+			fullBuild(projectPath);
+			IMarker[] markers = env.getTaskMarkersFor(pathToA);
+			assertEquals("Marker should not be editable", Boolean.FALSE, markers[0].getAttribute(IMarker.USER_EDITABLE));
+		} finally {
+			JavaCore.setOptions(options);
+		}
 	}
 	
 	/*
