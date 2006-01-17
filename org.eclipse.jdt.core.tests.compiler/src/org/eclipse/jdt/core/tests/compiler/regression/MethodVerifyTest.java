@@ -4559,12 +4559,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test077() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	Object o = new A<Integer>().foo(new Integer(1));\n" +
+				"}\n" +
+				"interface I<T1> { I<T1> foo(T1 t); }\n" +
+				"interface J<T2> { J<T2> foo(T2 t); }\n" +
+				"class B<T> { public A<T> foo(T t) { return new A<T>(); } }\n" +
+				"class A<S> extends B<S> implements I<S>, J<S> {}"
+			},
+			""
+		);
 		this.runNegativeTest(
 			new String[] {
 				"I.java",
-				"public interface I {}\n" +
-				"interface J {}\n" +
-				"interface K extends I, J {}\n" +
+				"public interface I { I foo(); }\n" +
+				"interface J { J foo(); }\n" +
+				"interface K extends I, J { K foo(); }\n" +
 				"interface L { K getI(); }\n" +
 				"interface M { I getI(); }\n" +
 				"interface N { J getI(); }\n" +
@@ -4575,17 +4588,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class Z implements L, M, N { public K getI() { return null; } }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in I.java (at line 7)\r\n" + 
+			"1. ERROR in I.java (at line 3)\r\n" + 
+			"	interface K extends I, J { K foo(); }\r\n" + 
+			"	          ^\n" + 
+			"The return type is incompatible with J.foo(), I.foo()\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 7)\r\n" + 
 			"	interface O extends L, M, N { K getI(); }\r\n" + 
 			"	          ^\n" + 
 			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
 			"----------\n" + 
-			"2. ERROR in I.java (at line 8)\r\n" + 
+			"3. ERROR in I.java (at line 8)\r\n" + 
 			"	interface P extends L, M, N {}\r\n" + 
 			"	          ^\n" + 
 			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
 			"----------\n" + 
-			"3. ERROR in I.java (at line 10)\r\n" + 
+			"4. ERROR in I.java (at line 10)\r\n" + 
 			"	abstract class Y implements L, M, N {}\r\n" + 
 			"	               ^\n" + 
 			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 

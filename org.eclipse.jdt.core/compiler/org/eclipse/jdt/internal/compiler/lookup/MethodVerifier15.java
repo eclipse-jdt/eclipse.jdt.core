@@ -289,6 +289,9 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	super.checkInheritedMethods(methods, length);
 }
 boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
+	if (methods[0].declaringClass.isClass())
+		return super.checkInheritedReturnTypes(methods, length);
+
 	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
 	for (int i = 0, l = length - 1; i < l;) {
 		MethodBinding method = methods[i++];
