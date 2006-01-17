@@ -52,7 +52,7 @@ void addDependencies(String[] typeNameDependencies) {
 				if (temp == EmptyQualifiedNames)
 					continue next; // qualifiedTypeName is a well known name
 				qualifiedTypeName = temp[0];
-			}		
+			}
 		}
 	}
 }
