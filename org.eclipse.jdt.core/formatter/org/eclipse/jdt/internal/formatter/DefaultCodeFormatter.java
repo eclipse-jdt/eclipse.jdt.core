@@ -267,7 +267,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return this.newCodeFormatter2.format(source, (Block) node);
 		}
 		
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
@@ -469,7 +469,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		// probe for statements
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
 		if (constructorDeclaration.statements != null) {
 			if (USE_NEW_FORMATTER) {
 				ASTParser parser = ASTParser.newParser(AST.JLS3);

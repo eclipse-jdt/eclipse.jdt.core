@@ -1034,6 +1034,17 @@ public abstract class ASTNode {
 	public static final int PROTECT = 4;
 
 	/**
+	 * Flag constant (bit mask, value 8) indicating that this node
+	 * or a part of this node is recovered from source that contains
+	 * a syntax error detected in the vicinity.
+	 * <p>
+	 * The standard parser (<code>ASTParser</code>) sets this
+	 * flag on a node to indicate a recovered node.
+	 * </p>
+	 */
+	public static final int RECOVERED = 8;
+	
+	/**
 	 * int containing the node type in the top 16 bits and
 	 * flags in the bottom 16 bits; none set by default.
      * <p>

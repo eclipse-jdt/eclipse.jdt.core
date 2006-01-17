@@ -62,7 +62,8 @@ public class CodeSnippetParsingUtil {
 					new DefaultProblemFactory(Locale.getDefault()));
 					
 		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
-
+		parser.setStatementsRecovery(false);
+		
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
 				source, 
@@ -158,11 +159,11 @@ public class CodeSnippetParsingUtil {
 		return result;
 	}
 
-	public ConstructorDeclaration parseStatements(char[] source, Map settings, boolean recordParsingInformation) {
-		return parseStatements(source, 0, source.length, settings, recordParsingInformation);
+	public ConstructorDeclaration parseStatements(char[] source, Map settings, boolean recordParsingInformation, boolean enabledStatementRecovery) {
+		return parseStatements(source, 0, source.length, settings, recordParsingInformation, enabledStatementRecovery);
 	}
 	
-	public ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
+	public ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings, boolean recordParsingInformation, boolean enabledStatementRecovery) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -172,6 +173,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
+		parser.setStatementsRecovery(enabledStatementRecovery);
 		
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(

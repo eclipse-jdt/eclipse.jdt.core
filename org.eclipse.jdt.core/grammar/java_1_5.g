@@ -28,11 +28,15 @@ $break
 
 
 $readableName 
-/.1#$rule_number=./
+/.1#$rule_number#./
 $compliance
-/.2#$rule_number=./
+/.2#$rule_number#./
 $recovery
-/.2#$rule_number= recovery./
+/.2#$rule_number# recovery./
+$recovery_template
+/.3#$rule_number#./
+$no_statements_recovery
+/.4#$rule_number# 1./
 -- here it starts really ------------------------------------------
 $Terminals
 
@@ -483,6 +487,7 @@ InterfaceType ::= ClassOrInterfaceType
 
 ClassBody ::= '{' ClassBodyDeclarationsopt '}'
 /:$readableName ClassBody:/
+/:$no_statements_recovery:/
 
 ClassBodyDeclarations ::= ClassBodyDeclaration
 ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
@@ -612,6 +617,7 @@ MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 MethodHeaderRightParen ::= ')'
 /.$putCase consumeMethodHeaderRightParen(); $break ./
 /:$readableName ):/
+/:$recovery_template ):/
 
 MethodHeaderExtendedDims ::= Dimsopt
 /.$putCase consumeMethodHeaderExtendedDims(); $break ./
@@ -656,6 +662,7 @@ ClassTypeElt ::= ClassType
 MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
 /.$putCase consumeMethodBody(); $break ./
 /:$readableName MethodBody:/
+/:$no_statements_recovery:/
 
 NestedMethod ::= $empty
 /.$putCase consumeNestedMethod(); $break ./
@@ -810,6 +817,7 @@ ArrayInitializer ::= '{' PushLeftBrace VariableInitializers '}'
 ArrayInitializer ::= '{' PushLeftBrace VariableInitializers , '}'
 /.$putCase consumeArrayInitializer(); $break ./
 /:$readableName ArrayInitializer:/
+/:$recovery_template Identifier:/
 
 VariableInitializers ::= VariableInitializer
 VariableInitializers ::= VariableInitializers ',' VariableInitializer
@@ -1087,9 +1095,11 @@ Finally ::= 'finally'    Block
 PushLPAREN ::= '('
 /.$putCase consumeLeftParen(); $break ./
 /:$readableName (:/
+/:$recovery_template (:/
 PushRPAREN ::= ')'
 /.$putCase consumeRightParen(); $break ./
 /:$readableName ):/
+/:$recovery_template ):/
 
 Primary -> PrimaryNoNewArray
 Primary -> ArrayCreationWithArrayInitializer
@@ -1174,6 +1184,7 @@ ClassBodyopt ::= $empty --test made using null as contents
 /.$putCase consumeClassBodyopt(); $break ./
 ClassBodyopt ::= EnterAnonymousClassBody ClassBody
 /:$readableName ClassBody:/
+/:$no_statements_recovery:/
 
 EnterAnonymousClassBody ::= $empty
 /.$putCase consumeEnterAnonymousClassBody(); $break ./
@@ -1448,9 +1459,11 @@ AssignmentOperator ::= '^='
 AssignmentOperator ::= '|='
 /.$putCase consumeAssignmentOperator(OR); $break ./
 /:$readableName AssignmentOperator:/
+/:$recovery_template =:/
 
 Expression -> AssignmentExpression
 /:$readableName Expression:/
+/:$recovery_template Identifier:/
 
 -- The following rules are for optional nonterminals.
 --

@@ -106,6 +106,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));	
 	return this.parent.add(typeDeclaration, bracketBalanceValue);
 }
+protected void addBlockStatement(RecoveredBlock recoveredBlock) {
+	Block block = recoveredBlock.blockDeclaration;
+	if(block.statements != null) {
+		Statement[] statements = block.statements;
+		for (int i = 0; i < statements.length; i++) {
+			recoveredBlock.add(statements[i], 0);
+		}
+	}
+}
 /*
  * Answer the depth of this element, considering the parent link.
  */

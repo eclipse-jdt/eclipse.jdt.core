@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -1190,6 +1191,10 @@ class ASTConverter {
 	}
 	
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
+		if(unit.compilationResult.recoveryScannerData != null) {
+			this.scanner = new RecoveryScanner(this.scanner, unit.compilationResult.recoveryScannerData.removeUnused());
+			this.docParser.scanner = this.scanner;
+		}
 		this.compilationUnitSource = source;
 		this.compilationUnitSourceLength = source.length;
 		this.scanner.setSource(source, unit.compilationResult);
@@ -1248,6 +1253,8 @@ class ASTConverter {
 			}
 			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
 			compilationUnit.accept(syntaxErrorPropagator);
+			ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(resizedProblems);
+			compilationUnit.accept(recoveryPropagator);
 			compilationUnit.setProblems(resizedProblems);
 		}
 		if (this.resolveBindings) {
@@ -4237,23 +4244,6 @@ class ASTConverter {
 							return;
 						}
 						break;
-					case TerminalTokens.TokenNameLBRACE :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRBRACE :
-						count--;
-						break;
-					case TerminalTokens.TokenNameLPAREN :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRPAREN :
-						count--;
-						break;
-					case TerminalTokens.TokenNameLBRACKET :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRBRACKET :
-						count--;
 				}
 			}
 		} catch(InvalidInputException e) {

@@ -62,6 +62,8 @@ public DocumentElementParser(
 	intArrayStack = new int[30][];
 	this.options = options;
 	this.javadocParser.checkDocComment = false;
+	
+	this.setStatementsRecovery(false);
 }
 /*
  * Will clear the comment stack when looking

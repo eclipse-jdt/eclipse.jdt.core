@@ -18,6 +18,14 @@ class DefaultASTVisitor extends ASTVisitor {
 	public DefaultASTVisitor() {
 		super();
 	}
+	
+	/**
+	 * 
+	 */
+	public DefaultASTVisitor(boolean visitDocTags) {
+		super(visitDocTags);
+	}
+	
 	protected boolean visitNode(ASTNode node) {
 		return true;
 	}

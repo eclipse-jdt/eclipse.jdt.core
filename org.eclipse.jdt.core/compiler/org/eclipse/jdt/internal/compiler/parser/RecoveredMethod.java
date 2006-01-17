@@ -207,7 +207,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		}
 		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
-	if ((typeDeclaration.bits & ASTNode.IsLocalType) != 0){
+	if ((typeDeclaration.bits & ASTNode.IsLocalType) != 0 || this.parser().methodRecoveryActivated || this.parser().statementRecoveryActivated){
 		if (methodBody == null){
 			Block block = new Block(0);
 			block.sourceStart = methodDeclaration.bodyStart;

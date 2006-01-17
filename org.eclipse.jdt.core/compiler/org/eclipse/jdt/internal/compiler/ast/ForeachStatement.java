@@ -329,7 +329,7 @@ public class ForeachStatement extends Statement {
 		scope = new BlockScope(upperScope);
 		this.elementVariable.resolve(scope); // collection expression can see itemVariable
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
-		TypeBinding collectionType = this.collection.resolveType(scope);
+		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(scope);
 		boolean hasError = elementType == null || collectionType == null;
 
 		if (!hasError) {

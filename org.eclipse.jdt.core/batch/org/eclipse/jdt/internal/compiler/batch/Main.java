@@ -2795,6 +2795,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// set the non-externally configurable options.
 		this.compilerOptions.verbose = this.verbose;
 		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
+		this.compilerOptions.performStatementsRecovery = false;
 		try {
 			this.logger.startLoggingSources();
 			batchCompiler.compile(getCompilationUnits());

@@ -57,6 +57,8 @@ public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, i
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
 	}
+	
+	this.preserveContent = this.parser().methodRecoveryActivated || this.parser().statementRecoveryActivated;
 }
 public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
@@ -311,7 +313,7 @@ public Statement updatedStatement(){
 	return updatedType;
 }
 public TypeDeclaration updatedTypeDeclaration(){
-
+	int lastEnd = typeDeclaration.bodyStart;
 	/* update member types */
 	if (memberTypeCount > 0){
 		int existingCount = typeDeclaration.memberTypes == null ? 0 : typeDeclaration.memberTypes.length;
@@ -329,6 +331,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 			memberTypeDeclarations[existingCount + i] = memberTypes[i].updatedTypeDeclaration();
 		}
 		typeDeclaration.memberTypes = memberTypeDeclarations;
+		if(memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd > lastEnd) {
+			lastEnd = memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd;
+		}
 	}
 	/* update fields */
 	if (fieldCount > 0){
@@ -347,6 +352,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 			fieldDeclarations[existingCount + i] = fields[i].updatedFieldDeclaration();
 		}
 		typeDeclaration.fields = fieldDeclarations;
+		if(fieldDeclarations[fieldDeclarations.length - 1].declarationSourceEnd > lastEnd) {
+			lastEnd = fieldDeclarations[fieldDeclarations.length - 1].declarationSourceEnd;
+		}
 	}
 	/* update methods */
 	int existingCount = typeDeclaration.methods == null ? 0 : typeDeclaration.methods.length;
@@ -374,6 +382,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 			methodDeclarations[existingCount + i] = updatedMethod;			
 		}
 		typeDeclaration.methods = methodDeclarations;
+		if(methodDeclarations[methodDeclarations.length - 1].declarationSourceEnd > lastEnd) {
+			lastEnd = methodDeclarations[methodDeclarations.length - 1].declarationSourceEnd;
+		}
 		if (hasAbstractMethods) typeDeclaration.bits |= ASTNode.HasAbstractMethods;
 		hasConstructor = typeDeclaration.checkConstructors(this.parser());
 	} else {
@@ -427,6 +438,10 @@ public TypeDeclaration updatedTypeDeclaration(){
 		typeDeclaration.bits |= ASTNode.IsMemberType;
 	} else if (parent instanceof RecoveredMethod){
 		typeDeclaration.bits |= ASTNode.IsLocalType;
+	}
+	if(typeDeclaration.declarationSourceEnd == 0) {
+		typeDeclaration.declarationSourceEnd = lastEnd;
+		typeDeclaration.bodyEnd = lastEnd;
 	}
 	return typeDeclaration;
 }

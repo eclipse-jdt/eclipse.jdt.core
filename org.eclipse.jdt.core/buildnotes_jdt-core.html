@@ -58,6 +58,8 @@ What's new in this drop</h2>
      extra attribute. The possible values for this attribute are <code>"true"</code> or <code>"false"</code>. 
 	 When not present, <code>"false"</code> is assumed. If the value of this attribute is <code>"true"</code>, 
 	 the classpath entry is optional. </li>
+<li>Added support for statement recovery in Parser<br>
+	 Currently this new behavior is incomplete (mapping non-terminals -> terminals) and disabled. The option JavaCore.COMPILER_STATEMENTS_RECOVERY must be set to ENABLED to use it (It's a temporary option).</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

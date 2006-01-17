@@ -33,6 +33,8 @@ public RecoveredBlock(Block block, RecoveredElement parent, int bracketBalance){
 	super(block, parent, bracketBalance);
 	this.blockDeclaration = block;
 	this.foundOpeningBrace = true;
+	
+	this.preserveContent = this.parser().methodRecoveryActivated || this.parser().statementRecoveryActivated;
 }
 /*
  * Record a nested block declaration 
@@ -52,6 +54,9 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 	if (this.pendingArgument != null){
 		element.attach(this.pendingArgument);
 		this.pendingArgument = null;
+	}
+	if(this.parser().statementRecoveryActivated) {
+		this.addBlockStatement(element);
 	}
 	this.attach(element);
 	if (nestedBlockDeclaration.sourceEnd == 0) return element;

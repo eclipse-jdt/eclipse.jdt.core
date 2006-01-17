@@ -113,6 +113,9 @@ public class CompilerOptions {
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
 
+	//TODO temporary option
+	public static final String OPTION_StatementsRecovery = "org.eclipse.jdt.core.compiler.statementsRecovery"; //$NON-NLS-1$
+
 	/**
 	 * Possible values for configurable options
 	 */
@@ -187,7 +190,7 @@ public class CompilerOptions {
 	public static final long RawTypeReference = ASTNode.Bit46L;
 	public static final long UnusedLabel = ASTNode.Bit47L;
 	public static final long ParameterAssignment = ASTNode.Bit48L;
-
+	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
 		
@@ -296,9 +299,12 @@ public class CompilerOptions {
 	// treat optional error as fatal or just like warning?
 	public boolean treatOptionalErrorAsFatal = true;
 	
+	// parser perform statements recovery 
+	public boolean performStatementsRecovery = true;
+	
 	// store annotations
 	public boolean storeAnnotations = false;
-
+	
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -724,6 +730,13 @@ public class CompilerOptions {
 				this.reportMissingJavadocCommentsOverriding = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportMissingJavadocCommentsOverriding = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_StatementsRecovery)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.performStatementsRecovery = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.performStatementsRecovery = false;
 			}
 		}
 	}

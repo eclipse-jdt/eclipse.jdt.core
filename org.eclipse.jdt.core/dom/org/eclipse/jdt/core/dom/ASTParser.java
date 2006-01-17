@@ -26,6 +26,9 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
@@ -914,7 +917,15 @@ public class ASTParser {
 		}
 		switch(this.astKind) {
 			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true);
+				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, true);
+				RecoveryScannerData data = constructorDeclaration.compilationResult.recoveryScannerData;
+				if(data != null) {
+					Scanner scanner = converter.scanner;
+					converter.scanner = new RecoveryScanner(scanner, data.removeUnused());
+					converter.docParser.scanner = converter.scanner;
+					converter.scanner.setSource(scanner.source);
+					
+				}
 				RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
 				int[][] comments = recordedParsingInformation.commentPositions;
 				if (comments != null) {
@@ -1000,6 +1011,8 @@ public class ASTParser {
 	private void propagateErrors(ASTNode astNode, IProblem[] problems) {
 		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(problems);
 		astNode.accept(syntaxErrorPropagator);
+		ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(problems);
+		astNode.accept(recoveryPropagator);
 	}
 	
 	private void rootNodeToCompilationUnit(AST ast, CompilationUnit compilationUnit, ASTNode node, RecordedParsingInformation recordedParsingInformation) {

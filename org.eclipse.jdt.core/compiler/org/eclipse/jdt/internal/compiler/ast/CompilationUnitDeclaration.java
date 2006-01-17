@@ -130,6 +130,9 @@ public class CompilationUnitDeclaration
 				localType.enclosingCase = null;
 			}
 		}
+		
+		compilationResult.recoveryScannerData = null; // recovery is already done
+		
 		ClassFile[] classFiles = compilationResult.getClassFiles();
 		for (int i = 0, max = classFiles.length; i < max; i++) {
 			// clear the classFile back pointer to the bindings

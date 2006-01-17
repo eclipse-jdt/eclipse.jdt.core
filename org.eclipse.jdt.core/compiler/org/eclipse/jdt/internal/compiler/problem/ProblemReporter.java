@@ -2628,6 +2628,8 @@ public void invalidContinue(ASTNode location) {
 public void invalidEnclosingType(Expression expression, TypeBinding type, ReferenceBinding enclosingType) {
 
 	if (enclosingType.isAnonymousType()) enclosingType = enclosingType.superclass();
+	if (enclosingType.sourceName.length == 0) return;
+	
 	int flag = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case ProblemReasons.NotFound : // 1
@@ -2675,6 +2677,8 @@ public void invalidExpressionAsStatement(Expression expression){
 		expression.sourceEnd);
 }
 public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
+	if(fieldRef.token.length == 0) return;
+	
 	int id = IProblem.UndefinedField;
 	FieldBinding field = fieldRef.binding;
 	final int sourceStart= (int) (fieldRef.nameSourcePosition >> 32);
@@ -2730,6 +2734,14 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		fieldRef.sourceEnd);
 }
 public void invalidField(NameReference nameRef, FieldBinding field) {
+	if (nameRef instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
+		char[] lastToken = ref.tokens[ref.tokens.length - 1];
+		if (lastToken.length == 0) return;
+	} else {
+		SingleNameReference ref = (SingleNameReference) nameRef;
+		if (ref.token.length == 0) return;
+	}
 	int id = IProblem.UndefinedField;
 	switch (field.problemId()) {
 		case ProblemReasons.NotFound :
@@ -2786,6 +2798,9 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 	//UndefinedField
 	//NotVisibleField
 	//AmbiguousField
+	
+	char[] lastToken = nameRef.tokens[nameRef.tokens.length - 1];
+	if (lastToken.length == 0) return;
 
 	if (searchedType.isBaseType()) {
 		this.handle(
@@ -2863,6 +2878,8 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			annotation.sourceEnd);	
 }
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
+	if(messageSend.selector.length == 0) return;
+	
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;
 	switch (method.problemId()) {
@@ -3148,26 +3165,31 @@ public void invalidType(ASTNode location, TypeBinding type) {
 	int end = location.sourceEnd;
 	if (location instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) location;
+		if(ref.tokens[ref.tokens.length - 1].length == 0) return;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	} else if (location instanceof ArrayQualifiedTypeReference) {
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) location;
+		if(arrayQualifiedTypeReference.tokens[arrayQualifiedTypeReference.tokens.length - 1].length == 0) return;
 		long[] positions = arrayQualifiedTypeReference.sourcePositions;
 		end = (int) positions[positions.length - 1];
 	} else if (location instanceof QualifiedTypeReference) {
 		QualifiedTypeReference ref = (QualifiedTypeReference) location;
+		if(ref.tokens[ref.tokens.length - 1].length == 0) return;
 		if (type instanceof ReferenceBinding) {
 			char[][] name = ((ReferenceBinding) type).compoundName;
 			end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ImportReference) {
 		ImportReference ref = (ImportReference) location;
+		if (ref.tokens[ref.tokens.length - 1].length == 0) return;
 		if (type instanceof ReferenceBinding) {
 			char[][] name = ((ReferenceBinding) type).compoundName;
 			end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ArrayTypeReference) {
 		ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
+		if (arrayTypeReference.token.length == 0) return;
 		end = arrayTypeReference.originalSourceEnd;
 	}
 	this.handle(
@@ -5274,6 +5296,7 @@ private String typesAsString(boolean isVarargs, TypeBinding[] types, boolean mak
 }
 public void undefinedAnnotationValue(TypeBinding annotationType, MemberValuePair memberValuePair) {
 	String name = 	new String(memberValuePair.name);
+	if(name.length() == 0) return;
 	this.handle(
 		IProblem.UndefinedAnnotationMember,
 		new String[] { name, new String(annotationType.readableName())},
@@ -5283,6 +5306,7 @@ public void undefinedAnnotationValue(TypeBinding annotationType, MemberValuePair
 }
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};
+	if (statement.label.length == 0) return;
 	this.handle(
 		IProblem.UndefinedLabel,
 		arguments,
@@ -5292,6 +5316,7 @@ public void undefinedLabel(BranchStatement statement) {
 }
 // can only occur inside binaries
 public void undefinedTypeVariableSignature(char[] variableName, ReferenceBinding binaryType) {
+	if(variableName.length == 0)
 	this.handle(
 		IProblem.UndefinedTypeVariable,
 		new String[] {new String(variableName), new String(binaryType.readableName()) },	
@@ -5466,8 +5491,13 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 	int end = nameRef.sourceEnd;
 	if (nameRef instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
+		char[] lastToken = ref.tokens[ref.tokens.length - 1];
+		if (lastToken.length == 0) return;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
+	} else {
+		SingleNameReference ref = (SingleNameReference) nameRef;
+		if (ref.token.length == 0) return;
 	}
 	this.handle(
 		IProblem.UndefinedName,

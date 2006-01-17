@@ -415,6 +415,7 @@ protected Compiler newCompiler() {
 
 	// enable the compiler reference info support
 	options.produceReferenceInfo = true;
+	options.performStatementsRecovery = false;
 	
 	org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = newCompiler.lookupEnvironment;
 	synchronized (env) {

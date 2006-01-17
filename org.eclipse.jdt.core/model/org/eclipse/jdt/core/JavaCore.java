@@ -657,6 +657,13 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	//TODO It is a temporary option. It will removed before 3.2 release
+	public static final String COMPILER_STATEMENTS_RECOVERY = PLUGIN_ID + ".compiler.statementsRecovery"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**

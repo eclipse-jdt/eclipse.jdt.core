@@ -43,7 +43,8 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.COMPILER_TASK_CASE_SENSITIVE, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-	
+		defaultOptionsMap.put(JavaCore.COMPILER_STATEMENTS_RECOVERY, JavaCore.DISABLED); //TODO It is a temporary option
+		
 		// Builder settings
 		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
 		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT); 

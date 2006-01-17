@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class CompilationResult {
@@ -60,6 +61,7 @@ public class CompilationResult {
 	public boolean hasAnnotations = false;
 
 	public int lineSeparatorPositions[];
+	public RecoveryScannerData recoveryScannerData;
 	public Map compiledTypes = new Hashtable(11);
 	public int unitIndex, totalUnitsKnown;
 	public boolean hasBeenAccepted = false;
