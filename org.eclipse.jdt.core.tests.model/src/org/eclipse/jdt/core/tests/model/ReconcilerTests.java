@@ -2230,8 +2230,7 @@ public void testRenameWithSyntaxError() throws JavaModelException {
  * Ensure that warning are suppressed by an @SuppressWarnings annotation.
  */
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95056
-//TODO (kent) reenable once addressed
-public void _testSuppressWarnings1() throws JavaModelException {
+public void testSuppressWarnings1() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
