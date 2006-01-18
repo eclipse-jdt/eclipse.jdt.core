@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -1236,7 +1235,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (!method.isConstructor()) {
 		TypeReference returnType = methodDecl instanceof MethodDeclaration
 			? ((MethodDeclaration) methodDecl).returnType
-			: ((AnnotationMethodDeclaration) methodDecl).returnType;
+			: null;
 		if (returnType == null) {
 			methodDecl.scope.problemReporter().missingReturnType(methodDecl);
 			method.returnType = null;
