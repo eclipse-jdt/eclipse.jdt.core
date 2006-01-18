@@ -201,18 +201,17 @@ public class ArrayInitializer extends Expression {
 			if (expression != null) {
 				leafElementType = expression.resolveType(scope);
 			}
-		}
+			// fault-tolerance - resolve other expressions as well
+			for (int i = 1, length = this.expressions.length; i < length; i++) {
+				expression = this.expressions[i];
+				if (expression != null) {
+					expression.resolveType(scope)	;
+				}
+			}		}
 		if (leafElementType != null) {
 			this.resolvedType = scope.createArrayType(leafElementType, dim);
 			if (expectedType != null)
 				scope.problemReporter().typeMismatchError(this.resolvedType, expectedType, this);
-		}
-		// fault-tolerance - resolve other expressions as well
-		for (int i = 1, length = this.expressions.length; i < length; i++) {
-			Expression expression = this.expressions[i];
-			if (expression != null) {
-				expression.resolveType(scope)	;
-			}
 		}
 		return null;
 	}

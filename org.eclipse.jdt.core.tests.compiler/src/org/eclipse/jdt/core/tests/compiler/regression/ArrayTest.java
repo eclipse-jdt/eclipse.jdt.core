@@ -224,4 +224,21 @@ public void test009() {
 		"The method zork() is undefined for the type X\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124101
+public void test010() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	int i = {};\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int i = {};\n" + 
+		"	        ^^\n" + 
+		"Type mismatch: cannot convert from Object[] to int\n" + 
+		"----------\n");
+}
 }
