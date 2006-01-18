@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public abstract class Binding {
 
@@ -79,6 +77,7 @@ public abstract class Binding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding#initializeDeprecatedAnnotationTagBits()
 	 */
 	public void initializeDeprecatedAnnotationTagBits() {
+		// empty block
 	}	
 
 	/* API
