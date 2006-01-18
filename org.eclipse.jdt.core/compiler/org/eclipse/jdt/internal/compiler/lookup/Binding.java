@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public abstract class Binding {
 
@@ -70,6 +72,14 @@ public abstract class Binding {
 	public long getAnnotationTagBits() {
 		return 0;
 	}
+	
+	/**
+	 * Compute the tagbits for @Deprecated annotations; avoiding resolving
+	 * entire annotation if not necessary.
+	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding#initializeDeprecatedAnnotationTagBits()
+	 */
+	public void initializeDeprecatedAnnotationTagBits() {
+	}	
 
 	/* API
 	* Answer true if the receiver is not a problem binding

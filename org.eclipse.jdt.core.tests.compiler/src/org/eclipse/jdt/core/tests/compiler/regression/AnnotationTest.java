@@ -4599,7 +4599,7 @@ public void test142c() {
 		true,
 		raiseDeprecationReduceInvalidJavadocSeverity);
 }        
-    public void _test143() {
+    public void test143() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -4618,12 +4618,18 @@ public void test142c() {
 				"  Zork z;\n" +
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERR OR in p\\OldStuff.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	public class X extends p.OldStuff {\n" + 
+    		"	                       ^^^^^^^^^^\n" + 
+    		"The type OldStuff is deprecated\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. ERROR in p\\OldStuff.java (at line 6)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
     }         
     public void test144() {
         this.runNegativeTest(

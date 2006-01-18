@@ -632,6 +632,7 @@ public char[] genericSignature() {
         sig.append(this.superInterfaces[i].genericTypeSignature());
 	return sig.toString().toCharArray();
 }
+
 /**
  * Compute the tagbits for standard annotations. For source types, these could require
  * lazily resolving corresponding annotation nodes, in case of forward references.
@@ -856,6 +857,27 @@ public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMe
 	if (accessors == null) return null;
 	return accessors[1];
 }
+
+/**
+ * Compute the tagbits for @Deprecated annotations; avoiding resolving
+ * entire annotation if not necessary.
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#initializeDeprecatedAnnotationTagBits()
+ */
+public void initializeDeprecatedAnnotationTagBits() {
+	if ((this.tagBits & (TagBits.AnnotationResolved|TagBits.AnnotationDeprecated)) == 0) {
+		TypeDeclaration typeDecl = this.scope.referenceContext;
+		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		try {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+		} finally {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+		}
+		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
+			this.modifiers |= ClassFileConstants.AccDeprecated;
+	}
+}
+
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
