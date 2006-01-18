@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,8 +52,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 {
 	private static final ICompilationParticipantResult[] NO_FILES_TO_PROCESS = new ICompilationParticipantResult[0];
 	private /*final*/ ICompilationParticipantResult[] _filesWithAnnotation = null;
-	// TODO: This is not set correctly since we don't have the correct API from jdt.core
-	private /*final*/ IFile[] _filesWithoutAnnotation = null;
+	private /*final*/ ICompilationParticipantResult[] _filesWithoutAnnotation = null;
 	private final AptProject _aptProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
 	/** Batch processor dispatched in the previous rounds */
@@ -64,6 +64,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
 			ICompilationParticipantResult[] filesWithAnnotations, 
+			ICompilationParticipantResult[] filesWithoutAnnotations,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -74,7 +75,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		 }
 		// If we're building, types can be generated, so we
 		// want to run this as an atomic workspace operation
-		 APTDispatchRunnable runnable = new APTDispatchRunnable( filesWithAnnotations, aptProject, factories, dispatchedBatchFactories, isFullBuild );
+		 APTDispatchRunnable runnable = 
+			 new APTDispatchRunnable( 
+					 filesWithAnnotations,
+					 filesWithoutAnnotations,
+					 aptProject, factories, 
+					 dispatchedBatchFactories, isFullBuild );
 		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		 try {
 			 workspace.run(runnable, aptProject.getJavaProject().getResource(), IWorkspace.AVOID_UPDATE, null);
@@ -99,7 +105,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	
 	/** create a runnable used during build */
 	private APTDispatchRunnable( 
-			ICompilationParticipantResult[] filesWithAnnotation, 
+			ICompilationParticipantResult[] filesWithAnnotation,
+			ICompilationParticipantResult[] filesWithoutAnnotation,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -107,6 +114,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	{
 		assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$
 		_filesWithAnnotation = filesWithAnnotation;
+		_filesWithoutAnnotation = filesWithoutAnnotation;
 		_aptProject = aptProject;
 		_factories = factories;
 		_dispatchedBatchFactories = dispatchedBatchFactories;
@@ -170,6 +178,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			return false;
 	
 		int totalFiles = _filesWithAnnotation == null ? 0 : _filesWithAnnotation.length;
+		// We are required to dispatch even though there are no files with annotations.
+		// This is a documented behavior in the mirror spec.
 		return totalFiles > 0 || !_dispatchedBatchFactories.isEmpty();
 	}
 	
@@ -188,17 +198,16 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				trace( "run():  leaving early because there are " + msg, //$NON-NLS-1$
 					   null);
 			}
-		
-			/*Set<IFile> allDeletedFiles = */cleanupAllGeneratedFiles();
-			// TODO: 
-			// 1) don't know how to report this set of files.
-			// 2) currently, we don't get called unless there are files with annotations.
+			cleanupAllGeneratedFiles();
 		}
 		else
 		{
 			assert _filesWithAnnotation != null :
 				   "should never be invoked unless we are in build mode!"; //$NON-NLS-1$
-			ProcessorEnvImpl processorEnv = ProcessorEnvImpl.newBuildEnv( _filesWithAnnotation, _filesWithoutAnnotation, _aptProject.getJavaProject());
+			ProcessorEnvImpl processorEnv = ProcessorEnvImpl.newBuildEnv( 
+					_filesWithAnnotation, 
+					_filesWithoutAnnotation, 
+					_aptProject.getJavaProject());
 			build(processorEnv); 
 		}
 	}
@@ -278,15 +287,15 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			lastGeneratedFiles = Collections.emptySet();
 		if (generatedFiles == null )
 			generatedFiles = Collections.emptySet();
-		final IFile file = curResult.getFile();
 		// figure out exactly what got deleted
-		final Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( 
-				file, 
+		final List<IFile> deletedFiles = new ArrayList<IFile>(); 
+		cleanupNoLongerGeneratedFiles(
+				curResult, 
 				lastGeneratedFiles, 
 				generatedFiles, 
 				gfm,
 				processorEnv,
-				null);
+				deletedFiles);
 		// report newly created or modified generated files
 		int numNewFiles = modifiedGeneratedFiles.size();
 		if( numNewFiles > 0 ){
@@ -376,7 +385,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 		
 		if( ! annotationDecls.isEmpty() )
-			; // TODO: (theodora) log unclaimed annotations.
+			; // TODO: (theodora) log unclaimed annotations? 
 		
 		// Dispatch to the batch process factories first.
 		// Batch processors only get executed on a full/clean build
@@ -405,8 +414,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				}
 			}	
 			// We have to dispatch to factories even though we may not have discovered any annotations.
-			// This is a documented APT behavior that we have to observe. 
-			// TODO: where do we put the results in the case?
+			// This is a documented APT behavior that we have to observe.
 			for( AnnotationProcessorFactory prevRoundFactory : _dispatchedBatchFactories ){
 				if(_currentDispatchBatchFactories.contains(prevRoundFactory))
 					continue;
@@ -420,14 +428,29 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				}
 			}
 			
-			// Currently, we are putting everything in the first file with annotations.
-			// TODO: is this the correct thing to do? 
-			// what about the case where there are no files with annotations? 
-			// where to put the result? 
-			if( cpResults.length >  0 ){
+			// Currently, we are putting everything in the first file annotations.
+			// TODO: Is this correct?
+			// Why is it ok (today):
+			// 1) Problems are reported as IMarkers and not IProblem thru the 
+			// ICompilationParticipantResult API. 
+			// 2) jdt is currently not doing anything about the parent->generated file relation
+			//    so it doesn't matter which ICompilationParticipantResult we attach the 
+			//    creation/modification/deletion of generated files. -theodora
+			ICompilationParticipantResult firstResult = null; 
+			if( cpResults.length > 0 )
+				firstResult = cpResults[0];
+			else{
+				final ICompilationParticipantResult[] others = processorEnv.getFilesWithoutAnnotation();
+				if(others != null && others.length > 0 )
+					firstResult = others[0];
+			}
+			
+			// If there are no files to be built, apt will not be involved.
+			assert firstResult != null : "don't know where to report results"; //$NON-NLS-1$
+			if(firstResult != null ){
 				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 				reportResult(
-						cpResults[0],  // just put it all in 
+						firstResult,  // just put it all in 
 						lastGeneratedFiles.get(null), 
 						processorEnv.getAllGeneratedFiles(),
 						processorEnv.getModifiedGeneratedFiles(), 
@@ -435,8 +458,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						processorEnv.getTypeDependencies(),  // this is empty in batch mode.
 						gfm, 
 						processorEnv);
-				processorEnv.completedBatchProcessing();
 			}
+			processorEnv.completedBatchProcessing();
 		}
 		
 		// Now, do the file based dispatch
@@ -552,13 +575,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					rcListener.roundComplete(event);
 				}
 			}
-			
-			
-			
 			if( _filesWithoutAnnotation != null ){
-				/*final Set<IFile> deletedFiles = */ 
-					cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation, null);
-				// TODO: figure out where to report <code>deletedFiles</code>
+				cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 			}
 			
 			processorEnv.close();
@@ -588,83 +606,60 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		return intersect;
 	}
 	
-	private Set<IFile> cleanupAllGeneratedFiles(){
-		Set<IFile> deletedFiles = cleanupAllGeneratedFilesFrom(_filesWithAnnotation, null);
-		cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation, deletedFiles);
-		return deletedFiles;
+	private void cleanupAllGeneratedFiles(){
+		cleanupAllGeneratedFilesFrom(_filesWithAnnotation);
+		cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 	}
 	
-	private Set<IFile> cleanupAllGeneratedFilesFrom(
-			ICompilationParticipantResult[] cpResults,
-			Set<IFile> deletedFiles){
-		if( deletedFiles == null )
-			deletedFiles = new HashSet<IFile>();
+	private void cleanupAllGeneratedFilesFrom(ICompilationParticipantResult[] cpResults){
+		final List<IFile> deleted = new ArrayList<IFile>();
 		if( cpResults != null ){
-			for( ICompilationParticipantResult cpResult : cpResults){
-				IFile f = cpResult.getFile();
-				cleanupAllGeneratedFilesForParent( f, null, deletedFiles );
+			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+			for( ICompilationParticipantResult cpResult : cpResults){			
+				Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( cpResult.getFile() );
+				cleanupNoLongerGeneratedFiles( 
+						cpResult, 
+						lastGeneratedFiles, 
+						Collections.<IFile>emptySet(), 
+						gfm,
+						null, 
+						deleted);
+				
+				if( deleted.size() > 0 ){
+					final IFile[] deletedFilesArray = new IFile[deleted.size()];
+					cpResult.recordDeletedGeneratedFiles(deleted.toArray(deletedFilesArray));
+				}
 			}
 		}
-		return deletedFiles;
-	}
+	}	
 	
-	private Set<IFile> cleanupAllGeneratedFilesFrom(
-			IFile[] files,
-			Set<IFile> deletedFiles){
-		if( deletedFiles == null )
-			deletedFiles = new HashSet<IFile>();
-		
-		if( files != null ){
-			for(IFile f : files ){				
-				cleanupAllGeneratedFilesForParent( f, null, deletedFiles );
-			}
-		}
-		return deletedFiles;
-	}
-	
-	
-
-	private Set<IFile> cleanupAllGeneratedFilesForParent( 
-			IFile parent,
-			ProcessorEnvImpl processorEnv,
-			Set<IFile> deletedFiles)
-	{
-		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
-		return cleanupNoLongerGeneratedFiles( 
-				parent, 
-				lastGeneratedFiles, 
-				Collections.<IFile>emptySet(), 
-				gfm,
-				processorEnv, 
-				deletedFiles);
-	}
-	
-	// Note: only work under build mode. 
-	private Set<IFile> cleanupNoLongerGeneratedFiles(
-			IFile parentFile,
+	// Note: This is written to work only in build phase since we are only generating
+	//       types during build phase.
+	//       Do not call unless caller is sure this is during build phase.
+	private void cleanupNoLongerGeneratedFiles(
+			ICompilationParticipantResult parent,
 			Set<IFile> lastGeneratedFiles, 
 			Set<IFile> newGeneratedFiles,
 			GeneratedFileManager gfm,		
 			ProcessorEnvImpl processorEnv,
-			Set<IFile> deletedFiles)
-	{
-		if( deletedFiles == null )
-			deletedFiles = new HashSet<IFile>();
-		
+			Collection<IFile> deleted)
+	{	
+		final int numLastGeneratedFiles = lastGeneratedFiles.size();
 		// make a copy into an array to avoid concurrent modification exceptions
-		IFile[] files = lastGeneratedFiles.toArray( new IFile[ lastGeneratedFiles.size() ] );
+		IFile[] files = lastGeneratedFiles.toArray( new IFile[ numLastGeneratedFiles ] );
+		
 		for ( IFile f : files )
 		{
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
+				final IFile parentFile = parent.getFile();
 				if ( AptPlugin.DEBUG ) 
 					trace( "runAPT:  File " + f + " is no longer a generated file for " + parentFile,  //$NON-NLS-1$ //$NON-NLS-2$
 							processorEnv );
 				try
 				{
 					if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
-						deletedFiles.add( f );
+						deleted.add( f );
 				}
 				catch ( CoreException ce )
 				{
@@ -672,7 +667,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				}
 			}
 		}
-		return deletedFiles;
 	}
 
 	/**

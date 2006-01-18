@@ -171,10 +171,11 @@ public class MixedModeTesting extends APTTestBase{
 		
 		String codeA = "package p1;\n"
 			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
+			+ "\n import gen.*;"
 			+ "\n@BatchGen\n"
 			+ "public class A {" 
-			+ "   gen.Class0 clazz0;\n"
-			+ "   gen.Class1 clazz1;\n" 
+			+ "   Class0 clazz0;\n"
+			+ "   Class1 clazz1;\n" 
 			+ "}\n";
 		
 		env.addClass( srcRoot, "p1", "A", codeA );

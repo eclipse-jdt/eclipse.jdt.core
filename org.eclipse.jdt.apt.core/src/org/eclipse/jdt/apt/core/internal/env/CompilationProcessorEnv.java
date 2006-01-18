@@ -61,7 +61,7 @@ public abstract class CompilationProcessorEnv
 
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
-	protected List<APTProblem> _problems = null;
+	protected List<APTProblem> _problems = new ArrayList<APTProblem>();
 	/**
 	 * Processor options, including -A options.
 	 * Set in ctor and then not changed.
@@ -79,7 +79,7 @@ public abstract class CompilationProcessorEnv
     
     public static ProcessorEnvImpl newBuildEnv(
     		ICompilationParticipantResult[] filesWithAnnotation,
-    		final IFile[] additionalFiles,
+    		final ICompilationParticipantResult[] additionalFiles,
     		IJavaProject javaProj )
     {
     	assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$    	

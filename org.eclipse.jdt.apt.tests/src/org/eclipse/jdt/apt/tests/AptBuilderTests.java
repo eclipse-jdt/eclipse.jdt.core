@@ -81,7 +81,7 @@ public class AptBuilderTests extends APTTestBase
 	}
 	public void testGeneratedFileInBuilder() throws Exception
 	{
-		_testGeneratedFileInBuilder( getProjectName() );
+		_testGeneratedFileInBuilder0( getProjectName() );
 	}
 	
 	/**
@@ -90,12 +90,15 @@ public class AptBuilderTests extends APTTestBase
 
 	public void testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception
 	{
-		_testGeneratedFileInBuilder( getProjectName_ProjectRootAsSrcDir() );
+		_testGeneratedFileInBuilder0( getProjectName_ProjectRootAsSrcDir() );
 	}
-
-	@SuppressWarnings("nls")
-	private void _testGeneratedFileInBuilder( String projectName )
-	{
+	
+	
+	public void testGeneratedFileInBuilder1() throws Exception{
+		_testGeneratedFileInBuilder1( getProjectName() );
+	}
+	
+	private void _testGeneratedFileInBuilder0(String projectName){
 		IProject project = env.getProject( projectName );
 		IPath srcRoot = getSourcePath( projectName );
 		
@@ -107,8 +110,7 @@ public class AptBuilderTests extends APTTestBase
 			+ "\n"
 			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
-
-		
+	
 		IPath p1aPath = env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			code );
 
@@ -124,7 +126,34 @@ public class AptBuilderTests extends APTTestBase
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "         generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "\n" + "    }" + "\n" + "}" + "\n";
+
+		env.addClass( srcRoot, "p1", "A", code );
+		fullBuild( project.getFullPath() );
+
+		expectingOnlyProblemsFor( new IPath[0] );
+	}
+
+	@SuppressWarnings("nls")
+	/**
+	 *  slight variation to _testGeneratedFileInBuilder0. 
+	 *  Difference: 
+	 *   The method invocation is not fully qualified and an import is added. 
+	 */
+	private void _testGeneratedFileInBuilder1( String projectName )
+	{
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );	
+
+		String code = "package p1;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import generatedfilepackage.GeneratedFileTest;"
+			+ "\n" + "public class A " + "\n" + "{"
+			+ "    @HelloWorldAnnotation" + "\n"
+			+ "    public static void main( String[] argv )" + "\n" + "    {"
+			+ "\n"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		env.addClass( srcRoot, "p1", "A", code );
@@ -145,11 +174,12 @@ public class AptBuilderTests extends APTTestBase
 		
 		String code = "package p1;\n"
 			+ "//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    //@NestedHelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		
@@ -160,15 +190,16 @@ public class AptBuilderTests extends APTTestBase
 
 		expectingOnlyProblemsFor( p1aPath );
 		expectingOnlySpecificProblemFor( p1aPath, new Problem(
-			"A", "generatedfilepackage cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
+			"A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 
 		code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;"
+			+ "import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;\n"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @NestedHelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		env.addClass( srcRoot, "p1", "A", code );
@@ -267,7 +298,12 @@ public class AptBuilderTests extends APTTestBase
 		// file a second time with the Compiler#DebugRequestor 
 		//
 		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C"}); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		// compile order explanation
+		// 1) B compiled by jdt incremental builder
+		// 2) A gets compiled by jdt because of dependency on B
+		// 3) A gets compiled by APT 
+		// 4) C gets compiled because it is requested by the processor while processing A
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C"}); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//
 		// now make sure that p1.p2.p3.p4.C is not compiled when A uses NoOp Annotation
@@ -312,12 +348,13 @@ public class AptBuilderTests extends APTTestBase
 	public void testCaching()
 	{
 		String code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" 
 			+ "    }" 
 			+ "\n" 
@@ -325,12 +362,13 @@ public class AptBuilderTests extends APTTestBase
 			+ "\n";
 		
 		String modifiedCode = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" 
 			+ "    }" 
 			+ "\n" 
@@ -348,7 +386,13 @@ public class AptBuilderTests extends APTTestBase
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
+		// Compilation count
+		// - A gets compiled by jdt
+		// - A get compiled by APT through DOM ast creation
+		// - GeneratedFileTest get compiled by jdt.core
+		//   (APT does nothing with it since it doesn't contain annotations
+		// - A get compiled by jdt because of dependencies on GeneratedFileTest.
+		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
 		
 		// touch A - make sure its public shape changes.
 		env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -429,12 +473,13 @@ public class AptBuilderTests extends APTTestBase
 		IPath srcRoot = getSourcePath( getProjectName() );
 		
 		String code = "package p1;\n"
-			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    //@HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		
@@ -448,16 +493,19 @@ public class AptBuilderTests extends APTTestBase
 		
 
 		expectingOnlyProblemsFor( p1aPath );
-		expectingOnlySpecificProblemFor( p1aPath, new Problem(
-			"A", "generatedfilepackage cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
+		expectingOnlySpecificProblemsFor( p1aPath, new Problem[]{ 
+				new Problem( "A", "The import generatedfilepackage cannot be resolved", p1aPath ),
+				new Problem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) }
+				); //$NON-NLS-1$ //$NON-NLS-2$	
 
 		code = "package p1;\n"
 			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		env.addClass( srcRoot, "p1", "A", code );
@@ -478,11 +526,12 @@ public class AptBuilderTests extends APTTestBase
 		// and we should see errors again
 		code = "package p1;\n"
 			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import generatedfilepackage.GeneratedFileTest;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    //@HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        GeneratedFileTest.helloWorld();"
 			+ "\n" + "    }" + "\n" + "}" + "\n";
 
 		env.addClass( srcRoot, "p1", "A", code );
@@ -493,14 +542,9 @@ public class AptBuilderTests extends APTTestBase
 			incrementalBuild( project.getFullPath() );
 		
 		expectingOnlyProblemsFor( p1aPath );
-		String expectedError;
-		if ( fullBuild )
-			expectedError = "generatedfilepackage cannot be resolved";
-		else
-			expectedError = "generatedfilepackage.GeneratedFileTest cannot be resolved to a type";
-
+		
 		expectingOnlySpecificProblemFor( p1aPath, 
-					new Problem( "A", expectedError, p1aPath ) ); //$NON-NLS-1$ 
+					new Problem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ 
 	}
 	
 	public void testAPTRounding()

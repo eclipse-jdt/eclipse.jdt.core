@@ -92,7 +92,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	 * These are files that are part of a build but does not have annotations on it.
 	 * During batch mode processing, these files still also need to be included. 
 	 */
-	private IFile[] _additionFiles = null;
+	private ICompilationParticipantResult[] _additionFiles = null;
 	/** 
 	 * This is intialized when <code>_batchMode</code> is set to be <code>true</code> or
 	 * when batch processing is expected. @see #getAllAnnotationTypes(Map)
@@ -110,7 +110,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
      */
     ProcessorEnvImpl(
 			final ICompilationParticipantResult[] filesWithAnnotations,
-			final IFile[] additionalFiles,
+			final ICompilationParticipantResult[] additionalFiles,
 			final IJavaProject javaProj) {
     	
     	super(null, null, javaProj, Phase.BUILD);
@@ -331,9 +331,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
             int line,
             String[] arguments)
     {	 
-    	// end-1 since IProblem ending offsets are inclusive but DOM layer
-    	// ending offsets are exclusive.    	
-    	APTProblem problem = createProblem(resource, start, end-1, severity, msg, line, arguments);
+    	 	
+    	APTProblem problem = createProblem(resource, start, end, severity, msg, line, arguments);
     	_problems.add(problem);
     }
     
@@ -701,7 +700,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		return _filesWithAnnotation;
 	}
 	
-	public IFile[] getFilesWithoutAnnotation(){
+	public ICompilationParticipantResult[] getFilesWithoutAnnotation()
+	{
 		return _additionFiles;
 	}
 }

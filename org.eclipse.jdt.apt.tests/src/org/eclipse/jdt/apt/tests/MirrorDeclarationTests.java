@@ -49,7 +49,37 @@ public class MirrorDeclarationTests extends APTTestBase {
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
-	public void testDefaultAndConstant() throws Exception
+	public void testFieldConstant() throws Exception 
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		String codeTrigger =
+			"package test;\n" +
+			"public @interface Trigger{}";
+		
+		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
+		
+		String codeEntryPoint = "package test;\n" +
+								"@Trigger\n" +
+								"public class EntryPoint {\n" +
+								"    ClassWithNestedAnnotation nestedAnno;\n}";
+		
+		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);
+
+		String codeClassWithNestedAnnotation = 
+			"package test; \n" +
+			"public class ClassWithNestedAnnotation {\n" +
+			"	public final int FOUR = 4; \n " +
+			"}";
+		
+		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+	}
+	
+	// TODO: Disabled due to Bugzilla 124388 -theodora
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124388
+	public void DISABLED_testDefault() throws Exception
 	{	
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -69,7 +99,6 @@ public class MirrorDeclarationTests extends APTTestBase {
 		String codeClassWithNestedAnnotation = 
 			"package test; \n" +
 			"public class ClassWithNestedAnnotation {\n" +
-			"	public final int FOUR = 4; \n " +
 			"	public @interface NestedAnnotation{\n" +
 			"		public enum Character{ \n" +
 			"			Winnie, Tiger, Piglet, Eore; \n" +
