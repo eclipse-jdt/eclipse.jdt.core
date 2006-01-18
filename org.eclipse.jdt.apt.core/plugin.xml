@@ -21,8 +21,7 @@
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
    		 id="APT"
-         class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipant"
-         loadEarly="true"/>
+         class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipant"/>
 </extension>
 
 <!-- =================================================================================== -->
