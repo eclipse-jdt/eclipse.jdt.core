@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin
-   id="org.eclipse.jdt.apt.tests"
-   name="APT Tests"
-   version="3.2.0"
-
-   class="org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin">
-   <runtime>
-      <library name="apt.jar">
-         <export name="*"/>
-      </library>
-   </runtime>
-   <requires>
-      <import plugin="org.junit"/>
-      <import plugin="org.eclipse.jdt.apt.core"/>
-      <import plugin="org.eclipse.jdt.apt.ui"/>
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.eclipse.jdt.core.tests.builder"/>
-      <import plugin="org.eclipse.jdt.core.tests.compiler"/>
-      <import plugin="org.eclipse.jdt.core.tests.model"/>
-      <import plugin="org.eclipse.jdt.core.tests.performance"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.test.performance"/>
-   </requires>
-
+<plugin>
      <extension
          point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
       <factories enableDefault="true">
