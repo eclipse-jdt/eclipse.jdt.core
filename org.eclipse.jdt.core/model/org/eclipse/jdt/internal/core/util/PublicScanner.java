@@ -408,7 +408,7 @@ public char[] getCurrentIdentifierSource() {
 public int getCurrentTokenEndPosition(){
 	return this.currentPosition - 1;
 }
-public final char[] getCurrentTokenSource() {
+public char[] getCurrentTokenSource() {
 	// Return the token REAL source (aka unicodes are precomputed)
 
 	char[] result;
