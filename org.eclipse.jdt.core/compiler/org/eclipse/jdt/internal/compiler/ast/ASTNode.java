@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Matt McCutchen
+ *     		Partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -332,7 +334,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		}
 		
 		if (refType.hasRestrictedAccess()) {
-			AccessRestriction restriction = scope.environment().getAccessRestriction(type);
+			AccessRestriction restriction = scope.environment().getAccessRestriction(type.erasure());
 			if (restriction != null) {
 				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}

@@ -2009,6 +2009,70 @@ public void test034(){
         "",
         true);
 }
+//Missing access restriction violation error on generic type.
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
+//Binary case.
+public void test039(){
+	this.runConformTest(
+		new String[] {
+			"src1/p/X.java",
+			"package p;\n" +
+			"public class X<T> {\n" +
+			"	T m;\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR + "/src1/p/X.java\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -proceedOnError -referenceInfo" 
+     + " -d \"" + OUTPUT_DIR + "/bin1/\"",
+     "",
+     "",
+     true);
+	this.runConformTest(
+		new String[] {
+			"src2/Y.java",
+			"package p;\n" +
+			"public class Y {\n" +
+			"	X x1;\n" +
+			"	X<String> x2 = new X<String>();\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -cp \"" + OUTPUT_DIR + File.separator + "bin1[~**/X]\""
+     + " -proceedOnError -referenceInfo"
+     + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
+     "",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
+		File.separator + "src2" +
+		File.separator + "Y.java\n" + 
+		" (at line 3)\n" + 
+		"	X x1;\n" + 
+		"	^\n" + 
+		"Discouraged access: X<T>\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
+		File.separator + "src2" +
+		File.separator + "Y.java\n" + 
+		" (at line 4)\n" + 
+		"	X<String> x2 = new X<String>();\n" + 
+		"	^\n" + 
+		"Discouraged access: X<String>\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" +
+		File.separator + "src2" +
+		File.separator + "Y.java\n" + 
+		" (at line 4)\n" + 
+		"	X<String> x2 = new X<String>();\n" + 
+		"	                   ^\n" + 
+		"Discouraged access: X<String>\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
+     false);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }

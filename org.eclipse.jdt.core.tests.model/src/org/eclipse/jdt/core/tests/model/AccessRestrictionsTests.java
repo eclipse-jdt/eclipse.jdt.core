@@ -60,8 +60,9 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
  * Ensures that a problem is created for a reference to a method of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
  * accessible class.
+ * NOT IN 3.1
  */
-public void test001() throws CoreException {
+public void _test001() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null, z = null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -83,6 +84,8 @@ public void test001() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n"
 		);
 		x2 = getWorkingCopy(			
@@ -95,6 +98,12 @@ public void test001() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"----------\n"
 		);
@@ -118,6 +127,8 @@ public void test001() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems value", 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in /P2/src/p/Z.java (at line 2)\n" + 
 			"	public class Z extends X1 {\n" + 
@@ -167,8 +178,9 @@ public void test001() throws CoreException {
  * Ensures that a problem is created for a reference to a field of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
  * accessible class.
+ * NOT IN 3.1
  */
-public void test002() throws CoreException {
+public void _test002() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -250,8 +262,9 @@ public void test002() throws CoreException {
  * Ensures that a problem is created for a reference to a member type of a type that is not
  * accessible in a prereq project, even though it is accessed through an intermediate 
  * accessible class.
+ * NOT IN 3.1
  */
-public void test003() throws CoreException {
+public void _test003() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -368,8 +381,9 @@ public void test003() throws CoreException {
 
 /*
  * Discouraged access message - type via discouraged rule.
+ * NOT 3.1 (message is error)
  */
-public void test004() throws CoreException {
+public void _test004() throws CoreException {
 	ICompilationUnit x1 = null, z = null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -390,6 +404,8 @@ public void test004() throws CoreException {
 			this.problemRequestor);	
 		assertProblems(
 			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"----------\n"
 		);
@@ -440,8 +456,9 @@ public void test004() throws CoreException {
  * gets triggered. Rule of thumb: if pressing F3 on a method or field directs the
  * interface to a definition within a restricted type, then the use of the said method
  * or field is restricted.
+ * NOT IN 3.1
  */
-public void test005() throws CoreException {
+public void _test005() throws CoreException {
 	ICompilationUnit x1 = null, i1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -568,6 +585,8 @@ public void test006() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject(
@@ -598,6 +617,8 @@ public void test006() throws CoreException {
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 3)\n" + 
 			"	X x1;\n" + 
 			"	^\n" + 
@@ -609,11 +630,6 @@ public void test006() throws CoreException {
 			"Access restriction: The type X<String> is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
 			"3. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
-			"	X<String> x2 = new X<String>();\n" + 
-			"	               ^^^^^^^^^^^^^^^\n" + 
-			"Access restriction: The constructor X<String>() is not accessible due to restriction on required project P1\n" + 
-			"----------\n" + 
-			"4. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
 			"	X<String> x2 = new X<String>();\n" + 
 			"	                   ^\n" + 
 			"Access restriction: The type X<String> is not accessible due to restriction on required project P1\n" + 
@@ -661,6 +677,8 @@ public void test007() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n"
 		);
 		IJavaProject p2 = createJavaProject(
@@ -691,6 +709,8 @@ public void test007() throws CoreException {
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 3)\n" + 
 			"	X x1;\n" + 
 			"	^\n" + 
@@ -702,11 +722,6 @@ public void test007() throws CoreException {
 			"Access restriction: The type X<String> is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
 			"3. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
-			"	X<String> x2 = new X<String>(\"\");\n" + 
-			"	               ^^^^^^^^^^^^^^^^^\n" + 
-			"Access restriction: The constructor X<String>(String) is not accessible due to restriction on required project P1\n" + 
-			"----------\n" + 
-			"4. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
 			"	X<String> x2 = new X<String>(\"\");\n" + 
 			"	                   ^\n" + 
 			"Access restriction: The type X<String> is not accessible due to restriction on required project P1\n" + 
@@ -726,8 +741,9 @@ public void test007() throws CoreException {
  * Missing access restriction violation error on generic type.
  * Method case.
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
+ * NOT IN 3.1
  */
-public void test008() throws CoreException {
+public void _test008() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -752,6 +768,8 @@ public void test008() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n"
 		);
 		x2 = getWorkingCopy(			
@@ -764,6 +782,12 @@ public void test008() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"----------\n"
 		);
@@ -794,6 +818,8 @@ public void test008() throws CoreException {
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 4)\n" + 
 			"	foo(); // accesses X1.foo, should trigger an error\n" + 
 			"	^^^^^\n" + 
@@ -815,8 +841,9 @@ public void test008() throws CoreException {
  * Missing access restriction violation error on generic type.
  * Field case.
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
+ * NOT IN 3.1
  */
-public void test009() throws CoreException {
+public void _test009() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner(){};
@@ -932,6 +959,8 @@ public void test010() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n"
 		);
 		x2 = getWorkingCopy(			
@@ -945,6 +974,12 @@ public void test010() throws CoreException {
 			this.problemRequestor);
 		assertProblems(
 			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"----------\n"
 		);
@@ -983,32 +1018,19 @@ public void test010() throws CoreException {
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
+			"----------\n" + 
+			"----------\n" + 
 			"1. ERROR in /P2/src/p/Y.java (at line 3)\n" + 
 			"	class C3a extends C1 {      // error\n" + 
 			"	                  ^^\n" + 
 			"Access restriction: The type X1.C1 is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
-			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" + 
-			"	super(0);\n" + 
-			"	^^^^^^^^\n" + 
-			"Access restriction: The constructor X1.C1(int) is not accessible due to restriction on required project P1\n" + 
-			"----------\n" + 
-			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" + 
-			"	foo();                // error\n" + 
-			"	^^^^^\n" + 
-			"Access restriction: The method foo() from the type X1.C1 is not accessible due to restriction on required project P1\n" + 
-			"----------\n" + 
-			"4. ERROR in /P2/src/p/Y.java (at line 11)\n" + 
+			"2. ERROR in /P2/src/p/Y.java (at line 11)\n" + 
 			"	C1 m1 =                 // error\n" + 
 			"	^^\n" + 
 			"Access restriction: The type X1.C1 is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
-			"5. ERROR in /P2/src/p/Y.java (at line 12)\n" + 
-			"	new C1(0);      // error\n" + 
-			"	^^^^^^^^^\n" + 
-			"Access restriction: The constructor X1.C1(int) is not accessible due to restriction on required project P1\n" + 
-			"----------\n" + 
-			"6. ERROR in /P2/src/p/Y.java (at line 12)\n" + 
+			"3. ERROR in /P2/src/p/Y.java (at line 12)\n" + 
 			"	new C1(0);      // error\n" + 
 			"	    ^^\n" + 
 			"Access restriction: The type X1.C1 is not accessible due to restriction on required project P1\n" + 
