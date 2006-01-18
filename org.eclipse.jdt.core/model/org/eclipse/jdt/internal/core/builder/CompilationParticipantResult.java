@@ -87,8 +87,8 @@ public void recordNewProblems(IProblem[] newProblems) {
 	int length1 = this.problems == null ? 0 : this.problems.length;
 	IProblem[] merged = new IProblem[length1 + length2];
 	if (length1 > 0) // always make a copy even if currently empty
-		System.arraycopy(this.problems, 0, merged, 0, length1);
-	System.arraycopy(problems, 0, merged, length1, length2);
+		System.arraycopy(this.problems, 0, merged, 0, length1);	
+	System.arraycopy(newProblems, 0, merged, length1, length2);	
 	this.problems = merged;
 }
 
