@@ -60,6 +60,9 @@ What's new in this drop</h2>
 	 the classpath entry is optional. </li>
 <li>Added support for statement recovery in Parser<br>
 	 Currently this new behavior is incomplete (mapping non-terminals -> terminals) and disabled. The option JavaCore.COMPILER_STATEMENTS_RECOVERY must be set to ENABLED to use it (It's a temporary option).</li>
+<li>Added API for DOM ASTNode flag: <code>ASTNode.RECOVERED</code><br>
+	 It is a flag constant indicating that this node or a part of this node is recovered
+	 from source that contains a syntax error detected in the vicinity.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

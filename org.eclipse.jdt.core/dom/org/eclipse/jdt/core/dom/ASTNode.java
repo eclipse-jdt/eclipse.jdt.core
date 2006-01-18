@@ -2222,6 +2222,8 @@ public abstract class ASTNode {
 	 * created by ASTParser</li>
 	 * <li>{@link #PROTECT} - indicates node is protected
 	 * from further modification</li>
+	 * <li>{@link #RECOVERED} - indicates node or a part of this node
+	 *  is recovered from source that contains a syntax error</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
 	 * </p>
@@ -2245,6 +2247,8 @@ public abstract class ASTNode {
 	 * created by ASTParser</li>
 	 * <li>{@link #PROTECT} - indicates node is protected
 	 * from further modification</li>
+	 * <li>{@link #RECOVERED} - indicates node or a part of this node
+	 *  is recovered from source that contains a syntax error</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
 	 * </p>
