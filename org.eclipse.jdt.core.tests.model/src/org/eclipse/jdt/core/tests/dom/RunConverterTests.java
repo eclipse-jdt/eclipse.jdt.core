@@ -31,7 +31,8 @@ public static Class[] getAllTestClasses() {
 		ASTConverter15Test.class,
 		ASTConverterAST3Test.class,
 		ASTConverterTestAST3_2.class,
-		ASTConverterBindingsTest.class
+		ASTConverterBindingsTest.class,
+		ASTConverterRecoveryTest.class
 	};
 }
 public static Test suite() {
