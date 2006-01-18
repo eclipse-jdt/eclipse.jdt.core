@@ -79,7 +79,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testOptionalEntry3"};
+//	TESTS_NAMES = new String[] {"testClasspathValidation42"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -1672,6 +1672,30 @@ public void testClasspathValidation41() throws CoreException {
 		
 		assertStatus(
 			"Cannot nest \'P/src\' inside output folder \'P/\'",
+			status);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Should detect nested source folders on the classpath and indicate the preference if disabled
+ * (regression test for bug 122615 validate classpath propose to exlude a source folder even though exlusion patterns are disabled)
+ */ 
+public void testClasspathValidation42() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
+		proj.setOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, JavaCore.DISABLED);
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertStatus(
+			"should have detected nested source folders on the classpath", 
+			"Cannot nest \'P/src\' inside \'P\'. To allow the nesting enable use of exclusion patterns in the preferences of project \'P\' and exclude \'src/\' from \'P\'",
 			status);
 	} finally {
 		this.deleteProject("P");

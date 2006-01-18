@@ -124,6 +124,7 @@ public final class Messages extends NLS {
 	public static String status_updateConflict;
 	public static String classpath_buildPath;
 	public static String classpath_cannotNestEntryInEntry;
+	public static String classpath_cannotNestEntryInEntryNoExclusion;
 	public static String classpath_cannotNestEntryInLibrary;
 	public static String classpath_cannotNestEntryInOutput;
 	public static String classpath_cannotNestOutputInEntry;

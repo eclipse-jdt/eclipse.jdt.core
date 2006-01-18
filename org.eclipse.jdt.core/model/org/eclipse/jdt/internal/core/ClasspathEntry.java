@@ -1455,7 +1455,11 @@ public class ClasspathEntry implements IClasspathEntry {
 							} else {
 								if (otherKind == IClasspathEntry.CPE_SOURCE) {
 									exclusionPattern += '/';
-									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInEntry, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern})); 
+									if (!disableExclusionPatterns) {
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInEntry, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern}));
+									} else {
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInEntryNoExclusion, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern}));
+									}
 								} else {
 									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInLibrary, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString()})); 
 								}
