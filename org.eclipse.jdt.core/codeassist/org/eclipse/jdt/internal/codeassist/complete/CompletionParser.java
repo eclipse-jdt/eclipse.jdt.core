@@ -2939,7 +2939,7 @@ protected void consumeTypeParameterHeader() {
 	this.assistNode = typeParameter.type;
 	this.lastCheckPoint = typeParameter.type.sourceEnd + 1;
 }
-protected void consumeTypeParameters1() {
+protected void consumeTypeParameter1() {
 	super.consumeTypeParameter1();
 	popElement(K_BINARY_OPERATOR);
 }

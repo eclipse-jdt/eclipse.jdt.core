@@ -9042,4 +9042,35 @@ public void test0204(){
 			expectedReplacedSource,
 			"full ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123514
+public void test0205(){
+	String str =
+		"public class X {\n" +
+		"  <T> HashMap<K, V>\n" +
+		"}";
+
+
+	String completeBehind = "HashMap<";
+	int cursorLocation = str.indexOf("HashMap<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "HashMap<<CompleteOnType:>, V>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "K";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  HashMap<<CompleteOnType:>, V>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
