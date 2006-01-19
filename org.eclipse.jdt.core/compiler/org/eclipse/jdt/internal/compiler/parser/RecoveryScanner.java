@@ -187,6 +187,10 @@ public class RecoveryScanner extends Scanner {
 		return this.data;
 	}
 	
+	public boolean isFakeToken() {
+		return this.fakeTokenSource != null;
+	}
+	
 	public void setData(RecoveryScannerData data) {
 		if(data == null) {
 			this.data = new RecoveryScannerData();

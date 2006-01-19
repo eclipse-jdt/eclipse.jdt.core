@@ -4106,34 +4106,16 @@ class ASTConverter {
 	 */
 	protected int retrievePositionBeforeNextCommaOrSemiColon(int start, int end) {
 		this.scanner.resetTo(start, end);
-		int braceCounter = 0;
 		try {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameLBRACE :
-						braceCounter++;
-						break;
-					case TerminalTokens.TokenNameRBRACE :
-						braceCounter--;
-						break;
-					case TerminalTokens.TokenNameLPAREN :
-						braceCounter++;
-						break;
-					case TerminalTokens.TokenNameRPAREN :
-						braceCounter--;
-						break;
-					case TerminalTokens.TokenNameLBRACKET :
-						braceCounter++;
-						break;
-					case TerminalTokens.TokenNameRBRACKET :
-						braceCounter--;
-						break;
 					case TerminalTokens.TokenNameCOMMA :
 					case TerminalTokens.TokenNameSEMICOLON :
-						if (braceCounter == 0) {
-							return this.scanner.startPosition - 1;
+						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeToken()) {
+							return -1;
 						}
+						return this.scanner.startPosition - 1;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -4232,18 +4214,14 @@ class ASTConverter {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
-		int count = 0;
 		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameSEMICOLON:
-						if (count == 0) {
-							node.setSourceRange(start, this.scanner.currentPosition - start);
-							return;
-						}
-						break;
+						node.setSourceRange(start, this.scanner.currentPosition - start);
+						return;
 				}
 			}
 		} catch(InvalidInputException e) {

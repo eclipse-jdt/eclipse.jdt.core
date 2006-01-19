@@ -31,6 +31,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class ASTConverterRecoveryTest extends ConverterTestSetup {
@@ -269,5 +271,49 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		assertTrue("Not a method invocation", parameter2 instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation3 = (MethodInvocation) parameter2;
 		checkSourceRange(methodInvocation3, "foo(3)", source); //$NON-NLS-1$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124296
+	public void test0004() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    int var= 123\n"+
+			"	    System.out.println(var);\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    int var=123;\n" + 
+			"    System.out.println(var);\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 2, statements.size()); //$NON-NLS-1$
+		Statement statement1 = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement1.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement1;
+		checkSourceRange(variableDeclarationStatement, "int var= 123", source); //$NON-NLS-1$
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment)fragments.get(0);
+		checkSourceRange(variableDeclarationFragment, "var= 123", source); //$NON-NLS-1$
 	}
 }
