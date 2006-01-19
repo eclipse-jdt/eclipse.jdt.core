@@ -894,6 +894,9 @@ public class ClassFile
 		// leave some space for the number of attributes
 		contentsOffset += 2;
 		attributeNumber += addFieldAttributes(fieldBinding, fieldAttributeOffset);
+		if (contentsOffset + 2 >= contents.length) {
+			resizeContents(2);
+		}
 		contents[fieldAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[fieldAttributeOffset] = (byte) attributeNumber;
 	}
@@ -1041,6 +1044,9 @@ public class ClassFile
 		completeCodeAttributeForClinit(
 			codeAttributeOffset,
 			problemLine);
+		if (contentsOffset + 2 >= contents.length) {
+			resizeContents(2);
+		}
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
 	}
@@ -1624,7 +1630,6 @@ public class ClassFile
 		}
 		// then we do the local variable attribute
 		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
-			int localVariableTableOffset = localContentsOffset;
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
@@ -1639,8 +1644,9 @@ public class ClassFile
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
-			localContentsOffset += 6;
+			int localVariableTableOffset = localContentsOffset;
 			// leave space for attribute_length and local_variable_table_length
+			localContentsOffset += 6;
 			int nameIndex;
 			int descriptorIndex;
 			SourceTypeBinding declaringClassBinding = null;
@@ -1710,7 +1716,6 @@ public class ClassFile
 				}
 			}
 			int value = numberOfEntries * 10 + 2;
-			localVariableTableOffset += 2;
 			this.contents[localVariableTableOffset++] = (byte) (value >> 24);
 			this.contents[localVariableTableOffset++] = (byte) (value >> 16);
 			this.contents[localVariableTableOffset++] = (byte) (value >> 8);
@@ -1802,9 +1807,15 @@ public class ClassFile
 				int stackMapTableAttributeLengthOffset = localContentsOffset;
 				// generate the attribute
 				localContentsOffset += 4;
+				if (localContentsOffset + 4 >= this.contents.length) {
+					resizeContents(4);
+				}
 				numberOfFrames = 0;
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
+				if (localContentsOffset + 2 >= this.contents.length) {
+					resizeContents(2);
+				}
 				// generate all frames
 				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
 				while (currentFrame.prevFrame != null) {
@@ -2275,7 +2286,6 @@ public class ClassFile
 		}
 		// then we do the local variable attribute
 		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
-			int localVariableTableOffset = localContentsOffset;
 			int numberOfEntries = 0;
 			//		codeAttribute.addLocalVariableTableAttribute(this);
 			if ((codeStream.pcToSourceMap != null)
@@ -2287,6 +2297,7 @@ public class ClassFile
 				}
 				this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
+				int localVariableTableOffset = localContentsOffset;
 				localContentsOffset += 6;
 
 				// leave space for attribute_length and local_variable_table_length
@@ -2344,7 +2355,6 @@ public class ClassFile
 					}
 				}
 				int value = numberOfEntries * 10 + 2;
-				localVariableTableOffset += 2;
 				this.contents[localVariableTableOffset++] = (byte) (value >> 24);
 				this.contents[localVariableTableOffset++] = (byte) (value >> 16);
 				this.contents[localVariableTableOffset++] = (byte) (value >> 8);
@@ -3699,7 +3709,6 @@ public class ClassFile
 		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
 			// compute the resolved position for the arguments of the method
 			int argSize;
-			int localVariableTableOffset = localContentsOffset;
 			int numberOfEntries = 0;
 			//		codeAttribute.addLocalVariableTableAttribute(this);
 			int localVariableNameIndex =
@@ -3709,6 +3718,7 @@ public class ClassFile
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
+			int localVariableTableOffset = localContentsOffset;
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int descriptorIndex;
@@ -3835,7 +3845,6 @@ public class ClassFile
 				}
 			}
 			int value = numberOfEntries * 10 + 2;
-			localVariableTableOffset += 2;
 			this.contents[localVariableTableOffset++] = (byte) (value >> 24);
 			this.contents[localVariableTableOffset++] = (byte) (value >> 16);
 			this.contents[localVariableTableOffset++] = (byte) (value >> 8);
@@ -4423,7 +4432,6 @@ public class ClassFile
 		}
 		// then we do the local variable attribute
 		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
-			int localVariableTableOffset = localContentsOffset;
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
@@ -4432,6 +4440,7 @@ public class ClassFile
 			}
 			contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			contents[localContentsOffset++] = (byte) localVariableNameIndex;
+			int localVariableTableOffset = localContentsOffset;
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
@@ -4488,7 +4497,6 @@ public class ClassFile
 				}
 			}
 			int value = numberOfEntries * 10 + 2;
-			localVariableTableOffset += 2;
 			contents[localVariableTableOffset++] = (byte) (value >> 24);
 			contents[localVariableTableOffset++] = (byte) (value >> 16);
 			contents[localVariableTableOffset++] = (byte) (value >> 8);
@@ -5196,6 +5204,9 @@ public class ClassFile
 	public int generateMethodInfoAttribute(MethodBinding methodBinding, boolean createProblemMethod) {
 		// leave two bytes for the attribute_number
 		contentsOffset += 2;
+		if (contentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 		// now we can handle all the attribute for that method info:
 		// it could be:
 		// - a CodeAttribute
@@ -5321,7 +5332,9 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) annotationDefaultNameIndex;
 			int attributeLengthOffset = contentsOffset;
 			contentsOffset += 4;
-
+			if (contentsOffset + 4 >= this.contents.length) {
+				resizeContents(4);
+			}
 			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
 			if (contentsOffset != attributeOffset) {
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
