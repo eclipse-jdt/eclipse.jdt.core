@@ -6030,4 +6030,29 @@ public void test142c() {
     		"The type A is deprecated\n" + 
     		"----------\n");
     }            
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346
+    public void _test186() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"p1/X.java", // =================
+    				"package p1;\n" +
+    				"public class X {\n" + 
+    				"	@Deprecated\n" +
+    				"	class Y implements p2.I {\n" + 
+    				"		Zork z;\n" +
+    				"	}\n" + 
+    				"}\n", // =================
+    				"p2/I.java", // =================
+    				"package p2;\n" +
+    				"@Deprecated\n" + 
+    				"public interface I {\n" + 
+    				"}\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in p1\\X.java (at line 5)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }                
 }
