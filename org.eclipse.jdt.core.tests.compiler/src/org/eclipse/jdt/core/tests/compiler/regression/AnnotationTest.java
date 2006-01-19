@@ -6055,4 +6055,28 @@ public void test142c() {
     		"Zork cannot be resolved to a type\n" + 
     		"----------\n");
     }                
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346 - variation
+    public void _test187() {
+    	this.runNegativeTest(
+    		new String[] {
+    				"p1/X.java", // =================
+    				"package p1;\n" +
+    				"import p2.I;\n" +
+    				"@Deprecated\n" +
+    				"public class X {\n" + 
+    				"	Zork z;\n" +
+    				"}\n", // =================
+    				"p2/I.java", // =================
+    				"package p2;\n" +
+    				"@Deprecated\n" + 
+    				"public interface I {\n" + 
+    				"}\n", // =================
+    		},
+    		"----------\n" + 
+    		"1. ERROR in p1\\X.java (at line 5)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }         
 }
