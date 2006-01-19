@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class JavaSearchDocument extends SearchDocument {
 	
@@ -39,8 +39,8 @@ public class JavaSearchDocument extends SearchDocument {
 	public byte[] getByteContents() {
 		if (this.byteContents != null) return this.byteContents;
 		try {
-			return org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(getLocation().toFile());
-		} catch (IOException e) {
+			return Util.getResourceContentsAsByteArray(getFile());
+		} catch (JavaModelException e) {
 			if (BasicSearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
@@ -50,8 +50,8 @@ public class JavaSearchDocument extends SearchDocument {
 	public char[] getCharContents() {
 		if (this.charContents != null) return this.charContents;
 		try {
-			return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(getLocation().toFile(), getEncoding());
-		} catch (IOException e) {
+			return Util.getResourceContentsAsCharArray(getFile());
+		} catch (JavaModelException e) {
 			if (BasicSearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
@@ -79,12 +79,6 @@ public class JavaSearchDocument extends SearchDocument {
 		if (this.file == null)
 			this.file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(getPath()));
 		return this.file;
-	}
-	private IPath getLocation() {
-		IFile resource = getFile();
-		if (resource != null)
-			return resource.getLocation();
-		return new Path(getPath()); // external file
 	}
 	public String toString() {
 		return "SearchDocument for " + getPath(); //$NON-NLS-1$

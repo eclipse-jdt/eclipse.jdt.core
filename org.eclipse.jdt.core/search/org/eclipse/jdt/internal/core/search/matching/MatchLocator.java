@@ -258,10 +258,9 @@ public static ClassFileReader classFileReader(IType type) {
 		if (!root.isArchive())
 			return Util.newClassFileReader(type.getResource());
 
-		IPath zipPath = root.isExternal() ? root.getPath() : root.getResource().getLocation();
-		if (zipPath == null) return null; // location is null
 		ZipFile zipFile = null;
 		try {
+			IPath zipPath = root.getPath();
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 				System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
 			zipFile = manager.getZipFile(zipPath);
