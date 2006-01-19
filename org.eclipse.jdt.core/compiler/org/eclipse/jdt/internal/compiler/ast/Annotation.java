@@ -314,12 +314,17 @@ public abstract class Annotation extends Expression {
 						break;
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
-					case Binding.TYPE_PARAMETER :
 						SourceTypeBinding sourceType = (SourceTypeBinding) this.recipient;
 						sourceType.tagBits |= tagBits;
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							TypeDeclaration typeDeclaration =  sourceType.scope.referenceContext;
-							recordSuppressWarnings(scope, typeDeclaration.declarationSourceStart, typeDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+							int start;
+//							if (scope.referenceCompilationUnit().types[0] == typeDeclaration) {
+//								start = 0;
+//							} else {
+								start = typeDeclaration.declarationSourceStart;
+//							}
+							recordSuppressWarnings(scope, start, typeDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
 						}
 						break;
 					case Binding.METHOD :

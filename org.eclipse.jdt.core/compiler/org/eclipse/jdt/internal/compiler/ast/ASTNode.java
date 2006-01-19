@@ -444,7 +444,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.TYPE :
 				case Binding.GENERIC_TYPE :
-				case Binding.TYPE_PARAMETER :
 					ReferenceBinding type = (ReferenceBinding) recipient;
 					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
 					type.tagBits |= TagBits.AnnotationResolved;
@@ -480,6 +479,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						local.setAnnotations(instances);
 					}
 					break;
+				default :
+					return;
 			}			
 		}
 		if (annotations == null) 
@@ -527,7 +528,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.TYPE :
 				case Binding.GENERIC_TYPE :
-				case Binding.TYPE_PARAMETER :
 					ReferenceBinding type = (ReferenceBinding) recipient;
 					if ((type.tagBits & (TagBits.AnnotationResolved|TagBits.AnnotationDeprecated)) != 0) return;
 					break;
@@ -543,6 +543,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
 					if ((local.tagBits & (TagBits.AnnotationResolved|TagBits.AnnotationDeprecated)) != 0) return;
 					break;
+				default :
+					return;
 			}			
 		}
 		for (int i = 0; i < length; i++) {
