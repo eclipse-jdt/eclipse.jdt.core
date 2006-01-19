@@ -343,7 +343,10 @@ public class SearchEngine {
 	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or references as specified
 	 *  		above.</li>
 	 *
-	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.
+	 *				Note that types may be only classes or only interfaces if {@link IJavaSearchConstants#CLASS } or
+	 *				{@link IJavaSearchConstants#INTERFACE} is respectively used instead of {@link IJavaSearchConstants#TYPE}.
+	 *		</li>
 	 *	</ul>
 	 *
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
@@ -424,7 +427,10 @@ public class SearchEngine {
 	 *		  for both declarations and all references </li>
 	 *	  <li>{@link IJavaSearchConstants#IMPLEMENTORS}: search for
 	 *		  all implementors of an interface; the value is only valid if
-	 *		  the Java element represents an interface</li>
+	 *		  the Java element represents an interface.<br>
+	 *			Note that types may be only classes or only interfaces if respectively {@link IJavaSearchConstants#CLASS} or
+	 *			{@link IJavaSearchConstants#INTERFACE} is used for searchFor parameter instead of {@link IJavaSearchConstants#TYPE}.
+	 *	  </li>
 	 * 	</ul>
 	 * @param scope the search result has to be limited to the given scope
 	 * @param resultCollector a callback object to which each match is reported	 

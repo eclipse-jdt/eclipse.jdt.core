@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class SuperTypeReferenceLocator extends PatternLocator {
 
@@ -50,6 +52,23 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 
 protected int matchContainer() {
 	return CLASS_CONTAINER;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, org.eclipse.jdt.internal.compiler.lookup.Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+ */
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	if (elementBinding instanceof ReferenceBinding) {
+		ReferenceBinding referenceBinding = (ReferenceBinding) elementBinding;
+		if (referenceBinding.isClass() && this.pattern.typeSuffix == IIndexConstants.INTERFACE_SUFFIX) {
+			// do not report class if expected types are only interfaces
+			return;
+		}
+		if (referenceBinding.isInterface() && this.pattern.typeSuffix == IIndexConstants.CLASS_SUFFIX) {
+			// do not report interface if expected types are only classes
+			return;
+		}
+	}
+	super.matchReportReference(reference, element, elementBinding, accuracy, locator);
 }
 protected int referenceType() {
 	return IJavaElement.TYPE;

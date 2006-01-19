@@ -23,6 +23,10 @@ public char[] superQualification;
 public char[] superSimpleName;
 public char superClassOrInterface;
 
+// set to CLASS_SUFFIX for only matching classes 
+// set to INTERFACE_SUFFIX for only matching interfaces
+// set to TYPE_SUFFIX for matching both classes and interfaces
+public char typeSuffix; 
 public char[] pkgName;
 public char[] simpleName;
 public char[] enclosingTypeName;
@@ -151,6 +155,17 @@ public SuperTypeReferencePattern(
 	this.superSimpleName = (isCaseSensitive() || isCamelCase())  ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	((InternalSearchPattern)this).mustResolve = superQualification != null;
 	this.superRefKind = superRefKind;
+}
+public SuperTypeReferencePattern(
+	char[] superQualification,
+	char[] superSimpleName,
+	int superRefKind,
+	char typeSuffix,
+	int matchRule) {
+
+	this(superQualification, superSimpleName, superRefKind, matchRule);
+	this.typeSuffix = typeSuffix;
+	((InternalSearchPattern)this).mustResolve = superQualification != null || typeSuffix != IIndexConstants.TYPE_SUFFIX;
 }
 SuperTypeReferencePattern(int matchRule) {
 	super(SUPER_REF_PATTERN, matchRule);

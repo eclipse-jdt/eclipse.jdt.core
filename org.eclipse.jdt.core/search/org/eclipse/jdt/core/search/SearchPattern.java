@@ -996,8 +996,9 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
  *				references as specified above.
  *		</li>
- *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
- *				which implements a given interface.
+ *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.
+ *				Note that types may be only classes or only interfaces if {@link IJavaSearchConstants#CLASS } or
+ *				{@link IJavaSearchConstants#INTERFACE} is respectively used instead of {@link IJavaSearchConstants#TYPE}.
  *		</li>
  *	</ul>
  * @param matchRule one of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH},
@@ -1586,7 +1587,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 		case IJavaSearchConstants.REFERENCES :
 			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule);
 		case IJavaSearchConstants.IMPLEMENTORS : 
-			return new SuperTypeReferencePattern(qualificationChars, typeChars, SuperTypeReferencePattern.ONLY_SUPER_INTERFACES, matchRule);
+			return new SuperTypeReferencePattern(qualificationChars, typeChars, SuperTypeReferencePattern.ONLY_SUPER_INTERFACES, indexSuffix, matchRule);
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
 				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types

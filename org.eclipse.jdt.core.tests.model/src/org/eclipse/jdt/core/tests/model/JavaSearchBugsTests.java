@@ -46,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
 //	TESTS_NAMES = new String[] { "testBug110336e" };
-//	TESTS_NUMBERS = new int[] { 120816 };
+//	TESTS_NUMBERS = new int[] { 122442 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -5654,6 +5654,115 @@ public void testBug120816b() throws CoreException {
 	search("* String (Exception)", METHOD, DECLARATIONS);
 	assertSearchResults(
 		"src/b120816/Test.java String b120816.Sub.foo(Exception) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 122442: [search] API inconsistency with IJavaSearchConstants.IMPLEMENTORS and SearchPattern
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=122442"
+ */
+public void testBug122442a() throws CoreException {
+	workingCopies = new ICompilationUnit[3];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/I.java",
+		"package b122442;\n" + 
+		"public interface I {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b122442/II.java",
+		"package b122442;\n" + 
+		"public interface II extends I {}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b122442/X.java",
+		"package b122442;\n" + 
+		"public class X implements I {}\n"
+	);
+	search("I", TYPE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/II.java b122442.II [I] EXACT_MATCH\n" + 
+		"src/b122442/X.java b122442.X [I] EXACT_MATCH"
+	);
+}
+public void testBug122442b() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	search("I", INTERFACE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/II.java b122442.II [I] EXACT_MATCH"
+	);
+}
+public void testBug122442c() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	search("I", CLASS, IMPLEMENTORS);
+	assertSearchResults(
+		"src/b122442/X.java b122442.X [I] EXACT_MATCH"
+	);
+}
+public void testBug122442d() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/User.java",
+		"class Klass {}\n" + 
+		"interface Interface {}\n" + 
+		"class User {\n" + 
+		"    void m() {\n" + 
+		"        new Klass() {};\n" + 
+		"        new Interface() {};\n" + 
+		"    }\n" + 
+		"}\n" + 
+		"class Sub extends Klass {}"
+	);
+	search("Interface", TYPE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/User.java void b122442.User.m():<anonymous>#2 [Interface] EXACT_MATCH"
+	);
+}
+public void testBug122442e() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	search("Interface", INTERFACE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"" // expected no result
+	);
+}
+public void testBug122442f() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	search("Interface", CLASS, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/User.java void b122442.User.m():<anonymous>#2 [Interface] EXACT_MATCH"
+	);
+}
+public void testBug122442g() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	search("Klass", TYPE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
+		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
+	);
+}
+public void testBug122442h() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	search("Klass", INTERFACE, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"" // expected no result
+	);
+}
+public void testBug122442i() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	search("Klass", CLASS, IMPLEMENTORS);
+	this.discard = false;
+	assertSearchResults(
+		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
+		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
 	);
 }
 }
