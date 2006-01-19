@@ -797,7 +797,7 @@ public class Util {
 				try {
 					IPath path = null;
 					if (targetLibrary instanceof IResource) {
-						path = ((IResource)targetLibrary).getLocation();
+						path = ((IResource)targetLibrary).getFullPath();
 					} else if (targetLibrary instanceof File){
 						File f = (File) targetLibrary;
 						if (!f.isDirectory()) {
@@ -1364,11 +1364,8 @@ public class Util {
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
 		InputStream in = null;
 		try {
-			URI uri = resource.getLocationURI();
-			if (uri == null) return null;
-			IFileStore store = EFS.getStore(uri);
-			in = store.openInputStream(EFS.NONE, null);
-			return ClassFileReader.read(in, uri.getPath());
+			in = ((IFile) resource).getContents();
+			return ClassFileReader.read(in, resource.getFullPath().toString());
 		} finally {
 			if (in != null)
 				in.close();
@@ -2013,6 +2010,19 @@ public class Util {
 			start = end + 1;
 		}
 		return segs;
+	}
+	/*
+	 * Converts the given URI to a local file. Use the existing file if the uri is on the local file system.
+	 * Otherwise fetch it.
+	 * Returns null if unable to fetch it.
+	 */
+	public static File toLocalFile(URI uri, IProgressMonitor monitor) throws CoreException {
+		IFileStore fileStore = EFS.getStore(uri);
+		File localFile = fileStore.toLocalFile(EFS.NONE, monitor);
+		if (localFile ==null)
+			// non local file system
+			localFile= fileStore.toLocalFile(EFS.CACHE, monitor);
+		return localFile;
 	}
 	/**
 	 * Converts a char[][] to String, where segments are separated by '.'.

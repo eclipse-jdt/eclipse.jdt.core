@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -89,16 +92,31 @@ class AddJarFileToIndex extends IndexRequest {
 
 				monitor.enterWrite(); // ask permission to write
 				if (resource != null) {
-					IPath location = this.resource.getLocation();
+					URI location = this.resource.getLocationURI();
 					if (location == null) return false;
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location); //$NON-NLS-1$	//$NON-NLS-2$
-					zip = new ZipFile(location.toFile());
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
+					File file = null;
+					try {
+						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
+					} catch (CoreException e) {
+						if (JobManager.VERBOSE) {
+							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+							e.printStackTrace();
+						}
+					}
+					if (file == null) {
+						if (JobManager.VERBOSE)
+							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
+						return false;
+					}
+					zip = new ZipFile(file);
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
+					// external file -> it is ok to use toFile()
 					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
 					// path is already canonical since coming from a library classpath entry

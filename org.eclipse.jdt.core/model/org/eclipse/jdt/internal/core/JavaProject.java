@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2230,10 +2231,10 @@ public class JavaProject
 			// when a project is imported, we get a first delta for the addition of the .project, but the .classpath is not accessible
 			// so default to using java.io.File
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96258
-			IPath location = rscFile.getLocation();
+			URI location = rscFile.getLocationURI();
 			if (location != null) {
-				File file = location.toFile();
-				if (file.exists()) {
+				File file = Util.toLocalFile(location, null/*no progress monitor available*/);
+				if (file != null && file.exists()) {
 					byte[] bytes;
 					try {
 						bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);

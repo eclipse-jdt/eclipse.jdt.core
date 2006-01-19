@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
 import java.util.*;
@@ -86,8 +87,12 @@ AccessRuleSet accessRuleSet;
 
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.resource = resource;
-	IPath location = resource.getLocation();
-	this.zipFilename = location != null ? location.toString() : ""; //$NON-NLS-1$
+	try {
+		File localFile = Util.toLocalFile(resource.getLocationURI(), null);
+		this.zipFilename = localFile.getPath();
+	} catch (CoreException e) {
+		// ignore
+	}	
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;

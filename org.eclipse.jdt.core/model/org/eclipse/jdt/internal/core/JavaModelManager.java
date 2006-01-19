@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -1555,9 +1556,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	/**
-	 * Returns the open ZipFile at the given location. If the ZipFile
+	 * Returns the open ZipFile at the given path. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
-	 * of open ZipFiles. The path must be absolute.
+	 * of open ZipFiles. 
+	 * 
+	 * The path must be a file system path if representing an external 
+	 * zip/jar, or it must be an abosulte workspace relative path if 
+	 * representing a zip/jar inside the workspace.
 	 *
 	 * @exception CoreException If unable to create/open the ZipFile
 	 */
@@ -1570,26 +1575,28 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				
 			return zipFile;
 		}
-		String fileSystemPath= null;
+		File localFile = null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource file = root.findMember(path);
 		if (file != null) {
 			// internal resource
-			IPath location;
-			if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
+			URI location;
+			if (file.getType() != IResource.FILE || (location = file.getLocationURI()) == null) {
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null)); 
 			}
-			fileSystemPath= location.toOSString();
+			localFile = Util.toLocalFile(location, null/*no progress availaible*/);
+			if (localFile == null)
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null)); 
 		} else {
-			// external resource
-			fileSystemPath= path.toOSString();
+			// external resource -> it is ok to use toFile()
+			localFile= path.toFile();
 		}
 
 		try {
 			if (ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + localFile ); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			zipFile = new ZipFile(fileSystemPath);
+			zipFile = new ZipFile(localFile);
 			if (map != null) {
 				map.put(path, zipFile);
 			}

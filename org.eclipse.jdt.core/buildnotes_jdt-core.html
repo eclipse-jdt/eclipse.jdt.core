@@ -52,6 +52,7 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added EFS support for zip and jar files. JDT/Core now fully supports EFS.</li>
 <li>Added support for optional classpath entries. When optional, a missing entry is not complained
      against, and simply ignored.
      In order to be optional, an entry must carry an <code>IClasspathAttribute#OPTIONAL</code> 
@@ -66,7 +67,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124296">124296</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=123437">123437</a>
+Support EFS for zip/jar files
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124296">124296</a>
 Recovered ast nodes don't nest properly
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124101">124101</a>
 [compiler] NPE when resolving array initializer in fault tolerant mode
