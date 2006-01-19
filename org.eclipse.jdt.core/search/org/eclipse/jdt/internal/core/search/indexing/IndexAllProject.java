@@ -139,7 +139,6 @@ public class IndexAllProject extends IndexRequest {
 										case IResource.FILE :
 											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 												IFile file = (IFile) proxy.requestResource();
-												if (file.getLocationURI() == null) return false;
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
@@ -169,15 +168,15 @@ public class IndexAllProject extends IndexRequest {
 										case IResource.FILE :
 											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 												IFile file = (IFile) proxy.requestResource();
-												URI uri = file.getLocationURI();
-												if (uri == null) return false;
+												URI location = file.getLocationURI();
+												if (location == null) return false;
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
 												String relativePathString = Util.relativePath(file.getFullPath(), 1/*remove project segment*/);
 												indexedFileNames.put(relativePathString,
 													indexedFileNames.get(relativePathString) == null 
-															|| indexLastModified < EFS.getStore(uri).fetchInfo().getLastModified()
+															|| indexLastModified < EFS.getStore(location).fetchInfo().getLastModified()
 														? (Object) file
 														: (Object) OK);
 											}
