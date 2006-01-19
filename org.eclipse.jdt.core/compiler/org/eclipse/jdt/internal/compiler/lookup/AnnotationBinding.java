@@ -85,7 +85,7 @@ private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvir
 
 	ReferenceBinding retention = env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, null);
 	ElementValuePair[] pairs = new ElementValuePair[] { new ElementValuePair(TypeConstants.VALUE, value, null) };
-	return new AnnotationBinding(retention, pairs);
+	return createUnresolvedAnnotation(retention, pairs, env);
 }
 
 private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironment env) {
@@ -133,7 +133,7 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 	}
 
 	ElementValuePair[] pairs = new ElementValuePair[] { new ElementValuePair(TypeConstants.VALUE, value, null) };
-	return new AnnotationBinding(target, pairs);
+	return createUnresolvedAnnotation(target, pairs, env);
 }
 
 public static AnnotationBinding createUnresolvedAnnotation(ReferenceBinding type, ElementValuePair[] pairs, LookupEnvironment env) {
