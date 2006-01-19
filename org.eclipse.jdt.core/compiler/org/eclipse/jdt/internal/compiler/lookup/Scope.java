@@ -2786,6 +2786,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				if (context != null && context.isViewedAsDeprecated())
 					return true;
 				break;
+			case Scope.COMPILATION_UNIT_SCOPE :
+				// consider import as being deprecated if first type is itself deprecated (123522)
+				CompilationUnitDeclaration unit = referenceCompilationUnit();
+				if (unit.types != null && unit.types.length > 0) {
+					SourceTypeBinding type = unit.types[0].binding;
+					if (type != null && type.isViewedAsDeprecated())
+						return true;
+				}
 		}
 		return false;
 	}

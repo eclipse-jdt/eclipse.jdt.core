@@ -383,8 +383,32 @@ public void test010() {
 		null,
 		true,
 		customOptions);
-	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123522
+public void test011() {
+	this.runNegativeTest(
+		new String[] {
+				"p1/X.java", // =================
+				"package p1;\n" +
+				"import p2.I;\n" +
+				"/** @deprecated */\n" +
+				"public class X {\n" + 
+				"	Zork z;\n" +
+				"}\n", // =================
+				"p2/I.java", // =================
+				"package p2;\n" +
+				"/** @deprecated */\n" + 
+				"public interface I {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}         
+
 public static Class testClass() {
 	return DeprecatedTest.class;
 }
