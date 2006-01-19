@@ -68,10 +68,8 @@ public class IndexBinaryFolder extends IndexRequest {
 						if (proxy.getType() == IResource.FILE) {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 								IFile file = (IFile) proxy.requestResource();
-								if (file.getLocationURI() != null) {
-									String containerRelativePath = Util.relativePath(file.getFullPath(), containerPath.segmentCount());
-									indexedFileNames.put(containerRelativePath, file);
-								}
+								String containerRelativePath = Util.relativePath(file.getFullPath(), containerPath.segmentCount());
+								indexedFileNames.put(containerRelativePath, file);
 							}
 							return false;
 						}
@@ -90,13 +88,13 @@ public class IndexBinaryFolder extends IndexRequest {
 							if (proxy.getType() == IResource.FILE) {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 									IFile file = (IFile) proxy.requestResource();
-									URI uri = file.getLocationURI();
-									if (uri != null) {
+									URI location = file.getLocationURI();
+									if (location != null) {
 										String containerRelativePath = Util.relativePath(file.getFullPath(), containerPath.segmentCount());
 										indexedFileNames.put(containerRelativePath,
 											indexedFileNames.get(containerRelativePath) == null 
 													|| indexLastModified < 
-													EFS.getStore(uri).fetchInfo().getLastModified()
+													EFS.getStore(location).fetchInfo().getLastModified()
 												? (Object) file
 												: (Object) OK);
 									}
