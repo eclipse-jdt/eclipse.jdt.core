@@ -5997,7 +5997,7 @@ public void test142c() {
     		"----------\n");
     }        
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123522
-    public void _test185() {
+    public void test185() {
     	this.runNegativeTest(
     		new String[] {
     				"X.java", // =================

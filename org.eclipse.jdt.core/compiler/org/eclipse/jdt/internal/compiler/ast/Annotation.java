@@ -319,11 +319,11 @@ public abstract class Annotation extends Expression {
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							TypeDeclaration typeDeclaration =  sourceType.scope.referenceContext;
 							int start;
-//							if (scope.referenceCompilationUnit().types[0] == typeDeclaration) {
-//								start = 0;
-//							} else {
+							if (scope.referenceCompilationUnit().types[0] == typeDeclaration) {
+								start = 0;
+							} else {
 								start = typeDeclaration.declarationSourceStart;
-//							}
+							}
 							recordSuppressWarnings(scope, start, typeDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
 						}
 						break;
