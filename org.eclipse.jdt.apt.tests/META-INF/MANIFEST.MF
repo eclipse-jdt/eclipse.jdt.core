@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: APT Tests
 Bundle-SymbolicName: org.eclipse.jdt.apt.tests; singleton:=true
 Bundle-Version: 3.2.0
-Bundle-ClassPath: apt.jar
+Bundle-ClassPath: apt.jar,
+ aptext.jar
 Bundle-Activator: org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin
 Bundle-Localization: plugin
 Export-Package: org.eclipse.jdt.apt.tests,
@@ -19,7 +20,6 @@ Export-Package: org.eclipse.jdt.apt.tests,
  org.eclipse.jdt.apt.tests.annotations.noop,
  org.eclipse.jdt.apt.tests.annotations.readAnnotationType,
  org.eclipse.jdt.apt.tests.annotations.readannotation,
- org.eclipse.jdt.apt.tests.annotations.readannotation.lib,
  org.eclipse.jdt.apt.tests.annotations.valueconversion,
  org.eclipse.jdt.apt.tests.external.annotations.batch,
  org.eclipse.jdt.apt.tests.external.annotations.classloader,

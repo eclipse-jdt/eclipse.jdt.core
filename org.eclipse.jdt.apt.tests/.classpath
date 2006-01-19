@@ -4,5 +4,6 @@
 	<classpathentry output="binext" kind="src" path="srcext"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="resources/question.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

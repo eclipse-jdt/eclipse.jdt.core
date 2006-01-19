@@ -179,7 +179,7 @@ public class ReadAnnotationTests extends Tests
 		IProject project = setupTest();
 		final File jar = 
 			TestUtil.getFileInPlugin(AptTestsPlugin.getDefault(), 
-									 new Path("/src/org/eclipse/jdt/apt/tests/annotations/readannotation/lib/question.jar")); //$NON-NLS-1$
+									 new Path("/resources/question.jar")); //$NON-NLS-1$
 		final String path = jar.getAbsolutePath();
 		env.addExternalJar(project.getFullPath(), path);
 				

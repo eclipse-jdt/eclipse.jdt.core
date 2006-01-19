@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -51,29 +52,52 @@ public class TestUtil
 
 	/**
 	 * creates the annotation jar.  
-	 * @return the java.io.File of the jar that was created.
+	 * @return the java.io.File of the jar that was created. Null if not found.
 	 */
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
 	{
-		//
-		//   add annotations jar as part of the project
-		//
 		IPath projectPath = getProjectPath( project );
 		File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
 		String classesJarPath = jarFile.getAbsolutePath();
-		FileFilter filter = new PackageFileFilter(
-				ANNOTATIONS_PKG, getPluginClassesDir());
-		Map<File, FileFilter> files = Collections.singletonMap(
-				new File(getPluginClassesDir()), filter);
-		zip( classesJarPath, files );
+		
+		File binDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/bin"));
+		if(null != binDir) {
+		
+			// create annotations jar at classesJarpath
+			FileFilter filter = new PackageFileFilter(
+					ANNOTATIONS_PKG, getPluginClassesDir());
+			Map<File, FileFilter> files = Collections.singletonMap(
+					new File(getPluginClassesDir()), filter);
+			zip( classesJarPath, files );
+		
+		} else {
+		
+			File aptJarFile = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/apt.jar")); 
+			if(null != aptJarFile) {
+				
+				// move extapt.jar to classesJarPath file
+				moveFile(aptJarFile, classesJarPath);
+			
+			} else {
+				
+				throw new FileNotFoundException("Could not find apt.jar file in org.eclipse.jdt.apt.tests plugin");
+			}
+			
+		}
+		
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
-			null /*srcAttachmentPathRoot*/, true );
-		return new File(classesJarPath);
+				null /*srcAttachmentPathRoot*/, true );
+		
+		return jarFile;
 	}
 	
 	/**
-	 * Creates an annotation jar containing annotations and processors
+	 * Looks for the apt.jar that is defined in the build.properties 
+	 * and available when the plugin is built deployed. 
+	 * (currently when the plugin is built using releng the /bin directory classes are not available)
+	 * 
+	 * else it creates an annotation jar containing annotations and processors
 	 * from the "external.annotations" package, and adds it to the project.
 	 * Classes will be found under [project]/binext, and manifest will be
 	 * drawn from [project]/srcext/META-INF.  
@@ -87,19 +111,43 @@ public class TestUtil
 			IJavaProject project  )
 		throws IOException, JavaModelException
 	{
+		// create temporary file
 		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
 		String classesJarPath = jarFile.getAbsolutePath();
-		FileFilter classFilter = new PackageFileFilter(
-				EXTANNOTATIONS_PKG, getPluginExtClassesDir());
-		FileFilter manifestFilter = new PackageFileFilter(
-				"META-INF", getPluginExtSrcDir()); //$NON-NLS-1$
-		Map<File, FileFilter> files = new HashMap<File, FileFilter>(2);
-		files.put(new File( getPluginExtClassesDir() ), classFilter);
-		files.put(new File( getPluginExtSrcDir() ), manifestFilter);
-		zip( classesJarPath, files );
+		
+		File extBinDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/binext")); 
+		if(null != extBinDir) {
+			
+			//create zip file in temp file location
+			FileFilter classFilter = new PackageFileFilter(
+					EXTANNOTATIONS_PKG, getPluginExtClassesDir());
+			FileFilter manifestFilter = new PackageFileFilter(
+					"META-INF", getPluginExtSrcDir()); //$NON-NLS-1$
+			Map<File, FileFilter> files = new HashMap<File, FileFilter>(2);
+			files.put(new File( getPluginExtClassesDir() ), classFilter);
+			files.put(new File( getPluginExtSrcDir() ), manifestFilter);
+			zip( classesJarPath, files );
+			
+		} else {
+		
+			File extJarFile = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/aptext.jar")); 
+			if(null != extJarFile) {
+				
+				// move extapt.jar to classesJarPath file
+				moveFile(extJarFile, classesJarPath);
+			
+			} else {
+				
+				throw new FileNotFoundException("Could not find aptext.jar file in org.eclipse.jdt.apt.tests plugin");
+			}
+			
+		}
+		
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
-			null /*srcAttachmentPathRoot*/, true );
-		return new File(classesJarPath);
+				null /*srcAttachmentPathRoot*/, true );
+		
+		return jarFile;
+		
 	}
 	
 	/**
@@ -153,11 +201,20 @@ public class TestUtil
 			.getAbsolutePath();
 	}
 
+	/**
+	 * 
+	 * @param plugin The Plugin to get file from
+	 * @param path The path to the file in the Plugin
+	 * @return File object if found, null otherwise
+	 */
 	public static java.io.File getFileInPlugin(Plugin plugin, IPath path)
 	{
 		try
 		{
 			URL installURL = plugin.getBundle().getEntry( path.toString() );
+			if(null == installURL)
+				return null; // File Not found
+			
 			URL localURL = Platform.asLocalURL( installURL );
 			return new java.io.File( localURL.getFile() );
 		}
@@ -167,6 +224,32 @@ public class TestUtil
 		}
 	}
 
+	/**
+	 * Could use File.renameTo(File) but it's platform dependant.
+	 * 
+	 * @param from - The file to move
+	 * @param path - The path to move it to
+	 */
+	public static void moveFile(File from , String toPath)
+		throws FileNotFoundException, IOException {
+		
+		FileInputStream fis = null;
+		FileOutputStream fos = null; 
+		try
+		{
+			fis = new FileInputStream( from );
+			fos = new FileOutputStream(new File(toPath));
+			int b;
+			while ( ( b = fis.read() ) != -1)
+				fos.write( b );
+		} 
+		finally
+		{
+			if ( fis != null ) fis.close();
+			if ( fos != null ) fos.close();
+		}
+	}
+	
 	/**
 	 * Create a zip file and add contents.
 	 * @param zipPath the zip file
@@ -310,16 +393,21 @@ public class TestUtil
 	}
 	
 	
-
 	public static void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
+		IClasspathEntry newPathEntry = JavaCore.newLibraryEntry(
+				path, 
+				srcAttachmentPath, 
+				srcAttachmentPathRoot, 
+				exported); 
+		for(int i = 0; i < length; i++) {
+			//check for duplicates (Causes JavaModelException) - return if path already exists
+			if(newPathEntry.equals(entries[i]))
+				return;
+		}
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-		entries[0] = JavaCore.newLibraryEntry(
-			path, 
-			srcAttachmentPath, 
-			srcAttachmentPathRoot, 
-			exported);
+		entries[0] = newPathEntry;
 		project.setRawClasspath(entries, null);
 	}
 	
