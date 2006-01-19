@@ -675,9 +675,9 @@ protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newByt
 				if (newBytes[i] != oldBytes[i]) break notEqual;
 			return false; // bytes are identical so skip them
 		}
-		URI uri = file.getLocationURI();
-		if (uri == null) return false; // unable to determine location of this class file
-		String filePath = uri.getPath();
+		URI location = file.getLocationURI();
+		if (location == null) return false; // unable to determine location of this class file
+		String filePath = location.getSchemeSpecificPart();
 		ClassFileReader reader = new ClassFileReader(oldBytes, filePath.toCharArray());
 		// ignore local types since they're only visible inside a single method
 		if (!(reader.isLocal() || reader.isAnonymous()) && reader.hasStructuralChanges(newBytes)) {
