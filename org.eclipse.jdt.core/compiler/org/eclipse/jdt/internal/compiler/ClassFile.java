@@ -1571,6 +1571,9 @@ public class ClassFile
 		int attributeNumber = 0;
 		// leave two bytes for the attribute_length
 		localContentsOffset += 2;
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
@@ -2219,6 +2222,9 @@ public class ClassFile
 		int attributeNumber = 0;
 		// leave two bytes for the attribute_length
 		localContentsOffset += 2;
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
@@ -2791,6 +2797,9 @@ public class ClassFile
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
@@ -3221,6 +3230,9 @@ public class ClassFile
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		if (codeStream.generateLineNumberAttributes) {
 			if (localContentsOffset + 12 >= this.contents.length) {
@@ -3648,6 +3660,9 @@ public class ClassFile
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		if (codeStream.generateLineNumberAttributes) {
 			if (localContentsOffset + 20 >= this.contents.length) {
@@ -4374,6 +4389,9 @@ public class ClassFile
 		int attributeNumber = 0;
 		// leave two bytes for the attribute_length
 		localContentsOffset += 2;
+		if (localContentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
