@@ -11,14 +11,11 @@
 
 package org.eclipse.jdt.apt.core;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
@@ -33,15 +30,12 @@ import org.osgi.framework.BundleContext;
 public class AptPlugin extends Plugin {
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
 	
-	private static final String TOOLSJARNAME = "./tools.jar"; //$NON-NLS-1$
-	
 	/**
 	 * Status IDs for system log entries.  Must be unique per plugin.
 	 */
 	public static final int STATUS_EXCEPTION = 1;
 	public static final int STATUS_NOTOOLSJAR = 2;
 	public static final int STATUS_CANTLOADPLUGINFACTORY = 3;
-	public static final String ERRTXT_NOTOOLSJAR = Messages.AptPlugin_couldNotFindToolsDotJar;
 	
 	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 	/** Marker ID used for build problem, e.g., missing factory jar */
@@ -62,7 +56,6 @@ public class AptPlugin extends Plugin {
 		thePlugin = this;
 		super.start(context);
 		initDebugTracing();
-		checkToolsJar();
 		AptConfig.initialize();
 		AnnotationProcessorFactoryLoader.getLoader();
 		// register resource-changed listener
@@ -71,27 +64,6 @@ public class AptPlugin extends Plugin {
 		JavaCore.addPreProcessingResourceChangedListener( new GeneratedResourceChangeListener(), mask );
 		if( DEBUG )
 			trace("registered resource change listener"); //$NON-NLS-1$
-	}
-
-	/**
-	 * Check for the Sun mirror interfaces.  If they aren't found,
-	 * log an error.
-	 */
-	private void checkToolsJar() {
-		boolean foundToolsJar = true;
-		InputStream is = null;
-		try {
-			is = thePlugin.openStream(new Path(TOOLSJARNAME));
-		}
-		catch (IOException e) {
-			foundToolsJar = false;
-		}
-		finally {
-			try {if (is != null) is.close();} catch (IOException ioe) {}
-		}
-		if (!foundToolsJar) {
-			log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_NOTOOLSJAR, ERRTXT_NOTOOLSJAR, null));
-		}
 	}
 
 	public void stop(BundleContext context) throws Exception {

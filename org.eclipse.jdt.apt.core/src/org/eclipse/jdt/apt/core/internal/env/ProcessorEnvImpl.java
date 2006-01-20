@@ -181,7 +181,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		}
 
 		// finally go search for it in the universe.
-		typeBinding = getTypeBinding(typeKey);
+		typeBinding = getTypeDefinitionBindingFromName(name);
 		if( typeBinding != null ){			
 			return Factory.createReferenceType(typeBinding, this);
 		}

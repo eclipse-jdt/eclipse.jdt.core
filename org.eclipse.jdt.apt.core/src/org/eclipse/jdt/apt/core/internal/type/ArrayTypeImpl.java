@@ -50,7 +50,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
         else{
             final ITypeBinding leaf = elementType.getElementType();
 			final String componentKey = BindingKey.createArrayTypeBindingKey(leaf.getKey(), dimension - 1);
-			componentType = _env.getTypeBinding(componentKey);
+			componentType = _env.getTypeBindingFromKey(componentKey);
             if( componentType == null )
 				throw new IllegalStateException("unknown component type for " + _arrayBinding); //$NON-NLS-1$
         }

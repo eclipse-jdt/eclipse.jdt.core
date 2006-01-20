@@ -27,6 +27,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedAnnotationElementDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedConstructorDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedFieldDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedMethodDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationDeclarationImpl;
@@ -132,7 +133,12 @@ public class Factory
     	 case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
     		 return new ASTBasedFieldDeclarationImpl( (VariableDeclarationFragment)node, file, env );
     	 case ASTNode.METHOD_DECLARATION :
-    		  return new ASTBasedMethodDeclarationImpl( (org.eclipse.jdt.core.dom.MethodDeclaration)node, file, env );
+    		 final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 
+    			 (org.eclipse.jdt.core.dom.MethodDeclaration)node;
+    		 if( methodDecl.isConstructor() )
+    			 return new ASTBasedConstructorDeclarationImpl(methodDecl, file, env);
+    		 else
+    			 return new ASTBasedMethodDeclarationImpl(methodDecl, file, env );
     	 case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
     		 return new ASTBasedMethodDeclarationImpl((AnnotationTypeMemberDeclaration)node, file, env);
     	 default :

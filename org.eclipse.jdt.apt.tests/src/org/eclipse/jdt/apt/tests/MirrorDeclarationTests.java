@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationCodeExample;
+import org.eclipse.jdt.core.tests.builder.Problem;
 
 public class MirrorDeclarationTests extends APTTestBase {
 
@@ -110,5 +111,100 @@ public class MirrorDeclarationTests extends APTTestBase {
 		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
+	}
+	
+	/**
+	 * Test AST based mirror implementation and binding based mirror implementation.
+	 * Specifically,
+	 *   (i) method declaration with unresolvable return type.
+	 *  (ii) constructor declaration with unresolvable parameter
+	 * (iii) field declaration with unresolvable type.
+	 * 
+	 * This test focus on declarations from file in context.
+	 * 
+	 * @throws Exception
+	 */
+	public void testUnresolvableDeclarations0() 
+		throws Exception 
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		String declAnno =
+			"package test;\n" +
+			"public @interface DeclarationAnno{}";
+		
+		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);
+		
+		String codeFoo = 
+			"package test;\n" +
+			"@DeclarationAnno\n" +
+			"public class Foo {\n" +
+			"    int field0;\n " +
+			"    UnknownType field1;\n " +
+			"    public Foo(UnknownType type){} \n" +
+			"    public void voidMethod(){} \n " +
+			"    public UnknownType getType(){}\n " +
+			"    public class Inner{} \n" +
+			"}";
+		
+		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
+		fullBuild( project.getFullPath() );
+		
+		expectingOnlySpecificProblemsFor(fooPath, new Problem[]{
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath)}
+		);
+	}
+	
+	/**
+	 * Test AST based mirror implementation and binding based mirror implementation.
+	 * Specifically,
+	 *   (i) method declaration with unresolvable return type.
+	 *  (ii) constructor declaration with unresolvable parameter
+	 * (iii) field declaration with unresolvable type.
+	 * 
+	 * This test focus on declarations from file outside of processor
+	 * environment context.
+	 * 
+	 * @throws Exception
+	 */
+	public void testUnresolvableDeclarations1() 
+		throws Exception 
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		String declAnno =
+			"package test;\n" +
+			"public @interface DeclarationAnno{}";
+		
+		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);		
+		
+		String codeBar = 
+			"package test;\n" +
+			"@DeclarationAnno\n" +
+			"public class Bar {}";		
+		env.addClass(srcRoot, "test", "Bar", codeBar);
+		
+		String codeFoo = 
+			"package test;\n" +
+			"@DeclarationAnno\n" +
+			"public class Foo {\n" +
+			"    int field0;\n " +
+			"    UnknownType field1;\n " +
+			"    public Foo(UnknownType type){} \n" +
+			"    public void voidMethod(){} \n " +
+			"    public UnknownType getType(){}\n " +
+			"    public class Inner{} \n" +
+			"}";
+		
+		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
+		
+		fullBuild( project.getFullPath() );
+		expectingOnlySpecificProblemsFor(fooPath, new Problem[]{
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
+				new Problem("", "UnknownType cannot be resolved to a type", fooPath)}
+		);
 	}
 }

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -30,6 +32,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -133,7 +136,7 @@ public class AptConfig {
     		return options;
     	}
     	
-    	IPath workspaceRootPath = jproj.getProject().getWorkspace().getRoot().getLocation();
+    	IWorkspaceRoot root = jproj.getProject().getWorkspace().getRoot();
     	
     	// Add sourcepath and classpath variables
     	try {
@@ -151,35 +154,53 @@ public class AptConfig {
 	    			else {
 	    				classpathSB.append(File.pathSeparatorChar);
 	    			}
-	    			classpathSB.append(entry.getPath().makeAbsolute().toOSString());
+	    			IPath cpPath = entry.getPath();
+	    			
+	    			IResource res = root.findMember(cpPath);
+	    			
+	    			// If res is null, the path is absolute (it's an external jar)
+	    			if (res == null) {
+	    				classpathSB.append(cpPath.toOSString());
+	    			}
+	    			else {
+	    				// It's relative
+	    				classpathSB.append(res.getLocation().toOSString());
+	    			}
     			}
     			else if (kind == IClasspathEntry.CPE_SOURCE) {
     				if (firstSP) {
     					firstSP = false;
     				}
     				else {
-    					sourcepathSB.append(File.separatorChar);
+    					sourcepathSB.append(File.pathSeparatorChar);
     				}
-    				// Sourcepath is a bit odd -- it's workspace-relative
-    				IPath sourcepath = entry.getPath();
-    				sourcepathSB.append(workspaceRootPath.append(sourcepath).toOSString());
+    				
+    				sourcepathSB.append(root.findMember(entry.getPath()).getLocation().toOSString());
     			}
     		}
     		// if you add options here, also add them in isAutomaticProcessorOption(),
     		// and document them in docs/reference/automatic_processor_options.html.
     		
     		// Classpath and sourcepath
-    		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$
+    		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$    		
     		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
     		
     		// Get absolute path for generated source dir
     		IFolder genSrcDir = jproj.getProject().getFolder(getGenSrcDir(jproj));
-    		options.put("-s", genSrcDir.getRawLocation().toOSString()); //$NON-NLS-1$
+    		String genSrcDirString = genSrcDir.getRawLocation().toOSString();
+    		options.put("-s", genSrcDirString); //$NON-NLS-1$
     		
     		// Absolute path for bin dir as well
     		IPath binPath = jproj.getOutputLocation();
-    		IPath binDir = workspaceRootPath.append(binPath);
-    		options.put("-d", binDir.toOSString()); //$NON-NLS-1$
+    		IResource binPathResource = root.findMember(binPath);
+    		String binDirString;
+    		if (binPathResource != null) {
+    			binDirString = root.findMember(binPath).getLocation().toOSString();
+    		}
+    		else {
+    			binDirString = binPath.toOSString();
+    		}
+    		options.put("-d", binDirString); //$NON-NLS-1$
     		
     		String target = jproj.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
     		options.put("-target", target); //$NON-NLS-1$
@@ -621,18 +642,18 @@ public class AptConfig {
 	}
     
     public static String getGenSrcDir(IJavaProject jproject) {
-    	String genSrcDir = getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
-    	if (genSrcDir == null) {
-    		throw new IllegalStateException("Generated Source Directory was null."); //$NON-NLS-1$
-    	}
-    	return genSrcDir;
+    	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
     }
     
     public static void setGenSrcDir(IJavaProject jproject, String dirString) {
-    	if (dirString == null) {
-    		throw new IllegalArgumentException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
+    	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
+    		throw new IllegalArgumentException("Illegal name for generated source folder: " + dirString); //$NON-NLS-1$
     	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
+    }
+    
+    public static boolean validateGenSrcDir(IJavaProject jproject, String dirName) {
+    	return GeneratedSourceFolderManager.validate(jproject, dirName);
     }
 	
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
@@ -642,9 +663,9 @@ public class AptConfig {
 		// get old val as a String, so it can be null if setting doesn't exist yet
 		String oldValue = node.get(optionName, null);
 		node.putBoolean(optionName, value);
-		if (jproject != null) {
+		if (jproject != null && oldValue == null || (value != Boolean.parseBoolean(oldValue))) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.handlePreferenceChange(optionName, oldValue, Boolean.toString(value));
+			aproj.preferenceChanged(optionName);
 		}
 		flushPreference(optionName, node);
 	}
@@ -655,9 +676,9 @@ public class AptConfig {
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		String oldValue = node.get(optionName, null);
 		node.put(optionName, value);
-		if (jproject != null) {
+		if (jproject != null && !value.equals(oldValue)) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.handlePreferenceChange(optionName, oldValue, value);
+			aproj.preferenceChanged(optionName);
 		}
 		flushPreference(optionName, node);
 	}
