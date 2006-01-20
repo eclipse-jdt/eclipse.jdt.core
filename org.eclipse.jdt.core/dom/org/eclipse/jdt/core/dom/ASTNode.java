@@ -1041,6 +1041,7 @@ public abstract class ASTNode {
 	 * The standard parser (<code>ASTParser</code>) sets this
 	 * flag on a node to indicate a recovered node.
 	 * </p>
+	 * @since 3.2
 	 */
 	public static final int RECOVERED = 8;
 	
