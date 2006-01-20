@@ -85,7 +85,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 			requestor,
 			problemFactory,
 			creatingAST/*parse literal expressions as constants if creating ast*/,
-			creatingAST/*store annotations in the bindings if creating ast*/
+			creatingAST/*store annotations in the bindings if creating ast*/,
+			creatingAST/*perform statements recovery during parse if creating ast*/
 		);
 	}
 

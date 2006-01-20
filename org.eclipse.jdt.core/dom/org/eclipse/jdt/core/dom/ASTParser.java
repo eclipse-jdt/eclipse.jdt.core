@@ -138,6 +138,11 @@ public class ASTParser {
 	private boolean partial = false;
 
 	/**
+	 * Request for a statements recovery. Defaults to <code>false</code>.
+     */
+	private boolean statementsRecovery;
+	
+	/**
 	 * The focal point for a partial AST request.
      * Only used when <code>partial</code> is <code>true</code>.
      */
@@ -503,6 +508,23 @@ public class ASTParser {
 		this.sourceLength = length;
 	}
 	
+	/**
+	 * Requests that the compiler should perform statements recovery.
+	 * When statements recovery is enabled the compiler try to create statement nodes
+	 * from code containing syntax errors
+     * <p>
+     * Default to <code>false</code>.
+     * </p>
+	 * 
+	 * @param enabled <code>true</code> if statements containing syntax errors are wanted, 
+	 *   and <code>false</code> if these statements aren't wanted.
+	 *   
+	 * @since 3.2
+	 */
+	public void setStatementsRecovery(boolean enabled) {
+		this.statementsRecovery = enabled;
+	}
+	
     /**
      * Sets the working copy owner using when resolving bindings, where
      * <code>null</code> means the primary owner. Defaults to the primary owner.
@@ -664,7 +686,7 @@ public class ASTParser {
 			if (this.resolveBindings) {
 				if (this.project == null)
 					throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
+				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, this.statementsRecovery, monitor);
 			} else {
 				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, monitor);
 			}
@@ -717,7 +739,7 @@ public class ASTParser {
 		try {
 			if (this.project == null)
 				throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
+			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, this.statementsRecovery, monitor);
 		} finally {
 	   	   // re-init defaults to allow reuse (and avoid leaking)
 	   	   initializeDefaults();
@@ -795,19 +817,22 @@ public class ASTParser {
 									searcher,
 									this.compilerOptions,
 									this.workingCopyOwner,
+									this.statementsRecovery,
 									monitor);
 						} catch (JavaModelException e) {
 							compilationUnitDeclaration = CompilationUnitResolver.parse(
 									sourceUnit,
 									searcher,
-									this.compilerOptions);
+									this.compilerOptions,
+									this.statementsRecovery);
 							needToResolveBindings = false;
 						}
 					} else {
 						compilationUnitDeclaration = CompilationUnitResolver.parse(
 								sourceUnit,
 								searcher,
-								this.compilerOptions);
+								this.compilerOptions,
+								this.statementsRecovery);
 						needToResolveBindings = false;
 					}
 					CompilationUnit result = CompilationUnitResolver.convert(

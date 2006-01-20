@@ -130,9 +130,10 @@ class CompilationUnitResolver extends Compiler {
 		Map settings,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
+		boolean statementsRecovery,
 		IProgressMonitor monitor) {
 
-		super(environment, policy, settings, requestor, problemFactory, false, true/*store annotations in the bindings*/);
+		super(environment, policy, settings, requestor, problemFactory, false, true/*store annotations in the bindings*/, statementsRecovery);
 		this.hasCompilationAborted = false;
 		this.monitor =monitor;
 	}
@@ -367,11 +368,12 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 	
-	public static CompilationUnitDeclaration parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, NodeSearcher nodeSearcher, Map settings) {
+	public static CompilationUnitDeclaration parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, NodeSearcher nodeSearcher, Map settings, boolean statementsRecovery) {
 		if (sourceUnit == null) {
 			throw new IllegalStateException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.performStatementsRecovery = statementsRecovery;
 		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
@@ -434,6 +436,7 @@ class CompilationUnitResolver extends Compiler {
 		Map options,
 		IJavaProject javaProject,
 		WorkingCopyOwner owner,
+		boolean statementsRecovery,
 		IProgressMonitor monitor) {
 	
 		CancelableNameEnvironment environment = null;
@@ -452,6 +455,7 @@ class CompilationUnitResolver extends Compiler {
 					options,
 					getRequestor(),
 					problemFactory, 
+					statementsRecovery,
 					monitor);
 
 			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner);
@@ -478,6 +482,7 @@ class CompilationUnitResolver extends Compiler {
 		NodeSearcher nodeSearcher,
 		Map options,
 		WorkingCopyOwner owner,
+		boolean statementsRecovery,
 		IProgressMonitor monitor) throws JavaModelException {
 	
 		CompilationUnitDeclaration unit = null;
@@ -494,6 +499,7 @@ class CompilationUnitResolver extends Compiler {
 					options,
 					getRequestor(),
 					problemFactory, 
+					statementsRecovery,
 					monitor);
 
 			unit = 
@@ -507,7 +513,7 @@ class CompilationUnitResolver extends Compiler {
 			if (resolver.hasCompilationAborted) {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
-				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options);
+				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options, statementsRecovery);
 				final int problemCount = unit.compilationResult.problemCount;
 				if (problemCount != 0) {
 					unitDeclaration.compilationResult.problems = new IProblem[problemCount];
@@ -545,6 +551,7 @@ class CompilationUnitResolver extends Compiler {
 		Map compilerOptions,
 		IJavaProject javaProject,
 		WorkingCopyOwner owner,
+		boolean statementsRecovery,
 		IProgressMonitor monitor) {
 
 		final int length = elements.length;
@@ -604,7 +611,7 @@ class CompilationUnitResolver extends Compiler {
 			}
 		}
 		Requestor requestor = new Requestor();
-		resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, monitor);
+		resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, statementsRecovery, monitor);
 		return requestor.bindings;
 	}
 	/*

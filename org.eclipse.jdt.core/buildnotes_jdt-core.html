@@ -64,6 +64,9 @@ What's new in this drop</h2>
 <li>Added API for DOM ASTNode flag: <code>ASTNode.RECOVERED</code><br>
 	 It is a flag constant indicating that this node or a part of this node is recovered
 	 from source that contains a syntax error detected in the vicinity.</li>
+<li>Added API: <code>ASTParser#setStatementsRecovery(boolean enabled)</code><br>
+	 This method allow to enable statements recovery for ASTParser.
+	 Statements recovery is disabled by default.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

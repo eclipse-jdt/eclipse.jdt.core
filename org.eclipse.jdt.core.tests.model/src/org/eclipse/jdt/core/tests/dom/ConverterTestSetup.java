@@ -132,9 +132,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
+		return runConversion(astLevel, unit, resolveBindings, false);
+	}
+	
+	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings, boolean statementsRecovery) {
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
+		parser.setStatementsRecovery(statementsRecovery);
 		return parser.createAST(null);
 	}
 

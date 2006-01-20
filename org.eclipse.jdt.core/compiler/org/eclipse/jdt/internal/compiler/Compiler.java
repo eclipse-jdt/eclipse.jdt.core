@@ -155,12 +155,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		final ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
 		boolean parseLiteralExpressionsAsConstants,
-		boolean storeAnnotations) {
+		boolean storeAnnotations,
+		boolean statementsRecovery) {
 
 		// create a problem handler given a handling policy
 		this.options = new CompilerOptions(settings);
 		this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
 		this.options.storeAnnotations = storeAnnotations;
+		this.options.performStatementsRecovery =
+			statementsRecovery &&
+			this.options.performStatementsRecovery;// TODO temporary code to take into account the temporary JavaCore options
 		
 		// wrap requestor in DebugRequestor if one is specified
 		if(DebugRequestor == null) {
