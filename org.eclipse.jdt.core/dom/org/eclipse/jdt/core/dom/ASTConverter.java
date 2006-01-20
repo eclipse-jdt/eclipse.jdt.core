@@ -114,7 +114,11 @@ class ASTConverter {
 						}
 				}
 			}
-			expression.sourceEnd = this.scanner.startPosition - 1;
+			if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+				expression.sourceEnd =  this.scanner.startPosition;
+			} else {
+				expression.sourceEnd = this.scanner.startPosition - 1;
+			}
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -4112,8 +4116,8 @@ class ASTConverter {
 				switch(token) {
 					case TerminalTokens.TokenNameCOMMA :
 					case TerminalTokens.TokenNameSEMICOLON :
-						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeToken()) {
-							return -1;
+						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+							return this.scanner.startPosition;
 						}
 						return this.scanner.startPosition - 1;
 				}
