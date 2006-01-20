@@ -2777,22 +2777,31 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					// inside field declaration ? check field modifier to see if deprecated
 					if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated())
 						return true;
-					if (type != null && type.isViewedAsDeprecated())
-						return true;
+					if (type != null) {
+						type.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
+						if (type.isViewedAsDeprecated())
+							return true;
+					}
 				}
 				break;
 			case Scope.CLASS_SCOPE :
 				ReferenceBinding context = ((ClassScope)this).referenceType().binding;
-				if (context != null && context.isViewedAsDeprecated())
-					return true;
+				if (context != null) {
+					context.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
+					if (context.isViewedAsDeprecated()) 
+						return true;
+				}
 				break;
 			case Scope.COMPILATION_UNIT_SCOPE :
 				// consider import as being deprecated if first type is itself deprecated (123522)
 				CompilationUnitDeclaration unit = referenceCompilationUnit();
 				if (unit.types != null && unit.types.length > 0) {
 					SourceTypeBinding type = unit.types[0].binding;
-					if (type != null && type.isViewedAsDeprecated())
-						return true;
+					if (type != null) {
+						type.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
+						if (type.isViewedAsDeprecated())
+							return true;
+					}
 				}
 		}
 		return false;

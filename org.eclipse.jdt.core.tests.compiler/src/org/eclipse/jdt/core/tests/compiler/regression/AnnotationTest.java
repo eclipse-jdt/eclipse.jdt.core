@@ -6031,7 +6031,7 @@ public void test142c() {
     		"----------\n");
     }            
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346
-    public void _test186() {
+    public void test186() {
     	this.runNegativeTest(
     		new String[] {
     				"p1/X.java", // =================
@@ -6056,7 +6056,7 @@ public void test142c() {
     		"----------\n");
     }                
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346 - variation
-    public void _test187() {
+    public void test187() {
     	this.runNegativeTest(
     		new String[] {
     				"p1/X.java", // =================
