@@ -845,9 +845,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.variablesCounter = new int[30];
 	
 	// javadoc support
-	this.javadocParser = new JavadocParser(this);	
-	
-//	this.statementRecoveryEnabled = this.options.performStatementsRecovery;
+	this.javadocParser = new JavadocParser(this);
 }
 protected void annotationRecoveryCheckPoint(int start, int end) {
 	if(this.lastCheckPoint > start && this.lastCheckPoint < end) {
