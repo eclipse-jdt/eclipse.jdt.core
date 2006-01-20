@@ -206,7 +206,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 private void buildAll() {
 	notifier.checkCancel();
-	notifier.subTask(Messages.build_preparingBuild); 
+	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName())); 
 	if (DEBUG && lastState != null)
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState();
@@ -217,7 +217,7 @@ private void buildAll() {
 
 private void buildDeltas(SimpleLookupTable deltas) {
 	notifier.checkCancel();
-	notifier.subTask(Messages.build_preparingBuild); 
+	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName())); 
 	if (DEBUG && lastState != null)
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time

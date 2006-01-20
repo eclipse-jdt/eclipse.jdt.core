@@ -31,7 +31,7 @@ public void build() {
 		System.out.println("FULL build"); //$NON-NLS-1$
 
 	try {
-		notifier.subTask(Messages.build_cleaningOutput); 
+		notifier.subTask(Messages.bind(Messages.build_cleaningOutput, this.javaBuilder.currentProject.getName()));
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
 		cleanOutputFolders(true);
 		notifier.updateProgressDelta(0.1f);
@@ -108,7 +108,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 
 		ArrayList visited = new ArrayList(sourceLocations.length);
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
-			notifier.subTask(Messages.build_cleaningOutput); 
+			notifier.subTask(Messages.bind(Messages.build_cleaningOutput, this.javaBuilder.currentProject.getName())); 
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder) {
 				IContainer outputFolder = sourceLocation.binaryFolder;
