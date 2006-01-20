@@ -107,11 +107,11 @@ public interface IJavaSearchConstants {
 	int DECLARATIONS= 0;
 
 	/**
-	 * The search result is a type that implements an interface. 
+	 * The search result is a type that implements an interface or extends a class. 
 	 * Used in conjunction with either TYPE or CLASS or INTERFACE, it will
-	 * respectively search for any type implementing/extending an interface, or
-	 * rather exclusively search for classes implementing an interface, or interfaces 
-	 * extending an interface.
+	 * respectively search for any type implementing/extending a type,
+	 * or rather exclusively search for classes implementing/extending the type, or
+	 * interfaces extending the type.
 	 */
 	int IMPLEMENTORS= 1;
 

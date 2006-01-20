@@ -996,7 +996,8 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
  *				references as specified above.
  *		</li>
- *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.
+ *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for types, will find all types
+ *				which directly implement/extend a given interface.
  *				Note that types may be only classes or only interfaces if {@link IJavaSearchConstants#CLASS } or
  *				{@link IJavaSearchConstants#INTERFACE} is respectively used instead of {@link IJavaSearchConstants#TYPE}.
  *		</li>
@@ -1086,8 +1087,8 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
  *				references as specified above.
  *		</li>
- *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
- *				which implements a given interface.
+ *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for types, will find all types
+ *				which directly implement/extend a given interface.
  *		</li>
  *	</ul>
  * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
@@ -1133,8 +1134,8 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or
  *				references as specified above.
  *		</li>
- *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types
- *				which implements a given interface.
+ *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for types, will find all types
+ *				which directly implement/extend a given interface.
  *		</li>
  *	</ul>
  * @param matchRule one of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH},
