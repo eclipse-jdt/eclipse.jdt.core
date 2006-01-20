@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -134,8 +133,7 @@ public class CodeStream {
 	public ExceptionLabel[] exceptionHandlers = new ExceptionLabel[LABELS_INCREMENT];
 	public int exceptionHandlersCounter;
 	public int exceptionHandlersIndex;
-	public boolean generateLineNumberAttributes;
-	public boolean generateLocalVariableTableAttributes;
+	public int generateAttributes;
 	// store all the labels placed at the current position to be able to optimize
 	// a jump to the next bytecode.
 	public Label[] labels = new Label[LABELS_INCREMENT];
@@ -143,7 +141,6 @@ public class CodeStream {
 	public int[] lineSeparatorPositions;
 	
 	public LocalVariableBinding[] locals = new LocalVariableBinding[LOCALS_INCREMENT];
-	public boolean manageLocalVariables;
 	public int maxFieldCount;
 	
 	public int maxLocals;
@@ -165,10 +162,8 @@ int visibleLocalsCount;
 public boolean wideMode = false;
 public CodeStream(ClassFile classFile) {
 	this.targetLevel = classFile.targetJDK;
-	this.generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
-	this.manageLocalVariables = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
-	this.generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
-	if (this.generateLineNumberAttributes) {
+	this.generateAttributes = classFile.produceAttributes;
+	if ((classFile.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
 	}
 }
@@ -207,7 +202,7 @@ public void aconst_null() {
 }
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
-	if (!this.generateLocalVariableTableAttributes)
+	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
 		return;
 /*	if (initStateIndex == lastInitStateIndexWhenAddingInits)
 		return;
@@ -245,7 +240,8 @@ public void addLabel(Label aLabel) {
 	labels[countLabels++] = aLabel;
 }
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
-	if (!manageLocalVariables)
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+		&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
 
 	if (visibleLocalsCount >= visibleLocals.length)
@@ -1028,7 +1024,8 @@ public void dup2_x2() {
 public void exitUserScope(BlockScope currentScope) {
 	// mark all the scope's locals as losing their definite assignment
 
-	if (!manageLocalVariables)
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
 	while (visibleLocalsCount > 0) {
 		LocalVariableBinding visibleLocal = visibleLocals[this.visibleLocalsCount - 1];
@@ -1038,7 +1035,7 @@ public void exitUserScope(BlockScope currentScope) {
 		}
 
 		// there may be some preserved locals never initialized
-		if (visibleLocal.initializationCount > 0 && this.generateLocalVariableTableAttributes){
+		if (visibleLocal.initializationCount > 0 && ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)){
 			visibleLocal.recordInitializationEndPC(position);
 		}
 		visibleLocals[--this.visibleLocalsCount] = null; // this variable is no longer visible afterwards
@@ -5798,14 +5795,15 @@ public void putstatic(FieldBinding fieldBinding) {
 			fieldBinding.type.signature());
 }
 public void record(LocalVariableBinding local) {
-	if (!manageLocalVariables)
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
 	if (allLocalsCounter == locals.length) {
 		// resize the collection
 		System.arraycopy(locals, 0, locals = new LocalVariableBinding[allLocalsCounter + LOCALS_INCREMENT], 0, allLocalsCounter);
 	}
 	locals[allLocalsCounter++] = local;
-	if (this.generateLocalVariableTableAttributes) {
+	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 		local.initializationPCs = new int[4];
 		local.initializationCount = 0;
 	}
@@ -5822,7 +5820,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 	 * The pcToSourceMap table is always sorted.
 	 */
 
-	if (!generateLineNumberAttributes)
+	if ((this.generateAttributes & ClassFileConstants.ATTR_LINES) == 0)
 		return;
 	if (sourcePos == 0)
 		return;
@@ -5936,7 +5934,7 @@ public void removeExceptionHandler(ExceptionLabel exceptionLabel) {
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
-	if (!generateLocalVariableTableAttributes)
+	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
 		return;
 /*	if (initStateIndex == lastInitStateIndexWhenRemovingInits)
 		return;
@@ -6365,11 +6363,11 @@ public void updateLastRecordedEndPC(Scope scope, int pos) {
 		updateLocalVariablesAttribute(pos);	
 	*/	
 
-	if (this.generateLineNumberAttributes) {
+	if ((this.generateAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 		this.lastEntryPC = pos;
 	}
 	// need to update the initialization endPC in case of generation of local variable attributes.
-	if (this.generateLocalVariableTableAttributes) {
+	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 		for (int i = 0, max = this.locals.length; i < max; i++) {
 			LocalVariableBinding local = this.locals[i];
 			if (local != null && local.declaringScope == scope && local.initializationCount > 0) {

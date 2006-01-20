@@ -34,7 +34,6 @@ public class StackMapFrameCodeStream extends CodeStream {
 	
 public StackMapFrameCodeStream(ClassFile classFile) {
 	super(classFile);
-	this.manageLocalVariables = true;
 }
 public void aaload() {
 	super.aaload();

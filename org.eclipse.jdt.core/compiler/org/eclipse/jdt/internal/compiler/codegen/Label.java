@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.util.Arrays;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
@@ -201,7 +202,7 @@ public void place() { // Currently lacking wide support.
 					codeStream.pcToSourceMapSize-=2;
 				}
 				// end of new code
-				if (codeStream.generateLocalVariableTableAttributes) {
+				if ((codeStream.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 					LocalVariableBinding locals[] = codeStream.locals;
 					for (int i = 0, max = locals.length; i < max; i++) {
 						LocalVariableBinding local = locals[i];

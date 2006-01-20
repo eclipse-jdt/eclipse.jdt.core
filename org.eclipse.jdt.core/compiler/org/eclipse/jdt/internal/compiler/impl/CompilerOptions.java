@@ -221,13 +221,8 @@ public class CompilerOptions {
 		| UnusedLabel
 		/*| NullReference*/;
 
-	// Debug attributes
-	public static final int Source = 1; // SourceFileAttribute
-	public static final int Lines = 2; // LineNumberAttribute
-	public static final int Vars = 4; // LocalVariableTableAttribute
-
 	// By default only lines and source attributes are generated.
-	public int produceDebugAttributes = Lines | Source;
+	public int produceDebugAttributes = ClassFileConstants.ATTR_SOURCE | ClassFileConstants.ATTR_LINES;
 
 	public long complianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
 	public long sourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
@@ -324,9 +319,9 @@ public class CompilerOptions {
 
 	public Map getMap() {
 		Map optionsMap = new HashMap(30);
-		optionsMap.put(OPTION_LocalVariableAttribute, (this.produceDebugAttributes & Vars) != 0 ? GENERATE : DO_NOT_GENERATE); 
-		optionsMap.put(OPTION_LineNumberAttribute, (this.produceDebugAttributes & Lines) != 0 ? GENERATE : DO_NOT_GENERATE);
-		optionsMap.put(OPTION_SourceFileAttribute, (this.produceDebugAttributes & Source) != 0 ? GENERATE : DO_NOT_GENERATE);
+		optionsMap.put(OPTION_LocalVariableAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? GENERATE : DO_NOT_GENERATE); 
+		optionsMap.put(OPTION_LineNumberAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_LINES) != 0 ? GENERATE : DO_NOT_GENERATE);
+		optionsMap.put(OPTION_SourceFileAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_SOURCE) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_PreserveUnusedLocal, this.preserveAllLocalVariables ? PRESERVE : OPTIMIZE_OUT);
 		optionsMap.put(OPTION_DocCommentSupport, this.docCommentSupport ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName)); 
@@ -442,23 +437,23 @@ public class CompilerOptions {
 		Object optionValue;
 		if ((optionValue = optionsMap.get(OPTION_LocalVariableAttribute)) != null) {
 			if (GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes |= Vars;
+				this.produceDebugAttributes |= ClassFileConstants.ATTR_VARS;
 			} else if (DO_NOT_GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes &= ~Vars;
+				this.produceDebugAttributes &= ~ClassFileConstants.ATTR_VARS;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_LineNumberAttribute)) != null) {
 			if (GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes |= Lines;
+				this.produceDebugAttributes |= ClassFileConstants.ATTR_LINES;
 			} else if (DO_NOT_GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes &= ~Lines;
+				this.produceDebugAttributes &= ~ClassFileConstants.ATTR_LINES;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_SourceFileAttribute)) != null) {
 			if (GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes |= Source;
+				this.produceDebugAttributes |= ClassFileConstants.ATTR_SOURCE;
 			} else if (DO_NOT_GENERATE.equals(optionValue)) {
-				this.produceDebugAttributes &= ~Source;
+				this.produceDebugAttributes &= ~ClassFileConstants.ATTR_SOURCE;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_PreserveUnusedLocal)) != null) {
@@ -744,9 +739,9 @@ public class CompilerOptions {
 	public String toString() {
 	
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
-		buf.append("\n\t- local variables debug attributes: ").append((this.produceDebugAttributes & Vars) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n\t- line number debug attributes: ").append((this.produceDebugAttributes & Lines) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n\t- source debug attributes: ").append((this.produceDebugAttributes & Source) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- local variables debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- line number debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_LINES) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- source debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_SOURCE) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- preserve all local variables: ").append(this.preserveAllLocalVariables ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
 		buf.append("\n\t- overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$

@@ -355,10 +355,10 @@ public class ClassFile
 	public int numberOfInnerClasses;
 	public boolean ownSharedArrays = false; // flag set when header/contents are set to shared arrays
 	// used to generate private access methods
-	public int produceDebugAttributes;
+	// debug and stack map attributes
+	public int produceAttributes;
 	public SourceTypeBinding referenceBinding;
 	public long targetJDK;
-	public boolean generateStackMapTable;
 	
 	/**
 	 * INTERNAL USE-ONLY
@@ -451,12 +451,11 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
-		produceDebugAttributes = options.produceDebugAttributes;
+		produceAttributes = options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = creatingProblemType;
-		final boolean target16 = this.targetJDK >= ClassFileConstants.JDK1_6;
-		this.generateStackMapTable = target16;
-		if (target16) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
+			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
 			codeStream = new StackMapFrameCodeStream(this);
 		} else {
 			codeStream = new CodeStream(this);
@@ -511,7 +510,7 @@ public class ClassFile
 		contentsOffset += 2;
 
 		// source attribute
-		if ((produceDebugAttributes & CompilerOptions.Source) != 0) {
+		if ((produceAttributes & ClassFileConstants.ATTR_SOURCE) != 0) {
 			String fullFileName =
 				new String(referenceBinding.scope.referenceCompilationUnit().getFileName());
 			fullFileName = fullFileName.replace('\\', '/');
@@ -1582,7 +1581,7 @@ public class ClassFile
 		}
 
 		// first we handle the linenumber attribute
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			/* Create and add the line number attribute (used for debugging) 
 			 * Build the pairs of:
 			 * 	(bytecodePC lineNumber)
@@ -1629,7 +1628,7 @@ public class ClassFile
 			}
 		}
 		// then we do the local variable attribute
-		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
@@ -1791,7 +1790,7 @@ public class ClassFile
 			}
 		}
 
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				int stackMapTableAttributeOffset = localContentsOffset;
@@ -2238,7 +2237,7 @@ public class ClassFile
 		}
 
 		// first we handle the linenumber attribute
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			/* Create and add the line number attribute (used for debugging) 
 			 * Build the pairs of:
 			 * 	(bytecodePC lineNumber)
@@ -2285,7 +2284,7 @@ public class ClassFile
 			}
 		}
 		// then we do the local variable attribute
-		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			int numberOfEntries = 0;
 			//		codeAttribute.addLocalVariableTableAttribute(this);
 			if ((codeStream.pcToSourceMap != null)
@@ -2411,7 +2410,7 @@ public class ClassFile
 			}
 		}
 		
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				// add the stack map table attribute
@@ -2812,7 +2811,7 @@ public class ClassFile
 		}
 
 		// first we handle the linenumber attribute
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			if (localContentsOffset + 20 >= this.contents.length) {
 				resizeContents(20);
 			}			
@@ -2841,7 +2840,7 @@ public class ClassFile
 			attributeNumber++;
 		}
 		// then we do the local variable attribute
-		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
 			if (localContentsOffset + 8 >= this.contents.length) {
@@ -2858,7 +2857,7 @@ public class ClassFile
 			attributeNumber++;
 		}
 		
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				// add the stack map table attribute
@@ -3244,7 +3243,7 @@ public class ClassFile
 			resizeContents(2);
 		}
 
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			if (localContentsOffset + 12 >= this.contents.length) {
 				resizeContents(12);
 			}
@@ -3276,7 +3275,7 @@ public class ClassFile
 			attributeNumber++;
 		}
 
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				// add the stack map table attribute
@@ -3674,7 +3673,7 @@ public class ClassFile
 			resizeContents(2);
 		}
 
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			if (localContentsOffset + 20 >= this.contents.length) {
 				resizeContents(20);
 			}
@@ -3706,7 +3705,7 @@ public class ClassFile
 			attributeNumber++;
 		}
 		// then we do the local variable attribute
-		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			// compute the resolved position for the arguments of the method
 			int argSize;
 			int numberOfEntries = 0;
@@ -3927,7 +3926,7 @@ public class ClassFile
 			}			
 		}
 		
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				// add the stack map table attribute
@@ -4403,7 +4402,7 @@ public class ClassFile
 		}
 
 		// first we handle the linenumber attribute
-		if (codeStream.generateLineNumberAttributes) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			if (localContentsOffset + 12 >= this.contents.length) {
 				resizeContents(12);
 			}		
@@ -4431,7 +4430,7 @@ public class ClassFile
 			attributeNumber++;
 		}
 		// then we do the local variable attribute
-		if ((this.produceDebugAttributes & CompilerOptions.Vars) != 0) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
@@ -4552,7 +4551,7 @@ public class ClassFile
 			}
 		}
 		
-		if (this.generateStackMapTable) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
 			if (numberOfFrames >=2) {
 				// add the stack map table attribute

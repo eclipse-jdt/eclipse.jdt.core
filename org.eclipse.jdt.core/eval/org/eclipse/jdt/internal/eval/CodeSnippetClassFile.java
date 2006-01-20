@@ -111,7 +111,7 @@ public CodeSnippetClassFile(
 			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}
 	}
-	this.produceDebugAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
+	this.produceAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
 	this.innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {

@@ -103,4 +103,10 @@ public interface ClassFileConstants {
 	int LONG_ARRAY = 11;
 	int FLOAT_ARRAY = 6;
 	int DOUBLE_ARRAY = 7;
+	
+	// Debug attributes
+	int ATTR_SOURCE = 1; // SourceFileAttribute
+	int ATTR_LINES = 2; // LineNumberAttribute
+	int ATTR_VARS = 4; // LocalVariableTableAttribute
+	int ATTR_STACK_MAP = 8; // Stack map table attribute
 }
