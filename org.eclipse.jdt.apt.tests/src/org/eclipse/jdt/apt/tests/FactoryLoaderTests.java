@@ -54,9 +54,6 @@ public class FactoryLoaderTests extends APTTestBase {
 		
 		_extJar = TestUtil.createAndAddExternalAnnotationJar(
 				env.getJavaProject( projectPath ));
-		// This file will be locked until GC takes care of unloading the
-		// annotation processor classes, so we can't delete it ourselves.
-		_extJar.deleteOnExit();
 		
 		// Create a classpath variable for the same jar file, so we can
 		// refer to it that way.

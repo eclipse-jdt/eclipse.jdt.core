@@ -43,10 +43,6 @@ public class MixedModeTesting extends APTTestBase{
 		super.setUp();
 		IJavaProject javaProj = env.getJavaProject( getProjectName() );
 		_extJar = TestUtil.createAndAddExternalAnnotationJar(javaProj);
-				
-		// This file will be locked until GC takes care of unloading the
-		// annotation processor classes, so we can't delete it ourselves.
-		_extJar.deleteOnExit();
 		
 		FactoryPath fp = (FactoryPath)AptConfig.getFactoryPath(javaProj);
 		FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(_extJar);

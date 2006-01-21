@@ -57,8 +57,10 @@ public class TestUtil
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
 	{
-		IPath projectPath = getProjectPath( project );
-		File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
+		// TODO: temporary to work around jar-file locking problem:
+		//IPath projectPath = getProjectPath( project );
+		//File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
+		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
 		String classesJarPath = jarFile.getAbsolutePath();
 		
 		File binDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/bin"));
@@ -88,7 +90,9 @@ public class TestUtil
 		
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
 				null /*srcAttachmentPathRoot*/, true );
-		
+	
+		// TODO: see above temporary patch for file locking problem
+		jarFile.deleteOnExit();
 		return jarFile;
 	}
 	
@@ -146,6 +150,10 @@ public class TestUtil
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
 				null /*srcAttachmentPathRoot*/, true );
 		
+		
+		// This file will be locked until GC takes care of unloading the
+		// annotation processor classes, so we can't delete it ourselves.
+		jarFile.deleteOnExit();
 		return jarFile;
 		
 	}
