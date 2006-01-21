@@ -1700,7 +1700,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					buffer.append("_"); //$NON-NLS-1$
 					break;
 				case IVerificationTypeInfo.ITEM_UNINITIALIZED :
-					buffer.append("uninitialized"); //$NON-NLS-1$
+					buffer.append("uninitialized("); //$NON-NLS-1$
+					buffer.append(infos[i].getOffset());
+					buffer.append(')');
 					break;
 				case IVerificationTypeInfo.ITEM_UNINITIALIZED_THIS :
 					buffer.append("uninitialized_this"); //$NON-NLS-1$

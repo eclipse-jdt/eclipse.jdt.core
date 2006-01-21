@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 5 };
+//		TESTS_NUMBERS = new int[] { 7 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -749,6 +749,72 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 32, same]\n" + 
 				"        [pc: 37, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
 				"        [pc: 40, chop 1 local(s)]\n";
+			
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	
+	public void test007() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	StringBuffer foo2(boolean b) {\n" + 
+					"		System.out.println(\"foo2\");\n" + 
+					"		return new StringBuffer(b ? \"true\" : \"false\");\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		System.out.println(\"SUCCESS\");\n" + 
+					"	}\n" + 
+					"}",
+				},
+				"SUCCESS");
+				
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String actualOutput = null;
+			try {
+				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+				actualOutput =
+					disassembler.disassemble(
+						classFileBytes,
+						"\n",
+						ClassFileBytesDisassembler.DETAILED); 
+			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e) {
+				assertTrue("IOException", false);
+			}
+			
+			String expectedOutput = 
+				"  // Method descriptor #15 (Z)Ljava/lang/StringBuffer;\n" + 
+				"  // Stack: 3, Locals: 2\n" + 
+				"  java.lang.StringBuffer foo2(boolean b);\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"     3  ldc <String \"foo2\"> [22]\n" + 
+				"     5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [23]\n" + 
+				"     8  new java.lang.StringBuffer [29]\n" + 
+				"    11  dup\n" + 
+				"    12  iload_1 [b]\n" + 
+				"    13  ifeq 21\n" + 
+				"    16  ldc <String \"true\"> [31]\n" + 
+				"    18  goto 23\n" + 
+				"    21  ldc <String \"false\"> [33]\n" + 
+				"    23  invokespecial java.lang.StringBuffer(java.lang.String) [35]\n" + 
+				"    26  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"        [pc: 8, line: 4]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 27] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 27] local: b index: 1 type: boolean\n" + 
+				"      Stack map table: number of frames 2\n" + 
+				"        [pc: 21, full, stack: {uninitialized(8), uninitialized(8)}, locals: {X, int}]\n" + 
+				"        [pc: 23, full, stack: {uninitialized(8), uninitialized(8), java.lang.String}, locals: {X, int}]\n";
 			
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
