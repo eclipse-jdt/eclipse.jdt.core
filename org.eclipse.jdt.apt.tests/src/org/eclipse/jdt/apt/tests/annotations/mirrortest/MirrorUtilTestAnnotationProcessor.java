@@ -59,15 +59,15 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 	public static final String[] ENV_VALUES = {
 			// no-translation
 		"normal",
-		"normal\\foo.bar",
-		"%NOSUCH\\VARNAME%",
-		"%ROOT%\\someOtherProject\\foo\\nonexistent.txt",
+		"normal/foo.bar",
+		"%NOSUCH/VARNAME%",
+		"%ROOT%/someOtherProject/foo/nonexistent.txt",
 			// expected-translation
 		"%ECLIPSE_HOME%",
-		"%ECLIPSE_HOME%\\plugins",
-		"%ECLIPSE_HOME%\\startup.jar",
-		"%ROOT%\\org.eclipse.jdt.apt.tests.MirrorUtilTestsProject",
-		"%ROOT%\\org.eclipse.jdt.apt.tests.MirrorUtilTestsProject\\.classpath"
+		"%ECLIPSE_HOME%/plugins",
+		"%ECLIPSE_HOME%/startup.jar",
+		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject",
+		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject/.classpath"
 	};
 	
 	public MirrorUtilTestAnnotationProcessor(AnnotationProcessorEnvironment env)
