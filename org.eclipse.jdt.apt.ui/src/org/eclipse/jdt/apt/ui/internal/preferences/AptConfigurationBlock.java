@@ -326,10 +326,12 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		}
 		saveProcessorOptions(elements);
 		super.saveSettings();
-		if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
-			fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
-		if (fOriginalAptEnabled != fAptEnabledField.isSelected())
-			fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+		if (null != fAptProject) {
+			if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
+				fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
+			if (fOriginalAptEnabled != fAptEnabledField.isSelected())
+				fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+		}
 	}
 
 	/**
