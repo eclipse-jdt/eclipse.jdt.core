@@ -59,7 +59,7 @@ public final class FileSystemUtil
 		            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
 		            	}
 	            	}
-	            };
+	            }
 	        };
 	        IWorkspace ws = ResourcesPlugin.getWorkspace();
 	        try{

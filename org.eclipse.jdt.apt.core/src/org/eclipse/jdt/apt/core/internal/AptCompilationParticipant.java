@@ -12,10 +12,8 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -154,31 +152,6 @@ public class AptCompilationParticipant extends CompilationParticipant
 		}
 	}
 	
-	/** 
-	 *   Given a Map which maps from a key to a value, where key is an arbitrary 
-	 *   type, and where value is a Collection, mergeMaps will ensure that for a key 
-	 *   k with value v in source, all of the elements in the Collection v will be 
-	 *   moved into the Collection v' corresponding to key k in the destination Map. 
-	 * 
-	 * @param source - The source map from some key to a Collection.
-	 * @param destination - The destination map from some key to a Collection
-	 */
-	private static void mergeMaps( Map source, Map destination ) {
-		if( source == null || destination == null ) return;
-		Iterator keys = source.keySet().iterator();
-		while( keys.hasNext() ) {
-			Object key = keys.next();
-			Object val = destination.get( key );
-			if ( val != null ) {
-				Collection c = (Collection) val;
-				c.addAll( (Collection)source.get( key ) );
-			}
-			else {
-				destination.put( key, source.get( key ) );
-			}
-		}
-	}
-	
 	private CompilationParticipantResult preReconcileNotify( PreReconcileCompilationEvent prce )
 	{
 		IProblem[] problems = null;
@@ -245,8 +218,6 @@ public class AptCompilationParticipant extends CompilationParticipant
 		// setup the classpath and make sure the generated source folder is on disk.
 		AptPlugin.getAptProject(project).compilationStarted();
 	}
-    
-    private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
 		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );

@@ -317,8 +317,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			}
 			addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 			
-			if( ! annotationDecls.isEmpty() )
-				; // TODO: (theodora) log unclaimed annotations.
+			if( ! annotationDecls.isEmpty() ) {
+				// TODO: (theodora) log unclaimed annotations.
+			}
 		}	
 	}
 	
@@ -390,8 +391,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				break;
 		}
 		
-		if( ! annotationDecls.isEmpty() )
-			; // TODO: (theodora) log unclaimed annotations.
+		if( ! annotationDecls.isEmpty() ) {
+			// TODO: (theodora) log unclaimed annotations.
+		}
 		
 		addAllFilesWithMissingTypeError(filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 		

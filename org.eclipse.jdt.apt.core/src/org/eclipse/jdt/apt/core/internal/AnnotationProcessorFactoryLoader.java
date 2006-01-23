@@ -109,8 +109,6 @@ public class AnnotationProcessorFactoryLoader {
 	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
 	
-	private static boolean VERBOSE_LOAD = false;
-	
 	private static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 	
 	// Caches the factory classes associated with each project.

@@ -23,4 +23,4 @@ public enum Phase {
 	 * Neither reconcile or build. Completion would be an example.  
 	 */ 
 	OTHER 
-};
+}

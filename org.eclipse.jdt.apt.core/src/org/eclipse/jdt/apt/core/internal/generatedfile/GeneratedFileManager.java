@@ -731,37 +731,6 @@ public class GeneratedFileManager {
 	}
 	
 	/**
-	 * Create all the folders corresponding to specified package name
-	 * and mark all newly created ones as derived.
-	 * @param pkgName dot-separated package name
-	 * @param parent the parent folder of the folder to be created
-	 * @throws CoreException when the folder creation fails.
-	 */
-	private void createFoldersForPackage(String pkgName, IFolder parent)
-		throws CoreException
-	{
-	    StringBuilder buffer = new StringBuilder();
-	    for( int i=0, len=pkgName.length(); i<len; i++ ){
-	    	final char c = pkgName.charAt(i);
-	    	if( c != '.')
-	    		buffer.append(c);
-	    	// create a folder when we see a dot or when we are at the end.
-	    	if( c == '.' || i == len - 1){
-	    		if( buffer.length() > 0 ){
-	    			final IFolder folder = parent.getFolder(buffer.toString());
-	    			if( !folder.exists()){
-	    				folder.create(true, true, null);
-	    				folder.setDerived(true);
-	    			}
-	    			parent = folder;
-	    			// reset the buffer
-	    			buffer.setLength(0);
-	    		}
-	    	}
-	    }
-	}
-	
-	/**
 	 * Called at the start of build in order to cache our package fragment root
 	 */
 	public void compilationStarted() {

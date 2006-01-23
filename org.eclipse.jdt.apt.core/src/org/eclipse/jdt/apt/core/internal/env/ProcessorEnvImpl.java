@@ -74,12 +74,10 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotationProcessorEnvironment
 {
-	private static final boolean ENABLE_GENERATED_FILE_LISTENER = false;
-	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
-	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
-	private static final char PATHVAR_DELIM = '%';
+	
 	/** regex to identify substituted token in path variables */
 	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
+	
 	/** path variable meaning "workspace root" */
 	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
     
@@ -506,7 +504,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		}
 		finally
 		{
-			try { if ( reader != null ) reader.close(); } catch ( IOException ioe ) {};
+			try { if ( reader != null ) reader.close(); } catch ( IOException ioe ) {}
 			if ( w != null ) w.close();
 		}
 	}
@@ -873,9 +871,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	
     		// look for duplicates.		
     		int count = 0;	
-    		for( int i=0, len=offsets.length; i<len; i++){
-    			if( i == 0 ) ; // do nothing				
-    			else if( offsets[i-1] == offsets[i] )
+    		for( int i=1, len=offsets.length; i<len; i++){
+    			if( offsets[i-1] == offsets[i] )
     				continue;			
     			count ++;
     		}	
@@ -1209,7 +1206,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 							AptPlugin.log(e, "Failure posting markers"); //$NON-NLS-1$
 						}
 	                }
-	            };
+	            }
 	        };
 	        IWorkspace ws = _javaProject.getProject().getWorkspace();
 			ws.run(runnable, null);

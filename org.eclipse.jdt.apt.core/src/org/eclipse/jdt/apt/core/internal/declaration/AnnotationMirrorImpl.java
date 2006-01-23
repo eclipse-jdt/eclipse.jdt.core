@@ -28,9 +28,7 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.IResolvedMemberValuePair;
@@ -40,7 +38,6 @@ import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -192,35 +189,6 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		
 	}
 
-    private ITypeBinding[] getExpressionTypeBindings(Expression expr)
-    {
-        if(expr == null) return null;
-        switch(expr.getNodeType())
-        {
-        case ASTNode.ARRAY_INITIALIZER:
-            final ArrayInitializer arrayInit = (ArrayInitializer)expr;
-            final List<Expression> exprs = arrayInit.expressions();
-            if( exprs == null || exprs.size() == 0 )
-                return new ITypeBinding[0];
-            final ITypeBinding[] bindings = new ITypeBinding[exprs.size()];
-            for( int i=0, size = exprs.size(); i<size; i++ ){
-                final Expression initExpr = exprs.get(i);
-                bindings[i] = getExpressionTypeBinding(initExpr);
-            }
-            return bindings;
-        default:
-            return new ITypeBinding[]{ getExpressionTypeBinding(expr) };
-        }
-    }
-
-    private ITypeBinding getExpressionTypeBinding(Expression expr)
-    {
-        if( expr.getNodeType() == ASTNode.TYPE_LITERAL )
-            return  ((TypeLiteral)expr).getType().resolveBinding();
-        else
-            return expr.resolveTypeBinding();
-    }
-
     /**
      * @param memberName the name of the member
      * @return the value of the given member
@@ -302,7 +270,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			final Object[] elements = (Object[])value;
 			assert targetType.isArray();
             final Class componentType = targetType.getComponentType();
-            final int length = elements.length;;
+            final int length = elements.length;
             final Object array = Array.newInstance(componentType, length);
             if( length == 0) return array;
 
