@@ -27,8 +27,8 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 27 };
-//	TESTS_RANGE = new int[] { 11, -1 };
+//	TESTS_NUMBERS = new int[] { 1 };
+//	TESTS_RANGE = new int[] { 1, -1 };
 }	
 public BatchCompilerTest(String name) {
 	super(name);
@@ -1537,13 +1537,13 @@ public void test027(){
         " (at line 5)\n" + 
         "	Warn warn;\n" + 
         "	^^^^\n" + 
-        "Discouraged access: Warn\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
-        " (at line 6)\n" + 
-        "	KO ko;\n" + 
-        "	^^\n" + 
-        "Access restriction: KO\n" + 
+		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/p1\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		" (at line 6)\n" + 
+		"	KO ko;\n" + 
+		"	^^\n" + 
+		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
         "----------\n" + 
         "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
         " (at line 7)\n" + 
@@ -2108,7 +2108,7 @@ public void test036(){
         " (at line 2)\n" + 
         "	public class Y extends p.X {\n" + 
         "	                       ^^^\n" + 
-        "Discouraged access: X\n" + 
+        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
         "----------\n" + 
         "1 problem (1 warning)",
         false);
@@ -2189,27 +2189,219 @@ public void test039(){
 		" (at line 3)\n" + 
 		"	X x1;\n" + 
 		"	^\n" + 
-		"Discouraged access: X<T>\n" + 
+		"Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
 		"----------\n" + 
 		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	^\n" + 
-		"Discouraged access: X<String>\n" + 
+		"Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
 		"----------\n" + 
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	               ^^^^^^^^^^^^^^^\n" + 
-		"Discouraged access: X<String>()\n" + 
+		"Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
 		"----------\n" + 
 		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java\n" + 
 		" (at line 4)\n" + 
 		"	X<String> x2 = new X<String>();\n" + 
 		"	                   ^\n" + 
-		"Discouraged access: X<String>\n" + 
+		"Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
 		"----------\n" + 
 		"4 problems (4 warnings)",
+        false);
+}
+
+// check we get appropriate combination of access rules
+public void test040(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+			"p/Z.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class Z {\n" + 
+			"}"			
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"  p.Z z;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		" (at line 4)\n" + 
+		"	p.Z z;\n" + 
+		"	^^^\n" + 
+		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+        false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
+// turn off discouraged references warnings
+public void test041(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+			"p/Z.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class Z {\n" + 
+			"}"			
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"  p.Z z;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		" (at line 4)\n" + 
+		"	p.Z z;\n" + 
+		"	^^^\n" + 
+		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 		
+		"----------\n" + 
+		"1 problem (1 warning)",
+        false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
+// turn off discouraged references warnings
+public void test042(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+			"p/Z.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class Z {\n" + 
+			"}"			
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"  p.Z z;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		" (at line 3)\n" + 
+		"	p.X x;\n" + 
+		"	^^^\n" + 
+		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+        false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
+// turn off discouraged references warnings
+public void test043(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+			"p/Z.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class Z {\n" + 
+			"}"			
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"  p.Z z;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:-discouraged,forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"",
         false);
 }
 

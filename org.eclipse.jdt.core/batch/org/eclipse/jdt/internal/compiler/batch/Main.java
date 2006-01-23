@@ -1920,6 +1920,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportParameterAssignment,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("discouraged")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportDiscouragedReference,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("forbidden")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportForbiddenReference,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}
@@ -2546,7 +2554,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		if (rulesOK) {
-			AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
+			String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
+			templates[0] = Main.bind(
+				"template.restrictedAccess.type", //$NON-NLS-1$
+				new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
+			templates[1] = Main.bind(
+				"template.restrictedAccess.constructor", //$NON-NLS-1$
+				new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
+			templates[2] = Main.bind(
+				"template.restrictedAccess.method", //$NON-NLS-1$
+				new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
+			templates[3] = Main.bind(
+				"template.restrictedAccess.field", //$NON-NLS-1$
+				new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
+			AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, templates);
 			FileSystem.Classpath currentClasspath = FileSystem
 					.getClasspath(currentClasspathName,
 							customEncoding, 0, accessRuleSet);

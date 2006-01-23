@@ -218,12 +218,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.inclusionPatterns = inclusionPatterns;
 		this.exclusionPatterns = exclusionPatterns;
 		
-		AccessRuleSet ruleSet = createAccessRuleSet(accessRules);
-		if (ruleSet != null) {
-			// compute message template
-			ruleSet.messageTemplates = getMessageTemplates();
+		int length;
+		if (accessRules != null && (length = accessRules.length) > 0) {
+			AccessRule[] rules = new AccessRule[length];
+			System.arraycopy(accessRules, 0, rules, 0, length);
+			this.accessRuleSet = new AccessRuleSet(rules, getMessageTemplates());
 		}
-		this.accessRuleSet = ruleSet;
+//		else { -- implicit!
+//			this.accessRuleSet = null;
+//		}
 		
 		this.combineAccessRules = combineAccessRules;
 		this.extraAttributes = extraAttributes;
@@ -239,15 +242,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.specificOutputLocation = specificOutputLocation;
 		this.isExported = isExported;
 	}
-	
-	private static AccessRuleSet createAccessRuleSet(IAccessRule[] accessRules) {
-		int length = accessRules == null ? 0 : accessRules.length;
-		if (length == 0) return null;
-		AccessRule[] rules = new AccessRule[length];
-		System.arraycopy(accessRules, 0, rules, 0, length);
-		return new AccessRuleSet(rules);
-	}
-	
+
 	public boolean combineAccessRules() {
 		return this.combineAccessRules;
 	}

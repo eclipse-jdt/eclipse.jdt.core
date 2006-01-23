@@ -51,7 +51,7 @@ public class JavaSearchScope extends AbstractSearchScope {
 	private int threshold;
 	
 	private IPath[] enclosingProjectsAndJars;
-	public final static AccessRuleSet NOT_ENCLOSED = new AccessRuleSet(null);
+	public final static AccessRuleSet NOT_ENCLOSED = new AccessRuleSet(null, null);
 	
 public JavaSearchScope() {
 	this(5);

@@ -334,8 +334,7 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 	for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++) {
 		messageTemplates[i] = in.readUTF();
 	}
-	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules);
-	accessRuleSet.messageTemplates = messageTemplates;
+	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, messageTemplates);
 	return accessRuleSet;
 }
 

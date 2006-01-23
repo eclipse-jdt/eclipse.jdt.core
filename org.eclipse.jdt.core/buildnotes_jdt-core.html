@@ -69,10 +69,14 @@ What's new in this drop</h2>
 	 Statements recovery is disabled by default.</li>
 <li>Added API: <code>ICompilationUnit#reconcile(int astLevel, boolean forceProblemDetection, boolean enableStatementsRecovery, WorkingCopyOwner owner, IProgressMonitor monitor)</code><br>
 	 This method allow to enable statements recovery for reconcile operation.</li>
+<li>Added two warning tokens to the batch compiler options: <code>discouraged</code> and 
+    <code>forbidden</code>, so as to suppress warnings about access rules restrictions.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124471">124471</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124533">124533</a>
+[batch] Ability to turn off discouraged references warnings
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124471">124471</a>
 ResolvedAnnotations are not completely resolved
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124346">124346</a>
 [1.5][compiler] Unexpected deprecation warning when @deprecated tag and @Deprecated annotation are mixed

@@ -22,20 +22,15 @@ public class AccessRuleSet {
 	public String[] messageTemplates;
 	public static final int MESSAGE_TEMPLATES_LENGTH = 4;
 	
-	
-	public AccessRuleSet(AccessRule[] accessRules) {
-		this(accessRules, null);
-	}
-	
 	/**
 	 * Make a new set of access rules.
 	 * @param accessRules the access rules to be contained by the new set
 	 * @param messageTemplates a Sting[4] array specifying the messages for type, 
 	 * constructor, method and field access violation; each should contain as many
 	 * placeholders as expected by the respective access violation message (that is,
-	 * one for type and constructor, two for method and field).
+	 * one for type and constructor, two for method and field); replaced by a
+	 * default value if null.
 	 */
-	// TODO (maxime) move to better support
 	public AccessRuleSet(AccessRule[] accessRules, String[] messageTemplates) {
 		this.accessRules = accessRules;
 		if (messageTemplates != null && messageTemplates.length == MESSAGE_TEMPLATES_LENGTH)
