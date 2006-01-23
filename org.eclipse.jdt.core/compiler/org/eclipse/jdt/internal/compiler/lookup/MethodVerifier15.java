@@ -344,8 +344,9 @@ void checkMethods() {
 					}
 				}
 				if (index >= 0) {
-					if (index > 0 && currentMethod.declaringClass.isInterface()) // only check when inherited methods are from interfaces
-						checkInheritedReturnTypes(matchingInherited, index + 1);
+					// see addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+					// if (index > 0 && currentMethod.declaringClass.isInterface()) // only check when inherited methods are from interfaces
+					//	checkInheritedReturnTypes(matchingInherited, index + 1);
 					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1, inherited); // pass in the length of matching
 					while (index >= 0) matchingInherited[index--] = null; // clear the contents of the matching methods
 				}

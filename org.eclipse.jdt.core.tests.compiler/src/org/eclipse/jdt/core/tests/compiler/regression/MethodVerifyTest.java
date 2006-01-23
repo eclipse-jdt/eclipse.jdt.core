@@ -4588,6 +4588,18 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class Z implements L, M, N { public K getI() { return null; } }\n"
 			},
 			"----------\n" + 
+			"1. ERROR in I.java (at line 8)\n" + 
+			"	interface P extends L, M, N {}\n" + 
+			"	          ^\n" + 
+			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 10)\n" + 
+			"	abstract class Y implements L, M, N {}\n" + 
+			"	               ^\n" + 
+			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"----------\n"
+/* See addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+			"----------\n" + 
 			"1. ERROR in I.java (at line 3)\r\n" + 
 			"	interface K extends I, J { K foo(); }\r\n" + 
 			"	          ^\n" + 
@@ -4608,6 +4620,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	               ^\n" + 
 			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
 			"----------\n"
+*/
 		);
 	}
 }
