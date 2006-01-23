@@ -534,6 +534,71 @@ boolean isWorkingCopy();
 CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 
 /**
+ * Reconciles the contents of this working copy, sends out a Java delta
+ * notification indicating the nature of the change of the working copy since
+ * the last time it was either reconciled or made consistent 
+ * ({@link IOpenable#makeConsistent(IProgressMonitor)}), and returns a
+ * compilation unit AST if requested.
+ * <p>
+ * It performs the reconciliation by locally caching the contents of 
+ * the working copy, updating the contents, then creating a delta 
+ * over the cached contents and the new contents, and finally firing
+ * this delta.
+ * <p>
+ * The boolean argument allows to force problem detection even if the
+ * working copy is already consistent.
+ * </p>
+ * <p>
+ * This functionality allows to specify a working copy owner which is used
+ * during problem detection. All references contained in the working copy are
+ * resolved against other units; for which corresponding owned working copies
+ * are going to take precedence over their original compilation units. If
+ * <code>null</code> is passed in, then the primary working copy owner is used.
+ * </p>
+ * <p>
+ * Compilation problems found in the new contents are notified through the
+ * {@link IProblemRequestor} interface which was passed at
+ * creation, and no longer as transient markers.
+ * </p>
+ * <p>
+ * Note: Since 3.0, added/removed/changed inner types generate change deltas.
+ * </p>
+ * <p>
+ * If requested, a DOM AST representing the compilation unit is returned.
+ * Its bindings are computed only if the problem requestor is active, or if the
+ * problem detection is forced. This method returns <code>null</code> if the
+ * creation of the DOM AST was not requested, or if the requested level of AST
+ * API is not supported, or if the working copy was already consistent.
+ * </p>
+ * 
+ * <p>
+ * If statements recovery is enabled then this method tries to rebuild statements
+ * with syntax error. Otherwise statements with syntax error won't be present in
+ * the returning DOM AST.
+ * </p>
+ *
+ * @param astLevel either {@link #NO_AST} if no AST is wanted,
+ * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
+ * @param forceProblemDetection boolean indicating whether problem should be 
+ *   recomputed even if the source hasn't changed
+ * @param enableStatementsRecovery if <code>true</code> statements recovery is enabled.
+ * @param owner the owner of working copies that take precedence over the 
+ *   original compilation units, or <code>null</code> if the primary working
+ *   copy owner should be used
+ * @param monitor a progress monitor
+ * @return the compilation unit AST or <code>null</code> if not requested, 
+ *    or if the requested level of AST API is not supported,
+ *    or if the working copy was consistent
+ * @throws JavaModelException if the contents of the original element
+ *		cannot be accessed. Reasons include:
+ * <ul>
+ * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 3.2
+ */
+CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, boolean enableStatementsRecovery, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
+
+/**
  * Restores the contents of this working copy to the current contents of
  * this working copy's original element. Has no effect if this element
  * is not a working copy.

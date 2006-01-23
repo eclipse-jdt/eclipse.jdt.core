@@ -36,14 +36,16 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public boolean resolveBindings;
 	public HashMap problems;
 	boolean forceProblemDetection;
+	boolean enableStatementsRecovery;
 	WorkingCopyOwner workingCopyOwner;
 	public org.eclipse.jdt.core.dom.CompilationUnit ast;
 	public JavaElementDeltaBuilder deltaBuilder;
 	
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, boolean forceProblemDetection, boolean enableStatementsRecovery, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
 		this.astLevel = astLevel;
 		this.forceProblemDetection = forceProblemDetection;
+		this.enableStatementsRecovery = enableStatementsRecovery;
 		this.workingCopyOwner = workingCopyOwner;
 	}
 	
@@ -147,6 +149,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 							this.workingCopyOwner, 
 							this.problems, 
 							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */, 
+							this.enableStatementsRecovery,
 							this.progressMonitor);
 					if (this.progressMonitor != null) this.progressMonitor.worked(1);
 					

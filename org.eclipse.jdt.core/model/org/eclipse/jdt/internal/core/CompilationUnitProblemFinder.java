@@ -77,7 +77,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 		Map settings,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
-		boolean creatingAST) {
+		boolean creatingAST,
+		boolean statementsRecovery) {
 
 		super(environment,
 			policy,
@@ -86,7 +87,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			problemFactory,
 			creatingAST/*parse literal expressions as constants if creating ast*/,
 			creatingAST/*store annotations in the bindings if creating ast*/,
-			creatingAST/*perform statements recovery during parse if creating ast*/
+			statementsRecovery/*perform statements recovery during parse if creating ast*/
 		);
 	}
 
@@ -143,6 +144,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
+		boolean statementsRecovery,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -159,7 +161,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 				project.getOptions(true),
 				getRequestor(),
 				problemFactory,
-				!creatingAST); // optimize string literal only if not creating a DOM AST
+				!creatingAST,
+				statementsRecovery); // optimize string literal only if not creating a DOM AST
 			if (parser != null) {
 				problemFinder.parser = parser;
 			}
@@ -229,10 +232,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
+		boolean statementsRecovery,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, statementsRecovery, monitor);
 	}
 
 	/* (non-Javadoc)

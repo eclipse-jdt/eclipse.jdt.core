@@ -123,7 +123,9 @@ boolean isOpen();
  * by updating the element's structure and properties as necessary.
  *<p>
  * Note: Using this functionality on a working copy will interfere with any
- * subsequent reconciling operation. Indeed, the next {@link ICompilationUnit#reconcile}
+ * subsequent reconciling operation. Indeed, the next
+ * {@link ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)} or
+ * {@link ICompilationUnit#reconcile(int, boolean, boolean, WorkingCopyOwner, IProgressMonitor)}
  * operation will not account for changes which occurred before an
  * explicit use of {@link #makeConsistent(IProgressMonitor)}
  * <p>

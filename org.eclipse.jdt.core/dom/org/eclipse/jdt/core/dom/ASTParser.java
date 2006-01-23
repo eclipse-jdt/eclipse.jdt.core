@@ -510,7 +510,7 @@ public class ASTParser {
 	
 	/**
 	 * Requests that the compiler should perform statements recovery.
-	 * When statements recovery is enabled the compiler try to create statement nodes
+	 * When statements recovery is enabled the compiler tries to create statement nodes
 	 * from code containing syntax errors
      * <p>
      * Default to <code>false</code>.

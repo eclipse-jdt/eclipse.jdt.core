@@ -174,7 +174,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			if (problems == null) {
 				// report problems to the problem requestor
 				problems = new HashMap();
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, true, pm);
 				try {
 					perWorkingCopyInfo.beginReporting();
 					for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
@@ -189,7 +189,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				}
 			} else {
 				// collect problems
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, true, pm);
 			}
 		}
 		
@@ -1066,14 +1066,14 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	reconcile(NO_AST, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
+	reconcile(NO_AST, false/*don't force problem detection*/, false, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
 }
 /**
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(NO_AST, forceProblemDetection, null/*use primary owner*/, monitor);
+	reconcile(NO_AST, forceProblemDetection, false, null/*use primary owner*/, monitor);
 }
 
 /**
@@ -1083,6 +1083,20 @@ public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) t
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	int astLevel,
 	boolean forceProblemDetection,
+	WorkingCopyOwner workingCopyOwner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+	return reconcile(astLevel, forceProblemDetection, false, workingCopyOwner, monitor);
+}
+		
+/**
+ * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
+ * @since 3.0
+ */
+public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
+	int astLevel,
+	boolean forceProblemDetection,
+	boolean enableStatementsRecovery,
 	WorkingCopyOwner workingCopyOwner,
 	IProgressMonitor monitor)
 	throws JavaModelException {
@@ -1096,7 +1110,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		stats = PerformanceStats.getStats(JavaModelManager.RECONCILE_PERF, this);
 		stats.startRun(new String(this.getFileName()));
 	}
-	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, forceProblemDetection, workingCopyOwner);
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, forceProblemDetection, enableStatementsRecovery,workingCopyOwner);
 	op.runOperation(monitor);
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats.endRun();
