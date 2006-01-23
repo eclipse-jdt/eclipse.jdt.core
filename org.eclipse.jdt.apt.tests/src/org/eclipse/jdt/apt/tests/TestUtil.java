@@ -56,11 +56,11 @@ public class TestUtil
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
 	{
-		//
-		//   add annotations jar as part of the project
-		//
-		IPath projectPath = getProjectPath( project );
-		File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
+		// TODO: temporary to work around jar-file locking problem:
+		//IPath projectPath = getProjectPath( project );
+		//File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
+		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
+		
 		String classesJarPath = jarFile.getAbsolutePath();
 		FileFilter filter = new PackageFileFilter(
 				ANNOTATIONS_PKG, getPluginClassesDir());
@@ -69,6 +69,10 @@ public class TestUtil
 		zip( classesJarPath, files );
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
 			null /*srcAttachmentPathRoot*/, true );
+		
+		// TODO: see above temporary patch for file locking problem
+		jarFile.deleteOnExit();
+		
 		return new File(classesJarPath);
 	}
 	
