@@ -13,9 +13,12 @@ package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -433,14 +436,35 @@ public class GeneratedSourceFolderManager {
 	 * <code>dirString</code> is likely to succeed.
 	 */
 	public static boolean validate(final IJavaProject jproj, final String folderName) {
-		IFolder folder = null;
+		boolean succeeded = false;
 		try {
-			folder = jproj.getProject().getFolder( folderName );
+			if (jproj != null) {
+				// If we have a specific project, we can just ask.
+				IFolder folder = null;
+				folder = jproj.getProject().getFolder( folderName );
+				succeeded = (folder != null);
+			}
+			else {
+				// We're being asked about the default, so no specific project;
+				// here we have to guess.  The code that will later fail if we
+				// get it wrong is IProject.getFolder(String).  So we use some
+				// heuristics.
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				IPath state = AptPlugin.getPlugin().getStateLocation();
+				IPath proposed = new Path(folderName);
+				IPath combined = state.append(proposed);
+				if (combined.segmentCount() <= state.segmentCount()) {
+					// proposed folder depth is too shallow
+					return false;
+				}
+				IFolder folder = root.getFolder(combined);
+				succeeded = (folder != null);
+			}
 		}
 		catch (IllegalArgumentException e) {
 			return false;
 		}
-		return folder != null;
+		return succeeded;
 	}
 
 }
