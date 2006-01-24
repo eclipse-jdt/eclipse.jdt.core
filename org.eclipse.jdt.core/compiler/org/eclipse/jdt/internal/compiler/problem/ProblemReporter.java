@@ -5326,7 +5326,6 @@ public void undefinedLabel(BranchStatement statement) {
 }
 // can only occur inside binaries
 public void undefinedTypeVariableSignature(char[] variableName, ReferenceBinding binaryType) {
-	if(variableName.length == 0)
 	this.handle(
 		IProblem.UndefinedTypeVariable,
 		new String[] {new String(variableName), new String(binaryType.readableName()) },	
