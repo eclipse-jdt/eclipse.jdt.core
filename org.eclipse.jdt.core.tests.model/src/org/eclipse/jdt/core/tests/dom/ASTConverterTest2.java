@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0577"};
+//		TESTS_NAMES = new String[] {"test0578"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -5388,6 +5388,31 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 	}
 	
+	/*
+	 * Ensures that bindings are created when reconciling an external working copy.
+	 */
+	public void test0578() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+	 		IClasspathEntry[] classpath = new IClasspathEntry[] {JavaCore.newLibraryEntry(getExternalJCLPath(), null, null)};
+			workingCopy = newExternalWorkingCopy("External.java", classpath, new ProblemRequestor(), "");
+			
+			String contents =
+				"public class External {\n"+
+				"	/*start*/String foo(){\n"+
+				"		return \"\";\n" +
+				"	}/*end*/\n"+
+				"}\n";
+			IBinding methodBinding = resolveBindings(contents, workingCopy)[0];
+			assertBindingEquals(
+				"LExternal;.foo()Ljava/lang/String;",
+				methodBinding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
 	public void test0606() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0606", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);

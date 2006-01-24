@@ -151,7 +151,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				projectResource.setDescription(description, null);
 		
 			} catch(CoreException e){
-				throw new JavaModelException(e);
+				if (!ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(this.project.getElementName()))
+					throw new JavaModelException(e);
 			}
 		}
 	}

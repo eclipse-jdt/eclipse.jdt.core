@@ -224,6 +224,8 @@ public class JavaProject
 		try {
 			return project.hasNature(JavaCore.NATURE_ID);
 		} catch (CoreException e) {
+			if (ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(project.getName()))
+				return true;
 			// project does not exist or is not open
 		}
 		return false;
@@ -325,7 +327,7 @@ public class JavaProject
 	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	
 		// check whether the java project can be opened
-		if (!underlyingResource.isAccessible()) {
+		if (!hasJavaNature((IProject) underlyingResource)) {
 			throw newNotPresentException();
 		}
 		

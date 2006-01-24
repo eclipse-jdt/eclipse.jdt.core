@@ -95,7 +95,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testIgnoreIfBetterNonAccessibleRule1" };
+//	TESTS_NAMES = new String[] { "testExternal" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -1008,6 +1008,30 @@ public void testExcludePartOfAnotherProject2() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that an external working copy can be reconciled with no error.
+ */
+public void testExternal() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	this.problemRequestor =  new ProblemRequestor();
+	IClasspathEntry[] classpath = new IClasspathEntry[] {JavaCore.newLibraryEntry(getExternalJCLPath(), null, null)};
+	this.workingCopy = newExternalWorkingCopy("External.java", classpath, this.problemRequestor,
+		"public class External {\n"+
+		"	String foo(){\n"+
+		"		return \"\";\n" +
+		"	}\n"+
+		"}\n"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null/*no owner*/, null);
+
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"----------\n"
+	);
+}
+
 /*
  * Ensures that included part of prereq project are visible
  */

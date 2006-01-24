@@ -11,9 +11,12 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.ExternalJavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
 
 /**
  * The owner of an <code>ICompilationUnit</code> handle in working copy mode. 
@@ -70,6 +73,12 @@ public abstract class WorkingCopyOwner {
 	}
 	
 	/**
+	 * @deprecated
+	 */
+	public final ICompilationUnit newWorkingCopy(String name, IProgressMonitor monitor) throws JavaModelException {
+		return newWorkingCopy(name, null, null, monitor);
+	}
+	/**
 	 * Returns a new working copy with the given name using this working copy owner to 
 	 * create its buffer. This working copy doesn't belong to any package, thus its 
 	 * parent is always <code>null</code> and it cannot be resolved in any way.
@@ -94,9 +103,11 @@ public abstract class WorkingCopyOwner {
 	 * @return a new working copy
 	 * @since 3.2
 	 */
-	public final ICompilationUnit newWorkingCopy(String name, IProgressMonitor monitor) throws JavaModelException {
-		CompilationUnit result = new CompilationUnit(null/*no parent*/, name, this);
-		result.becomeWorkingCopy(null/*no problems*/, monitor);
+	public final ICompilationUnit newWorkingCopy(String name, IClasspathEntry[] classpath, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
+		ExternalJavaProject project = new ExternalJavaProject(classpath);
+		IPackageFragment parent = project.getPackageFragmentRoot(Path.EMPTY).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		CompilationUnit result = new CompilationUnit((PackageFragment) parent, name, this);
+		result.becomeWorkingCopy(problemRequestor, monitor);
 		return result;
 	}
 

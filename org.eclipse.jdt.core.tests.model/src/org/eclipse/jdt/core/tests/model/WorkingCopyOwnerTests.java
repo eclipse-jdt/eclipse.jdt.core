@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.ExternalJavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
@@ -44,7 +45,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testNewWorkingCopy08" };
+//		TESTS_NAMES = new String[] { "testNewWorkingCopy03" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -102,17 +103,6 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		);
 	}
 	
-	private ICompilationUnit newWorkingCopy(String name, final String contents) throws JavaModelException {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {
-			public IBuffer createBuffer(ICompilationUnit wc) {
-				IBuffer buffer = super.createBuffer(wc);
-				buffer.setContents(contents);
-				return buffer;
-			}
-		};
-		return owner.newWorkingCopy(name, null);
-	}
-
 	/*
 	 * Tests that a primary compilation unit can become a working copy.
 	 */
@@ -859,7 +849,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that creating a new working copy with no resource works.
 	 */
 	public void testNewWorkingCopy01() throws JavaModelException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
@@ -871,7 +861,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that the children of a new working copy with no resource are correct.
 	 */
 	public void testNewWorkingCopy02() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
@@ -887,31 +877,31 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that the path of a new working copy with no resource is correct.
 	 */
 	public void testNewWorkingCopy03() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
 		);
-		assertEquals("Unexpected path", "X.java", this.workingCopy.getPath().toString());
+		assertEquals("Unexpected path", "/" + ExternalJavaProject.EXTERNAL_PROJECT_NAME + "/X.java", this.workingCopy.getPath().toString());
 	}
 
 	/*
-	 * Ensures that the resource of a new working copy with no resource is null.
+	 * Ensures that the resource of a new working copy does not exist.
 	 */
 	public void testNewWorkingCopy04() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
 		);
-		assertNull("Unexpected resource", this.workingCopy.getResource());
+		assertFalse("Unexpected resource", this.workingCopy.getResource().exists());
 	}
 
 	/*
 	 * Ensures that a new working copy with no resource can be reconciled and that the delta is correct.
 	 */
 	public void testNewWorkingCopy05() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
@@ -938,7 +928,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that a new working copy with no resource can be reconciled and that the resulting AST is correct.
 	 */
 	public void testNewWorkingCopy06() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
@@ -961,7 +951,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that no bindings are created when reconciling a new working copy with no resource.
 	 */
 	public void testNewWorkingCopy07() throws CoreException {
-		this.workingCopy =  newWorkingCopy(
+		this.workingCopy =  newExternalWorkingCopy(
 			"X.java",
 			"public class X {\n" +
 			"}"
@@ -973,7 +963,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		);
 		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, true/*force resolution*/, null, null);
 		TypeDeclaration type = (TypeDeclaration) ast.types().get(0);
-		assertNull("Unexpected bindin", type.resolveBinding());
+		assertNull("Unexpected binding", type.resolveBinding());
 	}
 
 	/*
@@ -990,7 +980,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				return buffer;
 			}
 		};
-		this.workingCopy = owner.newWorkingCopy("X.java", null);		
+		this.workingCopy = owner.newWorkingCopy("X.java", null/*no classpath*/, null/*no problem requestor*/, null/*no progress monitor*/);
 		this.workingCopy.commitWorkingCopy(true, null);
 		assertFalse("Should not have unsaved changes", this.workingCopy.hasUnsavedChanges());
 	}
