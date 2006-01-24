@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 203 };
+//		TESTS_NUMBERS = new int[] { 207 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6244,6 +6244,36 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ArrayInitializer arrayInitializer = (ArrayInitializer) value;
 		ITypeBinding typeBinding = arrayInitializer.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-	}	
-
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=124716
+	 * disable for now. Reenable when 124716 is fixed.
+	 */
+	public void _test0207() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"    void m() {\n" + 
+			"        new Object() {};\n" + 
+			"    }\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		Expression expression = ((ExpressionStatement) node).getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("Should not be null", binding);
+		IResolvedAnnotation[] annotations = binding.getAnnotations();
+		assertNotNull("Should not be null", annotations);
+		assertEquals("Should be empty", 0, annotations.length);
+	}
 }
