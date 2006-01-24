@@ -27,6 +27,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public ICompilerRequestor requestor;
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
+	protected PrintWriter out; // output for messages that are not sent to problemReporter
 
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
@@ -83,33 +84,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      them back as part of the compilation unit result.
 	 */
 	public Compiler(
-		INameEnvironment environment,
-		IErrorHandlingPolicy policy,
-		Map settings,
-		final ICompilerRequestor requestor,
-		IProblemFactory problemFactory) {
-
-		// create a problem handler given a handling policy
-		this.options = new CompilerOptions(settings);
-		
-		// wrap requestor in DebugRequestor if one is specified
-		if(DebugRequestor == null) {
-			this.requestor = requestor;
-		} else {
-			this.requestor = new ICompilerRequestor(){
-				public void acceptResult(CompilationResult result){
-					if (DebugRequestor.isActive()){
-						DebugRequestor.acceptDebugResult(result);
-					}
-					requestor.acceptResult(result);
-				}
-			};
-		}
-		this.problemReporter =
-			new ProblemReporter(policy, this.options, problemFactory);
-		this.lookupEnvironment =
-			new LookupEnvironment(this, this.options, this.problemReporter, environment);
-		initializeParser();
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory) {
+		this(environment, policy, settings,	requestor, problemFactory, 
+				null, false, false, false, false); // all defaults
 	}
 	
 	/**
@@ -144,27 +125,156 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
+	 *
+	 *  @param out java.io.PrintWriter
+	 *      Used by the compiler to output messages which are not related to problems,
+	 *      e.g. the information issued in verbose mode. If null, defaults to System.out 
+	 *      with automatic flushing. 
+	 */
+	public Compiler(
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory,
+			PrintWriter out) {
+		this(environment, policy, settings,	requestor, problemFactory, out, 
+				false, false, false, false); // all defaults
+	}
+	
+	/**
+	 * Answer a new compiler using the given name environment and compiler options.
+	 * The environment and options will be in effect for the lifetime of the compiler.
+	 * When the compiler is run, compilation results are sent to the given requestor.
+	 *
+	 *  @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment
+	 *      Environment used by the compiler in order to resolve type and package
+	 *      names. The name environment implements the actual connection of the compiler
+	 *      to the outside world (e.g. in batch mode the name environment is performing
+	 *      pure file accesses, reuse previous build state or connection to repositories).
+	 *      Note: the name environment is responsible for implementing the actual classpath
+	 *            rules.
+	 *
+	 *  @param policy org.eclipse.jdt.internal.compiler.api.problem.IErrorHandlingPolicy
+	 *      Configurable part for problem handling, allowing the compiler client to
+	 *      specify the rules for handling problems (stop on first error or accumulate
+	 *      them all) and at the same time perform some actions such as opening a dialog
+	 *      in UI when compiling interactively.
+	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 *      
+	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
+	 *      Component which will receive and persist all compilation results and is intended
+	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
+	 *      responsible for writing out the actual .class files to the file system.
+	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
+	 *
+	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
+	 *      Factory used inside the compiler to create problem descriptors. It allows the
+	 *      compiler client to supply its own representation of compilation problems in
+	 *      order to avoid object conversions. Note that the factory is not supposed
+	 *      to accumulate the created problems, the compiler will gather them all and hand
+	 *      them back as part of the compilation unit result.
+	 *
 	 *	@param parseLiteralExpressionsAsConstants <code>boolean</code>
 	 *		This parameter is used to optimize the literals or leave them as they are in the source.
 	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
+	 *
+	 *	@param storeAnnotations <code>boolean</code>
+	 *		This parameter is used to tell the compiler to store annotations on 
+	 *		type bindings, or not.
+	 *
+	 *	@param statementsRecovery <code>boolean</code>
+	 *		This parameter is used to tell the compiler to perform syntax error
+	 *      recovery on statements, or not. 
 	 */
 	public Compiler(
-		INameEnvironment environment,
-		IErrorHandlingPolicy policy,
-		Map settings,
-		final ICompilerRequestor requestor,
-		IProblemFactory problemFactory,
-		boolean parseLiteralExpressionsAsConstants,
-		boolean storeAnnotations,
-		boolean statementsRecovery) {
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory,
+			boolean parseLiteralExpressionsAsConstants,
+			boolean storeAnnotations,
+			boolean statementsRecovery) {
+		this(environment, policy, settings,	requestor, problemFactory, 
+				null, // default 
+				parseLiteralExpressionsAsConstants, storeAnnotations, statementsRecovery, true);
+	}
+
+	/**
+	 * Answer a new compiler using the given name environment and compiler options.
+	 * The environment and options will be in effect for the lifetime of the compiler.
+	 * When the compiler is run, compilation results are sent to the given requestor.
+	 *
+	 *  @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment
+	 *      Environment used by the compiler in order to resolve type and package
+	 *      names. The name environment implements the actual connection of the compiler
+	 *      to the outside world (e.g. in batch mode the name environment is performing
+	 *      pure file accesses, reuse previous build state or connection to repositories).
+	 *      Note: the name environment is responsible for implementing the actual classpath
+	 *            rules.
+	 *
+	 *  @param policy org.eclipse.jdt.internal.compiler.api.problem.IErrorHandlingPolicy
+	 *      Configurable part for problem handling, allowing the compiler client to
+	 *      specify the rules for handling problems (stop on first error or accumulate
+	 *      them all) and at the same time perform some actions such as opening a dialog
+	 *      in UI when compiling interactively.
+	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 *      
+	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
+	 *      Component which will receive and persist all compilation results and is intended
+	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
+	 *      responsible for writing out the actual .class files to the file system.
+	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
+	 *
+	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
+	 *      Factory used inside the compiler to create problem descriptors. It allows the
+	 *      compiler client to supply its own representation of compilation problems in
+	 *      order to avoid object conversions. Note that the factory is not supposed
+	 *      to accumulate the created problems, the compiler will gather them all and hand
+	 *      them back as part of the compilation unit result.
+	 *
+	 *  @param out java.io.PrintWriter
+	 *      Used by the compiler to output messages which are not related to problems,
+	 *      e.g. the information issued in verbose mode. If null, defaults to System.out 
+	 *      with automatic flushing. 
+	 *
+	 *	@param parseLiteralExpressionsAsConstants <code>boolean</code>
+	 *		This parameter is used to optimize the literals or leave them as they are in the source.
+	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
+	 *
+	 *	@param storeAnnotations <code>boolean</code>
+	 *		This parameter is used to tell the compiler to store annotations on 
+	 *		type bindings, or not.
+	 *
+	 *	@param statementsRecovery <code>boolean</code>
+	 *		This parameter is used to tell the compiler to perform syntax error
+	 *      recovery on statements, or not. 
+	 *
+	 *	@param flag <code>boolean</code>
+	 *		Set to true if and only if the other boolean parameters are significant.
+	 */
+	private Compiler(
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory,
+			PrintWriter out,
+			boolean parseLiteralExpressionsAsConstants,
+			boolean storeAnnotations,
+			boolean statementsRecovery,
+			boolean flag) {
 
 		// create a problem handler given a handling policy
 		this.options = new CompilerOptions(settings);
-		this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
-		this.options.storeAnnotations = storeAnnotations;
-		this.options.performStatementsRecovery =
-			statementsRecovery &&
-			this.options.performStatementsRecovery;// TODO temporary code to take into account the temporary JavaCore options
+		if (flag) { // boolean parameters are significant, pass them down
+			this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
+			this.options.storeAnnotations = storeAnnotations;
+			this.options.performStatementsRecovery =
+				statementsRecovery &&
+				this.options.performStatementsRecovery;// TODO temporary code to take into account the temporary JavaCore options
+		}
 		
 		// wrap requestor in DebugRequestor if one is specified
 		if(DebugRequestor == null) {
@@ -181,6 +291,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 		this.problemReporter = new ProblemReporter(policy, this.options, problemFactory);
 		this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, environment);
+		this.out = out == null ? new PrintWriter(System.out, true) : out;
 		initializeParser();
 	}
 	
@@ -189,7 +300,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		if (this.options.verbose) {
-			System.out.println(
+			this.out.println(
 				Messages.bind(Messages.compilation_loadBinary, new String(binaryType.getName())));
 //			new Exception("TRACE BINARY").printStackTrace(System.out);
 //		    System.out.println();
@@ -208,7 +319,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		try {
 			if (options.verbose) {
 				String count = String.valueOf(totalUnits + 1);
-				System.out.println(
+				this.out.println(
 					Messages.bind(Messages.compilation_request,
 						new String[] {
 							count,
@@ -281,7 +392,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 			try {
 				if (options.verbose) {
-					System.out.println(
+					this.out.println(
 						Messages.bind(Messages.compilation_request,
 						new String[] {
 							String.valueOf(i + 1),
@@ -326,7 +437,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				unit = unitsToProcess[i];
 				try {
 					if (options.verbose)
-						System.out.println(
+						this.out.println(
 							Messages.bind(Messages.compilation_process,
 							new String[] {
 								String.valueOf(i + 1),
@@ -341,7 +452,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				unitsToProcess[i] = null; // release reference to processed unit declaration
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 				if (options.verbose)
-					System.out.println(
+					this.out.println(
 						Messages.bind(Messages.compilation_done,
 						new String[] {
 							String.valueOf(i + 1),
@@ -362,10 +473,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 		if (options.verbose) {
 			if (this.totalUnits > 1) {
-				System.out.println(
+				this.out.println(
 					Messages.bind(Messages.compilation_units, String.valueOf(this.totalUnits))); 
 			} else {
-				System.out.println(
+				this.out.println(
 					Messages.bind(Messages.compilation_unit, String.valueOf(this.totalUnits))); 
 			}
 		}

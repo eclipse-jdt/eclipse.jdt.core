@@ -169,7 +169,7 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationResult(sourceUnit, index++, maxUnits, this.options.maxProblemsPerUnit);
 			try {
 				if (options.verbose) {
-					System.out.println(
+					this.out.println(
 						Messages.bind(Messages.compilation_request,
 						new String[] {
 							String.valueOf(index++ + 1),

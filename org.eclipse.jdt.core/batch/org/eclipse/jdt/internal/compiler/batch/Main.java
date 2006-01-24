@@ -966,6 +966,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String destinationPath;
 	public String[] encodings;
 	public Logger logger;
+	PrintWriter out; 
+		// need to pass the compiler messages output to the delegate compiler
+		// do not user directly (use logger)
+		// TODO (maxime) this is used in one instance - check reason with olivier
 	public int exportedClassFilesCounter;
 	public String[] filenames;
 	public boolean generatePackagesStructure;
@@ -1000,6 +1004,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions) {
 		this.logger = new Logger(outWriter, errWriter);
+		this.out = outWriter;
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		this.options = new CompilerOptions().getMap();
 		if (customDefaultOptions != null) {
@@ -2770,7 +2775,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					String relativeStringName = new String(relativeName);
 					try {
 						if (this.compilerOptions.verbose)
-							System.out.println(
+							this.out.println(
 								Messages.bind(
 									Messages.compilation_write,
 									new String[] {
@@ -2810,7 +2815,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				getHandlingPolicy(),
 				this.options,
 				getBatchRequestor(),
-				getProblemFactory());
+				getProblemFactory(),
+				this.out);
 		this.compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.
