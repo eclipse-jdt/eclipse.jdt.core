@@ -60,6 +60,7 @@ public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.CHAR_END, 
 	IMarker.LINE_NUMBER, 
 	IJavaModelMarker.ARGUMENTS,
+	IJavaModelMarker.CATEGORY_ID,	
 };
 public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.MESSAGE, 
@@ -556,13 +557,14 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 			marker.setAttributes(
 				JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES,
 				new Object[] { 
-					problem.getMessage(),
-					problem.isError() ? S_ERROR : S_WARNING, 
-					new Integer(id),
-					new Integer(problem.getSourceStart()),
-					new Integer(problem.getSourceEnd() + 1),
-					new Integer(problem.getSourceLineNumber()),
-					Util.getProblemArgumentsForMarker(problem.getArguments())
+					problem.getMessage(), // message
+					problem.isError() ? S_ERROR : S_WARNING, // severity
+					new Integer(id), // ID
+					new Integer(problem.getSourceStart()), // start
+					new Integer(problem.getSourceEnd() + 1), // end
+					new Integer(problem.getSourceLineNumber()), // line
+					Util.getProblemArgumentsForMarker(problem.getArguments()), // arguments
+					new Integer(ProblemReporter.getProblemCategory(id)), // category ID
 				}
 			);
 		}

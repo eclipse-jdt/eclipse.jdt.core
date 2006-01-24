@@ -86,6 +86,7 @@
 	<attribute name="id"/>
 	<attribute name="flags"/>
 	<attribute name="arguments"/>
+	<attribute name="categoryId"/>
 </extension>   
 
 <!-- =================================================================================== -->
