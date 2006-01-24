@@ -45,7 +45,8 @@ public class Clinit extends AbstractMethodDeclaration {
 					FlowInfo.DEAD_END);
 
 			// check for missing returning path
-			this.needFreeReturn = flowInfo.isReachable();
+			this.needFreeReturn = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
+
 
 			// check missing blank final field initializations
 			flowInfo = flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);

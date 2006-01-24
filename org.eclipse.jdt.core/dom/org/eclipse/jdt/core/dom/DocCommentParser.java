@@ -436,6 +436,20 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 						createTag();
 					break;
+					case 'n':
+						if (length == TAG_NOT_NULL_LENGTH && CharOperation.equals(TAG_NOT_NULL, tagName)) {
+							this.notNull = true;
+							this.tagValue = TAG_NOT_NULL_VALUE;
+						} 
+						else if (length == TAG_NULLABLE_LENGTH && CharOperation.equals(TAG_NULLABLE, tagName)) {
+							this.nullable = true;
+							this.tagValue = TAG_NULLABLE_VALUE;
+						} 
+						else {
+							this.tagValue = TAG_OTHERS_VALUE;
+						}
+						createTag();
+					break;
 					case 'p':
 						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
 							this.tagValue = TAG_PARAM_VALUE;

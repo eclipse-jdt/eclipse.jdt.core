@@ -39,6 +39,8 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_SINCE = "since".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_VERSION = "version".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_CATEGORY = "category".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_NULLABLE = "nullable".toCharArray(); //$NON-NLS-1$
 
 	// tags lengthes
 	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
@@ -52,7 +54,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_INHERITDOC_LENGTH = TAG_INHERITDOC.length;
 	public static final int TAG_VALUE_LENGTH = TAG_VALUE.length;
 	public static final int TAG_CATEGORY_LENGTH = TAG_CATEGORY.length;
-
+	public static final int TAG_NOT_NULL_LENGTH = TAG_NOT_NULL.length;
+	public static final int TAG_NULLABLE_LENGTH = TAG_NULLABLE.length;
 
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
@@ -67,6 +70,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_INHERITDOC_VALUE = 9;
 	public static final int TAG_VALUE_VALUE = 10;
 	public static final int TAG_CATEGORY_VALUE = 11;
+	public static final int TAG_NOT_NULL_VALUE = 50; // JDT custom
+	public static final int TAG_NULLABLE_VALUE = 51; // JDT custom
 	public static final int TAG_OTHERS_VALUE = 100;
 	
 	// tags expected positions

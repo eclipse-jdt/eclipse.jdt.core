@@ -1418,6 +1418,7 @@ public static long getIrritant(int problemID) {
 
 		case IProblem.LocalVariableCannotBeNull :
 		case IProblem.LocalVariableCanOnlyBeNull :
+		case IProblem.LocalVariableMayBeNull :
 			return CompilerOptions.NullReference;
 			
 		case IProblem.BoxingConversion :
@@ -4048,6 +4049,15 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 			local.sourceStart,
 			local.sourceEnd);
 	}
+}
+public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location) {
+	String[] arguments = new String[] {new String(local.name)};
+	this.handle(
+		IProblem.LocalVariableMayBeNull,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void methodMustOverride(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;

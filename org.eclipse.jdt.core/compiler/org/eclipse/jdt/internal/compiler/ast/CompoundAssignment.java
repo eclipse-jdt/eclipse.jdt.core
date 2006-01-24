@@ -34,13 +34,14 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		this.operator = operator ;
 	}
 	
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		// record setting a variable: various scenarii are possible, setting an array reference, 
-		// a field reference, a blank final field reference, a field of an enclosing instance or 
-		// just a local variable.
-	
-		return  ((Reference) lhs).analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
-	}
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, 
+		FlowInfo flowInfo) {
+	// record setting a variable: various scenarii are possible, setting an array reference, 
+	// a field reference, a blank final field reference, a field of an enclosing instance or 
+	// just a local variable.
+	lhs.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
+	return  ((Reference) lhs).analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
+}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	
@@ -56,9 +57,10 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	
-	public int nullStatus(FlowInfo flowInfo) {
-		return FlowInfo.NON_NULL;
-	}
+public int nullStatus(FlowInfo flowInfo) {
+	return FlowInfo.NON_NULL;
+	// we may have complained on checkNPE, but we avoid duplicate error 
+}
 	
 	public String operatorToString() {
 		switch (operator) {

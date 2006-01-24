@@ -50,7 +50,7 @@ public class OR_OR_Expression extends BinaryExpression {
 	
 		 // need to be careful of scenario:
 		//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
-		FlowInfo rightInfo = leftInfo.initsWhenFalse().unconditionalInits().copy();
+		FlowInfo rightInfo = leftInfo.initsWhenFalse().unconditionalCopy();
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
 
@@ -59,14 +59,11 @@ public class OR_OR_Expression extends BinaryExpression {
 			rightInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
-		FlowInfo falseMergedInfo = rightInfo.initsWhenFalse().copy();
-		rightInfo.setReachMode(previousMode); // reset after falseMergedInfo got extracted
-
 		FlowInfo mergedInfo = FlowInfo.conditional(
 					// merging two true initInfos for such a negative case: if ((t && (b = t)) || f) r = b; // b may not have been initialized
-					leftInfo.initsWhenTrue().copy().unconditionalInits().mergedWith(
-						rightInfo.initsWhenTrue().copy().unconditionalInits()),
-					falseMergedInfo);
+					leftInfo.initsWhenTrue().unconditionalInits().mergedWith(
+						rightInfo.safeInitsWhenTrue().setReachMode(previousMode).unconditionalInits()),
+					rightInfo.initsWhenFalse());
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

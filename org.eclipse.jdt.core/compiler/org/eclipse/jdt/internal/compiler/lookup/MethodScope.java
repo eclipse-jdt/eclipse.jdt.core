@@ -395,10 +395,11 @@ public class MethodScope extends BlockScope {
 
 	public final int recordInitializationStates(FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return -1;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return -1;
 
-		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInits();
-		long[] extraInits = unconditionalFlowInfo.extraDefiniteInits;
+		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInitsWithoutSideEffect();
+		long[] extraInits = unconditionalFlowInfo.extra == null ?
+				null : unconditionalFlowInfo.extra[0];
 		long inits = unconditionalFlowInfo.definiteInits;
 		checkNextEntry : for (int i = lastIndex; --i >= 0;) {
 			if (definiteInits[i] == inits) {

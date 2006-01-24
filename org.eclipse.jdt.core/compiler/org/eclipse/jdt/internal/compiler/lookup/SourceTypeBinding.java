@@ -553,6 +553,7 @@ void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0) {
 		this.modifiers |= ClassFileConstants.AccDeprecated;
+		// REVIEW already done in getAnnotationsTagBits
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
@@ -1108,6 +1109,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			field.modifiers |= ClassFileConstants.AccDeprecated;
+		// REVIEW in the case of fields, getAnnotationTagBits does not mark, whereas it
+		//        does it for types
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	

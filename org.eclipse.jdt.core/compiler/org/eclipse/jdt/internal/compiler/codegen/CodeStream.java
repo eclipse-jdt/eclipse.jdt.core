@@ -4549,7 +4549,7 @@ public void ireturn() {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_ireturn;
 }
 public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariableBinding local) {
-	// Dependant of UnconditionalFlowInfo.isDefinitelyAssigned(..)
+	// Mirror of UnconditionalFlowInfo.isDefinitelyAssigned(..)
 	if (initStateIndex == -1)
 		return false;
 	if (local.isArgument) {

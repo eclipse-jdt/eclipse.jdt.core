@@ -115,10 +115,11 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	// not supported yet
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 
 		// if constructor from parameterized type got found, use the original constructor at codegen time
 		this.codegenBinding = this.binding.original();
+		}
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

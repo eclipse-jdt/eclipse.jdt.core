@@ -62,7 +62,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 			int cacheIndex = i / BitCacheSize, bitMask = 1 << (i % BitCacheSize);
 			if (handledExceptions[i].isUncheckedException(true)) {
 				isReached[cacheIndex] |= bitMask;
-				this.initsOnExceptions[i] = flowInfo.copy().unconditionalInits();
+				this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
 			} else {
 				this.initsOnExceptions[i] = FlowInfo.DEAD_END;
 			}
@@ -168,20 +168,21 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		this.isReached[cacheIndex] |= bitMask;
 		
 		initsOnExceptions[index] =
-			initsOnExceptions[index] == FlowInfo.DEAD_END
-				? flowInfo.copy().unconditionalInits()
-				: initsOnExceptions[index].mergedWith(flowInfo.copy().unconditionalInits());
+			(initsOnExceptions[index].tagBits & FlowInfo.UNREACHABLE) == 0 ?
+				initsOnExceptions[index].mergedWith(flowInfo):
+				flowInfo.unconditionalCopy();
 	}
 	
-	public void recordReturnFrom(FlowInfo flowInfo) {
-
-		if (!flowInfo.isReachable()) return; 
-		if (initsOnReturn == FlowInfo.DEAD_END) {
-			initsOnReturn = flowInfo.copy().unconditionalInits();
-		} else {
-			initsOnReturn = initsOnReturn.mergedWith(flowInfo.copy().unconditionalInits());
+public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+		if ((initsOnReturn.tagBits & FlowInfo.UNREACHABLE) == 0) {
+			initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+		} 
+		else {
+			initsOnReturn = (UnconditionalFlowInfo) flowInfo.copy();
 		}
 	}
+}
 	
 	/*
 	 * Compute a merged list of unhandled exception types (keeping only the most generic ones).

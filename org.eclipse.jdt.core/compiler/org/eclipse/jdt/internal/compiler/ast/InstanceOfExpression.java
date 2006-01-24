@@ -31,17 +31,23 @@ public class InstanceOfExpression extends OperatorExpression {
 		this.sourceEnd = type.sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
+public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-
-		flowInfo = expression
-			.analyseCode(currentScope, flowContext, flowInfo)
-			.unconditionalInits();
-		expression.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
-		return flowInfo;
+	LocalVariableBinding local = this.expression.localVariableBinding();
+	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
+		flowContext.recordUsingNullReference(currentScope, local, 
+			this.expression, FlowContext.CAN_ONLY_NULL, flowInfo);
+		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo).
+			unconditionalInits();
+		FlowInfo initsWhenFalse = flowInfo.copy();
+		flowInfo.markAsComparedEqualToNonNull(local);
+		return FlowInfo.conditional(flowInfo, initsWhenFalse);
 	}
+	return expression.analyseCode(currentScope, flowContext, flowInfo).
+			unconditionalInits();
+}
 
 	/**
 	 * Code generation for instanceOfExpression

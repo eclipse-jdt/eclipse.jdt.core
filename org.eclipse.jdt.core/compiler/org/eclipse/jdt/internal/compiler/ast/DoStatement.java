@@ -46,6 +46,7 @@ public class DoStatement extends Statement {
 		LoopingFlowContext loopingContext =
 			new LoopingFlowContext(
 				flowContext,
+				flowInfo,
 				this,
 				breakLabel,
 				continueLabel,
@@ -59,12 +60,19 @@ public class DoStatement extends Statement {
 
 		int previousMode = flowInfo.reachMode();
 				
-		FlowInfo actionInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
+		UnconditionalFlowInfo actionInfo = flowInfo.nullInfoLessUnconditionalCopy();
+		// we need to collect the contribution to nulls of the coming paths through the
+		// loop, be they falling through normally or branched to break, continue labels
+		// or catch blocks
 		if ((action != null) && !action.isEmptyBlock()) {
-			actionInfo = action.analyseCode(currentScope, loopingContext, actionInfo);
+			actionInfo = action.
+				analyseCode(currentScope, loopingContext, actionInfo).
+				unconditionalInits();
 
 			// code generation can be optimized when no need to continue in the loop
-			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
+			if ((actionInfo.tagBits & 
+					loopingContext.initsOnContinue.tagBits & 
+					FlowInfo.UNREACHABLE) != 0) {
 				continueLabel = null;
 			}
 		}
@@ -75,22 +83,35 @@ public class DoStatement extends Statement {
 		 */
 		actionInfo.setReachMode(previousMode);
 		
-		actionInfo =
+		LoopingFlowContext condLoopContext;
+		FlowInfo condInfo =
 			condition.analyseCode(
 				currentScope,
-				loopingContext,
+				(condLoopContext =
+					new LoopingFlowContext(flowContext,	flowInfo, this, null, 
+						null, currentScope)),
 				(action == null
 					? actionInfo
-					: (actionInfo.mergedWith(loopingContext.initsOnContinue))));
+					: (actionInfo.mergedWith(loopingContext.initsOnContinue))).copy());
 		if (!isConditionOptimizedFalse && continueLabel != null) {
-			loopingContext.complainOnDeferredChecks(currentScope, actionInfo);
+			loopingContext.complainOnDeferredFinalChecks(currentScope, condInfo);
+			condLoopContext.complainOnDeferredFinalChecks(currentScope, condInfo);
+			UnconditionalFlowInfo checkFlowInfo;
+			loopingContext.complainOnDeferredNullChecks(currentScope, 
+					checkFlowInfo = actionInfo.
+						addPotentialNullInfoFrom(
+						  condInfo.initsWhenTrue().unconditionalInits()));
+			condLoopContext.complainOnDeferredNullChecks(currentScope, 
+					checkFlowInfo);
 		}
 
 		// end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				loopingContext.initsOnBreak, 
-				isConditionOptimizedTrue, 
-				actionInfo.initsWhenFalse().addInitializationsFrom(flowInfo), // recover null inits from before condition analysis
+				isConditionOptimizedTrue,
+				(condInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
+						flowInfo.addInitializationsFrom(condInfo.initsWhenFalse()) : condInfo, 
+					// recover null inits from before condition analysis
 				false, // never consider opt false case for DO loop, since break can always occur (47776)
 				!isConditionTrue /*do{}while(true); unreachable(); */);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);

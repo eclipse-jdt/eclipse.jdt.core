@@ -1026,8 +1026,13 @@ protected void checkAndSetModifiers(int flag){
 	is zeroed when a copy of modifiers-buffer is push
 	onto the this.astStack. */
 
-	if ((this.modifiers & flag) != 0){ // duplicate modifier
+	if ((this.modifiers & flag) != 0 // duplicate modifier
+			|| ((this.modifiers & ExtraCompilerModifiers.AccNotNull) != 0  // conflicting flags
+				&& (flag & ExtraCompilerModifiers.AccNullable) != 0)
+			|| ((flag & ExtraCompilerModifiers.AccNotNull) != 0  // conflicting flags
+				&& (this.modifiers & ExtraCompilerModifiers.AccNullable) != 0)) { 
 		this.modifiers |= ExtraCompilerModifiers.AccAlternateModifierProblem;
+		// TODO (maxime) check error message
 	}
 	this.modifiers |= flag;
 			
@@ -1058,6 +1063,12 @@ public void checkComment() {
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
 			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
+			}
+			if (this.javadocParser.notNull) {
+				checkAndSetModifiers(ExtraCompilerModifiers.AccNotNull);
+			}
+			if (this.javadocParser.nullable) { // no else on purpose
+				checkAndSetModifiers(ExtraCompilerModifiers.AccNullable);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
 			if (currentElement == null) this.lastJavadocEnd = commentEnd;
@@ -8240,6 +8251,11 @@ protected NameReference getUnspecifiedReference() {
 				(int) (this.identifierPositionStack[this.identifierPtr + 1] >> 32), // sourceStart
 				(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	}
+
+	if (this.scanner.gotNonNullTag) {
+		ref.markAsNonNull();
+	}
+
 	return ref;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
@@ -8260,6 +8276,9 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 				this.identifierPositionStack[this.identifierPtr--]); 
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= Binding.LOCAL | Binding.FIELD;
+		if (this.scanner.gotNonNullTag) {
+			ref.markAsNonNull();
+		}
 		return ref;
 	}
 
@@ -8281,6 +8300,9 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 	ref.bits |= Binding.LOCAL | Binding.FIELD;
+	if (this.scanner.gotNonNullTag) {
+		ref.markAsNonNull();
+	}
 	return ref;
 }
 public void goForBlockStatementsopt() {
@@ -8428,6 +8450,10 @@ public void initialize(boolean initializeNLS) {
 	final boolean checkNLS = this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore;
 	this.checkExternalizeStrings = checkNLS;
 	this.scanner.checkNonExternalizedStringLiterals = initializeNLS && checkNLS;
+	this.scanner.checkNullReferences = 
+		this.options.getSeverity(CompilerOptions.NullReference) != 
+			ProblemSeverities.Ignore;
+	this.scanner.gotNonNullTag = false;
 
 	resetModifiers();
 
@@ -8461,7 +8487,9 @@ public void initializeScanner(){
 		this.options.complianceLevel /*complianceLevel*/, 
 		this.options.taskTags/*taskTags*/,
 		this.options.taskPriorites/*taskPriorities*/,
-		this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
+		this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
+		this.options.getSeverity(CompilerOptions.NullReference) != 
+			ProblemSeverities.Ignore /* checkNullReferences */); 
 }
 public void jumpOverMethodBody() {
 	//on diet parsing.....do not buffer method statements
@@ -8544,6 +8572,7 @@ protected void markInitializersWithLocalType(TypeDeclaration type) {
 		}
 	}
 }
+
 /*
  * Move checkpoint location (current implementation is moving it by one token)
  *
@@ -9314,6 +9343,10 @@ protected void pushIdentifier() {
 	Increase the total number of identifier in the stack.
 	identifierPtr points on the next top */
 
+	if (this.scanner.gotNonNullTag && this.identifierPtr < 0) {
+		this.scanner.gotNonNullTag = false;
+	}
+	
 	int stackLength = this.identifierStack.length;
 	if (++this.identifierPtr >= stackLength) {
 		System.arraycopy(
@@ -9853,6 +9886,7 @@ protected boolean resumeAfterRecovery() {
 protected boolean resumeOnSyntaxError() {
 	this.checkExternalizeStrings = false;
 	this.scanner.checkNonExternalizedStringLiterals = false;
+	// REVIEW don't know if we should reset checkNullReferences here as well...
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery

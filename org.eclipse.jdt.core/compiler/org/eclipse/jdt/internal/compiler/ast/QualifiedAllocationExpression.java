@@ -161,7 +161,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
 		// perform some extra emulation work in case there is some and we are inside a local type only
@@ -174,6 +174,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				// locally propagate, since we already now the desired shape for sure
 				currentScope.propagateInnerEmulation(allocatedTypeErasure, enclosingInstance != null);
 			}
+		}
 		}
 	}
 

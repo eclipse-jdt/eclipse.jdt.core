@@ -67,7 +67,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
 				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 			}
-			if (flowInfo.isReachable()) {
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				localBinding.useFlag = LocalVariableBinding.USED;
 			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
@@ -567,7 +567,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		return;
 	}
 
-	if (!flowInfo.isReachable()) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (this.constant != Constant.NotAConstant)
 		return;	

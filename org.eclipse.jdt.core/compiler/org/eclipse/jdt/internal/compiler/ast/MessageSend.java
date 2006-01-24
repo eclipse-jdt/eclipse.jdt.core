@@ -42,7 +42,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	boolean nonStatic = !binding.isStatic();
 	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
-	if (nonStatic) receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
+	if (nonStatic) {
+		receiver.checkNPE(currentScope, flowContext, flowInfo, true);
+	}
 
 	if (arguments != null) {
 		int length = arguments.length;
@@ -53,7 +55,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
 		// must verify that exceptions potentially thrown by this expression are caught in the method
-		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
+		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo.copy(), currentScope);
+		// TODO (maxime) the copy above is needed because of a side effect into 
+		//               checkExceptionHandlers; consider protecting there instead of here;
+		//               NullReferenceTest#test0510
 	}
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);	
 	return flowInfo;
@@ -169,7 +174,7 @@ public boolean isTypeAccess() {
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 
-	if (!flowInfo.isReachable()) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
 
 	// if method from parameterized type got found, use the original method at codegen time
 	this.codegenBinding = this.binding.original();

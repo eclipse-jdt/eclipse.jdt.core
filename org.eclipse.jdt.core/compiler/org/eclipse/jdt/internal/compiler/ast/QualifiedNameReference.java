@@ -93,12 +93,12 @@ public class QualifiedNameReference extends NameReference {
 					.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 				}
-				if (flowInfo.isReachable()) {
+				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 					localBinding.useFlag = LocalVariableBinding.USED;
 				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 				}
-				this.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
+				checkNPE(currentScope, flowContext, flowInfo, true);
 		}
 		
 		if (needValue) {
@@ -252,12 +252,12 @@ public class QualifiedNameReference extends NameReference {
 					.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 				}
-				if (flowInfo.isReachable()) {
+				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 					localBinding.useFlag = LocalVariableBinding.USED;
 				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 				}
-				this.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
+				checkNPE(currentScope, flowContext, flowInfo, true);
 		}
 		if (needValue) {
 			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
@@ -304,7 +304,25 @@ public class QualifiedNameReference extends NameReference {
 		bits |= Binding.FIELD;
 		return getOtherFieldBindings(scope);
 	}
-	
+
+public void checkNPE(BlockScope scope, FlowContext flowContext, 
+		FlowInfo flowInfo, boolean checkString) {
+	// cannot override localVariableBinding because this would project o.m onto o when
+	// analysing assignments
+	if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
+		LocalVariableBinding local = (LocalVariableBinding) this.binding;
+		if (local != null && 
+			(local.type.tagBits & TagBits.IsBaseType) == 0 &&
+			(checkString || local.type.id != T_JavaLangString)) {
+			if ((this.bits & IsNonNull) == 0) {
+				flowContext.recordUsingNullReference(scope, local, this, 
+					FlowContext.MAY_NULL, flowInfo);
+			}
+			flowInfo.markAsComparedEqualToNonNull(local); 
+				// from thereon it is set
+		}
+	}
+}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
 	 */
@@ -779,15 +797,16 @@ public class QualifiedNameReference extends NameReference {
 				? type.capture(scope, this.sourceEnd)
 				: type;		
 	}
-	
+
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		//If inlinable field, forget the access emulation, the code gen will directly target it
 		if (((bits & DepthMASK) == 0) || (constant != Constant.NotAConstant)) {
 			return;
 		}
 		if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
+		}
 		}
 	}
 	/**
@@ -799,8 +818,8 @@ public class QualifiedNameReference extends NameReference {
 			TypeBinding lastReceiverType,
 			int index,
 			FlowInfo flowInfo) {
-	    
-		if (!flowInfo.isReachable()) return;
+
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
 		// index == 0 denotes the first fieldBinding, index > 0 denotes one of the 'otherBindings', index < 0 denotes a write access (to last binding)
 		if (fieldBinding.constant() != Constant.NotAConstant)
 			return;
@@ -855,6 +874,11 @@ public class QualifiedNameReference extends NameReference {
 			}
 		}			
 	}
+
+public int nullStatus(FlowInfo flowInfo) {
+	return FlowInfo.UNKNOWN;
+}
+
 	public Constant optimizedBooleanConstant() {
 
 		switch (this.resolvedType.id) {

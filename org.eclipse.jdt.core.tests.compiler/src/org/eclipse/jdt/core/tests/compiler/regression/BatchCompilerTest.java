@@ -2530,6 +2530,56 @@ public void test043(){
         false);
 }
 
+// null ref option
+public void test044(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    o.toString();\n" + 
+			"  }\n" + 
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
+        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -warn:+null"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+        " (at line 4)\n" + 
+        "	o.toString();\n" + 
+        "	^\n" + 
+        "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+        "----------\n" + 
+        "1 problem (1 warning)",
+        true);
+}
+
+// null ref option
+public void test045(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    o.toString();\n" + 
+			"  }\n" + 
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
+        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -warn:-null" // contrast with test036
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "", true);
+}
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }

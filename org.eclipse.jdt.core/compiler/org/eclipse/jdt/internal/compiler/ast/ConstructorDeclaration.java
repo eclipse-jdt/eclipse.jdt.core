@@ -112,7 +112,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			// check for missing returning path
-			this.needFreeReturn = flowInfo.isReachable();
+			this.needFreeReturn = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
+
 
 			// check missing blank final field initializations
 			if ((constructorCall != null)

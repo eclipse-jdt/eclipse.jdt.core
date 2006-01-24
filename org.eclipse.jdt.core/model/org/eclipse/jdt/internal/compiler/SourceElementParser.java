@@ -157,6 +157,12 @@ public void checkComment() {
 			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 			}
+			if (this.javadocParser.notNull) {
+				checkAndSetModifiers(ExtraCompilerModifiers.AccNotNull);
+			}
+			if (this.javadocParser.nullable) { // no else on purpose
+				checkAndSetModifiers(ExtraCompilerModifiers.AccNullable);
+			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
 			if (currentElement == null) this.lastJavadocEnd = commentEnd;
 		}

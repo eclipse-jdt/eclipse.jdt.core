@@ -27,19 +27,20 @@ public class UnaryExpression extends OperatorExpression {
 		this.bits |= operator << OperatorSHIFT; // encode operator
 	}
 
-	public FlowInfo analyseCode(
+public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-			
-		if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
-			return this.expression
-				.analyseCode(currentScope, flowContext, flowInfo)
-				.asNegatedCondition();
-		} else {
-			return this.expression.analyseCode(currentScope, flowContext, flowInfo);
-		}
+	this.expression.checkNPE(currentScope, flowContext, flowInfo, true);	
+	if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+		return this.expression.
+			analyseCode(currentScope, flowContext, flowInfo).
+			asNegatedCondition();
+	} else {
+		return this.expression.
+			analyseCode(currentScope, flowContext, flowInfo);
 	}
+}
 
 	public Constant optimizedBooleanConstant() {
 		

@@ -133,6 +133,35 @@ protected void parseSimpleTag() {
 				}
 	        }
 			break;
+		case 'n': // perhaps @notNull or @nullable tag?
+			switch (readChar()) {
+				case 'o':
+			        if ((readChar() == 't') &&
+							(readChar() == 'N') && (readChar() == 'u') &&
+							(readChar() == 'l') && (readChar() == 'l')) {
+						// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+						char c = readChar();
+						if (Character.isWhitespace(c) || c == '*') {
+				    		this.notNull = true;
+							this.tagValue = TAG_NOT_NULL_VALUE;
+						}
+			        }
+			        break;
+				case 'u':
+			        if ((readChar() == 'l') &&
+							(readChar() == 'l') && (readChar() == 'a') &&
+							(readChar() == 'b') && (readChar() == 'l') &&
+							(readChar() == 'e')) {
+						// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+						char c = readChar();
+						if (Character.isWhitespace(c) || c == '*') {
+				    		this.nullable = true;
+							this.tagValue = TAG_NULLABLE_VALUE;
+						}
+			        }
+			        break;
+			}	        
+			break;			
 	}
 }
 

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -48,6 +49,8 @@ public class CommentRecorderParser extends Parser {
 		}
 		boolean deprecated = false;
 		boolean checkDeprecated = false;
+		boolean notNull = false;
+		boolean nullable = false;
 		int lastCommentIndex = -1;
 		
 		//since jdk1.2 look only in the last java doc comment...
@@ -67,11 +70,19 @@ public class CommentRecorderParser extends Parser {
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentSourceEnd > this.lastJavadocEnd;
 			deprecated = this.javadocParser.checkDeprecation(lastCommentIndex);
+			notNull = this.javadocParser.notNull;
+			nullable = this.javadocParser.nullable;
 			this.javadoc = this.javadocParser.docComment;
 			break nextComment;
 		}
 		if (deprecated) {
 			checkAndSetModifiers(ClassFileConstants.AccDeprecated);
+		}
+		if (notNull) {
+			checkAndSetModifiers(ExtraCompilerModifiers.AccNotNull);
+		}
+		if (nullable) { // no else on purpose
+			checkAndSetModifiers(ExtraCompilerModifiers.AccNullable);
 		}
 		// modify the modifier source start to point at the first comment
 		if (lastCommentIndex >= 0 && checkDeprecated) {

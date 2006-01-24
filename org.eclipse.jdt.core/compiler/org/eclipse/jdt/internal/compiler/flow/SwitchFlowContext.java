@@ -42,10 +42,11 @@ public boolean isBreakable() {
 }
 
 public void recordBreakFrom(FlowInfo flowInfo) {
-	if (initsOnBreak == FlowInfo.DEAD_END) {
-		initsOnBreak = flowInfo.copy().unconditionalInits();
-	} else {
-		initsOnBreak = initsOnBreak.mergedWith(flowInfo.copy().unconditionalInits());
+	if ((initsOnBreak.tagBits & FlowInfo.UNREACHABLE) == 0) {
+		initsOnBreak = initsOnBreak.mergedWith(flowInfo.unconditionalInits());
+	} 
+	else {
+		initsOnBreak = flowInfo.unconditionalCopy();
 	}
 }
 }

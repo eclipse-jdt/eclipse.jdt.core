@@ -178,7 +178,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		ReferenceBinding superTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (superTypeErasure.isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
@@ -190,11 +190,12 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				currentScope.propagateInnerEmulation(superTypeErasure, qualification != null);
 			}
 		}
+		}
 	}
 
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		// if constructor from parameterized type got found, use the original constructor at codegen time
 		this.codegenBinding = this.binding.original();
 		
@@ -209,6 +210,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					((SourceTypeBinding) this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
+		}
 		}
 	}
 

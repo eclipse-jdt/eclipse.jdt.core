@@ -10,25 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-/*
- * A document element parser extracts structural information
- * from a piece of source, providing detailed source positions info.
- *
- * also see @IDocumentElementRequestor
- *
- * The structural investigation includes:
- * - the package statement
- * - import statements
- * - top-level types: package member, member types (member types of member types...)
- * - fields
- * - methods
- *
- * Any (parsing) problem encountered is also provided.
- */
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -77,6 +63,8 @@ public void checkComment() {
 	/* persisting javadoc positions */
 	pushOnIntArrayStack(this.getJavaDocPositions());
 	boolean deprecated = false;
+	boolean notNull = false;
+	boolean nullable = false;
 	int lastCommentIndex = -1;
 	int commentPtr = scanner.commentPtr;
 
@@ -93,10 +81,18 @@ public void checkComment() {
 		}
 		deprecated =
 			this.javadocParser.checkDeprecation(lastCommentIndex);
+		notNull = this.javadocParser.notNull;
+		nullable = this.javadocParser.nullable;
 		break nextComment;
 	}
 	if (deprecated) {
 		checkAndSetModifiers(ClassFileConstants.AccDeprecated);
+	}
+	if (notNull) {
+		checkAndSetModifiers(ExtraCompilerModifiers.AccNotNull);
+	}
+	if (nullable) { // no else on purpose
+		checkAndSetModifiers(ExtraCompilerModifiers.AccNullable);
 	}
 	// modify the modifier source start to point at the first comment
 	if (commentPtr >= 0) {

@@ -54,11 +54,12 @@ public class AssertStatement extends Statement {
 		boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
-		FlowInfo assertInfo = flowInfo.copy();
+		UnconditionalFlowInfo assertInfo = assertExpression.
+			analyseCode(currentScope, flowContext, flowInfo.copy()).
+			unconditionalInits();
 		if (isOptimizedTrueAssertion) {
 			assertInfo.setReachMode(FlowInfo.UNREACHABLE);
 		}
-		assertInfo = assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits();
 		
 		if (exceptionArgument != null) {
 			// only gets evaluated when escaping - results are not taken into account
@@ -80,7 +81,7 @@ public class AssertStatement extends Statement {
 		if (isOptimizedFalseAssertion) {
 			return flowInfo; // if assertions are enabled, the following code will be unreachable
 		} else {
-			return flowInfo.mergedWith(assertInfo.unconditionalInits()); 
+			return flowInfo.mergedWith(assertInfo); 
 		}
 	}
 
@@ -163,7 +164,7 @@ public class AssertStatement extends Statement {
 	
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 		
 		// need assertion flag: $assertionsDisabled on outer most source clas
 		// (in case of static member of interface, will use the outermost static member - bug 22334)
@@ -185,6 +186,7 @@ public class AssertStatement extends Statement {
 				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
 				break;
 			}
+		}
 		}
 	}
 

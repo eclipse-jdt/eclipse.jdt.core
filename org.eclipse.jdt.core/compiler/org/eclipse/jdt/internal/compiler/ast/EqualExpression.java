@@ -22,84 +22,99 @@ public class EqualExpression extends BinaryExpression {
 	public EqualExpression(Expression left, Expression right,int operator) {
 		super(left,right,operator);
 	}
-	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+	private void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
 		
 		LocalVariableBinding local = this.left.localVariableBinding();
-		if (local != null) {
+		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, right.nullStatus(flowInfo), this.left);
 		}
 		local = this.right.localVariableBinding();
-		if (local != null) {
+		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, left.nullStatus(flowInfo), this.right);
 		}
 	}
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
-				flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
+				flowContext.recordUsingNullReference(scope, local, reference, 
+					FlowContext.CAN_ONLY_NULL_NON_NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					initsWhenTrue.markAsDefinitelyNull(local); // from thereon it is set
-					initsWhenFalse.markAsDefinitelyNonNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNull(local); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNonNull(local); // from thereon it is set
 				} else {
-					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set
-					initsWhenFalse.markAsDefinitelyNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNull(local); // from thereon it is set
 				}
 				break;
 			case FlowInfo.NON_NULL :
-				flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NON_NULL, flowInfo);
+				flowContext.recordUsingNullReference(scope, local, reference, 
+					FlowContext.CAN_ONLY_NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
 				}
 				break;
 		}	
 	}
 	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		FlowInfo result;
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 			if ((left.constant != Constant.NotAConstant) && (left.constant.typeID() == T_boolean)) {
 				if (left.constant.booleanValue()) { //  true == anything
 					//  this is equivalent to the right argument inits 
-					return right.analyseCode(currentScope, flowContext, flowInfo);
+					result = right.analyseCode(currentScope, flowContext, flowInfo);
 				} else { // false == anything
 					//  this is equivalent to the right argument inits negated
-					return right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					result = right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
-			}
-			if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
+			} 
+			else if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
 				if (right.constant.booleanValue()) { //  anything == true
-					//  this is equivalent to the right argument inits 
-					return left.analyseCode(currentScope, flowContext, flowInfo);
+					//  this is equivalent to the left argument inits 
+					result = left.analyseCode(currentScope, flowContext, flowInfo);
 				} else { // anything == false
 					//  this is equivalent to the right argument inits negated
-					return left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					result = left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
+			} 
+			else {
+				result = right.analyseCode(
+					currentScope, flowContext, 
+					left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).unconditionalInits();
 			}
-			return right.analyseCode(
-				currentScope, flowContext, 
-				left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).unconditionalInits();
 		} else { //NOT_EQUAL :
 			if ((left.constant != Constant.NotAConstant) && (left.constant.typeID() == T_boolean)) {
 				if (!left.constant.booleanValue()) { //  false != anything
 					//  this is equivalent to the right argument inits 
-					return right.analyseCode(currentScope, flowContext, flowInfo);
+					result = right.analyseCode(currentScope, flowContext, flowInfo);
 				} else { // true != anything
 					//  this is equivalent to the right argument inits negated
-					return right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					result = right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
 			}
-			if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
+			else if ((right.constant != Constant.NotAConstant) && (right.constant.typeID() == T_boolean)) {
 				if (!right.constant.booleanValue()) { //  anything != false
 					//  this is equivalent to the right argument inits 
-					return left.analyseCode(currentScope, flowContext, flowInfo);
+					result = left.analyseCode(currentScope, flowContext, flowInfo);
 				} else { // anything != true
 					//  this is equivalent to the right argument inits negated
-					return left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					result = left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
 				}
+			} 
+			else {
+				result = right.analyseCode(
+					currentScope, flowContext, 
+					left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).
+					/* unneeded since we flatten it: asNegatedCondition(). */
+					unconditionalInits();
 			}
-			return right.analyseCode(
-				currentScope, flowContext, 
-				left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).asNegatedCondition().unconditionalInits();
 		}
+		if (result instanceof UnconditionalFlowInfo && 
+				(result.tagBits & FlowInfo.UNREACHABLE) == 0) { // the flow info is flat
+			result = FlowInfo.conditional(result, result.copy());
+		}
+	  checkNullComparison(currentScope, flowContext, result, result.initsWhenTrue(), result.initsWhenFalse());
+	  return result;
 	}
 	
 	public final void computeConstant(TypeBinding leftType, TypeBinding rightType) {

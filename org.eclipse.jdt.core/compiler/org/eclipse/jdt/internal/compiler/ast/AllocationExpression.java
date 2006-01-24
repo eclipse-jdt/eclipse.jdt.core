@@ -164,7 +164,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
 		// perform some emulation work in case there is some and we are inside a local type only
@@ -180,11 +180,12 @@ public class AllocationExpression extends Expression implements InvocationSite {
 				// request cascade of accesses
 			}
 		}
+		}
 	}
 
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 
 		// if constructor from parameterized type got found, use the original constructor at codegen time
 		this.codegenBinding = this.binding.original();
@@ -200,6 +201,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 					((SourceTypeBinding) this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
+		}
 		}
 	}
 

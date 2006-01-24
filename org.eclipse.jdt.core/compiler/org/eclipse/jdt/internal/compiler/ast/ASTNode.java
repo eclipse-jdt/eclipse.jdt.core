@@ -39,7 +39,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
-	public final static int Bit18 = 0x20000; 				
+	public final static int Bit18 = 0x20000;				// non null (expression)				
 	public final static int Bit19 = 0x40000; 
 	public final static int Bit20 = 0x80000; 
 	public final static int Bit21 = 0x100000; 		
@@ -157,6 +157,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 	// for array initializer
 	public static final int IsAnnotationDefaultValue = Bit1;
+	
+	// for null refenrence analysis
+	public static final int IsNonNull = Bit18;
 	
 	public ASTNode() {
 

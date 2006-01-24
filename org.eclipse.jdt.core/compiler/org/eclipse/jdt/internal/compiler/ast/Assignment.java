@@ -36,34 +36,38 @@ public class Assignment extends Expression {
 		this.sourceEnd = sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-		// record setting a variable: various scenarii are possible, setting an array reference, 
-		// a field reference, a blank final field reference, a field of an enclosing instance or 
-		// just a local variable.
-
-		LocalVariableBinding local = this.lhs.localVariableBinding();
-		int nullStatus = this.expression.nullStatus(flowInfo);
-		if (local != null && nullStatus == FlowInfo.NULL) {
-				flowContext.recordUsingNullReference(currentScope, local, this.lhs, FlowInfo.NON_NULL, flowInfo);
+public FlowInfo analyseCode(
+	BlockScope currentScope,
+	FlowContext flowContext,
+	FlowInfo flowInfo) {
+	// record setting a variable: various scenarii are possible, setting an array reference, 
+	// a field reference, a blank final field reference, a field of an enclosing instance or 
+	// just a local variable.
+	LocalVariableBinding local = this.lhs.localVariableBinding();
+	int nullStatus = this.expression.nullStatus(flowInfo);
+	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
+		if (nullStatus == FlowInfo.NULL) {
+			flowContext.recordUsingNullReference(currentScope, local, this.lhs, 
+				FlowContext.CAN_ONLY_NULL, flowInfo);
 		}
-		flowInfo = ((Reference) lhs)
-			.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
-			.unconditionalInits();
-		if (local != null) {
-			switch(nullStatus) {
-				case FlowInfo.NULL :
-					flowInfo.markAsDefinitelyNull(local);
-					break;
-				case FlowInfo.NON_NULL :
-					flowInfo.markAsDefinitelyNonNull(local);
-					break;
-			}
-		}		
-		return flowInfo;
 	}
+	flowInfo = ((Reference) lhs)
+		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
+		.unconditionalInits();
+	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
+		switch(nullStatus) {
+			case FlowInfo.NULL :
+				flowInfo.markAsDefinitelyNull(local);
+				break;
+			case FlowInfo.NON_NULL :
+				flowInfo.markAsDefinitelyNonNull(local);
+				break;
+			default:
+				flowInfo.markAsDefinitelyUnknown(local);
+		}
+	}		
+	return flowInfo;
+}
 
 	void checkAssignmentEffect(BlockScope scope) {
 		
@@ -250,4 +254,8 @@ public class Assignment extends Expression {
 		}
 		visitor.endVisit(this, scope);
 	}
+
+public LocalVariableBinding localVariableBinding() {
+	return lhs.localVariableBinding();
+}
 }

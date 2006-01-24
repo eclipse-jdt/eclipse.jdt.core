@@ -55,11 +55,15 @@ public class WhileStatement extends Statement {
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 		LoopingFlowContext condLoopContext;
-		FlowInfo condInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
+		FlowInfo condInfo =	flowInfo.nullInfoLessUnconditionalCopy();
+		// we need to collect the contribution to nulls of the coming paths through the
+		// loop, be they falling through normally or branched to break, continue labels
+		// or catch blocks
 		condInfo = this.condition.analyseCode(
 				currentScope,
 				(condLoopContext =
-					new LoopingFlowContext(flowContext, this, null, null, currentScope)),
+					new LoopingFlowContext(flowContext, flowInfo, this, null, 
+						null, currentScope)),
 				condInfo);
 
 		LoopingFlowContext loopingContext;
@@ -67,17 +71,22 @@ public class WhileStatement extends Statement {
 		FlowInfo exitBranch;
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3)) {
-			condLoopContext.complainOnDeferredChecks(currentScope, condInfo);
+			condLoopContext.complainOnDeferredFinalChecks(currentScope, 
+					condInfo);
+			condLoopContext.complainOnDeferredNullChecks(currentScope,
+				condInfo.unconditionalInits());
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;
 			} else {
-				FlowInfo mergedInfo = condInfo.initsWhenFalse().unconditionalInits();
+				FlowInfo mergedInfo = condInfo.initsWhenFalse();
 				if (isConditionOptimizedTrue){
 					mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergedInfo);
-				return mergedInfo;
+				return flowInfo.unconditionalInits().
+					addPotentialNullInfoFrom(
+							condInfo.initsWhenFalse().unconditionalInits()); 
 			}
 		} else {
 			// in case the condition was inlined to false, record the fact that there is no way to reach any 
@@ -85,6 +94,7 @@ public class WhileStatement extends Statement {
 			loopingContext =
 				new LoopingFlowContext(
 					flowContext,
+					flowInfo,
 					this,
 					breakLabel,
 					continueLabel,
@@ -108,15 +118,28 @@ public class WhileStatement extends Statement {
 			}
 
 			// code generation can be optimized when no need to continue in the loop
-			exitBranch = condInfo.initsWhenFalse();
-			exitBranch.addInitializationsFrom(flowInfo); // recover null inits from before condition analysis
-			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
+			exitBranch = flowInfo.copy();
+			// need to start over from flowInfo so as to get null inits
+
+			if ((actionInfo.tagBits & 
+					loopingContext.initsOnContinue.tagBits &
+					FlowInfo.UNREACHABLE) != 0) {
 				continueLabel = null;
+				exitBranch.addInitializationsFrom(condInfo.initsWhenFalse());
 			} else {
-				condLoopContext.complainOnDeferredChecks(currentScope, condInfo);
+				condLoopContext.complainOnDeferredFinalChecks(currentScope, 
+						condInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				loopingContext.complainOnDeferredChecks(currentScope, actionInfo);
-				exitBranch.addPotentialInitializationsFrom(actionInfo.unconditionalInits());
+				condLoopContext.complainOnDeferredNullChecks(currentScope, 
+						actionInfo);
+				loopingContext.complainOnDeferredFinalChecks(currentScope, 
+						actionInfo);
+				loopingContext.complainOnDeferredNullChecks(currentScope, 
+						actionInfo);
+				exitBranch.
+					addPotentialInitializationsFrom(
+						actionInfo.unconditionalInits()).
+					addInitializationsFrom(condInfo.initsWhenFalse());
 			}
 		}
 

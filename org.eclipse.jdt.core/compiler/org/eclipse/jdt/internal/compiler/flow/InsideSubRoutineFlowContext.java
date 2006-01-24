@@ -47,13 +47,13 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 		return (SubRoutineStatement)associatedNode;
 	}
 	
-	public void recordReturnFrom(FlowInfo flowInfo) {
-
-		if (!flowInfo.isReachable()) return; 
-		if (initsOnReturn == FlowInfo.DEAD_END) {
-			initsOnReturn = flowInfo.copy().unconditionalInits();
-		} else {
-			initsOnReturn = initsOnReturn.mergedWith(flowInfo.copy().unconditionalInits());
-		}
+public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
+	if (initsOnReturn == FlowInfo.DEAD_END) {
+		initsOnReturn = (UnconditionalFlowInfo) flowInfo.copy();
+	} else {
+		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
 	}
+	}
+}
 }

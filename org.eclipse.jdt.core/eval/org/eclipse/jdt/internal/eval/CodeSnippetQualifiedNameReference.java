@@ -499,7 +499,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		int index,
 		FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
 	
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding

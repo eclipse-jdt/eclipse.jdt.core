@@ -36,12 +36,15 @@ public class FlowContext implements TypeConstants {
 	
 	public ASTNode associatedNode;
 	public FlowContext parent;
-
+	boolean deferNullDiagnostic, preemptNullDiagnostic; 
+		// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
 		
 public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
 	this.associatedNode = associatedNode;
+	deferNullDiagnostic = parent != null && 
+		(parent.deferNullDiagnostic || parent.preemptNullDiagnostic); 
 }
 
 public Label breakLabel() {
@@ -164,7 +167,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 		if (traversedContext.associatedNode instanceof TryStatement){
 			TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
-			flowInfo = flowInfo.copy().addInitializationsFrom(tryStatement.subRoutineInits);
+				flowInfo = flowInfo.addInitializationsFrom(tryStatement.subRoutineInits);
 		}
 		traversedContext = traversedContext.parent;
 	}
@@ -257,7 +260,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 		if (traversedContext.associatedNode instanceof TryStatement){
 			TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
-			flowInfo = flowInfo.copy().addInitializationsFrom(tryStatement.subRoutineInits);
+				flowInfo = flowInfo.addInitializationsFrom(tryStatement.subRoutineInits);
 		}
 		traversedContext = traversedContext.parent;
 	}
@@ -404,7 +407,7 @@ public void recordBreakFrom(FlowInfo flowInfo) {
 	// default implementation: do nothing
 }
 
-public void recordContinueFrom(FlowInfo flowInfo) {
+public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) {
 	// default implementation: do nothing
 }
 
@@ -412,17 +415,26 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
 	return true; // keep going
 }
 
-protected boolean recordNullReference(Expression expression, int status) {
-	return false; // keep going
+/**
+ * Record a null reference for use by deferred checks. Only looping or 
+ * finally contexts really record that information.
+ * @param local the local variable involved in the check
+ * @param expression the expression within which local lays
+ * @param status the status against which the check must be performed; one of
+ * 		{@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL 
+ * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL} 
+ */
+protected void recordNullReference(LocalVariableBinding local, 
+	Expression expression, int status) {
+	// default implementation: do nothing
 }
 
-public void recordReturnFrom(FlowInfo flowInfo) {
+public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 	// default implementation: do nothing
 }
 
 public void recordSettingFinal(VariableBinding variable, Reference finalReference, FlowInfo flowInfo) {
-	if (!flowInfo.isReachable()) return;
-
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 	// for initialization inside looping statement that effectively loops
 	FlowContext context = this;
 	while (context != null) {
@@ -431,36 +443,76 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
 		}
 		context = context.parent;
 	}
+	}
 }
 
-public void recordUsingNullReference(Scope scope, LocalVariableBinding local, Expression reference, int status, FlowInfo flowInfo) {
-	if (!flowInfo.isReachable()) return;
+public static final int 
+  CAN_ONLY_NULL_NON_NULL = 20, 
+  	// check against null and non null, with definite values -- comparisons
+  CAN_ONLY_NULL = 21,
+  	// check against null, with definite values -- assignment to null
+  MAY_NULL = 22;
+		// check against null, with potential values -- NPE guard
 
-	switch (status) {
-		case FlowInfo.NULL :
-			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
-				return;
-			} else if (flowInfo.isDefinitelyNonNull(local)) {
+/**
+ * Record a null reference for use by deferred checks. Only looping or 
+ * finally contexts really record that information. The context may
+ * emit an error immediately depending on the status of local against
+ * flowInfo and its nature (only looping of finally contexts defer part
+ * of the checks; nonetheless, contexts that are nested into a looping or a
+ * finally context get affected and delegate some checks to their enclosing
+ * context).
+ * @param scope the scope into which the check is performed
+ * @param local the local variable involved in the check
+ * @param reference the expression within which local lays
+ * @param checkType the status against which the check must be performed; one 
+ * 		of {@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL 
+ * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}
+ * @param flowInfo the flow info at the check point; deferring contexts will
+ *  	perform supplementary checks against flow info instances that cannot
+ *  	be known at the time of calling this method (they are influenced by
+ * 		code that follows the current point)
+ */
+public void recordUsingNullReference(Scope scope, LocalVariableBinding local, 
+		Expression reference, int checkType, FlowInfo flowInfo) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0 || 
+			flowInfo.isDefinitelyUnknown(local)) {
+		return;
+	}
+	switch (checkType) {
+		case CAN_ONLY_NULL_NON_NULL :
+			if (flowInfo.isDefinitelyNonNull(local)) {
 				scope.problemReporter().localVariableCannotBeNull(local, reference);				
 				return;
 			}
-			break;
-		case FlowInfo.NON_NULL :
+			else if (flowInfo.isPotentiallyUnknown(local)) {
+				return;
+			}
+		case CAN_ONLY_NULL:
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);				
+				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				return;
+			}
+			else if (flowInfo.isPotentiallyUnknown(local)) {
 				return;
 			}
 			break;
+		case MAY_NULL :
+			if (flowInfo.isDefinitelyNull(local)) {
+				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				return;
+			}
+			if (flowInfo.isPotentiallyNull(local)) {
+				scope.problemReporter().localVariableMayBeNull(local, reference);
+				return;
+			}
+			break;
+		default:
+			// never happens
 	}
-	
-	// for initialization inside looping statement that effectively loops
-	FlowContext context = this;
-	while (context != null) {
-		if (context.recordNullReference(reference, status)) {
-			return; // no need to keep going
-		}
-		context = context.parent;
+	if (parent != null) {
+		parent.recordUsingNullReference(scope, local, reference, checkType, 
+				flowInfo);
 	}
 }
 

@@ -71,7 +71,7 @@ public class ContinueStatement extends BranchStatement {
 				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
 			} else if (traversedContext == targetContext) {
 				// only record continue info once accumulated through subroutines, and only against target context
-				targetContext.recordContinueFrom(flowInfo);
+				targetContext.recordContinueFrom(flowContext, flowInfo);
 				break;
 			}
 		} while ((traversedContext = traversedContext.parent) != null);

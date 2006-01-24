@@ -60,22 +60,22 @@ public class IfStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		// process the condition
-		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
+		FlowInfo conditionFlowInfo =
+			condition.analyseCode(currentScope, flowContext, flowInfo);
 
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 		
 		// process the THEN part
-		FlowInfo thenFlowInfo = flowInfo.initsWhenTrue().copy();
+		FlowInfo thenFlowInfo = conditionFlowInfo.safeInitsWhenTrue();
 		if (isConditionOptimizedFalse) {
 			thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
-		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
+		FlowInfo elseFlowInfo = conditionFlowInfo.initsWhenFalse();
 		if (isConditionOptimizedTrue) {
 			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
-		this.condition.checkNullComparison(currentScope, flowContext, flowInfo, thenFlowInfo, elseFlowInfo);
 		if (this.thenStatement != null) {
 			// Save info for code gen
 			thenInitStateIndex =
@@ -86,7 +86,7 @@ public class IfStatement extends Statement {
 			}
 		}
 		// code gen: optimizing the jump around the ELSE part
-		this.thenExit =  !thenFlowInfo.isReachable();
+		this.thenExit = (thenFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 
 		// process the ELSE part
 		if (this.elseStatement != null) {
@@ -107,11 +107,11 @@ public class IfStatement extends Statement {
 
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
-				thenFlowInfo, 
-				isConditionOptimizedTrue, 
-				elseFlowInfo, 
-				isConditionOptimizedFalse,
-				true /*if(true){ return; }  fake-reachable(); */);
+			thenFlowInfo, 
+			isConditionOptimizedTrue, 
+			elseFlowInfo, 
+			isConditionOptimizedFalse,
+			true /*if(true){ return; }  fake-reachable(); */);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}

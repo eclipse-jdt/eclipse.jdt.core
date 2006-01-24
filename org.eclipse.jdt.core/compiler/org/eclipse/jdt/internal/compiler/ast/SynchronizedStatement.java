@@ -56,7 +56,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 				expression.analyseCode(scope, flowContext, flowInfo));
 
 		// optimizing code gen
-		this.blockExit = !flowInfo.isReachable();
+		this.blockExit = (flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 
 		return flowInfo;
 	}

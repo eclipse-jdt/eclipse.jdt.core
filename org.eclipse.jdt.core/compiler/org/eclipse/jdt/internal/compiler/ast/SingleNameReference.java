@@ -34,7 +34,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	}
 	public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 	
-		boolean isReachable = flowInfo.isReachable();
+		boolean isReachable = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
 		// compound assignment extra work
 		if (isCompound) { // check the variable part is initialized if blank final
 			switch (bits & RestrictiveFlagMASK) {
@@ -163,7 +163,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 				}
-				if (flowInfo.isReachable()) {
+				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 					localBinding.useFlag = LocalVariableBinding.USED;
 				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
@@ -641,17 +641,18 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		//If inlinable field, forget the access emulation, the code gen will directly target it
 		if (((bits & DepthMASK) == 0) || (constant != Constant.NotAConstant)) return;
 	
 		if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
+		}
 	}
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess) {
 	
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
 	
 		//If inlinable field, forget the access emulation, the code gen will directly target it
 		if (constant != Constant.NotAConstant)
@@ -695,6 +696,28 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			}					
 		}
 	}
+
+public int nullStatus(FlowInfo flowInfo) {
+	if (this.constant != null && this.constant != Constant.NotAConstant) {
+		return FlowInfo.NON_NULL; // constant expression cannot be null
+	}
+	switch (bits & RestrictiveFlagMASK) {
+		case Binding.FIELD : // reading a field
+			return FlowInfo.UNKNOWN;
+		case Binding.LOCAL : // reading a local variable
+			LocalVariableBinding local = (LocalVariableBinding) this.binding;
+			if (local != null) {
+				if (flowInfo.isDefinitelyNull(local))
+					return FlowInfo.NULL;
+				if (flowInfo.isDefinitelyNonNull(local))
+					return FlowInfo.NON_NULL;
+				return FlowInfo.UNKNOWN;
+			}
+	}
+	return FlowInfo.NON_NULL; 
+// REVIEW should never get here?
+}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
 	 */

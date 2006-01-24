@@ -83,52 +83,20 @@ public class ConditionalFlowInfo extends FlowInfo {
 				&& initsWhenFalse.isDefinitelyAssigned(local);
 	}
 	
-	/**
-	 * Check status of definite non-null assignment for a field.
-	 */
-	public boolean isDefinitelyNonNull(FieldBinding field) {
-		
-		return initsWhenTrue.isDefinitelyNonNull(field) 
-				&& initsWhenFalse.isDefinitelyNonNull(field);
-	}
-
-	/**
-	 * Check status of definite non-null assignment for a local variable.
-	 */
-	public boolean isDefinitelyNonNull(LocalVariableBinding local) {
-		
-		return initsWhenTrue.isDefinitelyNonNull(local) 
-				&& initsWhenFalse.isDefinitelyNonNull(local);
-	}
+public boolean isDefinitelyNonNull(LocalVariableBinding local) {
+	return initsWhenTrue.isDefinitelyNonNull(local) 
+			&& initsWhenFalse.isDefinitelyNonNull(local);
+}
 	
-	/**
-	 * Check status of definite null assignment for a field.
-	 */
-	public boolean isDefinitelyNull(FieldBinding field) {
-		
-		return initsWhenTrue.isDefinitelyNull(field) 
-				&& initsWhenFalse.isDefinitelyNull(field);
-	}
+public boolean isDefinitelyNull(LocalVariableBinding local) {
+	return initsWhenTrue.isDefinitelyNull(local) 
+			&& initsWhenFalse.isDefinitelyNull(local);
+}
 
-	/**
-	 * Check status of definite null assignment for a local variable.
-	 */
-	public boolean isDefinitelyNull(LocalVariableBinding local) {
-		
-		return initsWhenTrue.isDefinitelyNull(local) 
-				&& initsWhenFalse.isDefinitelyNull(local);
-	}
-
-	public int reachMode(){
-		return unconditionalInits().reachMode();
-	}
-	
-	public boolean isReachable(){
-		
-		return unconditionalInits().isReachable();	
-		//should maybe directly be: false
-	}
-	
+public boolean isDefinitelyUnknown(LocalVariableBinding local) {
+	return initsWhenTrue.isDefinitelyUnknown(local) 
+			&& initsWhenFalse.isDefinitelyUnknown(local);
+}
 	/**
 	 * Check status of potential assignment for a field.
 	 */
@@ -146,6 +114,36 @@ public class ConditionalFlowInfo extends FlowInfo {
 		return initsWhenTrue.isPotentiallyAssigned(local) 
 				|| initsWhenFalse.isPotentiallyAssigned(local);
 	}
+	
+public boolean isPotentiallyNull(LocalVariableBinding local) {
+	return initsWhenTrue.isPotentiallyNull(local) 
+		|| initsWhenFalse.isPotentiallyNull(local);
+}	
+
+public boolean isPotentiallyUnknown(LocalVariableBinding local) {
+	return initsWhenTrue.isPotentiallyUnknown(local) 
+		|| initsWhenFalse.isPotentiallyUnknown(local);
+}	
+
+public boolean isProtectedNonNull(LocalVariableBinding local) {
+	return initsWhenTrue.isProtectedNonNull(local) 
+		&& initsWhenFalse.isProtectedNonNull(local);
+}		
+	
+public boolean isProtectedNull(LocalVariableBinding local) {
+	return initsWhenTrue.isProtectedNull(local) 
+		&& initsWhenFalse.isProtectedNull(local);
+}		
+	
+public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
+	initsWhenTrue.markAsComparedEqualToNonNull(local);
+	initsWhenFalse.markAsComparedEqualToNonNull(local);
+}
+
+public void markAsComparedEqualToNull(LocalVariableBinding local) {
+	initsWhenTrue.markAsComparedEqualToNull(local);
+    initsWhenFalse.markAsComparedEqualToNull(local);
+}
 	
 	/**
 	 * Record a field got definitely assigned.
@@ -201,50 +199,60 @@ public class ConditionalFlowInfo extends FlowInfo {
 		initsWhenFalse.markAsDefinitelyNull(local);	
 	}
 
-	/**
-	 * Clear the initialization info for a field
-	 */
-	public void markAsDefinitelyNotAssigned(FieldBinding field) {
-		
-		initsWhenTrue.markAsDefinitelyNotAssigned(field);
-		initsWhenFalse.markAsDefinitelyNotAssigned(field);	
+public void markAsDefinitelyUnknown(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyUnknown(local);
+	initsWhenFalse.markAsDefinitelyUnknown(local);	
+}
+
+public FlowInfo setReachMode(int reachMode) {
+	if (reachMode == REACHABLE) {
+		this.tagBits &= ~UNREACHABLE;
 	}
-	
-	/**
-	 * Clear the initialization info for a local variable
-	 */
-	public void markAsDefinitelyNotAssigned(LocalVariableBinding local) {
-		
-		initsWhenTrue.markAsDefinitelyNotAssigned(local);
-		initsWhenFalse.markAsDefinitelyNotAssigned(local);	
+	else {
+		this.tagBits |= UNREACHABLE;
 	}
+	initsWhenTrue.setReachMode(reachMode);
+	initsWhenFalse.setReachMode(reachMode);
+	return this;
+}
 	
-	public FlowInfo setReachMode(int reachMode) {
-		
-		initsWhenTrue.setReachMode(reachMode);
-		initsWhenFalse.setReachMode(reachMode);
-		return this;
-	}
-	
-	/**
-	 * Converts conditional receiver into inconditional one, updated in the following way: <ul>
-	 * <li> intersection of definitely assigned variables, 
-	 * <li> union of potentially assigned variables.
-	 * </ul>
-	 */
-	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
-		
-		return unconditionalInits().mergedWith(otherInits);
-	}
-	
+public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
+	return unconditionalInits().mergedWith(otherInits);
+}
+
+public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
+	return unconditionalInitsWithoutSideEffect().
+		nullInfoLessUnconditionalCopy();
+}
 	public String toString() {
 		
 		return "FlowInfo<true: " + initsWhenTrue.toString() + ", false: " + initsWhenFalse.toString() + ">"; //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 	}
-	
-	public UnconditionalFlowInfo unconditionalInits() {
-		
-		return initsWhenTrue.unconditionalInits().copy()
-				.mergedWith(initsWhenFalse.unconditionalInits());
-	}
+
+public FlowInfo safeInitsWhenTrue() {
+	return initsWhenTrue;
+}
+
+public UnconditionalFlowInfo unconditionalCopy() {
+	return initsWhenTrue.unconditionalCopy().
+			mergedWith(initsWhenFalse.unconditionalInits());
+}
+
+public UnconditionalFlowInfo unconditionalFieldLessCopy() {
+	return initsWhenTrue.unconditionalFieldLessCopy().
+		mergedWith(initsWhenFalse.unconditionalFieldLessCopy()); 
+	// should never happen, hence suboptimal does not hurt
+}
+
+public UnconditionalFlowInfo unconditionalInits() {
+	return initsWhenTrue.unconditionalInits().
+			mergedWith(initsWhenFalse.unconditionalInits());
+}
+
+public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect() {
+	// cannot do better here than unconditionalCopy - but still a different 
+	// operation for UnconditionalFlowInfo
+	return initsWhenTrue.unconditionalCopy().
+			mergedWith(initsWhenFalse.unconditionalInits());
+}
 }

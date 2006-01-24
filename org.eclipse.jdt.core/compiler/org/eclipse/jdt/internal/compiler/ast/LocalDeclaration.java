@@ -32,25 +32,22 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		this.declarationEnd = sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo flowInfo) {
-
-		// record variable initialization if any
-		if (flowInfo.isReachable()) {
-			bits |= IsLocalDeclarationReachable; // only set if actually reached
-		}
-		if (this.initialization == null) 
-			return flowInfo;
-			
-		int nullStatus = this.initialization.nullStatus(flowInfo);
-		flowInfo =
-			this.initialization
-				.analyseCode(currentScope, flowContext, flowInfo)
-				.unconditionalInits();
-		
-		flowInfo.markAsDefinitelyAssigned(binding);
+	// record variable initialization if any
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+		bits |= IsLocalDeclarationReachable; // only set if actually reached
+	}
+	if (this.initialization == null) { 
+		return flowInfo;
+	}
+	int nullStatus = this.initialization.nullStatus(flowInfo);
+	flowInfo =
+		this.initialization
+			.analyseCode(currentScope, flowContext, flowInfo)
+			.unconditionalInits();
+	flowInfo.markAsDefinitelyAssigned(binding);
+	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
 		switch(nullStatus) {
 			case FlowInfo.NULL :
 				flowInfo.markAsDefinitelyNull(this.binding);
@@ -58,9 +55,12 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			case FlowInfo.NON_NULL :
 				flowInfo.markAsDefinitelyNonNull(this.binding);
 				break;
+			default:
+				flowInfo.markAsDefinitelyUnknown(this.binding);
 		}
-		return flowInfo;
 	}
+	return flowInfo;
+}
 
 	public void checkModifiers() {
 

@@ -1001,6 +1001,8 @@ public class CompilerOptions {
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
 					return NonExternalizedString;
+				if ("null".equals(warningToken)) //$NON-NLS-1$
+					return NullReference;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$

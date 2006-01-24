@@ -62,11 +62,11 @@ public class SwitchStatement extends Statement {
 					if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
-						caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
+						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
 					} else if (statement == defaultCase) { // statement is the default case
 						this.scope.enclosingCase = defaultCase; // record entering in a switch case block
-						caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
+						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
 					}
 					if (!statement.complainIfUnreachable(caseInits, scope, didAlreadyComplain)) {

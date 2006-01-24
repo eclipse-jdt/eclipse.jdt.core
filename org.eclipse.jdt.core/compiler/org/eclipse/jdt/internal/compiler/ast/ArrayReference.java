@@ -27,34 +27,32 @@ public class ArrayReference extends Reference {
 		sourceStart = rec.sourceStart;
 	}
 
-	public FlowInfo analyseAssignment(
+public FlowInfo analyseAssignment(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo,
 		Assignment assignment,
 		boolean compoundAssignment) {
-
-		if (assignment.expression == null) {
-			return analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-		}
-		return assignment
-			.expression
-			.analyseCode(
-				currentScope,
-				flowContext,
-				analyseCode(currentScope, flowContext, flowInfo).unconditionalInits())
-			.unconditionalInits();
+	// TODO (maxime) optimization: unconditionalInits is applied to all existing calls
+	if (assignment.expression == null) {
+		return analyseCode(currentScope, flowContext, flowInfo);
 	}
+	return assignment
+		.expression
+		.analyseCode(
+			currentScope,
+			flowContext,
+			analyseCode(currentScope, flowContext, flowInfo).unconditionalInits());
+}
 
-	public FlowInfo analyseCode(
+public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-
-		flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo);
-		receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
-		return position.analyseCode(currentScope, flowContext, flowInfo);
-	}
+	receiver.checkNPE(currentScope, flowContext, flowInfo, true);
+	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo);
+	return position.analyseCode(currentScope, flowContext, flowInfo);
+}
 
 	public void generateAssignment(
 		BlockScope currentScope,
@@ -178,6 +176,10 @@ public class ArrayReference extends Reference {
 			postIncrement.preAssignImplicitConversion);
 		codeStream.arrayAtPut(this.resolvedType.id, false);
 	}
+
+public int nullStatus(FlowInfo flowInfo) {
+	return FlowInfo.UNKNOWN;
+}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 

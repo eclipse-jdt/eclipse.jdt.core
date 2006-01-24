@@ -40,11 +40,8 @@ public class ConditionalExpression extends OperatorExpression {
 		sourceEnd = valueIfFalse.sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo flowInfo) {
-
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
@@ -84,16 +81,13 @@ public class ConditionalExpression extends OperatorExpression {
 			boolean isValueIfFalseOptimizedTrue = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
 			boolean isValueIfFalseOptimizedFalse = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == false;
 
-			UnconditionalFlowInfo trueInfoWhenTrue = trueFlowInfo.initsWhenTrue().copy().unconditionalInits();
+			UnconditionalFlowInfo trueInfoWhenTrue = trueFlowInfo.initsWhenTrue().unconditionalCopy();
+			UnconditionalFlowInfo falseInfoWhenTrue = falseFlowInfo.initsWhenTrue().unconditionalCopy();
+			UnconditionalFlowInfo trueInfoWhenFalse = trueFlowInfo.initsWhenFalse().unconditionalInits();
+			UnconditionalFlowInfo falseInfoWhenFalse = falseFlowInfo.initsWhenFalse().unconditionalInits();
 			if (isValueIfTrueOptimizedFalse) trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE); 
-
-			UnconditionalFlowInfo falseInfoWhenTrue = falseFlowInfo.initsWhenTrue().copy().unconditionalInits();
 			if (isValueIfFalseOptimizedFalse) falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE); 
-			
-			UnconditionalFlowInfo trueInfoWhenFalse = trueFlowInfo.initsWhenFalse().copy().unconditionalInits();
 			if (isValueIfTrueOptimizedTrue) trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE); 
-
-			UnconditionalFlowInfo falseInfoWhenFalse = falseFlowInfo.initsWhenFalse().copy().unconditionalInits();
 			if (isValueIfFalseOptimizedTrue) falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE); 
 
 			mergedInfo =
@@ -271,6 +265,23 @@ public class ConditionalExpression extends OperatorExpression {
 		// no implicit conversion for boolean values
 		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 	}
+	
+public int nullStatus(FlowInfo flowInfo) {
+	Constant cst = this.condition.optimizedBooleanConstant();
+	if (cst != Constant.NotAConstant) {
+		if (cst.booleanValue()) {
+			return valueIfTrue.nullStatus(flowInfo);
+		}
+		return valueIfFalse.nullStatus(flowInfo);
+	}
+	int ifTrueNullStatus = valueIfTrue.nullStatus(flowInfo),
+	    ifFalseNullStatus = valueIfFalse.nullStatus(flowInfo);
+	if (ifTrueNullStatus == ifFalseNullStatus) {
+		return ifTrueNullStatus;
+	}
+	return FlowInfo.UNKNOWN;
+	// cannot decide which branch to take, and they disagree
+}
 
 	public Constant optimizedBooleanConstant() {
 

@@ -291,7 +291,8 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess){
 	// The private access will be managed through the code generation
 
-	if (!flowInfo.isReachable()) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
+	
 	// if field from parameterized type got found, use the original field at codegen time
 	if (this.binding instanceof ParameterizedFieldBinding) {
 	    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;

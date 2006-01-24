@@ -31,18 +31,17 @@ public class BinaryExpression extends OperatorExpression {
 		this.sourceEnd = right.sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
+public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-
-		return right
-			.analyseCode(
-				currentScope,
-				flowContext,
-				left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits())
-			.unconditionalInits();
-	}
+	left.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
+	flowInfo = left.analyseCode(currentScope, flowContext, flowInfo).
+		unconditionalInits();
+	right.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
+	return right.analyseCode(currentScope, flowContext, flowInfo).
+		unconditionalInits();
+}
 
 	public void computeConstant(BlockScope scope, int leftId, int rightId) {
 

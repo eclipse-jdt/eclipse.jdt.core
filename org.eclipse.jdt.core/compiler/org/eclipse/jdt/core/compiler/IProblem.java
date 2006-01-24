@@ -688,6 +688,8 @@ void setSourceStart(int sourceStart);
 	int LocalVariableCannotBeNull = MethodRelated + 397;
 	/** @since 3.1 */
 	int LocalVariableCanOnlyBeNull = MethodRelated + 398;
+	/** @since 3.2 */
+	int LocalVariableMayBeNull = MethodRelated + 399;
 
 	// method verifier problems
 	int AbstractMethodMustBeImplemented = MethodRelated + 400;

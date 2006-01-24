@@ -201,7 +201,7 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return flowInfo;
 		try {
-			if (flowInfo.isReachable()) {
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				bits |= IsReachable;
 				LocalTypeBinding localType = (LocalTypeBinding) binding;
 				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
@@ -244,7 +244,7 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
-			if (flowInfo.isReachable()) {
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				bits |= IsReachable;
 				LocalTypeBinding localType = (LocalTypeBinding) binding;
 				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
@@ -634,7 +634,7 @@ public class TypeDeclaration
 	 *	Common flow analysis for all types
 	 *
 	 */
-	public void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
+	private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 
 		if ((this.binding.isPrivate()/* || (this.binding.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) == TagBits.IsLocalType*/) && !this.binding.isUsed()) {
 			if (!scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
@@ -644,13 +644,13 @@ public class TypeDeclaration
 
 		InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, initializerScope);
 		InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, staticInitializerScope);
-		FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-		FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+		FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
+		FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 		if (fields != null) {
 			for (int i = 0, count = fields.length; i < count; i++) {
 				FieldDeclaration field = fields[i];
 				if (field.isStatic()) {
-					if (!staticFieldInfo.isReachable())
+					if ((staticFieldInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 						field.bits &= ~ASTNode.IsReachable;
 					
 					/*if (field.isField()){
@@ -670,7 +670,7 @@ public class TypeDeclaration
 						staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 					}
 				} else {
-					if (!nonStaticFieldInfo.isReachable())
+					if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 						field.bits &= ~ASTNode.IsReachable;
 					
 					/*if (field.isField()){
@@ -699,7 +699,7 @@ public class TypeDeclaration
 			}
 		}
 		if (methods != null) {
-			UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+			UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
 			FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 			for (int i = 0, count = methods.length; i < count; i++) {
 				AbstractMethodDeclaration method = methods[i];
@@ -748,7 +748,7 @@ public class TypeDeclaration
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
- 		if (!flowInfo.isReachable()) return;
+ 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
 		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
 		
 		MethodScope methodScope = currentScope.methodScope();
@@ -800,9 +800,10 @@ public class TypeDeclaration
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
 		nestedType.addSyntheticArgumentAndField(binding.enclosingType());
+		}
 	}	
 	
 	/**

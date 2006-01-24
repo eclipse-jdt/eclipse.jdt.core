@@ -162,7 +162,7 @@ public void generateCode(
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-	if (!flowInfo.isReachable()) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 
 	// if method from parameterized type got found, use the original method at codegen time
 	this.codegenBinding = this.binding.original();
@@ -193,7 +193,8 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		}
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
-	}	
+	}
+	}
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type

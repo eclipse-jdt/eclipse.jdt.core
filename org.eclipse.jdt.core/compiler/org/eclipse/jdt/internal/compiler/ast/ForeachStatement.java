@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -80,9 +81,9 @@ public class ForeachStatement extends Statement {
 		continueLabel = new Label();
 
 		// process the element variable and collection
+		this.collection.checkNPE(currentScope, flowContext, flowInfo, true);
 		flowInfo = this.elementVariable.analyseCode(scope, flowContext, flowInfo);
-		FlowInfo condInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
-		condInfo = this.collection.analyseCode(scope, flowContext, condInfo);
+		FlowInfo condInfo = this.collection.analyseCode(scope, flowContext, flowInfo.copy());
 
 		// element variable will be assigned when iterating
 		condInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
@@ -90,25 +91,32 @@ public class ForeachStatement extends Statement {
 		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(condInfo);
 		
 		// process the action
-		LoopingFlowContext loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
-		FlowInfo actionInfo = condInfo.initsWhenTrue().copy();
+		LoopingFlowContext loopingContext = 
+			new LoopingFlowContext(flowContext, flowInfo, this, breakLabel, 
+				continueLabel, scope);
+		UnconditionalFlowInfo actionInfo = 
+			condInfo.nullInfoLessUnconditionalCopy();
 		FlowInfo exitBranch;
 		if (!(action == null || (action.isEmptyBlock() 
 		        	&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
 
 			if (!this.action.complainIfUnreachable(actionInfo, scope, false)) {
-				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
+				actionInfo = action.
+					analyseCode(scope, loopingContext, actionInfo).
+					unconditionalCopy();
 			}
 
 			// code generation can be optimized when no need to continue in the loop
-			exitBranch = condInfo.initsWhenFalse();
-			exitBranch.addInitializationsFrom(flowInfo); // recover null inits from before condition analysis			
-			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
+			exitBranch = flowInfo.unconditionalCopy().
+				addInitializationsFrom(condInfo.initsWhenFalse()); 
+			// TODO (maxime) no need to test when false: can optimize (same for action being unreachable above) 
+			if ((actionInfo.tagBits & loopingContext.initsOnContinue.tagBits &
+					FlowInfo.UNREACHABLE) != 0) {
 				continueLabel = null;
 			} else {
-				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				loopingContext.complainOnDeferredChecks(scope, actionInfo);
-				exitBranch.addPotentialInitializationsFrom(actionInfo.unconditionalInits());
+				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue);
+				loopingContext.complainOnDeferredFinalChecks(scope, actionInfo);
+				exitBranch.addPotentialInitializationsFrom(actionInfo);
 			}
 		} else {
 			exitBranch = condInfo.initsWhenFalse();
@@ -132,6 +140,8 @@ public class ForeachStatement extends Statement {
 			}
 		}
 		//end of loop
+		loopingContext.complainOnDeferredNullChecks(currentScope, actionInfo);
+
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				loopingContext.initsOnBreak, 
 				false, 

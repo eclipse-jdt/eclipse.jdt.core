@@ -3154,8 +3154,9 @@ public final class JavaCore extends Plugin {
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 			
-		if (containerPath == null) Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
-		if (containerPath.segmentCount() < 1) {
+		if (containerPath == null) {
+			Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
+		} else if (containerPath.segmentCount() < 1) {
 			Assert.isTrue(
 				false,
 				"Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$

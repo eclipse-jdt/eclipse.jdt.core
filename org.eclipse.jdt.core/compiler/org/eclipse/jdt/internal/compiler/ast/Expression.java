@@ -481,31 +481,32 @@ public abstract class Expression extends Statement {
 		}
 	}	
 	
-	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
-		// do nothing by default - see EqualExpression
-	}
-
-	public FlowInfo checkNullStatus(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int nullStatus) {
-
-		LocalVariableBinding local = this.localVariableBinding();
-		if (local != null) {
-			switch(nullStatus) {
-				case FlowInfo.NULL :
-					flowContext.recordUsingNullReference(scope, local, this, FlowInfo.NULL, flowInfo);
-					flowInfo.markAsDefinitelyNull(local); // from thereon it is set
-					break;
-				case FlowInfo.NON_NULL :
-					flowContext.recordUsingNullReference(scope, local, this, FlowInfo.NON_NULL, flowInfo);
-					flowInfo.markAsDefinitelyNonNull(local); // from thereon it is set
-					break;
-				case FlowInfo.UNKNOWN :
-					break;
-			}
+/**
+ * Check the local variable of this expression, if any, against potential NPEs 
+ * given a flow context and an upstream flow info. If so, report the risk to
+ * the context. Marks the local as checked, which affects the flow info.
+ * @param scope the scope of the analysis
+ * @param flowContext the current flow context
+ * @param flowInfo the upstream flow info; caveat: may get modified
+ * @param checkString if true, a local variable of type String is checked; else
+ *        it is skipped
+ */
+public void checkNPE(BlockScope scope, FlowContext flowContext, 
+		FlowInfo flowInfo, boolean checkString) {
+	LocalVariableBinding local = this.localVariableBinding();
+	if (local != null && 
+			(local.type.tagBits & TagBits.IsBaseType) == 0 &&
+			(checkString || local.type.id != T_JavaLangString)) {
+		if ((this.bits & IsNonNull) == 0) {
+			flowContext.recordUsingNullReference(scope, local, this, 
+					FlowContext.MAY_NULL, flowInfo);
 		}
-		return flowInfo;
+		flowInfo.markAsComparedEqualToNonNull(local); 
+			// from thereon it is set
 	}
-	
-	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
+}
+
+public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (match == castType) {
 			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 			return true;
@@ -795,9 +796,18 @@ public abstract class Expression extends Statement {
 		return null;
 	}
 	
+/**
+ * Mark this expression as being non null, per a NON-NULL or NN tag in the
+ * source code.
+ */
+public void markAsNonNull() {
+	this.bits |= IsNonNull;
+}
+
 	public int nullStatus(FlowInfo flowInfo) {
 		
-		if (this.constant != null && this.constant != Constant.NotAConstant)
+		if ((this.bits & IsNonNull) != 0 || 
+				this.constant != null && this.constant != Constant.NotAConstant)
 			return FlowInfo.NON_NULL; // constant expression cannot be null
 		
 		LocalVariableBinding local = localVariableBinding();

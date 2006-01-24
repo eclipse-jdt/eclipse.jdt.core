@@ -85,7 +85,7 @@ public class TryStatement extends SubRoutineStatement {
 					.analyseCode(
 						currentScope,
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
-						flowInfo.copy().unconditionalInits().discardNullRelatedInitializations())
+						flowInfo.nullInfoLessUnconditionalCopy())
 					.unconditionalInits();
 			if (subInfo == FlowInfo.DEAD_END) {
 				isSubRoutineEscaping = true;
@@ -108,7 +108,7 @@ public class TryStatement extends SubRoutineStatement {
 			tryBlockExit = false;
 		} else {
 			tryInfo = tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-			tryBlockExit = !tryInfo.isReachable();
+			tryBlockExit = (tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 		}
 
 		// check unreachable catch blocks
@@ -121,13 +121,17 @@ public class TryStatement extends SubRoutineStatement {
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo =
-					flowInfo
-						.copy()
-						.unconditionalInits()
+					flowInfo.unconditionalCopy().
+						addPotentialInitializationsFrom(
+							handlingContext.initsOnException(
+								caughtExceptionTypes[i]))
 						.addPotentialInitializationsFrom(
-							handlingContext.initsOnException(caughtExceptionTypes[i]).unconditionalInits())
-						.addPotentialInitializationsFrom(tryInfo.unconditionalInits())
-						.addPotentialInitializationsFrom(handlingContext.initsOnReturn);
+							tryInfo.nullInfoLessUnconditionalCopy())
+							// remove null info to protect point of 
+							// exception null info 
+						.addPotentialInitializationsFrom(
+							handlingContext.initsOnReturn.
+								nullInfoLessUnconditionalCopy());
 
 				// catch var is always set
 				LocalVariableBinding catchArg = catchArguments[i].binding;
@@ -149,7 +153,8 @@ public class TryStatement extends SubRoutineStatement {
 						currentScope,
 						catchContext,
 						catchInfo);
-				catchExits[i] = !catchInfo.isReachable();
+				catchExits[i] = 
+					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 			}
 		}
@@ -162,10 +167,16 @@ public class TryStatement extends SubRoutineStatement {
 
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
-		finallyContext.complainOnDeferredChecks(
-			tryInfo.isReachable() 
-				? (tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn))
-				: insideSubContext.initsOnReturn, 
+		finallyContext/* NN null with subRoutineStartLabel, which returns */.complainOnDeferredChecks( 
+			(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 
+				? flowInfo.unconditionalCopy().
+					addPotentialInitializationsFrom(tryInfo).
+						// lighten the influence of the try block, which may have 
+						// exited at any point
+					addPotentialInitializationsFrom(
+						insideSubContext/* NN null with subRoutineStartLabel, which returns */.
+							initsOnReturn)
+				: insideSubContext.initsOnReturn,
 			currentScope);
 		if (subInfo == FlowInfo.DEAD_END) {
 			mergedInitStateIndex =
