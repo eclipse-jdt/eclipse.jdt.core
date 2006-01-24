@@ -94,6 +94,8 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
 	private char[] superclassName;
 	private long tagBits;
 	private long version;
+	
+	private char[] enclosingTypeName;
 
 /**
  * @param classFileBytes Actual bytes of a .class file
@@ -246,6 +248,13 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 				continue;
 			}
 			switch(attributeName[0] ) {
+				case 'E' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.EnclosingMethodName)) {
+						utf8Offset = 
+							constantPoolOffsets[u2At(constantPoolOffsets[u2At(readOffset + 6)] - structOffset + 1)] - structOffset; 
+						this.enclosingTypeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+					}
+					break;
 				case 'D' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName)) {
 						this.accessFlags |= ClassFileConstants.AccDeprecated;
@@ -266,6 +275,12 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 									this.innerInfoIndex = j;
 								}
 								innerOffset += 8;
+							}
+							if (this.innerInfo != null) {
+								char[] enclosingType = this.innerInfo.getEnclosingTypeName();
+								if (enclosingType != null) {
+									this.enclosingTypeName = enclosingType;
+								}
 							}
 						}
 					}
@@ -381,10 +396,7 @@ public int[] getConstantPoolOffsets() {
  * or null if the receiver is a top level type.
  */
 public char[] getEnclosingTypeName() {
-	if (this.innerInfo != null && !this.isAnonymous()) {
-		return this.innerInfo.getEnclosingTypeName();
-	}
-	return null;
+	return this.enclosingTypeName;
 }
 /**
  * Answer the receiver's this.fields or null if the array is empty.
