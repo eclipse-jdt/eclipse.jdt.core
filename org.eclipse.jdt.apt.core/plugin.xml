@@ -9,7 +9,7 @@
 
 <extension-point 
 	id="annotationProcessorFactory" 
-	name="Annotation Processor Factories" 
+	name="%annotationProcessorFactoriesName" 
 	schema="schema/annotationProcessorFactory.exsd"/>
 
 <!-- =================================================================================== -->
@@ -17,7 +17,7 @@
 <!-- =================================================================================== -->
 <extension
       id="apt"
-      name="Annotation Processing"
+      name="%annotationProcessingName"
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
    		 id="APT"
@@ -27,19 +27,19 @@
 <!-- =================================================================================== -->
 <!-- Extension: APT Problem                                                             -->
 <!-- =================================================================================== -->
-<extension id="marker" point="org.eclipse.core.resources.markers" name="APT Batch Marker">
+<extension id="marker" point="org.eclipse.core.resources.markers" name="%aptBatchMarkerName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>
 </extension>  
 
-<extension id="buildproblem" point="org.eclipse.core.resources.markers" name="APT Build Marker">
+<extension id="buildproblem" point="org.eclipse.core.resources.markers" name="%aptBuildMarkerName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>
 </extension>  
 
-<extension id="configproblem" point="org.eclipse.core.resources.markers" name="APT Configuration Marker">
+<extension id="configproblem" point="org.eclipse.core.resources.markers" name="%aptConfigurationMarkerName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>

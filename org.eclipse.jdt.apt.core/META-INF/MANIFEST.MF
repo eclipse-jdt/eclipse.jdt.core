@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JDT APT Core
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.core; singleton:=true
 Bundle-Version: 3.2.0
 Bundle-ClassPath: aptcore.jar,
@@ -26,5 +26,5 @@ Require-Bundle: org.eclipse.jdt.core,
  org.apache.ant
 Bundle-Activator: org.eclipse.jdt.apt.core.AptPlugin
 Eclipse-LazyStart: true
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

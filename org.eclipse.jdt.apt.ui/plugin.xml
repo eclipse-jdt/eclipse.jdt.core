@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension-point id="aptQuickFixProvider" name="APT Quick Fix Provider" schema="schema/aptQuickFixProvider.exsd"/>
+   <extension-point id="aptQuickFixProvider" name="%aptQuickFixProviderName" schema="schema/aptQuickFixProvider.exsd"/>
 
 <!-- =================================================================================== -->
 <!-- Extension: Preferences                                                              -->
@@ -12,12 +12,12 @@
             category="org.eclipse.jdt.ui.preferences.CompliancePreferencePage"
             class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
             id="org.eclipse.jdt.apt.ui.preferences.aptPreferences"
-            name="Annotation Processing"/>
+            name="%annotationProcessingName"/>
       <page
             category="org.eclipse.jdt.apt.ui.preferences.aptPreferences"
             class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
             id="org.eclipse.jdt.apt.ui.preferences.factoryPathPreferences"
-            name="Factory Path"/>
+            name="%factoryPathName"/>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
@@ -25,10 +25,10 @@
             category="org.eclipse.jdt.ui.propertyPages.CompliancePreferencePage"
             class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
-            name="Annotation Processing"
+            name="%annotationProcessingName"
             objectClass="org.eclipse.core.resources.IProject">
          <filter
-               name="nature"
+               name="%natureName"
                value="org.eclipse.jdt.core.javanature">
          </filter>
       </page>            
@@ -36,10 +36,10 @@
             category="org.eclipse.jdt.ui.propertyPages.CompliancePreferencePage"
             class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
-            name="Annotation Processing"
+            name="%annotationProcessingName"
             objectClass="org.eclipse.jdt.core.IJavaProject">
          <filter
-               name="nature"
+               name="%natureName"
                value="org.eclipse.jdt.core.javanature">
          </filter>
       </page>
@@ -47,20 +47,20 @@
             category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
             class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
-            name="Factory Path"
+            name="%factoryPathName"
             objectClass="org.eclipse.core.resources.IProject">
          <filter
-               name="nature"
+               name="%natureName"
                value="org.eclipse.jdt.core.javanature"/>
       </page>
       <page
             category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
             class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
-            name="Factory Path"
+            name="%factoryPathName"
             objectClass="org.eclipse.jdt.core.IJavaProject">
          <filter
-               name="nature"
+               name="%natureName"
                value="org.eclipse.jdt.core.javanature"/>
       </page>            
    </extension>
@@ -87,7 +87,7 @@
    <quickFixProcessor
          class="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
          id="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
-         name="APTQuickFixProcessor"/>
+         name="%aptQuickFixProcessorName"/>
 </extension>
 
 </plugin>
