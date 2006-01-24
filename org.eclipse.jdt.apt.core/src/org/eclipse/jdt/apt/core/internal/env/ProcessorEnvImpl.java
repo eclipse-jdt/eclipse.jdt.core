@@ -80,6 +80,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	/** path variable meaning "workspace root" */
 	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
+	
+	/** path variable meaning "project root" */
+	private static final String PATHVAR_PROJECTROOT = "%PROJECT.DIR%"; //$NON-NLS-1$
     
 	/**
 	 * The compilation unit of the file that is being processed in reconcile 
@@ -240,7 +243,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
-			String value = resolveVarPath(entry.getValue());
+			String value = resolveVarPath(jproj, entry.getValue());
 			String key = entry.getKey();
 			_options.put(key, value);
 			if (!AptConfig.isAutomaticProcessorOption(key)) {
@@ -261,7 +264,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * the absolute path.
 	 * @param value the value of a -Akey=value command option
 	 */
-	private String resolveVarPath(String value) {
+	private String resolveVarPath(IJavaProject jproj, String value) {
 		if (value == null) {
 			return null;
 		}
@@ -285,6 +288,15 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			return absoluteResPath.toOSString();
 		}
 		
+		// If it matches %PROJECT.DIR%/project, the path is relative to the current project.
+		if (jproj != null && PATHVAR_PROJECTROOT.equals(firstToken)) {
+			// all is well; do the substitution
+			IPath relativePath = path.removeFirstSegments(1);
+			IPath absoluteProjPath = jproj.getProject().getLocation();
+			IPath absoluteResPath = absoluteProjPath.append(relativePath);
+			return absoluteResPath.toOSString();
+		}
+
 		// otherwise it's a classpath-var-based path.
 		String cpvName = firstToken.substring(1, firstToken.length() - 1);
 		IPath cpvPath = JavaCore.getClasspathVariable(cpvName);

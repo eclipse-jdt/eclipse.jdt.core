@@ -22,7 +22,8 @@
     value of the variable at processor execution time.  The special value <code>ROOT</code> expands
     to the absolute path of the workspace.  For example, <code>%ROOT%/foo/bar.xml</code> might 
     expand to <code>d:/my_workspace/foo/bar.xml</code>, and <code>%JRE_LIB%/rt.jar</code> might 
-    expand to <code>c:/jdk1.5.0/lib/rt.jar</code>.
+    expand to <code>c:/jdk1.5.0/lib/rt.jar</code>.  Similarly, the special value <code>PROJECT.DIR</code>
+    expands to the absolute path of the current project.
     <p>Certain options are automatically provided to the processors; entering them in this dialog
     will have no effect, since the automatically provided values will override any values set here.  
     The automatic options are described <a href="automatic_processor_options.html">here</a>.
