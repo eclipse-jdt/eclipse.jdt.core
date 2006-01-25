@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
@@ -11223,36 +11224,43 @@ public void testLabel6() throws JavaModelException {
 			requestor.getResults());
 }
 public void testParameterNames1() throws CoreException, IOException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/p/Test.java",
-		"package p;"+
-		"public class Test {\n" + 
-		"  void foo(doctest.X x) {\n" + 
-		"    x.fo\n" + 
-		"  }\n" + 
-		"}\n");
-	
-	addLibrary(
-			"Completion", 
-			"tmpDoc.jar",
-			null,
-			"tmpDocDoc.zip",
-			false);
-	
-	CompletionTestsRequestor2 requestor;
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
 	try {
-		requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "x.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/p/Test.java",
+			"package p;"+
+			"public class Test {\n" + 
+			"  void foo(doctest.X x) {\n" + 
+			"    x.fo\n" + 
+			"  }\n" + 
+			"}\n");
 		
-		assertResults(
-			"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		addLibrary(
+				"Completion", 
+				"tmpDoc.jar",
+				null,
+				"tmpDocDoc.zip",
+				false);
+		
+		CompletionTestsRequestor2 requestor;
+		try {
+			requestor = new CompletionTestsRequestor2(true);
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "x.fo";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			
+			assertResults(
+				"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+		} finally {
+			removeLibrary("Completion", "tmpDoc.jar");
+		}
 	} finally {
-		removeLibrary("Completion", "tmpDoc.jar");
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
 	}
 }
 public void testInconsistentHierarchy1() throws CoreException, IOException {
