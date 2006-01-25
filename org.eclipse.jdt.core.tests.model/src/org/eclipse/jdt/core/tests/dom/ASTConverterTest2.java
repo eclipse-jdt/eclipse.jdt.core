@@ -5394,7 +5394,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0578() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
-	 		IClasspathEntry[] classpath = new IClasspathEntry[] {JavaCore.newLibraryEntry(getExternalJCLPath(), null, null)};
+	 		IClasspathEntry[] classpath = new IClasspathEntry[] {JavaCore.newLibraryEntry(getConverterJCLPath(), null, null)};
 			workingCopy = newExternalWorkingCopy("External.java", classpath, new ProblemRequestor(), "");
 			
 			String contents =
