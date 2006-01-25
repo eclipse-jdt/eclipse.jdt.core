@@ -39,14 +39,14 @@ public static Test suite() {
 
 	private String getLibraryClasses() {
 		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "../Classes/classes.jar"; 
+			return JRE_HOME_DIR + "/../Classes/classes.jar"; 
 		}
 		return JRE_HOME_DIR + "/lib/rt.jar";
 	}
 	
 	private String getJCEJar() {
 		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "../Classes/jce.jar"; 
+			return JRE_HOME_DIR + "/../Classes/jce.jar"; 
 		}
 		return JRE_HOME_DIR + "/lib/jce.jar";
 	}
