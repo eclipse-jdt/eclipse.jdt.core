@@ -221,15 +221,23 @@ public final class BindingKey {
 	}
 	
 	/**
-	 * Internal method.
-	 * <p>
-	 * This method transforms this binding key into a signature. 
-	 * This method is not intended to be called by clients.
-	 * </p>
-	 * 
-	 * @return the signature for this binding key
+	 * @deprecated use toSignature() instead
 	 */
+	// TODO (jerome) remove before 3.2 M5
 	public String internalToSignature() {
+		return toSignature();
+	}
+	
+	/**
+	 * Transforms this binding key into a resolved signature.
+	 * If this binding key represents a field, the returned signature is
+	 * the declaring type's signature.
+	 * 
+	 * @return the resolved signature for this binding key
+	 * @see Signature
+	 * @since 3.2
+	 */
+	public String toSignature() {
 		KeyToSignature keyToSignature = new KeyToSignature(this.key, KeyToSignature.SIGNATURE);
 		keyToSignature.parse();
 		return keyToSignature.signature.toString();

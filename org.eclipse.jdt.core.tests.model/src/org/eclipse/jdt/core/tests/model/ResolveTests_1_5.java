@@ -2112,7 +2112,7 @@ public void test0095() throws JavaModelException {
 	);
 	
 	String key = ((IType) elements[0]).getKey();
-	String signature = new BindingKey(key).internalToSignature();
+	String signature = new BindingKey(key).toSignature();
 	String[] typeArguments = Signature.getTypeArguments(signature);
 	assertStringsEqual(
 		"Unexpected type arguments", 

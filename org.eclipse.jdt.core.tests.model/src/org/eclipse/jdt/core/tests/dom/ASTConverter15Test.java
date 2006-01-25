@@ -5911,7 +5911,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding);
 		
 		String key = binding.getKey();
-		String signature = new BindingKey(key).internalToSignature();
+		String signature = new BindingKey(key).toSignature();
 		String simpleName = Signature.getSimpleName(Signature.toString(signature));
 		assertEquals("Unexpected simple name", "Y", simpleName);
 	}

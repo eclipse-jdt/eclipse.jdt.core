@@ -38,7 +38,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	
 	protected void assertBindingKeySignatureEquals(String expected, String key) {
 		BindingKey bindingKey = new BindingKey(key);
-		String signature = bindingKey.internalToSignature();
+		String signature = bindingKey.toSignature();
 		if (!(expected.equals(signature)))
 			System.out.println(displayString(signature, 3) + ",");
 		assertEquals(expected, signature);

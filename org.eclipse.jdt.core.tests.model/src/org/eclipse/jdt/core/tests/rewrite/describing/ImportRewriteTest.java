@@ -556,7 +556,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("IOException"), "IOException".length());
 			assertEquals(1, elements.length);
 			String key= ((IType) elements[0]).getKey();
-			String signature= new BindingKey(key).internalToSignature();
+			String signature= new BindingKey(key).toSignature();
 			
 			importsRewrite.addImportFromSignature(signature, ast);
 		}
@@ -564,7 +564,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("URL"), "URL".length());
 			assertEquals(1, elements.length);
 			String key= ((IType) elements[0]).getKey();
-			String signature= new BindingKey(key).internalToSignature();
+			String signature= new BindingKey(key).toSignature();
 			
 			importsRewrite.addImportFromSignature(signature, ast);
 		}
@@ -572,7 +572,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("List"), "List".length());
 			assertEquals(1, elements.length);
 			String key= ((IType) elements[0]).getKey();
-			String signature= new BindingKey(key).internalToSignature();
+			String signature= new BindingKey(key).toSignature();
 			
 			importsRewrite.addImportFromSignature(signature, ast);
 		}
@@ -629,7 +629,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("Map"), "Map".length());
 			assertEquals(1, elements.length);
 			String key= ((IType) elements[0]).getKey();
-			String signature= new BindingKey(key).internalToSignature();
+			String signature= new BindingKey(key).toSignature();
 			
 			importsRewrite.addImportFromSignature(signature, ast);
 		}			

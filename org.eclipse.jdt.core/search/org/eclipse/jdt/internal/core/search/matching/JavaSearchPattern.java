@@ -237,7 +237,7 @@ public class JavaSearchPattern extends SearchPattern {
 	void storeTypeSignaturesAndArguments(IType type) {
 		BindingKey key;
 		if (type.isResolved() && (key = new BindingKey(type.getKey())).isParameterizedType()) {
-			String signature = key.internalToSignature();
+			String signature = key.toSignature();
 			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {

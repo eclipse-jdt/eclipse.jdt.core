@@ -52,13 +52,16 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>BindingKey#toSignature()</code> to transform a binding key into a resolved signature.</li>
 <li>Added marker attribute "categoryId" onto Java problem markers.
 <li>Added API <code>WorkingCopyOwner#newWorkingCopy(String,IClasspathEntry[],IProblemRequestor,IProgressMonitor)</code>
      for editing compilation units outside the workspace.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125036">125036</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120079">120079</a>
+[api] need solution for BindingKey#internalToSignature()
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125036">125036</a>
 ResolvedMemberValuePair#buildDOMValue(..) uses &quot;new Boolean(..)&quot;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=121715">121715</a>
 Util#getJavaLikeExtensions doesn't consider Java-like content types
