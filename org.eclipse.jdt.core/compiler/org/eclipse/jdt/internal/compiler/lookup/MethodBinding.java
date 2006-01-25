@@ -418,10 +418,13 @@ public final int getAccessFlags() {
 public long getAnnotationTagBits() {
 	MethodBinding originalMethod = this.original();
 	if ((originalMethod.tagBits & TagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
-		TypeDeclaration typeDecl = ((SourceTypeBinding)originalMethod.declaringClass).scope.referenceContext;
-		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
-		if (methodDecl != null)
-			ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
+		ClassScope scope = ((SourceTypeBinding) originalMethod.declaringClass).scope;
+		if (scope != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
+			if (methodDecl != null)
+				ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
+		}
 	}
 	return originalMethod.tagBits;
 }
