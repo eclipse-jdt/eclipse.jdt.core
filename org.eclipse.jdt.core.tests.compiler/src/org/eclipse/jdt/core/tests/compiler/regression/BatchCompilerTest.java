@@ -37,6 +37,26 @@ public static Test suite() {
 	return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_5);
 }
 
+	private String getLibraryClasses() {
+		if (Util.isMacOS()) {
+			return JRE_HOME_DIR + "../Classes/classes.jar"; 
+		}
+		return JRE_HOME_DIR + "/lib/rt.jar";
+	}
+	
+	private String getJCEJar() {
+		if (Util.isMacOS()) {
+			return JRE_HOME_DIR + "../Classes/jce.jar"; 
+		}
+		return JRE_HOME_DIR + "/lib/jce.jar";
+	}
+	
+	private String getExtDirectory() {
+		if (Util.isMacOS()) {
+			return JRE_HOME_DIR + "/lib/ext";
+		}
+		return JRE_HOME_DIR + "/lib/ext";
+	}
 	/**
 	 * Run a compilation test that is expected to complete successfully and
 	 * compare the outputs to expected ones.
@@ -638,8 +658,8 @@ public void test007(){
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
-        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -bootclasspath " + getLibraryClasses()
+        + " -cp " + getJCEJar()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
@@ -677,8 +697,8 @@ public void test008(){
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
-        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -bootclasspath " + getLibraryClasses()
+        + " -cp " + getJCEJar()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "", 
@@ -1555,7 +1575,7 @@ public void test019(){
 						"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-				+ " -extdirs \"" + JRE_HOME_DIR + "/lib/ext" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
@@ -1595,7 +1615,7 @@ public void test019(){
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\"" 
-				+ " -extdirs \"" + JRE_HOME_DIR + "/lib/ext" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
@@ -2543,8 +2563,8 @@ public void test044(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
-        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -bootclasspath " + getLibraryClasses()
+        + " -cp " + getJCEJar()
         + " -warn:+null"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "", 
@@ -2572,8 +2592,8 @@ public void test045(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + JRE_HOME_DIR + "/lib/rt.jar"
-        + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
+        + " -bootclasspath " + getLibraryClasses()
+        + " -cp " + getJCEJar()
         + " -warn:-null" // contrast with test036
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "", 

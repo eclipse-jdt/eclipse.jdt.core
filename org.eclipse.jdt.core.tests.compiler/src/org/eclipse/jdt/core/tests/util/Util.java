@@ -10,7 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Locale;
@@ -66,11 +72,11 @@ public static void compile(String[] pathsAndContents, Map options, String output
 		INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
 		IErrorHandlingPolicy errorHandlingPolicy = 
 			new IErrorHandlingPolicy() {
-				public boolean stopOnFirstError() {
-					return false;
-				}
 				public boolean proceedOnErrors() {
 					return true;
+				}
+				public boolean stopOnFirstError() {
+					return false;
 				}
 			};
 		Compiler batchCompiler = 
@@ -178,6 +184,14 @@ public static void copy(String sourcePath, String destPath) {
 		}
 	}
 }
+public static void createFile(String path, String contents) throws IOException {
+	FileOutputStream output = new FileOutputStream(path);
+	try {
+		output.write(contents.getBytes());
+	} finally {
+		output.close();
+	}
+}
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
 	String classesPath = getOutputDirectory() + File.separator + "classes";
 	File classesDir = new File(classesPath);
@@ -198,14 +212,6 @@ public static void createJar(String[] pathsAndContents, String jarPath, String c
 	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 	createJar(pathsAndContents, options, jarPath);
-}
-public static void createFile(String path, String contents) throws IOException {
-	FileOutputStream output = new FileOutputStream(path);
-	try {
-		output.write(contents.getBytes());
-	} finally {
-		output.close();
-	}
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
 	String sourcesPath = getOutputDirectory() + File.separator + "sources";
@@ -448,6 +454,27 @@ public static void flushDirectoryContent(File dir) {
 	}
 }
 /**
+ * Returns the next available port number on the local host.
+ */
+public static int getFreePort() {
+	ServerSocket socket = null;
+	try {
+		socket = new ServerSocket(0);
+		return socket.getLocalPort();
+	} catch (IOException e) {
+		// ignore
+	} finally {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+	return -1;
+}
+/**
  * Search the user hard-drive for a Java class library.
  * Returns null if none could be found.
  *
@@ -511,27 +538,6 @@ public static String getOutputDirectory() {
 	}
 	return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
 }
-/**
- * Returns the next available port number on the local host.
- */
-public static int getFreePort() {
-	ServerSocket socket = null;
-	try {
-		socket = new ServerSocket(0);
-		return socket.getLocalPort();
-	} catch (IOException e) {
-		// ignore
-	} finally {
-		if (socket != null) {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-	}
-	return -1;
-}
 public static String indentString(String inputString, int indent) {
 	if (inputString == null)
 		return "";
@@ -549,6 +555,9 @@ public static String indentString(String inputString, int indent) {
 		}
 	}
 	return buffer.toString();
+}
+public static boolean isMacOS() {
+	return System.getProperty("os.name").indexOf("Mac") != -1;
 }
 /**
  * Makes the given path a path using native path separators as returned by File.getPath()
