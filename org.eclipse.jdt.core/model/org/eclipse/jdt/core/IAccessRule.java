@@ -70,12 +70,12 @@ public interface IAccessRule {
 	int K_DISCOURAGED = 2;
 
 	/**
-	 * Flag indicating that the rule should be ignored if a better rule is found on 
-	 * another classpath entry.
-	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
+	 * <p>Flag indicating that the rule should be ignored if a better rule is found on 
+	 * another classpath entry.</p>
+	 * <p>E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
 	 * a library entry 'lib1' and a rule K_DISCOURAGED that also matches p.X is 
 	 * found on library entry 'lib2' - 'lib2' being after 'lib1' on the classpath,
-	 * then p.X will be reported as discouraged.
+	 * then p.X will be reported as discouraged.</p>
 	 * 
 	 * @since 3.2
 	 */
