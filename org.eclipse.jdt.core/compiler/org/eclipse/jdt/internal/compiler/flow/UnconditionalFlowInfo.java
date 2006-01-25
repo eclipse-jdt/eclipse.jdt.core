@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.core.Assert.AssertionFailedException; // for coverage tests
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -24,6 +23,18 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  */
 public class UnconditionalFlowInfo extends FlowInfo {
 	// Coverage tests
+	/**
+	 * Exception raised when unexpected behavior is detected during coverage
+	 * tests. 
+	 */
+	public static class AssertionFailedException extends RuntimeException {
+		private static final long serialVersionUID = 1827352841030089703L;
+		
+	public AssertionFailedException(String message) {
+		super(message);
+	}
+	}
+	
 	// Coverage tests need that the code be instrumented. The following flag
 	// controls whether the instrumented code is compiled in or not, and whether
 	// the coverage tests methods run or not.
