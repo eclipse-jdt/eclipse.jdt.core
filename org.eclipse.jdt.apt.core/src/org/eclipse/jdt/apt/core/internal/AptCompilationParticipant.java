@@ -116,40 +116,32 @@ public class AptCompilationParticipant extends CompilationParticipant
 		// If we're in batch mode, we need to reset the classloaders
 		// for the batch processors before we begin
 		boolean isFullBuild = pbce.isFullBuild();
-		try {
-			if (isFullBuild && pbce.getRound() == 0) {
-				AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(pbce.getJavaProject());
-				_previousRoundsBatchFactories.clear();
-			}
-			
-			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =
-				AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject(javaProject);
-			
-			APTResult result = APTDispatch.runAPTDuringBuild(factories, _previousRoundsBatchFactories, buildFiles, javaProject, isFullBuild);
-			Set<IFile> newFiles = result.getNewFiles();			
-			Set<IFile> deletedFiles = new HashSet<IFile>();
-			_previousRoundsBatchFactories.addAll(result.getDispatchedBatchFactory());
-			
-			// for apt, new files will always trump deleted files
-			for ( IFile df : result.getDeletedFiles() ){
-				if ( !newFiles.contains( df ) ){
-					deletedFiles.add(df);
-				}
-			}
-	
-			return new PreBuildCompilationResult( 
-					newFiles.toArray( new IFile[ newFiles.size() ] ), 
-					deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), 
-					result.getNewDependencies(), 
-					result.getProblems());
+		
+		if (isFullBuild && pbce.getRound() == 0) {
+			AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(pbce.getJavaProject());
+			_previousRoundsBatchFactories.clear();
 		}
-		finally {
-			if (isFullBuild) {
-				// In order to keep from locking jars, we explicitly close any batch-based
-				// classloaders we opened
-				AnnotationProcessorFactoryLoader.getLoader().closeBatchClassLoader();
+		
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =
+			AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject(javaProject);
+		
+		APTResult result = APTDispatch.runAPTDuringBuild(factories, _previousRoundsBatchFactories, buildFiles, javaProject, isFullBuild);
+		Set<IFile> newFiles = result.getNewFiles();			
+		Set<IFile> deletedFiles = new HashSet<IFile>();
+		_previousRoundsBatchFactories.addAll(result.getDispatchedBatchFactory());
+		
+		// for apt, new files will always trump deleted files
+		for ( IFile df : result.getDeletedFiles() ){
+			if ( !newFiles.contains( df ) ){
+				deletedFiles.add(df);
 			}
 		}
+
+		return new PreBuildCompilationResult( 
+				newFiles.toArray( new IFile[ newFiles.size() ] ), 
+				deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), 
+				result.getNewDependencies(), 
+				result.getProblems());
 	}
 	
 	private CompilationParticipantResult preReconcileNotify( PreReconcileCompilationEvent prce )
