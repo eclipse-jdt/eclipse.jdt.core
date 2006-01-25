@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -195,8 +196,10 @@ public class ClasspathUtil {
 			}
 			
 			IPath[] exclusionPatterns = exclusions.toArray( new IPath[exclusions.size()] );
+			final IClasspathAttribute[] attrs = new IClasspathAttribute[1];
+			attrs[0] = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, Boolean.toString(true));
 			IClasspathEntry generatedSourceClasspathEntry = 
-				JavaCore.newSourceEntry(folder.getFullPath(), exclusionPatterns );
+				JavaCore.newSourceEntry(folder.getFullPath(), new IPath[] {}, exclusionPatterns, null, attrs );
 			
 			IClasspathEntry[] newCp = new IClasspathEntry[cp.length + 1];
 			System.arraycopy(cp, 0, newCp, 0, cp.length);
