@@ -76,18 +76,24 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
 }
 static AnnotationBinding createAnnotation(IBinaryAnnotation annotationInfo, LookupEnvironment env) {
 	IBinaryElementValuePair[] binaryPairs = annotationInfo.getElementValuePairs();
-	int length = binaryPairs == null ? 0 : binaryPairs.length;
-	ElementValuePair[] pairs = length == 0 ? Binding.NO_ELEMENT_VALUE_PAIRS : new ElementValuePair[length];
-	for (int i = 0; i < length; i++)
-		pairs[i] = new ElementValuePair(binaryPairs[i].getName(), convertMemberValue(binaryPairs[i].getValue(), env), null);
-
+	int length;
+	ElementValuePair[] pairs;
+	if (binaryPairs == null || (length = binaryPairs.length) == 0) {
+		pairs = Binding.NO_ELEMENT_VALUE_PAIRS;
+	} else {
+		pairs = new ElementValuePair[length];
+		for (int i = 0; i < length; i++)
+			pairs[i] = new ElementValuePair(binaryPairs[i].getName(), convertMemberValue(binaryPairs[i].getValue(), env), null);
+	}
 	char[] typeName = annotationInfo.getTypeName();
 	ReferenceBinding annotationType = env.getTypeFromConstantPoolName(typeName, 1, typeName.length - 1, false);
 	return AnnotationBinding.createUnresolvedAnnotation(annotationType, pairs, env);
 }
 public static AnnotationBinding[] createAnnotations(IBinaryAnnotation[] annotationInfos, LookupEnvironment env) {
-	int length = annotationInfos == null ? 0 : annotationInfos.length;
-	AnnotationBinding[] result = length == 0 ? Binding.NO_ANNOTATIONS : new AnnotationBinding[length];
+	int length;
+	if (annotationInfos == null || (length = annotationInfos.length) == 0) 
+		return Binding.NO_ANNOTATIONS;
+	AnnotationBinding[] result = new AnnotationBinding[length];
 	for (int i = 0; i < length; i++)
 		result[i] = createAnnotation(annotationInfos[i], env);
 	return result;

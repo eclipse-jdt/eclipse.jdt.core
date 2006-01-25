@@ -382,11 +382,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	private static void decodeUnknownNode(Node node, XMLWriter xmlWriter, boolean insertNewLine) {
 		switch (node.getNodeType()) {
 		case Node.ELEMENT_NODE:
-			NamedNodeMap attributes = node.getAttributes();
-			HashMap parameters = new HashMap();
-			for (int i = 0, length = attributes == null ? 0 : attributes.getLength(); i < length; i++) {
-				Node attribute = attributes.item(i);
-				parameters.put(attribute.getNodeName(), attribute.getNodeValue());
+			NamedNodeMap attributes;
+			HashMap parameters = null;
+			if ((attributes = node.getAttributes()) != null) {
+				int length = attributes.getLength();
+				if (length > 0) {
+					parameters = new HashMap();
+					for (int i = 0; i < length; i++) {
+						Node attribute = attributes.item(i);
+						parameters.put(attribute.getNodeName(), attribute.getNodeValue());
+					}
+				}
 			}
 			NodeList children = node.getChildNodes();
 			int childrenLength = children.getLength();
