@@ -52,9 +52,6 @@ public static Test suite() {
 	}
 	
 	private String getExtDirectory() {
-		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "/lib/ext";
-		}
 		return JRE_HOME_DIR + "/lib/ext";
 	}
 	/**
