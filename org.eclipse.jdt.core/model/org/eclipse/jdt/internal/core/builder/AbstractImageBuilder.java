@@ -363,8 +363,7 @@ protected IContainer createFolder(IPath packagePath, IContainer outputFolder) th
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
 		createFolder(packagePath.removeLastSegments(1), outputFolder);
-		folder.create(true, true, null);
-		folder.setDerived(true);
+		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
 	}
 	return folder;
 }
@@ -664,15 +663,14 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 		// Deal with shared output folders... last one wins... no collision cases detected
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
-		file.setContents(new ByteArrayInputStream(bytes), true, false, null);
 		if (!file.isDerived())
 			file.setDerived(true);
+		file.setContents(new ByteArrayInputStream(bytes), true, false, null);
 	} else {
 		// Default implementation just writes out the bytes for the new class file...
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
-		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
-		file.setDerived(true);
+		file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
 	}
 }
 }

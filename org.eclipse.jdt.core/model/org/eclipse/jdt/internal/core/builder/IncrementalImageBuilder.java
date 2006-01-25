@@ -485,8 +485,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
-						outputFile.setDerived(true);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
 						Util.setReadOnly(outputFile, false); // just in case the original was read only
 						return;
 					case IResourceDelta.REMOVED :
@@ -508,8 +507,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
-						outputFile.setDerived(true);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
 						Util.setReadOnly(outputFile, false); // just in case the original was read only
 				}
 				return;
@@ -644,9 +642,9 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 		if (writeClassFileCheck(file, qualifiedFileName, bytes) || updateClassFile) { // see 46093
 			if (JavaBuilder.DEBUG)
 				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
-			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
 			if (!file.isDerived())
 				file.setDerived(true);
+			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
 		} else if (JavaBuilder.DEBUG) {
 			System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
 		}
@@ -656,14 +654,13 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
 		try {
-			file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+			file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
 		} catch (CoreException e) {
 			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
 				// catch the case that a nested type has been renamed and collides on disk with an as-yet-to-be-deleted type
 				throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedFileName));
 			throw e; // rethrow
 		}
-		file.setDerived(true);
 	}
 }
 

@@ -229,8 +229,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
-						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
-						copiedResource.setDerived(true);
+						resource.copy(copiedResource.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
 						Util.setReadOnly(copiedResource, false); // just in case the original was read only
 						return false;
 					case IResource.FOLDER :
