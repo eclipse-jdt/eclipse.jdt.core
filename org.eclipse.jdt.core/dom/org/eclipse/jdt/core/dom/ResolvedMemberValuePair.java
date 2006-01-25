@@ -35,7 +35,7 @@ static Object buildDOMValue(final Object internalObject, BindingResolver resolve
 		Constant constant = (Constant) internalObject;
 		switch (constant.typeID()) {
 			case TypeIds.T_boolean:
-				return new Boolean(constant.booleanValue());
+				return Boolean.valueOf(constant.booleanValue());
 			case TypeIds.T_byte:
 				return new Byte(constant.byteValue());
 			case TypeIds.T_char:
