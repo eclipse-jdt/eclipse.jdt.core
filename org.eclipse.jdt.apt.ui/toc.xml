@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
 <toc label="APT in Eclipse">
 	<topic label="Getting Started" href="docs/Getting_started.html"/>
 	<topic label="Creating a Quick-Fix processor for APT" href="docs/Quick_fix_with_apt.html"/>
