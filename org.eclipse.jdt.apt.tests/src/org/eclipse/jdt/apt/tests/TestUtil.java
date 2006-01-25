@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -48,32 +49,36 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class TestUtil
 {
+	
+	private static File ANNO_JAR = null;
 
 	/**
-	 * creates the annotation jar.  
+	 * Returns the annotation jar, creating it if it hasn't already been created.
 	 * @return the java.io.File of the jar that was created.
 	 */
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
 	{
-		// TODO: temporary to work around jar-file locking problem:
-		//IPath projectPath = getProjectPath( project );
-		//File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
-		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
+		if (ANNO_JAR == null) {
 		
-		String classesJarPath = jarFile.getAbsolutePath();
-		FileFilter filter = new PackageFileFilter(
-				ANNOTATIONS_PKG, getPluginClassesDir());
-		Map<File, FileFilter> files = Collections.singletonMap(
-				new File(getPluginClassesDir()), filter);
-		zip( classesJarPath, files );
-		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
+			IPath statePath = AptPlugin.getPlugin().getStateLocation();
+			IPath jarPath = statePath.append("org.eclipse.jdt.apt.tests.TestUtil.jar");
+			ANNO_JAR = new File(jarPath.toOSString());
+			
+			String classesJarPath = ANNO_JAR.getAbsolutePath();
+			FileFilter filter = new PackageFileFilter(
+					ANNOTATIONS_PKG, getPluginClassesDir());
+			Map<File, FileFilter> files = Collections.singletonMap(
+					new File(getPluginClassesDir()), filter);
+			zip( classesJarPath, files );
+			
+			ANNO_JAR.deleteOnExit();
+		}
+		
+		addLibraryEntry( project, new Path(ANNO_JAR.getAbsolutePath()), null /*srcAttachmentPath*/, 
 			null /*srcAttachmentPathRoot*/, true );
 		
-		// TODO: see above temporary patch for file locking problem
-		jarFile.deleteOnExit();
-		
-		return new File(classesJarPath);
+		return ANNO_JAR;
 	}
 	
 	/**
