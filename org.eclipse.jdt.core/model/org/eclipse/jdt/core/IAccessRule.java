@@ -70,10 +70,12 @@ public interface IAccessRule {
 	int K_DISCOURAGED = 2;
 
 	/**
-	 * Flag indicating that the rule should be ignored if a better rule is found.
-	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X
-	 * and a rule K_DISCOURAGED that also matches p.X is found after the first 
-	 * one, then p.X will be reported as discouraged.
+	 * Flag indicating that the rule should be ignored if a better rule is found on 
+	 * another classpath entry.
+	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
+	 * a library entry 'lib1' and a rule K_DISCOURAGED that also matches p.X is 
+	 * found on library entry 'lib2' - 'lib2' being after 'lib1' on the classpath,
+	 * then p.X will be reported as discouraged.
 	 * 
 	 * @since 3.2
 	 */
@@ -95,12 +97,15 @@ public interface IAccessRule {
 	int getKind();
 	
 	/**
-	 * Returns whether the rule should be ignored if a better rule is found.
-	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X
-	 * and a rule K_DISCOURAGED that also matches p.X is found after the first 
-	 * one, then p.X will be reported as discouraged.
+	 * Returns whether the rule should be ignored if a better rule is found on 
+	 * another classpath entry.
+	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
+	 * a library entry 'lib1' and a rule K_DISCOURAGED that also matches p.X is 
+	 * found on library entry 'lib2' - 'lib2' being after 'lib1' on the classpath,
+	 * then p.X will be reported as discouraged.
 	 * 
-	 * @return whether other classpath entries with matching rules should be considered first
+	 * @return whether the rule should be ignored if a better rule is found on
+	 *         another classpath entry
 	 * @since 3.2
 	 */
 	boolean ignoreIfBetter();
