@@ -450,7 +450,7 @@ private void reset(){
 public void resolve(IGenericType suppliedType) {
 	try {
 		if (suppliedType.isBinaryType()) {
-			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType, null /*no access restriction*/);
+			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType, false/*don't need field and method (bug 125067)*/, null /*no access restriction*/);
 			remember(suppliedType, binaryTypeBinding);
 			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
 			int startIndex = this.typeIndex;
@@ -604,7 +604,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				}
 				if (binaryType != null) {
 					try {
-						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, null /*no access restriction*/);
+						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, false/*don't need field and method (bug 125067)*/, null /*no access restriction*/);
 						remember(binaryType, binaryTypeBinding);
 						if (openable.equals(focusOpenable)) {
 							focusBinaryBinding = binaryTypeBinding;
