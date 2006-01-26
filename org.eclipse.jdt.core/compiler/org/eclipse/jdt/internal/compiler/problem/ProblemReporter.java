@@ -1556,7 +1556,6 @@ public static int getProblemCategory(int problemID) {
 				case (int)CompilerOptions.UnusedDeclaredThrownException:
 				case (int)CompilerOptions.UnnecessaryTypeCheck:
 				case (int)CompilerOptions.UnnecessaryElse:
-				case (int)CompilerOptions.UnhandledWarningToken:
 					return CategorizedProblem.CAT_UNNECESSARY_CODE;
 		
 				case (int)CompilerOptions.UsingDeprecatedAPI:
@@ -1598,6 +1597,9 @@ public static int getProblemCategory(int problemID) {
 				case (int)(CompilerOptions.TypeParameterHiding >>> 32):
 					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
 					
+				case (int)(CompilerOptions.UnhandledWarningToken >>> 32):
+					return CategorizedProblem.CAT_UNNECESSARY_CODE;
+
 				case (int)(CompilerOptions.ForbiddenReference >>> 32):
 				case (int)(CompilerOptions.DiscouragedReference >>> 32):
 					return CategorizedProblem.CAT_BUILDPATH;
