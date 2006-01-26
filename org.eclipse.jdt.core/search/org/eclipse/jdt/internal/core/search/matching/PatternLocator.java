@@ -265,6 +265,8 @@ protected int matchNameValue(char[] pattern, char[] name) {
 			return ACCURATE_MATCH;
 		}
 		return IMPOSSIBLE_MATCH;
+	} else if (pattern.length == 0) {
+		return IMPOSSIBLE_MATCH; // need to have both name and pattern length==0 to be accurate
 	}
 	boolean matchFirstChar = !this.isCaseSensitive || pattern[0] == name[0];
 	boolean sameLength = pattern.length == name.length;

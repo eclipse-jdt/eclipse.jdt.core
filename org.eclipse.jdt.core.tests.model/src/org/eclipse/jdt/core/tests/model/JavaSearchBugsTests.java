@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 
+import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -45,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
-//	TESTS_NAMES = new String[] { "testBug110336e" };
+//	TESTS_NAMES = new String[] { "testBug120816a" };
 //	TESTS_NUMBERS = new int[] { 122442 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
@@ -2886,7 +2887,9 @@ public void testBug92944_TYPE() throws CoreException {
 		"java.lang.RuntimeException\n" + 
 		"java.lang.String\n" + 
 		"java.lang.Throwable\n" + 
-		"java.lang.annotation.Annotation",
+		"java.lang.annotation.Annotation\n" + 
+		"pack.age.Test\n" + 
+		"pack.age.Test$Member",
 		requestor);
 }
 public void testBug92944_CLASS() throws CoreException {
@@ -2946,8 +2949,10 @@ public void testBug92944_CLASS() throws CoreException {
 		"java.lang.Object\n" + 
 		"java.lang.RuntimeException\n" + 
 		"java.lang.String\n" + 
-		"java.lang.Throwable",
-		//"java.lang.annotation.Annotation",
+		"java.lang.Throwable\n" + 
+		//"java.lang.annotation.Annotation\n" +
+		"pack.age.Test\n" + 
+		"pack.age.Test$Member",
 		requestor);
 }
 public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
@@ -3011,7 +3016,9 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		"java.lang.RuntimeException\n" + 
 		"java.lang.String\n" + 
 		"java.lang.Throwable\n" +
-		"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+		"java.lang.annotation.Annotation\n" +  // Annotation is an interface in java.lang
+		"pack.age.Test\n" + 
+		"pack.age.Test$Member",
 		requestor);
 }
 public void testBug92944_CLASS_AND_ENUM() throws CoreException {
@@ -3072,8 +3079,10 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		"java.lang.Object\n" + 
 		"java.lang.RuntimeException\n" + 
 		"java.lang.String\n" + 
-		"java.lang.Throwable",
-		//"java.lang.annotation.Annotation",
+		"java.lang.Throwable\n" +
+		//"java.lang.annotation.Annotation\n" +
+		"pack.age.Test\n" + 
+		"pack.age.Test$Member",
 		requestor);
 }
 public void testBug92944_INTERFACE() throws CoreException {
@@ -5763,6 +5772,47 @@ public void testBug122442i() throws CoreException {
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 125178: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125178"
+ */
+public void testBug125178() throws CoreException {
+	// Need a working copy as anonymous are not indexed...
+	ProblemRequestor problemRequestor = new ProblemRequestor();
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b125178/X.java",
+		"package b125178;\n" + 
+		"import pack.age.Test;\n" + 
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new Test().foo(100);\n" + 
+		"	}\n" + 
+		"}\n",
+		new WorkingCopyOwner() {},
+		problemRequestor
+	);
+	assertEquals("CU Should not have any problem!",
+		"----------\n" +
+		"----------\n",
+		problemRequestor.problems.toString()
+	);
+	
+	// Get anonymous from
+	IPackageFragment jar = getPackageFragment("JavaSearchBugs", "lib/b125178.jar", "pack.age");
+	IJavaElement[] children = jar.getChildren();
+	assertNotNull("We should have children for in default package of lib/b125178.jar", children);
+	for (int i=0,l=children.length; i<l; i++) {
+		assertTrue("Jar should only have class files!", children[i] instanceof ClassFile);
+		IType type = ((ClassFile)children[i]).getType();
+		if (type.isAnonymous()) {
+			search(type, REFERENCES);
+		}
+	}
+	assertSearchResults(
+		"" // no result expected
 	);
 }
 }
