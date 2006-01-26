@@ -335,6 +335,22 @@ public void evaluateVariables(INameEnvironment environment, Map options, IReques
 	ClassFile[] classes = evaluator.getClasses();
 	if (classes != null) {
 		if (classes.length > 0) {
+			// Sort classes so that enclosing types are cached before nested types
+			// otherwise an AbortCompilation is thrown in 1.5 mode since the enclosing type
+			// is needed to resolve a nested type
+			Util.sort(classes, new Util.Comparer() {
+				public int compare(Object a, Object b) {
+					if (a == b) return 0;
+					ClassFile enclosing = ((ClassFile) a).enclosingClassFile;
+					while (enclosing != null) {
+						if (enclosing == b)
+							return 1;
+						enclosing = enclosing.enclosingClassFile;
+					}
+					return -1;
+				}
+			});
+			
 			// Send classes
 			if (!requestor.acceptClassFiles(classes, null)) {
 				throw new InstallException();
