@@ -248,15 +248,14 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			switch(member.getType()) {
 			    
 			    case IResource.FOLDER:
+					// recurse into sub folders even even parent not included as a sub folder could be included
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
 					if (Util.isValidFolderNameForPackage(memberName)) {
-					    boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
-						// keep looking inside as long as included already, or may have child included due to inclusion patterns
-					    if (isMemberIncluded || inclusionPatterns != null) { 
-							// eliminate binary output only if nested inside direct subfolders
-							if (javaProject.contains(member)) {
-								String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
-								computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
-							}
+						// eliminate binary output only if nested inside direct subfolders
+						if (javaProject.contains(member)) {
+							String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
+							boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
+							computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 						}
 					}
 			    	break;

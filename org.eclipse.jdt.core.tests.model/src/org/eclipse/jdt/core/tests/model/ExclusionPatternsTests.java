@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -38,13 +37,15 @@ protected void setUp() throws Exception {
 	startDeltas();
 }
 
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//		TESTS_NAMES = new String[] { "testCreateExcludedPackage2" };
+//		TESTS_NUMBERS = new int[] { 2, 12 };
+//		TESTS_RANGE = new int[] { 16, -1 };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(ExclusionPatternsTests.class.getName());
-		suite.addTest(new ExclusionPatternsTests("testSearchPotentialMatchInOutput"));
-		return suite;
-	}
-	return new Suite(ExclusionPatternsTests.class);
+	return buildTestSuite(ExclusionPatternsTests.class);
 }
 
 protected void tearDown() throws Exception {
@@ -285,6 +286,35 @@ public void testCreateExcludedPackage() throws CoreException {
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p",
+		root.getNonJavaResources());
+}
+/*
+ * Ensure that crearing an excluded package doesn't make it appear as a child of its package fragment root but it is a non-java resource.
+ * (regression test for bug 65637 [model] Excluded package still in Java model)
+ */
+public void testCreateExcludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "org/*|org/eclipse/*"});
+	
+	clearDeltas();
+	createFolder("/P/src/org/eclipse/mypack");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CONTENT}\n" + 
+		"		ResourceDelta(/P/src/org)[+]"
+	);
+	
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"<default> [in src [in P]]\n" + 
+		"org.eclipse.mypack [in src [in P]]",
+		root.getChildren());
+		
+	assertResourceNamesEqual(
+		"Unexpected non-java resources",
+		"org",
 		root.getNonJavaResources());
 }
 /*
