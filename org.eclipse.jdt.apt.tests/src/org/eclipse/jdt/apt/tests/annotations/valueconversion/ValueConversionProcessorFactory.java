@@ -21,7 +21,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 public class ValueConversionProcessorFactory extends BaseFactory {
 
 	public ValueConversionProcessorFactory() {
-		super("sample.Test.Annotation"); 
+		super(Annotation.class.getName(),
+			  RefAnnotation.class.getName(),
+			  AnnotationWithArray.class.getName(),
+			  RefAnnotationWithArray.class.getName()); 
 	}
 
 	public AnnotationProcessor getProcessorFor(

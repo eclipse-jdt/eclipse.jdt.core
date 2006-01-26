@@ -14,18 +14,24 @@ package org.eclipse.jdt.apt.core.internal.env;
 import com.sun.mirror.type.MirroredTypeException;
 import com.sun.mirror.type.MirroredTypesException;
 import com.sun.mirror.type.TypeMirror;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 
 public class AnnotationInvocationHandler implements InvocationHandler
-{
+{	
 	private static final String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
     private final AnnotationMirrorImpl _instance;
     private final Class _clazz;
@@ -99,7 +105,179 @@ public class AnnotationInvocationHandler implements InvocationHandler
                 throw new MirroredTypesException(mirrorTypes);
             }
         }
-        return _instance.getReflectionValue(c_methodName, method);
+        final Object sourceValue = _instance.getValue(c_methodName);
+        return getReflectionValueWithTypeConversion(sourceValue, method.getReturnType());
+    }
+    
+    private Object getReflectionValueWithTypeConversion(
+    		final Object domValue, 
+    		final Class expectedType )
+    	throws IllegalAccessException, NoSuchFieldException
+    {
+    	
+    	final Object actualValue = _getReflectionValue(domValue, expectedType);
+    	return performNecessaryTypeConversion(expectedType, actualValue);
+    }
+
+	private Object _getReflectionValue(final Object domValue, final Class expectedType)
+		throws IllegalAccessException, NoSuchFieldException
+	{
+		if( expectedType == null || domValue == null )
+			return null;
+	
+	    if( domValue instanceof IVariableBinding )
+		{
+			final IVariableBinding varBinding = (IVariableBinding)domValue;
+	        final ITypeBinding declaringClass = varBinding.getDeclaringClass();
+	        if( declaringClass != null ){
+	        	final Field returnedField = expectedType.getField( varBinding.getName() );
+	        	return returnedField == null ? null : returnedField.get(null);
+	        }
+	        return null;
+		}
+	    else if (domValue instanceof Object[])
+		{
+			final Object[] elements = (Object[])domValue;
+			assert expectedType.isArray();
+	        final Class componentType = expectedType.getComponentType();
+	        final int length = elements.length;
+	        final Object array = Array.newInstance(componentType, length);
+	
+	        for( int i=0; i<length; i++ ){                
+	            final Object returnObj = 
+	            	getReflectionValueWithTypeConversion( elements[i], componentType );	        
+	            // fill in the array.
+	            // If it is an array of some primitive type, we will need to unwrap it.
+	            if( componentType.isPrimitive() ){
+	                if( componentType == boolean.class ){
+	                    final Boolean bool = (Boolean)returnObj;
+	                    Array.setBoolean( array, i, bool.booleanValue());
+	                }
+	                else if( componentType == byte.class ){
+	                    final Byte b = (Byte)returnObj;
+	                    Array.setByte( array, i, b.byteValue() );
+	                }
+	                else if( componentType == char.class ){
+	                    final Character c = (Character)returnObj;
+	                    Array.setChar( array, i, c.charValue() );
+	                }
+	                else if( componentType == double.class ){
+	                    final Double d = (Double)returnObj;
+	                    Array.setDouble( array, i, d.doubleValue() );
+	                }
+	                else if( componentType == float.class ){
+	                    final Float f = (Float)returnObj;
+	                    Array.setFloat( array, i, f.floatValue() );
+	                }
+	                else if( componentType == int.class ){
+	                    final Integer integer = (Integer)returnObj;
+	                    Array.setInt( array, i, integer.intValue() );
+	                }
+	                else if( componentType == long.class ){
+	                    final Long l = (Long)returnObj;
+	                    Array.setLong( array, i, l.longValue() );
+	                }
+	                else if( componentType == short.class ){
+	                    final Short s = (Short)returnObj;
+	                    Array.setShort( array, i, s.shortValue() );
+	                }
+	                else {
+	                    throw new IllegalStateException("unrecognized primitive type: "  + componentType ); //$NON-NLS-1$
+	                }
+	            }
+	            else{
+	                Array.set( array, i, returnObj );
+	            }
+	        }
+	        return array;
+		}
+		// caller should have caught this case.
+	    else if( domValue instanceof ITypeBinding )
+			throw new IllegalStateException("sourceValue is a type binding."); //$NON-NLS-1$
+		
+	    else if( domValue instanceof IResolvedAnnotation )
+		{
+			final AnnotationMirrorImpl annoMirror = 
+				(AnnotationMirrorImpl)Factory.createAnnotationMirror(
+					(IResolvedAnnotation)domValue, 
+					_instance.getAnnotatedDeclaration(), 
+					_instance.getEnvironment());
+	        final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, expectedType);
+	        return Proxy.newProxyInstance(expectedType.getClassLoader(),
+	                                      new Class[]{ expectedType }, handler );
+		}
+	    // primitive wrapper or String.
+	    else 
+	    	return domValue;	
+	}
+	
+	private Object performNecessaryTypeConversion(Class expectedType, Object actualValue){
+		if( actualValue == null )
+			return Factory.getMatchingDummyValue(expectedType);		
+		else if( expectedType.isPrimitive() )
+			return Factory.performNecessaryPrimitiveTypeConversion( expectedType, actualValue, true);
+		else if( expectedType.isAssignableFrom(actualValue.getClass()))
+			return actualValue;		
+		else if( expectedType.isArray() ){
+			// the above assignableFrom test failed which leave up with 
+			// the array-ificiation problem.
+			// arrays are always type corrected.
+			actualValue = performNecessaryTypeConversion(expectedType.getComponentType(), actualValue);
+			return arrayify(expectedType, actualValue);
+		}
+		// type conversion cannot be performed and expected type is not a primitive
+		// Returning null so that we don't get a ClassCastException.
+		else return null; 
+	}
+	
+	private Object arrayify(final Class expectedType, Object actualValue){
+		assert expectedType.isArray() : "expected type must be an array"; //$NON-NLS-1$
+		assert ( !(actualValue instanceof Object[]) ) :
+			"actual value cannot be of type Object[]"; //$NON-NLS-1$
+		final Class componentType = expectedType.getComponentType();
+		final Object array = Array.newInstance(componentType, 1);
+		
+		if( componentType.isPrimitive() ){
+            if( componentType == boolean.class ){
+                final Boolean bool = (Boolean)actualValue;
+                Array.setBoolean( array, 0, bool.booleanValue());
+            }
+            else if( componentType == byte.class ){
+                final Byte b = (Byte)actualValue;
+                Array.setByte( array, 0, b.byteValue() );
+            }
+            else if( componentType == char.class ){
+                final Character c = (Character)actualValue;
+                Array.setChar( array, 0, c.charValue() );
+            }
+            else if( componentType == double.class ){
+                final Double d = (Double)actualValue;
+                Array.setDouble( array, 0, d.doubleValue() );
+            }
+            else if( componentType == float.class ){
+                final Float f = (Float)actualValue;
+                Array.setFloat( array, 0, f.floatValue() );
+            }
+            else if( componentType == int.class ){
+                final Integer integer = (Integer)actualValue;
+                Array.setInt( array, 0, integer.intValue() );
+            }
+            else if( componentType == long.class ){
+                final Long l = (Long)actualValue;
+                Array.setLong( array, 0, l.longValue() );
+            }
+            else if( componentType == short.class ){
+                final Short s = (Short)actualValue;
+                Array.setShort( array, 0, s.shortValue() );
+            }
+            else {
+                throw new IllegalStateException("unrecognized primitive type: "  + componentType ); //$NON-NLS-1$
+            }
+        }
+        else{
+            Array.set( array, 0, actualValue );
+        }
+		return array;
     }
 
     private String formatArgs(final Object[] args)
