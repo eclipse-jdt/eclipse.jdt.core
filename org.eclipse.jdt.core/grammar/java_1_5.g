@@ -888,6 +888,7 @@ Statement -> ForStatement
 -----------------------------------------------
 Statement -> EnhancedForStatement
 /:$readableName Statement:/
+/:$recovery_template ;:/
 
 StatementNoShortIf -> StatementWithoutTrailingSubstatement
 StatementNoShortIf -> LabeledStatementNoShortIf

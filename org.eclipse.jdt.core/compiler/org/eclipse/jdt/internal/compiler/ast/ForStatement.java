@@ -336,7 +336,7 @@ public class ForStatement extends Statement {
 			output.append('\n');
 			action.printStatement(tab + 1, output);
 		}
-		return output.append(';');
+		return output;
 	}
 
 	public void resolve(BlockScope upperScope) {
