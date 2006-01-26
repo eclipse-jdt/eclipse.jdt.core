@@ -3336,8 +3336,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							removed[filesCount++] = cachedFile;
 						}
 					}
-					for (int i=0; i<filesCount; i++) {
-						indexingCache.remove(removed[i]);
+					if (removed != null) {
+						for (int i=0; i<filesCount; i++) {
+							indexingCache.remove(removed[i]);
+						}
 					}
 				}
 			}
@@ -3382,8 +3384,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						removedNames[removedNamesCount++] = typeName;
 					}
 				}
-				for (int i=0; i<removedNamesCount; i++) {
-					types.remove(removedNames[i]);
+				if (removedNames != null) {
+					for (int i=0; i<removedNamesCount; i++) {
+						types.remove(removedNames[i]);
+					}
 				}
 				if (types.size() == 0) {
 					if (removedPackages == null) removedPackages = new String[packagesSize];
@@ -3392,8 +3396,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 		}
-		for (int i=0; i<removedPackagesCount; i++) {
-			secondaryTypesMap.remove(removedPackages[i]);
+		if (removedPackages != null) {
+			for (int i=0; i<removedPackagesCount; i++) {
+				secondaryTypesMap.remove(removedPackages[i]);
+			}
 		}
 		if (VERBOSE) {
 			Util.verbose("	- new secondary types map:"); //$NON-NLS-1$

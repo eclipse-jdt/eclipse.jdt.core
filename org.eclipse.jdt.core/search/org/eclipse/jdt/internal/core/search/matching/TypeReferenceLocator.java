@@ -323,12 +323,12 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 	// Look if some block scope local variable declarations include reference start position
 	BlockScope blockScope = (BlockScope) scope;
 	LocalDeclaration[] localDeclarations = blockScope.findLocalVariableDeclarations(reference.sourceStart);
-	int length = localDeclarations == null ? 0 : localDeclarations.length;
 	IJavaElement localElement = null;
 	IJavaElement[] otherElements = null;
 
 	// Some local variable declaration are matching
-	if (length > 0) {
+	if (localDeclarations != null) {
+		int length = localDeclarations.length;
 
 		// Set local element to first matching local declaration
 		int idx = 0;

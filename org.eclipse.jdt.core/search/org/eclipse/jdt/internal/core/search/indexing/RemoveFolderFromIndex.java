@@ -48,15 +48,17 @@ class RemoveFolderFromIndex extends IndexRequest {
 			String containerRelativePath = Util.relativePath(this.folderPath, this.containerPath.segmentCount());
 			String[] paths = index.queryDocumentNames(containerRelativePath);
 			// all file names belonging to the folder or its subfolders and that are not excluded (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32607)
-			if (this.exclusionPatterns == null && this.inclusionPatterns == null) {
-				for (int i = 0, max = paths == null ? 0 : paths.length; i < max; i++) {
-					manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
-				}
-			} else {
-				for (int i = 0, max = paths == null ? 0 : paths.length; i < max; i++) {
-					String documentPath =  this.containerPath.toString() + '/' + paths[i];
-					if (!Util.isExcluded(new Path(documentPath), this.inclusionPatterns, this.exclusionPatterns, false))
+			if (paths != null) {
+				if (this.exclusionPatterns == null && this.inclusionPatterns == null) {
+					for (int i = 0, max = paths.length; i < max; i++) {
 						manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+					}
+				} else {
+					for (int i = 0, max = paths.length; i < max; i++) {
+						String documentPath =  this.containerPath.toString() + '/' + paths[i];
+						if (!Util.isExcluded(new Path(documentPath), this.inclusionPatterns, this.exclusionPatterns, false))
+							manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+					}
 				}
 			}
 		} catch (IOException e) {

@@ -102,8 +102,10 @@ public class IndexAllProject extends IndexRequest {
 			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
-			for (int i = 0; i < max; i++)
-				indexedFileNames.put(paths[i], DELETED);
+			if (paths != null) {
+				for (int i = 0; i < max; i++)
+					indexedFileNames.put(paths[i], DELETED);
+			}
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();

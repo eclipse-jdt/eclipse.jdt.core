@@ -251,7 +251,7 @@ public abstract class JobManager implements Runnable {
 						synchronized(this) {
 							this.awaitingClients--;
 						}
-						if (originalPriority > -1 && t.isAlive())
+						if (t != null && originalPriority > -1 && t.isAlive())
 							t.setPriority(originalPriority);
 					}
 					if (subProgress != null)

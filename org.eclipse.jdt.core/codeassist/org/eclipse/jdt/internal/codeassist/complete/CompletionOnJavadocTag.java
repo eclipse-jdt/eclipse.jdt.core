@@ -52,25 +52,29 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 		if (this.token != null) super.printExpression(indent, output);
 		// Print block tags
 		char[][] blockTags = this.possibleTags[BLOCK_IDX];
-		int blockLength = blockTags == null ? 0 : blockTags.length;
-		if (blockLength > 0) {
-			output.append("\npossible block tags:"); //$NON-NLS-1$
-			for (int i=0; i<blockLength; i++) {
-				output.append("\n	- "); //$NON-NLS-1$
-				output.append(blockTags[i]);
+		if (blockTags != null) {
+			int length=blockTags.length;
+			if (length > 0) {
+				output.append("\npossible block tags:"); //$NON-NLS-1$
+				for (int i=0; i<length; i++) {
+					output.append("\n	- "); //$NON-NLS-1$
+					output.append(blockTags[i]);
+				}
+				output.append('\n');
 			}
-			output.append('\n');
 		}
 		// Print inline tags
 		char[][] inlineTags = this.possibleTags[INLINE_IDX];
-		int inlineLength = inlineTags == null ? 0 : inlineTags.length;
-		if (inlineLength > 0) {
-			output.append("\npossible inline tags:"); //$NON-NLS-1$
-			for (int i=0; i<inlineLength; i++) {
-				output.append("\n	- "); //$NON-NLS-1$
-				output.append(inlineTags[i]);
+		if (inlineTags != null) {
+			int length=inlineTags.length;
+			if (length > 0) {
+				output.append("\npossible inline tags:"); //$NON-NLS-1$
+				for (int i=0; i<length; i++) {
+					output.append("\n	- "); //$NON-NLS-1$
+					output.append(inlineTags[i]);
+				}
+				output.append('\n');
 			}
-			output.append('\n');
 		}
 		return output.append('>');
 	}

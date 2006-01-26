@@ -467,7 +467,6 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 				declaringTypeQualification = null;
 			declaringTypeSimpleName = CharOperation.subarray(declaringTypePart, lastDotPosition+1, declaringTypePart.length);
 		} else {
-			declaringTypeQualification = null;
 			declaringTypeSimpleName = declaringTypePart;
 		}
 		if (declaringTypeSimpleName.length == 1 && declaringTypeSimpleName[0] == '*')
@@ -487,7 +486,6 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			}
 			typeSimpleName = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
 		} else {
-			typeQualification = null;
 			typeSimpleName = typePart;
 		}
 		if (typeSimpleName.length == 1 && typeSimpleName[0] == '*')
@@ -671,14 +669,16 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							break;
 						case TerminalTokens.TokenNameCOMMA:
 							if (parameterType == null) return null;
-							if (parameterTypes.length == parameterCount)
-								System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-							parameterTypes[parameterCount++] = parameterType;
+							if (parameterTypes != null) {
+								if (parameterTypes.length == parameterCount)
+									System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
+								parameterTypes[parameterCount++] = parameterType;
+							}
 							parameterType = null;
 							break;
 						case TerminalTokens.TokenNameRPAREN:
 							foundClosingParenthesis = true;
-							if (parameterType != null){
+							if (parameterType != null && parameterTypes != null) {
 								if (parameterTypes.length == parameterCount)
 									System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 								parameterTypes[parameterCount++] = parameterType;
@@ -805,7 +805,6 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				declaringTypeQualification = null;
 			declaringTypeSimpleName = CharOperation.subarray(declaringTypePart, lastDotPosition+1, declaringTypePart.length);
 		} else {
-			declaringTypeQualification = null;
 			declaringTypeSimpleName = declaringTypePart;
 		}
 		if (declaringTypeSimpleName.length == 1 && declaringTypeSimpleName[0] == '*')
@@ -820,19 +819,21 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			// get parameter type part and signature
 			char[] parameterTypePart = null;
 			try {
-				parameterTypeSignatures[i] = Signature.createTypeSignature(parameterTypes[i], false);
-				if (parameterTypeSignatures[i].indexOf(Signature.C_GENERIC_START) < 0) {
-					parameterTypePart = parameterTypes[i].toCharArray();
-				} else {
-					parameterTypePart = Signature.toCharArray(Signature.getTypeErasure(parameterTypeSignatures[i].toCharArray()));
+				if (parameterTypes != null) {
+					parameterTypeSignatures[i] = Signature.createTypeSignature(parameterTypes[i], false);
+					if (parameterTypeSignatures[i].indexOf(Signature.C_GENERIC_START) < 0) {
+						parameterTypePart = parameterTypes[i].toCharArray();
+					} else {
+						parameterTypePart = Signature.toCharArray(Signature.getTypeErasure(parameterTypeSignatures[i].toCharArray()));
+					}
 				}
 			}
 			catch (IllegalArgumentException iae) {
 				// string is not a valid type syntax
 				return null;
 			}
-			int lastDotPosition = CharOperation.lastIndexOf('.', parameterTypePart);
-			if (lastDotPosition >= 0) {
+			int lastDotPosition = parameterTypePart==null ? -1 : CharOperation.lastIndexOf('.', parameterTypePart);
+			if (parameterTypePart != null && lastDotPosition >= 0) {
 				parameterTypeQualifications[i] = CharOperation.subarray(parameterTypePart, 0, lastDotPosition);
 				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
 					parameterTypeQualifications[i] = null;
@@ -876,7 +877,6 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			}			
 			returnTypeSimpleName = CharOperation.subarray(returnTypePart, lastDotPosition+1, returnTypePart.length);
 		} else {
-			returnTypeQualification = null;
 			returnTypeSimpleName = returnTypePart;
 		}
 		if (returnTypeSimpleName.length == 1 && returnTypeSimpleName[0] == '*')
@@ -1186,7 +1186,6 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 					CharOperation.replace(typeErasure, '$', '.');
 					if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
 						typeSimpleName = typeErasure;
-						typeQualification = null;
 					} else {
 						typeSimpleName = CharOperation.subarray(typeErasure, lastDot + 1, typeErasure.length);
 						typeQualification = CharOperation.subarray(typeErasure, 0, lastDot);
@@ -1338,7 +1337,6 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 					CharOperation.replace(returnErasure, '$', '.');
 					if ((lastDot = CharOperation.lastIndexOf('.', returnErasure)) == -1) {
 						returnSimpleName = returnErasure;
-						returnQualification = null;
 					} else {
 						returnSimpleName = CharOperation.subarray(returnErasure, lastDot + 1, returnErasure.length);
 						returnQualification = CharOperation.subarray(returnErasure, 0, lastDot);
@@ -1552,35 +1550,33 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	String typeSignature = null;
 	char[] qualificationChars = null, typeChars = null;
 
-	// extract declaring type infos
-	if (type != null) {
-		// get type part and signature
-		char[] typePart = null;
-		try {
-			typeSignature = Signature.createTypeSignature(type, false);
-			if (typeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
-				typePart = type.toCharArray();
-			} else {
-				typePart = Signature.toCharArray(Signature.getTypeErasure(typeSignature.toCharArray()));
-			}
-		}
-		catch (IllegalArgumentException iae) {
-			// string is not a valid type syntax
-			return null;
-		}
-		// get qualification name
-		int lastDotPosition = CharOperation.lastIndexOf('.', typePart);
-		if (lastDotPosition >= 0) {
-			qualificationChars = CharOperation.subarray(typePart, 0, lastDotPosition);
-			if (qualificationChars.length == 1 && qualificationChars[0] == '*')
-				qualificationChars = null;
-			typeChars = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
+	// get type part and signature
+	char[] typePart = null;
+	try {
+		typeSignature = Signature.createTypeSignature(type, false);
+		if (typeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
+			typePart = type.toCharArray();
 		} else {
-			qualificationChars = null;
-			typeChars = typePart;
+			typePart = Signature.toCharArray(Signature.getTypeErasure(typeSignature.toCharArray()));
 		}
-		if (typeChars.length == 1 && typeChars[0] == '*')
-			typeChars = null;
+	}
+	catch (IllegalArgumentException iae) {
+		// string is not a valid type syntax
+		return null;
+	}
+
+	// get qualification name
+	int lastDotPosition = CharOperation.lastIndexOf('.', typePart);
+	if (lastDotPosition >= 0) {
+		qualificationChars = CharOperation.subarray(typePart, 0, lastDotPosition);
+		if (qualificationChars.length == 1 && qualificationChars[0] == '*')
+			qualificationChars = null;
+		typeChars = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
+	} else {
+		typeChars = typePart;
+	}
+	if (typeChars.length == 1 && typeChars[0] == '*') {
+		typeChars = null;
 	}
 	switch (limitTo) {
 		case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types

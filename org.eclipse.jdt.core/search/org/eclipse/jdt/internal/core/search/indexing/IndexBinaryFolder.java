@@ -58,10 +58,10 @@ public class IndexBinaryFolder extends IndexRequest {
 
 			String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 			int max = paths == null ? 0 : paths.length;
-			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
+			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max==0 ? 33 : max+11);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
-			if (max == 0) {
+			if (paths == null) {
 				this.folder.accept(new IResourceProxyVisitor() {
 					public boolean visit(IResourceProxy proxy) {
 						if (isCancelled) return false;
@@ -77,9 +77,9 @@ public class IndexBinaryFolder extends IndexRequest {
 					}
 				}, IResource.NONE);
 			} else {
-				for (int i = 0; i < max; i++)
+				for (int i = 0; i < max; i++) {
 					indexedFileNames.put(paths[i], DELETED);
-
+				}
 				final long indexLastModified = index.getIndexFile().lastModified();
 				this.folder.accept(
 					new IResourceProxyVisitor() {

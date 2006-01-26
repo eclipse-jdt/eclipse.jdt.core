@@ -116,7 +116,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 		for (int i = 0; i < argsLength; i++) {
-			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) {
+			if (args != null && !matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) {
 				// Do not return as impossible when source level is at least 1.5
 				if (this.mayBeGeneric) {
 					if (!((InternalSearchPattern)this.pattern).mustResolve) {

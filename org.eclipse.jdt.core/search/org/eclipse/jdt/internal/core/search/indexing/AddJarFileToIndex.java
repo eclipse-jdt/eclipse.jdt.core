@@ -133,8 +133,8 @@ class AddJarFileToIndex extends IndexRequest {
 				long initialTime = System.currentTimeMillis();
 
 				String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
-				int max = paths == null ? 0 : paths.length;
-				if (max != 0) {
+				if (paths != null) {
+					int max = paths.length;
 					/* check integrity of the existing index file
 					 * if the length is equal to 0, we want to index the whole jar again
 					 * If not, then we want to check that there is no missing entry, if

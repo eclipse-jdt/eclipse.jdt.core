@@ -54,14 +54,16 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 	try {
 		int length = copies == null ? 0 : copies.length;
 		this.workingCopies = new HashMap(length);
-		for (int i = 0; i < length; i++) {
-			org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
-			IPackageDeclaration[] pkgs = workingCopy.getPackageDeclarations();
-			String pkg = pkgs.length > 0 ? pkgs[0].getElementName() : ""; //$NON-NLS-1$
-			String cuName = workingCopy.getElementName();
-			String mainTypeName = Util.getNameWithoutJavaLikeExtension(cuName);
-			String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
-			this.workingCopies.put(qualifiedMainTypeName, workingCopy);
+		if (copies != null) {
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
+				IPackageDeclaration[] pkgs = workingCopy.getPackageDeclarations();
+				String pkg = pkgs.length > 0 ? pkgs[0].getElementName() : ""; //$NON-NLS-1$
+				String cuName = workingCopy.getElementName();
+				String mainTypeName = Util.getNameWithoutJavaLikeExtension(cuName);
+				String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
+				this.workingCopies.put(qualifiedMainTypeName, workingCopy);
+			}
 		}
 	} catch (JavaModelException e) {
 		// working copy doesn't exist: cannot happen

@@ -112,7 +112,7 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		pos += packageLength;
 	}
 	result[pos++] = SEPARATOR;
-	if (enclosingNamesLength > 0) {
+	if (enclosingTypeNames != null && enclosingNamesLength > 0) {
 		for (int i = 0, length = enclosingTypeNames.length; i < length;) {
 			char[] enclosingName = enclosingTypeNames[i];
 			int itsLength = enclosingName.length;

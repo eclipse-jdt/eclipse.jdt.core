@@ -1003,6 +1003,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				int token = readTokenSafely();
 				switch (token) {
 				case TerminalTokens.TokenNameStringLiteral : // @see "string"
+						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
+						// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
 						if (typeRef != null) break nextToken;
 						consumeToken();
 						int start = this.scanner.getCurrentTokenStartPosition();
@@ -1011,13 +1013,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getTokenEndPosition(), this.sourceParser.modifiers);
 							return false;
 						}
-						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
-						// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
-						if (typeRef != null) {
-							start = this.tagSourceEnd+1;
-							previousPosition = start;
-							typeRef = null;
-						}
+
 						// verify end line
 						if (verifyEndLine(previousPosition)) {
 							return true;
@@ -1025,18 +1021,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						return false;
 					case TerminalTokens.TokenNameLESS : // @see "<a href="URL#Value">label</a>
+						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
+						// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
 						if (typeRef != null) break nextToken;
 						consumeToken();
 						start = this.scanner.getCurrentTokenStartPosition();
 						if (parseHref()) {
 							consumeToken();
-							// If typeRef != null we may raise a warning here to let user know there's an unused reference...
-							// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
-							if (typeRef != null) {
-								start = this.tagSourceEnd+1;
-								previousPosition = start;
-								typeRef = null;
-							}
 							if (this.tagValue == TAG_VALUE_VALUE) {
 								// String reference are not allowed for @value tag
 								if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition(), this.sourceParser.modifiers);

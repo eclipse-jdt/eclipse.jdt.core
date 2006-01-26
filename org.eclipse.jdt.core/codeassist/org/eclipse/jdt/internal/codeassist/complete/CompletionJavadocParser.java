@@ -245,25 +245,22 @@ public class CompletionJavadocParser extends JavadocParser {
 		}
 		System.arraycopy(this.levelTags[INLINE_IDX], 0, possibleTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
 		if (prefix == null || prefix.length == 0) return possibleTags;
-		if (possibleTags != null) {
-			int kinds = levelTags.length;
-			for (int k=0; k<kinds; k++) {
-				int length = possibleTags[k].length, size = 0;
-				int indexes[] = new int[length];
-				for (int i=0; i<length; i++) {
-					if (CharOperation.prefixEquals(prefix, possibleTags[k][i])) {
-						indexes[size++] = i;
-					}
+		int kinds = levelTags.length;
+		for (int k=0; k<kinds; k++) {
+			int length = possibleTags[k].length, size = 0;
+			int indexes[] = new int[length];
+			for (int i=0; i<length; i++) {
+				if (CharOperation.prefixEquals(prefix, possibleTags[k][i])) {
+					indexes[size++] = i;
 				}
-				char[][] tags = new char[size][];
-				for (int i=0; i<size; i++) {
-					tags[i] = possibleTags[k][indexes[i]];
-				}
-				possibleTags[k] = tags;
 			}
-			return possibleTags;
+			char[][] tags = new char[size][];
+			for (int i=0; i<size; i++) {
+				tags[i] = possibleTags[k][indexes[i]];
+			}
+			possibleTags[k] = tags;
 		}
-		return null;
+		return possibleTags;
 	}
 
 	private CompletionJavadoc getCompletionJavadoc() {
@@ -480,7 +477,7 @@ public class CompletionJavadocParser extends JavadocParser {
 						isTypeParam = identifier.length > 0 && identifier[0] == '<';
 						break;
 				}
-				if (identifier.length > 0 && Character.isJavaIdentifierPart(identifier[0])) {
+				if (identifier != null && identifier.length > 0 && Character.isJavaIdentifierPart(identifier[0])) {
 					name = identifier;
 				}
 				startPosition = (int)(this.identifierPositionStack[0]>>32);

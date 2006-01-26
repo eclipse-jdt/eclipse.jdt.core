@@ -65,7 +65,6 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	} finally {
 		index.stopQuery();
 	}
-	if (intersectedNames == null) return;
 
 	String containerPath = index.containerPath;
 	Object[] names = intersectedNames.values;

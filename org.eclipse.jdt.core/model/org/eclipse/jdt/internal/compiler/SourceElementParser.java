@@ -171,46 +171,48 @@ public void checkComment() {
 	if (this.reportReferenceInfo && this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
-			TypeReference typeRef = thrownExceptions[i];
-			if (typeRef instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
-				this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (typeRef instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) typeRef;
-				this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+		if (thrownExceptions != null) {
+			for (int i = 0, max=thrownExceptions.length; i < max; i++) {
+				TypeReference typeRef = thrownExceptions[i];
+				if (typeRef instanceof JavadocSingleTypeReference) {
+					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
+					this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+				} else if (typeRef instanceof JavadocQualifiedTypeReference) {
+					JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) typeRef;
+					this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+				}
 			}
 		}
 
 		// Report reference info in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
-		int seeTagsNbre = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
-			Expression reference = references[i];
-			acceptJavadocTypeReference(reference);
-			if (reference instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
-				this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
-				if (fieldRef.receiver != null && !fieldRef.receiver.isThis()) {
-					acceptJavadocTypeReference(fieldRef.receiver);
-				}
-			} else if (reference instanceof JavadocMessageSend) {
-				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
-				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
-				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
-				this.requestor.acceptConstructorReference(messageSend.selector, argCount, messageSend.sourceStart);
-				if (messageSend.receiver != null && !messageSend.receiver.isThis()) {
-					acceptJavadocTypeReference(messageSend.receiver);
-				}
-			} else if (reference instanceof JavadocAllocationExpression) {
-				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
-				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
-				if (constructor.type != null) {
-					char[][] compoundName = constructor.type.getParameterizedTypeName();
-					this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
-					if (!constructor.type.isThis()) {
-						acceptJavadocTypeReference(constructor.type);
+		if (references != null) {
+			for (int i = 0, max=references.length; i < max; i++) {
+				Expression reference = references[i];
+				acceptJavadocTypeReference(reference);
+				if (reference instanceof JavadocFieldReference) {
+					JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
+					this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+					if (fieldRef.receiver != null && !fieldRef.receiver.isThis()) {
+						acceptJavadocTypeReference(fieldRef.receiver);
+					}
+				} else if (reference instanceof JavadocMessageSend) {
+					JavadocMessageSend messageSend = (JavadocMessageSend) reference;
+					int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
+					this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+					this.requestor.acceptConstructorReference(messageSend.selector, argCount, messageSend.sourceStart);
+					if (messageSend.receiver != null && !messageSend.receiver.isThis()) {
+						acceptJavadocTypeReference(messageSend.receiver);
+					}
+				} else if (reference instanceof JavadocAllocationExpression) {
+					JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
+					int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
+					if (constructor.type != null) {
+						char[][] compoundName = constructor.type.getParameterizedTypeName();
+						this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+						if (!constructor.type.isThis()) {
+							acceptJavadocTypeReference(constructor.type);
+						}
 					}
 				}
 			}

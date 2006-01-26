@@ -484,20 +484,22 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 						if (signature == null) signature = binaryMethod.getMethodDescriptor();
 						char[][] parameterTypes = Signature.getParameterTypes(signature);
 						if (argCount != parameterTypes.length) continue nextMethod;
-						for (int j = 0; j < argCount; j++) {
-							char[] typeName;
-							if (j == 0 && firstIsSynthetic) {
-								typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
-							} else {
-								TypeReference typeRef = arguments[firstIsSynthetic ? j - 1 : j].type;
-								typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-								for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
-									typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+						if (arguments != null) {
+							for (int j = 0; j < argCount; j++) {
+								char[] typeName;
+								if (j == 0 && firstIsSynthetic) {
+									typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
+								} else {
+									TypeReference typeRef = arguments[firstIsSynthetic ? j - 1 : j].type;
+									typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+									for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+										typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+								}
+								char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
+								if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), typeName))
+									continue nextMethod;
+								parameterTypes[j] = parameterTypeName;
 							}
-							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-							if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), typeName))
-								continue nextMethod;
-							parameterTypes[j] = parameterTypeName;
 						}
 						return createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
 					}
@@ -508,12 +510,14 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 	}
 
 	String[] parameterTypeSignatures = new String[argCount];
-	for (int i = 0; i < argCount; i++) {
-		TypeReference typeRef = arguments[i].type;
-		char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
-//		for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
-//			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
-		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
+	if (arguments != null) {
+		for (int i = 0; i < argCount; i++) {
+			TypeReference typeRef = arguments[i].type;
+			char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
+//			for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
+//				typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+			parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
+		}
 	}
 
 	return createMethodHandle(type, new String(method.selector), parameterTypeSignatures);
@@ -535,11 +539,13 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 					if (signature == null) signature = binaryMethod.getMethodDescriptor();
 					char[][] parameterTypes = Signature.getParameterTypes(signature);
 					if (argCount != parameterTypes.length) continue nextMethod;
-					for (int j = 0; j < argCount; j++) {
-						char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-						if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), argumentTypeNames[j]))
-							continue nextMethod;
-						parameterTypes[j] = parameterTypeName;
+					if (argumentTypeNames != null) {
+						for (int j = 0; j < argCount; j++) {
+							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
+							if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), argumentTypeNames[j]))
+								continue nextMethod;
+							parameterTypes[j] = parameterTypeName;
+						}
 					}
 					return (IMethod) locator.createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
 				}
@@ -729,8 +735,10 @@ private long findLastTypeArgumentInfo(TypeReference typeRef) {
 			if (lastTypeArguments == null) {
 				lastTypeArguments = ((ParameterizedSingleTypeReference)lastTypeArgument).typeArguments;
 			}
-			for (int i=lastTypeArguments.length-1; i>=0 && last==null; i++) {
-				last = lastTypeArguments[i];
+			if (lastTypeArguments != null) {
+				for (int i=lastTypeArguments.length-1; i>=0 && last==null; i++) {
+					last = lastTypeArguments[i];
+				}
 			}
 		}
 		if (last == null) break;
@@ -856,7 +864,7 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
 				TypeVariableBinding[] methodTypeVariables = methods[i].typeVariables;
 				int methTypeVarLength = methodTypeVariables==null ? 0 : methodTypeVariables.length;
 				boolean found = false;
-				if (paramLength == paramTypeslength) {
+				if (methodParameters != null && paramLength == paramTypeslength) {
 					for (int p=0; p<paramLength; p++) {
 						if (CharOperation.equals(methodParameters[p].sourceName(), parameterTypes[p])) {
 							// param erasure match
@@ -864,14 +872,16 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
 						} else {
 							// type variable
 							found = false;
-							for (int v=0; v<typeVarLength; v++) {
-								if (!CharOperation.equals(refTypeVariables[v].sourceName, parameterTypes[p])) {
-									found = false;
-									break;
+							if (refTypeVariables != null) {
+								for (int v=0; v<typeVarLength; v++) {
+									if (!CharOperation.equals(refTypeVariables[v].sourceName, parameterTypes[p])) {
+										found = false;
+										break;
+									}
+									found = true;
 								}
-								found = true;
 							}
-							if (!found) {
+							if (!found && methodTypeVariables != null) {
 								for (int v=0; v<methTypeVarLength; v++) {
 									if (!CharOperation.equals(methodTypeVariables[v].sourceName, parameterTypes[p])) {
 										found = false;
@@ -1134,14 +1144,14 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				openable = (Openable) workingCopy;
 			} else {
 				openable = this.handleFactory.createOpenable(pathString, this.scope);
-				if (openable == null) {
-					if (this.progressMonitor != null) {
-						this.progressWorked++;
-						if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
-					}
-					displayed++;
-					continue; // match is outside classpath
+			}
+			if (openable == null) {
+				if (this.progressMonitor != null) {
+					this.progressWorked++;
+					if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
 				}
+				displayed++;
+				continue; // match is outside classpath
 			}
 
 			// create new parser and lookup environment if this is a new project
@@ -1276,9 +1286,11 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 	} else if (typeBinding.isClass()) {
 		acceptFlag = NameLookup.ACCEPT_CLASSES;
 	}
-	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
-		IType type = this.nameLookup.findType(typeName, pkgs[i],  false,  acceptFlag, true/*consider secondary types*/);
-		if (type != null) return type;
+	if (pkgs != null) {
+		for (int i = 0, length = pkgs.length; i < length; i++) {
+			IType type = this.nameLookup.findType(typeName, pkgs[i],  false,  acceptFlag, true/*consider secondary types*/);
+			if (type != null) return type;
+		}
 	}
 
 	// search inside enclosing element
@@ -1597,12 +1609,14 @@ protected void report(SearchMatch match) throws CoreException {
 					System.out.println("\tLocal element: "+ local.toStringWithAncestors()); //$NON-NLS-1$
 				}
 				IJavaElement[] others = typeRefMatch.getOtherElements();
-				int length = others==null ? 0 : others.length;
-				if (length > 0) {
-					System.out.println("\tOther elements:"); //$NON-NLS-1$
-					for (int i=0; i<length; i++) {
-						JavaElement other = (JavaElement) others[i];
-						System.out.println("\t\t- "+ other.toStringWithAncestors()); //$NON-NLS-1$
+				if (others != null) {
+					int length = others.length;
+					if (length > 0) {
+						System.out.println("\tOther elements:"); //$NON-NLS-1$
+						for (int i=0; i<length; i++) {
+							JavaElement other = (JavaElement) others[i];
+							System.out.println("\t\t- "+ other.toStringWithAncestors()); //$NON-NLS-1$
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -1787,7 +1801,8 @@ protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeR
  * A token is valid if it has an accuracy which is not -1.
  */
 protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedNameReference qNameRef) throws CoreException {
-	int matchesLength = matches == null ? 0 : matches.length;
+	if (matches == null) return; // there's nothing to accurate in this case
+	int matchesLength = matches.length;
 
 	int sourceStart = qNameRef.sourceStart;
 	int sourceEnd = qNameRef.sourceEnd;
@@ -2165,9 +2180,9 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 						for (int i = 0, l = nodes.length; i < l; i++) {
 							ASTNode node = nodes[i];
 							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-							int length = otherFields== null ? 0 : otherFields.length;
 							IJavaElement[] otherElements = null;
-							if (length > 0) {
+							if (otherFields != null) {
+								int length = otherFields.length;
 								int size = 0;
 								while (size<length && otherFields[size] != null) {
 									size++;

@@ -258,7 +258,7 @@ protected boolean matchesName(char[] pattern, char[] name) {
  * </ul>
  */
 protected int matchNameValue(char[] pattern, char[] name) {
-	if (pattern == null) return ACCURATE_MATCH; // null is as if it was "*"
+	if (pattern == null || pattern.length == 0) return ACCURATE_MATCH; // null is as if it was "*"
 	if (name == null) return IMPOSSIBLE_MATCH; // cannot match null name
 	if (name.length == 0) { // empty name
 		if (pattern.length == 0) { // can only matches empty pattern
@@ -432,24 +432,20 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 		updateMatch(parameterizedBinding, patternTypeArguments, false, 0, locator);
 	}
 }
-/*
- * Update pattern locator match for parameterized top or sub level types.
- * Set match raw flag and recurse to enclosing types if any...
- */
 protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[][][] patternTypeArguments, boolean patternHasTypeParameters, int depth, MatchLocator locator) {
 	// Only possible if locator has an unit scope.
 	if (locator.unitScope == null) return;
 
 	// Set match raw flag
 	boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
-	char[][] patternArguments =  endPattern ? null : patternTypeArguments[depth];
 	boolean isRaw = parameterizedBinding.isRawType()|| (parameterizedBinding.arguments==null && parameterizedBinding.type.isGenericType());
 	if (isRaw && !match.isRaw()) {
 		match.setRaw(isRaw);
 	}
 	
 	// Update match
-	if (!endPattern) {
+	if (!endPattern && patternTypeArguments != null) {
+		char[][] patternArguments =  patternTypeArguments[depth];
 		updateMatch(parameterizedBinding.arguments, locator, patternArguments, patternHasTypeParameters);
 	}
 
@@ -501,6 +497,10 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 		} else {
 			match.setRule(0); // impossible match
 		}
+		return;
+	}
+	if (argumentsBinding == null || patternArguments == null) {
+		match.setRule(matchRule);
 		return;
 	}
 

@@ -212,7 +212,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 						rebuildIndex(indexLocation, containerPath);
 						return null;
 					} 
-					index = null; // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
+					/*index = null;*/ // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
 				}
 			}
 			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing
@@ -503,10 +503,12 @@ public synchronized void removeIndexPath(IPath path) {
 			max--;
 		}
 	}
-	for (int i=0; i<ptr; i++) {
-		this.indexes.remove(locations[i]);
+	if (locations != null) {
+		for (int i=0; i<ptr; i++) {
+			this.indexes.remove(locations[i]);
+		}
+		removeIndexesState(locations);
 	}
-	removeIndexesState(locations);
 }
 /**
  * Removes all indexes whose paths start with (or are equal to) the given path. 

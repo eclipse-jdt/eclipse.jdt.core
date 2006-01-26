@@ -355,13 +355,12 @@ public class Javadoc extends ASTNode {
 		int paramTypeParamLength = this.paramTypeParameters == null ? 0 : this.paramTypeParameters.length;
 
 		// Get declaration infos
-		TypeDeclaration typeDeclaration = null;
-		AbstractMethodDeclaration methodDeclaration = null;
+		TypeParameter[] parameters = null;
 		TypeVariableBinding[] typeVariables = null;
 		int modifiers = -1;
 		switch (scope.kind) {
 			case Scope.METHOD_SCOPE:
-				methodDeclaration = ((MethodScope)scope).referenceMethod();
+				AbstractMethodDeclaration methodDeclaration = ((MethodScope)scope).referenceMethod();
 				// If no referenced method (field initializer for example) then report a problem for each param tag
 				if (methodDeclaration == null) {
 					for (int i = 0; i < paramTypeParamLength; i++) {
@@ -370,11 +369,13 @@ public class Javadoc extends ASTNode {
 					}
 					return;
 				}
+				parameters = methodDeclaration.typeParameters();
 				typeVariables = methodDeclaration.binding.typeVariables;
 				modifiers = methodDeclaration.binding.modifiers;
 				break;
 			case Scope.CLASS_SCOPE:
-				typeDeclaration = ((ClassScope) scope).referenceContext;
+				TypeDeclaration typeDeclaration = ((ClassScope) scope).referenceContext;
+				parameters = typeDeclaration.typeParameters;
 				typeVariables = typeDeclaration.binding.typeVariables;
 				modifiers = typeDeclaration.binding.modifiers;
 				break;
@@ -390,61 +391,63 @@ public class Javadoc extends ASTNode {
 		}
 		
 		// If no param tags then report a problem for each declaration type parameter
-		TypeParameter[] parameters = typeDeclaration==null ? methodDeclaration.typeParameters() : typeDeclaration.typeParameters;
-		int typeParametersLength = parameters == null ? 0 : parameters.length;
-		if (paramTypeParamLength == 0) {
-			if (reportMissing) {
-				for (int i = 0, l=parameters.length; i<l; i++) {
-					scope.problemReporter().javadocMissingParamTag(parameters[i].name, parameters[i].sourceStart, parameters[i].sourceEnd, modifiers);
+		if (parameters != null) {
+			int typeParametersLength = parameters.length;
+			if (paramTypeParamLength == 0) {
+				if (reportMissing) {
+					for (int i = 0, l=typeParametersLength; i<l; i++) {
+						scope.problemReporter().javadocMissingParamTag(parameters[i].name, parameters[i].sourceStart, parameters[i].sourceEnd, modifiers);
+					}
 				}
-			}
-		// Otherwise verify that all param tags match type parameters
-		} else if (typeVariables.length == typeParametersLength) {
-			TypeVariableBinding[] bindings = new TypeVariableBinding[paramTypeParamLength];
 
-			// Scan all @param tags
-			for (int i = 0; i < paramTypeParamLength; i++) {
-				JavadocSingleTypeReference param = this.paramTypeParameters[i];
-				TypeBinding paramBindind = param.internalResolveType(scope);
-				if (paramBindind != null && paramBindind.isValidBinding()) {
-					if (paramBindind.isTypeVariable()) {
-						// Verify duplicated tags
-						boolean duplicate = false;
-						for (int j = 0; j < i && !duplicate; j++) {
-							if (bindings[j] == param.resolvedType) {
-								scope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, modifiers);
-								duplicate = true;
+			// Otherwise verify that all param tags match type parameters
+			} else if (typeVariables.length == typeParametersLength) {
+				TypeVariableBinding[] bindings = new TypeVariableBinding[paramTypeParamLength];
+
+				// Scan all @param tags
+				for (int i = 0; i < paramTypeParamLength; i++) {
+					JavadocSingleTypeReference param = this.paramTypeParameters[i];
+					TypeBinding paramBindind = param.internalResolveType(scope);
+					if (paramBindind != null && paramBindind.isValidBinding()) {
+						if (paramBindind.isTypeVariable()) {
+							// Verify duplicated tags
+							boolean duplicate = false;
+							for (int j = 0; j < i && !duplicate; j++) {
+								if (bindings[j] == param.resolvedType) {
+									scope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, modifiers);
+									duplicate = true;
+								}
 							}
+							if (!duplicate) {
+								bindings[i] = (TypeVariableBinding) param.resolvedType;
+							}
+						} else {
+							scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
 						}
-						if (!duplicate) {
-							bindings[i] = (TypeVariableBinding) param.resolvedType;
+					}
+				}
+
+				// Look for undocumented type parameters
+				for (int i = 0; i < typeParametersLength; i++) {
+					TypeParameter parameter = parameters[i];
+					boolean found = false;
+					for (int j = 0; j < paramTypeParamLength && !found; j++) {
+						if (parameter.binding == bindings[j]) {
+							found = true;
+							bindings[j] = null;
 						}
-					} else {
+					}
+					if (!found && reportMissing) {
+						scope.problemReporter().javadocMissingParamTag(parameter.name, parameter.sourceStart, parameter.sourceEnd, modifiers);
+					}
+				}
+			
+				// Report invalid param
+				for (int i=0; i<paramTypeParamLength; i++) {
+					if (bindings[i] != null) {
+						JavadocSingleTypeReference param = this.paramTypeParameters[i];
 						scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
 					}
-				}
-			}
-
-			// Look for undocumented type parameters
-			for (int i = 0; i < typeParametersLength; i++) {
-				TypeParameter parameter = parameters[i];
-				boolean found = false;
-				for (int j = 0; j < paramTypeParamLength && !found; j++) {
-					if (parameter.binding == bindings[j]) {
-						found = true;
-						bindings[j] = null;
-					}
-				}
-				if (!found && reportMissing) {
-					scope.problemReporter().javadocMissingParamTag(parameter.name, parameter.sourceStart, parameter.sourceEnd, modifiers);
-				}
-			}
-			
-			// Report invalid param
-			for (int i=0; i<paramTypeParamLength; i++) {
-				if (bindings[i] != null) {
-					JavadocSingleTypeReference param = this.paramTypeParameters[i];
-					scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
 				}
 			}
 		}

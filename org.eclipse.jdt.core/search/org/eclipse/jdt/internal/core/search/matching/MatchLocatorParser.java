@@ -107,67 +107,71 @@ public void checkComment() {
 
 		// Search for pattern locator matches in javadoc comment parameters @param tags
 		JavadocSingleNameReference[] paramReferences = this.javadoc.paramReferences;
-		int length = paramReferences == null ? 0 : paramReferences.length;
-		for (int i = 0; i < length; i++) {
-			this.patternLocator.match(paramReferences[i], this.nodeSet);
+		if (paramReferences != null) {
+			for (int i=0, length=paramReferences.length; i < length; i++) {
+				this.patternLocator.match(paramReferences[i], this.nodeSet);
+			}
 		}
 
 		// Search for pattern locator matches in javadoc comment type parameters @param tags
 		JavadocSingleTypeReference[] paramTypeParameters = this.javadoc.paramTypeParameters;
-		length = paramTypeParameters == null ? 0 : paramTypeParameters.length;
-		for (int i = 0; i < length; i++) {
-			this.patternLocator.match(paramTypeParameters[i], this.nodeSet);
+		if (paramTypeParameters != null) {
+			for (int i=0, length=paramTypeParameters.length; i < length; i++) {
+				this.patternLocator.match(paramTypeParameters[i], this.nodeSet);
+			}
 		}
 
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
-		length = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < length; i++) {
-			this.patternLocator.match(thrownExceptions[i], this.nodeSet);
+		if (thrownExceptions != null) {
+			for (int i=0, length=thrownExceptions.length; i < length; i++) {
+				this.patternLocator.match(thrownExceptions[i], this.nodeSet);
+			}
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
-		length = references == null ? 0 : references.length;
-		for (int i = 0; i < length; i++) {
-			Expression reference = references[i];
-			if (reference instanceof TypeReference) {
-				TypeReference typeRef = (TypeReference) reference;
-				this.patternLocator.match(typeRef, this.nodeSet);
-			} else if (reference instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
-				this.patternLocator.match(fieldRef, this.nodeSet);
-				if (fieldRef.receiver instanceof TypeReference && !fieldRef.receiver.isThis()) {
-					TypeReference typeRef = (TypeReference) fieldRef.receiver;
+		if (references != null) {
+			for (int i=0, length=references.length; i < length; i++) {
+				Expression reference = references[i];
+				if (reference instanceof TypeReference) {
+					TypeReference typeRef = (TypeReference) reference;
 					this.patternLocator.match(typeRef, this.nodeSet);
-				}
-			} else if (reference instanceof JavadocMessageSend) {
-				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
-				this.patternLocator.match(messageSend, this.nodeSet);
-				if (messageSend.receiver instanceof TypeReference && !messageSend.receiver.isThis()) {
-					TypeReference typeRef = (TypeReference) messageSend.receiver;
-					this.patternLocator.match(typeRef, this.nodeSet);
-				}
-				if (messageSend.arguments != null) {
-					for (int a=0,al=messageSend.arguments.length; a<al; a++) {
-						JavadocArgumentExpression argument = (JavadocArgumentExpression) messageSend.arguments[a];
-						if (argument.argument != null && argument.argument.type != null) {
-							this.patternLocator.match(argument.argument.type, this.nodeSet);
+				} else if (reference instanceof JavadocFieldReference) {
+					JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
+					this.patternLocator.match(fieldRef, this.nodeSet);
+					if (fieldRef.receiver instanceof TypeReference && !fieldRef.receiver.isThis()) {
+						TypeReference typeRef = (TypeReference) fieldRef.receiver;
+						this.patternLocator.match(typeRef, this.nodeSet);
+					}
+				} else if (reference instanceof JavadocMessageSend) {
+					JavadocMessageSend messageSend = (JavadocMessageSend) reference;
+					this.patternLocator.match(messageSend, this.nodeSet);
+					if (messageSend.receiver instanceof TypeReference && !messageSend.receiver.isThis()) {
+						TypeReference typeRef = (TypeReference) messageSend.receiver;
+						this.patternLocator.match(typeRef, this.nodeSet);
+					}
+					if (messageSend.arguments != null) {
+						for (int a=0,al=messageSend.arguments.length; a<al; a++) {
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) messageSend.arguments[a];
+							if (argument.argument != null && argument.argument.type != null) {
+								this.patternLocator.match(argument.argument.type, this.nodeSet);
+							}
 						}
 					}
-				}
-			} else if (reference instanceof JavadocAllocationExpression) {
-				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
-				this.patternLocator.match(constructor, this.nodeSet);
-				if (constructor.type != null && !constructor.type.isThis()) {
-					this.patternLocator.match(constructor.type, this.nodeSet);
-				}
-				if (constructor.arguments != null) {
-					for (int a=0,al=constructor.arguments.length; a<al; a++) {
-						this.patternLocator.match(constructor.arguments[a], this.nodeSet);
-						JavadocArgumentExpression argument = (JavadocArgumentExpression) constructor.arguments[a];
-						if (argument.argument != null && argument.argument.type != null) {
-							this.patternLocator.match(argument.argument.type, this.nodeSet);
+				} else if (reference instanceof JavadocAllocationExpression) {
+					JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
+					this.patternLocator.match(constructor, this.nodeSet);
+					if (constructor.type != null && !constructor.type.isThis()) {
+						this.patternLocator.match(constructor.type, this.nodeSet);
+					}
+					if (constructor.arguments != null) {
+						for (int a=0,al=constructor.arguments.length; a<al; a++) {
+							this.patternLocator.match(constructor.arguments[a], this.nodeSet);
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) constructor.arguments[a];
+							if (argument.argument != null && argument.argument.type != null) {
+								this.patternLocator.match(argument.argument.type, this.nodeSet);
+							}
 						}
 					}
 				}

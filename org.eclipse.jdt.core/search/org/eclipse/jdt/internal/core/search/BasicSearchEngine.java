@@ -173,11 +173,15 @@ public class BasicSearchEngine {
 			Util.verbose("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
 			Util.verbose(scope.toString());
 		}
+		if (participants == null) {
+			if (VERBOSE) Util.verbose("No participants => do nothing!"); //$NON-NLS-1$
+			return;
+		}
 	
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		try {
 			requestor.beginReporting();
-			for (int i = 0, l = participants == null ? 0 : participants.length; i < l; i++) {
+			for (int i = 0, l = participants.length; i < l; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 				SearchParticipant participant = participants[i];
@@ -197,13 +201,16 @@ public class BasicSearchEngine {
 					// locate index matches if any (note that all search matches could have been issued during index querying)
 					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, new String[] {participant.getDescription()})); 
 					String[] indexMatchPaths = pathCollector.getPaths();
-					pathCollector = null; // release
-					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
-					SearchDocument[] indexMatches = new SearchDocument[indexMatchLength];
-					for (int j = 0; j < indexMatchLength; j++)
-						indexMatches[j] = participant.getDocument(indexMatchPaths[j]);
-					SearchDocument[] matches = MatchLocator.addWorkingCopies(pattern, indexMatches, getWorkingCopies(), participant);
-					participant.locateMatches(matches, pattern, scope, requestor, subMonitor);
+					if (indexMatchPaths != null) {
+						pathCollector = null; // release
+						int indexMatchLength = indexMatchPaths.length;
+						SearchDocument[] indexMatches = new SearchDocument[indexMatchLength];
+						for (int j = 0; j < indexMatchLength; j++) {
+							indexMatches[j] = participant.getDocument(indexMatchPaths[j]);
+						}
+						SearchDocument[] matches = MatchLocator.addWorkingCopies(pattern, indexMatches, getWorkingCopies(), participant);
+						participant.locateMatches(matches, pattern, scope, requestor, subMonitor);
+					}
 				} finally {		
 					requestor.exitParticipant(participant);
 					participant.doneSearching();

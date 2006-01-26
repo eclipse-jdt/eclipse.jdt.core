@@ -2209,39 +2209,41 @@ public final class CompletionEngine
 								CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
 								receiver = fieldRef.receiver;
 							}
-							StringBuffer javadocCompletion = new StringBuffer();
-							if (receiver.isThis()) {
-								selector = (((JavadocImplicitTypeReference)receiver).token);
-								if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
-									javadocCompletion.append('#');
+							if (receiver != null) {
+								StringBuffer javadocCompletion = new StringBuffer();
+								if (receiver.isThis()) {
+									selector = (((JavadocImplicitTypeReference)receiver).token);
+									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
+										javadocCompletion.append('#');
+									}
+								} else if (receiver instanceof JavadocSingleTypeReference) {
+									JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
+									selector = typeRef.token;
+									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
+										javadocCompletion.append(typeRef.token);
+										javadocCompletion.append('#');
+									}
+								} else if (receiver instanceof JavadocQualifiedTypeReference) {
+									JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
+									selector = typeRef.tokens[typeRef.tokens.length-1];
+									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
+										javadocCompletion.append(CharOperation.concatWith(typeRef.tokens, '.'));
+										javadocCompletion.append('#');
+									}
 								}
-							} else if (receiver instanceof JavadocSingleTypeReference) {
-								JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
-								selector = typeRef.token;
-								if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
-									javadocCompletion.append(typeRef.token);
-									javadocCompletion.append('#');
+								// Append parameters types
+								javadocCompletion.append(selector);
+								javadocCompletion.append('(');
+								if (constructor.parameters != null) {
+									for (int p=0, ln=constructor.parameters.length; p<ln; p++) {
+										if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
+										TypeBinding argTypeBinding = constructor.parameters[p];
+										createType(argTypeBinding.erasure(), javadocCompletion);
+									}
 								}
-							} else if (receiver instanceof JavadocQualifiedTypeReference) {
-								JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
-								selector = typeRef.tokens[typeRef.tokens.length-1];
-								if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
-									javadocCompletion.append(CharOperation.concatWith(typeRef.tokens, '.'));
-									javadocCompletion.append('#');
-								}
+								javadocCompletion.append(')');
+								completion = javadocCompletion.toString().toCharArray();
 							}
-							// Append parameters types
-							javadocCompletion.append(selector);
-							javadocCompletion.append('(');
-							if (constructor.parameters != null) {
-								for (int p=0, ln=constructor.parameters.length; p<ln; p++) {
-									if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
-									TypeBinding argTypeBinding = constructor.parameters[p];
-									createType(argTypeBinding.erasure(), javadocCompletion);
-								}
-							}
-							javadocCompletion.append(')');
-							completion = javadocCompletion.toString().toCharArray();
 						} 
 						
 						// Create standard proposal
@@ -3814,38 +3816,40 @@ public final class CompletionEngine
 					CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
 					receiver = fieldRef.receiver;
 				}
-				StringBuffer javadocCompletion = new StringBuffer();
-				if (receiver.isThis()) {
-					if ((this.assistNodeInJavadoc & /*IN_JAVADOC_TEXT*/CompletionOnJavadoc.TEXT) != 0) {
-						javadocCompletion.append('#');
-					}
-				} else if ((this.assistNodeInJavadoc & /*IN_JAVADOC_TEXT*/CompletionOnJavadoc.TEXT) != 0) {
-					if (receiver instanceof JavadocSingleTypeReference) {
-						JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
-						javadocCompletion.append(typeRef.token);
-						javadocCompletion.append('#');
-					} else if (receiver instanceof JavadocQualifiedTypeReference) {
-						JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
-						completion = CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), method.selector, '#');
-						for (int t=0,nt =typeRef.tokens.length; t<nt; t++) {
-							if (t>0) javadocCompletion.append('.');
-							javadocCompletion.append(typeRef.tokens[t]);
+				if (receiver != null) {
+					StringBuffer javadocCompletion = new StringBuffer();
+					if (receiver.isThis()) {
+						if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
+							javadocCompletion.append('#');
 						}
-						javadocCompletion.append('#');
+					} else if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
+						if (receiver instanceof JavadocSingleTypeReference) {
+							JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
+							javadocCompletion.append(typeRef.token);
+							javadocCompletion.append('#');
+						} else if (receiver instanceof JavadocQualifiedTypeReference) {
+							JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
+							completion = CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), method.selector, '#');
+							for (int t=0,nt =typeRef.tokens.length; t<nt; t++) {
+								if (t>0) javadocCompletion.append('.');
+								javadocCompletion.append(typeRef.tokens[t]);
+							}
+							javadocCompletion.append('#');
+						}
 					}
-				}
-				javadocCompletion.append(method.selector);
-				// Append parameters types
-				javadocCompletion.append('(');
-				if (method.parameters != null) {
-					for (int p=0, ln=method.parameters.length; p<ln; p++) {
-						if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
-						TypeBinding argTypeBinding = method.parameters[p];
-						createType(argTypeBinding.erasure(), javadocCompletion);
+					javadocCompletion.append(method.selector);
+					// Append parameters types
+					javadocCompletion.append('(');
+					if (method.parameters != null) {
+						for (int p=0, ln=method.parameters.length; p<ln; p++) {
+							if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
+							TypeBinding argTypeBinding = method.parameters[p];
+							createType(argTypeBinding.erasure(), javadocCompletion);
+						}
 					}
+					javadocCompletion.append(')');
+					completion = javadocCompletion.toString().toCharArray();
 				}
-				javadocCompletion.append(')');
-				completion = javadocCompletion.toString().toCharArray();
 			} else {
 				// nothing to insert - do not want to replace the existing selector & arguments
 				if (!exactMatch) {

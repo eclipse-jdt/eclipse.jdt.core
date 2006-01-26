@@ -217,6 +217,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			positions[0] = (((long)jsTypeRef.sourceStart) << 32) + jsTypeRef.sourceEnd;
 			typeBinding = jsTypeRef.resolvedType;
 		}
+		if (positions == null) return;
 		if (typeBinding instanceof ArrayBinding)
 			typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 		if (typeBinding instanceof ProblemReferenceBinding)

@@ -586,7 +586,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		stream.close();
 	}
 
-	if (count > 0) {
+	if (matchingWords != null && count > 0) {
 		stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 		try {
 			stream.skip(firstOffset);

@@ -115,13 +115,15 @@ public class JavaSearchPattern extends SearchPattern {
 		} else {
 			try {
 				ITypeParameter[] parameters = method.getTypeParameters();
-				int length = parameters==null ? 0 : parameters.length;
-				if (length > 0) {
-					char[][] arguments = new char[length][];
-					for (int i=0; i<length; i++) {
-						arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+				if (parameters != null) {
+					int length = parameters.length;
+					if (length > 0) {
+						char[][] arguments = new char[length][];
+						for (int i=0; i<length; i++) {
+							arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+						}
+						return arguments;
 					}
-					return arguments;
 				}
 			}
 			catch (JavaModelException jme) {
@@ -131,14 +133,16 @@ public class JavaSearchPattern extends SearchPattern {
 		}
 
 		// Parameterized method
-		int length = argumentsSignatures==null ? 0 : argumentsSignatures.length;
-		if (length > 0) {
-			char[][] methodArguments = new char[length][];
-			for (int i=0; i<length; i++) {
-				methodArguments[i] = argumentsSignatures[i].toCharArray();
-				CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
+		if (argumentsSignatures != null) {
+			int length = argumentsSignatures.length;
+			if (length > 0) {
+				char[][] methodArguments = new char[length][];
+				for (int i=0; i<length; i++) {
+					methodArguments[i] = argumentsSignatures[i].toCharArray();
+					CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
+				}
+				return methodArguments;
 			}
-			return methodArguments;
 		}
 		return null;
 	}
@@ -254,12 +258,14 @@ public class JavaSearchPattern extends SearchPattern {
 					}
 					IType parentType = (IType) parent;
 					parameters = parentType.getTypeParameters();
-					int length = parameters==null ? 0 : parameters.length;
-					if (length > 0) {
-						hasParameters = true;
-						typeParameters[ptr] = new char[length][];
-						for (int i=0; i<length; i++)
-							typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+					if (parameters !=null) {
+						int length = parameters.length;
+						if (length > 0) {
+							hasParameters = true;
+							typeParameters[ptr] = new char[length][];
+							for (int i=0; i<length; i++)
+								typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+						}
 					}
 					parent = parent.getParent();
 				}

@@ -73,8 +73,10 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
 		addIndexEntry(CONSTRUCTOR_DECL, ConstructorPattern.createIndexKey(CharOperation.lastSegment(typeName,'.'), argCount));
 	
-		for (int i = 0; i < argCount; i++)
-			addTypeReference(parameterTypes[i]);
+		if (parameterTypes != null) {
+			for (int i = 0; i < argCount; i++)
+				addTypeReference(parameterTypes[i]);
+		}
 		if (exceptionTypes != null)
 			for (int i = 0, max = exceptionTypes.length; i < max; i++)
 				addTypeReference(exceptionTypes[i]);
@@ -135,8 +137,10 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
 		addIndexEntry(METHOD_DECL, MethodPattern.createIndexKey(methodName, argCount));
 	
-		for (int i = 0; i < argCount; i++)
-			addTypeReference(parameterTypes[i]);
+		if (parameterTypes != null) {
+			for (int i = 0; i < argCount; i++)
+				addTypeReference(parameterTypes[i]);
+		}
 		if (exceptionTypes != null)
 			for (int i = 0, max = exceptionTypes.length; i < max; i++)
 				addTypeReference(exceptionTypes[i]);
