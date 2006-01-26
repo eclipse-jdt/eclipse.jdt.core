@@ -258,7 +258,7 @@ protected boolean matchesName(char[] pattern, char[] name) {
  * </ul>
  */
 protected int matchNameValue(char[] pattern, char[] name) {
-	if (pattern == null || pattern.length == 0) return ACCURATE_MATCH; // null is as if it was "*"
+	if (pattern == null) return ACCURATE_MATCH; // null is as if it was "*"
 	if (name == null) return IMPOSSIBLE_MATCH; // cannot match null name
 	if (name.length == 0) { // empty name
 		if (pattern.length == 0) { // can only matches empty pattern
