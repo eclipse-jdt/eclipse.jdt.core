@@ -696,9 +696,10 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
-		int count = syntheticArgumentTypes == null ? 0 : syntheticArgumentTypes.length;
-		for (int i = 0; i < count; i++) {
-			buffer.append(syntheticArgumentTypes[i].signature());
+		if (syntheticArgumentTypes != null) {
+			for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
+				buffer.append(syntheticArgumentTypes[i].signature());
+			}
 		}
 		
 		if (this instanceof SyntheticMethodBinding) {

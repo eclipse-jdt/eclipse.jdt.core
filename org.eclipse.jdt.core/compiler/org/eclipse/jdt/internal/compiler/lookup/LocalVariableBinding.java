@@ -104,8 +104,8 @@ public class LocalVariableBinding extends VariableBinding {
 		if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
 			if (this.isArgument && this.declaration != null) {
 				Annotation[] annotationNodes = declaration.annotations;
-				int length = annotationNodes == null ? 0 : annotationNodes.length;
-				if (length > 0) {
+				if (annotationNodes != null) {
+					int length = annotationNodes.length;
 					ASTNode.resolveAnnotations(this.declaringScope, annotationNodes, this);
 					annotations = new AnnotationBinding[length];
 					for (int i = 0; i < length; i++)

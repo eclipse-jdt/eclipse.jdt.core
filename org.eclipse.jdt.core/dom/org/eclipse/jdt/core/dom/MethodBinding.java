@@ -104,9 +104,10 @@ class MethodBinding implements IMethodBinding {
 
 	public IResolvedAnnotation[] getAnnotations() { 
 		AnnotationBinding[] annotations = this.binding.getAnnotations();
-		int length = annotations == null ? 0 : annotations.length;
-		IResolvedAnnotation[] domInstances =
-			length == 0 ? ResolvedAnnotation.NoAnnotations : new ResolvedAnnotation[length];
+		int length;
+		if (annotations == null || (length = annotations.length) == 0)
+			return ResolvedAnnotation.NoAnnotations;
+		IResolvedAnnotation[] domInstances = new ResolvedAnnotation[length];
 		for (int i = 0; i < length; i++)
 			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
 		return domInstances; 
@@ -124,9 +125,10 @@ class MethodBinding implements IMethodBinding {
 
 	public IResolvedAnnotation[] getParameterAnnotations(int index) {
 		AnnotationBinding[] annotations = this.binding.getParameterAnnotations(index);
-		int length = annotations == null ? 0 : annotations.length;
-		IResolvedAnnotation[] domInstances =
-			length == 0 ? ResolvedAnnotation.NoAnnotations : new ResolvedAnnotation[length];
+		int length;
+		if (annotations == null || (length = annotations.length) == 0)
+			return ResolvedAnnotation.NoAnnotations;
+		IResolvedAnnotation[] domInstances =new ResolvedAnnotation[length];
 		for (int i = 0; i < length; i++)
 			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
 		return domInstances; 

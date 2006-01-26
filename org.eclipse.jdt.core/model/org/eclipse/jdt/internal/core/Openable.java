@@ -99,13 +99,11 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
-	PerformanceStats stats = null;
-	if(CompletionEngine.PERF) {
-		stats = PerformanceStats.getStats(JavaModelManager.COMPLETION_PERF, this);
-		stats.startRun(
-				new String(cu.getFileName()) +
-				" at " + //$NON-NLS-1$
-				position);
+	PerformanceStats performanceStats = CompletionEngine.PERF
+		? PerformanceStats.getStats(JavaModelManager.COMPLETION_PERF, this)
+		: null;
+	if(performanceStats != null) {
+		performanceStats.startRun(new String(cu.getFileName()) + " at " + position); //$NON-NLS-1$
 	}
 	IBuffer buffer = getBuffer();
 	if (buffer == null) {
@@ -123,8 +121,8 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	// code complete
 	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project);
 	engine.complete(cu, position, 0);
-	if(CompletionEngine.PERF) {
-		stats.endRun();
+	if(performanceStats != null) {
+		performanceStats.endRun();
 	}
 	if (NameLookup.VERBOSE) {
 		System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
@@ -132,16 +130,11 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	}
 }
 protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
-	PerformanceStats stats = null;
-	if(SelectionEngine.PERF) {
-		stats = PerformanceStats.getStats(JavaModelManager.SELECTION_PERF, this);
-		stats.startRun(
-				new String(cu.getFileName()) +
-				" at [" + //$NON-NLS-1$
-				offset +
-				"," + //$NON-NLS-1$
-				length +
-				"]"); //$NON-NLS-1$
+	PerformanceStats performanceStats = SelectionEngine.PERF
+		? PerformanceStats.getStats(JavaModelManager.SELECTION_PERF, this)
+		: null;
+	if(performanceStats != null) {
+		performanceStats.startRun(new String(cu.getFileName()) + " at [" + offset + "," + length + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	JavaProject project = (JavaProject)getJavaProject();
@@ -160,8 +153,9 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 	// fix for 1FVXGDK
 	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
 	engine.select(cu, offset, offset + length - 1);
-	if(SelectionEngine.PERF) {
-		stats.endRun();
+	
+	if(performanceStats != null) {
+		performanceStats.endRun();
 	}
 	if (NameLookup.VERBOSE) {
 		System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
