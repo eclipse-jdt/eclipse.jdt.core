@@ -182,7 +182,8 @@ public class JarClassLoader extends ClassLoader {
 	 */
 	@Override
 	public URL getResource(String name) {
-		throw new UnsupportedOperationException("getResource() not implemented"); //$NON-NLS-1$
+		return null;
+		// throw new UnsupportedOperationException("getResource() not implemented"); //$NON-NLS-1$
 	}
 
 	/**
