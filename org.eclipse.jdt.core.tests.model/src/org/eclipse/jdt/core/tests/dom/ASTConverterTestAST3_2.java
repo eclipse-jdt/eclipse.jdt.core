@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -106,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 627 };
+//		TESTS_NUMBERS =  new int[] { 628 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7151,5 +7152,25 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=125270
+	 */
+	public void test0628() throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_EXPRESSION);
+		String source = "{\"red\", \"yellow\"}";
+		parser.setSource(source.toCharArray());
+		parser.setSourceRange(0, source.length());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result = parser.createAST(null);
+		assertNotNull("No node", result);
+		assertEquals("not an array initializer", ASTNode.ARRAY_INITIALIZER, result.getNodeType());
+		ArrayInitializer arrayInitializer = (ArrayInitializer) result;
+		List expressions = arrayInitializer.expressions();
+		assertEquals("Wrong size", 2, expressions.size());
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, ((Expression) expressions.get(0)).getNodeType());
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, ((Expression) expressions.get(1)).getNodeType());
 	}
 }

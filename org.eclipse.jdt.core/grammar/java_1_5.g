@@ -191,6 +191,7 @@ Goal ::= '/' GenericMethodDeclaration
 Goal ::= '&' ClassBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
+Goal ::= '%' ArrayInitializer
 -- completion parser
 Goal ::= '~' BlockStatementsopt
 -- source type converter
