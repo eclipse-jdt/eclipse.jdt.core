@@ -179,11 +179,19 @@ public class JarClassLoader extends ClassLoader {
 	/**
 	 * This is difficult to implement and close out resources underneath.
 	 * Delaying until someone actually requests this.
+	 * 
+	 * If we actually contain the entry throw UnsupportedOperationException,
+	 * else return null in case another classloader can handle this.
 	 */
 	@Override
 	public URL getResource(String name) {
+		for (JarFile j : _jars) {
+			ZipEntry entry = j.getEntry(name);
+			if (entry != null) {
+				throw new UnsupportedOperationException("getResource() not implemented: " + name); //$NON-NLS-1$
+			}
+		}
 		return null;
-		// throw new UnsupportedOperationException("getResource() not implemented"); //$NON-NLS-1$
 	}
 
 	/**
