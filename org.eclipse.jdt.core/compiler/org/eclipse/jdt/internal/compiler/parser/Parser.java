@@ -2385,7 +2385,9 @@ protected void consumeConstructorDeclaration() {
 		cd.constructorCall.sourceStart = cd.sourceStart;
 	}
 
-	if (!this.diet && (statements == null && constructorCall.isImplicitSuper())) {
+	if (!this.diet 
+			&& statements == null 
+			&& (constructorCall == null || constructorCall.isImplicitSuper())) {
 		if (!containsComment(cd.bodyStart, this.endPosition)) {
 			cd.bits |= ASTNode.UndocumentedEmptyBlock;
 		}

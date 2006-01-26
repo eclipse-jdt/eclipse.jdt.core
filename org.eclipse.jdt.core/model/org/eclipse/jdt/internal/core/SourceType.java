@@ -297,17 +297,13 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			String[] parameters = new String[params.size()];
 			params.toArray(parameters);
 			JavaElement method = (JavaElement)getMethod(selector, parameters);
-			if (token != null) {
-				switch (token.charAt(0)) {
-					case JEM_TYPE:
-					case JEM_TYPE_PARAMETER:
-					case JEM_LOCALVARIABLE:
-						return method.getHandleFromMemento(token, memento, workingCopyOwner);
-					default:
-						return method;
-				}
-			} else {
-				return method;
+			switch (token.charAt(0)) {
+				case JEM_TYPE:
+				case JEM_TYPE_PARAMETER:
+				case JEM_LOCALVARIABLE:
+					return method.getHandleFromMemento(token, memento, workingCopyOwner);
+				default:
+					return method;
 			}
 		case JEM_TYPE:
 			String typeName;
