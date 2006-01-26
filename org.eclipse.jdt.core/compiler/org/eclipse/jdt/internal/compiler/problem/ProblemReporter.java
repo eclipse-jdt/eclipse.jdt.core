@@ -2267,7 +2267,8 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
 			0,
-			1);        
+			1);
+		return; // not reached since aborted above
     }
 	this.handle(
 		IProblem.IncorrectArityForParameterizedType,

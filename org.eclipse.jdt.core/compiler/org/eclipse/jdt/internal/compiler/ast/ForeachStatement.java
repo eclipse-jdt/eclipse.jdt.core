@@ -340,9 +340,8 @@ public class ForeachStatement extends Statement {
 		this.elementVariable.resolve(scope); // collection expression can see itemVariable
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(scope);
-		boolean hasError = elementType == null || collectionType == null;
 
-		if (!hasError) {
+		if (elementType != null && collectionType != null) {
 			if (collectionType.isArrayType()) { // for(E e : E[])
 				this.kind = ARRAY;
 				this.collection.computeConversion(scope,collectionType, collectionType);
