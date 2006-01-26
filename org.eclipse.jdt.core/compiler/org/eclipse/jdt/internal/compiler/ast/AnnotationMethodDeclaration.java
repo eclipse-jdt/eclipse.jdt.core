@@ -137,6 +137,8 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				pair.binding = this.binding;
 				pair.resolveTypeExpecting(scope, returnTypeBinding);
 				this.binding.setDefaultValue(org.eclipse.jdt.internal.compiler.lookup.ElementValuePair.getValue(this.defaultValue));
+			} else { // let it know it does not have a default value so it won't try to find it
+				this.binding.setDefaultValue(null);
 			}
 		}
 	}
