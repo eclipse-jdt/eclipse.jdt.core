@@ -35,7 +35,7 @@ public class ParticipantBuildTests extends Tests {
 	public static Test suite() {
 		if (false) {
 			TestSuite suite = new TestSuite(ParticipantBuildTests.class.getName());
-			suite.addTest(new ParticipantBuildTests("testTags"));
+			suite.addTest(new ParticipantBuildTests("testDefaultValue"));
 			return suite;
 		}
 		return new TestSuite(ParticipantBuildTests.class);
@@ -116,7 +116,7 @@ public class ParticipantBuildTests extends Tests {
 		expectingNoProblems();
 	}
 
-	public void _testDefaultValue() throws JavaModelException {
+	public void testDefaultValue() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -168,7 +168,10 @@ public class ParticipantBuildTests extends Tests {
 									IMethodBinding[] annotationMethods = declaredTypes[d].getDeclaredMethods();
 									for (int m = 0, mLength = annotationMethods.length; m < mLength; m++) {
 										if (!"value".equals(annotationMethods[m].getName())) continue;
-										String defaultString = (String) annotationMethods[m].getDefaultValue();
+										Object defaultValue = annotationMethods[m].getDefaultValue();
+										assertTrue("Wrong class", defaultValue instanceof IVariableBinding);
+										IVariableBinding variableBinding = (IVariableBinding) defaultValue;
+										String defaultString = variableBinding.getName();
 										String expected = "Eore";
 										if (!expected.equals(defaultString)) {
 											IProblem problem = new ParticipantProblem("expecting default = " + expected + " not " + defaultString, file.getName());

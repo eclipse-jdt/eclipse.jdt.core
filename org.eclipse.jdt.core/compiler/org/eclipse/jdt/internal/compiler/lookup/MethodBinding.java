@@ -433,6 +433,21 @@ public long getAnnotationTagBits() {
  */
 public Object getDefaultValue() {
 	MethodBinding originalMethod = this.original();
+	if ((originalMethod.tagBits & TagBits.DefaultValueResolved) == 0) {
+		//The method has not been yet type checked.
+		//It also means that the method is not coming from a class that
+		//has already been compiled. It can only be from a class within
+		//compilation units to process. Thus the method is NOT from a BinaryTypeBinbing
+		if (originalMethod.declaringClass instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceType = (SourceTypeBinding) originalMethod.declaringClass;
+			if (sourceType.scope != null) {
+				TypeDeclaration typeDecl = sourceType.scope.referenceContext;
+				AbstractMethodDeclaration methodDeclaration = originalMethod.sourceMethod();
+				if (methodDeclaration != null) methodDeclaration.resolve(typeDecl.scope);
+			}
+		}
+		originalMethod.tagBits |= TagBits.DefaultValueResolved;
+	}
 	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
 	return holder == null ? null : holder.getDefaultValue();
 }
@@ -631,6 +646,10 @@ public void setAnnotations(AnnotationBinding[] annotations, AnnotationBinding[][
 	this.declaringClass.storeAnnotationHolder(this,  AnnotationHolder.storeAnnotations(annotations, parameterAnnotations, defaultValue));
 }
 public void setDefaultValue(Object defaultValue) {
+	MethodBinding originalMethod = this.original();
+	if ((originalMethod.tagBits & TagBits.DefaultValueResolved) != 0) {
+		return;
+	}
 	AnnotationHolder holder = this.declaringClass.retrieveAnnotationHolder(this, false);
 	if (holder == null)
 		setAnnotations(null, null, defaultValue);
