@@ -11228,6 +11228,7 @@ public void testParameterNames1() throws CoreException, IOException {
 	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
 	try {
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
+		COMPLETION_PROJECT.setOptions(options);
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
@@ -11261,6 +11262,7 @@ public void testParameterNames1() throws CoreException, IOException {
 		}
 	} finally {
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
+		COMPLETION_PROJECT.setOptions(options);
 	}
 }
 public void testInconsistentHierarchy1() throws CoreException, IOException {
