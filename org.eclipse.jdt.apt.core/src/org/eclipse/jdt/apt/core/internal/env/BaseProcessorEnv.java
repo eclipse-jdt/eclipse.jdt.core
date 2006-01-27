@@ -57,7 +57,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -301,7 +300,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             binding = ((AbstractTypeDeclaration)node).resolveBinding();
             break;
         case ASTNode.SINGLE_VARIABLE_DECLARATION:
-            binding = ((SingleVariableDeclaration)node).resolveBinding();
+        	// Need to create the declaration with the ast node, not the binding
+            binding = null;
             break;
         case ASTNode.PACKAGE_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
@@ -339,10 +339,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     
     public Map<String, String> getOptions(){ return Collections.emptyMap(); }
     
-    // does not generated dependencies
-    public TypeDeclaration getTypeDeclaration(String name)
+    // does not generate dependencies
+    public TypeDeclaration getTypeDeclaration(final String originalName)
     {	
-    	if( name == null || name.length() == 0 ) return null;
+    	if( originalName == null || originalName.length() == 0 ) return null;
+    	
+    	String name = originalName;
 		// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )
@@ -368,16 +370,19 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
 			}
 		}
-		if( typeBinding != null )
-			return Factory.createReferenceType(typeBinding, this);
-
-		// finally go search for it in the universe.
-		typeBinding = getTypeDefinitionBindingFromName(name);
-		if( typeBinding != null ){			
-			return Factory.createReferenceType(typeBinding, this);
+		TypeDeclaration result = null;
+		if( typeBinding != null ) {
+			result = Factory.createReferenceType(typeBinding, this);
+		}
+		else {
+			// finally go search for it in the universe.
+			typeBinding = getTypeDefinitionBindingFromName(name);
+			if( typeBinding != null ){			
+				result = Factory.createReferenceType(typeBinding, this);
+			}
 		}
 
-		return null;
+		return result;
     }
     
     /**
