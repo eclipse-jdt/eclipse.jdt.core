@@ -748,9 +748,9 @@ void setSourceStart(int sourceStart);
 	 * Javadoc comments
 	 */
 	/** @since 3.2 */
-	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
-	/** @since 3.2 */
 	int JavadocMissingIdentifier = Javadoc + Internal + 467;
+	/** @since 3.2 */
+	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
 	/** @since 3.0 */
