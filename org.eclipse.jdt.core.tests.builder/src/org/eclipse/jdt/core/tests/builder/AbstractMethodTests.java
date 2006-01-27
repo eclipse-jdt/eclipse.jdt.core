@@ -14,6 +14,7 @@ import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractMethodTests extends Tests {
@@ -95,8 +96,8 @@ public class AbstractMethodTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method IX.foo(IX)", classY)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method IX.foo(IX)", classY, 38, 39, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 3
@@ -182,8 +183,8 @@ public class AbstractMethodTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method X.foo(IX)", classY)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method X.foo(IX)", classY, 38, 39, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 3

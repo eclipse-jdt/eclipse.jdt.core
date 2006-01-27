@@ -12,37 +12,40 @@ package org.eclipse.jdt.core.tests.builder;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaModelMarker;
 
 public class Problem implements Comparable {
 	private String location;
 	private String message;
 	private IPath resourcePath;
-	private int start = -1, end = -1;
+	private int start = -1, end = -1, categoryId = -1;
 	
-	public Problem(String location, String message, IPath resourcePath){
-		this(location, message, resourcePath, -1, -1);
-	}
-	public Problem(String location, String message, IPath resourcePath, int start, int end){
+	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId){
 		this.location = location;
 		this.message = message;
 		this.resourcePath = resourcePath;
 		this.start = start;
 		this.end = end;
+		this.categoryId = categoryId;
+		if (false && (start > 0 || end > 0) && categoryId <= 0) {
+			System.out.print("is categoryId properly set ? new Problem(\"" + location + "\", \"" + message + "\", \"" + resourcePath + "\"");
+			System.out.print(", " + start + ", " + end +  ", " + categoryId);
+			System.out.println(")");
+		}
 	}
 	
-	public Problem(IMarker marker) {
-		this(marker, false);
-	}
-	
-	public Problem(IMarker marker, boolean storeRange){
+	public Problem(IMarker marker){
 		this.location = marker.getAttribute(IMarker.LOCATION, ""); //$NON-NLS-1$
 		this.message = marker.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 		this.resourcePath = marker.getResource().getFullPath();
-		if (storeRange) {
-			this.start = marker.getAttribute(IMarker.CHAR_START, -1);
-			this.end = marker.getAttribute(IMarker.CHAR_END, -1);
-		}
+		this.start = marker.getAttribute(IMarker.CHAR_START, -1);
+		this.end = marker.getAttribute(IMarker.CHAR_END, -1);
+		this.categoryId = marker.getAttribute(IJavaModelMarker.CATEGORY_ID, -1);
 	}
+	public int getCategoryId() {
+		return categoryId;
+	}
+	
 	/**
 	 * Gets the location.
 	 * @return Returns a String
@@ -82,7 +85,8 @@ public class Problem implements Comparable {
 			+ " [ resource : <" 
 			+ resourcePath 
 			+ ">" 
-			+ ((this.start != -1 && this.end != -1) ? (" range : <" + this.start + "," + this.end + ">") : "")
+			+ (" range : <" + this.start + "," + this.end + ">")
+			+ (" category : <" + this.categoryId + ">")
 			+ "]";
 	}
 	

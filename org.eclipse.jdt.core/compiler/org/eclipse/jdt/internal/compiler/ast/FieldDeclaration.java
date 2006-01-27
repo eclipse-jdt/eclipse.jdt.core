@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class FieldDeclaration extends AbstractVariableDeclaration {
 	
 	public FieldBinding binding;
-	boolean hasBeenResolved = false;
+	boolean hasBeenResolved = false; // TODO (philippe) should use a tagBit instead
 	public Javadoc javadoc;
 
 	//allows to retrieve both the "type" part of the declaration (part1)

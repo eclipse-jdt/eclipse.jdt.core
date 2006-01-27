@@ -285,21 +285,16 @@ public class Tests extends TestCase {
 	/** Verifies that the given element has a specific problem.
 	 */
 	protected void expectingSpecificProblemFor(IPath root, Problem problem) {
-		expectingSpecificProblemsFor(root, new Problem[] { problem }, false);
+		expectingSpecificProblemsFor(root, new Problem[] { problem });
 	}
 
 	/** Verifies that the given element has specific problems.
 	 */
 	protected void expectingSpecificProblemsFor(IPath root, Problem[] problems) {
-		expectingSpecificProblemsFor(root, problems, false);
-	}
-	/** Verifies that the given element has specific problems.
-	 */
-	protected void expectingSpecificProblemsFor(IPath root, Problem[] problems, boolean storeRange) {
 		if (DEBUG)
 			printProblemsFor(root);
 
-		Problem[] rootProblems = env.getProblemsFor(root, storeRange);
+		Problem[] rootProblems = env.getProblemsFor(root);
 		next : for (int i = 0; i < problems.length; i++) {
 			Problem problem = problems[i];
 			for (int j = 0; j < rootProblems.length; j++) {
@@ -314,8 +309,7 @@ public class Tests extends TestCase {
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
 				System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
-				if (pb.getStart() != -1 && pb.getEnd() != -1)
-					System.out.print(", " + pb.getStart() + ", " + pb.getEnd());
+				System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
 				System.out.println(")");
 			}
 			assertTrue("missing expected problem : " + problem, false);

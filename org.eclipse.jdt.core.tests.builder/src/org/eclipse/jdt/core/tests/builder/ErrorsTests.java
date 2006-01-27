@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 
@@ -65,7 +66,7 @@ public class ErrorsTests extends Tests {
 		incrementalBuild(projectPath);
 
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -89,7 +90,7 @@ public class ErrorsTests extends Tests {
 			
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(cuPath);
-		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved to a type", cuPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved to a type", cuPath, 35, 36, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		
 		env.renameCU(root.append("p1"), "X.java", "X.txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
