@@ -45,7 +45,9 @@ public interface ClassFileConstants {
 	 * Extra flags for types and members attributes.
 	 */
 	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
-	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"	
+	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"
+	int AccHierarchyInconsistent = ASTNode.Bit22; 
+
 	int Utf8Tag = 1;
 	int IntegerTag = 3;
 	int FloatTag = 4;

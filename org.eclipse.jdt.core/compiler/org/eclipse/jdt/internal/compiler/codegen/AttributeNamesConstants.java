@@ -28,5 +28,6 @@ public interface AttributeNamesConstants {
 	final char[] RuntimeVisibleAnnotationsName = "RuntimeVisibleAnnotations".toCharArray(); //$NON-NLS-1$
 	final char[] RuntimeInvisibleParameterAnnotationsName = "RuntimeInvisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
 	final char[] RuntimeVisibleParameterAnnotationsName = "RuntimeVisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
-	final char[] StackMapTableName = "StackMapTable".toCharArray(); //$NON-NLS-1$	
+	final char[] StackMapTableName = "StackMapTable".toCharArray(); //$NON-NLS-1$
+	final char[] InconsistentHierarchy = "InconsistentHierarchy".toCharArray(); //$NON-NLS-1$
 }

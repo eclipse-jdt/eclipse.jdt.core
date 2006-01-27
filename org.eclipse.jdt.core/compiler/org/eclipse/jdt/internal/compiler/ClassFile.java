@@ -684,6 +684,23 @@ public class ClassFile
 				}
 			}
 		}
+		
+		if (this.referenceBinding.isHierarchyInconsistent()) {
+			// add an attribute for inconsistent hierarchy
+			if (contentsOffset + 6 >= contents.length) {
+				resizeContents(6);
+			}
+			int inconsistentHierarchyNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.InconsistentHierarchy);
+			contents[contentsOffset++] = (byte) (inconsistentHierarchyNameIndex >> 8);
+			contents[contentsOffset++] = (byte) inconsistentHierarchyNameIndex;
+			// the length of an inconsistent hierarchy attribute is equals to 0
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			attributeNumber++;
+		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);

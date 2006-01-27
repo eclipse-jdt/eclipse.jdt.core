@@ -2334,8 +2334,6 @@ public final class CompletionEngine
 
 			if (field.isSynthetic())	continue next;
 			
-			if (field.name == ClassScope.IncompleteHierarchy) continue next;
-
 			if (onlyStaticFields && !field.isStatic()) continue next;
 
 			if (fieldLength > field.name.length) continue next;

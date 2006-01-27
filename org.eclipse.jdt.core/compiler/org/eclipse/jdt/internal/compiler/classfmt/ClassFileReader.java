@@ -283,6 +283,8 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 								}
 							}
 						}
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.InconsistentHierarchy)) {
+						this.accessFlags |= ClassFileConstants.AccHierarchyInconsistent;
 					}
 					break;
 				case 'S' :

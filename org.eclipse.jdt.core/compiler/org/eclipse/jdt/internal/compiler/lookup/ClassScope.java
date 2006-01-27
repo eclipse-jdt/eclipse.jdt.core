@@ -32,8 +32,6 @@ public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
 	public TypeReference superTypeReference;
 
-	public final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
-
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(CLASS_SCOPE, parent);
 		this.referenceContext = context;
@@ -58,15 +56,8 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildFields() {
-		boolean hierarchyIsInconsistent = referenceContext.binding.isHierarchyInconsistent();
 		if (referenceContext.fields == null) {
-			if (hierarchyIsInconsistent) { // 72468
-				referenceContext.binding.fields = new FieldBinding[1];
-				referenceContext.binding.fields[0] =
-					new FieldBinding(IncompleteHierarchy, TypeBinding.INT, ClassFileConstants.AccPrivate, referenceContext.binding, null);
-			} else {
-				referenceContext.binding.fields = Binding.NO_FIELDS;
-			}
+			referenceContext.binding.fields = Binding.NO_FIELDS;
 			return;
 		}
 		// count the number of fields vs. initializers
@@ -81,8 +72,6 @@ public class ClassScope extends Scope {
 			}
 		}
 
-		if (hierarchyIsInconsistent)
-			count++;
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
@@ -135,9 +124,6 @@ public class ClassScope extends Scope {
 			}
 			fieldBindings = newFieldBindings;
 		}
-		if (hierarchyIsInconsistent)
-			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, TypeBinding.INT, ClassFileConstants.AccPrivate, referenceContext.binding, null);
-
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
 		for (int i = 0; i < count; i++)
