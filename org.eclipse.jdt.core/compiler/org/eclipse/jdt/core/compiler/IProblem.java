@@ -194,7 +194,8 @@ void setSourceStart(int sourceStart);
 	 * are listed, focusing on import related problems first might be relevant.
 	 * 
 	 * When a problem is tagged as Internal, it means that no change other than a local source code change
-	 * can  fix the corresponding problem.
+	 * can  fix the corresponding problem. A type related problem could be addressed by changing the type
+	 * involved in it.
 	 */
 	int TypeRelated = 0x01000000;
 	int FieldRelated = 0x02000000;
@@ -262,7 +263,7 @@ void setSourceStart(int sourceStart);
 	int NonStaticContextForEnumMemberType = Internal + 32;
 
 	// variables
-	int UndefinedName = 50;
+	int UndefinedName = Internal + FieldRelated + 50;
 	int UninitializedLocalVariable = Internal + 51;
 	int VariableTypeCannotBeVoid = Internal + 52;
 	int VariableTypeCannotBeVoidArray = Internal + 53;
@@ -381,7 +382,7 @@ void setSourceStart(int sourceStart);
 	int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
 	// constant expressions
 	int StringConstantIsExceedingUtf8Limit = Internal + 152;
-	int NonConstantExpression = 153;
+	int NonConstantExpression = Internal + 153;
 	int NumericValueOutOfRange = Internal + 154;
 	// cast expressions
 	int IllegalCast = TypeRelated + 156;
@@ -399,7 +400,7 @@ void setSourceStart(int sourceStart);
 	int InvalidVoidExpression = Internal + 164;
 	// try
 	int MaskedCatch = TypeRelated + 165;
-	int DuplicateDefaultCase = 166;
+	int DuplicateDefaultCase = Internal + 166;
 	int UnreachableCatch = TypeRelated + MethodRelated + 167;
 	int UnhandledException = TypeRelated + 168;
 	// switch       
@@ -563,13 +564,13 @@ void setSourceStart(int sourceStart);
 	int DuplicateTypes = TypeRelated + 323;
 	int IsClassPathCorrect = TypeRelated + 324;
 	int PublicClassMustMatchFileName = TypeRelated + 325;
-	int MustSpecifyPackage = 326;
+	int MustSpecifyPackage = Internal + 326;
 	int HierarchyHasProblems = TypeRelated + 327;
-	int PackageIsNotExpectedPackage = 328;
+	int PackageIsNotExpectedPackage = Internal + 328;
 	/** @since 2.1 */
-	int ObjectCannotHaveSuperTypes = 329;
+	int ObjectCannotHaveSuperTypes = Internal + 329;
 	/** @since 3.1 */
-	int ObjectMustBeClass = 330;
+	int ObjectMustBeClass = Internal + 330;
 
 	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330

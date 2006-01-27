@@ -27,11 +27,11 @@ public class Problem implements Comparable {
 		this.start = start;
 		this.end = end;
 		this.categoryId = categoryId;
-		if (false && (start > 0 || end > 0) && categoryId <= 0) {
-			System.out.print("is categoryId properly set ? new Problem(\"" + location + "\", \"" + message + "\", \"" + resourcePath + "\"");
-			System.out.print(", " + start + ", " + end +  ", " + categoryId);
-			System.out.println(")");
-		}
+//		if ((start > 0 || end > 0) && categoryId <= 0) {
+//			System.out.print("is categoryId properly set ? new Problem(\"" + location + "\", \"" + message + "\", \"" + resourcePath + "\"");
+//			System.out.print(", " + start + ", " + end +  ", " + categoryId);
+//			System.out.println(")");
+//		}
 	}
 	
 	public Problem(IMarker marker){
