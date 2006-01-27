@@ -883,8 +883,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	
     		// look for duplicates.		
     		int count = 0;	
-    		for( int i=1, len=offsets.length; i<len; i++){
-    			if( offsets[i-1] == offsets[i] )
+    		for( int i=0, len=offsets.length; i<len; i++){
+    			if( i > 0 && offsets[i-1] == offsets[i] )
     				continue;			
     			count ++;
     		}	
@@ -894,7 +894,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	
     			int index = 0;
     			for( int i=0, len=offsets.length; i<len; i++){
-    				if( i != 0 && offsets[i-1] == offsets[i] )
+    				if( i > 0 && offsets[i-1] == offsets[i] )
     					continue;
     				_sortedStartingOffset[index++] = offsets[i];
     			}		
