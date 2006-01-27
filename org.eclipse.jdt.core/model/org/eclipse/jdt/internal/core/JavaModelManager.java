@@ -192,25 +192,46 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
 
-	static final CompilationParticipant[] NO_PARTICIPANTS = new CompilationParticipant[0];
+	static final Object[][] NO_PARTICIPANTS = new Object[0][];
 	
 	public class CompilationParticipants {
+		
+		private final int MAX_SOURCE_LEVEL = 6; // 1.1 to 1.6
 	
 		/*
-		 * The registered compilation participants
+		 * The registered compilation participants (a table from int (source level) to Object[])
+		 * The Object array contains first IConfigurationElements when not resolved yet, then
+		 * it contains CompilationParticipants.
 		 */
-		private CompilationParticipant[] registeredParticipants = null;
+		private Object[][] registeredParticipants = null;
 				
 		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
-			CompilationParticipant[] participants = getRegisteredParticipants();
-			if (participants == NO_PARTICIPANTS)
+			final Object[][] participantsPerSource = getRegisteredParticipants();
+			if (participantsPerSource == NO_PARTICIPANTS)
 				return null;
+			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true/*inherit options*/);
+			final int sourceLevelIndex = indexForSourceLevel(sourceLevel);
+			final Object[] participants = participantsPerSource[sourceLevelIndex];
 			int length = participants.length;
 			CompilationParticipant[] result = new CompilationParticipant[length];
 			int index = 0;
 			for (int i = 0; i < length; i++) {
-				CompilationParticipant participant = participants[i];
-				if (participant.isActive(project))
+				if (participants[i] instanceof IConfigurationElement) {
+					final IConfigurationElement configElement = (IConfigurationElement) participants[i];
+					final int participantIndex = i;
+					Platform.run(new ISafeRunnable() {
+						public void handleException(Throwable exception) {
+							Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
+						}
+						public void run() throws Exception {
+							Object executableExtension = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
+							for (int j = sourceLevelIndex; j < MAX_SOURCE_LEVEL; j++)
+								participantsPerSource[j][participantIndex] = executableExtension;
+						}
+					});
+				} 
+				CompilationParticipant participant = (CompilationParticipant) participants[i];
+				if (participant != null && participant.isActive(project))
 					result[index++] = participant;
 			}
 			if (index == 0)
@@ -220,16 +241,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return result;
 		}
 		
-		private CompilationParticipant[] getRegisteredParticipants() {
+		private Object[][] getRegisteredParticipants() {
 			if (this.registeredParticipants != null) {
 				return this.registeredParticipants;
 			}
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
 			if (extension == null)
 				return this.registeredParticipants = NO_PARTICIPANTS;
-			final HashMap modifyingEnv = new HashMap();
-			final HashMap creatingProblems = new HashMap();
-			final HashMap others = new HashMap();
+			final ArrayList modifyingEnv = new ArrayList();
+			final ArrayList creatingProblems = new ArrayList();
+			final ArrayList others = new ArrayList();
 			IExtension[] extensions = extension.getExtensions();
 			// for all extensions of this point...
 			for(int i = 0; i < extensions.length; i++) {
@@ -241,39 +262,58 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$
 						continue;
 					}
-					Platform.run(new ISafeRunnable() {
-						public void handleException(Throwable exception) {
-							Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
-						}
-						public void run() throws Exception {
-							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$ 
-							if (execExt instanceof CompilationParticipant) {
-								if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
-									modifyingEnv.put(configElement, execExt);
-								else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
-									creatingProblems.put(configElement, execExt);
-								else
-									others.put(configElement, execExt);
-							}
-						}
-					});
+					// add config element in the group it belongs to
+					if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
+						modifyingEnv.add(configElement);
+					else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
+						creatingProblems.add(configElement);
+					else
+						others.add(configElement);
 				}
 			}
 			int size = modifyingEnv.size() + creatingProblems.size() + others.size();
 			if (size == 0)
 				return this.registeredParticipants = NO_PARTICIPANTS;
-			CompilationParticipant[] result = new CompilationParticipant[size];
+			
+			// sort config elements in each group
+			IConfigurationElement[] configElements = new IConfigurationElement[size];
 			int index = 0;
-			index = sortParticipants(modifyingEnv, result, index);
-			index = sortParticipants(creatingProblems, result, index);
-			index = sortParticipants(others, result, index);
+			index = sortParticipants(modifyingEnv, configElements, index);
+			index = sortParticipants(creatingProblems, configElements, index);
+			index = sortParticipants(others, configElements, index);
+			
+			// create result table
+			Object[][] result = new Object[MAX_SOURCE_LEVEL][];
+			int length = configElements.length;
+			for (int i = 0; i < MAX_SOURCE_LEVEL; i++) {
+				result[i] = new Object[length];
+			}
+			for (int i = 0; i < length; i++) {
+				String sourceLevel = configElements[i].getAttribute("requiredSourceLevel"); //$NON-NLS-1$
+				int sourceLevelIndex = indexForSourceLevel(sourceLevel);
+				for (int j = sourceLevelIndex; j < MAX_SOURCE_LEVEL; j++) {
+					result[j][i] = configElements[i];
+				}
+			}
 			return this.registeredParticipants = result;
 		}
 		
-		private int sortParticipants(HashMap group, CompilationParticipant[] participants, int index) {
+		/*
+		 * 1.1 -> 0
+		 * 1.2 -> 1
+		 * ...
+		 * 1.6 -> 5
+		 * null -> 0
+		 */
+		private int indexForSourceLevel(String sourceLevel) {
+			if (sourceLevel == null) return 0;
+			return sourceLevel.charAt(2) - 49;
+		}
+		
+		private int sortParticipants(ArrayList group, IConfigurationElement[] configElements, int index) {
 			int size = group.size();
 			if (size == 0) return index;
-			Object[] elements = group.keySet().toArray();
+			Object[] elements = group.toArray();
 			Util.sort(elements, new Util.Comparer() {
 				public int compare(Object a, Object b) {
 					if (a == b) return 0;
@@ -289,7 +329,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			});
 			for (int i = 0; i < size; i++)
-				participants[index+i] = (CompilationParticipant) group.get(elements[i]);
+				configElements[index+i] = (IConfigurationElement) elements[i];
 			return index + size;
 		}
 	}

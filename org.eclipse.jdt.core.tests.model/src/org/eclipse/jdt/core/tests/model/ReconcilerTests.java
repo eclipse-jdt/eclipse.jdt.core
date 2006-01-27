@@ -95,7 +95,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testExternal" };
+//	TESTS_NAMES = new String[] { "testReconcileParticipant07" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -174,6 +174,7 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
+	project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 	project14.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project14.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 
@@ -2194,6 +2195,36 @@ public void testReconcileParticipant06() throws CoreException {
 		"Syntax error, insert \";\" to complete BlockStatements\n" + 
 		"----------\n"
 	);
+}
+/*
+ * Ensures that a reconcile participant is NOT notified when a working copy is reconciled
+ * in a project with insufficient source level.
+ * (regression test for bug 125291 Enable conditional loading of APT)
+ */
+public void testReconcileParticipant07() throws CoreException {
+	IJavaProject project = this.workingCopy.getJavaProject();
+	String originalSourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+	try {
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_1);
+		ReconcileParticipant participant = new ReconcileParticipant();
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public void bar() {\n" +
+			"    System.out.println()\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertDeltas(
+			"Unexpected participant delta",
+			"<null>",
+			participant.delta
+		);
+	} finally {
+		project.setOption(JavaCore.COMPILER_SOURCE, originalSourceLevel);
+	}
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

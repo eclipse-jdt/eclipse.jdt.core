@@ -80,6 +80,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="requiredSourceLevel" type="string">
+            <annotation>
+               <documentation>
+                  the required source level this participant needs (one of the JavaCore.VERSION* constants). If a project&apos;s source level is below this required source level, the participant will not be invoked. If this attribute is not specified, the participant will be invoked for any source level.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -93,7 +100,7 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  the unique identifier of the participant that is required
                </documentation>
             </annotation>
          </attribute>
