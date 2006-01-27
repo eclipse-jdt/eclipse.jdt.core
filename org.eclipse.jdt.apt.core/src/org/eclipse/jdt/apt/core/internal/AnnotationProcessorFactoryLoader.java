@@ -475,10 +475,12 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
+			AptPlugin.log(e, "Failed to load " + factoryName); //$NON-NLS-1$
 			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
+			AptPlugin.log(ncdfe, "Failed to load " + factoryName); //$NON-NLS-1$
 			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		return f;
