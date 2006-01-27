@@ -747,6 +747,12 @@ void setSourceStart(int sourceStart);
 	/*
 	 * Javadoc comments
 	 */
+	/** @since 3.2 */
+	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
+	/** @since 3.2 */
+	int JavadocMissingIdentifier = Javadoc + Internal + 467;
+	/** @since 3.1 */
+	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
 	/** @since 3.0 */
 	int JavadocUnexpectedTag = Javadoc + Internal + 470;
 	/** @since 3.0 */
@@ -860,13 +866,6 @@ void setSourceStart(int sourceStart);
 	int JavadocUnexpectedText = Javadoc + Internal + 518;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
-	/** @since 3.1 */
-	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
-
-	/** @since 3.2 */
-	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
-	/** @since 3.2 */
-	int JavadocMissingIdentifier = Javadoc + Internal + 467;
 
 	/**
 	 * Generics
