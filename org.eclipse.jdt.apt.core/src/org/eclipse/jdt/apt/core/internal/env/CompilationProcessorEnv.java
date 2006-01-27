@@ -52,12 +52,12 @@ public abstract class CompilationProcessorEnv
 	extends BaseProcessorEnv 
 	implements EclipseAnnotationProcessorEnvironment{
 	
-	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
-	private static final char PATHVAR_DELIM = '%';
 	/** regex to identify substituted token in path variables */
 	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
 	/** path variable meaning "workspace root" */
 	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
+	/** path variable meaning "project root" */
+	private static final String PATHVAR_PROJECTROOT = "%PROJECT.DIR%"; //$NON-NLS-1$
 
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
@@ -142,7 +142,7 @@ public abstract class CompilationProcessorEnv
 		
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
-			String value = resolveVarPath(entry.getValue());
+			String value = resolveVarPath(jproj, entry.getValue());
 			String key = entry.getKey();
 			_options.put(key, value);
 			if (!AptConfig.isAutomaticProcessorOption(key)) {
@@ -163,7 +163,7 @@ public abstract class CompilationProcessorEnv
 	 * the absolute path.
 	 * @param value the value of a -Akey=value command option
 	 */
-	private String resolveVarPath(String value) {
+	private String resolveVarPath(IJavaProject jproj, String value) {
 		if (value == null) {
 			return null;
 		}
@@ -183,6 +183,15 @@ public abstract class CompilationProcessorEnv
 			// all is well; do the substitution
 			IPath relativePath = path.removeFirstSegments(2);
 			IPath absoluteProjPath = proj.getLocation();
+			IPath absoluteResPath = absoluteProjPath.append(relativePath);
+			return absoluteResPath.toOSString();
+		}
+		
+		// If it matches %PROJECT.DIR%/project, the path is relative to the current project.
+		if (jproj != null && PATHVAR_PROJECTROOT.equals(firstToken)) {
+			// all is well; do the substitution
+			IPath relativePath = path.removeFirstSegments(1);
+			IPath absoluteProjPath = jproj.getProject().getLocation();
 			IPath absoluteResPath = absoluteProjPath.append(relativePath);
 			return absoluteResPath.toOSString();
 		}

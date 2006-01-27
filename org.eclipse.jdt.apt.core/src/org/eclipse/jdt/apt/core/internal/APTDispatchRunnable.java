@@ -384,8 +384,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				break;
 		}
 		
-		if( ! annotationDecls.isEmpty() )
-			; // TODO: (theodora) log unclaimed annotations? 
+		if( ! annotationDecls.isEmpty() ){
+			// TODO: (theodora) log unclaimed annotations?
+		}
 		
 		// Dispatch to the batch process factories first.
 		// Batch processors only get executed on a full/clean build
@@ -532,9 +533,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if (annotationDecls.isEmpty())
 				break;
 		}
-		if( ! annotationDecls.isEmpty() )
-			; // TODO: (theodora) log unclaimed annotations.
-		
+		if( ! annotationDecls.isEmpty() ){
+			// TODO: (theodora) log unclaimed annotations.
+		}
 	}
 	
 	/**

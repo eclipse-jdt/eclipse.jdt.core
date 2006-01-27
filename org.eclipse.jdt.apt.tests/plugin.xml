@@ -44,6 +44,9 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotationProcessorFactory">
 	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotationProcessorFactory">
+	      </factory>
           <factory 
              class="org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessorFactory">
           </factory>

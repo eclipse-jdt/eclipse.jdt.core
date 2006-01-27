@@ -23,7 +23,11 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class MessagerImpl implements Messager, EclipseMessager
 {
-	public static enum Severity{ ERROR, WARNING, INFO};
+	public static enum Severity { 
+		ERROR, 
+		WARNING, 
+		INFO
+	}
     private final CompilationProcessorEnv _env;
 
     MessagerImpl(CompilationProcessorEnv env){

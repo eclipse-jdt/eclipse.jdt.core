@@ -14,9 +14,6 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -109,8 +106,6 @@ public class AnnotationProcessorFactoryLoader {
 	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
 	
-	private static boolean VERBOSE_LOAD = false;
-	
 	private static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 	
 	// Caches the factory classes associated with each project.
@@ -122,8 +117,11 @@ public class AnnotationProcessorFactoryLoader {
 	// are not reloaded on every batch build, unlike batch processors 
 	// which are.
 	// See class comments for lifecycle of items in this cache.
-	private final Map<IJavaProject, ClassLoader> _project2IterativeClassloaders = 
+	private final Map<IJavaProject, ClassLoader> _iterativeLoaders = 
 		new HashMap<IJavaProject, ClassLoader>();
+	
+	private final Map<IJavaProject,JarClassLoader> _batchLoaders = 
+		new HashMap<IJavaProject,JarClassLoader>();
 	
 	// Caches information about which resources affect which projects'
 	// factory paths.
@@ -131,8 +129,7 @@ public class AnnotationProcessorFactoryLoader {
 	private final Map<String, Set<IJavaProject>> _container2Project =
 		new HashMap<String, Set<IJavaProject>>();
 	
-	private ClassLoader _batchClassLoader;
-    
+   
 	/**
 	 * Listen for changes that would affect the factory caches or
 	 * build markers.
@@ -297,28 +294,22 @@ public class AnnotationProcessorFactoryLoader {
     	removeAptBuildProblemMarkers( null );
     	_project2Factories.clear();
     	// Need to close the iterative classloaders
-    	for (ClassLoader cl : _project2IterativeClassloaders.values()) {
-    		if (cl instanceof JarClassLoader) {
+    	for (ClassLoader cl : _iterativeLoaders.values()) {
+    		if (cl instanceof JarClassLoader)
     			((JarClassLoader)cl).close();
-    		}
     	}
-    	_project2IterativeClassloaders.clear();
+    	_iterativeLoaders.clear();
     	_container2Project.clear();
+    	
+    	for (JarClassLoader cl : _batchLoaders.values())
+    		cl.close();
+    	_batchLoaders.clear();
     	
     	// Validate all projects
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		for (IProject proj : root.getProjects()) {
 			verifyFactoryPath(JavaCore.create(proj));
 		}
-    }
-    
-    public synchronized void closeBatchClassLoader() {
-    	if (_batchClassLoader == null)
-    		return;
-    	if (_batchClassLoader instanceof JarClassLoader) {
-    		((JarClassLoader)_batchClassLoader).close();
-    	}
-    	_batchClassLoader = null;
     }
     
     /**
@@ -342,6 +333,9 @@ public class AnnotationProcessorFactoryLoader {
     	if (batchProcsFound) {
     		_project2Factories.remove(javaProj);
     	}
+
+    	JarClassLoader c = _batchLoaders.remove(javaProj);
+    	if (c != null) c.close();
     }
     
     /**
@@ -415,13 +409,14 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		// Need to use the cached classloader if we have one
-		ClassLoader iterativeClassLoader = _project2IterativeClassloaders.get(project);
+		ClassLoader iterativeClassLoader = _iterativeLoaders.get(project);
 		if (iterativeClassLoader == null) {
 			iterativeClassLoader = _createIterativeClassLoader(containers);
-			_project2IterativeClassloaders.put(project, iterativeClassLoader);
+			_iterativeLoaders.put(project, iterativeClassLoader);
 		}
 		
-		_createBatchClassLoader(containers, iterativeClassLoader);
+		_createBatchClassLoader(containers, project);
+		JarClassLoader batchClassLoader = _batchLoaders.get(project);
 		
 		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
@@ -430,7 +425,8 @@ public class AnnotationProcessorFactoryLoader {
 				final FactoryPath.Attributes attr = entry.getValue();
 				List<AnnotationProcessorFactory> factories;
 				if (attr.runInBatchMode()) {
-					factories = loadFactoryClasses(fc, _batchClassLoader, project);
+					assert batchClassLoader != null;
+					factories = loadFactoryClasses(fc, batchClassLoader, project);
 				}
 				else {
 					factories = loadFactoryClasses(fc, iterativeClassLoader, project);
@@ -522,7 +518,13 @@ public class AnnotationProcessorFactoryLoader {
 	 */
     private void uncacheProject(IJavaProject jproj) {
 		_project2Factories.remove(jproj);
-		_project2IterativeClassloaders.remove(jproj);
+		ClassLoader c = _iterativeLoaders.remove(jproj);
+		if (c instanceof JarClassLoader)
+			((JarClassLoader)c).close();
+		
+		JarClassLoader jc = _batchLoaders.remove(jproj);
+		if (jc != null) jc.close();
+		
 		removeProjectFromResourceMap(jproj);
 	}
 
@@ -696,19 +698,7 @@ public class AnnotationProcessorFactoryLoader {
 		
 		ClassLoader cl;
 		if ( fileList.size() > 0 ) {
-			//cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
-			// Temporary revert to URLClassLoader, as the JarClassLoader doesn't properly define packages
-			List<URL> urls = new ArrayList<URL>(fileList.size());
-			for (File f : fileList) {
-				try {
-					urls.add(f.toURL());
-				}
-				catch (MalformedURLException mue) {
-					mue.printStackTrace();
-				}
-			}
-			URL[] urlArray = urls.toArray(new URL[urls.size()]);
-			cl = new URLClassLoader( urlArray, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		else {
 			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
@@ -716,11 +706,9 @@ public class AnnotationProcessorFactoryLoader {
 		return cl;
 	}
 	
-	private void _createBatchClassLoader( 
-			Map<FactoryContainer, FactoryPath.Attributes> containers, 
-			ClassLoader iterativeClassLoader) {
-		
-		assert _batchClassLoader == null : "Previous batch classloader was non-null -- it was not closed"; //$NON-NLS-1$
+	private void _createBatchClassLoader(Map<FactoryContainer, FactoryPath.Attributes> containers,
+			IJavaProject p) 
+	{
 		
 		ArrayList<File> fileList = new ArrayList<File>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
@@ -736,23 +724,7 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		if ( fileList.size() > 0 ) {
-			//_batchClassLoader = new JarClassLoader( fileList, iterativeClassLoader );
-//			 Temporary revert to URLClassLoader, as the JarClassLoader doesn't properly define packages
-			List<URL> urls = new ArrayList<URL>(fileList.size());
-			for (File f : fileList) {
-				try {
-					urls.add(f.toURL());
-				}
-				catch (MalformedURLException mue) {
-					mue.printStackTrace();
-				}
-			}
-			URL[] urlArray = urls.toArray(new URL[urls.size()]);
-			_batchClassLoader = new URLClassLoader( urlArray, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			_batchLoaders.put(p,new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader()));
 		}
-		else {
-			// No batch classloader
-			_batchClassLoader = null;
-		}		
 	}
 }

@@ -20,6 +20,8 @@ import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
+
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +65,15 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class Factory
 {
+	// using auto-boxing to take advantage of caching, if any.
+	// the dummy value picked here falls within the caching range.
+	public static final Byte DUMMY_BYTE = 0; 
+	public static final Character DUMMY_CHAR = '0'; 
+	public static final Double DUMMY_DOUBLE = 0d;
+	public static final Float DUMMY_FLOAT = 0f;
+	public static final Integer DUMMY_INTEGER = 0;  
+	public static final Long DUMMY_LONG = 0l;
+	public static final Short DUMMY_SHORT = 0;
     public static TypeDeclarationImpl createReferenceType(ITypeBinding binding, BaseProcessorEnv env)
     {
         if(binding == null || binding.isNullType()) return null;        
@@ -226,7 +237,7 @@ public class Factory
 		final Object converted = convertDOMValueToMirrorValue(
 				domValue, null, decl, decl, env, decl.getReturnType());
 		
-        return createAnnotationValue(converted, null, -1, decl, env);
+        return createAnnotationValueFromDOMValue(converted, null, -1, decl, env);
     }
 	
 	/**
@@ -246,7 +257,7 @@ public class Factory
 		final Object converted = convertDOMValueToMirrorValue(
 				domValue, null, decl, decl, env, decl.getReturnType());
 		
-        return createAnnotationValue(converted, null, -1, decl, env);
+        return createAnnotationValueFromDOMValue(converted, null, -1, decl, env);
     }
 	
 	/**
@@ -267,7 +278,7 @@ public class Factory
 		final Object converted = convertDOMValueToMirrorValue(
 				domValue, elementName, anno, 
 				anno.getAnnotatedDeclaration(), env, expectedType);
-		return createAnnotationValue(converted, elementName, -1, anno, env);		
+		return createAnnotationValueFromDOMValue(converted, elementName, -1, anno, env);		
 	}
 	
 	/**
@@ -280,11 +291,11 @@ public class Factory
 	 * @param needBoxing whether the expected type of the member value is an array or not.
 	 * @return
 	 */
-	private static AnnotationValue createAnnotationValue(Object convertedValue, 
-														 String name,
-														 int index,
-														 EclipseMirrorImpl mirror, 
-														 BaseProcessorEnv env)	
+	public static AnnotationValue createAnnotationValueFromDOMValue(Object convertedValue, 
+																	String name,
+																	int index,
+																	EclipseMirrorImpl mirror, 
+																	BaseProcessorEnv env)	
 	{
 		if( convertedValue == null ) return null;
 		if( mirror instanceof AnnotationMirrorImpl )
@@ -359,7 +370,7 @@ public class Factory
 					"Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " //$NON-NLS-1$
 					+ o.getClass().getName(); 
 				
-				final AnnotationValue annoValue = createAnnotationValue(o, name, i, parent, env);
+				final AnnotationValue annoValue = createAnnotationValueFromDOMValue(o, name, i, parent, env);
                 if( annoValue != null )
                     annoValues.add(annoValue);
             }
@@ -380,6 +391,273 @@ public class Factory
         return performNecessaryTypeConversion(expectedType, returnValue, name, parent, env);
     }
     
+    public static Object getMatchingDummyValue(final Class expectedType){
+    	if( expectedType.isPrimitive() ){
+    		if(expectedType == boolean.class)
+    			return Boolean.FALSE;
+    		else if( expectedType == byte.class )
+    			return DUMMY_BYTE;
+    		else if( expectedType == char.class )
+    			return DUMMY_CHAR;
+    		else if( expectedType == double.class)
+    			return DUMMY_DOUBLE;
+    		else if( expectedType == float.class )
+    			return DUMMY_FLOAT;
+    		else if( expectedType == int.class )
+    			return DUMMY_INTEGER;
+    		else if( expectedType == long.class )
+    			return DUMMY_LONG;
+    		else if(expectedType == short.class)
+    			return DUMMY_SHORT;
+    		else // expectedType == void.class. can this happen?
+    			return DUMMY_INTEGER; // anything would work
+    	}
+    	else
+    		return null;
+    }
+    
+    /**
+     * This method is designed to be invoke by the invocation handler and anywhere that requires
+     * a AnnotationValue (AnnotationMirror member values and default values from anonotation member).
+     * 
+     * Regardless of the path, there are common primitive type conversion that needs to take place. 
+     * The type conversions are respects the type widening and narrowing rules from JLS 5.1.2 and 5.1.2.
+     * 
+     * The only question remains is what is the type of the return value when the type conversion fails?     * 
+     * When <code>avoidReflectException</code> is set to <code>true</code> 
+     * Return <code>false</code> if the expected type is <code>boolean</code>
+     * Return numeric 0 for all numeric primitive types and '0' for <code>char</code>
+     * 
+     * Otherwise:
+     * Return the value unchanged. 
+     *  
+     * In the invocation handler case: 
+     * The value returned by {@link #invoke(Object, Method, Object[])} will be converted 
+     * into the expected type by the {@link java.lang.reflect.Proxy}. 
+     * If the value and the expected type does not agree, and the value is not null, 
+     * a ClassCastException will be thrown. A NullPointerException will be resulted if the 
+     * expected type is a primitive type and the value is null.
+     * This behavior is currently causing annotation processor a lot of pain and the decision is
+     * to not throw such unchecked exception. In the case where a ClassCastException or 
+     * NullPointerException will be thrown return some dummy value. Otherwise, return 
+     * the original value.
+     * Chosen dummy values:  
+     * Return <code>false</code> if the expected type is <code>boolean</code>
+     * Return numeric 0 for all numeric primitive types and '0' for <code>char</code>
+     * 
+     * This behavior is triggered by setting <code>avoidReflectException</code> to <code>true</code>
+     * 
+     * Note: the new behavior deviates from what's documented in
+     * {@link java.lang.reflect.InvocationHandler#invoke} and also deviates from 
+     * Sun's implementation.
+     *
+     * @see CR260743 and 260563.
+     * @param value the current value from the annotation instance.
+     * @param expectedType the expected type of the value.
+     * 
+     */
+    public static Object performNecessaryPrimitiveTypeConversion(
+    		final Class expectedType,
+    		final Object value,
+    		final boolean avoidReflectException)
+    {
+    	assert expectedType.isPrimitive() : "expectedType is not a primitive type: " + expectedType.getName(); //$NON-NLS-1$
+    	if( value == null)
+    		return avoidReflectException ? getMatchingDummyValue(expectedType) : null;
+    	// apply widening conversion based on JLS 5.1.2 and 5.1.3
+    	final String typeName = expectedType.getName();
+		final char expectedTypeChar = typeName.charAt(0);
+		final int nameLen = typeName.length();
+		// widening byte -> short, int, long, float or double
+		// narrowing byte -> char
+		if( value instanceof Byte )
+		{
+			final byte b = ((Byte)value).byteValue();
+			switch( expectedTypeChar )
+			{
+			case 'b':
+				if(nameLen == 4) // byte
+					return value; // exact match.
+				else 
+					return avoidReflectException ? Boolean.FALSE : value;
+			case 'c':
+				return new Character((char)b); // narrowing.
+			case 'd':
+				return new Double(b); // widening.
+			case 'f':
+				return new Float(b); // widening.
+			case 'i':
+				return new Integer(b); // widening.
+			case 'l':
+				return new Long(b); // widening.
+			case 's':
+				return new Short(b); // widening.
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		// widening short -> int, long, float, or double 
+		// narrowing short -> byte or char
+		else if( value instanceof Short )
+		{
+			final short s = ((Short)value).shortValue();
+			switch( expectedTypeChar )
+			{
+			case 'b':
+				if(nameLen == 4) // byte
+					return new Byte((byte)s); // narrowing.
+				else
+					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
+			case 'c':
+				return new Character((char)s); // narrowing.
+			case 'd':
+				return new Double(s); // widening.
+			case 'f':
+				return new Float(s); // widening.
+			case 'i':
+				return new Integer(s); // widening.
+			case 'l':
+				return new Long(s); // widening.
+			case 's':
+				return value; // exact match
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		// widening char -> int, long, float, or double 
+		// narrowing char -> byte or short
+		else if( value instanceof Character )
+		{
+			final char c = ((Character)value).charValue();
+			switch( expectedTypeChar )
+			{
+			case 'b':
+				if(nameLen == 4) // byte
+					return new Byte((byte)c); // narrowing.
+				else
+					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
+			case 'c':
+				return value; // exact match
+			case 'd':
+				return new Double(c); // widening.
+			case 'f':
+				return new Float(c); // widening.
+			case 'i':
+				return new Integer(c); // widening.
+			case 'l':
+				return new Long(c); // widening.
+			case 's':
+				return new Short((short)c); // narrowing.
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		
+		// widening int -> long, float, or double 
+		// narrowing int -> byte, short, or char 
+		else if( value instanceof Integer )
+		{
+			final int i = ((Integer)value).intValue();
+			switch( expectedTypeChar )
+			{    
+			case 'b':
+				if(nameLen == 4) // byte
+					return new Byte((byte)i); // narrowing.
+				else
+					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
+			case 'c':
+				return new Character((char)i); // narrowing
+			case 'd':
+				return new Double(i); // widening.
+			case 'f':
+				return new Float(i); // widening.
+			case 'i':
+				return value; // exact match
+			case 'l':
+				return new Long(i); // widening.
+			case 's':
+				return new Short((short)i); // narrowing.
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		// widening long -> float or double
+		else if( value instanceof Long )
+		{
+			final long l = ((Long)value).longValue();
+			switch( expectedTypeChar )
+			{
+			case 'b': // both byte and boolean
+			case 'c': 
+			case 'i':
+			case 's':
+				// completely wrong.
+				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
+			case 'd':
+				return new Double(l); // widening.
+			case 'f':
+				return new Float(l); // widening.			
+			case 'l': 
+				return value; // exact match.
+		
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		
+		// widening float -> double    		 
+		else if( value instanceof Float )
+		{
+			final float f = ((Float)value).floatValue();
+			switch( expectedTypeChar )
+			{    		
+			case 'b': // both byte and boolean
+			case 'c': 
+			case 'i':
+			case 's':
+			case 'l':
+				// completely wrong.
+				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
+			case 'd':
+				return new Double(f); // widening.
+			case 'f':
+				return value; // exact match.
+			default:  				
+				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
+			}
+		}
+		else if( value instanceof Double ){
+			if(expectedTypeChar == 'd' )
+				return value; // exact match
+			else{
+				return avoidReflectException ? getMatchingDummyValue(expectedType) : value; // completely wrong.
+			}
+		}
+		else if( value instanceof Boolean ){
+			if( expectedTypeChar == 'b' && nameLen == 7) // "boolean".length() == 7
+				return value;
+			else
+				return avoidReflectException ? getMatchingDummyValue(expectedType) : value; // completely wrong.
+		}
+		else // some non-null, non-primitive wrapper object
+			return avoidReflectException ? null : value;
+    }
+    
+    private static Class getJavaLangClass_Primitive(final PrimitiveType primitiveType){
+    	switch( primitiveType.getKind() ){
+		case BOOLEAN: return boolean.class;	
+		case BYTE: return byte.class;
+		case CHAR: return char.class;
+		case DOUBLE: return double.class;
+		case FLOAT: return float.class;
+		case INT: return int.class;
+		case LONG: return long.class;
+		case SHORT: return short.class;		
+		default:
+			throw new IllegalStateException("unknow primitive type " + primitiveType ); //$NON-NLS-1$
+		}
+    }
+    
     /**
      * Apply type conversion according to JLS 5.1.2 and 5.1.3 and / or auto-boxing.
      * @param expectedType the expected type
@@ -395,145 +673,11 @@ public class Factory
 	    											     final EclipseMirrorImpl parent,
 	    											     final BaseProcessorEnv env)
     {
-    	if(expectedType == null )return value;
-    	// apply widening or narrowing primitive type conversion based on JLS 5.1.2 and 5.1.3
+    	if( expectedType == null )return value;
     	if( expectedType instanceof PrimitiveType )
     	{    	
-    		// widening byte -> short, int, long, float or double
-    		// narrowing byte -> char
-    		if( value instanceof Byte )
-    		{
-    			final byte b = ((Byte)value).byteValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{
-    			case CHAR:
-    				return new Character((char)b);
-    			case SHORT:
-    				return new Short(b);
-    			case INT:
-    				return new Integer(b);
-    			case LONG:
-    				return new Long(b);
-    			case FLOAT:
-    				return new Float(b);
-    			case DOUBLE:
-    				return new Double(b);
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		// widening short -> int, long, float, or double 
-    		// narrowing short -> byte or char
-    		else if( value instanceof Short )
-    		{
-    			final short s = ((Short)value).shortValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{
-    			case BYTE:
-    				return new Byte((byte)s);
-    			case CHAR:
-    				return new Character((char)s);  
-    			case INT:
-    				return new Integer(s); 
-    			case LONG:
-    				return new Long(s);
-    			case FLOAT:
-    				return new Float(s);
-    			case DOUBLE:
-    				return new Double(s);
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		// widening char -> int, long, float, or double 
-    		// narrowing char -> byte or short
-    		else if( value instanceof Character )
-    		{
-    			final char c = ((Character)value).charValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{
-    			case INT:
-    				return new Integer(c); 
-    			case LONG:
-    				return new Long(c);
-    			case FLOAT:
-    				return new Float(c);
-    			case DOUBLE:
-    				return new Double(c);
-    			case BYTE:
-    				return new Byte((byte)c);
-    			case SHORT:
-    				return new Short((short)c);  
-    			
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		
-    		// widening int -> long, float, or double 
-    		// narrowing int -> byte, short, or char 
-    		else if( value instanceof Integer )
-    		{
-    			final int i = ((Integer)value).intValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{    		
-    			case LONG:
-    				return new Long(i);
-    			case FLOAT:
-    				return new Float(i);
-    			case DOUBLE:
-    				return new Double(i);
-    			case BYTE:
-    				return new Byte((byte)i);
-    			case SHORT:
-    				return new Short((short)i);  
-    			case CHAR:
-    				return new Character((char)i);
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		// widening long -> float or double
-    		else if( value instanceof Long )
-    		{
-    			final long l = ((Long)value).longValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{
-    			case FLOAT:
-    				return new Float(l);
-    			case DOUBLE:
-    				return new Double(l);    		
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		
-    		// widening float -> double    		 
-    		else if( value instanceof Float )
-    		{
-    			final float f = ((Float)value).floatValue();
-    			switch( ((PrimitiveType)expectedType).getKind() )
-    			{    			
-    			case DOUBLE:
-    				return new Double(f);    		
-    			default:
-    				// it is either already correct or it is completely wrong,
-    				// which doesn't really matter what's returned
-    				return value;
-    			}
-    		}
-    		else // boolean or double case. Nothing we can do here.
-    			return value;
+    		final Class primitiveClass = getJavaLangClass_Primitive( (PrimitiveType)expectedType );
+    		return performNecessaryPrimitiveTypeConversion(primitiveClass, value, false);
     	}
     	// handle auto-boxing
     	else if( expectedType instanceof ArrayType)
@@ -544,7 +688,7 @@ public class Factory
     		if( !(componentType instanceof ArrayType ) )    		
     			converted = performNecessaryTypeConversion(componentType, value, name, parent, env);
     		
-    		final AnnotationValue annoValue = createAnnotationValue(converted, name, 0, parent, env);
+    		final AnnotationValue annoValue = createAnnotationValueFromDOMValue(converted, name, 0, parent, env);
         	return Collections.singletonList(annoValue);
     	}
     	else // no change

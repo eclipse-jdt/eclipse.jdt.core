@@ -12,9 +12,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -166,38 +164,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 						_isBatch);
 			_previousRoundsBatchFactories.addAll(dispatchedBatchFactories);
 		}
-		finally {
-			if (_isBatch) {
-				// In order to keep from locking jars, we explicitly close any batch-based
-				// classloaders we opened
-				AnnotationProcessorFactoryLoader.getLoader().closeBatchClassLoader();
-			}
+		finally {			
 			_buildRound ++;
-		}
-	}
-	
-	/** 
-	 *   Given a Map which maps from a key to a value, where key is an arbitrary 
-	 *   type, and where value is a Collection, mergeMaps will ensure that for a key 
-	 *   k with value v in source, all of the elements in the Collection v will be 
-	 *   moved into the Collection v' corresponding to key k in the destination Map. 
-	 * 
-	 * @param source - The source map from some key to a Collection.
-	 * @param destination - The destination map from some key to a Collection
-	 */
-	private static void mergeMaps( Map source, Map destination ) {
-		if( source == null || destination == null ) return;
-		Iterator keys = source.keySet().iterator();
-		while( keys.hasNext() ) {
-			Object key = keys.next();
-			Object val = destination.get( key );
-			if ( val != null ) {
-				Collection c = (Collection) val;
-				c.addAll( (Collection)source.get( key ) );
-			}
-			else {
-				destination.put( key, source.get( key ) );
-			}
 		}
 	}
 	

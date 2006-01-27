@@ -96,7 +96,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	private static final int INT_INDEX = 5;
 	private static final int LONG_INDEX = 6;
 	private static final int SHORT_INDEX = 7;
-	private static final int VOID_INDEX = 8;
 	
 	private static final String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
@@ -338,7 +337,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return astUnit.findDeclaringNode(binding.getKey());
     }
     
-    public Map<String, String> getOptions(){ return Collections.emptyMap(); };
+    public Map<String, String> getOptions(){ return Collections.emptyMap(); }
     
     // does not generated dependencies
     public TypeDeclaration getTypeDeclaration(String name)
@@ -486,7 +485,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			catch (JavaModelException e) {}
 		}
 		if (containsNoJavaResources)
-			return new PackageDeclarationImplNoBinding(pkgFrags, this);
+			return new PackageDeclarationImplNoBinding(pkgFrags);
 
 		// We should be able to create a class or
 		// source file from one of the packages.
@@ -543,7 +542,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 
 		// No classes or source files found
-		return new PackageDeclarationImplNoBinding(pkgFrags, this);
+		return new PackageDeclarationImplNoBinding(pkgFrags);
     }
 	
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
@@ -728,7 +727,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 					// make sure we will not get any null.
 					// setting it to an empty unit will guarantee that if the 
 					// creation failed, the apt dispatch will do the cleanup work properly.
-					domUnits[i] = EMPTY_AST_UNIT;;
+					domUnits[i] = EMPTY_AST_UNIT;
 				}
 			}
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {

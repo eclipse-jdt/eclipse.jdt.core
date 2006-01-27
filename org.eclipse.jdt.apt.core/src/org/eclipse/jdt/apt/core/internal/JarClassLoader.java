@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -36,12 +37,11 @@ import org.eclipse.jdt.apt.core.AptPlugin;
  */
 public class JarClassLoader extends ClassLoader {
 	
-	private final List<File> _files;
-	
-	// This can be nulled out periodically when the classloader is closed
+	// This is nulled out when the classloader is closed
 	private List<JarFile> _jars;
-	
-	private int _openCounter = 0;
+	private final List<File> _files;
+	private List<JarCLInputStream> _openStreams = new LinkedList<JarCLInputStream>();
+	private boolean _open = true;
 	
 	public JarClassLoader(List<File> jarFiles, final ClassLoader parent) {
 		super(parent);
@@ -49,63 +49,75 @@ public class JarClassLoader extends ClassLoader {
 		open();
 	}
 	
-	public synchronized void open() {
-		_openCounter++;
-		if (_openCounter == 1) {
-			// Create all jar files
-			_jars = new ArrayList<JarFile>(_files.size());
-			for (File f : _files) {
-				try {
-					JarFile jar = new JarFile(f);
-					_jars.add(jar);
-				}
-				catch (IOException ioe) {
-					AptPlugin.log(ioe, "Unable to create JarFile for file: " + f); //$NON-NLS-1$
-				}
+	private void open() {
+		// Create all jar files
+		_jars = new ArrayList<JarFile>(_files.size());
+		for (File f : _files) {
+			try {
+				JarFile jar = new JarFile(f);
+				_jars.add(jar);
+			}
+			catch (IOException ioe) {
+				AptPlugin.log(ioe, "Unable to create JarFile for file: " + f); //$NON-NLS-1$
 			}
 		}
 	}
 	
 	public synchronized void close() {
-		if (_openCounter < 1) {
-			throw new IllegalStateException("Attempt to close an already closed JarClassLoader"); //$NON-NLS-1$
-		}
-		_openCounter--;
-		if (_openCounter == 0) {
-			for (JarFile jar : _jars) {
-				try {
-					jar.close();
-				}
-				catch (IOException ioe) {
-					AptPlugin.log(ioe, "Failed to close jar: " + jar); //$NON-NLS-1$
-				}
+		if (! _open) return;
+		_open = false;
+		
+		for (JarCLInputStream st : _openStreams) {
+			try {
+				st.close();
 			}
-			_jars = null;
+			catch (IOException ioe) {
+				AptPlugin.log(ioe, "Failed to close stream"); //$NON-NLS-1$
+			}
 		}
+		_openStreams = null;
+
+		for (JarFile jar : _jars) {
+			try {
+				jar.close();
+			}
+			catch (IOException ioe) {
+				AptPlugin.log(ioe, "Failed to close jar: " + jar); //$NON-NLS-1$
+			}
+		}
+		_jars = null;
+	}	
+	
+	private InputStream openInputStream(InputStream in) {
+		JarCLInputStream result = new JarCLInputStream(in);
+		_openStreams.add(result);
+		return in;
+	}
+	
+	private synchronized void closeInputStream(JarCLInputStream in) {
+		if (_open)
+			_openStreams.remove(in);
 	}
 	
 	@Override
 	protected synchronized Class<?> findClass(String name) throws ClassNotFoundException {
-		open();
-		try {
-			byte[] b = loadClassData(name);
-			if (b == null) {
-				throw new ClassNotFoundException("Could not find class " + name); //$NON-NLS-1$
-			}
-			Class<?> clazz = defineClass(name, b, 0, b.length);
-			// Define the package if necessary
-			String pkgName = getPackageName(name);
-			if (pkgName != null) {
-				Package pkg = getPackage(pkgName);
-				if (pkg == null) {
-					definePackage(pkgName, null, null, null, null, null, null, null);
-				}
-			}
-			return clazz;
+		if (!_open)
+			throw new ClassNotFoundException("Classloader closed: " + name); //$NON-NLS-1$
+
+		byte[] b = loadClassData(name);
+		if (b == null) {
+			throw new ClassNotFoundException("Could not find class " + name); //$NON-NLS-1$
 		}
-		finally {
-			close();
+		Class<?> clazz = defineClass(name, b, 0, b.length);
+		// Define the package if necessary
+		String pkgName = getPackageName(name);
+		if (pkgName != null) {
+			Package pkg = getPackage(pkgName);
+			if (pkg == null) {
+				definePackage(pkgName, null, null, null, null, null, null, null);
+			}
 		}
+		return clazz;
 	}
 	
 	private String getPackageName(String fullyQualifiedName) {
@@ -145,34 +157,41 @@ public class JarClassLoader extends ClassLoader {
 		InputStream input = getParent().getResourceAsStream(name);
 		if (input != null)
 			return input;
-		open();
-		try {
-			for (JarFile j : _jars) {
-				try {
-					ZipEntry entry = j.getEntry(name);
-					if (entry != null) {
-						InputStream zipInput = j.getInputStream(entry);
-						return new JarCLInputStream(zipInput);
-					}
-				}
-				catch (IOException ioe) {
-					AptPlugin.log(ioe, "Unable to get entry from jar: " + j); //$NON-NLS-1$
+		
+		if (!_open) 
+			return null;
+	
+		for (JarFile j : _jars) {
+			try {
+				ZipEntry entry = j.getEntry(name);
+				if (entry != null) {
+					InputStream zipInput = j.getInputStream(entry);
+					return openInputStream(zipInput);
 				}
 			}
-			return null;
+			catch (IOException ioe) {
+				AptPlugin.log(ioe, "Unable to get entry from jar: " + j); //$NON-NLS-1$
+			}
 		}
-		finally {
-			close();
-		}
+		return null;
 	}
 	
 	/**
 	 * This is difficult to implement and close out resources underneath.
 	 * Delaying until someone actually requests this.
+	 * 
+	 * If we actually contain the entry throw UnsupportedOperationException,
+	 * else return null in case another classloader can handle this.
 	 */
 	@Override
 	public URL getResource(String name) {
-		throw new UnsupportedOperationException("getResource() not implemented"); //$NON-NLS-1$
+		for (JarFile j : _jars) {
+			ZipEntry entry = j.getEntry(name);
+			if (entry != null) {
+				throw new UnsupportedOperationException("getResource() not implemented: " + name); //$NON-NLS-1$
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -192,7 +211,6 @@ public class JarClassLoader extends ClassLoader {
 		
 		public JarCLInputStream(InputStream origInput) {
 			_input = origInput;
-			open();
 		}
 
 		@Override
@@ -207,7 +225,7 @@ public class JarClassLoader extends ClassLoader {
 				_closed = true;
 			}
 			finally {
-				JarClassLoader.this.close();
+				closeInputStream(this);
 			}
 		}
 

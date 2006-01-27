@@ -41,6 +41,7 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 	public static final int EC_CPVARFILE = 6;
 	public static final int EC_PROJ = 7;
 	public static final int EC_PROJFILE = 8;
+	public static final int EC_PROJDIRFILE = 9;
 	
 	private static final String ENVPREFIX = "apt.tests.annotations.mirrortest.";
 	public static final String[] ENV_KEYS = {
@@ -54,7 +55,8 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 		ENVPREFIX + "cpvarPath",
 		ENVPREFIX + "cpvarFile",
 		ENVPREFIX + "proj",
-		ENVPREFIX + "projFile"
+		ENVPREFIX + "projFile",
+		ENVPREFIX + "projdirFile"
 	};
 	public static final String[] ENV_VALUES = {
 			// no-translation
@@ -67,7 +69,8 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 		"%ECLIPSE_HOME%/plugins",
 		"%ECLIPSE_HOME%/startup.jar",
 		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject",
-		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject/.classpath"
+		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject/.classpath",
+		"%PROJECT.DIR%/.classpath"
 	};
 	
 	public MirrorUtilTestAnnotationProcessor(AnnotationProcessorEnvironment env)
@@ -173,6 +176,14 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 		} else {
 			file = new File(name);
 			ProcessorTestStatus.assertTrue(ENV_KEYS[EC_PROJFILE] + " was not found", file != null && file.exists());
+		}
+		
+		name = options.get(ENV_KEYS[EC_PROJDIRFILE]);
+		if (name == null) {
+			ProcessorTestStatus.fail(ENV_KEYS[EC_PROJDIRFILE] + " was not in options map");
+		} else {
+			file = new File(name);
+			ProcessorTestStatus.assertTrue(ENV_KEYS[EC_PROJDIRFILE] + " was not found", file != null && file.exists());
 		}
 	}
 }

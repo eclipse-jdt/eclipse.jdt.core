@@ -11,10 +11,6 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,15 +18,12 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.IResolvedMemberValuePair;
@@ -40,7 +33,6 @@ import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -192,40 +184,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		
 	}
 
-    private ITypeBinding[] getExpressionTypeBindings(Expression expr)
-    {
-        if(expr == null) return null;
-        switch(expr.getNodeType())
-        {
-        case ASTNode.ARRAY_INITIALIZER:
-            final ArrayInitializer arrayInit = (ArrayInitializer)expr;
-            final List<Expression> exprs = arrayInit.expressions();
-            if( exprs == null || exprs.size() == 0 )
-                return new ITypeBinding[0];
-            final ITypeBinding[] bindings = new ITypeBinding[exprs.size()];
-            for( int i=0, size = exprs.size(); i<size; i++ ){
-                final Expression initExpr = exprs.get(i);
-                bindings[i] = getExpressionTypeBinding(initExpr);
-            }
-            return bindings;
-        default:
-            return new ITypeBinding[]{ getExpressionTypeBinding(expr) };
-        }
-    }
-
-    private ITypeBinding getExpressionTypeBinding(Expression expr)
-    {
-        if( expr.getNodeType() == ASTNode.TYPE_LITERAL )
-            return  ((TypeLiteral)expr).getType().resolveBinding();
-        else
-            return expr.resolveTypeBinding();
-    }
-
     /**
      * @param memberName the name of the member
      * @return the value of the given member
      */
-    private Object getValue(final String memberName)
+    public Object getValue(final String memberName)
     {
 		if( memberName == null ) return null;
 		final IResolvedMemberValuePair[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
@@ -260,114 +223,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     
     public IResolvedAnnotation getResolvedAnnotaion(){return _domAnnotation; }
 
-    public Object getReflectionValue(String memberName, Method method)
-        throws Throwable
-    {
-        if(memberName == null || memberName.length() == 0 ) return null;
-        final Class targetType = method.getReturnType();
-        final Object value = getValue(memberName);	
-        return getReflectionValue(value, targetType);
-    }
-
-    private Object getReflectionValue(final Object value, final Class targetType)
-        throws Throwable
-    {
-        if( value == null ) return null;
-        else if(value instanceof Boolean   ||
-				value instanceof Byte      ||
-				value instanceof Character ||
-				value instanceof Double    || 
-				value instanceof Float     ||
-				value instanceof Integer   ||
-				value instanceof Long      ||
-				value instanceof Short     ||
-				value instanceof String ) 
-			return value;
-        else if( value instanceof IVariableBinding )
-		{
-			final IVariableBinding varBinding = (IVariableBinding)value;
-            final ITypeBinding declaringClass = varBinding.getDeclaringClass();
-            if( declaringClass != null ){
-         
-                final Field returnedField = targetType.getField( varBinding.getName() );
-                if (returnedField == null)
-                	return null;
-                if( returnedField.getType() != targetType )
-                    throw new ClassCastException( targetType.getName() );
-                return returnedField.get(null);
-            }
-		}
-        else if (value instanceof Object[])
-		{
-			final Object[] elements = (Object[])value;
-			assert targetType.isArray();
-            final Class componentType = targetType.getComponentType();
-            final int length = elements.length;;
-            final Object array = Array.newInstance(componentType, length);
-            if( length == 0) return array;
-
-            for( int i=0; i<length; i++ ){                
-                final Object returnObj = getReflectionValue( elements[i], componentType );
-                // fill in the array.
-                // If it is an array of some primitive type, we will need to unwrap it.
-                if( componentType.isPrimitive() ){
-                    if( componentType == boolean.class ){
-                        final Boolean bool = (Boolean)returnObj;
-                        Array.setBoolean( array, i, bool.booleanValue());
-                    }
-                    else if( componentType == byte.class ){
-                        final Byte b = (Byte)returnObj;
-                        Array.setByte( array, i, b.byteValue() );
-                    }
-                    else if( componentType == char.class ){
-                        final Character c = (Character)returnObj;
-                        Array.setChar( array, i, c.charValue() );
-                    }
-                    else if( componentType == double.class ){
-                        final Double d = (Double)returnObj;
-                        Array.setDouble( array, i, d.doubleValue() );
-                    }
-                    else if( componentType == float.class ){
-                        final Float f = (Float)returnObj;
-                        Array.setFloat( array, i, f.floatValue() );
-                    }
-                    else if( componentType == int.class ){
-                        final Integer integer = (Integer)returnObj;
-                        Array.setInt( array, i, integer.intValue() );
-                    }
-                    else if( componentType == long.class ){
-                        final Long l = (Long)returnObj;
-                        Array.setLong( array, i, l.longValue() );
-                    }
-                    else if( componentType == short.class ){
-                        final Short s = (Short)returnObj;
-                        Array.setShort( array, i, s.shortValue() );
-                    }
-                    else {
-                        throw new IllegalStateException("unrecognized primitive type: "  + componentType ); //$NON-NLS-1$
-                    }
-                }
-                else{
-                    Array.set( array, i, returnObj );
-                }
-            }
-            return array;
-		}
-		// caller should have caught this case.
-        else if( value instanceof ITypeBinding )
-			throw new IllegalStateException();
-		
-        else if( value instanceof IResolvedAnnotation )
-		{
-			final AnnotationMirrorImpl annoMirror =
-                (AnnotationMirrorImpl)Factory.createAnnotationMirror((IResolvedAnnotation)value, _annotated, _env);
-            final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, targetType);
-            return Proxy.newProxyInstance(targetType.getClassLoader(),
-                                             new Class[]{ targetType }, handler );
-		}
-
-        return null;
-    }
+    
 
     public MirrorKind kind(){ return MirrorKind.ANNOTATION_MIRROR; }
 

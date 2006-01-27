@@ -23,10 +23,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -49,51 +50,36 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class TestUtil
 {
+	
+	private static File ANNO_JAR = null;
 
 	/**
-	 * creates the annotation jar.  
-	 * @return the java.io.File of the jar that was created. Null if not found.
+	 * Returns the annotation jar, creating it if it hasn't already been created.
+	 * @return the java.io.File of the jar that was created.
 	 */
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
 	{
-		// TODO: temporary to work around jar-file locking problem:
-		//IPath projectPath = getProjectPath( project );
-		//File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
-		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
-		String classesJarPath = jarFile.getAbsolutePath();
+		if (ANNO_JAR == null) {
 		
-		File binDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/bin"));
-		if(null != binDir) {
-		
-			// create annotations jar at classesJarpath
+			IPath statePath = AptPlugin.getPlugin().getStateLocation();
+			IPath jarPath = statePath.append("org.eclipse.jdt.apt.tests.TestUtil.jar");
+			ANNO_JAR = new File(jarPath.toOSString());
+			
+			String classesJarPath = ANNO_JAR.getAbsolutePath();
 			FileFilter filter = new PackageFileFilter(
 					ANNOTATIONS_PKG, getPluginClassesDir());
 			Map<File, FileFilter> files = Collections.singletonMap(
 					new File(getPluginClassesDir()), filter);
 			zip( classesJarPath, files );
-		
-		} else {
-		
-			File aptJarFile = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/apt.jar")); 
-			if(null != aptJarFile) {
-				
-				// move extapt.jar to classesJarPath file
-				moveFile(aptJarFile, classesJarPath);
 			
-			} else {
-				
-				throw new FileNotFoundException("Could not find apt.jar file in org.eclipse.jdt.apt.tests plugin");
-			}
-			
+			ANNO_JAR.deleteOnExit();
 		}
 		
-		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
-				null /*srcAttachmentPathRoot*/, true );
-	
-		// TODO: see above temporary patch for file locking problem
-		jarFile.deleteOnExit();
-		return jarFile;
+		addLibraryEntry( project, new Path(ANNO_JAR.getAbsolutePath()), null /*srcAttachmentPath*/, 
+			null /*srcAttachmentPathRoot*/, true );
+		
+		return ANNO_JAR;
 	}
 	
 	/**

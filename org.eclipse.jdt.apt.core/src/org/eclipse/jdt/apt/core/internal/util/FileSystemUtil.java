@@ -59,7 +59,7 @@ public final class FileSystemUtil
 		            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
 		            	}
 	            	}
-	            };
+	            }
 	        };
 	        IWorkspace ws = ResourcesPlugin.getWorkspace();
 	        try{
@@ -86,7 +86,7 @@ public final class FileSystemUtil
         }
     }    
   
-    public static synchronized void makeDerivedParentFolders (IContainer container) throws CoreException {
+    public static void makeDerivedParentFolders (IContainer container) throws CoreException {
     	// synchronize the "does it exist - if not, create it" sequence.
 		if ((container instanceof IFolder) && !container.exists()) {
 			makeDerivedParentFolders(container.getParent());

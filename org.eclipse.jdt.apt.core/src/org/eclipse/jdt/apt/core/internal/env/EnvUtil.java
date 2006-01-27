@@ -145,9 +145,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
     	
     		// look for duplicates.		
     		int count = 0;	
-    		for( int i=0, len=offsets.length; i<len; i++){
-    			if( i == 0 ) ; // do nothing				
-    			else if( offsets[i-1] == offsets[i] )
+    		for( int i=1, len=offsets.length; i<len; i++){
+    			if( offsets[i-1] == offsets[i] )
     				continue;			
     			count ++;
     		}	

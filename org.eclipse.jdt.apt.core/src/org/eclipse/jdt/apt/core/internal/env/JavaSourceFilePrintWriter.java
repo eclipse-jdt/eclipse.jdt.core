@@ -41,7 +41,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        super.close();
 	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
 	        FileGenerationResult result = gfm.generateFileDuringBuild( 
-					_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );;
+					_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }

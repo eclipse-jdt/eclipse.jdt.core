@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -21,7 +22,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotationProcessor;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 public class FileGenerationTests extends APTTestBase {
 
@@ -35,7 +38,7 @@ public class FileGenerationTests extends APTTestBase {
 		return new TestSuite(FileGenerationTests.class);
 	}
 	
-	public void testFileGenPackages() throws Exception
+	public void testSourceGenPackages() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -56,9 +59,8 @@ public class FileGenerationTests extends APTTestBase {
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
-	public void testFileGenOverwrite() throws Exception
+	public void testSourceGenOverwrite() throws Exception
 	{
-		//IJavaProject jproj = env.getJavaProject( getProjectName() );
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
@@ -78,7 +80,7 @@ public class FileGenerationTests extends APTTestBase {
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
-	public void testFileGenAfterDirChange() throws Exception
+	public void testSourceGenAfterDirChange() throws Exception
 	{
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		IProject project = env.getProject( getProjectName() );
@@ -107,10 +109,7 @@ public class FileGenerationTests extends APTTestBase {
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
-	/*
-	 * disabled due to bug that prevents creation of a nested generated source directory
-	 */
-	public void testFileGenSubDir() throws Exception
+	public void testSourceGenSubDir() throws Exception
 	{
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		IProject project = env.getProject( getProjectName() );
@@ -132,5 +131,51 @@ public class FileGenerationTests extends APTTestBase {
 		expectingNoProblems();
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+	
+	public void testTextFileGen() throws Exception {
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		
+		String code = 
+				"package test;" + "\n" +
+				"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
+				"@TextGenAnnotation" + "\n" +
+				"public class Test" + "\n" +
+				"{" + "\n" +
+				"}";
+
+		env.addClass(srcRoot, "test", "Test", code);
+
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		// Look for the file
+		Map<String,String> options = AptConfig.getProcessorOptions(JavaCore.create(project));
+		// We'll find it in the binary output directory
+		String outputRootPath = options.get("-d");
+		File theFile = new File(new File(outputRootPath), TextGenAnnotationProcessor.FILE_NAME);
+		
+		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		// Look for the file again
+		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
+		
+		// remove the annotation, and the file should be deleted
+		code = 
+			"package test;" + "\n" +
+			"public class Test" + "\n" +
+			"{" + "\n" +
+			"}";
+		env.addClass(srcRoot, "test", "Test", code);
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		// Look for the file -- it should be gone
+		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
 	}
 }

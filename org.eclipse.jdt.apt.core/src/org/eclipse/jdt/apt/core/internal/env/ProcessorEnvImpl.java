@@ -43,7 +43,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -58,9 +57,7 @@ import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ProcessorEnvImpl extends CompilationProcessorEnv
-{
-	private static final IProblem[] NO_PROBLEMS = new IProblem[0];
-	private static final boolean ENABLE_GENERATED_FILE_LISTENER = false;
+{	
 	private boolean _hasRaisedErrors = false;
 
     private Set<IFile> _allGeneratedSourceFiles = new HashSet<IFile>();
@@ -77,9 +74,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	 * Indicates whether we are in batch mode or not. This gets flipped only 
 	 * during build and could be flipped back and forth. 
 	 */
-	private boolean _batchMode = false; // off by default.	
-	
-	private ICompilationParticipantResult _curResult = null;
+	private boolean _batchMode = false; // off by default.
 
 	/** 
 	 * Holds all the files that contains annotation that are to be processed during build.
@@ -498,8 +493,6 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 					"file " +  //$NON-NLS-1$
 					file.getName() + 
 					" is not in the list to be processed."); //$NON-NLS-1$
-		
-		_curResult = result;
 	}
 	
 	public void completedFileProcessing(){
@@ -682,7 +675,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 							AptPlugin.log(e, "Failure posting markers"); //$NON-NLS-1$
 						}
 	                }
-	            };
+	            }
 	        };
 	        IWorkspace ws = _javaProject.getProject().getWorkspace();
 			ws.run(runnable, null);
