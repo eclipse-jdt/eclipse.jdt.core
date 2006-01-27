@@ -421,9 +421,13 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 	int[] toSkip = null;
 	if (iMethods != null) {
 		total = initialTotal = iMethods.length;
+		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5
+			&& this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
 			if ((method.getModifiers() & AccSynthetic) != 0) {
+				if (keepBridgeMethods && (method.getModifiers() & AccBridge) != 0)
+					continue; // want to see bridge methods as real methods
 				// discard synthetics methods
 				if (toSkip == null) toSkip = new int[iMethods.length];
 				toSkip[i] = -1;
