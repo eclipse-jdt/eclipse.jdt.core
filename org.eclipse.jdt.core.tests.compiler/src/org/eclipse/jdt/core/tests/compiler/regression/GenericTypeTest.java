@@ -27375,4 +27375,23 @@ public void test884() {
 		"Type safety: Unchecked invocation getDefault(Class<capture-of ? extends X>) of the generic method getDefault(Class<T>) of type X<C>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125445 
+public void test885() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	public static <C extends Number, A extends C & Comparable<C>> int m(\n" + 
+			"			A comparableNumberObj) {\n" + 
+			"		return comparableNumberObj.compareTo(comparableNumberObj);\n" + 
+			"	}\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public static <C extends Number, A extends C & Comparable<C>> int m(\n" + 
+		"	                                               ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<C> when first bound is a type parameter\n" + 
+		"----------\n");
+}
 }
