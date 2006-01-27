@@ -398,7 +398,7 @@ protected void toStringContent(StringBuffer buffer) {
 			+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
 			+ ((modifiers & 0x0008) == 0x000008 ? "static " : "") //$NON-NLS-1$ //$NON-NLS-2$
 			+ ((modifiers & 0x0010) == 0x0010 ? "final " : "") //$NON-NLS-1$ //$NON-NLS-2$
-			+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0040) == 0x0040 ? "bridge " : "") //$NON-NLS-1$ //$NON-NLS-2$
 			+ ((modifiers & 0x0080) == 0x0080 ? "varargs " : "")) //$NON-NLS-1$ //$NON-NLS-2$
 	.append(getSelector())
 	.append(desc)
