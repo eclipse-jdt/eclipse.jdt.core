@@ -76,24 +76,18 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
 }
 static AnnotationBinding createAnnotation(IBinaryAnnotation annotationInfo, LookupEnvironment env) {
 	IBinaryElementValuePair[] binaryPairs = annotationInfo.getElementValuePairs();
-	int length;
-	ElementValuePair[] pairs;
-	if (binaryPairs == null || (length = binaryPairs.length) == 0) {
-		pairs = Binding.NO_ELEMENT_VALUE_PAIRS;
-	} else {
-		pairs = new ElementValuePair[length];
-		for (int i = 0; i < length; i++)
-			pairs[i] = new ElementValuePair(binaryPairs[i].getName(), convertMemberValue(binaryPairs[i].getValue(), env), null);
-	}
+	int length = binaryPairs == null ? 0 : binaryPairs.length;
+	ElementValuePair[] pairs = length == 0 ? Binding.NO_ELEMENT_VALUE_PAIRS : new ElementValuePair[length];
+	for (int i = 0; i < length; i++)
+		pairs[i] = new ElementValuePair(binaryPairs[i].getName(), convertMemberValue(binaryPairs[i].getValue(), env), null);
+
 	char[] typeName = annotationInfo.getTypeName();
 	ReferenceBinding annotationType = env.getTypeFromConstantPoolName(typeName, 1, typeName.length - 1, false);
 	return AnnotationBinding.createUnresolvedAnnotation(annotationType, pairs, env);
 }
 public static AnnotationBinding[] createAnnotations(IBinaryAnnotation[] annotationInfos, LookupEnvironment env) {
-	int length;
-	if (annotationInfos == null || (length = annotationInfos.length) == 0) 
-		return Binding.NO_ANNOTATIONS;
-	AnnotationBinding[] result = new AnnotationBinding[length];
+	int length = annotationInfos == null ? 0 : annotationInfos.length;
+	AnnotationBinding[] result = length == 0 ? Binding.NO_ANNOTATIONS : new AnnotationBinding[length];
 	for (int i = 0; i < length; i++)
 		result[i] = createAnnotation(annotationInfos[i], env);
 	return result;
@@ -501,9 +495,13 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 	int[] toSkip = null;
 	if (iMethods != null) {
 		total = initialTotal = iMethods.length;
+		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5
+			&& this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
 			if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {
+				if (keepBridgeMethods && (method.getModifiers() & ClassFileConstants.AccBridge) != 0)
+					continue; // want to see bridge methods as real methods
 				// discard synthetics methods
 				if (toSkip == null) toSkip = new int[iMethods.length];
 				toSkip[i] = -1;

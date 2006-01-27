@@ -27394,4 +27394,24 @@ public void test885() {
 		"Cannot specify any additional bound Comparable<C> when first bound is a type parameter\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124943
+public void test886() {
+	Map customOptions= getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		\"Hello\".compareTo((Object) \"Hello\");\n" + 
+			"	}\n" + 
+			"}\n" ,
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null/*no custom requestor*/);
+}
 }
