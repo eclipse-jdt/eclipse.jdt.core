@@ -304,9 +304,11 @@ public class JavadocParser extends AbstractCommentParser {
 			this.returnStatement = createReturnStatement();
 			return true;
 		}
-		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
+		if (this.reportProblems) {
+			this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
 				this.scanner.getCurrentTokenStartPosition(),
 				this.scanner.getCurrentTokenEndPosition());
+		}
 		return false;
 	}
 
@@ -498,8 +500,9 @@ public class JavadocParser extends AbstractCommentParser {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 								// Cannot have @link outside inline comment
 								valid = false;
-								if (this.sourceParser != null)
+								if (this.reportProblems) {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+								}
 							}
 						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
@@ -507,8 +510,9 @@ public class JavadocParser extends AbstractCommentParser {
 								valid = parseReference();
 							} else {
 								valid = false;
-								if (this.sourceParser != null)
+								if (this.reportProblems) {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+								}
 							}
 						}
 						break;
@@ -536,8 +540,9 @@ public class JavadocParser extends AbstractCommentParser {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 								// Cannot have @see inside inline comment
 								valid = false;
-								if (this.sourceParser != null)
+								if (this.reportProblems) {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+								}
 							} else {
 								this.tagValue = TAG_SEE_VALUE;
 								valid = parseReference();
@@ -551,8 +556,9 @@ public class JavadocParser extends AbstractCommentParser {
 								valid = parseReference();
 							} else {
 								valid = false;
-								if (this.sourceParser != null)
+								if (this.reportProblems) {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+								}
 							}
 						} else {
 							createTag();
@@ -611,7 +617,7 @@ public class JavadocParser extends AbstractCommentParser {
 			if (!isTypeParam) { // do not verify for type parameters as @throws may be invalid tag (when declared in class)
 				for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
 					if (this.astLengthStack[i] != 0) {
-						if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 						// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
 						// store invalid param references in specific array
 						if (this.invalidParamReferencesPtr == -1l) {
