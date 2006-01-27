@@ -51,7 +51,7 @@ package org.eclipse.jdt.core.compiler;
 public abstract class CategorizedProblem implements IProblem {
 	
 	/**
-	 * List of standard category IDs used by Java problems, more categories could be added 
+	 * List of standard category IDs used by Java problems, more categories will be added 
 	 * in the future.
 	 */
 	public static final int CAT_UNSPECIFIED = 0;
@@ -70,18 +70,13 @@ public abstract class CategorizedProblem implements IProblem {
 	public static final int CAT_NLS = 130;
 	
 	
-//	/** 
-//	 * Returns a localized, human-readable category used for grouping related problems together. 
-//	 * Category names are intended to improve organizing problems of a given marker type. 
-//	 * @return category a localized, human-readable string which can be used to categorize the problem
-//	 */
-//	public abstract String getCategory();
-	
 /** 
  * Returns an integer identifying the category of this problem. Categories, like problem IDs are
  * defined in the context of some marker type. Custom implementations of <code>CategorizedProblem</code>
  * may choose arbitrary values for problem/category IDs, as long as they are associated with a different
  * marker type.
+ * Standard Java problem markers (i.e. marker type is "org.eclipse.jdt.core.problem") carry an
+ * attribute "categoryId" persisting the originating problem category ID as defined by this method).
  * @return id - an integer identifying the category of this problem
  */
 public abstract int getCategoryID();
