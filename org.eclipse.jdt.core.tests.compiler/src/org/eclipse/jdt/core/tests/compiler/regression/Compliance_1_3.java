@@ -52,7 +52,7 @@ public static Class testClass() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-//		TESTS_NUMBERS = new int[] { 78 };
+//		TESTS_NUMBERS = new int[] { 104 };
 //		TESTS_RANGE = new int[] { 76, -1 };
 }
 /* (non-Javadoc)
@@ -3571,5 +3571,34 @@ public void test103() {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125570
+public void test104() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						class Y {\n" + 
+			"							{\n" + 
+			"								System.out.print(this.getClass());\n" + 
+			"								System.out.print(\' \');\n" + 
+			"								System.out.print(this.getClass().getName());\n" + 
+			"							}\n" + 
+			"						}\n" + 
+			"						;\n" + 
+			"						new Y();\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"class X$1$Y X$1$Y");
 }
 }

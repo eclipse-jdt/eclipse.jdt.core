@@ -50,7 +50,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_NAMES = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 103 };
+//	TESTS_NUMBERS = new int[] { 104 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
@@ -3542,6 +3542,35 @@ public void test103() {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125570
+public void test104() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						class Y {\n" + 
+			"							{\n" + 
+			"								System.out.print(this.getClass());\n" + 
+			"								System.out.print(\' \');\n" + 
+			"								System.out.print(this.getClass().getSimpleName());\n" + 
+			"							}\n" + 
+			"						}\n" + 
+			"						;\n" + 
+			"						new Y();\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"class X$1$1$1Y Y");
 }
 public static Class testClass() {
 	return Compliance_1_5.class;

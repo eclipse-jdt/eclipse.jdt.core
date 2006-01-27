@@ -250,7 +250,7 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 			if (isCompliant15) {
 				candidateName = CharOperation.concat(
 					CharOperation.concat(
-						outerMostEnclosingType.constantPoolName(),
+						localType.enclosingType().constantPoolName(),
 						String.valueOf(index+1).toCharArray(),
 						'$'),
 					localType.sourceName);
@@ -261,7 +261,7 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 					String.valueOf(index+1).toCharArray(),
 					'$',
 					localType.sourceName);
-			}				
+			}
 		}						
 		if (constantPoolNameUsage.get(candidateName) != null) {
 			index ++;
