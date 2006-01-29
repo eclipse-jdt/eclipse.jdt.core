@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Erling Ellingsen -  patch for bug 125570
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
