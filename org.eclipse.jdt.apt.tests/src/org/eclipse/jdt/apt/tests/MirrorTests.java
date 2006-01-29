@@ -23,7 +23,6 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.CodeExample;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessor;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class MirrorTests extends APTTestBase {
@@ -94,9 +93,9 @@ public class MirrorTests extends APTTestBase {
 		AptConfig.setEnabled(jproj, true);
 		fullBuild( project.getFullPath() );
 		expectingNoMarkers();
-		expectingSpecificProblemsFor(a1Path, new Problem[]{
-				new Problem("", "Type parameter 'T' belongs to org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl A1", a1Path),
-				new Problem("", "Type parameter 'A' belongs to org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl get", a1Path)
+		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type parameter 'T' belongs to org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl A1", a1Path),
+				new ExpectedProblem("", "Type parameter 'A' belongs to org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl get", a1Path)
 				}
 		);
 	}

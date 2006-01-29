@@ -29,7 +29,6 @@ import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnota
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Problem;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -94,18 +93,18 @@ public class APITests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		IPath code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE1);
-		Problem prob1 = new Problem("", MessagerAnnotationProcessor.PROBLEM_TEXT_WARNING, code, //$NON-NLS-1$ 
+		ExpectedProblem prob1 = new ExpectedProblem("", MessagerAnnotationProcessor.PROBLEM_TEXT_WARNING, code, //$NON-NLS-1$ 
 				MessagerCodeExample.WARNING_START,
 				MessagerCodeExample.WARNING_END); 
-		Problem prob2 = new Problem("", MessagerAnnotationProcessor.PROBLEM_TEXT_ERROR, code, //$NON-NLS-1$
+		ExpectedProblem prob2 = new ExpectedProblem("", MessagerAnnotationProcessor.PROBLEM_TEXT_ERROR, code, //$NON-NLS-1$
 				MessagerCodeExample.ERROR_START,
 				MessagerCodeExample.ERROR_END); 
-		Problem[] problems = new Problem[] { prob1, prob2 };
+		ExpectedProblem[] problems = new ExpectedProblem[] { prob1, prob2 };
 		
 		// Code example with info, warning, and error messages
 		_logListener.clear();
 		fullBuild( project.getFullPath() );
-		expectingOnlySpecificProblemsFor(code, problems, true);
+		expectingOnlySpecificProblemsFor(code, problems);
 		checkMessagerAnnotationLogEntry(
 				MessagerAnnotationProcessor.PROBLEM_TEXT_INFO, 
 				MessagerCodeExample.INFO_START,
@@ -116,8 +115,8 @@ public class APITests extends APTTestBase {
 		code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE2);
 		_logListener.clear();
 		fullBuild( project.getFullPath() );
-		problems = new Problem[] { prob1 };
-		expectingOnlySpecificProblemsFor(code, problems, true);
+		problems = new ExpectedProblem[] { prob1 };
+		expectingOnlySpecificProblemsFor(code, problems);
 		checkMessagerAnnotationLogEntry(
 				MessagerAnnotationProcessor.PROBLEM_TEXT_INFO, 
 				MessagerCodeExample.INFO_START,
@@ -157,42 +156,6 @@ public class APITests extends APTTestBase {
 			}
 		}
 		assertEquals(1, count);
-	}
-	
-	/** 
-	 * Verifies that the given element has specifics problems and
-	 * only the given problems.
-	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[]), and
-	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean).
-	 * Unfortunately this variant isn't implemented there.
-	 */
-	protected void expectingOnlySpecificProblemsFor(IPath root, Problem[] expectedProblems, boolean storeRange) {
-		if (DEBUG)
-			printProblemsFor(root);
-
-		Problem[] rootProblems = env.getProblemsFor(root, storeRange);
-	
-		for (int i = 0; i < expectedProblems.length; i++) {
-			Problem expectedProblem = expectedProblems[i];
-			boolean found = false;
-			for (int j = 0; j < rootProblems.length; j++) {
-				if(expectedProblem.equals(rootProblems[j])) {
-					found = true;
-					rootProblems[j] = null;
-					break;
-				}
-			}
-			if (!found) {
-				printProblemsFor(root);
-			}
-			assertTrue("problem not found: " + expectedProblem.toString(), found); //$NON-NLS-1$
-		}
-		for (int i = 0; i < rootProblems.length; i++) {
-			if(rootProblems[i] != null) {
-				printProblemsFor(root);
-				assertTrue("unexpected problem: " + rootProblems[i].toString(), false); //$NON-NLS-1$
-			}
-		}
 	}
 
 	

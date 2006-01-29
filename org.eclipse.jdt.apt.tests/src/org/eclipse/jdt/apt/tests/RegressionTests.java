@@ -21,14 +21,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Problem;
-import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * 
  */
-public class RegressionTests extends Tests {
+public class RegressionTests extends APTTestBase {
 
 	public RegressionTests(String name) {
 		super(name);
@@ -37,11 +35,6 @@ public class RegressionTests extends Tests {
 	public static Test suite()
 	{
 		return new TestSuite( RegressionTests.class );
-	}
-
-	public static String getProjectName()
-	{
-		return RegressionTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public void setUp() throws Exception
@@ -168,9 +161,9 @@ public class RegressionTests extends Tests {
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
 		fullBuild( project.getFullPath() );				
-		expectingSpecificProblemsFor(a1Path, new Problem[]{
-				new Problem("", "java.util.List is assignable to java.util.Collection", a1Path),
-				new Problem("", "java.lang.String is not assignable to java.util.Collection", a1Path)
+		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
+				new ExpectedProblem("", "java.util.List is assignable to java.util.Collection", a1Path),
+				new ExpectedProblem("", "java.lang.String is not assignable to java.util.Collection", a1Path)
 				}
 		);
     }

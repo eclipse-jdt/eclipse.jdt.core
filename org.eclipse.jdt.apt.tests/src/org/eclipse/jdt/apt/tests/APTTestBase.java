@@ -24,6 +24,7 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -238,4 +239,76 @@ public abstract class APTTestBase extends Tests{
 			return null;
 		}
 	}
+
+	/** 
+	 * Verifies that the given element has specifics problems and
+	 * only the given problems.
+	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[]), and
+	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean).
+	 * Unfortunately this variant isn't implemented there.
+	 */
+	protected void expectingOnlySpecificProblemsFor(IPath root, ExpectedProblem[] expectedProblems) {
+		if (DEBUG)
+			printProblemsFor(root);
+	
+		Problem[] rootProblems = env.getProblemsFor(root);
+	
+		for (int i = 0; i < expectedProblems.length; i++) {
+			ExpectedProblem expectedProblem = expectedProblems[i];
+			boolean found = false;
+			for (int j = 0; j < rootProblems.length; j++) {
+				if(expectedProblem.equalsProblem(rootProblems[j])) {
+					found = true;
+					rootProblems[j] = null;
+					break;
+				}
+			}
+			if (!found) {
+				printProblemsFor(root);
+			}
+			assertTrue("problem not found: " + expectedProblem.toString(), found); //$NON-NLS-1$
+		}
+		for (int i = 0; i < rootProblems.length; i++) {
+			if(rootProblems[i] != null) {
+				printProblemsFor(root);
+				assertTrue("unexpected problem: " + rootProblems[i].toString(), false); //$NON-NLS-1$
+			}
+		}
+	}
+	
+	/** Verifies that the given element has specific problems.
+	 */
+	protected void expectingSpecificProblemsFor(IPath root, ExpectedProblem[] problems) {
+		if (DEBUG)
+			printProblemsFor(root);
+
+		Problem[] rootProblems = env.getProblemsFor(root);
+		next : for (int i = 0; i < problems.length; i++) {
+			ExpectedProblem problem = problems[i];
+			for (int j = 0; j < rootProblems.length; j++) {
+				Problem rootProblem = rootProblems[j];
+				if (rootProblem != null) {
+					if (problem.equalsProblem(rootProblem)) {
+						rootProblems[j] = null;
+						continue next;
+					}
+				}
+			}
+			for (int j = 0; j < rootProblems.length; j++) {
+				Problem pb = rootProblems[j];
+				System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
+				System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
+				System.out.println(")");
+			}
+			assertTrue("missing expected problem : " + problem, false);
+		}
+	}
+	
+	/** Verifies that the given element has a specific problem and
+	 * only the given problem.
+	 */
+	protected void expectingOnlySpecificProblemFor(IPath root, ExpectedProblem problem) {
+		expectingOnlySpecificProblemsFor(root, new ExpectedProblem[] { problem });
+	}
+	
 }

@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AnnotationValueConversionTests extends APTTestBase 
@@ -96,9 +95,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from byte to boolean", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Byte", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from byte to boolean", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Byte", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -123,9 +122,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from byte to boolean", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from byte to boolean", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -156,9 +155,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from short to boolean", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Short", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from short to boolean", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Short", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -185,9 +184,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from short to boolean", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from short to boolean", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -218,9 +217,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from char to boolean", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Character", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from char to boolean", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Character", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -251,9 +250,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from char to boolean", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from char to boolean", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -284,9 +283,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from int to boolean", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Integer", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from int to boolean", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Integer", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -317,9 +316,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from int to boolean", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from int to boolean", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -350,17 +349,17 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from long to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to short", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to int", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Long", testPath),
-				new Problem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Long", testPath),
-				new Problem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Long", testPath),
-				new Problem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Long", testPath),
-				new Problem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Long", testPath),
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to short", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to int", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Long", testPath),
+				new ExpectedProblem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Long", testPath),
+				new ExpectedProblem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Long", testPath),
+				new ExpectedProblem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Long", testPath),
+				new ExpectedProblem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Long", testPath),
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -391,17 +390,17 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from long to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to short", testPath),
-				new Problem("", "Type mismatch: cannot convert from long to int", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath),
-				new Problem("", "value mismatch for memeber s expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber i expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber c expected 1 but got 0", testPath),
-				new Problem("", "value mismatch for memeber b expected 49 but got 0", testPath),
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to short", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from long to int", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath),
+				new ExpectedProblem("", "value mismatch for memeber s expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber i expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber c expected 1 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber b expected 49 but got 0", testPath),
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -436,19 +435,19 @@ public class AnnotationValueConversionTests extends APTTestBase
 				"Test",
 				content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from float to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to int", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to long", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to short", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Float", testPath),
-				new Problem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Float", testPath),
-				new Problem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Float", testPath),
-				new Problem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Float", testPath),
-				new Problem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Float", testPath),
-				new Problem("", "type mismatch for memeber l expected java.lang.Long but got java.lang.Float", testPath),
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to int", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to long", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to short", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber l expected java.lang.Long but got java.lang.Float", testPath),
 		});		
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -483,19 +482,19 @@ public class AnnotationValueConversionTests extends APTTestBase
 				"Test",
 				content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from float to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to int", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to long", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from float to short", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath),
-				new Problem("", "value mismatch for memeber s expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber i expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber c expected 1 but got 0", testPath),
-				new Problem("", "value mismatch for memeber b expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber l expected 49 but got 0", testPath),
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to int", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to long", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from float to short", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath),
+				new ExpectedProblem("", "value mismatch for memeber s expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber i expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber c expected 1 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber b expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber l expected 49 but got 0", testPath),
 		});		
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -526,21 +525,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass(srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from double to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to int", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to long", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to short", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to float", testPath),
-				new Problem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber l expected java.lang.Long but got java.lang.Double", testPath),
-				new Problem("", "type mismatch for memeber f expected java.lang.Float but got java.lang.Double", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to int", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to long", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to short", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to float", testPath),
+				new ExpectedProblem("", "type mismatch for memeber z expected java.lang.Boolean but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber s expected java.lang.Short but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber i expected java.lang.Integer but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber c expected java.lang.Character but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber b expected java.lang.Byte but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber l expected java.lang.Long but got java.lang.Double", testPath),
+				new ExpectedProblem("", "type mismatch for memeber f expected java.lang.Float but got java.lang.Double", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -571,21 +570,21 @@ public class AnnotationValueConversionTests extends APTTestBase
 		
 		IPath testPath = env.addClass(srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from double to boolean", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to int", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to long", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to char", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to byte", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to short", testPath),
-				new Problem("", "Type mismatch: cannot convert from double to float", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath),
-				new Problem("", "value mismatch for memeber s expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber i expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber c expected 1 but got 0", testPath),
-				new Problem("", "value mismatch for memeber b expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber l expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber f expected 49.0 but got 0.0", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to boolean", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to int", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to long", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to char", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to byte", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to short", testPath),
+				new ExpectedProblem("", "Type mismatch: cannot convert from double to float", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath),
+				new ExpectedProblem("", "value mismatch for memeber s expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber i expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber c expected 1 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber b expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber l expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber f expected 49.0 but got 0.0", testPath)
 		});
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
@@ -746,9 +745,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
 		
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from boolean to String", testPath),
-				new Problem("", "type mismatch for memeber str expected java.lang.String but got java.lang.Boolean", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from boolean to String", testPath),
+				new ExpectedProblem("", "type mismatch for memeber str expected java.lang.String but got java.lang.Boolean", testPath)
 		});
 	}
 	
@@ -773,9 +772,9 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
 		
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "Type mismatch: cannot convert from boolean to String", testPath),
-				new Problem("", "value mismatch for memeber str expected string but got null", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "Type mismatch: cannot convert from boolean to String", testPath),
+				new ExpectedProblem("", "value mismatch for memeber str expected string but got null", testPath)
 		});	
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
@@ -795,23 +794,23 @@ public class AnnotationValueConversionTests extends APTTestBase
 		IPath testPath = env.addClass( srcRoot, "sample", "Test", content );
 		fullBuild( project.getFullPath() );
 		
-		expectingSpecificProblemsFor(testPath, new Problem[]{
-				new Problem("", "The annotation @RefAnnotation must define the attribute z", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute c", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute b", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute s", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute i", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute l", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute f", testPath),
-				new Problem("", "The annotation @RefAnnotation must define the attribute d", testPath),
-				new Problem("", "value mismatch for memeber z expected true but got false", testPath),
-				new Problem("", "value mismatch for memeber s expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber i expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber c expected 1 but got 0", testPath),
-				new Problem("", "value mismatch for memeber b expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber l expected 49 but got 0", testPath),
-				new Problem("", "value mismatch for memeber f expected 49.0 but got 0.0", testPath),
-				new Problem("", "value mismatch for memeber d expected 49.0 but got 0.0", testPath)
+		expectingSpecificProblemsFor(testPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute z", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute c", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute b", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute s", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute i", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute l", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute f", testPath),
+				new ExpectedProblem("", "The annotation @RefAnnotation must define the attribute d", testPath),
+				new ExpectedProblem("", "value mismatch for memeber z expected true but got false", testPath),
+				new ExpectedProblem("", "value mismatch for memeber s expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber i expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber c expected 1 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber b expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber l expected 49 but got 0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber f expected 49.0 but got 0.0", testPath),
+				new ExpectedProblem("", "value mismatch for memeber d expected 49.0 but got 0.0", testPath)
 		});	
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}

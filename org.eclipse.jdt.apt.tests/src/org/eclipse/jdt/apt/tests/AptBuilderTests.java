@@ -25,7 +25,6 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AptBuilderTests extends APTTestBase
@@ -117,7 +116,7 @@ public class AptBuilderTests extends APTTestBase
 		fullBuild( project.getFullPath() );
 
 		expectingOnlyProblemsFor( p1aPath );
-		expectingOnlySpecificProblemFor( p1aPath, new Problem(
+		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
 			"A", "generatedfilepackage cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 
 		code = "package p1;\n"
@@ -189,7 +188,7 @@ public class AptBuilderTests extends APTTestBase
 		fullBuild( project.getFullPath() );
 
 		expectingOnlyProblemsFor( p1aPath );
-		expectingOnlySpecificProblemFor( p1aPath, new Problem(
+		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
 			"A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 
 		code = "package p1;\n"
@@ -452,7 +451,7 @@ public class AptBuilderTests extends APTTestBase
 
 		incrementalBuild( project.getFullPath() );
 		expectingOnlyProblemsFor( p1bPath );
-		expectingOnlySpecificProblemFor( p1bPath, new Problem(
+		expectingOnlySpecificProblemFor( p1bPath, new ExpectedProblem(
 			"B", "generatedfilepackage cannot be resolved to a type", p1bPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 	}
 	
@@ -493,9 +492,9 @@ public class AptBuilderTests extends APTTestBase
 		
 
 		expectingOnlyProblemsFor( p1aPath );
-		expectingOnlySpecificProblemsFor( p1aPath, new Problem[]{ 
-				new Problem( "A", "The import generatedfilepackage cannot be resolved", p1aPath ),
-				new Problem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) }
+		expectingOnlySpecificProblemsFor( p1aPath, new ExpectedProblem[]{ 
+				new ExpectedProblem( "A", "The import generatedfilepackage cannot be resolved", p1aPath ),
+				new ExpectedProblem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) }
 				); //$NON-NLS-1$ //$NON-NLS-2$	
 
 		code = "package p1;\n"
@@ -544,7 +543,7 @@ public class AptBuilderTests extends APTTestBase
 		expectingOnlyProblemsFor( p1aPath );
 		
 		expectingOnlySpecificProblemFor( p1aPath, 
-					new Problem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ 
+					new ExpectedProblem( "A", "GeneratedFileTest cannot be resolved", p1aPath ) ); //$NON-NLS-1$ 
 	}
 	
 	public void testAPTRounding()

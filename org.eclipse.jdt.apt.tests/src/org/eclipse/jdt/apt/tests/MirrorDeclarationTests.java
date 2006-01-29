@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationCodeExample;
-import org.eclipse.jdt.core.tests.builder.Problem;
 
 public class MirrorDeclarationTests extends APTTestBase {
 
@@ -150,10 +149,10 @@ public class MirrorDeclarationTests extends APTTestBase {
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
 		fullBuild( project.getFullPath() );
 		
-		expectingOnlySpecificProblemsFor(fooPath, new Problem[]{
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath)}
+		expectingOnlySpecificProblemsFor(fooPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath)}
 		);
 	}
 	
@@ -201,10 +200,10 @@ public class MirrorDeclarationTests extends APTTestBase {
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
 		
 		fullBuild( project.getFullPath() );
-		expectingOnlySpecificProblemsFor(fooPath, new Problem[]{
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
-				new Problem("", "UnknownType cannot be resolved to a type", fooPath)}
+		expectingOnlySpecificProblemsFor(fooPath, new ExpectedProblem[]{
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
+				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath)}
 		);
 	}
 }
