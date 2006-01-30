@@ -81,7 +81,7 @@ public class JavadocParser extends AbstractCommentParser {
 				this.index = javadocStart +3;
 	
 				// scan line per line, since tags must be at beginning of lines only
-				this.deprecated = this.notNull = this.nullable = false;
+				this.deprecated = false;
 				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
 					int lineStart = line == firstLineNumber
 							? javadocStart + 3 // skip leading /**
@@ -103,9 +103,7 @@ public class JavadocParser extends AbstractCommentParser {
 						        continue nextCharacter;
 						    case '@' :
 						    	parseSimpleTag();
-						    	if (this.tagValue == TAG_DEPRECATED_VALUE ||
-						    			this.tagValue == TAG_NOT_NULL_VALUE ||
-						    			this.tagValue == TAG_NULLABLE_VALUE) {
+						    	if (this.tagValue == TAG_DEPRECATED_VALUE) {
 						    		if (this.abort) break nextCharacter;
 						    	}
 						}
@@ -350,37 +348,6 @@ public class JavadocParser extends AbstractCommentParser {
 					}
 		        }
 				break;
-			case 'n':
-				switch (readChar()) {
-					case 'o':
-				        if ((readChar() == 't') &&
-								(readChar() == 'N') && (readChar() == 'u') &&
-								(readChar() == 'l') && (readChar() == 'l')) {
-							// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-							char c = readChar();
-							if (Character.isWhitespace(c) || c == '*') {
-								this.abort = true;
-					    		this.notNull = true;
-								this.tagValue = TAG_NOT_NULL_VALUE;
-							}
-				        }
-				        break;
-					case 'u':
-				        if ((readChar() == 'l') &&
-								(readChar() == 'l') && (readChar() == 'a') &&
-								(readChar() == 'b') && (readChar() == 'l') &&
-								(readChar() == 'e')) {
-							// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-							char c = readChar();
-							if (Character.isWhitespace(c) || c == '*') {
-								this.abort = true;
-					    		this.nullable = true;
-								this.tagValue = TAG_NULLABLE_VALUE;
-							}
-				        }
-				        break;
-				}
-				break;
 		}
 	}
 
@@ -515,18 +482,6 @@ public class JavadocParser extends AbstractCommentParser {
 								}
 							}
 						}
-						break;
-					case 'n':
-						if (length == TAG_NOT_NULL_LENGTH && CharOperation.equals(TAG_NOT_NULL, tagName)) {
-							this.notNull = true;
-							valid = true;
-							this.tagValue = TAG_NOT_NULL_VALUE;
-						} 
-						else if (length == TAG_NULLABLE_LENGTH && CharOperation.equals(TAG_NULLABLE, tagName)) {
-							this.nullable = true;
-							valid = true;
-							this.tagValue = TAG_NULLABLE_VALUE;
-						} 
 						break;
 					case 'p':
 						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {

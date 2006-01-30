@@ -18,7 +18,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	// those constants are depending upon ClassFileConstants (relying that classfiles only use the 16 lower bits)
 	final int AccJustFlag = 0xFFFF;// 16 lower bits
 
-	// bit17 - used below
+	// bit17 - free
 	// bit18 - use by ClassFileConstants.AccAnnotationDefault
 	final int AccRestrictedAccess = ASTNode.Bit19; 
 	final int AccFromClassFile = ASTNode.Bit20; 
@@ -38,6 +38,4 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)
 	final int AccGenericSignature = ASTNode.Bit31; // record fact a type/method/field involves generics in its signature (and need special signature attr)
-	final int AccNotNull = ASTNode.Bit32; // record fact a local/method/parameter cannot evaluate to null
-	final int AccNullable = ASTNode.Bit17; // record fact a local/method/parameter can evaluate to null
 }

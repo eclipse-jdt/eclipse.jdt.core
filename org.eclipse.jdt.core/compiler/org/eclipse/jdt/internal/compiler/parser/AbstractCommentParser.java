@@ -53,8 +53,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	// Results
 	protected long inheritedPositions;
 	protected boolean deprecated;
-	public boolean notNull; // TODO (maxime) replace with other style of multi-return check
-	public boolean nullable;
 	protected Object returnStatement;
 	
 	// Positions
@@ -142,8 +140,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.returnStatement = null;
 			this.inheritedPositions = -1;
 			this.deprecated = false;
-			this.notNull = false;
-			this.nullable = false;
 			this.lastLinePtr = getLineNumber(javadocEnd);
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.javadocEnd: this.scanner.getLineEnd(this.linePtr) - 1;
 			this.textStart = -1;
