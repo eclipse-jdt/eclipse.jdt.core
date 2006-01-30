@@ -33,7 +33,6 @@ public class TryStatement extends SubRoutineStatement {
 	ReferenceBinding[] caughtExceptionTypes;
 	boolean tryBlockExit;
 	boolean[] catchExits;
-	public int[] preserveExceptionHandler;
 
 	Label subRoutineStartLabel;
 	public LocalVariableBinding anyExceptionVariable,
