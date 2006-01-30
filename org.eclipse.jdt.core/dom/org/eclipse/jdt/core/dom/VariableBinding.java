@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
@@ -121,18 +122,6 @@ class VariableBinding implements IVariableBinding {
 	}
 
 	/*
-	 * @see IVariableBinding#getVariableDeclaration()
-	 * @since 3.1
-	 */
-	public IVariableBinding getVariableDeclaration() {
-		if (this.isField()) {
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
-			return this.resolver.getVariableBinding(fieldBinding.original());
-		}
-		return this;
-	}
-	
-	/*
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
@@ -142,6 +131,56 @@ class VariableBinding implements IVariableBinding {
 		return element.resolved(this.binding);
 	}
 	
+	/*
+	 * @see IBinding#getKey()
+	 */
+	public String getKey() {
+		if (this.key == null) {
+			this.key = new String(this.binding.computeUniqueKey());
+		}
+		return this.key;
+	}
+	
+	/*
+	 * @see IBinding#getKind()
+	 */
+	public int getKind() {
+		return IBinding.VARIABLE;
+	}
+	
+	/*
+	 * @see IBinding#getModifiers()
+	 */
+	public int getModifiers() {
+		if (isField()) {
+			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
+		}
+		if (binding.isFinal()) {
+			return IModifierConstants.ACC_FINAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * @see IBinding#getName()
+	 */
+	public String getName() {
+		if (this.name == null) {
+			this.name = new String(this.binding.name);
+		}
+		return this.name;
+	}
+
+	/*
+	 * @see IVariableBinding#getType()
+	 */
+	public ITypeBinding getType() {
+		if (type == null) {
+			type = this.resolver.getTypeBinding(this.binding.type);
+		}
+		return type;
+	}
+
 	private JavaElement getUnresolvedJavaElement() {
 		if (isField()) {
 			// field
@@ -180,53 +219,15 @@ class VariableBinding implements IVariableBinding {
 	}
 	
 	/*
-	 * @see IBinding#getKey()
+	 * @see IVariableBinding#getVariableDeclaration()
+	 * @since 3.1
 	 */
-	public String getKey() {
-		if (this.key == null) {
-			this.key = new String(this.binding.computeUniqueKey());
+	public IVariableBinding getVariableDeclaration() {
+		if (this.isField()) {
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
+			return this.resolver.getVariableBinding(fieldBinding.original());
 		}
-		return this.key;
-	}
-
-	/*
-	 * @see IBinding#getKind()
-	 */
-	public int getKind() {
-		return IBinding.VARIABLE;
-	}
-
-	/*
-	 * @see IBinding#getModifiers()
-	 */
-	public int getModifiers() {
-		if (isField()) {
-			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
-		}
-		if (binding.isFinal()) {
-			return IModifierConstants.ACC_FINAL;
-		}
-		return 0;
-	}
-
-	/*
-	 * @see IBinding#getName()
-	 */
-	public String getName() {
-		if (this.name == null) {
-			this.name = new String(this.binding.name);
-		}
-		return this.name;
-	}
-	
-	/*
-	 * @see IVariableBinding#getType()
-	 */
-	public ITypeBinding getType() {
-		if (type == null) {
-			type = this.resolver.getTypeBinding(this.binding.type);
-		}
-		return type;
+		return this;
 	}
 	
 	/*
@@ -237,6 +238,12 @@ class VariableBinding implements IVariableBinding {
 	}
 
 	/*
+	 * @see IVariableBinding#isParameter()
+	 */
+	public boolean isParameter() {
+		return (this.binding.tagBits & TagBits.IsArgument) != 0;
+	}
+	/*
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
@@ -246,6 +253,14 @@ class VariableBinding implements IVariableBinding {
 		return false;
 	}
 	
+	/*
+	 * @see IVariableBinding#isEnumConstant()
+	 * @since 3.1
+	 */
+	public boolean isEnumConstant() {
+		return (this.binding.modifiers & ClassFileConstants.AccEnum) != 0;
+	}
+
 	/*
 	 * @see IBinding#isEqualTo(Binding)
 	 * @since 3.1
@@ -290,14 +305,6 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public boolean isField() {
 		return this.binding instanceof FieldBinding;
-	}
-
-	/*
-	 * @see IVariableBinding#isEnumConstant()
-	 * @since 3.1
-	 */
-	public boolean isEnumConstant() {
-		return (this.binding.modifiers & ClassFileConstants.AccEnum) != 0;
 	}
 
 	/*

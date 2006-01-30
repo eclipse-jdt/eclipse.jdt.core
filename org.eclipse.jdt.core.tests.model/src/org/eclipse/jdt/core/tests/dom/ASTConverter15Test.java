@@ -4262,6 +4262,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertFalse("Not a parameter", variableBinding.isParameter());
 		node = getASTNode(compilationUnit, 0, 1, 0);
     	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement statement = (ExpressionStatement) node;
@@ -4274,6 +4275,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a field access", ASTNode.FIELD_ACCESS, expression2.getNodeType());
 		FieldAccess fieldAccess = (FieldAccess) expression2;
 		IVariableBinding variableBinding2 = fieldAccess.resolveFieldBinding();
+		assertFalse("Not a parameter", variableBinding2.isParameter());
 		assertFalse("Bindings are not equals", variableBinding.isEqualTo(variableBinding2));
 		IVariableBinding variableBinding3 = variableBinding2.getVariableDeclaration();
 		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding3));
@@ -4307,6 +4309,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "x", fragment.getName().getIdentifier());
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		IVariableBinding variableBinding2 = variableBinding.getVariableDeclaration();
+		assertFalse("Not a parameter", variableBinding.isParameter());
+		assertFalse("Not a parameter", variableBinding2.isParameter());
 		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding2));
     }
 	

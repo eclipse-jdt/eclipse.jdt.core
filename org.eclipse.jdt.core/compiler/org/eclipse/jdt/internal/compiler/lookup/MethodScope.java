@@ -220,7 +220,7 @@ public class MethodScope extends BlockScope {
 		int ilocal = 0, maxLocals = this.localIndex;	
 		while (ilocal < maxLocals) {
 			LocalVariableBinding local = locals[ilocal];
-			if (local == null || !local.isArgument) break; // done with arguments
+			if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) break; // done with arguments
 
 			// do not report fake used variable
 			if (isReportingUnusedArgument

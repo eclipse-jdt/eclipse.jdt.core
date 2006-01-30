@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
 public class LocalVariableBinding extends VariableBinding {
 
-	public boolean isArgument;
 	public int resolvedPosition; // for code generation (position in method context)
 	
 	public static final int UNUSED = 0;
@@ -39,7 +38,7 @@ public class LocalVariableBinding extends VariableBinding {
 	// note that the name of a variable should be chosen so as not to conflict with user ones (usually starting with a space char is all needed)
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 		super(name, type, modifiers, isArgument ? Constant.NotAConstant : null);
-		this.isArgument = isArgument;
+		if (isArgument) this.tagBits |= TagBits.IsArgument;
 	}
 	
 	// regular local variable or argument
@@ -102,7 +101,7 @@ public class LocalVariableBinding extends VariableBinding {
 
 		AnnotationBinding[] annotations = sourceType.retrieveAnnotations(this);
 		if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
-			if (this.isArgument && this.declaration != null) {
+			if (((this.tagBits & TagBits.IsArgument) != 0) && this.declaration != null) {
 				Annotation[] annotationNodes = declaration.annotations;
 				if (annotationNodes != null) {
 					int length = annotationNodes.length;
@@ -129,7 +128,7 @@ public class LocalVariableBinding extends VariableBinding {
 	// Answer whether the variable binding is a secret variable added for code gen purposes
 	public boolean isSecret() {
 
-		return declaration == null && !isArgument;
+		return declaration == null && (this.tagBits & TagBits.IsArgument) == 0;
 	}
 
 	public void recordInitializationEndPC(int pc) {

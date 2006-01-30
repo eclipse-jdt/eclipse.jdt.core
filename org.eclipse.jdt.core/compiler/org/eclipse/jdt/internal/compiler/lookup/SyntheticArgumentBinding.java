@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class SyntheticArgumentBinding extends LocalVariableBinding {
 
 	{	
-		this.isArgument = true;
+		this.tagBits |= TagBits.IsArgument;
 		this.useFlag = USED;
 	}
 	

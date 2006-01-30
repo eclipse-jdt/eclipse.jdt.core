@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
-public class MethodVerifier implements TagBits, TypeConstants {
+public class MethodVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
@@ -456,8 +456,8 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, l = interfaces.length; j < l; j++) {
 			superType = interfaces[j];
-			if ((superType.tagBits & InterfaceVisited) == 0) {
-				superType.tagBits |= InterfaceVisited;
+			if ((superType.tagBits & TagBits.InterfaceVisited) == 0) {
+				superType.tagBits |= TagBits.InterfaceVisited;
 				if (superType.isValidBinding()) {
 					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 						if (++lastPosition == interfacesToVisit.length)
@@ -491,7 +491,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, length = interfaces.length; j < length; j++)
-			interfaces[j].tagBits &= ~InterfaceVisited;
+			interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 	}
 }
 void computeMethods() {

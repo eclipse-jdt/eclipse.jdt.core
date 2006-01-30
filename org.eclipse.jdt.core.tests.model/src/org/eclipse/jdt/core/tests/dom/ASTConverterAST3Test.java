@@ -3388,6 +3388,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableFragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		assertNotNull("the field binding is null", variableBinding); //$NON-NLS-1$
+		assertFalse("Not a parameter", variableBinding.isParameter());
 		assertTrue("The field binding is not canonical", variableBinding == fragment.resolveBinding()); //$NON-NLS-1$
 		typeBinding = variableBinding.getType();
 		assertTrue("The type is not an array type", typeBinding.isArray()); //$NON-NLS-1$
@@ -9604,6 +9605,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertEquals("wrong fully qualified name", "java.lang.String", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
 		assertNotNull("No variable binding", variableBinding); //$NON-NLS-1$
+		assertTrue("Is a parameter", variableBinding.isParameter());
 		ITypeBinding typeBinding2 = variableBinding.getType();
 		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
 		assertTrue("Not an array binding", typeBinding2.isArray()); //$NON-NLS-1$
@@ -9635,6 +9637,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding.getQualifiedName()); //$NON-NLS-1$ //$NON-NLS-2$
 		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
 		assertNotNull("No variable binding", variableBinding); //$NON-NLS-1$
+		assertTrue("Is a parameter", variableBinding.isParameter());
 		ITypeBinding typeBinding2 = variableBinding.getType();
 		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
 		assertTrue("Not an array binding", typeBinding2.isArray()); //$NON-NLS-1$

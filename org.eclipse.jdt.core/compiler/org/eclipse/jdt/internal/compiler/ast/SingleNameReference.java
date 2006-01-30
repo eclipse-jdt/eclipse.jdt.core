@@ -119,7 +119,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
 					}
 				}
-				else /* avoid double diagnostic */ if (localBinding.isArgument) {
+				else /* avoid double diagnostic */ if ((localBinding.tagBits & TagBits.IsArgument) != 0) {
 					currentScope.problemReporter().parameterAssignment(localBinding, this);
 				}
 				flowInfo.markAsDefinitelyAssigned(localBinding);

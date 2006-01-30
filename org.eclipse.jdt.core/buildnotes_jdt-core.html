@@ -52,6 +52,7 @@ Eclipse SDK 3.2M5 - ?th January 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>org.eclipse.jdt.core.dom.IVariableBinding#isParameter()</code> in order to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106545">106545</a>.</li>
 <li>Added API <code>BindingKey#toSignature()</code> to transform a binding key into a resolved signature.</li>
 <li>Added marker attribute "categoryId" onto Java problem markers.
 <li>Added API <code>WorkingCopyOwner#newWorkingCopy(String,IClasspathEntry[],IProblemRequestor,IProgressMonitor)</code>
@@ -60,7 +61,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125641">125641</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106545">106545</a>
+API: IVariableBinding.isMethodParameter
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125641">125641</a>
 Problems enabling AST with recovery
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125675">125675</a>
 @category not reflected in outliner in live fashion

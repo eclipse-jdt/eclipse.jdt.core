@@ -32,8 +32,10 @@ public interface TagBits {
 	long HasParameterAnnotations = ASTNode.Bit11; // method
 	
 	// test bit to see if default abstract methods were computed
-	long KnowsDefaultAbstractMethods = ASTNode.Bit11;
+	long KnowsDefaultAbstractMethods = ASTNode.Bit11; // type
 
+	long IsArgument = ASTNode.Bit11; // local
+	
 	// Reusable bit currently used by Scopes
 	long InterfaceVisited = ASTNode.Bit12;
 

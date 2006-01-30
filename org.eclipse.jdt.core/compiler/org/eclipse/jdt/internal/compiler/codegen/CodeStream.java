@@ -4552,7 +4552,7 @@ public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariab
 	// Mirror of UnconditionalFlowInfo.isDefinitelyAssigned(..)
 	if (initStateIndex == -1)
 		return false;
-	if (local.isArgument) {
+	if ((local.tagBits & TagBits.IsArgument) != 0) {
 		return true;
 	}
 	int localPosition = local.id + maxFieldCount;

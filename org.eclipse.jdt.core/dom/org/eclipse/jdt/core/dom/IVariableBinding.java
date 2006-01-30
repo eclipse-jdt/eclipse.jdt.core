@@ -47,6 +47,15 @@ public interface IVariableBinding extends IBinding {
 	public boolean isEnumConstant();
 	
 	/**
+	 * Returns whether this binding corresponds to a parameter. 
+	 * 
+	 * @return <code>true</code> if this is the binding for a parameter,
+	 *    and <code>false</code> otherwise
+	 * @since 3.2
+	 */
+	public boolean isParameter();
+
+	/**
 	 * Returns the name of the field or local variable declared in this binding.
 	 * The name is always a simple identifier.
 	 * 

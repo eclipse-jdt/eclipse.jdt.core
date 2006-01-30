@@ -386,7 +386,7 @@ public abstract class Annotation extends Expression {
 							break checkTargetCompatibility;
 						break;
 					case Binding.LOCAL :
-						if (((LocalVariableBinding)this.recipient).isArgument) {
+						if ((((LocalVariableBinding)this.recipient).tagBits & TagBits.IsArgument) != 0) {
 							if ((metaTagBits & TagBits.AnnotationForParameter) != 0)
 								break checkTargetCompatibility;
 						} else 	if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0)
