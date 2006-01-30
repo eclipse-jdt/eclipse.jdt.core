@@ -95,7 +95,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testReconcileParticipant07" };
+//	TESTS_NAMES = new String[] { "testCategories4" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -766,6 +766,45 @@ public void testCategories3() throws JavaModelException {
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"	foo()[*]: {CATEGORIES}"
+	);
+}
+/*
+ * Ensures that the delta is correct when adding a category to a second field
+ * (regression test for bug 125675 @category not reflected in outliner in live fashion)
+ */
+public void testCategories4() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  int f1;\n" +
+		"  int f2;\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  int f1;\n" +
+		"  /**\n" +
+		"   * @category cat2\n" +
+		"   */\n" +
+		"  int f2;\n" +
+		"}"
+	);	
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	f2[*]: {CATEGORIES}"
 	);
 }
 /**

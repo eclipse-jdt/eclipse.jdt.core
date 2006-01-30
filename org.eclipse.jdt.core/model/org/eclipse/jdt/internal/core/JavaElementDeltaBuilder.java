@@ -12,8 +12,10 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -265,9 +267,16 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 		HashMap oldTypeCategories = oldSourceTypeInfo.categories;
 		HashMap newTypeCategories = newSourceTypeInfo.categories;
 		if (oldTypeCategories != null) {
-			Iterator elements = oldTypeCategories.keySet().iterator();
-			while (elements.hasNext()) {
-				IJavaElement element = (IJavaElement) elements.next();
+			// take the union of old and new categories elements (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=125675)
+			Set elements;
+			if (newTypeCategories != null) {
+				elements = new HashSet(oldTypeCategories.keySet());
+				elements.addAll(newTypeCategories.keySet());
+			} else
+				elements = oldTypeCategories.keySet();
+			Iterator iterator = elements.iterator();
+			while (iterator.hasNext()) {
+				IJavaElement element = (IJavaElement) iterator.next();
 				String[] oldCategories = (String[]) oldTypeCategories.get(element);
 				String[] newCategories = newTypeCategories == null ? null : (String[]) newTypeCategories.get(element);
 				if (!Util.equalArraysOrNull(oldCategories, newCategories)) {
