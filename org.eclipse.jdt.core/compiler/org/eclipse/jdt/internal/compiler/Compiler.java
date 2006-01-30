@@ -88,9 +88,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			IErrorHandlingPolicy policy,
 			Map settings,
 			final ICompilerRequestor requestor,
-			IProblemFactory problemFactory) {
+			IProblemFactory problemFactory,
+			boolean statementsRecovery) {
 		this(environment, policy, settings,	requestor, problemFactory, 
-				null, false, false, false, false); // all defaults
+				null, false, false, false, statementsRecovery); // all defaults
 	}
 	
 	/**
@@ -137,9 +138,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			Map settings,
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory,
-			PrintWriter out) {
+			PrintWriter out,
+			boolean statementsRecovery) {
 		this(environment, policy, settings,	requestor, problemFactory, out, 
-				false, false, false, false); // all defaults
+				false, false, false, statementsRecovery); // all defaults
 	}
 	
 	/**
@@ -198,7 +200,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			boolean statementsRecovery) {
 		this(environment, policy, settings,	requestor, problemFactory, 
 				null, // default 
-				parseLiteralExpressionsAsConstants, storeAnnotations, statementsRecovery, true);
+				parseLiteralExpressionsAsConstants, storeAnnotations, true, statementsRecovery);
 	}
 
 	/**
@@ -247,12 +249,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *		This parameter is used to tell the compiler to store annotations on 
 	 *		type bindings, or not.
 	 *
-	 *	@param statementsRecovery <code>boolean</code>
+	 *  @param flag <code>boolean</code>
+	 *		Set to true if and only if the following boolean parameters are significant:
+	 * 		<code>parseLiteralExpressionsAsConstants</code>, <code>storeAnnotations</code>.
+	 *
+	 * @param statementsRecovery <code>boolean</code>
 	 *		This parameter is used to tell the compiler to perform syntax error
 	 *      recovery on statements, or not. 
-	 *
-	 *	@param flag <code>boolean</code>
-	 *		Set to true if and only if the other boolean parameters are significant.
 	 */
 	private Compiler(
 			INameEnvironment environment,
@@ -263,17 +266,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			PrintWriter out,
 			boolean parseLiteralExpressionsAsConstants,
 			boolean storeAnnotations,
-			boolean statementsRecovery,
-			boolean flag) {
+			boolean flag,
+			boolean statementsRecovery) {
 
 		// create a problem handler given a handling policy
 		this.options = new CompilerOptions(settings);
+		this.options.performStatementsRecovery = statementsRecovery;
 		if (flag) { // boolean parameters are significant, pass them down
 			this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
 			this.options.storeAnnotations = storeAnnotations;
-			this.options.performStatementsRecovery =
-				statementsRecovery &&
-				this.options.performStatementsRecovery;// TODO temporary code to take into account the temporary JavaCore options
 		}
 		
 		// wrap requestor in DebugRequestor if one is specified

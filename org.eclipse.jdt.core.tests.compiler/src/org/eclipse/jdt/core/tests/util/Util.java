@@ -85,7 +85,8 @@ public static void compile(String[] pathsAndContents, Map options, String output
 				errorHandlingPolicy, 
 				options,
 				requestor, 
-				problemFactory);
+				problemFactory,
+				false);
 		batchCompiler.options.produceReferenceInfo = true;
 		batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
 		System.err.print(requestor.problemLog); // problem log empty if no problems

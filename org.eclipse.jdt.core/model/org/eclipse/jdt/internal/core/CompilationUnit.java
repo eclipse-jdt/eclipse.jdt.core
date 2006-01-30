@@ -113,15 +113,18 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	boolean createAST;
 	boolean resolveBindings;
+	boolean statementsRecovery;
 	HashMap problems;
 	if (info instanceof ASTHolderCUInfo) {
 		ASTHolderCUInfo astHolder = (ASTHolderCUInfo) info;
 		createAST = astHolder.astLevel != NO_AST;
 		resolveBindings = astHolder.resolveBindings;
+		statementsRecovery = astHolder.statementsRecovery;
 		problems = astHolder.problems;
 	} else {
 		createAST = false;
 		resolveBindings = false;
+		statementsRecovery = false;
 		problems = null;
 	}
 	
@@ -139,6 +142,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		true/*report local declarations*/,
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
+	parser.setStatementsRecovery(statementsRecovery);
+	
 	if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast
 		parser.javadocParser.checkDocComment = false;
 	requestor.parser = parser;
@@ -972,9 +977,9 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	makeConsistent(NO_AST, false/*don't resolve bindings*/, null/*don't collect problems but report them*/, monitor);
+	makeConsistent(NO_AST, false/*don't resolve bindings*/, false /* don't perform statements recovery */, null/*don't collect problems but report them*/, monitor);
 }
-public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, boolean statementsRecovery, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
 	// create a new info and make it the current info
@@ -983,6 +988,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boo
 		ASTHolderCUInfo info = new ASTHolderCUInfo();
 		info.astLevel = astLevel;
 		info.resolveBindings = resolveBindings;
+		info.statementsRecovery = statementsRecovery;
 		info.problems = problems;
 		openWhenClosed(info, monitor);
 		org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;

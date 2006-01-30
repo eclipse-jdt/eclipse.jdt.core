@@ -113,9 +113,6 @@ public class CompilerOptions {
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
 
-	//TODO temporary option
-	public static final String OPTION_StatementsRecovery = "org.eclipse.jdt.core.compiler.statementsRecovery"; //$NON-NLS-1$
-
 	/**
 	 * Possible values for configurable options
 	 */
@@ -725,13 +722,6 @@ public class CompilerOptions {
 				this.reportMissingJavadocCommentsOverriding = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportMissingJavadocCommentsOverriding = false;
-			}
-		}
-		if ((optionValue = optionsMap.get(OPTION_StatementsRecovery)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.performStatementsRecovery = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.performStatementsRecovery = false;
 			}
 		}
 	}

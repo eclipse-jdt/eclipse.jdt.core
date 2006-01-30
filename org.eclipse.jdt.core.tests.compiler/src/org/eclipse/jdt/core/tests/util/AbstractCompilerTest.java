@@ -216,7 +216,6 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 		}
-		options.put(CompilerOptions.OPTION_StatementsRecovery, CompilerOptions.DISABLED); //TODO temporary option
 		return options;
 	}
 

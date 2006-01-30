@@ -74,7 +74,7 @@ public class CompilationUnitVisitor extends Compiler {
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
 
-		super(environment, policy, settings, requestor, problemFactory);
+		super(environment, policy, settings, requestor, problemFactory, true);
 	}
 
 	/**

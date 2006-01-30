@@ -10,15 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -33,11 +29,8 @@ import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class ASTConverterRecoveryTest extends ConverterTestSetup {
-	private Map oldOptions;
-	
 	public ASTConverterRecoveryTest(String name) {
 		super(name);
 	}
@@ -50,25 +43,9 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		return buildTestSuite(ASTConverterRecoveryTest.class);
 	}
 	
-	private IJavaProject getConverterProject() {
-		return JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject("Converter");
-	}
-	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
-		
-		IJavaProject project = getConverterProject();
-		oldOptions = project.getOptions(false);
-		Hashtable newOptions = new Hashtable(oldOptions);
-		newOptions.put(JavaCore.COMPILER_STATEMENTS_RECOVERY, JavaCore.ENABLED);
-		project.setOptions(newOptions);
-	}
-
-	public void tearDownSuite() throws Exception {
-		IJavaProject project = getConverterProject();
-		project.setOptions(oldOptions);
-		super.tearDownSuite();
 	}
 	
 	public void test0001() throws JavaModelException {

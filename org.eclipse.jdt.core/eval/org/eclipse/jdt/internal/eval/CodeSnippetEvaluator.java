@@ -155,7 +155,8 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 			DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
 			this.options, 
 			compilerRequestor, 
-			this.problemFactory);
+			this.problemFactory,
+			true);
 	}
 	return compiler;
 }

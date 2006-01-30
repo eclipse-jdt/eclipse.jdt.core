@@ -128,7 +128,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (!workingCopy.isConsistent()) {
 			// make working copy consistent
 			if (this.problems == null) this.problems = new HashMap();
-			this.ast = workingCopy.makeConsistent(this.astLevel, this.resolveBindings, this.problems, this.progressMonitor);
+			this.ast = workingCopy.makeConsistent(this.astLevel, this.resolveBindings, this.enableStatementsRecovery, this.problems, this.progressMonitor);
 			this.deltaBuilder.buildDeltas();
 			if (this.ast != null && this.deltaBuilder.delta != null)
 				this.deltaBuilder.delta.changedAST(this.ast);

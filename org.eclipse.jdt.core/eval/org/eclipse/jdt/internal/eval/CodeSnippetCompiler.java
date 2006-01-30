@@ -39,7 +39,7 @@ public class CodeSnippetCompiler extends Compiler {
 		EvaluationContext evaluationContext,
 		int codeSnippetStart,
 		int codeSnippetEnd) {
-		super(environment, policy, settings, requestor, problemFactory);
+		super(environment, policy, settings, requestor, problemFactory, true);
 		this.parser =
 			new CodeSnippetParser(
 				this.problemReporter,

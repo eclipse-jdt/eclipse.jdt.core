@@ -410,12 +410,12 @@ protected Compiler newCompiler() {
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 		projectOptions,
 		this,
-		ProblemFactory.getProblemFactory(Locale.getDefault()));
+		ProblemFactory.getProblemFactory(Locale.getDefault()),
+		true);
 	CompilerOptions options = newCompiler.options;
 
 	// enable the compiler reference info support
 	options.produceReferenceInfo = true;
-	options.performStatementsRecovery = false;
 	
 	org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = newCompiler.lookupEnvironment;
 	synchronized (env) {

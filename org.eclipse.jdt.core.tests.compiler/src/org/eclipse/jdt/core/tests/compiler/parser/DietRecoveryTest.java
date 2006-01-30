@@ -47,9 +47,9 @@ public void checkParse(
 	char[] source, 
 	String expectedDietUnitToString,
 	String expectedDietPlusBodyUnitToString,	
-	String expectedFullUnitToString,
-	String expectedCompletionDietUnitToString, 
-	String testName) {
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+	String expectedFullUnitToString, 
+	String expectedCompletionDietUnitToString, String testName) {
 
 	/* using regular parser in DIET mode */
 	{
@@ -83,6 +83,7 @@ public void checkParse(
 					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
+		parser.setStatementsRecovery(false);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -109,6 +110,44 @@ public void checkParse(
 		assertEquals(
 			"Invalid unit diet+body structure" + testName,
 			expectedDietPlusBodyUnitToString,
+			computedUnitToString);
+	}
+	/* using regular parser in DIET mode + getMethodBodies + statements recovery */
+	{
+		Parser parser = 
+			new Parser(
+				new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+					new CompilerOptions(getCompilerOptions()), 
+					new DefaultProblemFactory(Locale.getDefault())),
+				optimizeStringLiterals);
+		parser.setStatementsRecovery(true);
+
+		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
+		
+		CompilationUnitDeclaration computedUnit = parser.dietParse(sourceUnit, compilationResult);
+		String computedUnitToString = computedUnit.toString();
+		if (!expectedDietUnitToString.equals(computedUnitToString)){
+			System.out.println(Util.displayString(computedUnitToString));
+		}
+		assertEquals(
+			"Invalid unit diet structure" + testName,
+			expectedDietUnitToString,
+			computedUnitToString);
+		if (computedUnit.types != null) {
+			for (int i = computedUnit.types.length; --i >= 0;){
+				computedUnit.types[i].parseMethod(parser, computedUnit);
+			}
+		}
+		computedUnitToString = computedUnit.toString();
+		if (!expectedDietPlusBodyPlusStatementsRecoveryUnitToString.equals(computedUnitToString)){
+			System.out.println(Util.displayString(computedUnitToString));
+		}
+		
+		assertEquals(
+			"Invalid unit diet+body structure" + testName,
+			expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
 			computedUnitToString);
 	}
 	/* using regular parser in FULL mode */
@@ -286,9 +325,9 @@ public void test01() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out local type altogether
@@ -349,6 +388,32 @@ public void test02() {
 		"  void truc() {\n" + 
 		"  }\n" + 
 		"}\n";	
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public int h;\n" + 
+		"  public int[] i = {0, 1};\n" + 
+		"  public X() {\n" + 
+		"    super();\n" +
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    class L {\n" + 
+		"      L() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void baz() {\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";	
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -374,9 +439,9 @@ public void test02() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still be finding last method (#baz)
@@ -461,9 +526,9 @@ public void test03() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,	
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should finding 5 fields.
@@ -558,9 +623,9 @@ public void test04() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,	
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Diet parse thinks it is successful - no recovery
@@ -605,6 +670,22 @@ public void test05() {
 		"  void truc() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    new baz() {\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";
 
 	String expectedFullUnitToString = 
 		"public class X {\n" + 
@@ -629,9 +710,9 @@ public void test05() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Recovery will not restart from scratch, and miss some signatures (#baz())
@@ -698,9 +779,9 @@ public void test06() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,	
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Attaching orphan methods and fields 
@@ -764,9 +845,9 @@ public void test07() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Properly attaching fields/methods to member type
@@ -850,9 +931,9 @@ public void test08() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,
 		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Properly attaching fields/methods to enclosing type
@@ -937,9 +1018,9 @@ public void test09() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Properly attaching fields/methods to member type in presence of missing
@@ -1024,9 +1105,9 @@ public void test10() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,
 		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Attaching orphan methods and fields, by counting brackets
@@ -1089,9 +1170,9 @@ public void test11() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Attaching orphan methods and fields, by counting brackets
@@ -1155,9 +1236,9 @@ public void test12() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString		,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still recover incomplete type signature (missing superclass)
@@ -1197,9 +1278,9 @@ public void test13() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still recover incomplete method signature (missing opening brace)
@@ -1244,9 +1325,9 @@ public void test14() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still recover incomplete method signature (missing thrown exceptions)
@@ -1281,6 +1362,18 @@ public void test15() {
 		"  void bar() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X extends Thread {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 	
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    ;\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -1291,9 +1384,9 @@ public void test15() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still recover incomplete type signature (missing superinterfaces)
@@ -1338,9 +1431,9 @@ public void test16() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should still recover incomplete type signature (missing superinterfaces)
@@ -1385,9 +1478,9 @@ public void test17() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,	
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find member type behind incomplete enclosing type header
@@ -1437,9 +1530,9 @@ public void test18() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find member type when missing opening brace
@@ -1489,9 +1582,9 @@ public void test19() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not find fieldX signature behind missing brace
@@ -1542,9 +1635,9 @@ public void test20() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find Y as member type
@@ -1590,9 +1683,9 @@ public void test21() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out incomplete local type
@@ -1652,6 +1745,32 @@ public void test22() {
 		"  void truc() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public int h;\n" + 
+		"  public X() {\n" + 
+		"    super();\n"+
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    class L {\n" + 
+		"      public int l;\n" + 
+		"      L() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void baz() {\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -1662,9 +1781,9 @@ public void test22() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out incomplete local type and method signature
@@ -1725,6 +1844,32 @@ public void test23() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public int h;\n" + 
+		"  public X() {\n" + 
+		"    super();\n"+
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    class L {\n" + 
+		"      public int l;\n" + 
+		"      L() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void baz() {\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -1734,9 +1879,9 @@ public void test23() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out anonymous type
@@ -1810,9 +1955,9 @@ public void test24() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out incomplete anonymous type
@@ -1861,6 +2006,31 @@ public void test25() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n"+
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    new X() {\n" + 
+		"      public int h;\n" + 
+		"      () {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void baz() {\n" + 
+		"      }\n" + 
+		"      void bar() {\n" + 
+		"      }\n" + 
+		"      void truc() {\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -1870,9 +2040,9 @@ public void test25() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out incomplete anonymous method
@@ -1931,6 +2101,24 @@ public void test26() {
 		"  void truc() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public int h;\n" + 
+		"  public X() {\n" + 
+		"    super();\n"+
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -1941,9 +2129,9 @@ public void test26() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should filter out incomplete local type and local var h
@@ -2001,6 +2189,32 @@ public void test27() {
 		"  void truc() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"import java.lang.*;\n" + 
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n"+
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    class L {\n" + 
+		"      public int l;\n" + 
+		"      L() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void baz() {\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    int h;\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"  void truc() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -2011,9 +2225,9 @@ public void test27() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find <y> as a field in Y
@@ -2070,9 +2284,9 @@ public void test28() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find <y> as a field in X
@@ -2129,9 +2343,9 @@ public void test29() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find <y> as a field in X
@@ -2188,9 +2402,9 @@ public void test30() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should recover from partial method header foo()
@@ -2274,9 +2488,9 @@ public void test31() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should recover from method with missing argument names
@@ -2321,9 +2535,9 @@ public void test32() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not find message with no argument as a constructor
@@ -2371,9 +2585,9 @@ public void test33() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyUnitToString,	
 		expectedFullUnitToString,	
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not find allocation as a constructor
@@ -2425,9 +2639,9 @@ public void test34() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Incomplete field header
@@ -2463,9 +2677,9 @@ public void test35() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Incomplete multiple field headers
@@ -2503,9 +2717,9 @@ public void test36() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Field header with started string initializer
@@ -2541,9 +2755,9 @@ public void test37() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Field header with started string initializer combined with incomplete superinterface
@@ -2579,9 +2793,9 @@ public void test38() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Field signature behind keyword implements
@@ -2618,9 +2832,9 @@ public void test39() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Field type read as interface
@@ -2654,9 +2868,9 @@ public void test40() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Contiguous headers (checking checkpoint positions)
@@ -2703,9 +2917,9 @@ public void test41() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Contiguous headers without comma (checking checkpoint positions)
@@ -2744,9 +2958,9 @@ public void test42() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Contiguous headers without comma (checking checkpoint positions)
@@ -2798,9 +3012,9 @@ public void test43() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find static field <x>
@@ -2850,9 +3064,9 @@ public void test44() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Missing string literal quote inside method
@@ -2893,9 +3107,9 @@ public void test45() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Detecting member type closing when missing brackets
@@ -2955,9 +3169,9 @@ public void test46() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated method arguments
@@ -2997,9 +3211,9 @@ public void test47() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated literal string in method body
@@ -3046,9 +3260,9 @@ public void test48() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated initializer with local declaration
@@ -3088,9 +3302,9 @@ public void test49() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated if statement
@@ -3122,6 +3336,21 @@ public void test50() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    if (true)\n" + 
+		"        {\n" + 
+		"          int x;\n" + 
+		"        }\n" + 
+		"    else\n" + 
+		"        ;\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -3131,9 +3360,9 @@ public void test50() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated nested block with local declaration
@@ -3164,6 +3393,18 @@ public void test51() {
 		"  int foo() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    {\n" + 
+		"      int x;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -3174,9 +3415,9 @@ public void test51() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated nested block with field declaration
@@ -3219,9 +3460,9 @@ public void test52() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated initializer with field declaration
@@ -3263,9 +3504,9 @@ public void test53() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Invalid class name
@@ -3313,9 +3554,9 @@ public void test54() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated static initializer with field declaration
@@ -3361,9 +3602,9 @@ public void test55() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Multiple initializers combined with array initializer
@@ -3440,9 +3681,9 @@ public void test56() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Combination of unterminated methods and fields
@@ -3497,9 +3738,9 @@ public void test57() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Illegal unicode inside method body
@@ -3544,9 +3785,9 @@ public void test58() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Extra identifier in type signature
@@ -3584,9 +3825,9 @@ public void test59() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Extra identifier in method signature
@@ -3625,9 +3866,9 @@ public void test60() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Extra identifier behind thrown exception
@@ -3666,9 +3907,9 @@ public void test61() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unterminated array initializer
@@ -3764,9 +4005,9 @@ public void test62() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Initializer behind array initializer
@@ -3816,9 +4057,9 @@ public void test63() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Initializers mixed with fields
@@ -3895,9 +4136,9 @@ public void test64() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find method behind some()
@@ -3980,9 +4221,9 @@ public void test65() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should detect X(int) as a method with no return type
@@ -4031,9 +4272,9 @@ public void test66() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should detect orphan X(int) as a constructor
@@ -4084,9 +4325,9 @@ public void test67() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Empty unit
@@ -4109,9 +4350,9 @@ public void test68() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unit reduced to a method declaration
@@ -4137,9 +4378,9 @@ public void test69() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unit reduced to a constructor declaration
@@ -4165,9 +4406,9 @@ public void test70() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unit reduced to a field declaration
@@ -4191,9 +4432,9 @@ public void test71() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Unit reduced to a field declaration with array initializer
@@ -4217,9 +4458,9 @@ public void test72() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not pick-up any constructor with no arg
@@ -4249,6 +4490,17 @@ public void test73() {
 		"  int foo() {\n" + 
 		"  }\n" + 
 		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"class X {\n" + 
+		"  X(int i) {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    new X();\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4258,9 +4510,9 @@ public void test73() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not detect any field
@@ -4307,9 +4559,9 @@ public void test74() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Bunch of syntax errors
@@ -4364,6 +4616,34 @@ public void test75() {
 		"  }\n" + 
 		"}\n";
 		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"package ZKentTest;\n" + 
+		"import java.awt.color.*;\n" + 
+		"public class A {\n" + 
+		"  int[] ii;\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  A foo(int i) {\n" + 
+		"    return this;\n" + 
+		"  }\n" + 
+		"  int bar() {\n" + 
+		"    class Local {\n" + 
+		"      Local() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      int hello() {\n" + 
+		"        fo = ;\n" + 
+		"      }\n" + 
+		"      int world() {\n" + 
+		"      }\n" + 
+		"      void foo() {\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    int hello;\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = 
@@ -4386,9 +4666,9 @@ public void test75() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find Member as a member type
@@ -4442,6 +4722,24 @@ public void test76() {
 		"  }\n" + 
 		"}\n";	
 
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package pack;\n" + 
+		"class A {\n" + 
+		"  class Member {\n" + 
+		"    Member() {\n" + 
+		"      super();\n" + 			
+		"    }\n" + 
+		"    int foo() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  A() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  public static void main(String[] argv) {\n" + 
+		"    new Member().f = ;\n" + 
+		"  }\n" + 
+		"}\n";	
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4451,9 +4749,9 @@ public void test76() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not recover duplicate field numberOfDisks
@@ -4514,6 +4812,30 @@ public void test77() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package p;\n" + 
+		"import java.lang.*;\n" + 
+		"class IncompleteHanoi {\n" + 
+		"  private Post[] posts;\n" + 
+		"  private int numberOfDisks;\n" + 
+		"  IncompleteHanoi() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  public Hanoi(int numberOfDisks) {\n" + 
+		"  }\n" + 
+		"  private void solve(int depth, Post start, Post free, Post end) {\n" + 
+		"    if ((depth == 1))\n" + 
+		"        moveDisk(start, end);\n" + 
+		"    else\n" + 
+		"        if ((depth > 1))\n" + 
+		"            {\n" + 
+		"              sol = ;\n" + 
+		"            }\n" + 
+		"        else\n" + 
+		"            ;\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4523,9 +4845,9 @@ public void test77() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not detect a field v (1/2)
@@ -4557,6 +4879,18 @@ public void test78() {
 		"  int foo() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"class X {\n" + 
+		"  X() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    Vector v = new Vector();\n" + 
+		"    s v;\n" + 
+		"    addElement();\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -4567,9 +4901,9 @@ public void test78() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not detect a field v (2/2)
@@ -4601,6 +4935,18 @@ public void test79() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"class X {\n" + 
+		"  X() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    Vector v = new Vector();\n" + 
+		"    public s v;\n" + 
+		"    addElement();\n" + 
+		"  }\n" + 
+		"}\n";
+	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4610,9 +4956,9 @@ public void test79() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not detect a method bar
@@ -4646,6 +4992,17 @@ public void test80() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"class X {\n" + 
+		"  X() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  int test() {\n" + 
+		"    int[] i;\n" + 
+		"    i bar = 1;\n" + 
+		"  }\n" + 
+		"}\n";
+	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4655,9 +5012,9 @@ public void test80() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not pick-up any constructor with no arg
@@ -4686,6 +5043,16 @@ public void test81() {
 		"  int foo() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"class X {\n" + 
+		"  X(int i) {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"    X(12);\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -4696,9 +5063,9 @@ public void test81() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not promote message sending as a method
@@ -4751,9 +5118,9 @@ public void test82() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should not promote message sending as a method 2
@@ -4805,9 +5172,9 @@ public void test83() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find a static initializer
@@ -4850,9 +5217,9 @@ public void test84() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find a static initializer
@@ -4895,9 +5262,9 @@ public void test85() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find an initializer
@@ -4937,9 +5304,9 @@ public void test86() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Should find an initializer
@@ -4983,9 +5350,9 @@ public void test87() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FVRQG0: ITPCOM:WINNT - NullPointerException in recovery mode
@@ -5040,9 +5407,9 @@ public void test88() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FVRN9V: ITPJCORE:WIN98 - Internal builder error compiling servlet
@@ -5093,9 +5460,9 @@ public void test89() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FVXQZ4: ITPCOM:WIN98 - Walkback during parsing recovery
@@ -5147,9 +5514,9 @@ public void test90() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FVXWKI: ITPCOM:WIN98 - Walkback when parsing a bogus interface
@@ -5181,9 +5548,9 @@ public void test91() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * Variation on 1FVXWKI: ITPCOM:WIN98 - Walkback when parsing a bogus interface
@@ -5213,9 +5580,9 @@ public void test92() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FW5A4E: ITPCOM:WIN98 - Walkback reconciling
@@ -5261,9 +5628,9 @@ public void test93() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FW3663: ITPCOM:WIN98 - Outline - does not show method #fred()
@@ -5302,6 +5669,19 @@ public void test94() {
 		"  }\n" +
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  int[] array;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    bar(this.array.length, 10, fred());\n" + 
+		"  }\n" +
+		"  int fred() {\n" +
+		"  }\n" +
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -5311,9 +5691,9 @@ public void test94() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FW6M5M: ITPJUI:ALL - NPE in SourceElementParser
@@ -5342,9 +5722,9 @@ public void test95() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * 1FWHXX7: ITPCOM:WINNT - ClassCastException compiling invalid import
@@ -5395,9 +5775,9 @@ public void test96() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * variation on 1FWHXX7: ITPCOM:WINNT - ClassCastException compiling invalid import
@@ -5446,9 +5826,9 @@ public void test97() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 /*
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=9084
@@ -5547,9 +5927,9 @@ public void test98() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 
 public void test99() {
@@ -5593,6 +5973,36 @@ public void test99() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"class X {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  X() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  public void addThreadFilter(IJavaThread thread) {\n" + 
+		"    restricts breakpoint;\n" + 
+		"    given thread;\n" + 
+		"    any other;\n" + 
+		"    specified = ;\n" + 
+		"  }\n" + 
+		"  public void removeThreadFilter(IJavaThread thread) {\n" + 
+		"    removes the;\n" + 
+		"    thread restriction;\n" + 
+		"    will need = (re - create);\n" + 
+		"    request as;\n" + 
+		"    does not;\n" + 
+		"    the removal;\n" + 
+		"    thread = ;\n" + 
+		"  }\n" + 
+		"  public IJavaThread[] getThreadFilters() {\n" + 
+		"    return the;\n" + 
+		"    of threads;\n" + 
+		"    breakpoint is;\n" + 
+		"    restricted to;\n" + 
+		"  }\n" + 
+		"}\n";
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -5602,9 +6012,9 @@ public void test99() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test100() {
 	String s = 
@@ -5653,6 +6063,40 @@ public void test100() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class Bug {\n" + 
+		"  static boolean bold = false;\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public Bug() {\n" + 
+		"    super();\n" + 		
+		"  }\n" + 
+		"  public static void main(String[] arguments) {\n" + 
+		"    Shell shell = new Shell((((SWT.MENU | SWT.RESIZE) | SWT.TITLE) | SWT.H_SCROLL));\n" + 
+		"    StyledText text = new StyledText(shell, SWT.WRAP);\n" + 
+		"    shell.addListener(SWT.Resize, new Listener() {\n" + 
+		"  () {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void handleEvent(Event e) {\n" + 
+		"    text.setBounds(shell.getClientArea());\n" + 
+		"  }\n" + 
+		"});\n" + 
+		"    shell.addListener(SWT.KeyDown, new Listener() {\n" + 
+		"  public void handleEvent(Event e) {\n" + 
+		"    bold = (! bold);\n" + 
+		"  }\n" + 
+		"});\n" + 
+		"    text.addLineStyleListener(new LineStyleListener() {\n" + 
+		"  () {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void lineGetStyle(LineStyleEvent event) {\n" + 
+		"  }\n" + 
+		"});\n" + 
+		"  }\n" + 
+		"}\n";
+	
 	String expectedFullUnitToString = 
 		"public class Bug {\n" + 
 		"  static boolean bold = false;\n" + 
@@ -5684,9 +6128,9 @@ public void test100() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void _test101() {
 	String s = 
@@ -5727,9 +6171,9 @@ public void _test101() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test102() {
 	String s = 
@@ -5807,9 +6251,9 @@ public void test102() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test103() {
 	String s = 
@@ -5844,9 +6288,9 @@ public void test103() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test104() {
 	String s = 
@@ -5888,9 +6332,9 @@ public void test104() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test105() {
 	String s = 
@@ -5951,9 +6395,9 @@ public void test105() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test106() {
 	String s = 
@@ -5991,9 +6435,9 @@ public void test106() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test107() {
 	String s = 
@@ -6033,9 +6477,9 @@ public void test107() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test108() {
 	String s = 
@@ -6078,9 +6522,9 @@ public void test108() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test109() {
 	String s = 
@@ -6124,9 +6568,9 @@ public void test109() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test110() {
 	String s = 
@@ -6161,6 +6605,27 @@ public void test110() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    class Inner {\n" + 
+		"      Inner() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void foo() {\n" + 
+		"        try \n" + 
+		"          {\n" + 
+		"          }\n" + 
+		"        catch (Exception e)           {\n" + 
+		"          }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = 
@@ -6176,9 +6641,9 @@ public void test110() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 public void test111() {
 	String s = 
@@ -6225,9 +6690,9 @@ public void test111() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100797
 public void test112() {
@@ -6259,6 +6724,22 @@ public void test112() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"    catch (Exception e)       {\n" + 
+		"        bar(\"blabla\");\n" + 
+		"        throw new Exception(prefix);\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = 
@@ -6269,9 +6750,9 @@ public void test112() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111618
 public void test113() {
@@ -6315,8 +6796,8 @@ public void test113() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,		
-		expectedCompletionDietUnitToString,
-		testName);
+		expectedDietPlusBodyUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
 }
 }

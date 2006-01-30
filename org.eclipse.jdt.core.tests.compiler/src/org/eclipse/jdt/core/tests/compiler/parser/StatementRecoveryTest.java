@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
-import java.util.Map;
 
 import junit.framework.Test;
 
@@ -43,13 +42,6 @@ public static Test suite() {
 }
 public StatementRecoveryTest(String testName){
 	super(testName);
-}
-protected Map getCompilerOptions() {
-	Map options = super.getCompilerOptions();
-	
-	options.put(CompilerOptions.OPTION_StatementsRecovery, CompilerOptions.ENABLED); //TODO temporary option
-	
-	return options;
 }
 public void checkParse(
 	char[] source, 

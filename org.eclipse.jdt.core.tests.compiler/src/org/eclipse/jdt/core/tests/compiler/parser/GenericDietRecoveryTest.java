@@ -51,9 +51,9 @@ public void checkParse(
 	char[] source, 
 	String expectedDietUnitToString,
 	String expectedDietPlusBodyUnitToString,	
-	String expectedFullUnitToString,
-	String expectedCompletionDietUnitToString, 
-	String testName) {
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+	String expectedFullUnitToString, 
+	String expectedCompletionDietUnitToString, String testName) {
 
 	/* using regular parser in DIET mode */
 	{
@@ -87,6 +87,7 @@ public void checkParse(
 					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
+		parser.setStatementsRecovery(false);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -115,6 +116,46 @@ public void checkParse(
 			expectedDietPlusBodyUnitToString,
 			computedUnitToString);
 	}
+	
+	/* using regular parser in DIET mode + getMethodBodies + statements recovery*/
+	{
+		Parser parser = 
+			new Parser(
+				new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+					new CompilerOptions(getCompilerOptions()), 
+					new DefaultProblemFactory(Locale.getDefault())),
+				optimizeStringLiterals);
+		parser.setStatementsRecovery(true);
+
+		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
+		
+		CompilationUnitDeclaration computedUnit = parser.dietParse(sourceUnit, compilationResult);
+		String computedUnitToString = computedUnit.toString();
+		if (!expectedDietUnitToString.equals(computedUnitToString)){
+			System.out.println(Util.displayString(computedUnitToString));
+		}
+		assertEquals(
+			"Invalid unit diet structure" + testName,
+			expectedDietUnitToString,
+			computedUnitToString);
+		if (computedUnit.types != null) {
+			for (int i = computedUnit.types.length; --i >= 0;){
+				computedUnit.types[i].parseMethod(parser, computedUnit);
+			}
+		}
+		computedUnitToString = computedUnit.toString();
+		if (!expectedDietPlusBodyPlusStatementsRecoveryUnitToString.equals(computedUnitToString)){
+			System.out.println(Util.displayString(computedUnitToString));
+		}
+		
+		assertEquals(
+			"Invalid unit diet+body structure" + testName,
+			expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+			computedUnitToString);
+	}
+	
 	/* using regular parser in FULL mode */
 	{
 		Parser parser = 
@@ -242,9 +283,9 @@ public void test0001() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0002() {
 
@@ -271,9 +312,9 @@ public void test0002() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0003() {
 
@@ -307,9 +348,9 @@ public void test0003() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0004() {
 
@@ -343,9 +384,9 @@ public void test0004() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0005() {
 
@@ -382,9 +423,9 @@ public void test0005() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0006() {
 
@@ -421,9 +462,9 @@ public void test0006() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0007() {
 
@@ -458,9 +499,9 @@ public void test0007() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 
 public void test0008() {
@@ -500,9 +541,9 @@ public void test0008() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0009() {
 
@@ -539,9 +580,9 @@ public void test0009() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 
 public void test0010() {
@@ -581,9 +622,9 @@ public void test0010() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 
 public void test0011() {
@@ -618,9 +659,9 @@ public void test0011() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0012() {
 
@@ -654,9 +695,9 @@ public void test0012() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0013() {
 
@@ -690,9 +731,9 @@ public void test0013() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0014() {
 
@@ -726,9 +767,9 @@ public void test0014() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0015() {
 
@@ -762,9 +803,9 @@ public void test0015() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0016() {
 
@@ -798,9 +839,9 @@ public void test0016() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0017() {
 
@@ -834,9 +875,9 @@ public void test0017() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0018() {
 
@@ -870,9 +911,9 @@ public void test0018() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0019() {
 
@@ -903,6 +944,17 @@ public void test0019() {
 		"  void foo() {\n" + 
 		"  }\n" + 
 		"}\n";
+		
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    Object o = (Y<Z>.W<U>) e;\n" + 
+		"  }\n" + 
+		"}\n";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
@@ -914,9 +966,9 @@ public void test0019() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 public void test0020() {
 	String s = 
@@ -980,9 +1032,9 @@ public void test0020() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0021() {
@@ -1013,9 +1065,9 @@ public void test0021() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0022() {
@@ -1044,9 +1096,9 @@ public void test0022() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0023() {
@@ -1076,9 +1128,9 @@ public void test0023() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0024() {
@@ -1107,9 +1159,9 @@ public void test0024() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0025() {
@@ -1138,9 +1190,9 @@ public void test0025() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0026() {
@@ -1169,8 +1221,8 @@ public void test0026() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString,	
-		testName);
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,	
+		expectedCompletionDietUnitToString, testName);
 }
 }

@@ -207,7 +207,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		defaultOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
 		defaultOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.WARNING );
-		defaultOptions.put(CompilerOptions.OPTION_StatementsRecovery, CompilerOptions.DISABLED); //TODO temporary option
 		return defaultOptions;
 	}
 	protected String[] getDefaultClassPaths() {
@@ -329,7 +328,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getErrorHandlingPolicy(), 
 				options,
 				requestor, 
-				problemFactory);
+				problemFactory,
+				false);
 		batchCompiler.options.produceReferenceInfo = true;
 		try {
 			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
@@ -420,7 +420,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getErrorHandlingPolicy(),
 				getCompilerOptions(), 
 				requestor, 
-				problemFactory);
+				problemFactory,
+				false);
 		batchCompiler.options.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
@@ -516,7 +517,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getNameEnvironment(new String[]{}, classLib), 
 				getErrorHandlingPolicy(), 
 				options,
-				requestor, problemFactory);
+				requestor,
+				problemFactory,
+				false);
 		batchCompiler.options.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
@@ -576,7 +579,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getErrorHandlingPolicy(), 
 				options,
 				requestor, 
-				problemFactory);
+				problemFactory,
+				false);
 		batchCompiler.options.produceReferenceInfo = true;
 		try {
 			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together

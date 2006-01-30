@@ -164,7 +164,8 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
 		this.options, 
 		compilerRequestor, 
-		this.problemFactory);
+		this.problemFactory,
+		true);
 }
 /**
  * Builds and returns the source for the current compilation unit.
