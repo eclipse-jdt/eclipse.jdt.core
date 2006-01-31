@@ -2826,15 +2826,21 @@ public class JavaProject
 	 */
 	public void setOption(String optionName, String optionValue) {
 		if (!JavaModelManager.getJavaModelManager().optionNames.contains(optionName)) return; // unrecognized option
+		if (optionValue == null) return; // invalid value
 		IEclipsePreferences projectPreferences = getEclipsePreferences();
 		String defaultValue = JavaCore.getOption(optionName);
-		if (defaultValue == null || !defaultValue.equals(optionValue)) {
+		if (optionValue.equals(defaultValue)) {
+			// set default value => remove preference
+			projectPreferences.remove(optionName);
+		} else {
 			projectPreferences.put(optionName, optionValue);
-			try {
-				projectPreferences.flush();
-			} catch (BackingStoreException e) {
-				// problem with pref store - quietly ignore
-			}
+		}
+		
+		// Dump changes
+		try {
+			projectPreferences.flush();
+		} catch (BackingStoreException e) {
+			// problem with pref store - quietly ignore
 		}
 	}
 

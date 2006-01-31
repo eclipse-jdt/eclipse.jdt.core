@@ -39,7 +39,7 @@ public class OptionTests extends ModifyingResourceTests {
 		super(name);
 	}
 	static {
-//		TESTS_NUMBERS = new int[] { 100393 };
+//		TESTS_NUMBERS = new int[] { 125360 };
 //		TESTS_RANGE = new int[] { 4, -1 };
 	}
 	public static Test suite() {
@@ -580,5 +580,26 @@ public class OptionTests extends ModifyingResourceTests {
 		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, "warning", preferences.get(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, "null"));
 		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_FIELD_HIDING, "ignore", preferences.get(JavaCore.COMPILER_PB_FIELD_HIDING, "null"));
 		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, "ignore", preferences.get(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, "null"));
+	}
+
+	/**
+	 * @bug 125360: IJavaProject#setOption() doesn't work if same option as default
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=125360"
+	 */
+	public void testBug125360() throws CoreException, BackingStoreException {
+		try {
+			JavaProject project = (JavaProject) createJavaProject(
+				"P", 
+				new String[] {}, // source folders
+				new String[] {}, // lib folders
+				new String[] {}, // projects
+				"");
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+			String option = project.getOption(JavaCore.COMPILER_SOURCE, true);
+			assertEquals(JavaCore.VERSION_1_3, option);
+		} finally {
+			deleteProject("P");
+		}
 	}
 }
