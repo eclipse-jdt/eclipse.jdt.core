@@ -70,12 +70,14 @@ public interface IAccessRule {
 	int K_DISCOURAGED = 2;
 
 	/**
-	 * <p>Flag indicating that the rule should be ignored if a better rule is found on 
-	 * another classpath entry.</p>
-	 * <p>E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
-	 * a library entry 'lib1' and a rule K_DISCOURAGED that also matches p.X is 
-	 * found on library entry 'lib2' - 'lib2' being after 'lib1' on the classpath,
-	 * then p.X will be reported as discouraged.</p>
+	 * <p>Flag indicating that whether a type matching this rule should be ignored iff a type with 
+	 * the same qualified name can be found on a later classpath entry with a better 
+	 * accessibility.</p>
+	 * <p>E.g. if a type p.X matches a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER 
+	 * on a library entry 'lib1' and another type p.X also matches a rule 
+	 * K_DISCOURAGED on library entry 'lib2' ('lib2' being after 'lib1' on the 
+	 * classpath), then p.X from 'lib2' will be used and reported as 
+	 * discouraged.</p>
 	 * 
 	 * @since 3.2
 	 */
@@ -97,15 +99,18 @@ public interface IAccessRule {
 	int getKind();
 	
 	/**
-	 * Returns whether the rule should be ignored if a better rule is found on 
-	 * another classpath entry.
-	 * E.g. if a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER matches type p.X on
-	 * a library entry 'lib1' and a rule K_DISCOURAGED that also matches p.X is 
-	 * found on library entry 'lib2' - 'lib2' being after 'lib1' on the classpath,
-	 * then p.X will be reported as discouraged.
+	 * Returns whether a type matching this rule should be ignored iff a type with 
+	 * the same qualified name can be found on a later classpath entry with a better 
+	 * accessibility.</p>
+	 * <p>E.g. if a type p.X matches a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER 
+	 * on a library entry 'lib1' and another type p.X also matches a rule 
+	 * K_DISCOURAGED on library entry 'lib2' ('lib2' being after 'lib1' on the 
+	 * classpath), then p.X from 'lib2' will be used and reported as 
+	 * discouraged.</p>
 	 * 
-	 * @return whether the rule should be ignored if a better rule is found on
-	 *         another classpath entry
+	 * @return whether a type matching this rule should be ignored iff a type 
+	 *              with the same qualified name can be found on a later classpath 
+	 *              entry with a better accessibility
 	 * @since 3.2
 	 */
 	boolean ignoreIfBetter();
