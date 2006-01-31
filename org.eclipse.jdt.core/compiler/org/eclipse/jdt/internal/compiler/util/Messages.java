@@ -96,6 +96,7 @@ public final class Messages {
 	public static String problem_noSourceInformation;
 	public static String problem_atLine;
 	public static String abort_invalidAttribute;
+	public static String abort_invalidExceptionAttribute;
 	public static String abort_missingCode;
 	public static String abort_againstSourceModel;
 	public static String accept_cannot;

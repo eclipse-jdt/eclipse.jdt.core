@@ -1566,6 +1566,11 @@ public class ClassFile
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
 			if (exceptionLabel != null) {
 				int iRange = 0, maxRange = exceptionLabel.count;
+				if ((maxRange & 1) != 0) {
+					codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
+							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(codeStream.methodDeclaration.selector)), 
+							codeStream.methodDeclaration);
+				}				
 				while  (iRange < maxRange) {
 					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
 					this.contents[localContentsOffset++] = (byte) (start >> 8);
@@ -2228,6 +2233,11 @@ public class ClassFile
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
 			if (exceptionLabel != null) {
 				int iRange = 0, maxRange = exceptionLabel.count;
+				if ((maxRange & 1) != 0) {
+					codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
+							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(codeStream.methodDeclaration.selector)), 
+							codeStream.methodDeclaration);
+				}				
 				while  (iRange < maxRange) {
 					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
 					this.contents[localContentsOffset++] = (byte) (start >> 8);
@@ -4387,6 +4397,11 @@ public class ClassFile
 				ExceptionLabel exceptionLabel = exceptionLabels[i];
 				if (exceptionLabel != null) {
 					int iRange = 0, maxRange = exceptionLabel.count;
+					if ((maxRange & 1) != 0) {
+						referenceBinding.scope.problemReporter().abortDueToInternalError(
+								Messages.bind(Messages.abort_invalidExceptionAttribute, new String(binding.selector), 
+										referenceBinding.scope.problemReporter().referenceContext));
+					}
 					while  (iRange < maxRange) {
 						int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
 						this.contents[localContentsOffset++] = (byte) (start >> 8);
