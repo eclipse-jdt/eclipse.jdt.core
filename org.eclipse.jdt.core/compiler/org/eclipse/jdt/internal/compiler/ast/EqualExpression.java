@@ -163,7 +163,7 @@ public class EqualExpression extends BinaryExpression {
 	 * Boolean operator code generation
 	 *	Optimized operations are: == and !=
 	 */
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
@@ -226,7 +226,7 @@ public class EqualExpression extends BinaryExpression {
 			} else {
 				// <something equivalent to false> == x, <something equivalent to true> != x
 				if (valueRequired) {
-					Label falseLabel = new Label(codeStream);
+					BranchLabel falseLabel = new BranchLabel(codeStream);
 					left.generateCode(currentScope, codeStream, false);
 					right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired);
 					// comparison is TRUE 
@@ -238,7 +238,7 @@ public class EqualExpression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_1();
 					} else {
-						Label endLabel = new Label(codeStream);
+						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
 						codeStream.decrStackSize(1);
 						// comparison is FALSE
@@ -268,7 +268,7 @@ public class EqualExpression extends BinaryExpression {
 			} else {
 				// x == <something equivalent to false>, x != <something equivalent to true>
 				if (valueRequired) {
-					Label falseLabel = new Label(codeStream);
+					BranchLabel falseLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired);
 					right.generateCode(currentScope, codeStream, false);
 					// comparison is TRUE 
@@ -280,7 +280,7 @@ public class EqualExpression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_1();
 					} else {
-						Label endLabel = new Label(codeStream);
+						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
 						codeStream.decrStackSize(1);
 						// comparison is FALSE
@@ -307,8 +307,8 @@ public class EqualExpression extends BinaryExpression {
 
 		if (valueRequired) {
 			if (isEqualOperator) {
-				Label falseLabel;
-				codeStream.if_icmpne(falseLabel = new Label(codeStream));
+				BranchLabel falseLabel;
+				codeStream.if_icmpne(falseLabel = new BranchLabel(codeStream));
 				// comparison is TRUE 
 				codeStream.iconst_1();
 				if ((bits & IsReturnedValue) != 0){
@@ -318,7 +318,7 @@ public class EqualExpression extends BinaryExpression {
 					falseLabel.place();
 					codeStream.iconst_0();
 				} else {
-					Label endLabel = new Label(codeStream);
+					BranchLabel endLabel = new BranchLabel(codeStream);
 					codeStream.goto_(endLabel);
 					codeStream.decrStackSize(1);
 					// comparison is FALSE
@@ -337,7 +337,7 @@ public class EqualExpression extends BinaryExpression {
 	 *
 	 * Note this code does not optimize conditional constants !!!!
 	 */
-	public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+	public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	
 		// optimized cases: true == x, false == x
 		if (left.constant != Constant.NotAConstant) {
@@ -384,7 +384,7 @@ public class EqualExpression extends BinaryExpression {
 				// optimized case: 0 == x, 0 != x
 				right.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
-					Label falseLabel = new Label(codeStream);
+					BranchLabel falseLabel = new BranchLabel(codeStream);
 					if (isEqualOperator) {
 						codeStream.ifne(falseLabel);
 					} else {
@@ -399,7 +399,7 @@ public class EqualExpression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						Label endLabel = new Label(codeStream);
+						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
 						codeStream.decrStackSize(1);
 						// comparison is FALSE
@@ -414,7 +414,7 @@ public class EqualExpression extends BinaryExpression {
 				// optimized case: x == 0, x != 0
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
-					Label falseLabel = new Label(codeStream);
+					BranchLabel falseLabel = new BranchLabel(codeStream);
 					if (isEqualOperator) {
 						codeStream.ifne(falseLabel);
 					} else {
@@ -429,7 +429,7 @@ public class EqualExpression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						Label endLabel = new Label(codeStream);
+						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
 						codeStream.decrStackSize(1);
 						// comparison is FALSE
@@ -457,7 +457,7 @@ public class EqualExpression extends BinaryExpression {
 				// x == null, x != null
 				left.generateCode(currentScope, codeStream, valueRequired);
 				if (valueRequired) {
-					Label falseLabel = new Label(codeStream);
+					BranchLabel falseLabel = new BranchLabel(codeStream);
 					if (isEqualOperator) {
 						codeStream.ifnonnull(falseLabel);
 					} else {
@@ -472,7 +472,7 @@ public class EqualExpression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						Label endLabel = new Label(codeStream);
+						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
 						codeStream.decrStackSize(1);
 						// comparison is FALSE
@@ -487,7 +487,7 @@ public class EqualExpression extends BinaryExpression {
 			// null = x, null != x
 			right.generateCode(currentScope, codeStream, valueRequired);
 			if (valueRequired) {
-				Label falseLabel = new Label(codeStream);
+				BranchLabel falseLabel = new BranchLabel(codeStream);
 				if (isEqualOperator) {
 					codeStream.ifnonnull(falseLabel);
 				} else {
@@ -502,7 +502,7 @@ public class EqualExpression extends BinaryExpression {
 					falseLabel.place();
 					codeStream.iconst_0();
 				} else {
-					Label endLabel = new Label(codeStream);
+					BranchLabel endLabel = new BranchLabel(codeStream);
 					codeStream.goto_(endLabel);
 					codeStream.decrStackSize(1);
 					// comparison is FALSE
@@ -518,7 +518,7 @@ public class EqualExpression extends BinaryExpression {
 		left.generateCode(currentScope, codeStream, valueRequired);
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
-			Label falseLabel = new Label(codeStream);
+			BranchLabel falseLabel = new BranchLabel(codeStream);
 			if (isEqualOperator) {
 				switch ((left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) { // operand runtime type
 					case T_int :
@@ -569,7 +569,7 @@ public class EqualExpression extends BinaryExpression {
 				falseLabel.place();
 				codeStream.iconst_0();
 			} else {
-				Label endLabel = new Label(codeStream);
+				BranchLabel endLabel = new BranchLabel(codeStream);
 				codeStream.goto_(endLabel);
 				codeStream.decrStackSize(1);
 				// comparison is FALSE
@@ -584,7 +584,7 @@ public class EqualExpression extends BinaryExpression {
 	 * Boolean generation for == with non-boolean operands
 	 *
 	 */
-	public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+	public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	
 		int pc = codeStream.position;
 		Constant inline;

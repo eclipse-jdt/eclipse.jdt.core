@@ -151,10 +151,10 @@ public class Clinit extends AbstractMethodDeclaration {
 					classScope.enclosingSourceType(),
 				classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
-			Label falseLabel = new Label(codeStream);
+			BranchLabel falseLabel = new BranchLabel(codeStream);
 			codeStream.ifne(falseLabel);
 			codeStream.iconst_1();
-			Label jumpLabel = new Label(codeStream);
+			BranchLabel jumpLabel = new BranchLabel(codeStream);
 			codeStream.goto_(jumpLabel);
 			falseLabel.place();
 			codeStream.iconst_0();

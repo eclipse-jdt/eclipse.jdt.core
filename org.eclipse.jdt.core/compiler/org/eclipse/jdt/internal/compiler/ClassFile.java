@@ -1549,42 +1549,48 @@ public class ClassFile
 		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 
 		// write the exception table
-		int exceptionHandlersNumber = codeStream.exceptionHandlersCounter;
-		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
-		int exSize = exceptionHandlersNumber * 8 + 2;
+		ExceptionLabel[] exceptionLabels = codeStream.exceptionLabels;
+		int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
+		for (int i = 0, length = codeStream.exceptionLabelsCounter; i < length; i++) {
+			exceptionHandlersCount += codeStream.exceptionLabels[i].count / 2; 
+		}
+		int exSize = exceptionHandlersCount * 8 + 2;
 		if (exSize + localContentsOffset >= this.contents.length) {
 			resizeContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
-		this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
-		this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
-		for (int i = 0, max = codeStream.exceptionHandlersIndex; i < max; i++) {
-			ExceptionLabel exceptionHandler = exceptionHandlers[i];
-			if (exceptionHandler != null) {
-				int start = exceptionHandler.start;
-				this.contents[localContentsOffset++] = (byte) (start >> 8);
-				this.contents[localContentsOffset++] = (byte) start;
-				int end = exceptionHandler.end;
-				this.contents[localContentsOffset++] = (byte) (end >> 8);
-				this.contents[localContentsOffset++] = (byte) end;
-				int handlerPC = exceptionHandler.position;
-				this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
-				this.contents[localContentsOffset++] = (byte) handlerPC;
-				if (exceptionHandler.exceptionType == null) {
-					// any exception handler
-					this.contents[localContentsOffset++] = 0;
-					this.contents[localContentsOffset++] = 0;
-				} else {
-					int nameIndex;
-					if (exceptionHandler.exceptionType == TypeBinding.NULL) {
-						/* represents ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+		this.contents[localContentsOffset++] = (byte) (exceptionHandlersCount >> 8);
+		this.contents[localContentsOffset++] = (byte) exceptionHandlersCount;
+		for (int i = 0, max = codeStream.exceptionLabelsCounter; i < max; i++) {
+			ExceptionLabel exceptionLabel = exceptionLabels[i];
+			if (exceptionLabel != null) {
+				int iRange = 0, maxRange = exceptionLabel.count;
+				while  (iRange < maxRange) {
+					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
+					this.contents[localContentsOffset++] = (byte) (start >> 8);
+					this.contents[localContentsOffset++] = (byte) start;
+					int end = exceptionLabel.ranges[iRange++]; // odd ranges are end positions
+					this.contents[localContentsOffset++] = (byte) (end >> 8);
+					this.contents[localContentsOffset++] = (byte) end;
+					int handlerPC = exceptionLabel.position;
+					this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+					this.contents[localContentsOffset++] = (byte) handlerPC;
+					if (exceptionLabel.exceptionType == null) {
+						// any exception handler
+						this.contents[localContentsOffset++] = 0;
+						this.contents[localContentsOffset++] = 0;
 					} else {
-						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
+						int nameIndex;
+						if (exceptionLabel.exceptionType == TypeBinding.NULL) {
+							/* represents ClassNotFoundException, see class literal access*/
+							nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+						} else {
+							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+						}
+						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) nameIndex;
 					}
-					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
-					this.contents[localContentsOffset++] = (byte) nameIndex;
 				}
 			}
 		}
@@ -2205,42 +2211,48 @@ public class ClassFile
 		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 
 		// write the exception table
-		int exceptionHandlersNumber = codeStream.exceptionHandlersCounter;
-		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
-		int exSize = exceptionHandlersNumber * 8 + 2;
+		ExceptionLabel[] exceptionLabels = codeStream.exceptionLabels;
+		int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
+		for (int i = 0, length = codeStream.exceptionLabelsCounter; i < length; i++) {
+			exceptionHandlersCount += codeStream.exceptionLabels[i].count / 2; 
+		}
+		int exSize = exceptionHandlersCount * 8 + 2;
 		if (exSize + localContentsOffset >= this.contents.length) {
 			resizeContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
-		this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
-		this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
-		for (int i = 0, max = codeStream.exceptionHandlersIndex; i < max; i++) {
-			ExceptionLabel exceptionHandler = exceptionHandlers[i];
-			if (exceptionHandler != null) {
-				int start = exceptionHandler.start;
-				this.contents[localContentsOffset++] = (byte) (start >> 8);
-				this.contents[localContentsOffset++] = (byte) start;
-				int end = exceptionHandler.end;
-				this.contents[localContentsOffset++] = (byte) (end >> 8);
-				this.contents[localContentsOffset++] = (byte) end;
-				int handlerPC = exceptionHandler.position;
-				this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
-				this.contents[localContentsOffset++] = (byte) handlerPC;
-				if (exceptionHandler.exceptionType == null) {
-					// any exception handler
-					this.contents[localContentsOffset++] = 0;
-					this.contents[localContentsOffset++] = 0;
-				} else {
-					int nameIndex;
-					if (exceptionHandler.exceptionType == TypeBinding.NULL) {
-						/* represents denote ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+		this.contents[localContentsOffset++] = (byte) (exceptionHandlersCount >> 8);
+		this.contents[localContentsOffset++] = (byte) exceptionHandlersCount;
+		for (int i = 0, max = codeStream.exceptionLabelsCounter; i < max; i++) {
+			ExceptionLabel exceptionLabel = exceptionLabels[i];
+			if (exceptionLabel != null) {
+				int iRange = 0, maxRange = exceptionLabel.count;
+				while  (iRange < maxRange) {
+					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
+					this.contents[localContentsOffset++] = (byte) (start >> 8);
+					this.contents[localContentsOffset++] = (byte) start;
+					int end = exceptionLabel.ranges[iRange++]; // odd ranges are end positions
+					this.contents[localContentsOffset++] = (byte) (end >> 8);
+					this.contents[localContentsOffset++] = (byte) end;
+					int handlerPC = exceptionLabel.position;
+					this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+					this.contents[localContentsOffset++] = (byte) handlerPC;
+					if (exceptionLabel.exceptionType == null) {
+						// any exception handler
+						this.contents[localContentsOffset++] = 0;
+						this.contents[localContentsOffset++] = 0;
 					} else {
-						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
+						int nameIndex;
+						if (exceptionLabel.exceptionType == TypeBinding.NULL) {
+							/* represents denote ClassNotFoundException, see class literal access*/
+							nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+						} else {
+							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+						}
+						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) nameIndex;
 					}
-					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
-					this.contents[localContentsOffset++] = (byte) nameIndex;
 				}
 			}
 		}
@@ -4358,48 +4370,54 @@ public class ClassFile
 		
 		if (hasExceptionHandlers) {
 			// write the exception table
-			int exceptionHandlersNumber = codeStream.exceptionHandlersCounter;
-			ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
-			int exSize = exceptionHandlersNumber * 8 + 2;
+			ExceptionLabel[] exceptionLabels = codeStream.exceptionLabels;
+			int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
+			for (int i = 0, length = codeStream.exceptionLabelsCounter; i < length; i++) {
+				exceptionHandlersCount += codeStream.exceptionLabels[i].count / 2; 
+			}
+			int exSize = exceptionHandlersCount * 8 + 2;
 			if (exSize + localContentsOffset >= this.contents.length) {
 				resizeContents(exSize);
 			}
 			// there is no exception table, so we need to offset by 2 the current offset and move 
 			// on the attribute generation
-			this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
-			this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
-			for (int i = 0, max = codeStream.exceptionHandlersIndex; i < max; i++) {
-				ExceptionLabel exceptionHandler = exceptionHandlers[i];
-				if (exceptionHandler != null) {
-					int start = exceptionHandler.start;
-					this.contents[localContentsOffset++] = (byte) (start >> 8);
-					this.contents[localContentsOffset++] = (byte) start;
-					int end = exceptionHandler.end;
-					this.contents[localContentsOffset++] = (byte) (end >> 8);
-					this.contents[localContentsOffset++] = (byte) end;
-					int handlerPC = exceptionHandler.position;
-					this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
-					this.contents[localContentsOffset++] = (byte) handlerPC;
-					if (exceptionHandler.exceptionType == null) {
-						// any exception handler
-						this.contents[localContentsOffset++] = 0;
-						this.contents[localContentsOffset++] = 0;
-					} else {
-						int nameIndex;
-						switch(exceptionHandler.exceptionType.id) {
-							case T_null :
-								/* represents ClassNotFoundException, see class literal access*/
-								nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
-								break;
-							case T_long :
-								/* represents NoSuchFieldError, see switch table generation*/
-								nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangNoSuchFieldErrorConstantPoolName);
-								break;
-							default:
-								nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
+			this.contents[localContentsOffset++] = (byte) (exceptionHandlersCount >> 8);
+			this.contents[localContentsOffset++] = (byte) exceptionHandlersCount;
+			for (int i = 0, max = codeStream.exceptionLabelsCounter; i < max; i++) {
+				ExceptionLabel exceptionLabel = exceptionLabels[i];
+				if (exceptionLabel != null) {
+					int iRange = 0, maxRange = exceptionLabel.count;
+					while  (iRange < maxRange) {
+						int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
+						this.contents[localContentsOffset++] = (byte) (start >> 8);
+						this.contents[localContentsOffset++] = (byte) start;
+						int end = exceptionLabel.ranges[iRange++]; // odd ranges are end positions
+						this.contents[localContentsOffset++] = (byte) (end >> 8);
+						this.contents[localContentsOffset++] = (byte) end;
+						int handlerPC = exceptionLabel.position;
+						this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+						this.contents[localContentsOffset++] = (byte) handlerPC;
+						if (exceptionLabel.exceptionType == null) {
+							// any exception handler
+							this.contents[localContentsOffset++] = 0;
+							this.contents[localContentsOffset++] = 0;
+						} else {
+							int nameIndex;
+							switch(exceptionLabel.exceptionType.id) {
+								case T_null :
+									/* represents ClassNotFoundException, see class literal access*/
+									nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+									break;
+								case T_long :
+									/* represents NoSuchFieldError, see switch table generation*/
+									nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangNoSuchFieldErrorConstantPoolName);
+									break;
+								default:
+									nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+							}
+							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) nameIndex;
 						}
-						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
-						this.contents[localContentsOffset++] = (byte) nameIndex;
 					}
 				}
 			}

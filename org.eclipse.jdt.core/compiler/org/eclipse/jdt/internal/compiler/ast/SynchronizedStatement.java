@@ -79,10 +79,8 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		}
 		// in case the labels needs to be reinitialized
 		// when the code generation is restarted in wide mode
-		if (this.anyExceptionLabelsCount > 0) {
-			this.anyExceptionLabels = NO_EXCEPTION_HANDLER;
-			this.anyExceptionLabelsCount = 0;
-		}
+		this.anyExceptionLabel = null;
+
 		int pc = codeStream.position;
 	
 		// generate the synchronization expression
@@ -108,7 +106,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			// generate  the body of the synchronized block
 			this.enterAnyExceptionHandler(codeStream);
 			block.generateCode(scope, codeStream);
-			Label endLabel = new Label(codeStream);
+			BranchLabel endLabel = new BranchLabel(codeStream);
 			if (!blockExit) {
 				codeStream.load(synchroVariable);
 				codeStream.monitorexit();
@@ -118,7 +116,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			}
 			// generate the body of the exception handler
 			codeStream.pushOnStack(scope.getJavaLangThrowable());
-			this.placeAllAnyExceptionHandlers();
+			this.placeAllAnyExceptionHandler();
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
 			this.exitAnyExceptionHandler();

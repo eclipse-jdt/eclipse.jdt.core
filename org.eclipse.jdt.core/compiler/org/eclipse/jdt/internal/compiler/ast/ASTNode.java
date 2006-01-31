@@ -36,7 +36,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) | is secondary type (type decl)
 	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
-	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
+	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
 	public final static int Bit18 = 0x20000;				// non null (expression)				
@@ -51,7 +51,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000; 			// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement)
+	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement) | try block exit (try statement)
 	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
@@ -113,6 +113,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsLocalDeclarationReachable = Bit31; 
 	public static final int LabelUsed = Bit7;
 	
+	// try statements
+	public static final int IsSubRoutineEscaping = Bit15;
+	public static final int IsTryBlockExiting = Bit30;
+	
 	// for type declaration
 	public static final int ContainsAssertion = Bit1;
 	public static final int IsLocalType = Bit9;
@@ -158,7 +162,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for array initializer
 	public static final int IsAnnotationDefaultValue = Bit1;
 	
-	// for null refenrence analysis
+	// for null reference analysis
 	public static final int IsNonNull = Bit18;
 	
 	public ASTNode() {

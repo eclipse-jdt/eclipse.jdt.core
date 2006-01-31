@@ -21,7 +21,7 @@ public class WhileStatement extends Statement {
 	
 	public Expression condition;
 	public Statement action;
-	private Label breakLabel, continueLabel;
+	private BranchLabel breakLabel, continueLabel;
 	int preCondInitStateIndex = -1;
 	int condIfTrueInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
@@ -41,8 +41,8 @@ public class WhileStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		breakLabel = new Label();
-		continueLabel = new Label(); 
+		breakLabel = new BranchLabel();
+		continueLabel = new BranchLabel(); 
 
 		Constant cst = this.condition.constant;
 		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
@@ -204,9 +204,9 @@ public class WhileStatement extends Statement {
 			}
 		}
 		// generate the action
-		Label actionLabel = new Label(codeStream);
+		BranchLabel actionLabel = new BranchLabel(codeStream);
 		if (action != null) {
-			actionLabel.tagBits |= Label.USED;
+			actionLabel.tagBits |= BranchLabel.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (condIfTrueInitStateIndex != -1) {
 				// insert all locals initialized inside the condition into the action generated prior to the condition

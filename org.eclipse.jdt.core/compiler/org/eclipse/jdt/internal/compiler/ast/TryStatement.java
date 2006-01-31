@@ -25,16 +25,18 @@ public class TryStatement extends SubRoutineStatement {
 	public Block finallyBlock;
 	BlockScope scope;
 
-	private boolean isSubRoutineEscaping = false;
+//	private boolean isSubRoutineEscaping = false;
 	public UnconditionalFlowInfo subRoutineInits;
+//	private boolean generatingTryBlock;
 	
 	// should rename into subRoutineComplete to be set to false by default
 
 	ReferenceBinding[] caughtExceptionTypes;
-	boolean tryBlockExit;
+//	boolean tryBlockExit;
 	boolean[] catchExits;
 
-	Label subRoutineStartLabel;
+	ExceptionLabel[] enclosingExceptionLabels;	// only set while generating try block
+	BranchLabel subRoutineStartLabel;
 	public LocalVariableBinding anyExceptionVariable,
 		returnAddressVariable,
 		secretReturnValue;
@@ -82,10 +84,10 @@ public class TryStatement extends SubRoutineStatement {
 			FlowInfo tryInfo;
 			if (this.tryBlock.isEmptyBlock()) {
 				tryInfo = flowInfo;
-				this.tryBlockExit = false;
 			} else {
 				tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-				this.tryBlockExit = (tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+				if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+					this.bits |= IsTryBlockExiting;
 			}
 	
 			// check unreachable catch blocks
@@ -151,7 +153,7 @@ public class TryStatement extends SubRoutineStatement {
 						flowInfo.nullInfoLessUnconditionalCopy())
 					.unconditionalInits();
 			if (subInfo == FlowInfo.DEAD_END) {
-				this.isSubRoutineEscaping = true;
+				this.bits |= IsSubRoutineEscaping;
 				this.scope.problemReporter().finallyMustCompleteNormally(this.finallyBlock);
 			}
 			this.subRoutineInits = subInfo;
@@ -167,10 +169,10 @@ public class TryStatement extends SubRoutineStatement {
 			FlowInfo tryInfo;
 			if (this.tryBlock.isEmptyBlock()) {
 				tryInfo = flowInfo;
-				this.tryBlockExit = false;
 			} else {
 				tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-				this.tryBlockExit = (tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+				if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+					this.bits |= IsTryBlockExiting;
 			}
 	
 			// check unreachable catch blocks
@@ -247,7 +249,7 @@ public class TryStatement extends SubRoutineStatement {
 
 	public boolean isSubRoutineEscaping() {
 
-		return this.isSubRoutineEscaping;
+		return (this.bits & IsSubRoutineEscaping) != 0;
 	}
 
 	/**
@@ -261,10 +263,8 @@ public class TryStatement extends SubRoutineStatement {
 		}
 		// in case the labels needs to be reinitialized
 		// when the code generation is restarted in wide mode
-		if (this.anyExceptionLabelsCount > 0) {
-			this.anyExceptionLabels = SubRoutineStatement.NO_EXCEPTION_HANDLER;
-			this.anyExceptionLabelsCount = 0;
-		}
+		this.anyExceptionLabel = null;
+
 		int pc = codeStream.position;
 		final int NO_FINALLY = 0;									// no finally block
 		final int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
@@ -274,7 +274,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.subRoutineStartLabel == null) { 
 			finallyMode = NO_FINALLY;
 		} else {
-			if (this.isSubRoutineEscaping) {
+			if (isSubRoutineEscaping()) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
 			} else if (this.scope.compilerOptions().inlineJsrBytecode) {
 				finallyMode = FINALLY_MUST_BE_INLINED;
@@ -284,27 +284,37 @@ public class TryStatement extends SubRoutineStatement {
 		}
 		boolean requiresNaturalExit = false;
 		// preparing exception labels
-		int maxCatches;
-		ExceptionLabel[] exceptionLabels =
-			new ExceptionLabel[maxCatches =
-				this.catchArguments == null ? 0 : this.catchArguments.length];
-		for (int i = 0; i < maxCatches; i++) {
-			exceptionLabels[i] = new ExceptionLabel(codeStream, this.catchArguments[i].binding.type);
+		int maxCatches = this.catchArguments == null ? 0 : this.catchArguments.length;
+		ExceptionLabel[] exceptionLabels;
+		if (maxCatches > 0) {
+			exceptionLabels = new ExceptionLabel[maxCatches];
+			for (int i = 0; i < maxCatches; i++) {
+				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream, this.catchArguments[i].binding.type);
+				exceptionLabel.placeStart();
+				exceptionLabels[i] = exceptionLabel;
+			}
+		} else {
+			exceptionLabels = null;
 		}
 		if (this.subRoutineStartLabel != null) {
 			this.subRoutineStartLabel.initialize(codeStream);
 			this.enterAnyExceptionHandler(codeStream);
 		}
 		// generate the try block
-		this.tryBlock.generateCode(this.scope, codeStream);
+		try {
+			this.enclosingExceptionLabels = exceptionLabels;
+			this.tryBlock.generateCode(this.scope, codeStream);
+		} finally {
+			this.enclosingExceptionLabels = null;
+		}
 		boolean tryBlockHasSomeCode = codeStream.position != pc;
 		// flag telling if some bytecodes were issued inside the try block
 
 		// place end positions of user-defined exception labels
 		if (tryBlockHasSomeCode) {
 			// natural exit may require subroutine invocation (if finally != null)
-			Label naturalExitLabel = new Label(codeStream);
-			if (!this.tryBlockExit) {
+			BranchLabel naturalExitLabel = new BranchLabel(codeStream);
+			if ((this.bits & IsTryBlockExiting) == 0) {
 				int position = codeStream.position;
 				switch(finallyMode) {
 					case FINALLY_SUBROUTINE :
@@ -380,7 +390,7 @@ public class TryStatement extends SubRoutineStatement {
 					// reset initialization state, as for a normal catch block
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 				}
-				this.placeAllAnyExceptionHandlers();
+				this.placeAllAnyExceptionHandler();
 				if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
 				
 
@@ -428,7 +438,6 @@ public class TryStatement extends SubRoutineStatement {
 					switch(finallyMode) {
 						case FINALLY_SUBROUTINE :
 							int position = codeStream.position;
-							// fix up natural exit handler
 							naturalExitExceptionHandler.placeStart();
 							codeStream.jsr(this.subRoutineStartLabel);
 							naturalExitExceptionHandler.placeEnd();
@@ -474,14 +483,22 @@ public class TryStatement extends SubRoutineStatement {
 			BlockScope currentScope,
 			CodeStream codeStream) {
 	
-		if (this.isSubRoutineEscaping) {
+		if (isSubRoutineEscaping()) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
 			if (currentScope.compilerOptions().inlineJsrBytecode) {
 				// cannot use jsr bytecode, then simply inline the subroutine
-				this.exitAnyExceptionHandler();				
+				this.exitAnyExceptionHandler();
+				// inside try block, ensure to deactivate all catch block exception handlers while inlining finally block
+				for (int i = 0, length = this.enclosingExceptionLabels == null ? 0 : this.enclosingExceptionLabels.length; i < length; i++) {
+					this.enclosingExceptionLabels[i].placeEnd();
+				}
 				this.finallyBlock.generateCode(currentScope, codeStream);
 				this.enterAnyExceptionHandler(codeStream);
+				// inside try block, ensure to reactivate all catch block exception handlers after inlining finally block
+				for (int i = 0, length = this.enclosingExceptionLabels == null ? 0 : this.enclosingExceptionLabels.length; i < length; i++) {
+					this.enclosingExceptionLabels[i].placeStart();
+				}
 			} else {
 				// classic subroutine invocation, distinguish case of non-returning subroutine
 				codeStream.jsr(this.subRoutineStartLabel);
@@ -537,7 +554,7 @@ public class TryStatement extends SubRoutineStatement {
 					finallyScope.addLocalVariable(this.returnAddressVariable);
 					this.returnAddressVariable.setConstant(Constant.NotAConstant); // not inlinable
 				}
-				this.subRoutineStartLabel = new Label();
+				this.subRoutineStartLabel = new BranchLabel();
 	
 				this.anyExceptionVariable =
 					new LocalVariableBinding(TryStatement.SecretAnyHandlerName, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);

@@ -24,7 +24,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 33 };
+//	TESTS_NUMBERS = new int[] { 34 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -1490,6 +1490,330 @@ public void test033() {
 	} catch (IOException e) {
 		assertTrue(false);
 	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853
+public void test034() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			scenario();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static int scenario(){\n" + 
+				"		try {\n" + 
+				"			int i = 1;\n" + 
+				"			System.out.print(\"[i: \" + i+\"]\");\n" + 
+				"			if (i > 5) {\n" + 
+				"				return i;\n" + 
+				"			}\n" + 
+				"			return -i;\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			System.out.print(\"[WRONG CATCH]\");\n" + 
+				"			return 2;\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			try {\n" + 
+				"				throwRuntime();\n" + 
+				"			} finally {\n" + 
+				"				clean();\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void throwRuntime() {\n" + 
+				"		throw new RuntimeException(\"error\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void clean() {\n" + 
+				"		System.out.print(\"[clean]\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[i: 1][finally][clean][end]");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #19 ()I\n" + 
+			"  // Stack: 4, Locals: 4\n" + 
+			"  private static int scenario();\n" + 
+			"      0  iconst_1\n" + 
+			"      1  istore_0 [i]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"      5  new java.lang.StringBuilder [40]\n" + 
+			"      8  dup\n" + 
+			"      9  ldc <String \"[i: \"> [42]\n" + 
+			"     11  invokespecial java.lang.StringBuilder(java.lang.String) [44]\n" + 
+			"     14  iload_0 [i]\n" + 
+			"     15  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [46]\n" + 
+			"     18  ldc <String \"]\"> [50]\n" + 
+			"     20  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [52]\n" + 
+			"     23  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [55]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     29  iload_0 [i]\n" + 
+			"     30  iconst_5\n" + 
+			"     31  if_icmple 61\n" + 
+			"     34  iload_0 [i]\n" + 
+			"     35  istore_2\n" + 
+			"     36  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"     39  ldc <String \"[finally]\"> [62]\n" + 
+			"     41  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     44  invokestatic X.throwRuntime() : void [64]\n" + 
+			"     47  goto 56\n" + 
+			"     50  astore_3\n" + 
+			"     51  invokestatic X.clean() : void [67]\n" + 
+			"     54  aload_3\n" + 
+			"     55  athrow\n" + 
+			"     56  invokestatic X.clean() : void [67]\n" + 
+			"     59  iload_2\n" + 
+			"     60  ireturn\n" + 
+			"     61  iload_0 [i]\n" + 
+			"     62  ineg\n" + 
+			"     63  istore_2\n" + 
+			"     64  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"     67  ldc <String \"[finally]\"> [62]\n" + 
+			"     69  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     72  invokestatic X.throwRuntime() : void [64]\n" + 
+			"     75  goto 84\n" + 
+			"     78  astore_3\n" + 
+			"     79  invokestatic X.clean() : void [67]\n" + 
+			"     82  aload_3\n" + 
+			"     83  athrow\n" + 
+			"     84  invokestatic X.clean() : void [67]\n" + 
+			"     87  iload_2\n" + 
+			"     88  ireturn\n" + 
+			"     89  astore_0 [e]\n" + 
+			"     90  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"     93  ldc <String \"[WRONG CATCH]\"> [70]\n" + 
+			"     95  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     98  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"    101  ldc <String \"[finally]\"> [62]\n" + 
+			"    103  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"    106  invokestatic X.throwRuntime() : void [64]\n" + 
+			"    109  goto 118\n" + 
+			"    112  astore_3\n" + 
+			"    113  invokestatic X.clean() : void [67]\n" + 
+			"    116  aload_3\n" + 
+			"    117  athrow\n" + 
+			"    118  invokestatic X.clean() : void [67]\n" + 
+			"    121  iconst_2\n" + 
+			"    122  ireturn\n" + 
+			"    123  astore_1\n" + 
+			"    124  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"    127  ldc <String \"[finally]\"> [62]\n" + 
+			"    129  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"    132  invokestatic X.throwRuntime() : void [64]\n" + 
+			"    135  goto 144\n" + 
+			"    138  astore_3\n" + 
+			"    139  invokestatic X.clean() : void [67]\n" + 
+			"    142  aload_3\n" + 
+			"    143  athrow\n" + 
+			"    144  invokestatic X.clean() : void [67]\n" + 
+			"    147  aload_1\n" + 
+			"    148  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 44, pc: 50] -> 50 when : any\n" + 
+			"        [pc: 72, pc: 78] -> 78 when : any\n" + 
+			"        [pc: 0, pc: 36] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 59, pc: 64] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 87, pc: 89] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 106, pc: 112] -> 112 when : any\n" + 
+			"        [pc: 0, pc: 36] -> 123 when : any\n" + 
+			"        [pc: 61, pc: 64] -> 123 when : any\n" + 
+			"        [pc: 89, pc: 98] -> 123 when : any\n" + 
+			"        [pc: 132, pc: 138] -> 138 when : any\n"
+	: 		"  // Method descriptor #19 ()I\n" + 
+			"  // Stack: 4, Locals: 6\n" + 
+			"  private static int scenario();\n" + 
+			"      0  iconst_1\n" + 
+			"      1  istore_0 [i]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"      5  new java.lang.StringBuffer [40]\n" + 
+			"      8  dup\n" + 
+			"      9  ldc <String \"[i: \"> [42]\n" + 
+			"     11  invokespecial java.lang.StringBuffer(java.lang.String) [44]\n" + 
+			"     14  iload_0 [i]\n" + 
+			"     15  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer [46]\n" + 
+			"     18  ldc <String \"]\"> [50]\n" + 
+			"     20  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer [52]\n" + 
+			"     23  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [55]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     29  iload_0 [i]\n" + 
+			"     30  iconst_5\n" + 
+			"     31  if_icmple 41\n" + 
+			"     34  iload_0 [i]\n" + 
+			"     35  istore_3\n" + 
+			"     36  jsr 69\n" + 
+			"     39  iload_3\n" + 
+			"     40  ireturn\n" + 
+			"     41  iload_0 [i]\n" + 
+			"     42  ineg\n" + 
+			"     43  istore_3\n" + 
+			"     44  jsr 69\n" + 
+			"     47  iload_3\n" + 
+			"     48  ireturn\n" + 
+			"     49  astore_0 [e]\n" + 
+			"     50  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"     53  ldc <String \"[WRONG CATCH]\"> [62]\n" + 
+			"     55  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     58  jsr 69\n" + 
+			"     61  iconst_2\n" + 
+			"     62  ireturn\n" + 
+			"     63  astore_2\n" + 
+			"     64  jsr 69\n" + 
+			"     67  aload_2\n" + 
+			"     68  athrow\n" + 
+			"     69  astore_1\n" + 
+			"     70  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
+			"     73  ldc <String \"[finally]\"> [64]\n" + 
+			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     78  invokestatic X.throwRuntime() : void [66]\n" + 
+			"     81  goto 99\n" + 
+			"     84  astore 5\n" + 
+			"     86  jsr 92\n" + 
+			"     89  aload 5\n" + 
+			"     91  athrow\n" + 
+			"     92  astore 4\n" + 
+			"     94  invokestatic X.clean() : void [69]\n" + 
+			"     97  ret 4\n" + 
+			"     99  jsr 92\n" + 
+			"    102  ret 1\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 49] -> 49 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 39] -> 63 when : any\n" + 
+			"        [pc: 41, pc: 47] -> 63 when : any\n" + 
+			"        [pc: 49, pc: 61] -> 63 when : any\n" + 
+			"        [pc: 78, pc: 84] -> 84 when : any\n" + 
+			"        [pc: 99, pc: 102] -> 84 when : any\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test035() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			new X().bar();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try]\");\n" + 
+				"			return this;\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.print(\"[WRONG CATCH]\");\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			foo();\n" + 
+				"		}\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	Object foo() {\n" + 
+				"		throw new RuntimeException();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try][finally][end]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test036() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			new X().bar();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try]\");\n" + 
+				"			throw new RuntimeException();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.print(\"[catch]\");\n" + 
+				"			return this;\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object foo() {\n" + 
+				"		throw new RuntimeException();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try][catch][finally][end]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test037() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			scenario();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void scenario() throws Exception {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try1]\");\n" + 
+				"			try {\n" + 
+				"				System.out.print(\"[try2]\");\n" + 
+				"				return;\n" + 
+				"			} catch(Exception e) {\n" + 
+				"				System.out.print(\"[catch2]\");\n" + 
+				"			} finally {\n" + 
+				"				System.out.print(\"[finally2]\");\n" + 
+				"				throwRuntime();\n" + 
+				"			}\n" + 
+				"		} catch(Exception e) {\n" + 
+				"			System.out.print(\"[catch1]\");\n" + 
+				"			throw e;\n" +
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally1]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void throwRuntime() {\n" + 
+				"		throw new RuntimeException(\"error\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try1][try2][finally2][catch1][finally1][end]");
 }
 public static Class testClass() {
 	return TryStatementTest.class;

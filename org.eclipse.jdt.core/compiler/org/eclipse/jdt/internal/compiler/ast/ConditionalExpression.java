@@ -114,7 +114,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		Label endifLabel, falseLabel;
+		BranchLabel endifLabel, falseLabel;
 		if (constant != Constant.NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
@@ -129,12 +129,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		boolean needFalsePart =
 			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == true))
 				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == true)));
-		endifLabel = new Label(codeStream);
+		endifLabel = new BranchLabel(codeStream);
 
 		// Generate code for the condition
 		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
-		falseLabel = new Label(codeStream);
-		falseLabel.tagBits |= Label.USED;
+		falseLabel = new BranchLabel(codeStream);
+		falseLabel.tagBits |= BranchLabel.USED;
 		condition.generateOptimizedBoolean(
 			currentScope,
 			codeStream,
@@ -199,8 +199,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean) // constant
@@ -217,7 +217,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == true))
 				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == true)));
 
-		Label internalFalseLabel, endifLabel = new Label(codeStream);
+		BranchLabel internalFalseLabel, endifLabel = new BranchLabel(codeStream);
 
 		// Generate code for the condition
 		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
@@ -225,7 +225,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				currentScope,
 				codeStream,
 				null,
-				internalFalseLabel = new Label(codeStream),
+				internalFalseLabel = new BranchLabel(codeStream),
 				needConditionValue);
 
 		if (trueInitStateIndex != -1) {

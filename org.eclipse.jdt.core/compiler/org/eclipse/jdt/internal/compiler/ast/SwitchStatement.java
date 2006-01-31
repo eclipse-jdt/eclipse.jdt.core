@@ -25,7 +25,7 @@ public class SwitchStatement extends Statement {
 	public Statement[] statements;
 	public BlockScope scope;
 	public int explicitDeclarations;
-	public Label breakLabel;
+	public BranchLabel breakLabel;
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
 	public int blockStart;
@@ -46,7 +46,7 @@ public class SwitchStatement extends Statement {
 	    try {
 			flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo);
 			SwitchFlowContext switchContext =
-				new SwitchFlowContext(flowContext, this, (breakLabel = new Label()));
+				new SwitchFlowContext(flowContext, this, (breakLabel = new BranchLabel()));
 	
 			// analyse the block by considering specially the case/default statements (need to bind them 
 			// to the entry point)
@@ -122,10 +122,10 @@ public class SwitchStatement extends Statement {
 			boolean needSwitch = this.caseCount != 0;
 			for (int i = 0; i < caseCount; i++) {
 				cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
-				caseLabels[i].tagBits |= Label.USED;
+				caseLabels[i].tagBits |= BranchLabel.USED;
 			}
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
-			if (needSwitch) defaultLabel.tagBits |= Label.USED;
+			if (needSwitch) defaultLabel.tagBits |= BranchLabel.USED;
 			if (defaultCase != null) {
 				defaultCase.targetLabel = defaultLabel;
 			}
@@ -358,7 +358,7 @@ public class SwitchStatement extends Statement {
 	/**
 	 * Dispatch the call on its last statement.
 	 */
-	public void branchChainTo(Label label) {
+	public void branchChainTo(BranchLabel label) {
 		
 		// in order to improve debug attributes for stepping (11431)
 		// we want to inline the jumps to #breakLabel which already got

@@ -125,7 +125,7 @@ public class ReturnStatement extends Statement {
 				sub.generateSubRoutineInvocation(currentScope, codeStream);
 				if (sub.isSubRoutineEscaping()) {
 						codeStream.recordPositionsFrom(pc, this.sourceStart);
-						SubRoutineStatement.reenterExceptionHandlers(subroutines, i, codeStream);
+						SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, i, codeStream);
 						return;
 				}
 				sub.exitAnyExceptionHandler();
@@ -140,7 +140,7 @@ public class ReturnStatement extends Statement {
 		// output the suitable return bytecode or wrap the value inside a descriptor for doits
 		this.generateReturnBytecode(codeStream);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-		SubRoutineStatement.reenterExceptionHandlers(subroutines, -1, codeStream);
+		SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, -1, codeStream);
 	}
 	/**
 	 * Dump the suitable return bytecode for a return statement

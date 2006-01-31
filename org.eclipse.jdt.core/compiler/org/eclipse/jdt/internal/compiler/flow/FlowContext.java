@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
-import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -47,7 +47,7 @@ public FlowContext(FlowContext parent, ASTNode associatedNode) {
 		(parent.deferNullDiagnostic || parent.preemptNullDiagnostic); 
 }
 
-public Label breakLabel() {
+public BranchLabel breakLabel() {
 	return null;
 }
 
@@ -268,7 +268,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 	scope.problemReporter().unhandledException(raisedException, location);
 }
 
-public Label continueLabel() {
+public BranchLabel continueLabel() {
 	return null;
 }
 

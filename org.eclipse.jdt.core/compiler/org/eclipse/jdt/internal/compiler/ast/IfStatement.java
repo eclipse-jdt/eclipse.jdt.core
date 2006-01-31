@@ -128,7 +128,7 @@ public class IfStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		Label endifLabel = new Label(codeStream);
+		BranchLabel endifLabel = new BranchLabel(codeStream);
 
 		// optimizing the then/else part code gen
 		Constant cst;
@@ -143,13 +143,13 @@ public class IfStatement extends Statement {
 				|| this.elseStatement.isEmptyBlock());
 
 		if (hasThenPart) {
-			Label falseLabel = null;
+			BranchLabel falseLabel = null;
 			// generate boolean condition
 			this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				null,
-				hasElsePart ? (falseLabel = new Label(codeStream)) : endifLabel,
+				hasElsePart ? (falseLabel = new BranchLabel(codeStream)) : endifLabel,
 				true);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (thenInitStateIndex != -1) {

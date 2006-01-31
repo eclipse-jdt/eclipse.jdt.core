@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
-import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  */
 public class LoopingFlowContext extends SwitchFlowContext {
 	
-	public Label continueLabel;
+	public BranchLabel continueLabel;
 	public UnconditionalFlowInfo initsOnContinue = FlowInfo.DEAD_END;
 	private UnconditionalFlowInfo upstreamNullFlowInfo;
 	private LoopingFlowContext innerFlowContexts[] = null;
@@ -48,8 +48,8 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		FlowContext parent,
 		FlowInfo upstreamNullFlowInfo,
 		ASTNode associatedNode,
-		Label breakLabel,
-		Label continueLabel,
+		BranchLabel breakLabel,
+		BranchLabel continueLabel,
 		Scope associatedScope) {
 		super(parent, associatedNode, breakLabel);
 		preemptNullDiagnostic = true; 
@@ -187,7 +187,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 	}
 }
 	
-	public Label continueLabel() {
+	public BranchLabel continueLabel() {
 		return continueLabel;
 	}
 

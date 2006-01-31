@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-public class CaseLabel extends Label {
+public class CaseLabel extends BranchLabel {
 	
 	public int instructionPosition = POS_NOT_SET;
 	public int backwardsBranch = POS_NOT_SET;
@@ -24,7 +24,7 @@ public CaseLabel(CodeStream codeStream) {
 }
 
 /*
-* Put down  a refernece to the array at the location in the codestream.
+* Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
 	if (position == POS_NOT_SET) {

@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 /**
@@ -23,7 +23,7 @@ public class LabelFlowContext extends SwitchFlowContext {
 	
 	public char[] labelName;
 	
-public LabelFlowContext(FlowContext parent, ASTNode associatedNode, char[] labelName, Label breakLabel, BlockScope scope) {
+public LabelFlowContext(FlowContext parent, ASTNode associatedNode, char[] labelName, BranchLabel breakLabel, BlockScope scope) {
 	super(parent, associatedNode, breakLabel);
 	this.labelName = labelName;
 	checkLabelValidity(scope);

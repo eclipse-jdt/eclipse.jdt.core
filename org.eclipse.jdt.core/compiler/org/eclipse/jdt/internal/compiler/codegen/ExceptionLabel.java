@@ -14,36 +14,71 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ExceptionLabel extends Label {
 	
-	public int start = POS_NOT_SET;
-	public int end = POS_NOT_SET;
+	public int ranges[] = {POS_NOT_SET,POS_NOT_SET};
+	public int count = 0; // incremented each time placeStart or placeEnd is called
 	public TypeBinding exceptionType;
 	
-	public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {
+public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {
 
-		super(codeStream);
-		this.exceptionType = exceptionType;
-		this.placeStart();
-		this.tagBits |= USED;
+	super(codeStream);
+	this.exceptionType = exceptionType;
+}
+
+public void place() {
+
+	// register the handler inside the codeStream then normal place
+	codeStream.registerExceptionHandler(this);
+	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
+	this.position = codeStream.position;
+}
+
+public void placeEnd() {
+	int endPosition = codeStream.position;
+	if (this.ranges[this.count-1] == endPosition) { // start == end ?
+		// discard empty exception handler
+		this.count--;
+	} else {
+		this.ranges[this.count++] = codeStream.position;
 	}
+}
 
-	public boolean isStandardLabel(){
-
-		return false;
+public void placeStart() {
+	int startPosition = codeStream.position;
+	if (this.count > 0 && this.ranges[this.count-1] == startPosition) { // start == previous end ?
+		// reopen current handler
+		this.count--;
+		return;
 	}
-	public void place() {
-
-		// register the handler inside the codeStream then normal place
-		codeStream.registerExceptionHandler(this);
-		super.place();
+	// only need to grow on even additions (i.e. placeStart only)
+	int length;
+	if (this.count == (length = this.ranges.length)) {
+		System.arraycopy(this.ranges, 0, this.ranges = new int[length*2], 0, length);
 	}
-
-	public void placeEnd() {
-
-		this.end = codeStream.position;
+	this.ranges[this.count++] = codeStream.position;
+}
+public String toString() {
+	String basic = getClass().getName();
+	basic = basic.substring(basic.lastIndexOf('.')+1);
+	StringBuffer buffer = new StringBuffer(basic); 
+	buffer.append('@').append(Integer.toHexString(hashCode()));
+	buffer.append("(type=").append(this.exceptionType == null ? null : this.exceptionType.readableName()); //$NON-NLS-1$
+	buffer.append(", position=").append(position); //$NON-NLS-1$
+	buffer.append(", ranges = "); //$NON-NLS-1$
+	if (this.count == 0) {
+		buffer.append("[]"); //$NON-NLS-1$
+	} else {
+		for (int i = 0; i < this.count; i++) {
+			if (i % 2 == 0) {
+				buffer.append("[").append(ranges[i]); //$NON-NLS-1$
+			} else { 
+				buffer.append(",").append(ranges[i]).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		if (this.count % 2 == 1) {
+			buffer.append(",?]"); //$NON-NLS-1$
+		}
 	}
-	
-	public void placeStart() {
-
-		this.start = codeStream.position;
-	}
+	buffer.append(')'); //$NON-NLS-1$
+	return buffer.toString();
+}
 }

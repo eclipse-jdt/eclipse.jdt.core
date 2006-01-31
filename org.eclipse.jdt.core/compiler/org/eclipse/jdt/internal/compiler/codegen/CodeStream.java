@@ -37,7 +37,7 @@ public class CodeStream {
 	// local variable attributes output
 	public static final int LOCALS_INCREMENT = 10;
 	static ExceptionLabel[] noExceptionHandlers = new ExceptionLabel[LABELS_INCREMENT];
-	static Label[] noLabels = new Label[LABELS_INCREMENT];
+	static BranchLabel[] noLabels = new BranchLabel[LABELS_INCREMENT];
 	static LocalVariableBinding[] noLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	static LocalVariableBinding[] noVisibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
@@ -130,13 +130,12 @@ public class CodeStream {
 	public int classFileOffset;
 	public ConstantPool constantPool; // The constant pool used to generate bytecodes that need to store information into the constant pool
 	public int countLabels;
-	public ExceptionLabel[] exceptionHandlers = new ExceptionLabel[LABELS_INCREMENT];
-	public int exceptionHandlersCounter;
-	public int exceptionHandlersIndex;
+	public ExceptionLabel[] exceptionLabels = new ExceptionLabel[LABELS_INCREMENT];
+	public int exceptionLabelsCounter;
 	public int generateAttributes;
 	// store all the labels placed at the current position to be able to optimize
 	// a jump to the next bytecode.
-	public Label[] labels = new Label[LABELS_INCREMENT];
+	public BranchLabel[] labels = new BranchLabel[LABELS_INCREMENT];
 	public int lastEntryPC; // last entry recorded
 	public int[] lineSeparatorPositions;
 	
@@ -234,9 +233,9 @@ public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 		}
 	}
 }
-public void addLabel(Label aLabel) {
+public void addLabel(BranchLabel aLabel) {
 	if (countLabels == labels.length)
-		System.arraycopy(labels, 0, labels = new Label[countLabels + LABELS_INCREMENT], 0, countLabels);
+		System.arraycopy(labels, 0, labels = new BranchLabel[countLabels + LABELS_INCREMENT], 0, countLabels);
 	labels[countLabels++] = aLabel;
 }
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
@@ -1602,7 +1601,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
  * Macro for building a class descriptor object
  */
 public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
-	Label endLabel;
+	BranchLabel endLabel;
 	ExceptionLabel anyExceptionHandler;
 	int saveStackSize;
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
@@ -1614,7 +1613,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		// generation using the new ldc_w bytecode
 		this.ldc(accessedType);
 	} else {
-		endLabel = new Label(this);
+		endLabel = new BranchLabel(this);
 		if (syntheticFieldBinding != null) { // non interface case
 			this.getstatic(syntheticFieldBinding);
 			this.dup();
@@ -1634,6 +1633,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 	
 		anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /* represents ClassNotFoundException*/);
+		anyExceptionHandler.placeStart();
 		this.ldc(accessedType == TypeBinding.NULL ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
 		this.invokeClassForName();
 	
@@ -2340,9 +2340,9 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
 	initializeMaxLocals(methodBinding);
-	Label loopCond = new Label(this);
-	Label loopStart = new Label(this);
-	Label wrongConstant = new Label(this);
+	BranchLabel loopCond = new BranchLabel(this);
+	BranchLabel loopStart = new BranchLabel(this);
+	BranchLabel wrongConstant = new BranchLabel(this);
 
 	this.getstatic(enumValuesSyntheticfield);
 	this.dup();
@@ -2526,7 +2526,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	initializeMaxLocals(methodBinding);
-	final Label nullLabel = new Label(this);
+	final BranchLabel nullLabel = new BranchLabel(this);
 	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
 
 	this.getstatic(syntheticFieldBinding);
@@ -2547,8 +2547,9 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 		for (int i = 0, max = fields.length; i < max; i++) {
 			FieldBinding fieldBinding = fields[i];
 			if ((fieldBinding.getAccessFlags() & ClassFileConstants.AccEnum) != 0) {
-				final Label endLabel = new Label(this);
+				final BranchLabel endLabel = new BranchLabel(this);
 				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, TypeBinding.LONG /* represents NoSuchFieldError*/);
+				anyExceptionHandler.placeStart();
 				this.aload_0();
 				this.getstatic(fieldBinding);
 				this.invokeEnumOrdinal(enumBinding.constantPoolName());
@@ -2742,8 +2743,8 @@ public void generateUnboxingConversion(int unboxedTypeID) {
  *    gotow WideTarget
  *    Intermediate:
  */
-public void generateWideRevertedConditionalBranch(byte revertedOpcode, Label wideTarget) {
-		Label intermediate = new Label(this);
+public void generateWideRevertedConditionalBranch(byte revertedOpcode, BranchLabel wideTarget) {
+		BranchLabel intermediate = new BranchLabel(this);
 		if (classFileOffset >= bCodeStream.length) {
 			resizeByteArray();
 		}
@@ -2968,7 +2969,7 @@ public void getTYPE(int baseTypeID) {
 /**
  * We didn't call it goto, because there is a conflit with the goto keyword
  */
-final public void goto_(Label label) {
+final public void goto_(BranchLabel label) {
 	if (this.wideMode) {
 		this.goto_w(label);
 		return;
@@ -3009,7 +3010,7 @@ final public void goto_(Label label) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_goto;
 	label.branch();
 }
-final public void goto_w(Label lbl) {
+final public void goto_w(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tgotow:"+lbl); //$NON-NLS-1$
 	if (classFileOffset >= bCodeStream.length) {
 		resizeByteArray();
@@ -3212,7 +3213,7 @@ public void idiv() {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_idiv;
 }
-public void if_acmpeq(Label lbl) {
+public void if_acmpeq(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_acmpeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth-=2;
@@ -3227,7 +3228,7 @@ public void if_acmpeq(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_acmpne(Label lbl) {
+public void if_acmpne(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_acmpne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth-=2;
@@ -3242,7 +3243,7 @@ public void if_acmpne(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmpeq(Label lbl) {
+public void if_icmpeq(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_cmpeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3257,7 +3258,7 @@ public void if_icmpeq(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmpge(Label lbl) {
+public void if_icmpge(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_iacmpge:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3272,7 +3273,7 @@ public void if_icmpge(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmpgt(Label lbl) {
+public void if_icmpgt(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_iacmpgt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3287,7 +3288,7 @@ public void if_icmpgt(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmple(Label lbl) {
+public void if_icmple(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_iacmple:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3302,7 +3303,7 @@ public void if_icmple(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmplt(Label lbl) {
+public void if_icmplt(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_iacmplt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3317,7 +3318,7 @@ public void if_icmplt(Label lbl) {
 		lbl.branch();
 	}
 }
-public void if_icmpne(Label lbl) {
+public void if_icmpne(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_iacmpne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
@@ -3332,7 +3333,7 @@ public void if_icmpne(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifeq(Label lbl) {
+public void ifeq(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3347,7 +3348,7 @@ public void ifeq(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifge(Label lbl) {
+public void ifge(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifge:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3362,7 +3363,7 @@ public void ifge(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifgt(Label lbl) {
+public void ifgt(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifgt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3377,7 +3378,7 @@ public void ifgt(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifle(Label lbl) {
+public void ifle(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifle:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3392,7 +3393,7 @@ public void ifle(Label lbl) {
 		lbl.branch();
 	}
 }
-public void iflt(Label lbl) {
+public void iflt(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tiflt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3407,7 +3408,7 @@ public void iflt(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifne(Label lbl) {
+public void ifne(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3422,7 +3423,7 @@ public void ifne(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifnonnull(Label lbl) {
+public void ifnonnull(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifnonnull:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3437,7 +3438,7 @@ public void ifnonnull(Label lbl) {
 		lbl.branch();
 	}
 }
-public void ifnull(Label lbl) {
+public void ifnull(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tifnull:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
@@ -3589,7 +3590,7 @@ public void ineg() {
 /*
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
-public void inlineForwardReferencesFromLabelsTargeting(Label label, int gotoLocation) {
+public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
 	
 /*
  Code required to optimized unreachable gotos.
@@ -3606,7 +3607,7 @@ public void inlineForwardReferencesFromLabelsTargeting(Label label, int gotoLoca
  */
 	
 	for (int i = this.countLabels - 1; i >= 0; i--) {
-		Label currentLabel = labels[i];
+		BranchLabel currentLabel = labels[i];
 		if ((currentLabel.position == gotoLocation) && currentLabel.isStandardLabel()){
 			label.appendForwardReferencesFrom(currentLabel);
 			/*
@@ -3640,17 +3641,16 @@ public void init(ClassFile targetClassFile) {
 	System.arraycopy(noLocals, 0, locals, 0, length);
 	allLocalsCounter = 0;
 
-	length = exceptionHandlers.length;
+	length = exceptionLabels.length;
 	if (noExceptionHandlers.length < length) {
 		noExceptionHandlers = new ExceptionLabel[length];
 	}
-	System.arraycopy(noExceptionHandlers, 0, exceptionHandlers, 0, length);
-	exceptionHandlersIndex = 0;
-	exceptionHandlersCounter = 0;
+	System.arraycopy(noExceptionHandlers, 0, exceptionLabels, 0, length);
+	exceptionLabelsCounter = 0;
 	
 	length = labels.length;
 	if (noLabels.length < length) {
-		noLabels = new Label[length];
+		noLabels = new BranchLabel[length];
 	}
 	System.arraycopy(noLabels, 0, labels, 0, length);
 	countLabels = 0;
@@ -4696,7 +4696,7 @@ public void ixor() {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_ixor;
 }
-final public void jsr(Label lbl) {
+final public void jsr(BranchLabel lbl) {
 	if (this.wideMode) {
 		this.jsr_w(lbl);
 		return;
@@ -4710,7 +4710,7 @@ final public void jsr(Label lbl) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_jsr;
 	lbl.branch();
 }
-final public void jsr_w(Label lbl) {
+final public void jsr_w(BranchLabel lbl) {
 	if (DEBUG) System.out.println(position + "\t\tjsr_w"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	if (classFileOffset >= bCodeStream.length) {
@@ -5724,9 +5724,9 @@ public void nop() {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_nop;
 }
-public void optimizeBranch(int oldPosition, Label lbl) {
+public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	for (int i = 0; i < this.countLabels; i++) {
-		Label label = this.labels[i];
+		BranchLabel label = this.labels[i];
 		if (oldPosition == label.position) {
 			label.position = position;
 			if (label instanceof CaseLabel) {
@@ -5914,23 +5914,14 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
  */
 public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 	int length;
-	if (exceptionHandlersIndex >= (length = exceptionHandlers.length)) {
+	if (exceptionLabelsCounter == (length = exceptionLabels.length)) {
 		// resize the exception handlers table
-		System.arraycopy(exceptionHandlers, 0, exceptionHandlers = new ExceptionLabel[length + LABELS_INCREMENT], 0, length);
+		System.arraycopy(exceptionLabels, 0, exceptionLabels = new ExceptionLabel[length + LABELS_INCREMENT], 0, length);
 	}
 	// no need to resize. So just add the new exception label
-	exceptionHandlers[exceptionHandlersIndex++] = anExceptionLabel;
-	exceptionHandlersCounter++;
+	exceptionLabels[exceptionLabelsCounter++] = anExceptionLabel;
 }
-public void removeExceptionHandler(ExceptionLabel exceptionLabel) {
-	for (int i = 0; i < exceptionHandlersIndex; i++) {
-		if (exceptionHandlers[i] == exceptionLabel) {
-			exceptionHandlers[i] = null;
-			exceptionHandlersCounter--;
-			return;
-		}
-	}
-}
+
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
@@ -6378,7 +6369,7 @@ public void updateLastRecordedEndPC(Scope scope, int pos) {
 		}
 	}
 }
-protected void writePosition(Label label) {
+protected void writePosition(BranchLabel label) {
 	int offset = label.position - this.position + 1;
 	if (Math.abs(offset) > 0x7FFF && !this.wideMode) {
 		throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
@@ -6388,13 +6379,13 @@ protected void writePosition(Label label) {
 		this.writePosition(label, label.forwardReferences[i]);
 	}	
 }
-protected void writePosition(Label label, int forwardReference) {
+protected void writePosition(BranchLabel label, int forwardReference) {
 	final int offset = label.position - forwardReference + 1;
 	if (Math.abs(offset) > 0x7FFF && !this.wideMode) {
 		throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 	}
 	if (this.wideMode) {
-		if ((label.tagBits & Label.WIDE) != 0) {
+		if ((label.tagBits & BranchLabel.WIDE) != 0) {
 			this.writeSignedWord(forwardReference, offset);
 		} else {
 			this.writeSignedShort(forwardReference, offset);

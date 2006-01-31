@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 
 /**
  * Reflects the context of code analysis, keeping track of enclosing
@@ -19,15 +19,15 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
  */
 public class SwitchFlowContext extends FlowContext {
 	
-	public Label breakLabel;
+	public BranchLabel breakLabel;
 	public UnconditionalFlowInfo initsOnBreak = FlowInfo.DEAD_END;
 	
-public SwitchFlowContext(FlowContext parent, ASTNode associatedNode, Label breakLabel) {
+public SwitchFlowContext(FlowContext parent, ASTNode associatedNode, BranchLabel breakLabel) {
 	super(parent, associatedNode);
 	this.breakLabel = breakLabel;
 }
 
-public Label breakLabel() {
+public BranchLabel breakLabel() {
 	return breakLabel;
 }
 

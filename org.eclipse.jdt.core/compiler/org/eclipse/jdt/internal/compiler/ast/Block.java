@@ -133,7 +133,7 @@ public class Block extends Statement {
 	/**
 	 * Dispatch the call on its last statement.
 	 */
-	public void branchChainTo(Label label) {
+	public void branchChainTo(BranchLabel label) {
 		 if (this.statements != null) {
 		 	this.statements[statements.length - 1].branchChainTo(label);
 		 }

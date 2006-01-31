@@ -29,7 +29,7 @@ public class ForStatement extends Statement {
 	public boolean neededScope;
 	public BlockScope scope;
 
-	private Label breakLabel, continueLabel;
+	private BranchLabel breakLabel, continueLabel;
 
 	// for local variables table attributes
 	int preCondInitStateIndex = -1;
@@ -61,8 +61,8 @@ public class ForStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 			
-		breakLabel = new Label();
-		continueLabel = new Label();
+		breakLabel = new BranchLabel();
+		continueLabel = new BranchLabel();
 
 		// process the initializations
 		if (initializations != null) {
@@ -238,9 +238,9 @@ public class ForStatement extends Statement {
 		}
 		
 		// label management
-		Label actionLabel = new Label(codeStream);
-		actionLabel.tagBits |= Label.USED;
-		Label conditionLabel = new Label(codeStream);
+		BranchLabel actionLabel = new BranchLabel(codeStream);
+		actionLabel.tagBits |= BranchLabel.USED;
+		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		breakLabel.initialize(codeStream);
 		if (this.continueLabel != null) {
 			this.continueLabel.initialize(codeStream);
@@ -249,7 +249,7 @@ public class ForStatement extends Statement {
 		if ((condition != null)
 			&& (condition.constant == Constant.NotAConstant)
 			&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
-			conditionLabel.tagBits |= Label.USED;
+			conditionLabel.tagBits |= BranchLabel.USED;
 			int jumpPC = codeStream.position;
 			codeStream.goto_(conditionLabel);
 			codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);

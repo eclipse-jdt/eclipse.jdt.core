@@ -819,67 +819,67 @@ public void idiv() {
 	super.idiv();
 	this.currentFrame.numberOfStackItems--;
 }
-public void if_acmpeq(Label lbl) {
+public void if_acmpeq(BranchLabel lbl) {
 	super.if_acmpeq(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_acmpne(Label lbl) {
+public void if_acmpne(BranchLabel lbl) {
 	super.if_acmpne(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmpeq(Label lbl) {
+public void if_icmpeq(BranchLabel lbl) {
 	super.if_icmpeq(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmpge(Label lbl) {
+public void if_icmpge(BranchLabel lbl) {
 	super.if_icmpge(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmpgt(Label lbl) {
+public void if_icmpgt(BranchLabel lbl) {
 	super.if_icmpgt(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmple(Label lbl) {
+public void if_icmple(BranchLabel lbl) {
 	super.if_icmple(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmplt(Label lbl) {
+public void if_icmplt(BranchLabel lbl) {
 	super.if_icmplt(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void if_icmpne(Label lbl) {
+public void if_icmpne(BranchLabel lbl) {
 	super.if_icmpne(lbl);
 	this.currentFrame.numberOfStackItems-=2;
 }
-public void ifeq(Label lbl) {
+public void ifeq(BranchLabel lbl) {
 	super.ifeq(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifge(Label lbl) {
+public void ifge(BranchLabel lbl) {
 	super.ifge(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifgt(Label lbl) {
+public void ifgt(BranchLabel lbl) {
 	super.ifgt(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifle(Label lbl) {
+public void ifle(BranchLabel lbl) {
 	super.ifle(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void iflt(Label lbl) {
+public void iflt(BranchLabel lbl) {
 	super.iflt(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifne(Label lbl) {
+public void ifne(BranchLabel lbl) {
 	super.ifne(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifnonnull(Label lbl) {
+public void ifnonnull(BranchLabel lbl) {
 	super.ifnonnull(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
-public void ifnull(Label lbl) {
+public void ifnull(BranchLabel lbl) {
 	super.ifnull(lbl);
 	this.currentFrame.numberOfStackItems--;
 }
@@ -910,7 +910,7 @@ public void imul() {
 /*
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
-public void inlineForwardReferencesFromLabelsTargeting(Label label, int gotoLocation) {
+public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
 	
 /*
  Code required to optimized unreachable gotos.
@@ -928,11 +928,11 @@ public void inlineForwardReferencesFromLabelsTargeting(Label label, int gotoLoca
 	boolean hasStandardLabel = false;
 	boolean removeFrame = true;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
-		Label currentLabel = labels[i];
+		BranchLabel currentLabel = labels[i];
 		if (currentLabel.position == gotoLocation) {
 			if (currentLabel.isStandardLabel()) {
 				hasStandardLabel = true;
-				if (currentLabel.forwardReferenceCount == 0 && ((currentLabel.tagBits & Label.USED) != 0)) {
+				if (currentLabel.forwardReferenceCount == 0 && ((currentLabel.tagBits & BranchLabel.USED) != 0)) {
 					removeFrame = false;
 				}
 			} else if (currentLabel.isCaseLabel()) {
@@ -944,12 +944,12 @@ public void inlineForwardReferencesFromLabelsTargeting(Label label, int gotoLoca
 	}
 	if (hasStandardLabel) {
 		for (int i = this.countLabels - 1; i >= 0; i--) {
-			Label currentLabel = labels[i];
+			BranchLabel currentLabel = labels[i];
 			if ((currentLabel.position == gotoLocation) && currentLabel.isStandardLabel()){
 				label.appendForwardReferencesFrom(currentLabel);
 				// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
 				if (removeFrame) {
-					currentLabel.tagBits &= ~Label.USED;
+					currentLabel.tagBits &= ~BranchLabel.USED;
 					this.removeStackFrameFor(gotoLocation);
 				}
 				/*
@@ -1627,7 +1627,7 @@ public void newWrapperFor(int typeID) {
 		verificationTypeInfo.offset = pc;
 	}
 }
-public void optimizeBranch(int oldPosition, Label lbl) {
+public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	super.optimizeBranch(oldPosition, lbl);
 	if (lbl.forwardReferenceCount > 0) {
 		StackMapFrame frame = this.frames;

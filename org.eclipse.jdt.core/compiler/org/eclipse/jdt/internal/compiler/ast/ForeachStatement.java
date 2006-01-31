@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Label;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
@@ -46,8 +46,8 @@ public class ForeachStatement extends Statement {
 	private TypeBinding collectionElementType;
 
 	// loop labels
-	private Label breakLabel;
-	private Label continueLabel;
+	private BranchLabel breakLabel;
+	private BranchLabel continueLabel;
 	
 	public BlockScope scope;
 
@@ -77,8 +77,8 @@ public class ForeachStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 		// initialize break and continue labels
-		breakLabel = new Label();
-		continueLabel = new Label();
+		breakLabel = new BranchLabel();
+		continueLabel = new BranchLabel();
 
 		// process the element variable and collection
 		this.collection.checkNPE(currentScope, flowContext, flowInfo, true);
@@ -208,14 +208,14 @@ public class ForeachStatement extends Statement {
 		}
 		
 		// label management
-		Label actionLabel = new Label(codeStream);
-		actionLabel.tagBits |= Label.USED;
-		Label conditionLabel = new Label(codeStream);
-		conditionLabel.tagBits |= Label.USED;
+		BranchLabel actionLabel = new BranchLabel(codeStream);
+		actionLabel.tagBits |= BranchLabel.USED;
+		BranchLabel conditionLabel = new BranchLabel(codeStream);
+		conditionLabel.tagBits |= BranchLabel.USED;
 		breakLabel.initialize(codeStream);
 		if (this.continueLabel != null) {
 			this.continueLabel.initialize(codeStream);
-			this.continueLabel.tagBits |= Label.USED;
+			this.continueLabel.tagBits |= BranchLabel.USED;
 		}
 		// jump over the actionBlock
 		codeStream.goto_(conditionLabel);

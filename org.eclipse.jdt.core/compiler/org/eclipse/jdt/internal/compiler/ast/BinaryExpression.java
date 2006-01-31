@@ -436,12 +436,12 @@ public FlowInfo analyseCode(
 				}
 				break;
 			case GREATER :
-				Label falseLabel, endLabel;
+				BranchLabel falseLabel, endLabel;
 				generateOptimizedGreaterThan(
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -451,7 +451,7 @@ public FlowInfo analyseCode(
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -464,7 +464,7 @@ public FlowInfo analyseCode(
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -474,7 +474,7 @@ public FlowInfo analyseCode(
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -487,7 +487,7 @@ public FlowInfo analyseCode(
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -497,7 +497,7 @@ public FlowInfo analyseCode(
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -510,7 +510,7 @@ public FlowInfo analyseCode(
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -520,7 +520,7 @@ public FlowInfo analyseCode(
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -541,8 +541,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
@@ -626,8 +626,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedGreaterThan(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -740,8 +740,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedGreaterThanOrEqual(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -854,8 +854,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedLessThan(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -964,8 +964,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedLessThanOrEqual(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -1239,8 +1239,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedLogicalAnd(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;
@@ -1302,7 +1302,7 @@ public FlowInfo analyseCode(
 						false);
 				} else {
 					// x & <something equivalent to false>
-					Label internalTrueLabel = new Label(codeStream);
+					BranchLabel internalTrueLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1357,8 +1357,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedLogicalOr(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;
@@ -1372,7 +1372,7 @@ public FlowInfo analyseCode(
 						trueLabel,
 						falseLabel,
 						false);
-					Label internalFalseLabel = new Label(codeStream);
+					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1407,7 +1407,7 @@ public FlowInfo analyseCode(
 			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x | <something equivalent to true>
-					Label internalFalseLabel = new Label(codeStream);
+					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1475,8 +1475,8 @@ public FlowInfo analyseCode(
 	public void generateOptimizedLogicalXor(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;

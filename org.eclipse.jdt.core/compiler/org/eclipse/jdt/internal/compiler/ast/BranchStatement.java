@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class BranchStatement extends Statement {
 	public char[] label;
-	public Label targetLabel;
+	public BranchLabel targetLabel;
 	public SubRoutineStatement[] subroutines;
 /**
  * BranchStatement constructor comment.
@@ -45,7 +45,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			sub.generateSubRoutineInvocation(currentScope, codeStream);
 			if (sub.isSubRoutineEscaping()) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
-					SubRoutineStatement.reenterExceptionHandlers(subroutines, i, codeStream);
+					SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, i, codeStream);
 					return;
 			}
 			sub.exitAnyExceptionHandler();
@@ -53,7 +53,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	codeStream.goto_(targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
-	SubRoutineStatement.reenterExceptionHandlers(subroutines, -1, codeStream);
+	SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, -1, codeStream);
 }
 public void resolve(BlockScope scope) {
 	// nothing to do during name resolution

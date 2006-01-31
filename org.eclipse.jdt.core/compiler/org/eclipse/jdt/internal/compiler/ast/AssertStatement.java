@@ -93,12 +93,12 @@ public class AssertStatement extends Statement {
 		int pc = codeStream.position;
 	
 		if (this.assertionSyntheticFieldBinding != null) {
-			Label assertionActivationLabel = new Label(codeStream);
+			BranchLabel assertionActivationLabel = new BranchLabel(codeStream);
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
 			codeStream.ifne(assertionActivationLabel);
 			
-			Label falseLabel;
-			this.assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new Label(codeStream)), null , true);
+			BranchLabel falseLabel;
+			this.assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new BranchLabel(codeStream)), null , true);
 			codeStream.newJavaLangAssertionError();
 			codeStream.dup();
 			if (exceptionArgument != null) {
