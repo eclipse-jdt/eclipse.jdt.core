@@ -27,7 +27,7 @@ public void place() {
 	// register the handler inside the codeStream then normal place
 	codeStream.registerExceptionHandler(this);
 	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
-	this.position = codeStream.position;
+	this.position = codeStream.getPosition();
 }
 
 public void placeEnd() {
