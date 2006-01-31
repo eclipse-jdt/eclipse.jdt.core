@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.*;
 
 import org.eclipse.core.runtime.preferences.*;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -87,7 +85,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		
 		// Store default values to default preferences
-	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+	 	IEclipsePreferences defaultPreferences = ((IScopeContext)new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
 		for (Iterator iter = defaultOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();

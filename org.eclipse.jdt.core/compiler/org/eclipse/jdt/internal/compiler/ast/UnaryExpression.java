@@ -60,7 +60,7 @@ public class UnaryExpression extends OperatorExpression {
 		boolean valueRequired) {
 			
 		int pc = codeStream.position;
-		Label falseLabel, endifLabel;
+		BranchLabel falseLabel, endifLabel;
 		if (this.constant != Constant.NotAConstant) {
 			// inlined value
 			if (valueRequired) {
@@ -79,12 +79,12 @@ public class UnaryExpression extends OperatorExpression {
 							currentScope,
 							codeStream,
 							null,
-							(falseLabel = new Label(codeStream)),
+							(falseLabel = new BranchLabel(codeStream)),
 							valueRequired);
 						if (valueRequired) {
 							codeStream.iconst_0();
 							if (falseLabel.hasForwardReferences()) {
-								codeStream.goto_(endifLabel = new Label(codeStream));
+								codeStream.goto_(endifLabel = new BranchLabel(codeStream));
 								codeStream.decrStackSize(1);
 								falseLabel.place();
 								codeStream.iconst_1();
@@ -167,8 +167,8 @@ public class UnaryExpression extends OperatorExpression {
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		if ((this.constant != Constant.NotAConstant) && (this.constant.typeID() == T_boolean)) {

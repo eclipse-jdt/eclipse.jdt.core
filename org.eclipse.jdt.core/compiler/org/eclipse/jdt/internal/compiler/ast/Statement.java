@@ -23,7 +23,7 @@ public abstract class Statement extends ASTNode {
 	 * INTERNAL USE ONLY.
 	 * This is used to redirect inter-statements jumps.
 	 */
-	public void branchChainTo(Label label) {
+	public void branchChainTo(BranchLabel label) {
 		// do nothing by default
 	}
 	

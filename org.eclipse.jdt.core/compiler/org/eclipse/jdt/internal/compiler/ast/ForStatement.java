@@ -29,7 +29,7 @@ public class ForStatement extends Statement {
 	public boolean neededScope;
 	public BlockScope scope;
 
-	private Label breakLabel, continueLabel;
+	private BranchLabel breakLabel, continueLabel;
 
 	// for local variables table attributes
 	int preCondInitStateIndex = -1;
@@ -61,8 +61,8 @@ public class ForStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 			
-		breakLabel = new Label();
-		continueLabel = new Label();
+		breakLabel = new BranchLabel();
+		continueLabel = new BranchLabel();
 
 		// process the initializations
 		if (initializations != null) {
@@ -188,8 +188,8 @@ public class ForStatement extends Statement {
 		}
 
 		// label management
-		Label actionLabel = new Label(codeStream);
-		Label conditionLabel = new Label(codeStream);
+		BranchLabel actionLabel = new BranchLabel(codeStream);
+		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
 			continueLabel.initialize(codeStream);

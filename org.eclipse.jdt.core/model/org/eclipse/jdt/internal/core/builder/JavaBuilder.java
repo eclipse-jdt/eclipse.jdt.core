@@ -557,7 +557,7 @@ private boolean isWorthBuilding() throws CoreException {
 	// make sure all prereq projects have valid build states... only when aborting builds since projects in cycles do not have build states
 	// except for projects involved in a 'warning' cycle (see below)
 	IProject[] requiredProjects = getRequiredProjects(false);
-	next : for (int i = 0, l = requiredProjects.length; i < l; i++) {
+	for (int i = 0, l = requiredProjects.length; i < l; i++) {
 		IProject p = requiredProjects[i];
 		if (getLastState(p) == null)  {
 			// The prereq project has no build state: if this prereq project has a 'warning' cycle marker then allow build (see bug id 23357)

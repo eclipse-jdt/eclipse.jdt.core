@@ -120,7 +120,7 @@ public class ConditionalExpression extends OperatorExpression {
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		Label endifLabel, falseLabel;
+		BranchLabel endifLabel, falseLabel;
 		if (constant != NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
@@ -135,7 +135,7 @@ public class ConditionalExpression extends OperatorExpression {
 		boolean needFalsePart =
 			!(((cst != NotAConstant) && (cst.booleanValue() == true))
 				|| ((condCst != NotAConstant) && (condCst.booleanValue() == true)));
-		endifLabel = new Label(codeStream);
+		endifLabel = new BranchLabel(codeStream);
 
 		// Generate code for the condition
 		boolean needConditionValue = (cst == NotAConstant) && (condCst == NotAConstant);
@@ -143,7 +143,7 @@ public class ConditionalExpression extends OperatorExpression {
 			currentScope,
 			codeStream,
 			null,
-			(falseLabel = new Label(codeStream)),
+			(falseLabel = new BranchLabel(codeStream)),
 			needConditionValue);
 
 		if (trueInitStateIndex != -1) {
@@ -196,8 +196,8 @@ public class ConditionalExpression extends OperatorExpression {
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean) // constant
@@ -214,7 +214,7 @@ public class ConditionalExpression extends OperatorExpression {
 			!(((cst != NotAConstant) && (cst.booleanValue() == true))
 				|| ((condCst != NotAConstant) && (condCst.booleanValue() == true)));
 
-		Label internalFalseLabel, endifLabel = new Label(codeStream);
+		BranchLabel internalFalseLabel, endifLabel = new BranchLabel(codeStream);
 
 		// Generate code for the condition
 		boolean needConditionValue = (cst == NotAConstant) && (condCst == NotAConstant);
@@ -222,7 +222,7 @@ public class ConditionalExpression extends OperatorExpression {
 				currentScope,
 				codeStream,
 				null,
-				internalFalseLabel = new Label(codeStream),
+				internalFalseLabel = new BranchLabel(codeStream),
 				needConditionValue);
 
 		if (trueInitStateIndex != -1) {

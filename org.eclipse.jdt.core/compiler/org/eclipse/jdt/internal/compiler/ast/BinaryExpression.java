@@ -437,12 +437,12 @@ public class BinaryExpression extends OperatorExpression {
 				}
 				break;
 			case GREATER :
-				Label falseLabel, endLabel;
+				BranchLabel falseLabel, endLabel;
 				generateOptimizedGreaterThan(
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -452,7 +452,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -465,7 +465,7 @@ public class BinaryExpression extends OperatorExpression {
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -475,7 +475,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -488,7 +488,7 @@ public class BinaryExpression extends OperatorExpression {
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -498,7 +498,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -511,7 +511,7 @@ public class BinaryExpression extends OperatorExpression {
 					currentScope,
 					codeStream,
 					null,
-					(falseLabel = new Label(codeStream)),
+					(falseLabel = new BranchLabel(codeStream)),
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
@@ -521,7 +521,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -542,8 +542,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
@@ -627,8 +627,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedGreaterThan(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -741,8 +741,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedGreaterThanOrEqual(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -855,8 +855,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedLessThan(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -965,8 +965,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedLessThanOrEqual(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		int promotedTypeID = (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
@@ -1240,8 +1240,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedLogicalAnd(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;
@@ -1303,7 +1303,7 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 				} else {
 					// x & <something equivalent to false>
-					Label internalTrueLabel = new Label(codeStream);
+					BranchLabel internalTrueLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1358,8 +1358,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedLogicalOr(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;
@@ -1373,7 +1373,7 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					Label internalFalseLabel = new Label(codeStream);
+					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
 					right.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1408,7 +1408,7 @@ public class BinaryExpression extends OperatorExpression {
 			if ((condConst = right.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x | <something equivalent to true>
-					Label internalFalseLabel = new Label(codeStream);
+					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(
 						currentScope,
 						codeStream,
@@ -1476,8 +1476,8 @@ public class BinaryExpression extends OperatorExpression {
 	public void generateOptimizedLogicalXor(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 			
 		Constant condConst;

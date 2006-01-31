@@ -641,8 +641,8 @@ public abstract class Expression extends Statement {
 	public void generateOptimizedBoolean(
 		BlockScope currentScope,
 		CodeStream codeStream,
-		Label trueLabel,
-		Label falseLabel,
+		BranchLabel trueLabel,
+		BranchLabel falseLabel,
 		boolean valueRequired) {
 
 		// a label valued to nil means: by default we fall through the case... 

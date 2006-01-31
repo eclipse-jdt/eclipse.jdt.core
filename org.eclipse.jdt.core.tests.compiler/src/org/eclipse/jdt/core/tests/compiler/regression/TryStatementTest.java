@@ -1084,9 +1084,49 @@ public void test030() {
 		"EXCEPTION:ONCE:SUCCESS");
 }
 /*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=114855
+ * Try block is never reached
  */
 public void test031() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	static void foo(Object o) {}\n" +
+			"	\n" +
+			"    public static void main(String[] args) {\n" +
+			"    	try {\n" +
+			"    		foo(new Object() {\n" +
+			"    			public void bar() throws IOException {\n" +
+			"    				bar1();\n" +
+			"    			}\n" +
+			"    		});\n" +
+			"    	} catch(IOException e) {\n" +
+			"    		e.printStackTrace();\n" +
+			"    	}\n" +
+			"    }\n" +
+			"    \n" +
+			"    static void bar1() throws IOException {}\n" +
+			"}" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	} catch(IOException e) {\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=114855
+ */
+public void test032() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1310,6 +1350,517 @@ public void test031() {
 		},
 		"true");
 }
+public void test033() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	interface IActionSetContributionItem {\n" + 
+				"		String getActionSetId();\n" + 
+				"	}\n" + 
+				"	public interface IAction {\n" + 
+				"	}\n" + 
+				"	interface IContributionItem {\n" + 
+				"		String getId();\n" + 
+				"		boolean isSeparator();\n" + 
+				"		boolean isGroupMarker();\n" + 
+				"	}\n" + 
+				"    public static void findInsertionPoint(String startId,\n" + 
+				"            String sortId, IContributionItem[] items) {\n" + 
+				"        // Find the reference item.\n" + 
+				"        try {\n" + 
+				"	        int insertIndex = 0;\n" + 
+				"	        while (insertIndex < items.length) {\n" + 
+				"	            if (startId.equals(items[insertIndex].getId()))\n" + 
+				"	                break;\n" + 
+				"	            ++insertIndex;\n" + 
+				"	        }\n" + 
+				"	        if (insertIndex >= items.length)\n" + 
+				"	            return;\n" + 
+				"	\n" + 
+				"	        int compareMetric = 0;\n" + 
+				"	\n" + 
+				"	        // Find the insertion point for the new item.\n" + 
+				"	        // We do this by iterating through all of the previous\n" + 
+				"	        // action set contributions define within the current group.\n" + 
+				"	        for (int nX = insertIndex + 1; nX < items.length; nX++) {\n" + 
+				"	            IContributionItem item = items[nX];\n" + 
+				"	            if (item.isSeparator() || item.isGroupMarker()) {\n" + 
+				"	                // Fix for bug report 18357\n" + 
+				"	                break;\n" + 
+				"	            }\n" + 
+				"	            if (item instanceof IActionSetContributionItem) {\n" + 
+				"	                if (sortId != null) {\n" + 
+				"	                    String testId = ((IActionSetContributionItem) item)\n" + 
+				"	                            .getActionSetId();\n" + 
+				"	                    if (sortId.compareTo(testId) < compareMetric)\n" + 
+				"	                        break;\n" + 
+				"	                }\n" + 
+				"	                insertIndex = nX;\n" + 
+				"	            } else {\n" + 
+				"	                break;\n" + 
+				"	            }\n" + 
+				"	        }\n" + 
+				"	    } catch(Exception e) {}\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		findInsertionPoint(\"\", \"\", null);\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");
+	String expectedOutput =
+			"  // Method descriptor #15 (Ljava/lang/String;Ljava/lang/String;[LX$IContributionItem;)V\n" + 
+			"  // Stack: 3, Locals: 8\n" + 
+			"  public static void findInsertionPoint(String startId, String sortId, X.IContributionItem[] items);\n" + 
+			"      0  iconst_0\n" + 
+			"      1  istore_3 [insertIndex]\n" + 
+			"      2  goto 26\n" + 
+			"      5  aload_0 [startId]\n" + 
+			"      6  aload_2 [items]\n" + 
+			"      7  iload_3 [insertIndex]\n" + 
+			"      8  aaload\n" + 
+			"      9  invokeinterface X$IContributionItem.getId() : java.lang.String  [21] [nargs: 1]\n" + 
+			"     14  invokevirtual java.lang.String.equals(java.lang.Object) : boolean  [27]\n" + 
+			"     17  ifeq 23\n" + 
+			"     20  goto 32\n" + 
+			"     23  iinc 3 1 [insertIndex]\n" + 
+			"     26  iload_3 [insertIndex]\n" + 
+			"     27  aload_2 [items]\n" + 
+			"     28  arraylength\n" + 
+			"     29  if_icmplt 5\n" + 
+			"     32  iload_3 [insertIndex]\n" + 
+			"     33  aload_2 [items]\n" + 
+			"     34  arraylength\n" + 
+			"     35  if_icmplt 39\n" + 
+			"     38  return\n" + 
+			"     39  iconst_0\n" + 
+			"     40  istore 4 [compareMetric]\n" + 
+			"     42  iload_3 [insertIndex]\n" + 
+			"     43  iconst_1\n" + 
+			"     44  iadd\n" + 
+			"     45  istore 5 [nX]\n" + 
+			"     47  goto 129\n" + 
+			"     50  aload_2 [items]\n" + 
+			"     51  iload 5 [nX]\n" + 
+			"     53  aaload\n" + 
+			"     54  astore 6 [item]\n" + 
+			"     56  aload 6 [item]\n" + 
+			"     58  invokeinterface X$IContributionItem.isSeparator() : boolean  [31] [nargs: 1]\n" + 
+			"     63  ifne 140\n" + 
+			"     66  aload 6 [item]\n" + 
+			"     68  invokeinterface X$IContributionItem.isGroupMarker() : boolean  [34] [nargs: 1]\n" + 
+			"     73  ifeq 79\n" + 
+			"     76  goto 140\n" + 
+			"     79  aload 6 [item]\n" + 
+			"     81  instanceof X$IActionSetContributionItem [36]\n" + 
+			"     84  ifeq 140\n" + 
+			"     87  aload_1 [sortId]\n" + 
+			"     88  ifnull 117\n" + 
+			"     91  aload 6 [item]\n" + 
+			"     93  checkcast X$IActionSetContributionItem [36]\n" + 
+			"     96  invokeinterface X$IActionSetContributionItem.getActionSetId() : java.lang.String  [39] [nargs: 1]\n" + 
+			"    101  astore 7 [testId]\n" + 
+			"    103  aload_1 [sortId]\n" + 
+			"    104  aload 7 [testId]\n" + 
+			"    106  invokevirtual java.lang.String.compareTo(java.lang.String) : int  [43]\n" + 
+			"    109  iload 4 [compareMetric]\n" + 
+			"    111  if_icmpge 117\n" + 
+			"    114  goto 140\n" + 
+			"    117  iload 5 [nX]\n" + 
+			"    119  istore_3 [insertIndex]\n" + 
+			"    120  goto 126\n" + 
+			"    123  goto 140\n" + 
+			"    126  iinc 5 1 [nX]\n" + 
+			"    129  iload 5 [nX]\n" + 
+			"    131  aload_2 [items]\n" + 
+			"    132  arraylength\n" + 
+			"    133  if_icmplt 50\n" + 
+			"    136  goto 140\n" + 
+			"    139  astore_3\n" + 
+			"    140  return\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 139] -> 139 when : java.lang.Exception\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 16]\n" + 
+			"        [pc: 2, line: 17]\n" + 
+			"        [pc: 5, line: 18]\n" + 
+			"        [pc: 20, line: 19]\n" + 
+			"        [pc: 23, line: 20]\n" + 
+			"        [pc: 26, line: 17]\n" + 
+			"        [pc: 32, line: 22]\n" + 
+			"        [pc: 38, line: 23]\n" + 
+			"        [pc: 39, line: 25]\n" + 
+			"        [pc: 42, line: 30]\n" + 
+			"        [pc: 50, line: 31]\n" + 
+			"        [pc: 56, line: 32]\n" + 
+			"        [pc: 76, line: 34]\n" + 
+			"        [pc: 79, line: 36]\n" + 
+			"        [pc: 87, line: 37]\n" + 
+			"        [pc: 91, line: 38]\n" + 
+			"        [pc: 96, line: 39]\n" + 
+			"        [pc: 101, line: 38]\n" + 
+			"        [pc: 103, line: 40]\n" + 
+			"        [pc: 114, line: 41]\n" + 
+			"        [pc: 117, line: 43]\n" + 
+			"        [pc: 123, line: 45]\n" + 
+			"        [pc: 126, line: 30]\n" + 
+			"        [pc: 139, line: 48]\n" + 
+			"        [pc: 140, line: 49]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 141] local: startId index: 0 type: java.lang.String\n" + 
+			"        [pc: 0, pc: 141] local: sortId index: 1 type: java.lang.String\n" + 
+			"        [pc: 0, pc: 141] local: items index: 2 type: X.IContributionItem[]\n" + 
+			"        [pc: 2, pc: 139] local: insertIndex index: 3 type: int\n" + 
+			"        [pc: 42, pc: 139] local: compareMetric index: 4 type: int\n" + 
+			"        [pc: 47, pc: 136] local: nX index: 5 type: int\n" + 
+			"        [pc: 56, pc: 126] local: item index: 6 type: X.IContributionItem\n" + 
+			"        [pc: 103, pc: 117] local: testId index: 7 type: java.lang.String\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853
+public void test034() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			scenario();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static int scenario(){\n" + 
+				"		try {\n" + 
+				"			int i = 1;\n" + 
+				"			System.out.print(\"[i: \" + i+\"]\");\n" + 
+				"			if (i > 5) {\n" + 
+				"				return i;\n" + 
+				"			}\n" + 
+				"			return -i;\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			System.out.print(\"[WRONG CATCH]\");\n" + 
+				"			return 2;\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			try {\n" + 
+				"				throwRuntime();\n" + 
+				"			} finally {\n" + 
+				"				clean();\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void throwRuntime() {\n" + 
+				"		throw new RuntimeException(\"error\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void clean() {\n" + 
+				"		System.out.print(\"[clean]\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[i: 1][finally][clean][end]");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #17 ()I\n" + 
+			"  // Stack: 4, Locals: 4\n" + 
+			"  private static int scenario();\n" + 
+			"      0  iconst_1\n" + 
+			"      1  istore_0 [i]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"      5  new java.lang.StringBuilder [41]\n" + 
+			"      8  dup\n" + 
+			"      9  ldc <String \"[i: \"> [43]\n" + 
+			"     11  invokespecial java.lang.StringBuilder(java.lang.String) [45]\n" + 
+			"     14  iload_0 [i]\n" + 
+			"     15  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder  [49]\n" + 
+			"     18  ldc <String \"]\"> [51]\n" + 
+			"     20  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder  [54]\n" + 
+			"     23  invokevirtual java.lang.StringBuilder.toString() : java.lang.String  [58]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     29  iload_0 [i]\n" + 
+			"     30  iconst_5\n" + 
+			"     31  if_icmple 61\n" + 
+			"     34  iload_0 [i]\n" + 
+			"     35  istore_2\n" + 
+			"     36  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     39  ldc <String \"[finally]\"> [63]\n" + 
+			"     41  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     44  invokestatic X.throwRuntime() : void  [66]\n" + 
+			"     47  goto 56\n" + 
+			"     50  astore_3\n" + 
+			"     51  invokestatic X.clean() : void  [69]\n" + 
+			"     54  aload_3\n" + 
+			"     55  athrow\n" + 
+			"     56  invokestatic X.clean() : void  [69]\n" + 
+			"     59  iload_2\n" + 
+			"     60  ireturn\n" + 
+			"     61  iload_0\n" + 
+			"     62  ineg\n" + 
+			"     63  istore_2\n" + 
+			"     64  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     67  ldc <String \"[finally]\"> [63]\n" + 
+			"     69  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     72  invokestatic X.throwRuntime() : void  [66]\n" + 
+			"     75  goto 84\n" + 
+			"     78  astore_3\n" + 
+			"     79  invokestatic X.clean() : void  [69]\n" + 
+			"     82  aload_3\n" + 
+			"     83  athrow\n" + 
+			"     84  invokestatic X.clean() : void  [69]\n" + 
+			"     87  iload_2\n" + 
+			"     88  ireturn\n" + 
+			"     89  astore_0 [e]\n" + 
+			"     90  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     93  ldc <String \"[WRONG CATCH]\"> [71]\n" + 
+			"     95  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     98  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"    101  ldc <String \"[finally]\"> [63]\n" + 
+			"    103  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"    106  invokestatic X.throwRuntime() : void  [66]\n" + 
+			"    109  goto 118\n" + 
+			"    112  astore_3\n" + 
+			"    113  invokestatic X.clean() : void  [69]\n" + 
+			"    116  aload_3\n" + 
+			"    117  athrow\n" + 
+			"    118  invokestatic X.clean() : void  [69]\n" + 
+			"    121  iconst_2\n" + 
+			"    122  ireturn\n" + 
+			"    123  astore_1\n" + 
+			"    124  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"    127  ldc <String \"[finally]\"> [63]\n" + 
+			"    129  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"    132  invokestatic X.throwRuntime() : void  [66]\n" + 
+			"    135  goto 144\n" + 
+			"    138  astore_3\n" + 
+			"    139  invokestatic X.clean() : void  [69]\n" + 
+			"    142  aload_3\n" + 
+			"    143  athrow\n" + 
+			"    144  invokestatic X.clean() : void  [69]\n" + 
+			"    147  aload_1\n" + 
+			"    148  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 44, pc: 50] -> 50 when : any\n" + 
+			"        [pc: 72, pc: 78] -> 78 when : any\n" + 
+			"        [pc: 0, pc: 36] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 59, pc: 64] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 87, pc: 89] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 106, pc: 112] -> 112 when : any\n" + 
+			"        [pc: 0, pc: 36] -> 123 when : any\n" + 
+			"        [pc: 61, pc: 64] -> 123 when : any\n" + 
+			"        [pc: 89, pc: 98] -> 123 when : any\n" + 
+			"        [pc: 132, pc: 138] -> 138 when : any\n"
+	: 		"  // Method descriptor #17 ()I\n" + 
+			"  // Stack: 4, Locals: 6\n" + 
+			"  private static int scenario();\n" + 
+			"      0  iconst_1\n" + 
+			"      1  istore_0 [i]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"      5  new java.lang.StringBuffer [41]\n" + 
+			"      8  dup\n" + 
+			"      9  ldc <String \"[i: \"> [43]\n" + 
+			"     11  invokespecial java.lang.StringBuffer(java.lang.String) [45]\n" + 
+			"     14  iload_0 [i]\n" + 
+			"     15  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer  [49]\n" + 
+			"     18  ldc <String \"]\"> [51]\n" + 
+			"     20  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer  [54]\n" + 
+			"     23  invokevirtual java.lang.StringBuffer.toString() : java.lang.String  [58]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     29  iload_0 [i]\n" + 
+			"     30  iconst_5\n" + 
+			"     31  if_icmple 41\n" + 
+			"     34  iload_0 [i]\n" + 
+			"     35  istore_3\n" + 
+			"     36  jsr 69\n" + 
+			"     39  iload_3\n" + 
+			"     40  ireturn\n" + 
+			"     41  iload_0 [i]\n" + 
+			"     42  ineg\n" + 
+			"     43  istore_3\n" + 
+			"     44  jsr 69\n" + 
+			"     47  iload_3\n" + 
+			"     48  ireturn\n" + 
+			"     49  astore_0 [e]\n" + 
+			"     50  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     53  ldc <String \"[WRONG CATCH]\"> [63]\n" + 
+			"     55  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     58  jsr 69\n" + 
+			"     61  iconst_2\n" + 
+			"     62  ireturn\n" + 
+			"     63  astore_2\n" + 
+			"     64  jsr 69\n" + 
+			"     67  aload_2\n" + 
+			"     68  athrow\n" + 
+			"     69  astore_1\n" + 
+			"     70  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     73  ldc <String \"[finally]\"> [65]\n" + 
+			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [61]\n" + 
+			"     78  invokestatic X.throwRuntime() : void  [68]\n" + 
+			"     81  goto 99\n" + 
+			"     84  astore 5\n" + 
+			"     86  jsr 92\n" + 
+			"     89  aload 5\n" + 
+			"     91  athrow\n" + 
+			"     92  astore 4\n" + 
+			"     94  invokestatic X.clean() : void  [71]\n" + 
+			"     97  ret 4\n" + 
+			"     99  jsr 92\n" + 
+			"    102  ret 1\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 49] -> 49 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 39] -> 63 when : any\n" + 
+			"        [pc: 41, pc: 47] -> 63 when : any\n" + 
+			"        [pc: 49, pc: 61] -> 63 when : any\n" + 
+			"        [pc: 78, pc: 84] -> 84 when : any\n" + 
+			"        [pc: 99, pc: 102] -> 84 when : any\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test035() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			new X().bar();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try]\");\n" + 
+				"			return this;\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.print(\"[WRONG CATCH]\");\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			foo();\n" + 
+				"		}\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	Object foo() {\n" + 
+				"		throw new RuntimeException();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try][finally][end]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test036() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			new X().bar();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try]\");\n" + 
+				"			throw new RuntimeException();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.print(\"[catch]\");\n" + 
+				"			return this;\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object foo() {\n" + 
+				"		throw new RuntimeException();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try][catch][finally][end]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+public void test037() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			scenario();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void scenario() throws Exception {\n" + 
+				"		try {\n" + 
+				"			System.out.print(\"[try1]\");\n" + 
+				"			try {\n" + 
+				"				System.out.print(\"[try2]\");\n" + 
+				"				return;\n" + 
+				"			} catch(Exception e) {\n" + 
+				"				System.out.print(\"[catch2]\");\n" + 
+				"			} finally {\n" + 
+				"				System.out.print(\"[finally2]\");\n" + 
+				"				throwRuntime();\n" + 
+				"			}\n" + 
+				"		} catch(Exception e) {\n" + 
+				"			System.out.print(\"[catch1]\");\n" + 
+				"			throw e;\n" +
+				"		} finally {\n" + 
+				"			System.out.print(\"[finally1]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void throwRuntime() {\n" + 
+				"		throw new RuntimeException(\"error\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[try1][try2][finally2][catch1][finally1][end]");
+}
+
 public static Class testClass() {
 	return TryStatementTest.class;
 }

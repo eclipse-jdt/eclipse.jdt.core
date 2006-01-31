@@ -104,7 +104,7 @@ public class OR_OR_Expression extends BinaryExpression {
 			return;
 		}
 		
-		Label trueLabel = new Label(codeStream), endLabel;
+		BranchLabel trueLabel = new BranchLabel(codeStream), endLabel;
 		cst = left.optimizedBooleanConstant();
 		boolean leftIsConst = cst != NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
@@ -158,7 +158,7 @@ public class OR_OR_Expression extends BinaryExpression {
 						trueLabel.place();
 						codeStream.iconst_1();
 					} else {
-						codeStream.goto_(endLabel = new Label(codeStream));
+						codeStream.goto_(endLabel = new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						trueLabel.place();
 						codeStream.iconst_1();
@@ -178,7 +178,7 @@ public class OR_OR_Expression extends BinaryExpression {
 	/**
 	 * Boolean operator code generation Optimized operations are: ||
 	 */
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
@@ -230,7 +230,7 @@ public class OR_OR_Expression extends BinaryExpression {
 			} else {
 				// implicit falling through the TRUE case
 				if (trueLabel == null) {
-					Label internalTrueLabel = new Label(codeStream);
+					BranchLabel internalTrueLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(currentScope, codeStream, internalTrueLabel, null, !leftIsConst); 
 					// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
 					if (leftIsConst && leftIsTrue) {

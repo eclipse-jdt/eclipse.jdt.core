@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-public class CaseLabel extends Label {
+public class CaseLabel extends BranchLabel {
 	public int instructionPosition = POS_NOT_SET;
 	public int backwardsBranch = POS_NOT_SET;
 /**

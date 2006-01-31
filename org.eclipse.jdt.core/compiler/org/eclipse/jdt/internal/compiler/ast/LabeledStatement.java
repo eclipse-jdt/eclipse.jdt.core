@@ -19,7 +19,7 @@ public class LabeledStatement extends Statement {
 	
 	public Statement statement;
 	public char[] label;
-	public Label targetLabel;
+	public BranchLabel targetLabel;
 
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
@@ -57,7 +57,7 @@ public class LabeledStatement extends Statement {
 								flowContext,
 								this,
 								label,
-								(targetLabel = new Label()),
+								(targetLabel = new BranchLabel()),
 								currentScope)),
 						flowInfo)
 					.mergedWith(labelContext.initsOnBreak);

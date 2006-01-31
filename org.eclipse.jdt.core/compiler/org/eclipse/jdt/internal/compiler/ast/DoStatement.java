@@ -21,7 +21,7 @@ public class DoStatement extends Statement {
 	public Expression condition;
 	public Statement action;
 
-	private Label breakLabel, continueLabel;
+	private BranchLabel breakLabel, continueLabel;
 
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
@@ -41,8 +41,8 @@ public class DoStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		breakLabel = new Label();
-		continueLabel = new Label();
+		breakLabel = new BranchLabel();
+		continueLabel = new BranchLabel();
 		LoopingFlowContext loopingContext =
 			new LoopingFlowContext(
 				flowContext,
@@ -109,7 +109,7 @@ public class DoStatement extends Statement {
 		int pc = codeStream.position;
 
 		// labels management
-		Label actionLabel = new Label(codeStream);
+		BranchLabel actionLabel = new BranchLabel(codeStream);
 		actionLabel.place();
 		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
