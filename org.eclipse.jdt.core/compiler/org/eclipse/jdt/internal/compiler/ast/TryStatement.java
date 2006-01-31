@@ -25,14 +25,11 @@ public class TryStatement extends SubRoutineStatement {
 	public Block finallyBlock;
 	BlockScope scope;
 
-//	private boolean isSubRoutineEscaping = false;
 	public UnconditionalFlowInfo subRoutineInits;
-//	private boolean generatingTryBlock;
 	
 	// should rename into subRoutineComplete to be set to false by default
 
 	ReferenceBinding[] caughtExceptionTypes;
-//	boolean tryBlockExit;
 	boolean[] catchExits;
 
 	ExceptionLabel[] enclosingExceptionLabels;	// only set while generating try block

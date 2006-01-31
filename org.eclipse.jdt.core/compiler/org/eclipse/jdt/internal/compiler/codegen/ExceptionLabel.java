@@ -78,7 +78,7 @@ public String toString() {
 			buffer.append(",?]"); //$NON-NLS-1$
 		}
 	}
-	buffer.append(')'); //$NON-NLS-1$
+	buffer.append(')');
 	return buffer.toString();
 }
 }
