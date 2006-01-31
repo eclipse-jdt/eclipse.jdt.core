@@ -19,13 +19,11 @@ public class ExceptionLabel extends Label {
 	public TypeBinding exceptionType;
 	
 public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {
-
 	super(codeStream);
 	this.exceptionType = exceptionType;
 }
 
 public void place() {
-
 	// register the handler inside the codeStream then normal place
 	codeStream.registerExceptionHandler(this);
 	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
