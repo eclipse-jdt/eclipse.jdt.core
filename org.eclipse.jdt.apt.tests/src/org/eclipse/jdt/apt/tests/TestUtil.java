@@ -17,11 +17,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -61,18 +61,29 @@ public class TestUtil
 		throws IOException, JavaModelException
 	{
 		if (ANNO_JAR == null) {
-		
+			// The jar file will be created in the state location, e.g., .metadata/
 			IPath statePath = AptPlugin.getPlugin().getStateLocation();
 			IPath jarPath = statePath.append("org.eclipse.jdt.apt.tests.TestUtil.jar");
 			ANNO_JAR = new File(jarPath.toOSString());
-			
 			String classesJarPath = ANNO_JAR.getAbsolutePath();
-			FileFilter filter = new PackageFileFilter(
-					ANNOTATIONS_PKG, getPluginClassesDir());
-			Map<File, FileFilter> files = Collections.singletonMap(
-					new File(getPluginClassesDir()), filter);
-			zip( classesJarPath, files );
 			
+			if (null != getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/bin") )) {
+				// We're in a dev environment, where we jar up the classes from the plugin project
+				FileFilter filter = new PackageFileFilter(
+						ANNOTATIONS_PKG, getPluginClassesDir());
+				Map<File, FileFilter> files = Collections.singletonMap(
+						new File(getPluginClassesDir()), filter);
+				zip( classesJarPath, files );
+			}
+			else {
+				// We're in a releng environment, where we copy the already-built jar
+				File aptJarFile = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/apt.jar")); 
+				if(null == aptJarFile) {
+					throw new FileNotFoundException("Could not find apt.jar file in org.eclipse.jdt.apt.tests plugin");
+				}
+				moveFile(aptJarFile, classesJarPath);
+			}
+
 			ANNO_JAR.deleteOnExit();
 		}
 		
