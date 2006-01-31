@@ -85,7 +85,7 @@ public void setUpSuite() throws Exception {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testGetChildren";
-//	TESTS_NAMES = new String[] { "testGetCategories12" };
+//	TESTS_NAMES = new String[] { "testGetCategories13", "testGetCategories14", "testGetCategories15" };
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -390,6 +390,58 @@ public void testGetCategories12() throws CoreException {
 		"Unexpected categories",
 		"test1\n" +
 		"test2\n",
+		categories);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676
+public void testGetCategories13() throws CoreException {
+	createWorkingCopyComputingProblems(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category " +
+		"	 *		test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+public void testGetCategories14() throws CoreException {
+	createWorkingCopyComputingProblems(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category" +
+		"	 *		test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+public void testGetCategories15() throws CoreException {
+	createWorkingCopyComputingProblems(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  /**\n" +
+		"   * @category test1" +
+		"	 *		test2\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\n",
 		categories);
 }
 

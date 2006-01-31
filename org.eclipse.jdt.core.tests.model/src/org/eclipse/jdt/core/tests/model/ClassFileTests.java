@@ -258,6 +258,58 @@ public void testGetCategories06() throws CoreException, IOException {
 		"test1\ntest2\ntest3\ntest4\ntest5\n",
 		categories);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676
+public void testGetCategories07() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category " +
+		"	 *		test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+public void testGetCategories08() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category" +
+		"	 *		test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+public void testGetCategories09() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category test1" +
+		"	 *		test2\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test1\n",
+		categories);
+}
 
 /*
  * Ensures that the children of a type for a given category are correct.

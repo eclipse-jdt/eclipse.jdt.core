@@ -204,40 +204,16 @@ class DocCommentParser extends AbstractCommentParser {
 	 */
 	protected void createTag() {
 		TagElement tagElement = this.ast.newTagElement();
+		int position = this.scanner.currentPosition;
+		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
+		StringBuffer tagName = new StringBuffer();
 		int start = this.tagSourceStart;
-		String tagName = new String(this.source, start, this.tagSourceEnd-start+1);
-		switch (tagName.charAt(0)) {
-			case 'a':
-				if (tagName.equals(TagElement.TAG_AUTHOR)) {
-					tagName = TagElement.TAG_AUTHOR;
-				}
-				break;
-			case 'd':
-				if (tagName.equals(TagElement.TAG_DOCROOT)) {
-					tagName = TagElement.TAG_DOCROOT;
-				}
-				break;
-			case 'r':
-				if (tagName.equals(TagElement.TAG_RETURN)) {
-					tagName = TagElement.TAG_RETURN;
-				}
-				break;
-			case 's':
-				if (tagName.equals(TagElement.TAG_SERIAL)) {
-					tagName = TagElement.TAG_SERIAL;
-				} else  if (tagName.equals(TagElement.TAG_SERIALDATA)) {
-					tagName = TagElement.TAG_SERIALDATA;
-				} else if (tagName.equals(TagElement.TAG_SERIALFIELD)) {
-					tagName = TagElement.TAG_SERIALFIELD;
-				}
-				break;
-			case 'v':
-				if (tagName.equals(TagElement.TAG_VERSION)) {
-					tagName = TagElement.TAG_VERSION;
-				}
-				break;
+		this.scanner.getNextChar();
+		while (this.scanner.currentPosition <= (this.tagSourceEnd+1)) {
+			tagName.append(this.scanner.currentCharacter);
+			this.scanner.getNextChar();
 		}
-		tagElement.setTagName(tagName);
+		tagElement.setTagName(tagName.toString());
 		if (this.inlineTagStarted) {
 			start = this.inlineTagStart;
 			TagElement previousTag = null;
@@ -255,7 +231,7 @@ class DocCommentParser extends AbstractCommentParser {
 			pushOnAstStack(tagElement, true);
 		}
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
-//		return true;
+		this.scanner.resetTo(position, this.javadocEnd);
 	}
 
 	/* (non-Javadoc)
@@ -340,6 +316,19 @@ class DocCommentParser extends AbstractCommentParser {
 	protected boolean parseReturn() {
 		createTag();
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag(boolean)
+	 */
+	protected boolean parseIdentifierTag(boolean report) {
+		if (super.parseIdentifierTag(report)) {
+			createTag();
+			this.index = this.tagSourceEnd+1;
+			this.scanner.resetTo(this.index, this.javadocEnd);
+			return true;
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)

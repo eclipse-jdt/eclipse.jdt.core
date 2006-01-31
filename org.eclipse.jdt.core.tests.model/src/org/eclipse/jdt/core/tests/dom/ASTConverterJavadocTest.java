@@ -113,7 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug113108"));
+		suite.addTest(new ASTConverterJavadocTest("testBug125676"));
 		return suite;
 	}
 
@@ -3185,5 +3185,68 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			index = compilUnit.lastTrailingCommentIndex(methodDeclaration);
 			assertEquals("Invalid last trailing comment for "+methodDeclaration, 7, index);
 		}
+	}
+
+	/**
+	 * Bug 125676: [javadoc][dom] ASTNode not including javadoc
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676"
+	 */
+	public void testBug125676() throws JavaModelException {
+		workingCopies = new ICompilationUnit[3];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125676/A.java",
+			"package javadoc.b125676;\n" + 
+			"public class A {\n" + 
+			"        /**\n" + 
+			"         * @category \n" + 
+			"         * When searching for field matches, it will exclusively find read accesses, as\n" + 
+			"         * opposed to write accesses. Note that some expressions are considered both\n" + 
+			"         * as field read/write accesses: for example, x++; x+= 1;\n" + 
+			"         * \n" + 
+			"         * @since 2.0\n" + 
+			"         */\n" + 
+			"        int READ_ACCESSES = 4;\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/Converter15/src/javadoc/b125676/B.java",
+			"package javadoc.b125676;\n" + 
+			"public class B {\n" + 
+			"        /**\n" + 
+			"         * @category test\n" + 
+			"         */\n" + 
+			"        int field1;\n" + 
+			"        /**\n" + 
+			"         * @category     test\n" + 
+			"         */\n" + 
+			"        int field2;\n" + 
+			"        /**\n" + 
+			"         * @category test    \n" + 
+			"         */\n" + 
+			"        int field3;\n" + 
+			"        /**\n" + 
+			"         * @category    test    \n" + 
+			"         */\n" + 
+			"        int field4;\n" + 
+			"        /** @category test */\n" + 
+			"        int field5;\n" + 
+			"\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/Converter15/src/javadoc/b125676/C.java",
+			"package javadoc.b125676;\n" + 
+			"public class C { \n" + 
+			"        /**\n" + 
+			"         * @category test mutli ids\n" + 
+			"         */\n" + 
+			"        int field1;\n" + 
+			"        /**\n" + 
+			"         * @category    test    mutli    ids   \n" + 
+			"         */\n" + 
+			"        int field2;\n" + 
+			"        /** @category    test    mutli    ids*/\n" + 
+			"        int field3;\n" + 
+			"}\n"
+		);
+		verifyWorkingCopiesComments();
 	}
 }

@@ -41,7 +41,8 @@ public boolean checkDeprecation(int commentPtr) {
  * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag()
  */
 protected boolean parseIdentifierTag(boolean report) {
-	if (super.parseIdentifierTag(report)) {
+	int end = this.lineEnd+1;
+	if (super.parseIdentifierTag(report) && this.index <= end) {
 		if (this.tagValue == TAG_CATEGORY_VALUE) {
 			// Store first category id
 			int length = this.categories.length;
@@ -52,7 +53,7 @@ protected boolean parseIdentifierTag(boolean report) {
 			this.categories[this.categoriesPtr] = this.identifierStack[this.identifierPtr--];
 			// Store optional additional category identifiers
 			consumeToken();
-			while (this.index < this.javadocEnd) {
+			while (this.index < end) {
 				if (readTokenSafely() == TerminalTokens.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter))) {
 					if (this.index > (this.lineEnd+1)) break;
 					// valid additional identifier
@@ -68,8 +69,8 @@ protected boolean parseIdentifierTag(boolean report) {
 				}
 			}
 			// Reset position to end of line
-			this.index = this.lineEnd;
-			this.scanner.currentPosition = this.lineEnd;
+			this.index = end;
+			this.scanner.currentPosition = end;
 			consumeToken();
 		}
 		return true;
