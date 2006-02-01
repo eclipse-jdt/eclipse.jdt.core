@@ -27414,4 +27414,124 @@ public void test886() {
 		customOptions,
 		null/*no custom requestor*/);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
+public void _test887() {
+	this.runNegativeTest(
+		new String[] {
+			"Bar.java", // =================
+			"class Foo<T> {}\n" + 
+			"public class Bar<X extends Foo<Foo<? super X>>>{\n" + 
+			"    Bar(X x){\n" + 
+			"        Foo<? super X> f = x;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"unspecified");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
+public void test888() {
+	this.runNegativeTest(
+		new String[] {
+			"Bar.java", // =================
+			"class Foo<T> {}\n" + 
+			"public class Bar<X extends Foo<Foo<? super X>>>{\n" + 
+			"    Bar(X x){\n" + 
+			"        Foo<? extends X> f = x;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Bar.java (at line 4)\n" + 
+		"	Foo<? extends X> f = x;\n" + 
+		"	                     ^\n" + 
+		"Type mismatch: cannot convert from X to Foo<? extends X>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
+public void test889() {
+	this.runConformTest(
+		new String[] {
+			"Test.java", // =================
+			"import java.util.*;\n" + 
+			"\n" + 
+			"class Group<E extends Comparable<? super E>> extends ArrayList<E> implements\n" + 
+			"		Comparable<Group<? extends E>> {\n" + 
+			"	public int compareTo(Group<? extends E> o) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Sequence<E extends Comparable<? super E>> extends TreeSet<E> implements\n" + 
+			"		Comparable<Sequence<? extends E>> {\n" + 
+			"	public int compareTo(Sequence<? extends E> o) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Test<T extends Comparable<? super T>> {\n" + 
+			"	<C extends Collection<T>> void foo(SortedSet<? extends C> setToCheck,\n" + 
+			"			SortedSet<? extends C> validSet) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void containsCombination(SortedSet<Group<T>> groups,\n" + 
+			"			SortedSet<Sequence<T>> sequences) {\n" + 
+			"		foo(groups, sequences);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
+public void test890() {
+	this.runConformTest(
+		new String[] {
+			"Simple.java", // =================
+			"class A<T extends A<T>> {}\n" + 
+			"class B extends A<B> {}\n" + 
+			"class C extends B {}\n" + 
+			"class D<T> {}\n" + 
+			"\n" + 
+			"public class Simple {\n" + 
+			"	<T extends A<T>, S extends T> D<T> m(S s) {\n" + 
+			"		C c = null;\n" + 
+			"		D<B> d = m(c);\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
+public void test891() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java", // =================
+			"interface Function<A, B> {\n" + 
+			"	B apply(A x);\n" + 
+			"}\n" + 
+			"class Id<A> implements Function<A, A> {\n" + 
+			"	public A apply(A x) {\n" + 
+			"		return x;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Test {\n" + 
+			"	<A> Id<A> identity() {\n" + 
+			"		return new Id<A>();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<B> B applyToString(Function<String, B> f) {\n" + 
+			"		return f.apply(\"abc\");\n" + 
+			"	}\n" + 
+			"	void test() {\n" + 
+			"		String s = applyToString(identity());\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 18)\n" + 
+		"	String s = applyToString(identity());\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"The method applyToString(Function<String,B>) in the type Test is not applicable for the arguments (Id<Object>)\n" + 
+		"----------\n");
+}
 }
