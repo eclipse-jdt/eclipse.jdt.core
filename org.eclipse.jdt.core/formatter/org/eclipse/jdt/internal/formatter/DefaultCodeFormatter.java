@@ -42,8 +42,8 @@ import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter {
 
-	private static Scanner ProbingScanner;
 	public static final boolean DEBUG = false;
+	private static Scanner ProbingScanner;
 	public static boolean USE_NEW_FORMATTER = false;
 
 	/**
@@ -102,6 +102,42 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		this(null, options);
 	}
 	
+	public String createIndentationString(final int indentationLevel) {
+		if (indentationLevel < 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		int tabs = 0;
+		int spaces = 0;
+		switch(this.preferences.tab_char) {
+			case DefaultCodeFormatterOptions.SPACE :
+				spaces = indentationLevel * this.preferences.tab_size;
+				break;
+			case DefaultCodeFormatterOptions.TAB :
+				tabs = indentationLevel;
+				break;
+			case DefaultCodeFormatterOptions.MIXED :
+				int tabSize = this.preferences.tab_size;
+				int spaceEquivalents = indentationLevel * this.preferences.indentation_size;
+				tabs = spaceEquivalents / tabSize;
+				spaces = spaceEquivalents % tabSize;
+				break;
+			default:
+				return Scribe2.EMPTY_STRING;
+		}
+		if (tabs == 0 && spaces == 0) {
+			return Scribe2.EMPTY_STRING;
+		}
+		StringBuffer buffer = new StringBuffer(tabs + spaces);
+		for(int i = 0; i < tabs; i++) {
+			buffer.append('\t');
+		}
+		for(int i = 0; i < spaces; i++) {
+			buffer.append(' ');
+		}
+		return buffer.toString();
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, java.lang.String, int, int, int, java.lang.String)
 	 */
@@ -135,7 +171,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		return null;
 	}
-	
+
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
 		if (USE_NEW_FORMATTER) {
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -360,7 +396,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
-
+	
 	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
@@ -374,7 +410,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
 		return textEdit;
 	}
-	
+
 	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;

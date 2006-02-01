@@ -38,7 +38,7 @@ import org.eclipse.text.edits.TextEdit;
  * @since 2.1
  */
 public class Scribe2 {
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+	public static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
 	private static final int INITIAL_SIZE = 100;
 	

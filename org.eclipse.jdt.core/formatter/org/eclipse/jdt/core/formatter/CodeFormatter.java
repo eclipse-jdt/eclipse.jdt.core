@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
+import org.eclipse.jdt.internal.formatter.Scribe2;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -65,8 +66,8 @@ public abstract class CodeFormatter {
 	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
 	 * It returns null if the given string cannot be formatted.
 	 * 
-	 * If the offset position is matching a whitespace, the result can include whitespaces. It would be up to the
-	 * caller to get rid of preceeding whitespaces.
+	 * <p>If the offset position is matching a whitespace, the result can include whitespaces. It would be up to the
+	 * caller to get rid of preceeding whitespaces.</p>
 	 * 
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 *        K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN,
@@ -79,9 +80,24 @@ public abstract class CodeFormatter {
 	 *      level of zero or below has no effect.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @return the text edit
+	 * @return the text edit or <code>null</code> if the given string cannot be formatted
 	 * @throws IllegalArgumentException if offset is lower than 0, length is lower than 0 or
 	 * length is greater than source length.
 	 */
 	public abstract TextEdit format(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator);
+	
+	/**
+	 * Answers the string that corresponds to the indentation to the given indentation level or an empty string
+	 * if the indentation cannot be computed.
+	 * <p>This method needs to be overriden in a subclass.</p>
+	 * 
+	 * <p>The default implementation returns an empty string.</p>
+	 * 
+	 * @param indentationLevel the given indentation level
+	 * @return the string corresponding to the right indentation level
+	 * @exception IllegalArgumentException if the given indentation level is lower than zero
+	 */
+	public String createIndentationString(int indentationLevel) {
+		return Scribe2.EMPTY_STRING;
+	}
 }

@@ -53,7 +53,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 610 } ;
+//		TESTS_NUMBERS = new int[] { 611 } ;
 	}
 	public static Test suite() {
 		return buildTestSuite(FormatterRegressionTests.class);
@@ -8590,5 +8590,74 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test610", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111446
+	 */
+	public void test611() {
+		{
+			// only tabs, indentation size = 4, tab size = 4
+			// indentation size is ignored
+			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+			DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+			preferences.tab_char = DefaultCodeFormatterOptions.TAB;
+			preferences.tab_size = 4;
+			preferences.indentation_size = 4;
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+			assertEquals("Wrong indentation string", "\t", codeFormatter.createIndentationString(1));
+			assertEquals("Wrong indentation string", "\t\t", codeFormatter.createIndentationString(2));
+			assertEquals("Wrong indentation string", "\t\t\t", codeFormatter.createIndentationString(3));
+		}
+		{
+			// only tabs, indentation size = 4, tab size = 8
+			// indentation size is ignored
+			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+			DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+			preferences.tab_char = DefaultCodeFormatterOptions.TAB;
+			preferences.tab_size = 8;
+			preferences.indentation_size = 4;
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+			assertEquals("Wrong indentation string", "\t", codeFormatter.createIndentationString(1));
+			assertEquals("Wrong indentation string", "\t\t", codeFormatter.createIndentationString(2));
+			assertEquals("Wrong indentation string", "\t\t\t", codeFormatter.createIndentationString(3));
+		}
+		{
+			// only spaces, indentation size = 4, tab size = 2
+			// indentation size is ignored
+			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+			DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+			preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
+			preferences.tab_size = 2;
+			preferences.indentation_size = 4;
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+			assertEquals("Wrong indentation string", "  ", codeFormatter.createIndentationString(1));
+			assertEquals("Wrong indentation string", "    ", codeFormatter.createIndentationString(2));
+			assertEquals("Wrong indentation string", "      ", codeFormatter.createIndentationString(3));
+		}
+		{
+			// mixed, indentation size = 4, tab size = 2
+			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+			DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+			preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+			preferences.tab_size = 2;
+			preferences.indentation_size = 4;
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+			assertEquals("Wrong indentation string", "\t\t", codeFormatter.createIndentationString(1));
+			assertEquals("Wrong indentation string", "\t\t\t\t", codeFormatter.createIndentationString(2));
+		}		
+		{
+			// mixed, indentation size = 2, tab size = 4
+			// indentation size is ignored
+			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+			DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+			preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+			preferences.tab_size = 4;
+			preferences.indentation_size = 2;
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+			assertEquals("Wrong indentation string", "  ", codeFormatter.createIndentationString(1));
+			assertEquals("Wrong indentation string", "\t", codeFormatter.createIndentationString(2));
+			assertEquals("Wrong indentation string", "\t  ", codeFormatter.createIndentationString(3));
+		}		
 	}
 }
