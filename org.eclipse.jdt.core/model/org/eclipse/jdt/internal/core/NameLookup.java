@@ -432,13 +432,18 @@ public class NameLookup implements SuffixConstants {
 						if (entry != null) {
 							IPackageFragmentRoot root =
 								project.getPackageFragmentRoot(project.getResource());
-							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(CharOperation.NO_STRINGS);
-							if (roots == null) {
+							Object defaultPkgRoot = this.packageFragments.get(CharOperation.NO_STRINGS);
+							if (defaultPkgRoot == null) {
 								return null;
 							}
-							for (int i = 0; i < roots.length; i++) {
-								if (roots[i].equals(root)) {
-									return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
+							if (defaultPkgRoot instanceof PackageFragmentRoot && defaultPkgRoot.equals(root))
+								return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
+							else {
+								IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) defaultPkgRoot;
+								for (int i = 0; i < roots.length; i++) {
+									if (roots[i].equals(root)) {
+										return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
+									}
 								}
 							}
 						}
