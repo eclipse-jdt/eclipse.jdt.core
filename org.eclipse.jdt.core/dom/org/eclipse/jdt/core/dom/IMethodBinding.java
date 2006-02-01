@@ -273,11 +273,13 @@ public interface IMethodBinding extends IBinding {
 	public IMethodBinding getMethodDeclaration();
 
 	/**
-	 * Returns <code>true</code> if and only if the receiver is overriding at least one other method
-	 * according to <em>The Java Language Specification, Third Edition</em> (JLS3) 8.4.8.1 and 9.4.1. 
+	 * Returns whether this method overrides at least another method,
+	 * as specified in section 8.4.8.1 and 9.4.1 of <em>The Java Language 
+	 * Specification, Third Edition</em> (JLS3).
 	 * 
-	 * @return <code>true</code> if and only if the receiver is overriding at least one other method
-	 * according to <em>The Java Language Specification, Third Edition</em> (JLS3) 8.4.8.1 and 9.4.1
+	 * @return whether this method overrides at least another method
+	 * @see #overrides(IMethodBinding)
+	 * @since 3.2
 	 */
 	public boolean isOverriding();
 
