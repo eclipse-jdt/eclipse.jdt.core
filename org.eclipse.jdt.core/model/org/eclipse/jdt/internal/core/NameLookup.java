@@ -902,7 +902,6 @@ public class NameLookup implements SuffixConstants {
 			String topLevelTypeName = null;
 			int packageFlavor= root.getKind();
 			if (this.typesInWorkingCopies != null || packageFlavor == IPackageFragmentRoot.K_SOURCE) {
-				matchName= matchName.replace('$', '.');
 				firstDot = matchName.indexOf('.');
 				if (!partialMatch)
 					topLevelTypeName = firstDot == -1 ? matchName : matchName.substring(0, firstDot);

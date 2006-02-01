@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
@@ -173,10 +174,13 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			Member declaringMember = ((Member)focusType).getOuterMostLocalContext();
 			if (declaringMember == null) {
 				// top level or member type
-				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-				if (!inProjectOfFocusType && searchableEnvironment.findType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
-					// focus type is not visible in this project: no need to go further
-					return;
+				if (!inProjectOfFocusType) {
+					char[] typeQualifiedName = focusType.getTypeQualifiedName('.').toCharArray();
+					String[] packageName = ((PackageFragment) focusType.getPackageFragment()).names;
+					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName)) == null) {
+						// focus type is not visible in this project: no need to go further
+						return;
+					}
 				}
 			} else {
 				// local or anonymous type

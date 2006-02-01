@@ -95,7 +95,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testCategories4" };
+//	TESTS_NAMES = new String[] { "testTypeWithDollarName2" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -2663,6 +2663,38 @@ public void testTypeWithDollarName() throws CoreException {
 		);
 	} finally {
 		deleteFile("/Reconciler/src/p1/Y$Z.java");
+	}
+}
+/*
+ * Ensures that a working copy with a type with a dollar name can be reconciled against without errors.
+ * (regression test for bug 125301 Handling of classes with $ in class name.)
+ */
+public void testTypeWithDollarName2() throws CoreException {
+	ICompilationUnit workingCopy2 = null; 
+	try {
+		workingCopy2 = getWorkingCopy(
+			"/Reconciler/src/p1/Y$Z.java",
+			"package p1;\n" +
+			"public class Y$Z {\n" +
+			"}",
+			this.workingCopy.getOwner(),
+			false/*don't compute problems*/
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X {\n" +
+			"  Y$Z field;\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy2 != null)
+			workingCopy2.discardWorkingCopy();
 	}
 }
 /*
