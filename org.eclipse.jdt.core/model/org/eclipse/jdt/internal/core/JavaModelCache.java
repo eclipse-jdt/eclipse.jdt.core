@@ -96,7 +96,7 @@ protected double getMemoryRatio() {
 		long maxMemory = Runtime.getRuntime().maxMemory();		
 		// if max memory is infinite, set the ratio to 4d which corresponds to the 256MB that Eclipse defaults to
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111299)
-		this.memoryRatio = maxMemory == Long.MAX_VALUE ? 4d : ((double) maxMemory) / (64 * 1024 * 1024); // 64MB is the base memory for most JVM	
+		this.memoryRatio = maxMemory == Long.MAX_VALUE ? 4d : ((double) maxMemory) / (64 * 0x100000); // 64MB is the base memory for most JVM	
 	}
 	return this.memoryRatio;
 }
