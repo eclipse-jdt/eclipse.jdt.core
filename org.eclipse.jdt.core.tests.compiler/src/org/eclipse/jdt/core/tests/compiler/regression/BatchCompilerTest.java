@@ -955,6 +955,7 @@ public void test012(){
 		"    -repeat <n>        repeat compilation process <n> times for perf analysis\n" + 
 		"    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
 		"    -enableJavadoc     consider references in javadoc\n" + 
+		"    -Xemacs            used to enable emacs-style output\n" + 
 		" \n" + 
 		"    -? -help           print this help message\n" + 
 		"    -v -version        print compiler version\n" + 
