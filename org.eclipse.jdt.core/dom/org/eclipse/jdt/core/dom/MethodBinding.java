@@ -283,7 +283,14 @@ class MethodBinding implements IMethodBinding {
 		return this.binding.isDeprecated();
 	}
 
-	/**
+	/*
+	 * @see IMethodBinding#isOverriding()
+	 */
+	public boolean isOverriding() {
+		return this.binding.isOverriding() || this.binding.isImplementing();
+	}
+	
+	/*
 	 * @see IBinding#isSynthetic()
 	 */
 	public boolean isSynthetic() {
