@@ -36,7 +36,7 @@ public class JavadocBugsTest extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
-//		TESTS_NUMBERS = new int[] { 83285 };
+//		TESTS_NUMBERS = new int[] { 125903 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -3959,6 +3959,36 @@ public class JavadocBugsTest extends JavadocTest {
 				"	void foo(String str) {}\n" + 
 				"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Bug 125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
+	 */
+	public void testBug125903() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * {@ link java.lang.String}\n" + 
+				" * @ since 2.1\n" + 
+				" */\n" + 
+				"public class X {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	* {@ link java.lang.String}\n" + 
+			"	   ^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	* @ since 2.1\n" + 
+			"	  ^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n"
 		);
 	}
 }

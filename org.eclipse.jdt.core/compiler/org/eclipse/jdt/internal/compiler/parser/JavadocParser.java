@@ -355,7 +355,14 @@ public class JavadocParser extends AbstractCommentParser {
 		boolean valid = false;
 	
 		// Read tag name
+		int currentPosition = this.index;
 		int token = readTokenAndConsume();
+		if (currentPosition != this.scanner.startPosition) {
+			this.tagSourceStart = previousPosition;
+			this.tagSourceEnd = currentPosition;
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+			return false;
+		}
 		if (this.index >= this.scanner.eofPosition) {
 			this.tagSourceStart = previousPosition;
 			this.tagSourceEnd = this.tokenPreviousPosition;

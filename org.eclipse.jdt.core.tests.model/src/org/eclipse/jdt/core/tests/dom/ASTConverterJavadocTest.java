@@ -113,7 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug125676"));
+		suite.addTest(new ASTConverterJavadocTest("testBug125903"));
 		return suite;
 	}
 
@@ -3188,7 +3188,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Bug 125676: [javadoc][dom] ASTNode not including javadoc
+	 * @bug 125676: [javadoc] @category should not read beyond end of line
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676"
 	 */
 	public void testBug125676() throws JavaModelException {
@@ -3248,5 +3248,40 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"}\n"
 		);
 		verifyWorkingCopiesComments();
+	}
+
+	/**
+	 * @bug 125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
+	 */
+	public void testBug125903() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
+			"package javadoc.b125903;\n" + 
+			"/**\n" + 
+			" * {@ link java.lang.String}\n" + 
+			" * @ since 2.1\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify  method javadoc
+			ASTNode node = getASTNode(compilUnit, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			Javadoc javadoc = typeDeclaration.getJavadoc();
+			assertNotNull("TypeDeclaration should have a javadoc comment", javadoc);
+			List tags = javadoc.tags();
+			TagElement tag = (TagElement) tags.get(0);
+			tag = (TagElement) tag.fragments().get(0);
+			assertEquals("Tag name should be empty", tag.getTagName(), "@");
+			tag = (TagElement) tags.get(1);
+			assertEquals("Tag name should be empty", tag.getTagName(), "@");
+		}
 	}
 }

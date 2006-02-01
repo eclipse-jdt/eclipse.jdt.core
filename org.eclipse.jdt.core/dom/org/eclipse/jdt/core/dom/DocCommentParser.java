@@ -337,10 +337,16 @@ class DocCommentParser extends AbstractCommentParser {
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		
 		// Read tag name
+		int currentPosition = this.index;
 		int token = readTokenAndConsume();
-		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
-		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-		char[] tagName = this.scanner.getCurrentIdentifierSource();
+		char[] tagName = CharOperation.NO_CHAR;
+		if (currentPosition == this.scanner.startPosition) {
+			this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+			this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+			tagName = this.scanner.getCurrentIdentifierSource();
+		} else {
+			this.tagSourceEnd = currentPosition-1;
+		}
 
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
@@ -384,6 +390,11 @@ class DocCommentParser extends AbstractCommentParser {
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
 		this.tagSourceStart = previousPosition;
+
+		// tage name may be empty (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903)
+		if (tagName.length == 0) {
+			return false;
+		}
 
 		// Decide which parse to perform depending on tag name
 		this.tagValue = NO_TAG_VALUE;
