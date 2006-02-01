@@ -95,7 +95,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testTypeWithDollarName2" };
+//	TESTS_NAMES = new String[] { "testRawUsage" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -2032,7 +2032,7 @@ public void testNoChanges2() throws JavaModelException {
 	);
 }
 /*
- * Ensures that using a non-generic method with no parametera and with a raw receiver type doesn't create a type safety warning
+ * Ensures that using a non-generic method with no parameter and with a raw receiver type doesn't create a type safety warning
  * (regression test for bug 105756 [1.5][model] Incorrect warning on using raw types)
  */
 public void testRawUsage() throws CoreException {
@@ -2054,7 +2054,7 @@ public void testRawUsage() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -2344,7 +2344,7 @@ public void testSuppressWarnings1() throws JavaModelException {
 	        "   Zork z;\n" +
 	        "}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -2437,7 +2437,7 @@ public void testSuppressWarnings3() throws JavaModelException {
             "   Zork z;\n" +				
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -2475,7 +2475,7 @@ public void testSuppressWarnings4() throws JavaModelException {
 	        "   Zork z;\n" +
 	        "}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -2672,12 +2672,13 @@ public void testTypeWithDollarName() throws CoreException {
 public void testTypeWithDollarName2() throws CoreException {
 	ICompilationUnit workingCopy2 = null; 
 	try {
+		WorkingCopyOwner owner = this.workingCopy.getOwner();
 		workingCopy2 = getWorkingCopy(
 			"/Reconciler/src/p1/Y$Z.java",
 			"package p1;\n" +
 			"public class Y$Z {\n" +
 			"}",
-			this.workingCopy.getOwner(),
+			owner,
 			false/*don't compute problems*/
 		);
 		setWorkingCopyContents(
@@ -2686,7 +2687,7 @@ public void testTypeWithDollarName2() throws CoreException {
 			"  Y$Z field;\n" +
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
