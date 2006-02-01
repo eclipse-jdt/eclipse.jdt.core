@@ -107,6 +107,12 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"        new W() {};\n" +
 		"      }\n" +
 		"    }\n" +
+		"    new Object() {\n" +
+		"      class U {\n" +
+		"        U(String s) {\n" +
+		"        }\n" +
+		"      }\n" +
+		"    };\n" +
 		"  }\n" +
 		"  class V {\n" +
 		"    V(String s) {\n" +
@@ -396,6 +402,12 @@ public void testInnerClass1() throws JavaModelException {
 		"        new W() {};\n" + 
 		"      }\n" + 
 		"    }\n" + 
+		"    new Object() {\n" + 
+		"      class U {\n" + 
+		"        U(String s) {\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    };\n" + 
 		"  }\n" + 
 		"  class V {\n" + 
 		"    V(String s) {\n" + 
@@ -481,6 +493,20 @@ public void testInnerClass8() throws JavaModelException {
 		"    V(String s) {\n" + 
 		"    }\n" + 
 		"  }",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ * (regression test for bug 124611 IAE in Signature.createCharArrayTypeSignature)
+ */
+public void testInnerClass9() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$4$U.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class U {\n" + 
+		"        U(String s) {\n" + 
+		"        }\n" + 
+		"      }",
 		type.getSource());
 }
 

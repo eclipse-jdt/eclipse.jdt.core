@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
@@ -690,11 +691,24 @@ public class SourceMapper
 			IType currentType = this.types[typeDepth];
 			char[][] parameterTypes = methodInfo.parameterTypes;
 			if (parameterTypes != null && methodInfo.isConstructor && currentType.getDeclaringType() != null) {
-				int length = parameterTypes.length;
-				char[][] newParameterTypes = new char[length+1][];
-				newParameterTypes[0] = currentType.getDeclaringType().getElementName().toCharArray();
-				System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
-				this.methodParameterTypes[typeDepth] = newParameterTypes;
+				IType declaringType = currentType.getDeclaringType();
+				String declaringTypeName = declaringType.getElementName();
+				if (declaringTypeName.length() == 0) {
+					IClassFile classFile = declaringType.getClassFile();
+					int length = parameterTypes.length;
+					char[][] newParameterTypes = new char[length+1][];
+					declaringTypeName = classFile.getElementName();
+					declaringTypeName = declaringTypeName.substring(0, declaringTypeName.indexOf('.'));
+					newParameterTypes[0] = declaringTypeName.toCharArray();
+					System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					this.methodParameterTypes[typeDepth] = newParameterTypes;
+				} else {
+					int length = parameterTypes.length;
+					char[][] newParameterTypes = new char[length+1][];
+					newParameterTypes[0] = declaringTypeName.toCharArray();
+					System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					this.methodParameterTypes[typeDepth] = newParameterTypes;
+				}
 			} else {
 				this.methodParameterTypes[typeDepth] = parameterTypes;
 			}
