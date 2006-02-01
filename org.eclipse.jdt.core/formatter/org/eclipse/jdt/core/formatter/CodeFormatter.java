@@ -96,6 +96,7 @@ public abstract class CodeFormatter {
 	 * @param indentationLevel the given indentation level
 	 * @return the string corresponding to the right indentation level
 	 * @exception IllegalArgumentException if the given indentation level is lower than zero
+	 * @since 3.2
 	 */
 	public String createIndentationString(int indentationLevel) {
 		return Scribe2.EMPTY_STRING;
