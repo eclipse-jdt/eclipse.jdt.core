@@ -135,9 +135,11 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			return this.ast;
 		} 
 		if (this.ast != null) return this.ast; // no need to recompute AST if known already
-		if (this.forceProblemDetection && this.resolveBindings) {
+		if (this.forceProblemDetection || this.resolveBindings) {
 			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject())) {
-				if (this.problems == null) this.problems = new HashMap();
+				HashMap problemMap = this.problems == null ? new HashMap() : this.problems;
+				if (this.forceProblemDetection && this.problems == null) 
+					this.problems = problemMap;
 			    CompilationUnitDeclaration unit = null;
 			    try {
 			    	// find problems
@@ -147,7 +149,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 							workingCopy, 
 							contents, 
 							this.workingCopyOwner, 
-							this.problems, 
+							problemMap, 
 							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */, 
 							this.enableStatementsRecovery,
 							this.progressMonitor);

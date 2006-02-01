@@ -592,7 +592,12 @@ public void testBroadcastAST3() throws JavaModelException {
 	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
 		"Unexpected ast", 
-		"null",
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"  public void foo(){\n" + 
+		"  }\n" + 
+		"}\n",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
