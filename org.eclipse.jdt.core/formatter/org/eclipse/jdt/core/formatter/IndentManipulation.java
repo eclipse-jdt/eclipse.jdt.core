@@ -14,10 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.formatter.Scribe2;
-import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
@@ -416,13 +414,6 @@ public final class IndentManipulation {
 			return getIntValue(options, DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, tabWidth);
 		}
 		return tabWidth;
-	}
-	
-	private static String getStringValue(Map options, String key, String def) {
-		Object value= options.get(key);
-		if (value instanceof String)
-			return (String) value;
-		return def;
 	}
 	
 	private static int getIntValue(Map options, String key, int def) {
