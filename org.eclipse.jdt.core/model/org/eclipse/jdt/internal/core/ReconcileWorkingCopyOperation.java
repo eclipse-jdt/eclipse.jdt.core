@@ -137,9 +137,13 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (this.ast != null) return this.ast; // no need to recompute AST if known already
 		if (this.forceProblemDetection || this.resolveBindings) {
 			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject())) {
-				HashMap problemMap = this.problems == null ? new HashMap() : this.problems;
-				if (this.forceProblemDetection && this.problems == null) 
-					this.problems = problemMap;
+				HashMap problemMap;
+				if (this.problems == null) {
+					problemMap = new HashMap();
+					if (this.forceProblemDetection)
+						this.problems = problemMap;
+				} else
+					problemMap = this.problems;
 			    CompilationUnitDeclaration unit = null;
 			    try {
 			    	// find problems
