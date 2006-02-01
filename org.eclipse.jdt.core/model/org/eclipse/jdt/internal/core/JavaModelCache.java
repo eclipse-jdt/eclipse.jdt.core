@@ -25,6 +25,11 @@ public class JavaModelCache {
 	public static final int DEFAULT_OPENABLE_SIZE = 500; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
 	public static final int DEFAULT_CHILDREN_SIZE = 500*20; // average 20 children per openable
 	
+	/*
+	 * The memory ratio that should be applied to the above constants.
+	 */
+	protected double memoryRatio = -1;
+	
 	/**
 	 * Active Java Model Info
 	 */
@@ -57,10 +62,7 @@ public class JavaModelCache {
 	
 public JavaModelCache() {
 	// set the size of the caches in function of the maximum amount of memory available
-	long maxMemory = Runtime.getRuntime().maxMemory();
-	// if max memory is infinite, set the ratio to 4d which corresponds to the 256MB that Eclipse defaults to
-	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111299)
-	double ratio = maxMemory == Long.MAX_VALUE ? 4d : maxMemory / 64000000; // 64000000 is the base memory for most JVM
+	double ratio = getMemoryRatio();
 	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
 	this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
 	this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
@@ -87,6 +89,16 @@ public Object getInfo(IJavaElement element) {
 		default:
 			return this.childrenCache.get(element);
 	}
+}
+
+protected double getMemoryRatio() {
+	if (this.memoryRatio == -1) {
+		long maxMemory = Runtime.getRuntime().maxMemory();		
+		// if max memory is infinite, set the ratio to 4d which corresponds to the 256MB that Eclipse defaults to
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111299)
+		this.memoryRatio = maxMemory == Long.MAX_VALUE ? 4d : ((double) maxMemory) / (64 * 1024 * 1024); // 64MB is the base memory for most JVM	
+	}
+	return this.memoryRatio;
 }
 
 /**
@@ -149,15 +161,15 @@ protected void removeInfo(IJavaElement element) {
 			break;
 		case IJavaElement.JAVA_PROJECT:
 			this.projectCache.remove(element);
-			this.rootCache.resetSpaceLimit(DEFAULT_ROOT_SIZE, element);
+			this.rootCache.resetSpaceLimit((int) (DEFAULT_ROOT_SIZE * getMemoryRatio()), element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			this.rootCache.remove(element);
-			this.pkgCache.resetSpaceLimit(DEFAULT_PKG_SIZE, element);
+			this.pkgCache.resetSpaceLimit((int) (DEFAULT_PKG_SIZE * getMemoryRatio()), element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.remove(element);
-			this.openableCache.resetSpaceLimit(DEFAULT_OPENABLE_SIZE, element);
+			this.openableCache.resetSpaceLimit((int) (DEFAULT_OPENABLE_SIZE * getMemoryRatio()), element);
 			break;
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
