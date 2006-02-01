@@ -223,6 +223,8 @@ public void test0001() {
 		"public enum X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 
@@ -230,6 +232,8 @@ public void test0001() {
 		"public enum X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
 		"  }\n" + 
 		"}\n";
 

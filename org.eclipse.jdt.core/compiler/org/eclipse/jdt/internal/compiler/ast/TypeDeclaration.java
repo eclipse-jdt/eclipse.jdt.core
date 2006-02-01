@@ -810,21 +810,21 @@ public class TypeDeclaration
 		// always need a <clinit> when assertions are present
 		if ((this.bits & AddAssertionMASK) != 0)
 			return true;
-		if (fields == null)
-			return false;
 		
 		switch (kind()) {
 			case IGenericType.INTERFACE_DECL:
 			case IGenericType.ANNOTATION_TYPE_DECL:
-				return true; // fields are implicitly statics
+				return this.fields != null; // fields are implicitly statics
+			case IGenericType.ENUM_DECL:
+				return true; // even if no enum constants, need to set $VALUES array
 		}
-		for (int i = fields.length; --i >= 0;) {
-			FieldDeclaration field = fields[i];
-			//need to test the modifier directly while there is no binding yet
-			if ((field.modifiers & AccStatic) != 0)
-				return true; // TODO (philippe) shouldn't it check whether field is initializer or has some initial value ?
-			if (field.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
-				return true;
+		if (this.fields != null) {
+			for (int i = this.fields.length; --i >= 0;) {
+				FieldDeclaration field = this.fields[i];
+				//need to test the modifier directly while there is no binding yet
+				if ((field.modifiers & IConstants.AccStatic) != 0)
+					return true; // TODO (philippe) shouldn't it check whether field is initializer or has some initial value ?
+			}
 		}
 		return false;
 	}
