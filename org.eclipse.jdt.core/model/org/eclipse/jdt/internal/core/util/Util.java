@@ -1986,6 +1986,7 @@ public class Util {
 	 */
 	public static char[][] toCharArrays(String[] a) {
 		int len = a.length;
+		if (len == 0) return CharOperation.NO_CHAR_CHAR;
 		char[][] result = new char[len][];
 		for (int i = 0; i < len; ++i) {
 			result[i] = a[i].toCharArray();
