@@ -6280,4 +6280,37 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("Should not be null", annotations);
 		assertEquals("Should be empty", 0, annotations.length);
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=125807
+	 * disable for now. Enable once 125807 is fixed.
+	 */
+	public void _test0208() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@Override(x= 1)\r\n" + 
+			"public class X { }";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		String problems =
+			"The annotation @Override is disallowed for this location\n" + 
+			"The attribute x is undefined for the annotation type Override";
+		assertProblemsSize(compilationUnit, 2, problems);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		assertTrue("Wrong type", modifiers.get(0) instanceof NormalAnnotation);
+		NormalAnnotation normalAnnotation = (NormalAnnotation) modifiers.get(0);
+		IResolvedAnnotation resolvedAnnotation = normalAnnotation.resolveAnnotation();
+		IResolvedMemberValuePair[] pairs = resolvedAnnotation.getDeclaredMemberValuePairs();
+		assertEquals("Wrong size", 1, pairs.length);
+		assertNotNull("Should not be null", pairs[0].getValue());
+	}
 }
