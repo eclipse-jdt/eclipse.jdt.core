@@ -1052,7 +1052,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 				this.nullAssignmentValueBit1 &= mask | ~unknownAssigned;
 				this.nullAssignmentValueBit2 &= mask;
 				// clear potential anything but null
-				// REVIEW coûts relatifs d'un assignment et d'une négation?
+				// REVIEW relative cost between an assignment and a negation 
 				if (coverageTestFlag && coverageTestId == 24) {
 					this.nullAssignmentValueBit2 = ~0;
 				}
@@ -1731,3 +1731,4 @@ public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect() {
 	return this;
 }
 }
+
