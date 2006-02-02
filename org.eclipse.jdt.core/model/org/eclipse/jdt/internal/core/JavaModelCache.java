@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +18,8 @@ import org.eclipse.jdt.core.IJavaElement;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
+	public static boolean VERBOSE = false;
+
 	public static final int DEFAULT_PROJECT_SIZE = 5;  // average 25552 bytes per project.
 	public static final int DEFAULT_ROOT_SIZE = 50; // average 2590 bytes per root -> maximum size : 25900*BASE_VALUE bytes
 	public static final int DEFAULT_PKG_SIZE = 500; // average 1782 bytes per pkg -> maximum size : 178200*BASE_VALUE bytes
@@ -64,9 +65,15 @@ public JavaModelCache() {
 	// set the size of the caches in function of the maximum amount of memory available
 	double ratio = getMemoryRatio();
 	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
-	this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
-	this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
-	this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio));
+	if (VERBOSE) {
+		this.rootCache = new VerboseElementCache((int) (DEFAULT_ROOT_SIZE * ratio), "Root cache"); //$NON-NLS-1$
+		this.pkgCache = new VerboseElementCache((int) (DEFAULT_PKG_SIZE * ratio), "Package cache"); //$NON-NLS-1$
+		this.openableCache = new VerboseElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio), "Openable cache"); //$NON-NLS-1$
+	} else {
+		this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
+		this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
+		this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio));
+	}
 	this.childrenCache = new HashMap((int) (DEFAULT_CHILDREN_SIZE * ratio));
 }
 
@@ -154,7 +161,7 @@ protected void putInfo(IJavaElement element, Object info) {
 /**
  * Removes the info of the element from the cache.
  */
-protected void removeInfo(IJavaElement element) {
+protected void removeInfo(JavaElement element) {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			this.modelInfo = null;
@@ -186,23 +193,14 @@ public String toStringFillingRation(String prefix) {
 	buffer.append(this.projectCache.size());
 	buffer.append(" projects\n"); //$NON-NLS-1$
 	buffer.append(prefix);
-	buffer.append("Root cache["); //$NON-NLS-1$
-	buffer.append(this.rootCache.getSpaceLimit());
-	buffer.append("]: "); //$NON-NLS-1$
-	buffer.append(NumberFormat.getInstance().format(this.rootCache.fillingRatio()));
-	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(this.rootCache.toStringFillingRation("Root cache")); //$NON-NLS-1$
+	buffer.append('\n');
 	buffer.append(prefix);
-	buffer.append("Package cache["); //$NON-NLS-1$
-	buffer.append(this.pkgCache.getSpaceLimit());
-	buffer.append("]: "); //$NON-NLS-1$
-	buffer.append(NumberFormat.getInstance().format(this.pkgCache.fillingRatio()));
-	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(this.pkgCache.toStringFillingRation("Package cache")); //$NON-NLS-1$
+	buffer.append('\n');
 	buffer.append(prefix);
-	buffer.append("Openable cache["); //$NON-NLS-1$
-	buffer.append(this.openableCache.getSpaceLimit());
-	buffer.append("]: "); //$NON-NLS-1$
-	buffer.append(NumberFormat.getInstance().format(this.openableCache.fillingRatio()));
-	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(this.openableCache.toStringFillingRation("Openable cache")); //$NON-NLS-1$
+	buffer.append('\n');
 	return buffer.toString();
 }
 }

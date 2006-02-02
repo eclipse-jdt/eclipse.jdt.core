@@ -155,6 +155,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
@@ -815,7 +816,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Infos cache.
 	 */
-	public JavaModelCache cache = new JavaModelCache();
+	public JavaModelCache cache;
 	
 	/*
 	 * Temporary cache of newly opened elements
@@ -1083,6 +1084,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(JAVAMODELCACHE_DEBUG);
+			if(option != null) JavaModelCache.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
 			option = Platform.getDebugOption(POST_ACTION_DEBUG);
 			if(option != null) JavaModelOperation.POST_ACTION_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
@@ -3564,6 +3568,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void startup() throws CoreException {
 		try {
 			configurePluginDebugOptions();
+			
+			// initialize Java model cache
+			this.cache = new JavaModelCache();
 
 			// request state folder creation (workaround 19885)
 			JavaCore.getPlugin().getStateLocation();

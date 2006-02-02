@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.text.NumberFormat;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.LRUCache;
@@ -77,6 +79,13 @@ protected void ensureSpaceLimit(int childrenSize, IJavaElement parent) {
 }
 
 /*
+ * Returns a new instance of the receiver.
+ */
+protected LRUCache newInstance(int size, int overflow) {
+	return new ElementCache(size, overflow);
+}
+
+/*
  * If the given parent was the one that increased the space limit, reset
  * the space limit to the given default value.
  */
@@ -87,11 +96,13 @@ protected void resetSpaceLimit(int defaultLimit, IJavaElement parent) {
 	}
 }
 
-/**
- * Returns a new instance of the reciever.
- */
-protected LRUCache newInstance(int size, int overflow) {
-	return new ElementCache(size, overflow);
+public String toStringFillingRation(String cacheName) {
+	StringBuffer buffer = new StringBuffer(cacheName);
+	buffer.append('[');
+	buffer.append(getSpaceLimit());
+	buffer.append("]: "); //$NON-NLS-1$
+	buffer.append(NumberFormat.getInstance().format(fillingRatio()));
+	buffer.append("% full"); //$NON-NLS-1$
+	return buffer.toString();
 }
-
 }
