@@ -720,7 +720,7 @@ public class TypeDeclaration
 			}
 		}
 		// enable enum support ?
-		if (this.binding.isEnum()) {
+		if (this.binding.isEnum() && !this.binding.isAnonymousType()) {
 			this.enumValuesSyntheticfield = this.binding.addSyntheticFieldForEnumValues();
 		}
 	}

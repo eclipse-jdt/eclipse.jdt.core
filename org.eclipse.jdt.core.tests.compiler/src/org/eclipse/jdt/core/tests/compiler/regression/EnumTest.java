@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 123 };
+//		TESTS_NUMBERS = new int[] { 127 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4275,5 +4275,75 @@ the right of e1."
 				"  }\n"
 			},
 			"[0]");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126087
+	public void test127() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\r\n" + 
+				"	VALUE {\r\n" + 
+				"		void foo() {\r\n" + 
+				"		};\r\n" + 
+				"	};\r\n" + 
+				"	abstract void foo();\r\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"      System.out.println(\"[\"+X.values().length+\"]\");\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"[1]");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  private static final synthetic X[] ENUM$VALUES;\n"; 
+			
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
+		}
+		if (index == -1) {
+			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+		}
+		
+		disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		expectedOutput = 
+			"ENUM$VALUES"; 
+			
+		index = actualOutput.indexOf(expectedOutput);
+		if (index != -1) {
+			System.out.println(Util.displayString(actualOutput, 3));
+		}
+		if (index != -1) {
+			assertTrue("Must not have field ENUM$VALUES", false);
+		}
 	}
 }
