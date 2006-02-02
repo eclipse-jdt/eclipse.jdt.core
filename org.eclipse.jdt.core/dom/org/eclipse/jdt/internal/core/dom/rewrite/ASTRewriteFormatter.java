@@ -14,29 +14,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.text.edits.InsertEdit;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.text.edits.TextEdit;
-
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.Position;
-
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.text.edits.DeleteEdit;
+import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 
 /* package */ final class ASTRewriteFormatter {
 
@@ -138,8 +136,8 @@ import org.eclipse.jdt.core.dom.Statement;
 		this.options= options;
 		this.lineDelimiter= lineDelimiter;
 		
-		this.tabWidth= Indents.getTabWidth(options);
-		this.indentWidth= Indents.getIndentWidth(options);
+		this.tabWidth= IndentManipulation.getTabWidth(options);
+		this.indentWidth= IndentManipulation.getIndentWidth(options);
 	}
 	
 
@@ -181,7 +179,7 @@ import org.eclipse.jdt.core.dom.Statement;
 		    if (initialIndentationLevel > 0) {
 		        // at least correct the indent
 		        String indentString = createIndentString(initialIndentationLevel);
-				ReplaceEdit[] edits = Indents.getChangeIndentEdits(unformatted, 0, this.tabWidth, this.indentWidth, indentString);
+				ReplaceEdit[] edits = IndentManipulation.getChangeIndentEdits(unformatted, 0, this.tabWidth, this.indentWidth, indentString);
 				edit= new MultiTextEdit();
 				edit.addChild(new InsertEdit(0, indentString));
 				edit.addChildren(edits);
@@ -233,15 +231,15 @@ import org.eclipse.jdt.core.dom.Statement;
     }
 	
 	public String getIndentString(String currentLine) {
-		return Indents.extractIndentString(currentLine, this.tabWidth, this.indentWidth);
+		return IndentManipulation.extractIndentString(currentLine, this.tabWidth, this.indentWidth);
 	}
 	
 	public String changeIndent(String code, int codeIndentLevel, String newIndent) {
-		return Indents.changeIndent(code, codeIndentLevel, this.tabWidth, this.indentWidth, newIndent, this.lineDelimiter);
+		return IndentManipulation.changeIndent(code, codeIndentLevel, this.tabWidth, this.indentWidth, newIndent, this.lineDelimiter);
 	}
 	
 	public int computeIndentUnits(String line) {
-		return Indents.measureIndentUnits(line, this.tabWidth, this.indentWidth);
+		return IndentManipulation.measureIndentUnits(line, this.tabWidth, this.indentWidth);
 	}
 	
 	/**

@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.core.dom.rewrite.Indents;
+import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
 
@@ -104,7 +104,7 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 				newSource.append(this.alteredName);
 				newSource.append(createdNodeSource.substring(nameEnd));
 			} else {
-				// syntacticaly incorrect source
+				// syntactically incorrect source
 				int createdNodeStart = this.createdNode.getStartPosition();
 				int createdNodeEnd = createdNodeStart + this.createdNode.getLength();
 				newSource.append(createdNodeSource.substring(createdNodeStart, nameStart));
@@ -122,9 +122,9 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 private String removeIndentAndNewLines(String code, IDocument document, ICompilationUnit cu) {
 	IJavaProject project = cu.getJavaProject();
 	Map options = project.getOptions(true/*inherit JavaCore options*/);
-	int tabWidth = Indents.getTabWidth(options);
-	int indentWidth = Indents.getIndentWidth(options);
-	int indent = Indents.measureIndentUnits(code, tabWidth, indentWidth);
+	int tabWidth = IndentManipulation.getTabWidth(options);
+	int indentWidth = IndentManipulation.getIndentWidth(options);
+	int indent = IndentManipulation.measureIndentUnits(code, tabWidth, indentWidth);
 	int firstNonWhiteSpace = -1;
 	int length = code.length();
 	while (firstNonWhiteSpace < length-1)
@@ -135,7 +135,7 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 		if (!Character.isWhitespace(code.charAt(--lastNonWhiteSpace)))
 			break;
 	String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
-	return Indents.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, indentWidth, "", lineDelimiter); //$NON-NLS-1$
+	return IndentManipulation.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, indentWidth, "", lineDelimiter); //$NON-NLS-1$
 }
 /*
  * Renames the given node to the given name.

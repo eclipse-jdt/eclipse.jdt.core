@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
+import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.BlockContext;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.NodeMarker;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
@@ -213,7 +214,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			char[] cont= getContent();
 			int lineStart= getLineInformation().getLineOffset(line);
 		    int i= lineStart;
-			while (i < cont.length && Indents.isIndentChar(content[i])) {
+			while (i < cont.length && IndentManipulation.isIndentChar(content[i])) {
 			    i++;
 			}
 			return new String(cont, lineStart, i - lineStart);
@@ -1056,7 +1057,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private String getCurrentLine(String str, int pos) {
 		for (int i= pos - 1; i>= 0; i--) {
 			char ch= str.charAt(i);
-			if (Indents.isLineDelimiterChar(ch)) {
+			if (IndentManipulation.isLineDelimiterChar(ch)) {
 				return str.substring(i + 1, pos);
 			}
 		}
@@ -2884,7 +2885,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			char[] cont= getContent();
 		    int len= cont.length;
 			int i= tagNode.getStartPosition();
-			while (i < len && !Indents.isIndentChar(cont[i])) {
+			while (i < len && !IndentManipulation.isIndentChar(cont[i])) {
 			    i++;
 			}
 			return i;
