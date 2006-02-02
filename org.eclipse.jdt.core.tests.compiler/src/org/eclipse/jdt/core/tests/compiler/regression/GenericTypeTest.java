@@ -27732,4 +27732,21 @@ public void test896() {
 		},
 		"[A#f()][A#g()][B#f()][B#g()]");
 }
+public void test897() {
+	this.runConformTest(
+		new String[] {
+			"Test.java", // =================
+			"interface I { }\n" + 
+			"class X { }\n" + 
+			"class A extends X implements I { }\n" + 
+			"class B extends X implements I { }\n" + 
+			"public class Test {\n" + 
+			"    void test(A a, B b) {\n" + 
+			"	X x = (a.hashCode() == b.hashCode()) ? a : b;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n",
+		},
+		"");
+}
 }
