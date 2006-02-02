@@ -221,21 +221,24 @@ public abstract class Annotation extends Expression {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-		
+
 		if (this.compilerAnnotation != null)
 			return this.resolvedType;
+		boolean initializeCompilerAnnotation = true; // scope.compilerOptions().storeAnnotations;
 		this.constant = Constant.NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
 		if (typeBinding == null) {
-			this.compilerAnnotation = new AnnotationBinding(this);
+			if (initializeCompilerAnnotation)
+				this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
 		}
 		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
 		if (!typeBinding.isAnnotationType()) {
 			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type);
-			this.compilerAnnotation = new AnnotationBinding(this);
+			if (initializeCompilerAnnotation)
+				this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
 		}
 
@@ -292,7 +295,6 @@ public abstract class Annotation extends Expression {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}
-		this.compilerAnnotation = new AnnotationBinding(this);
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {
@@ -300,6 +302,8 @@ public abstract class Annotation extends Expression {
 				pairs[i].resolveTypeExpecting(scope, null); // resilient
 			}
 		}
+		if (initializeCompilerAnnotation)
+			this.compilerAnnotation = new AnnotationBinding(this);
 		// recognize standard annotations ?
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 

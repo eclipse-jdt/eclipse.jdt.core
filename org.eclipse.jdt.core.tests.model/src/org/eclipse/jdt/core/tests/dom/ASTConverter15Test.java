@@ -6285,7 +6285,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=125807
 	 * disable for now. Enable once 125807 is fixed.
 	 */
-	public void _test0208() throws JavaModelException {
+	public void test0208() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
 			"@Override(x= 1)\r\n" + 
