@@ -2456,7 +2456,7 @@ public void test041(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
-// turn off discouraged references warnings
+// turn off forbidden references warnings
 public void test042(){
 	this.runConformTest(
 		new String[] {
@@ -2506,7 +2506,7 @@ public void test042(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
-// turn off discouraged references warnings
+// turn off discouraged and forbidden references warnings
 public void test043(){
 	this.runConformTest(
 		new String[] {
@@ -2596,6 +2596,124 @@ public void test045(){
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "", 
         "", true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
+// turn off discouraged and forbidden references warnings using SuppressWarnings all
+public void test046(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"@SuppressWarnings(\"all\")\n" +
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"",
+        false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
+// turn off discouraged and forbidden references warnings using SuppressWarnings restriction
+public void test047(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"@SuppressWarnings(\"restriction\")\n" +
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"",
+        false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
+// turn off discouraged and forbidden references warnings using SuppressWarnings
+public void test048(){
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"/** */\n" + 
+			"@SuppressWarnings(\"deprecation\")\n" +
+			"public class Y {\n" +
+			"  p.X x;\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
+        + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		" (at line 4)\n" + 
+		"	p.X x;\n" + 
+		"	^^^\n" + 
+		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)", 
+        false);
 }
 
 public static Class testClass() {
