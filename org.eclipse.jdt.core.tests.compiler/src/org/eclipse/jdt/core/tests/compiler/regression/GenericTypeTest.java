@@ -27684,4 +27684,20 @@ public void test894() {
 		},
 		"[c1m1][c1m1][c1m1]");
 }
+public void test895() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"interface I {}\n" + 
+			"public class X {\n" + 
+			"    Object o = new <Object> I() {};\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Object o = new <Object> I() {};\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor Object() of type Object is not generic; it cannot be parameterized with arguments <Object>\n" + 
+		"----------\n");
+}
 }
