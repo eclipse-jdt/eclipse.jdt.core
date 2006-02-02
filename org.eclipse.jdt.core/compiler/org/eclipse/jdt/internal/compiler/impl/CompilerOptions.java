@@ -956,6 +956,9 @@ public class CompilerOptions {
 					return "unchecked"; //$NON-NLS-1$
 				case (int) UnusedLabel:
 					return "unused"; //$NON-NLS-1$
+				case (int) (DiscouragedReference >>> 32) :
+				case (int) (ForbiddenReference >>> 32) :
+					return "restriction"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -993,6 +996,10 @@ public class CompilerOptions {
 					return NonExternalizedString;
 				if ("null".equals(warningToken)) //$NON-NLS-1$
 					return NullReference;
+				break;
+			case 'r' :
+				if ("restriction".equals(warningToken)) //$NON-NLS-1$
+					return DiscouragedReference | ForbiddenReference;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
