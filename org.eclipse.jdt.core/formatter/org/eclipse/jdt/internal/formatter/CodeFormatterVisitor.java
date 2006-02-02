@@ -2019,8 +2019,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		int methodCount = (typeDeclaration.methods == null) ? 0 : typeDeclaration.methods.length;
 		int typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
 	
-		if (methodCount == 1 && typeDeclaration.methods[0].isDefaultConstructor()) {
-			methodCount = 0;
+		if (methodCount != 0) {
+			for (int i = 0, max = methodCount; i < max; i++) {
+				final AbstractMethodDeclaration abstractMethodDeclaration = typeDeclaration.methods[i];
+				if (abstractMethodDeclaration.isDefaultConstructor()) {
+					methodCount--;
+				} else if (abstractMethodDeclaration.isClinit()) {
+					methodCount--;
+				}
+			}
 		}
 		final int memberLength = fieldCount + methodCount + typeCount;
 
