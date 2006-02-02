@@ -52,6 +52,8 @@ Eclipse SDK 3.2M5 - ?th February 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Access restriction warnings (discouraged & non-accessible) can now be silenced using <code>@SuppressWarnings("restriction")</code>.
+     Note: if certain restrictions are configured as errors, the annotation has no effect. </li>
 <li>Added API <code>org.eclipse.jdt.core.formatter.CodeFormatter#createIndentationString(int)</code> to return the indentation string corresponding to the given indentation level.<br>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111446">111446</a> for details.</li>
 <li>Added new class <code>org.eclipse.jdt.core.formatter.IndentManipulation</code> to deal with indentations.<br>
@@ -59,7 +61,9 @@ See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111446">111446</a>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=126087">126087</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114456">114456</a>
+@SuppressWarnings for access restriction
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=126087">126087</a>
 [1.5][compiler] Java compiler generates incorrect byte code for empty enums
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124611">124611</a>
 IAE in Signature.createCharArrayTypeSignature
