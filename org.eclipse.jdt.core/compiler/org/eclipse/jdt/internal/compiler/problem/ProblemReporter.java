@@ -2632,7 +2632,7 @@ public void invalidContinue(ASTNode location) {
 public void invalidEnclosingType(Expression expression, TypeBinding type, ReferenceBinding enclosingType) {
 
 	if (enclosingType.isAnonymousType()) enclosingType = enclosingType.superclass();
-	if (enclosingType.sourceName.length == 0) return;
+	if (enclosingType.sourceName != null && enclosingType.sourceName.length == 0) return;
 	
 	int flag = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
