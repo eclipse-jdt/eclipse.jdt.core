@@ -52,6 +52,8 @@ Eclipse SDK 3.2M5 - ?th February 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Java projects can now depend on other Java projects that have replaced the default builder with their own builder, such as an Ant builder.
+We will now trust that the Ant build was successful and propagate any changes to the affected class files.</li>
 <li>Access restriction warnings (discouraged & non-accessible) can now be silenced using <code>@SuppressWarnings("restriction")</code>.
      Note: if certain restrictions are configured as errors, the annotation has no effect. </li>
 <li>Added API <code>org.eclipse.jdt.core.formatter.CodeFormatter#createIndentationString(int)</code> to return the indentation string corresponding to the given indentation level.<br>
