@@ -3463,4 +3463,34 @@ public void test116() {
 		"The expression of type Long is unboxed into float\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122987
+public void test117() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        Object obj = true ? true : 17.3;\n" + 
+			"		 Zork z;\n" +
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Object obj = true ? true : 17.3;\n" + 
+		"	                    ^^^^\n" + 
+		"The expression of type boolean is boxed into Boolean\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Object obj = true ? true : 17.3;\n" + 
+		"	                           ^^^^\n" + 
+		"The expression of type double is boxed into Double\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

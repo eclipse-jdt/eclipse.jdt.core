@@ -440,7 +440,8 @@ public int nullStatus(FlowInfo flowInfo) {
 				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
 				return null;
 			}
-		} else if (valueIfFalseType.isBaseType() && valueIfFalseType != TypeBinding.NULL) {
+		} 
+		if (valueIfFalseType.isBaseType() && valueIfFalseType != TypeBinding.NULL) {
 			if (use15specifics) {
 				valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 			} else {
