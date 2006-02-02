@@ -31,7 +31,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 public final class IndentManipulation {
 	
 	private IndentManipulation() {
-		// don't instanciate
+		// don't instantiate
 	}
 	
 	/**
@@ -173,7 +173,7 @@ public final class IndentManipulation {
 	
 	/**
 	 * Removes the given number of indentation units from a given line. If the line 
-	 * does not have the given indent, all the available indentation is removed.
+	 * has less than the given indent, all the available indentation is removed.
 	 * If <code>indentsToRemove <= 0</code> the line is returned.
 	 *
 	 * @param line the line to trim
@@ -299,7 +299,7 @@ public final class IndentManipulation {
 	}
 
 	/**
-	 * Returns the text edits retrieved after changing the indentation of a, possible muti-line, code string.
+	 * Returns the text edits retrieved after changing the indentation of a, possible multi-line, code string.
 	 * 
 	 * <p>The given number of indent units is removed, and a new indent string is added.</p>
 	 * <p>The first line of the code will not be changed (It is considered to have no indent as it might start in
@@ -397,7 +397,7 @@ public final class IndentManipulation {
 	
 	/**
 	 * Returns the tab width as configured in the given map.
-	 * <p>. Use {@link org.eclipse.jdt.core.IJavaProject#getOptions(boolean)} to get the most current project options.</p>
+	 * <p>Use {@link org.eclipse.jdt.core.IJavaProject#getOptions(boolean)} to get the most current project options.</p>
 	 * 
 	 * @param options the map to get the formatter settings from
 	 * 
