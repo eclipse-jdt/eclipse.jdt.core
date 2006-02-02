@@ -27700,4 +27700,36 @@ public void test895() {
 		"The constructor Object() of type Object is not generic; it cannot be parameterized with arguments <Object>\n" + 
 		"----------\n");
 }
+public void test896() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	interface I {		void f(); 	}\n" + 
+			"	interface J {		void g(); }\n" + 
+			"\n" + 
+			"	static class A implements I, J {\n" + 
+			"		public void f() {	System.out.print(\"[A#f()]\");}\n" + 
+			"		public void g() {	System.out.print(\"[A#g()]\");}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static class B implements J, I {\n" + 
+			"		public void f() {	System.out.print(\"[B#f()]\");}\n" + 
+			"		public void g() {	System.out.print(\"[B#g()]\");}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		f(true, new A(), new B());\n" + 
+			"		f(false, new A(), new B());\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static void f(boolean cond, A a, B b) {\n" + 
+			"		(cond ? a : b).f();\n" + 
+			"		(cond ? a : b).g();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"[A#f()][A#g()][B#f()][B#g()]");
+}
 }
