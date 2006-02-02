@@ -108,6 +108,8 @@ public void test0003(){
 		"enum X {\n" + 
 		"  X() {\n" + 
 		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkDietParse(
@@ -219,6 +221,8 @@ public void test0007(){
 		"@<CompleteOnType:MyAnn>\n" + 
 		"enum X {\n" + 
 		"  X() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
 		"  }\n" + 
 		"}\n";
 

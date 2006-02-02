@@ -2907,23 +2907,33 @@ public class EnumTest extends AbstractComparableTest {
 			"  // Field descriptor #6 [LX;\n" + 
 			"  private static final synthetic X[] ENUM$VALUES;\n" + 
 			"  \n" + 
-			"  // Method descriptor #8 (Ljava/lang/String;I)V\n" + 
+			"  // Method descriptor #8 ()V\n" + 
+			"  // Stack: 1, Locals: 0\n" + 
+			"  static {};\n" + 
+			"    0  iconst_0\n" + 
+			"    1  anewarray X [1]\n" + 
+			"    4  putstatic X.ENUM$VALUES : X[] [10]\n" + 
+			"    7  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"  \n" + 
+			"  // Method descriptor #15 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
 			"  private X(java.lang.String arg0, int arg1);\n" + 
 			"    0  aload_0 [this]\n" + 
 			"    1  aload_1\n" + 
 			"    2  iload_2\n" + 
-			"    3  invokespecial java.lang.Enum(java.lang.String, int) [10]\n" + 
+			"    3  invokespecial java.lang.Enum(java.lang.String, int) [16]\n" + 
 			"    6  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
 			"  \n" + 
-			"  // Method descriptor #17 ()[LX;\n" + 
+			"  // Method descriptor #21 ()[LX;\n" + 
 			"  // Stack: 5, Locals: 3\n" + 
 			"  public static final X[] values();\n" + 
-			"     0  getstatic X.ENUM$VALUES : X[] [18]\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [10]\n" + 
 			"     3  dup\n" + 
 			"     4  astore_0\n" + 
 			"     5  iconst_0\n" + 
@@ -2936,16 +2946,16 @@ public class EnumTest extends AbstractComparableTest {
 			"    14  astore_2\n" + 
 			"    15  iconst_0\n" + 
 			"    16  iload_1\n" + 
-			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [20]\n" + 
+			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [22]\n" + 
 			"    20  aload_2\n" + 
 			"    21  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
 			"  \n" + 
-			"  // Method descriptor #27 (Ljava/lang/String;)LX;\n" + 
+			"  // Method descriptor #29 (Ljava/lang/String;)LX;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
 			"  public static final X valueOf(java.lang.String arg0);\n" + 
-			"     0  getstatic X.ENUM$VALUES : X[] [18]\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [10]\n" + 
 			"     3  dup\n" + 
 			"     4  astore_1\n" + 
 			"     5  arraylength\n" + 
@@ -2957,18 +2967,18 @@ public class EnumTest extends AbstractComparableTest {
 			"    13  aaload\n" + 
 			"    14  dup\n" + 
 			"    15  astore_3\n" + 
-			"    16  invokevirtual X.name() : java.lang.String [28]\n" + 
-			"    19  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [32]\n" + 
+			"    16  invokevirtual X.name() : java.lang.String [30]\n" + 
+			"    19  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [34]\n" + 
 			"    22  ifeq 27\n" + 
 			"    25  aload_3\n" + 
 			"    26  areturn\n" + 
 			"    27  iinc 2 -1\n" + 
 			"    30  iload_2\n" + 
 			"    31  ifge 10\n" + 
-			"    34  new java.lang.IllegalArgumentException [38]\n" + 
+			"    34  new java.lang.IllegalArgumentException [40]\n" + 
 			"    37  dup\n" + 
 			"    38  aload_0\n" + 
-			"    39  invokespecial java.lang.IllegalArgumentException(java.lang.String) [40]\n" + 
+			"    39  invokespecial java.lang.IllegalArgumentException(java.lang.String) [42]\n" + 
 			"    42  athrow\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
@@ -4251,5 +4261,19 @@ the right of e1."
 			"	     ^\n" + 
 			"This static method cannot hide the instance method from X.I\n" + 
 			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126087
+	public void test126() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"  public class X {\n" + 
+				"    enum NoValues {}\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"      System.out.println(\"[\"+NoValues.values().length+\"]\");\n" + 
+				"    }\n" + 
+				"  }\n"
+			},
+			"[0]");
 	}
 }

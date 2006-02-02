@@ -181,11 +181,11 @@ public class Clinit extends AbstractMethodDeclaration {
 				}
 			}
 			// enum need to initialize $VALUES synthetic cache of enum constants
+			// $VALUES := new <EnumType>[<enumCount>]
+			codeStream.generateInlinedValue(enumCount);
+			codeStream.anewarray(declaringType.binding);
 			if (enumCount > 0) {
 				if (fieldDeclarations != null) {
-					// $VALUES := new <EnumType>[<enumCount>]
-					codeStream.generateInlinedValue(enumCount);
-					codeStream.anewarray(declaringType.binding);
 					for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
 						FieldDeclaration fieldDecl = fieldDeclarations[i];
 						// $VALUES[i] = <enum-constant-i>
@@ -196,9 +196,9 @@ public class Clinit extends AbstractMethodDeclaration {
 							codeStream.aastore();
 						}
 					}
-					codeStream.putstatic(declaringType.enumValuesSyntheticfield);
 				}
 			}
+			codeStream.putstatic(declaringType.enumValuesSyntheticfield);
 			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
