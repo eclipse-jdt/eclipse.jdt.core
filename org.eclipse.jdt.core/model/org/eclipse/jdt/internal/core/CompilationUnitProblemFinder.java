@@ -85,9 +85,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 			settings,
 			requestor,
 			problemFactory,
-			creatingAST/*parse literal expressions as constants if creating ast*/,
-			creatingAST/*store annotations in the bindings if creating ast*/,
-			statementsRecovery/*perform statements recovery during parse if creating ast*/
+			!creatingAST/*parse literal expressions as constants only if not creating a DOM AST*/,
+			creatingAST/*store annotations in the bindings if creating a DOM AST*/,
+			statementsRecovery/*perform statements recovery during parse if creating a DOM AST*/
 		);
 	}
 
@@ -161,8 +161,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 				project.getOptions(true),
 				getRequestor(),
 				problemFactory,
-				!creatingAST,
-				statementsRecovery); // optimize string literal only if not creating a DOM AST
+				creatingAST,
+				statementsRecovery);
 			if (parser != null) {
 				problemFinder.parser = parser;
 			}
