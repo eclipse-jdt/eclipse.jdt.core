@@ -27749,4 +27749,31 @@ public void test897() {
 		},
 		"");
 }
+public void test898() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"interface I1 {\n" + 
+			"	void i1();\n" + 
+			"}\n" + 
+			"class G1<T extends I1> {\n" + 
+			"	T get() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I2 {\n" + 
+			"	void i2();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void f1(G1<?> g1) {\n" + 
+			"		g1.get().i1();\n" + 
+			"	}\n" + 
+			"	void f2(G1<? extends I2> g1) {\n" + 
+			"		g1.get().i1();\n" + 
+			"		g1.get().i2();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
