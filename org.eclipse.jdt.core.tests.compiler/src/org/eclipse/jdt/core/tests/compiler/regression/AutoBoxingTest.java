@@ -3421,4 +3421,78 @@ public void test115() {
 		},
 		"a97");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106870
+public void test116() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    boolean foo(Long l, Float f) {\n" + 
+			"    	return f == l;\n" + 
+			"    }\n" + 
+			"    float bar(Long l, Float f) {\n" + 
+			"    	return this == null ? f : l;\n" + 
+			"    }\n" + 
+			"    double baz(Long l, Float f) {\n" + 
+			"    	return this == null ? f : l;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	return f == l;\r\n" + 
+		"	       ^^^^^^\n" + 
+		"Incompatible operand types Float and Long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                      ^\n" + 
+		"The expression of type Float is unboxed into float\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                          ^\n" + 
+		"The expression of type Long is unboxed into float\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                      ^\n" + 
+		"The expression of type Float is unboxed into float\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\r\n" + 
+		"	return this == null ? f : l;\r\n" + 
+		"	                          ^\n" + 
+		"The expression of type Long is unboxed into float\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122987
+public void test117() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        Object obj = true ? true : 17.3;\n" + 
+			"		 Zork z;\n" +
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Object obj = true ? true : 17.3;\n" + 
+		"	                    ^^^^\n" + 
+		"The expression of type boolean is boxed into Boolean\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Object obj = true ? true : 17.3;\n" + 
+		"	                           ^^^^\n" + 
+		"The expression of type double is boxed into Double\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

@@ -420,7 +420,8 @@ public class ConditionalExpression extends OperatorExpression {
 				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
 				return null;
 			}
-		} else if (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding) {
+		} 
+		if (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding) {
 			if (use15specifics) {
 				valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 			} else {
