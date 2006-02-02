@@ -27650,4 +27650,38 @@ public void test893() {
 		"Illegal enclosing instance specification for type X.I2.I2Member\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177 - variation
+public void test894() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"        static class C1 {\n" + 
+			"                void c1m1() {\n" + 
+			"                        System.out.print(\"[c1m1]\");\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"        static interface I {}\n" + 
+			"        static class C2 extends C1 implements I {}\n" + 
+			"        static class C3 extends C1 implements I {}\n" + 
+			"\n" + 
+			"        public <T> T m1(T t1, T t2) {\n" + 
+			"                return t1;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public <T extends C1 & I> void test(C2 c2, C3 c3, T t) {\n" + 
+			"                m1(c2, c3).c1m1(); // 1\n" + 
+			"                t.c1m1(); // 2\n" + 
+			"                (t != null ? c2 : c3).c1m1(); // 3\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public static void main(String... args) {\n" + 
+			"                X x = new X();\n" + 
+			"                x.test(new C2(), new C3(), new C2()); // 4\n" + 
+			"                System.out.println();\n" + 
+			"        }\n" + 
+			"}\n",
+		},
+		"[c1m1][c1m1][c1m1]");
+}
 }
