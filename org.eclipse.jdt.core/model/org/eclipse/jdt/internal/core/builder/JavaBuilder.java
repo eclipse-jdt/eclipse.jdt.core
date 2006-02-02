@@ -460,6 +460,14 @@ private boolean hasClasspathChanged() {
 	return false;
 }
 
+private boolean hasJavaBuilder(IProject project) throws CoreException {
+	ICommand[] buildCommands = project.getDescription().getBuildSpec();
+	for (int i = 0, l = buildCommands.length; i < l; i++)
+		if (buildCommands[i].getBuilderName().equals(JavaCore.BUILDER_ID))
+			return true;
+	return false;
+}
+
 private boolean hasStructuralDelta() {
 	// handle case when currentProject has only .class file folders and/or jar files... no source/output folders
 	IResourceDelta delta = getDelta(currentProject);
@@ -577,8 +585,18 @@ private boolean isWorthBuilding() throws CoreException {
 		if (getLastState(p) == null)  {
 			// The prereq project has no build state: if this prereq project has a 'warning' cycle marker then allow build (see bug id 23357)
 			JavaProject prereq = (JavaProject) JavaCore.create(p);
-			if (prereq.hasCycleMarker() && JavaCore.WARNING.equals(javaProject.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true)))
+			if (prereq.hasCycleMarker() && JavaCore.WARNING.equals(javaProject.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true))) {
+				if (DEBUG)
+					System.out.println("Continued to build even though prereq project " + p.getName() //$NON-NLS-1$
+						+ " was not built since its part of a cycle"); //$NON-NLS-1$
 				continue;
+			}
+			if (!hasJavaBuilder(p)) {
+				if (DEBUG)
+					System.out.println("Continued to build even though prereq project " + p.getName() //$NON-NLS-1$
+						+ " is not built by JavaBuilder"); //$NON-NLS-1$
+				continue;
+			}
 			if (DEBUG)
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
 					+ " was not built"); //$NON-NLS-1$

@@ -13,10 +13,11 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -210,6 +211,48 @@ public class BuildpathTests extends Tests {
 		incrementalBuild();
 		expectingNoProblems();
 		
+	}
+
+	public void testMissingBuilder() throws JavaModelException {
+		IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		IPath project2Path = env.addProject("P2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path);
+
+		env.addClass(project1Path, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		IPath sub = env.addClass(project2Path, "", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class SubTest extends Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingNoProblems();
+
+		env.removeRequiredProject(project2Path, project1Path);
+
+		incrementalBuild();
+		expectingOnlySpecificProblemFor(sub, new Problem("", "Test cannot be resolved to a type", sub, 29, 33, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+
+		env.addRequiredProject(project2Path, project1Path);
+
+		try {
+			JavaProject p = (JavaProject) env.getJavaProject(project1Path);
+			p.deconfigure();
+			JavaModelManager.getJavaModelManager().setLastBuiltState(p.getProject(), null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		env.addClass(project2Path, "", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class SubTest extends Test {}" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingNoProblems();
 	}
 
 	public void testMissingLibrary1() throws JavaModelException {
