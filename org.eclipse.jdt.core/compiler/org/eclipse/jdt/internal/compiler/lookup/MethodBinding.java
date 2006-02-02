@@ -277,17 +277,19 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	}
 
 	// isDefault()
-	if (invocationType.fPackage != declaringClass.fPackage) return false;
+	PackageBinding declaringPackage;
+	if (invocationType.fPackage != (declaringPackage = declaringClass.fPackage)) return false;
 
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
-	ReferenceBinding type = (ReferenceBinding) receiverType;
-	PackageBinding declaringPackage = declaringClass.fPackage;
+	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	do {
-		if (declaringClass == type) return true;
-		if (declaringPackage != type.fPackage) return false;
-	} while ((type = type.superclass()) != null);
+		if (declaringClass == currentType) return true;
+		PackageBinding currentPackage;
+		// package could be null for wildcards/intersection types, ignore and recurse in superclass
+		if ((currentPackage = currentType.fPackage) != null && currentPackage != declaringPackage) return false;
+	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
 MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment env) {

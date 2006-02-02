@@ -133,12 +133,14 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	// isDefault()
 	if (invocationType.fPackage != fPackage) return false;
 
-	ReferenceBinding type = receiverType;
+	ReferenceBinding currentType = receiverType;
 	ReferenceBinding declaringClass = enclosingType() == null ? this : enclosingType();
 	do {
-		if (declaringClass == type) return true;
-		if (fPackage != type.fPackage) return false;
-	} while ((type = type.superclass()) != null);
+		if (declaringClass == currentType) return true;
+		PackageBinding currentPackage;
+		// package could be null for wildcards/intersection types, ignore and recurse in superclass
+		if ((currentPackage = currentType.fPackage) != null && currentPackage != fPackage) return false;
+	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
 /* 

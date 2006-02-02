@@ -27534,4 +27534,120 @@ public void test891() {
 		"The method applyToString(Function<String,B>) in the type Test is not applicable for the arguments (Id<Object>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126180
+public void test892() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		C2 c2 = null;\n" + 
+			"		C3 c3 = null;\n" + 
+			"		Object oc1 = m1(c2, c3).new C1Member();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T> T m1(T t1, T t2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	class C1 {}\n" + 
+			"	interface I1 {}\n" + 
+			"	class C2 extends C1 implements I1 {}\n" + 
+			"	class C3 extends C1 implements I1 {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Object oc1 = m1(c2, c3).new C1Member();\n" + 
+		"	                            ^^^^^^^^\n" + 
+		"X.C1&X.I1.C1Member cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177
+public void test893() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	static String foo;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		C2 c2 = null;\n" + 
+			"		C3 c3 = null;\n" + 
+			"		// method access\n" + 
+			"		m1(c2, c3).c1m1();\n" + 
+			"		m1(c2, c3).i1m1();\n" + 
+			"		m1(c2, c3).i2m1();\n" + 
+			"\n" + 
+			"		// field access\n" + 
+			"		int ic1 = m1(c2, c3).c1f1;\n" + 
+			"		int ii1 = m1(c2, c3).i1f1;\n" + 
+			"		int ii2 = m1(c2, c3).i2f1;\n" + 
+			"	\n" + 
+			"		// member type access\n" + 
+			"		Object oc1 = m1(c2, c3).new C1Member();\n" + 
+			"		Object oi1 = m1(c2, c3).new I1Member(); \n" + 
+			"		Object oi2 = m1(c2, c3).new I2Member();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T> T m1(T t1, T t2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	class C1 {\n" + 
+			"		void c1m1() {}\n" + 
+			"		int c1f1 = 0;\n" + 
+			"		class C1Member {}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	interface I1 {\n" + 
+			"		void i1m1();\n" + 
+			"		int i1f1 = 1;\n" + 
+			"		class I1Member {}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	interface I2 {\n" + 
+			"		void i2m1();\n" + 
+			"		int i2f1 = 2;\n" + 
+			"		class I2Member {}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	class C2 extends C1 implements I1, I2 {\n" + 
+			"		public void i1m1() {\n" + 
+			"		}\n" + 
+			"		public void i2m1() {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	class C3 extends C1 implements I1, I2 {\n" + 
+			"		public void i1m1() {\n" + 
+			"		}\n" + 
+			"		public void i2m1() {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 14)\n" + 
+		"	int ii1 = m1(c2, c3).i1f1;\n" + 
+		"	                     ^^^^\n" + 
+		"The static field X.I1.i1f1 should be accessed in a static way\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 15)\n" + 
+		"	int ii2 = m1(c2, c3).i2f1;\n" + 
+		"	                     ^^^^\n" + 
+		"The static field X.I2.i2f1 should be accessed in a static way\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 19)\n" + 
+		"	Object oi1 = m1(c2, c3).new I1Member(); \n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Illegal enclosing instance specification for type X.I1.I1Member\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 20)\n" + 
+		"	Object oi2 = m1(c2, c3).new I2Member();\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Illegal enclosing instance specification for type X.I2.I2Member\n" + 
+		"----------\n");
+}
 }
