@@ -118,6 +118,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
+	private final Map<String,TypeDeclaration>_typeCache = new HashMap<String,TypeDeclaration>();
 	
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
 						    IFile file,
@@ -340,12 +341,15 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     public Map<String, String> getOptions(){ return Collections.emptyMap(); }
     
     // does not generate dependencies
-    public TypeDeclaration getTypeDeclaration(final String originalName)
+    public TypeDeclaration getTypeDeclaration(String name)
     {	
-    	if( originalName == null || originalName.length() == 0 ) return null;
-    	
-    	String name = originalName;
-		// get rid of the generics parts.
+    	if( name == null || name.length() == 0 ) return null;
+
+    	//First check cache
+    	TypeDeclaration result = _typeCache.get(name);
+    	if (result != null) return result;
+
+    	// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )
 			name = name.substring(0, index);
@@ -370,19 +374,17 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
 			}
 		}
-		TypeDeclaration result = null;
-		if( typeBinding != null ) {
-			result = Factory.createReferenceType(typeBinding, this);
-		}
-		else {
-			// finally go search for it in the universe.
+		
+		// finally go search for it in the universe.
+		if (typeBinding == null)
 			typeBinding = getTypeDefinitionBindingFromName(name);
-			if( typeBinding != null ){			
-				result = Factory.createReferenceType(typeBinding, this);
-			}
-		}
-
-		return result;
+		
+		result = Factory.createReferenceType(typeBinding, this);
+    	
+    	// update cache
+    	if (result != null)
+    		_typeCache.put(name, result);
+    	return result;
     }
     
     /**

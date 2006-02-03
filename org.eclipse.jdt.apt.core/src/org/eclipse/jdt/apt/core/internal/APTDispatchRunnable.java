@@ -470,7 +470,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final List<IFile> filesWithMissingType = new ArrayList<IFile>();
 		final List<ICompilationUnit> unitsForFiles = new ArrayList<ICompilationUnit>();
 		final APTResult result = runAPT(factories, processorEnv, filesWithMissingType, unitsForFiles, 0);
-	
+		
+		
+	/* Comment out internal rounding
 		if( processorEnv.getPhase() == Phase.BUILD )
 		{	
 			boolean generatedTypes = result.hasGeneratedTypes();
@@ -507,23 +509,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				newEnv.close();
 			}
 		}
+		*/
 	
 		return result;
-	}
-	
-	/**
-	 * Diff the sets of files -- if the new result has
-	 * files that the old one does not, we have new files.
-	 */
-	private boolean hasNewFiles(APTResult oldResult, APTResult newResult) {
-		Set<IFile> oldFiles = oldResult.getNewFiles();
-		Set<IFile> newFiles = newResult.getNewFiles();
-		for (IFile file : newFiles) {
-			if (!oldFiles.contains(file)) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	private APTResult runAPT(
