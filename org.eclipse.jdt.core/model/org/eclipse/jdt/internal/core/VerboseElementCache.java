@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.text.NumberFormat;
 import java.util.Date;
 
 public class VerboseElementCache extends ElementCache {
@@ -23,13 +24,17 @@ public class VerboseElementCache extends ElementCache {
 	}
 
 	protected boolean makeSpace(int space) {
-		if (this.beingAdded != null && !isSpaceAvailable(space, fSpaceLimit)) {
+		if (this.beingAdded == null) return super.makeSpace(space);
+		String fillingRatio = toStringFillingRation(this.name);
+		boolean result = super.makeSpace(space);
+		String newFillingRatio = toStringFillingRation(this.name);
+		if (!fillingRatio.equals(newFillingRatio)) {
 			System.out.println(Thread.currentThread() + " " + new Date(System.currentTimeMillis()).toString()); //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " MAKING SPACE IN " + toStringFillingRation(this.name)); //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " MADE SPACE FOR " + fillingRatio + " (NOW " + NumberFormat.getInstance().format(fillingRatio()) + "% full)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			System.out.println(Thread.currentThread() + " WHILE OPENING "+ ((JavaElement) this.beingAdded).toStringWithAncestors());  //$NON-NLS-1$
 			System.out.println();
 		}
-		return super.makeSpace(space);
+		return result;
 	}
 
 	public Object put(Object key, Object value) {
