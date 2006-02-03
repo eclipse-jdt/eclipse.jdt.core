@@ -1562,14 +1562,14 @@ public final class JavaCore extends Plugin {
 					"	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
-			JavaModelManager.getJavaModelManager().variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
+			manager.variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
 				// let OperationCanceledException go through
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
 				initializer.initialize(variableName);
 				
-				variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName); // initializer should have performed side-effect
+				variablePath = manager.variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					Util.verbose(
@@ -1577,6 +1577,7 @@ public final class JavaCore extends Plugin {
 						"	variable: " + variableName +'\n' + //$NON-NLS-1$
 						"	variable path: " + variablePath); //$NON-NLS-1$
 				}
+				manager.variablesWithInitializer.add(variableName);
 				ok = true;
 			} catch (RuntimeException e) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE) {

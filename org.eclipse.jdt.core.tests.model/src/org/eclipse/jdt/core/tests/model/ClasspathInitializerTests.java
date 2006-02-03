@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -136,7 +137,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testVariableInitializer10" };
+//		TESTS_NAMES = new String[] { "testVariableInitializer11" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -883,9 +884,34 @@ public void testVariableInitializer10() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
+/**
+ * Bug 125965: [prefs] "Export/Import preferences" should let user to choose wich preference to export/import
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125965"
+ */
+public void testVariableInitializer11() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_LIB";
+		String initialValue = "/P1/lib.jar";
+		String newValue = "/tmp/file.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, initialValue}));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), initialValue);
+		
+		// Modify preference
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+varName, newValue);
+	
+		// verify that JavaCore preferences have been reset
+		assertEquals("JavaCore classpath value should be unchanged", JavaCore.getClasspathVariable(varName).toString(), initialValue);
+		assertEquals("JavaCore preferences value should be unchanged", preferences.get(varName, "X"), initialValue);
+	} finally {
+		VariablesInitializer.reset();
+	}
+}
 
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872"
  */
 public void testUserLibraryInitializer1() throws CoreException {
 	try {

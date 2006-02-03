@@ -83,6 +83,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Classpath variables pool
 	 */
 	public HashMap variables = new HashMap(5);
+	public HashSet variablesWithInitializer = new HashSet(5);
 	public HashMap previousSessionVariables = new HashMap(5);
 	private ThreadLocal variableInitializationInProgress = new ThreadLocal();
 		
@@ -999,11 +1000,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			String propertyName = event.getKey();
 			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
 				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
-				String newValue = (String)event.getNewValue();
-				if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-					getJavaModelManager().variables.put(varName, new Path(newValue));
+				JavaModelManager manager = getJavaModelManager();
+				if (manager.variablesWithInitializer.contains(varName)) {
+					// revert preference value as we will not apply it to JavaCore classpath variable
+					manager.getInstancePreferences().put(varName, (String)event.getOldValue());
 				} else {
-					getJavaModelManager().variables.remove(varName);
+					String newValue = (String)event.getNewValue();
+					if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
+						manager.variables.put(varName, new Path(newValue));
+					} else {
+						manager.variables.remove(varName);
+					}
 				}
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
@@ -3865,7 +3872,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		return result;
 	}
-	
+
 	public synchronized void variablePut(String variableName, IPath variablePath){		
 
 		// set/unset the initialization in progress
