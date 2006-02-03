@@ -64,7 +64,7 @@ public abstract class CodeFormatter {
 	/** 
 	 * Format <code>source</code>,
 	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
-	 * It returns null if the given string cannot be formatted.
+	 * <p>It returns null if the given string cannot be formatted.</p>
 	 * 
 	 * <p>If the offset position is matching a whitespace, the result can include whitespaces. It would be up to the
 	 * caller to get rid of preceeding whitespaces.</p>
@@ -80,7 +80,7 @@ public abstract class CodeFormatter {
 	 *      level of zero or below has no effect.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @return the text edit or <code>null</code> if the given string cannot be formatted
+	 * @return the text edit
 	 * @throws IllegalArgumentException if offset is lower than 0, length is lower than 0 or
 	 * length is greater than source length.
 	 */

@@ -164,7 +164,18 @@
 	<fileTypes extension="jardesc" type="text"/>
 	<fileTypes extension="zip" type="binary"/>
 </extension>
-      
+
+<!-- =================================================================================== -->
+<!-- Extension: Java Code Formatter                                                      -->
+<!-- =================================================================================== -->
+<extension
+      id="JavaCodeFormatter"
+      point="org.eclipse.core.runtime.applications">
+      	<application>
+      		<run class="org.eclipse.jdt.core.formatter.CodeFormatterApplication" />
+		</application>
+</extension>
+
 <!-- =================================================================================== -->
 <!-- Extension: Java Content Types                                                       -->
 <!-- =================================================================================== -->
