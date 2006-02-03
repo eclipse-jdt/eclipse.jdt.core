@@ -9,6 +9,7 @@
  * Contributors:
  *     Ben Konrath <ben@bagu.org> - initial implementation
  *     Red Hat Incorporated - improvements based on comments from JDT developers
+ *     IBM Corporation - Code review and integration
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
