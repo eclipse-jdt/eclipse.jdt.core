@@ -162,16 +162,8 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 
 	private boolean verbose = false;
 
-	/*
-	 * The output will look like this:
-	 * 
-	 * "Usage: eclipse -application org.eclipse.jdt.core.JavaCodeFormatter [
-	 * OPTIONS ] <files> <files> Java source files and/or directories to format.
-	 * Only files ending with .java will be formatted in the given directory.
-	 * OPTIONS: -config <file> Use the formatting style from the specified
-	 * properties file. Refer to the help documentation to find out how to
-	 * generate this file.. -help Display this message. -quiet Only print error
-	 * messages. -verbose Be verbose about the formatting job.
+	/** 
+	 * Display the command line usage message.
 	 */
 	private void displayHelp() {
 		System.out.println(Messages.bind(Messages.CommandLineUsage));
