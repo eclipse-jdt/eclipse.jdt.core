@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -52,23 +51,6 @@ public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner own
 	super(parent);
 	this.name = name;
 	this.owner = owner;
-}
-/**
- * Accepts the given visitor onto the parsed tree of this compilation unit, after
- * having runned the name resolution.
- * The visitor's corresponding <code>visit</code> method is called with the
- * corresponding parse tree. If the visitor returns <code>true</code>, this method
- * visits this parse node's members.
- *
- * @param visitor the visitor
- * @exception JavaModelException if this method fails. Reasons include:
- * <ul>
- * <li> This element does not exist.</li>
- * <li> The visitor failed with this exception.</li>
- * </ul>
- */
-public void accept(ASTVisitor visitor) throws JavaModelException {
-	CompilationUnitVisitor.visit(this, visitor);
 }
 /*
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
