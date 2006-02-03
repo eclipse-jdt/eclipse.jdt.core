@@ -383,4 +383,28 @@ public class BasicBuildTests extends Tests {
 		
 		JavaCore.setOptions(options);
 	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=98667
+	 */
+	public void test98667() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		
+		env.addClass(root, "p1", "Aaa$Bbb$Ccc", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$ 
+			"\n" +  //$NON-NLS-1$
+			"public class Aaa$Bbb$Ccc {\n" + //$NON-NLS-1$ 
+			"}" //$NON-NLS-1$
+		);
+			
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
 }
