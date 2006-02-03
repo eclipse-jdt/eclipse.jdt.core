@@ -171,7 +171,8 @@ protected Object createElementInfo() {
 }
 public boolean equals(Object o) {
 	if (!(o instanceof ClassFile)) return false;
-	return super.equals(o);
+	ClassFile other = (ClassFile) o;
+	return this.name.equals(other.name) && this.parent.equals(other.parent);
 }
 public boolean exists() {
 	return super.exists() && validateClassFile().isOK();
@@ -497,6 +498,9 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, org.eclipse.jdt.cor
  */
 protected boolean hasBuffer() {
 	return true;
+}
+public int hashCode() {
+	return Util.combineHashCodes(this.name.hashCode(), this.parent.hashCode());
 }
 /**
  * @see IClassFile
