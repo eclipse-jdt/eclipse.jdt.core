@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 871 };
+//		TESTS_NUMBERS = new int[] { 899 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -27773,6 +27773,52 @@ public void test898() {
 			"		g1.get().i2();\n" + 
 			"	}\n" + 
 			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122331
+public void test899() {
+	this.runConformTest(
+		new String[] {
+			"A.java", // =================
+			"public class A<T extends A<T>> extends SomeArbitraryClass<T> {\n" + 
+			"  public static class B {\n" + 
+			"    private C c;\n" + 
+			"    protected void set(C val) {\n" + 
+			"      c = val;\n" + 
+			"    }\n" + 
+			"    protected class C {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+			"C.java",
+			"public class C {\n" + 
+			"  \n" + 
+			"  public C() {\n" + 
+			"    //do nothing\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"}",
+			"ObjThatExtendsB.java",
+			"public class ObjThatExtendsB extends A.B {\n" + 
+			"  protected void doSomeSetting() {\n" + 
+			"    super.set(new ObjThatExtendsC());\n" +
+			"  }\n" + 
+			"  protected class ObjThatExtendsC extends C {\n" + 
+			"  }\n" + 
+			"}",
+			"ObjThatExtendsC.java",
+			"public class ObjThatExtendsC extends C {\n" + 
+			"  public ObjThatExtendsC() {\n" + 
+			"    //do nothing\n" + 
+			"  }\n" + 
+			"}",
+			"SomeArbitraryClass.java",
+			"public class SomeArbitraryClass<T extends SomeArbitraryClass<T>> {\n" + 
+			"  public SomeArbitraryClass() {\n" + 
+			"    //do nothing\n" + 
+			"  }\n" + 
+			"}"
 		},
 		"");
 }
