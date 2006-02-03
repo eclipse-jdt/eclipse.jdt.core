@@ -1076,6 +1076,8 @@ void setSourceStart(int sourceStart);
 	int TypeMissingDeprecatedAnnotation = Internal + 630;
 	/** @since 3.1 */
 	int UnhandledWarningToken = Internal + 631;
+	/** @since 3.2 */
+	int AnnotationValueMustBeArrayInitializer = Internal + 632;
 	
 	/**
 	 * Corrupted binaries

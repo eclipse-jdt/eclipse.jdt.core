@@ -38,7 +38,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 179 };
+//		TESTS_NUMBERS = new int[] { 188 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -6078,5 +6078,26 @@ public void test142c() {
     		"	^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
     		"----------\n");
-    }         
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126332
+    public void test188() {
+    	this.runNegativeTest(
+    		new String[] {
+				"X.java",
+				"@interface A1 {\n" + 
+				"	int[] values();\n" + 
+				"}\n" + 
+				"@A1(values = new int[] { 1, 2 })\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"}",
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	@A1(values = new int[] { 1, 2 })\n" + 
+    		"	             ^^^^^^^^^^^^^^^^^^\n" + 
+    		"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
+    		"----------\n");
+    }
 }

@@ -77,6 +77,8 @@ public class MemberValuePair extends ASTNode {
 			if ((initializer.resolveTypeExpecting(scope, this.binding.returnType)) != null) {
 				this.value.resolvedType = initializer.binding = (ArrayBinding) this.binding.returnType;
 			}			
+		} else if (this.value instanceof ArrayAllocationExpression) {
+			scope.problemReporter().annotationValueMustBeArrayInitializer(this.value);				
 		} else {
 			this.value.resolveType(scope);
 		}

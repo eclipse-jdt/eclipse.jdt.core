@@ -203,7 +203,14 @@ public void annotationTypeUsedAsSuperinterface(SourceTypeBinding type, TypeRefer
 		superInterfaceRef.sourceStart,
 		superInterfaceRef.sourceEnd);
 }
-
+public void annotationValueMustBeArrayInitializer(Expression value) {
+	this.handle(
+			IProblem.AnnotationValueMustBeArrayInitializer,
+			NoArgument,
+			NoArgument,
+			value.sourceStart,
+			value.sourceEnd);
+}
 public void annotationValueMustBeAnnotation(TypeBinding annotationType, char[] name, Expression value, TypeBinding expectedType) {
 	String str = new String(name);
 	this.handle(
