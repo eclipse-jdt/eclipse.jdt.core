@@ -19,6 +19,10 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
+import org.eclipse.jdt.internal.compiler.env.ClassSignature;
+import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
@@ -35,6 +39,35 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 	public BinaryIndexer(SearchDocument document) {
 		super(document);
+	}
+	private void addBinaryAnnotation(IBinaryAnnotation annotation) {
+		addTypeReference(replace('/', '.', Signature.toCharArray(annotation.getTypeName())));
+		IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
+		if (valuePairs != null) {
+			for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {
+				IBinaryElementValuePair valuePair = valuePairs[j];
+				addMethodReference(valuePair.getName(), 0);
+				Object pairValue = valuePair.getValue();
+				addPairValue(pairValue);
+			}
+		}
+	}
+	private void addPairValue(Object pairValue) {
+		if (pairValue instanceof EnumConstantSignature) {
+			EnumConstantSignature enumConstant = (EnumConstantSignature) pairValue;
+			addTypeReference(replace('/', '.', Signature.toCharArray(enumConstant.getTypeName())));
+			addNameReference(enumConstant.getEnumConstantName());
+		} else if (pairValue instanceof ClassSignature) {
+			ClassSignature classConstant = (ClassSignature) pairValue;
+			addTypeReference(replace('/', '.', Signature.toCharArray(classConstant.getTypeName())));
+		} else if (pairValue instanceof IBinaryAnnotation) {
+			addBinaryAnnotation((IBinaryAnnotation) pairValue);
+		} else if (pairValue instanceof Object[]) {
+			Object[] objects = (Object[]) pairValue;
+			for (int i=0,l=objects.length; i<l; i++) {
+				addPairValue(objects[i]);
+			}
+		}
 	}
 	public void addTypeReference(char[] typeName) {
 		int length = typeName.length;
@@ -508,7 +541,16 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
 					break;
 			}			
-	
+
+			// Look for references in class annotations
+			IBinaryAnnotation[] annotations = reader.getAnnotations();
+			if (annotations != null) {
+				for (int a=0, length=annotations.length; a<length; a++) {
+					IBinaryAnnotation annotation = annotations[a];
+					addBinaryAnnotation(annotation);
+				}
+			}
+
 			// first reference all methods declarations and field declarations
 			MethodInfo[] methods = (MethodInfo[]) reader.getMethods();
 			if (methods != null) {
@@ -525,6 +567,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 							addMethodDeclaration(method.getSelector(), parameterTypes, returnType, exceptionTypes);
 						}
 					}
+					// look for references in method annotations
+					annotations = method.getAnnotations();
+					if (annotations != null) {
+						for (int a=0, length=annotations.length; a<length; a++) {
+							IBinaryAnnotation annotation = annotations[a];
+							addBinaryAnnotation(annotation);
+						}
+					}
 				}
 			}
 			FieldInfo[] fields = (FieldInfo[]) reader.getFields();
@@ -534,6 +584,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					char[] fieldName = field.getName();
 					char[] fieldType = decodeFieldType(replace('/', '.', field.getTypeName()));
 					addFieldDeclaration(fieldType, fieldName);
+					// look for references in field annotations
+					annotations = field.getAnnotations();
+					if (annotations != null) {
+						for (int a=0, length=annotations.length; a<length; a++) {
+							IBinaryAnnotation annotation = annotations[a];
+							addBinaryAnnotation(annotation);
+						}
+					}
 				}
 			}
 	

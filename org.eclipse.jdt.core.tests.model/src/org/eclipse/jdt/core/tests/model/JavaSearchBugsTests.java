@@ -47,7 +47,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
 //	TESTS_NAMES = new String[] { "testBug120816a" };
-//	TESTS_NUMBERS = new int[] { 122442 };
+//	TESTS_NUMBERS = new int[] { 124469 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -1776,12 +1776,11 @@ public void testBug83304() throws CoreException {
 		"}\n"
 		);
 	IType type = selectType(workingCopies[0], "Class", 3);
-	search(type, REFERENCES, ERASURE_RULE);
+	search(type, REFERENCES, ERASURE_RULE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
 		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
-		"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH\n" + 
-		getExternalJCLPathString("1.5") + " java.lang.Class java.lang.Object.getClass() EQUIVALENT_RAW_MATCH"
+		"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH"
 	);
 }
 public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
@@ -2836,60 +2835,17 @@ public void testBug92944_TYPE() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScopeBugs("b92944", true),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"Test\n" + 
-		"Test$Inner\n" + 
-		"TestPrefix\n" + 
-		"b108088.A108088\n" + 
-		"b108088.B108088\n" + 
-		"b108088.Test108088\n" + 
-		"b81556.a.A81556\n" + 
-		"b81556.a.B81556\n" + 
-		"b81556.a.X81556\n" + 
-		"b81556.b.XX81556\n" + 
-		"b86380.Annot\n" + 
-		"b87627.Collection\n" + 
-		"b87627.List\n" + 
-		"b89848.Test\n" + 
-		"b89848.X\n" + 
 		"b92944.B92944\n" + 
 		"b92944.B92944_A\n" + 
 		"b92944.B92944_E\n" + 
-		"b92944.B92944_I\n" + 
-		"b95794.Test\n" + 
-		"b95794.Test$Color\n" + 
-		"g1.t.s.def.Generic\n" + 
-		"g1.t.s.def.Generic$Member\n" + 
-		"g1.t.s.def.Generic$MemberGeneric\n" + 
-		"g1.t.s.def.NonGeneric\n" + 
-		"g1.t.s.def.NonGeneric$GenericMember\n" + 
-		"g5.c.def.Multiple\n" + 
-		"g5.c.def.Single\n" + 
-		"g5.m.def.Multiple\n" + 
-		"g5.m.def.Single\n" + 
-		"java.io.Serializable\n" + 
-		"java.lang.CharSequence\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
-		"java.lang.Throwable\n" + 
-		"java.lang.annotation.Annotation\n" + 
-		"pack.age.Test\n" + 
-		"pack.age.Test$Member",
+		"b92944.B92944_I",
 		requestor);
 }
 public void testBug92944_CLASS() throws CoreException {
@@ -2903,7 +2859,7 @@ public void testBug92944_CLASS() throws CoreException {
 		IIndexConstants.ONE_STAR,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -2911,48 +2867,7 @@ public void testBug92944_CLASS() throws CoreException {
 	// Remove interface, enum and annotation
 	assertSearchResults(
 		"Unexpected all type names",
-		"Test\n" + 
-		"Test$Inner\n" + 
-		"TestPrefix\n" + 
-		"b108088.A108088\n" + 
-		"b108088.B108088\n" + 
-		"b108088.Test108088\n" + 
-		"b81556.a.A81556\n" + 
-		"b81556.a.B81556\n" + 
-		"b81556.a.X81556\n" + 
-		"b81556.b.XX81556\n" + 
-		"b89848.Test\n" + 
-		"b89848.X\n" + 
-		"b92944.B92944\n" + 
-		//"b92944.B92944_A\n" + 
-		//"b92944.B92944_E\n" + 
-		//"b92944.B92944_I\n" + 
-		"b95794.Test\n" + 
-		"g1.t.s.def.Generic\n" + 
-		"g1.t.s.def.Generic$Member\n" + 
-		"g1.t.s.def.Generic$MemberGeneric\n" + 
-		"g1.t.s.def.NonGeneric\n" + 
-		"g1.t.s.def.NonGeneric$GenericMember\n" + 
-		"g5.c.def.Multiple\n" + 
-		"g5.c.def.Single\n" + 
-		"g5.m.def.Multiple\n" + 
-		"g5.m.def.Single\n" + 
-		//"java.io.Serializable\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		//"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" +  // Enum is not an enum in java.lang
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
-		"java.lang.Throwable\n" + 
-		//"java.lang.annotation.Annotation\n" +
-		"pack.age.Test\n" + 
-		"pack.age.Test$Member",
+		"b92944.B92944",
 		requestor);
 }
 public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
@@ -2966,7 +2881,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS_AND_INTERFACE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -2974,51 +2889,8 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 	// Remove enum and annotation
 	assertSearchResults(
 		"Unexpected all type names",
-		"Test\n" + 
-		"Test$Inner\n" + 
-		"TestPrefix\n" + 
-		"b108088.A108088\n" + 
-		"b108088.B108088\n" + 
-		"b108088.Test108088\n" + 
-		"b81556.a.A81556\n" + 
-		"b81556.a.B81556\n" + 
-		"b81556.a.X81556\n" + 
-		"b81556.b.XX81556\n" + 
-		"b87627.Collection\n" + 
-		"b87627.List\n" + 
-		"b89848.Test\n" + 
-		"b89848.X\n" + 
 		"b92944.B92944\n" + 
-		//"b92944.B92944_A\n" + 
-		//"b92944.B92944_E\n" + 
-		"b92944.B92944_I\n" + 
-		"b95794.Test\n" + 
-		"g1.t.s.def.Generic\n" + 
-		"g1.t.s.def.Generic$Member\n" + 
-		"g1.t.s.def.Generic$MemberGeneric\n" + 
-		"g1.t.s.def.NonGeneric\n" + 
-		"g1.t.s.def.NonGeneric$GenericMember\n" + 
-		"g5.c.def.Multiple\n" + 
-		"g5.c.def.Single\n" + 
-		"g5.m.def.Multiple\n" + 
-		"g5.m.def.Single\n" + 
-		"java.io.Serializable\n" + 
-		"java.lang.CharSequence\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" +  // Enum is not an enum in java.lang
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
-		"java.lang.Throwable\n" +
-		"java.lang.annotation.Annotation\n" +  // Annotation is an interface in java.lang
-		"pack.age.Test\n" + 
-		"pack.age.Test$Member",
+		"b92944.B92944_I",  // Annotation is an interface in java.lang
 		requestor);
 }
 public void testBug92944_CLASS_AND_ENUM() throws CoreException {
@@ -3032,7 +2904,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS_AND_ENUM,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -3040,49 +2912,8 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 	// Remove interface and annotation
 	assertSearchResults(
 		"Unexpected all type names",
-		"Test\n" + 
-		"Test$Inner\n" + 
-		"TestPrefix\n" + 
-		"b108088.A108088\n" + 
-		"b108088.B108088\n" + 
-		"b108088.Test108088\n" + 
-		"b81556.a.A81556\n" + 
-		"b81556.a.B81556\n" + 
-		"b81556.a.X81556\n" + 
-		"b81556.b.XX81556\n" + 
-		"b89848.Test\n" + 
-		"b89848.X\n" + 
 		"b92944.B92944\n" + 
-		//"b92944.B92944_A\n" + 
-		"b92944.B92944_E\n" + 
-		//"b92944.B92944_I\n" + 
-		"b95794.Test\n" + 
-		"b95794.Test$Color\n" + 
-		"g1.t.s.def.Generic\n" + 
-		"g1.t.s.def.Generic$Member\n" + 
-		"g1.t.s.def.Generic$MemberGeneric\n" + 
-		"g1.t.s.def.NonGeneric\n" + 
-		"g1.t.s.def.NonGeneric$GenericMember\n" + 
-		"g5.c.def.Multiple\n" + 
-		"g5.c.def.Single\n" + 
-		"g5.m.def.Multiple\n" + 
-		"g5.m.def.Single\n" + 
-		//"java.io.Serializable\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		//"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
-		"java.lang.Throwable\n" +
-		//"java.lang.annotation.Annotation\n" +
-		"pack.age.Test\n" + 
-		"pack.age.Test$Member",
+		"b92944.B92944_E",
 		requestor);
 }
 public void testBug92944_INTERFACE() throws CoreException {
@@ -3096,20 +2927,14 @@ public void testBug92944_INTERFACE() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		INTERFACE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b87627.Collection\n" + 
-		"b87627.List\n" + 
-		"b92944.B92944_I\n" + 
-		"java.io.Serializable\n" + 
-		"java.lang.CharSequence\n" + 
-		"java.lang.Comparable\n" +
-		"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+		"b92944.B92944_I",
 		requestor);
 }
 public void testBug92944_ENUM() throws CoreException {
@@ -3123,15 +2948,14 @@ public void testBug92944_ENUM() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		ENUM,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b92944.B92944_E\n" + 
-		"b95794.Test$Color",
+		"b92944.B92944_E",
 		requestor);
 }
 public void testBug92944_ANNOTATION_TYPE() throws CoreException {
@@ -3145,14 +2969,13 @@ public void testBug92944_ANNOTATION_TYPE() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		ANNOTATION_TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchWorkingCopiesScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b86380.Annot\n" + 
 		"b92944.B92944_A",
 		requestor);
 }
@@ -5772,6 +5595,160 @@ public void testBug122442i() throws CoreException {
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 124469: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124469"
+ */
+public void testBug124469a() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar pack.E pack.A1.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E pack.A2.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E pack.A3.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
+	);
+}
+public void testBug124469b() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A1.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar pack.A1 pack.A2.annot() EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
+	);
+}
+public void testBug124469c() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A2.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar pack.A2 pack.A3.annot() EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
+	);
+}
+public void testBug124469d() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A3.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
+	);
+}
+public void testBug124469e() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CC");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH"
+	);
+}
+public void testBug124469f() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CF");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH"
+	);
+}
+public void testBug124469g() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CM");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
+	);
+}
+public void testBug124469h() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CP");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"" // expected no result as parameters annotations are not stored in class file
+	);
+}
+public void testBug124469i() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CV");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"" // expected no result as parameters annotations are not stored in class file
+	);
+}
+// TODO (frederic) enable when bug 130xxx will be fixed
+public void _testBug124469j() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CAC");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"???"
+	);
+}
+// TODO (frederic) enable when bug 130xxx will be fixed
+public void _testBug124469k() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CAF");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"???"
+	);
+}
+// TODO (frederic) enable when bug 130xxx will be fixed
+public void _testBug124469l() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CAM");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"???"
+	);
+}
+public void testBug124469m() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CAP");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"" // expected no result as parameters annotations are not stored in class file
+	);
+}
+public void testBug124469n() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
+	IField field = type.getField("CAV");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"" // expected no result as parameters annotations are not stored in class file
 	);
 }
 
