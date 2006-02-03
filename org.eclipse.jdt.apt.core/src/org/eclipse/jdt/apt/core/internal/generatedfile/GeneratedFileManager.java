@@ -1040,43 +1040,6 @@ public class GeneratedFileManager {
 	}
 	
 	/**
-	 * If the given resource is a folder, then recursively deleted all derived  
-	 * files and folders contained within it. Delete the folder if it becomes empty
-	 * and if itself is also a derived resource.
-	 * If the given resource is a file, delete it iff it is a derived resource.
-	 * The resource is left untouched if it is no a folder or a file.
-	 * @param resource
-	 * @return <code>true</code> iff the resource has been deleted.
-	 * @throws CoreException
-	 */
-	public boolean deleteDerivedResources(final IResource resource)
-		throws CoreException
-	{		
-		if( resource.getType() == IResource.FOLDER ){
-			boolean deleteFolder = resource.isDerived();
-			IResource[] members = ((IFolder)resource).members();
-			for( int i=0, len=members.length; i<len; i++ ){	
-				deleteFolder &= deleteDerivedResources(members[i]);
-			}
-			if( deleteFolder ){
-				resource.delete(true, null);
-				return true;
-			}
-			return false; 
-		}
-		else if( resource.getType() == IResource.FILE ){
-			if( resource.isDerived() ){
-				resource.delete(true, null);
-				return true;
-			}
-			return false;
-		}
-		// will skip pass everything else.
-		else
-			return false;
-	}
-	
-	/**
 	 *  This method should only be used for testing purposes to ensure
 	 *  that maps contain entries when we expect them to.
 	 */

@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -92,7 +93,7 @@ public class AptProject {
 				{	
 					IResource[] members = f.members();
 					for ( int i = 0; i<members.length; i++ ){
-						_gfm.deleteDerivedResources(members[i]);
+						FileSystemUtil.deleteDerivedResources(members[i]);
 					}
 				}
 				catch ( CoreException ce )

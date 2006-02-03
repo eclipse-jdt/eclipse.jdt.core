@@ -13,11 +13,15 @@ package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
@@ -405,7 +409,7 @@ public class GeneratedSourceFolderManager {
 	 * @param srcFolder
 	 */
 	private void removeFolder() {
-		IFolder srcFolder = null;
+		final IFolder srcFolder;
 		synchronized ( this )
 		{
 			srcFolder = _generatedSourceFolder;
@@ -420,13 +424,32 @@ public class GeneratedSourceFolderManager {
 		
 		// clean up the classpath first so that when we actually delete the 
 		// generated source folder we won't cause a classpath error.
-		try {	
-			ClasspathUtil.removeFromProjectClasspath( _aptProject.getJavaProject(), srcFolder, null );		
+		try {
+			if (srcFolder.isDerived()) {
+				ClasspathUtil.removeFromProjectClasspath( _aptProject.getJavaProject(), srcFolder, null );
+			}
 		} catch (JavaModelException e) {
 			AptPlugin.log( e, "Failed to remove classpath entry for old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 		}
 		
-		FileSystemUtil.deleteFolder(srcFolder);
+		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+	        public void run(IProgressMonitor monitor)
+	        {		
+            	try {
+            		FileSystemUtil.deleteDerivedResources(srcFolder);
+            	} catch(CoreException e) {
+            		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
+            	} catch(OperationCanceledException cancel) {
+            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
+            	}
+	        }
+	    };
+	    IWorkspace ws = ResourcesPlugin.getWorkspace();
+	    try{
+	    	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
+	    }catch(CoreException e){
+			AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/**

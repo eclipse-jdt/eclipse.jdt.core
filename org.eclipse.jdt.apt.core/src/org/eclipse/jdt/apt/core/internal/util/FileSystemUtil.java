@@ -24,13 +24,8 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.apt.core.AptPlugin;
 
 /**
  *  Simple utility class to encapsulate an mkdirs() that avoids a timing issue
@@ -41,33 +36,43 @@ public final class FileSystemUtil
 	private FileSystemUtil() {}
 	
 	/**
-	 * Remove the specified folder from disk, using a WorkspaceRunnable so that
-	 * the job blocks until it can obtain the necessary locks.
-	 * @param folder
+	 * If the given resource is a folder, then recursively deleted all derived  
+	 * files and folders contained within it. Delete the folder if it becomes empty
+	 * and if itself is also a derived resource.
+	 * If the given resource is a file, delete it iff it is a derived resource.
+	 * The resource is left untouched if it is no a folder or a file.
+	 * @param resource
+	 * @return <code>true</code> iff the resource has been deleted.
+	 * @throws CoreException
 	 */
-	public static void deleteFolder(final IFolder folder) {
-		if( folder != null ){
-			final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-	            public void run(IProgressMonitor monitor)
-	            {		
-	            	if( folder != null ){
-		            	try{
-		            		folder.delete(true, false, null);
-		            	}catch(CoreException e){
-		            		AptPlugin.log(e, "failed to delete old generated source folder " + folder.getName() ); //$NON-NLS-1$
-		            	}catch(OperationCanceledException cancel){
-		            		AptPlugin.log(cancel, "deletion of generated source folder got cancelled"); //$NON-NLS-1$
-		            	}
-	            	}
-	            }
-	        };
-	        IWorkspace ws = ResourcesPlugin.getWorkspace();
-	        try{
-	        	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
-	        }catch(CoreException e){
-	    		AptPlugin.log(e, "Runnable for deleting old generated source folder " + folder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
-	    	}
+	public static boolean deleteDerivedResources(final IResource resource)
+		throws CoreException
+	{
+		if (null == resource) {
+			return false;
 		}
+		if( resource.getType() == IResource.FOLDER ){
+			boolean deleteFolder = resource.isDerived();
+			IResource[] members = ((IFolder)resource).members();
+			for( int i=0, len=members.length; i<len; i++ ){	
+				deleteFolder &= deleteDerivedResources(members[i]);
+			}
+			if( deleteFolder ){
+				resource.delete(true, null);
+				return true;
+			}
+			return false; 
+		}
+		else if( resource.getType() == IResource.FILE ){
+			if( resource.isDerived() ){
+				resource.delete(true, null);
+				return true;
+			}
+			return false;
+		}
+		// will skip pass everything else.
+		else
+			return false;
 	}
 	
     public static void mkdirs( File parent )

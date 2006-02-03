@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -385,6 +386,12 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		String dirName = fGenSrcDirField.getText();
 		if (!AptConfig.validateGenSrcDir(fJProj, dirName)) {
 			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genSrcDirMustBeValidRelativePath);
+		}
+		if (fJProj != null && !dirName.equals(fOriginalGenSrcDir)) {
+			IFolder folder = fJProj.getProject().getFolder( dirName );
+			if (folder != null && folder.exists() && !folder.isDerived()) {
+				return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningContentsMayBeDeleted);
+			}
 		}
 		return new StatusInfo();
 	}
