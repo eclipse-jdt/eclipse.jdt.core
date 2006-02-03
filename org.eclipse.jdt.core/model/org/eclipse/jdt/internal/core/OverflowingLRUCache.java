@@ -151,9 +151,6 @@ public double getLoadFactor() {
 	public int getOverflow() {
 		return fOverflow;
 	}
-	protected boolean isSpaceAvailable(int space, int limit) {
-		return fOverflow == 0 && fCurrentSpace + space <= limit;
-	}
 	/**
 	 * Ensures there is the specified amount of free space in the receiver,
 	 * by removing old entries if necessary.  Returns true if the requested space was
@@ -165,7 +162,7 @@ public double getLoadFactor() {
 	protected boolean makeSpace(int space) {
 	
 		int limit = fSpaceLimit;
-		if (isSpaceAvailable(space, limit)) {
+		if (fOverflow == 0 && fCurrentSpace + space <= limit) {
 			/* if space is already available */
 			return true;
 		}
