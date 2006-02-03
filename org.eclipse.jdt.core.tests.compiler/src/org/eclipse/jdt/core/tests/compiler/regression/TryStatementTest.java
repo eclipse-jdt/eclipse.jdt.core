@@ -1815,6 +1815,47 @@ public void test037() {
 			},
 			"[try1][try2][finally2][catch1][finally1][end]");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87423
+public void test038() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	int hasLoop() {\n" + 
+				"		int l, m, n;\n" + 
+				"		for (m = 0; m < 10; m++) {\n" + 
+				"			n = 2;\n" + 
+				"			try {\n" + 
+				"				n = 3;\n" + 
+				"				try {\n" + 
+				"					n = 4;\n" + 
+				"				} catch (ArithmeticException e1) {\n" + 
+				"					n = 11;\n" + 
+				"				} finally {\n" + 
+				"					for (l = 0; l < 10; l++) {\n" + 
+				"						n++;\n" + 
+				"					}\n" + 
+				"					if (n == 12) {\n" + 
+				"						n = 13;\n" + 
+				"						break;\n" + 
+				"					}\n" + 
+				"					n = 15;\n" + 
+				"				}\n" + 
+				"			} catch (OutOfMemoryError e2) {\n" + 
+				"				n = 18;\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"      System.out.println(\"Loaded fine\");\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"Loaded fine");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
