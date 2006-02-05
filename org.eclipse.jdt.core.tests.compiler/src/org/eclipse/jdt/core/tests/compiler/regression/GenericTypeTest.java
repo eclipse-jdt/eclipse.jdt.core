@@ -19951,10 +19951,10 @@ public void test661() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
 		"	S a = (S)(Integer)3;\n" + 
 		"	      ^^^^^^^^^^^^^\n" + 
-		"Cannot cast from Integer to S\n" + 
+		"Type safety: The cast from Integer to S is actually checking against the erased type Comparable\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	S a = (S)(Integer)3;\n" + 
@@ -20098,10 +20098,10 @@ public void test665() {
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from A to Comparable<Object>\n" + 
 		"----------\n" + 
-		"2. ERROR in Test.java (at line 5)\n" + 
+		"2. WARNING in Test.java (at line 5)\n" + 
 		"	Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from A to Comparable<S>\n" + 
+		"Type safety: The cast from A to Comparable<S> is actually checking against the erased type Comparable\n" + 
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
@@ -27821,5 +27821,41 @@ public void test899() {
 			"}"
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
+public void test900() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X<R> {\n" + 
+			"	static interface Interface extends Comparable<String> {}\n" + 
+			"\n" + 
+			"	static final class Implements implements Interface {\n" + 
+			"		public int compareTo(String o) {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void method() {\n" + 
+			"		((Comparable<R>) new Implements()).toString();\n" + 
+			"		((Comparable) new Implements()).toString();\n" + 
+			"		((Comparable<?>) new Implements()).toString();\n" + 
+			"		((Comparable<? extends String>) new Implements()).toString();\n" + 
+			"		((Comparable<? super String>) new Implements()).toString();\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 11)\r\n" + 
+		"	((Comparable<R>) new Implements()).toString();\r\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X.Implements to Comparable<R> is actually checking against the erased type Comparable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }

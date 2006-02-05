@@ -54,7 +54,10 @@ What's new in this drop</h2>
 <ul>
 <li>Added an application to format code in a headless environment. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75333">75333</a> for details.</li>
 <li>Java projects can now depend on other Java projects that have replaced the default builder with their own builder, such as an Ant builder.
-We will now trust that the Ant build was successful and propagate any changes to the affected class files.</li>
+We will now trust that the Ant build was successful and propagate any changes to the affected class files.
+<br>Note: When projects are associated with the Java builder, it is able to track structural changes to classfiles (signatures etc...) and only recompile
+dependents of structurally changed classfiles. In the absence of a Java builder on a prereq project, all modified classfiles will be considered as
+(potentially) structurally changed; and thus recompilation will be less optimal.</li>
 <li>Access restriction warnings (discouraged & non-accessible) can now be silenced using <code>@SuppressWarnings("restriction")</code>.
      Note: if certain restrictions are configured as errors, the annotation has no effect. </li>
 <li>Added API <code>org.eclipse.jdt.core.formatter.CodeFormatter#createIndentationString(int)</code> to return the indentation string corresponding to the given indentation level.<br>
@@ -67,7 +70,9 @@ See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111446">111446</a>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125965">125965</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=97693">97693</a>
+[1.5][compiler] Unchecked generic cast gives false compiler error.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125965">125965</a>
 [prefs] &quot;Export/Import preferences&quot; should let user to choose wich preference to export/import
 <br><br><br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124469">124469</a>
 [1.5][search] does not find references to enum type in binary annotation
