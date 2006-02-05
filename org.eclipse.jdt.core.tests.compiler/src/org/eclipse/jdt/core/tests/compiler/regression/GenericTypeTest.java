@@ -27824,7 +27824,7 @@ public void test899() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
 public void test900() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
 			"public class X<R> {\n" + 
