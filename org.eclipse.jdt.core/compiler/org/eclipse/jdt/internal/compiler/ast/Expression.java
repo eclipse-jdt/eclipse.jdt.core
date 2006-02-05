@@ -401,15 +401,15 @@ public abstract class Expression extends Statement {
 								if (((ReferenceBinding) castType).isFinal()) {
 									// no subclass for castType, thus compile-time check is valid
 									match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(expressionType);
-									if (match == null /*|| !match.isCompatibleWith(expressionType)*/) {
-										// potential runtime error
+									if (match == null) {
 										return false;
 									}
 								}
 								if (use15specifics) {
 									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-									if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType))
+									if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
 										return false;
+									}
 								}
 							}
 					}
@@ -442,7 +442,7 @@ public abstract class Expression extends Statement {
 								match = refExprType.findSuperTypeWithSameErasure(castType);
 								if (refExprType.isFinal()) {
 									// unless final a subclass may implement the interface ==> no check at compile time
-									if (match == null || !match.isCompatibleWith(castType)) {
+									if (match == null) {
 										return false;
 									}
 									return checkUnsafeCast(scope, castType, expressionType, match, false);
