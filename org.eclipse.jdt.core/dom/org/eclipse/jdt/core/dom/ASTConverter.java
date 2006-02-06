@@ -4115,9 +4115,21 @@ class ASTConverter {
 		this.scanner.resetTo(start, end);
 		try {
 			int token;
+			int balance = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
+					case TerminalTokens.TokenNameLBRACE :
+						balance++;
+						break;
+					case TerminalTokens.TokenNameRBRACE :
+						balance --;
+						break;
 					case TerminalTokens.TokenNameCOMMA :
+						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+							return this.scanner.startPosition;
+						}
+						if (balance == 0) return this.scanner.startPosition - 1;
+						break;
 					case TerminalTokens.TokenNameSEMICOLON :
 						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
 							return this.scanner.startPosition;

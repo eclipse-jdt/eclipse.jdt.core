@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 628 };
+//		TESTS_NUMBERS =  new int[] { 629, 630, 631 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7172,5 +7172,59 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong size", 2, expressions.size());
 		assertEquals("Wrong type", ASTNode.STRING_LITERAL, ((Expression) expressions.get(0)).getNodeType());
 		assertEquals("Wrong type", ASTNode.STRING_LITERAL, ((Expression) expressions.get(1)).getNodeType());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=126598
+	 */
+	public void test0629() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0629", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result; 
+		String expectedOutput =
+			"Syntax error on token \",\", invalid VariableInitializer";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		checkSourceRange(fragment, "s =  {\"\",,,}", source);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=126598
+	 */
+	public void test0630() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0630", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result; 
+		String expectedOutput =
+			"Syntax error on token \",\", invalid VariableInitializer";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=126598
+	 */
+	public void test0631() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0631", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result; 
+		String expectedOutput =
+			"Syntax error, insert \"}\" to complete ArrayInitializer\n" + 
+			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
+			"Syntax error, insert \"}\" to complete ClassBody";
+		assertProblemsSize(compilationUnit, 3, expectedOutput);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		checkSourceRange(fragment, "s =  {\"\",,,", source);
 	}
 }
