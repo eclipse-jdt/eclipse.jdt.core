@@ -150,7 +150,29 @@ public class BuildpathTests extends Tests {
 		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
 		JavaCore.setOptions(options);
 	}
-	
+
+	public void testCorruptBuilder() throws JavaModelException {
+		IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		IPath test = env.addClass(project1Path, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;" + //$NON-NLS-1$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingNoProblems();
+
+		env.removeBinaryClass(test.removeLastSegments(1), "Test"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(project1Path, "", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class SubTest extends p.Test {}" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingNoProblems();
+	}
+
 	/*
 	 * Ensures that changing an external jar and refreshing the projects triggers a rebuild
 	 * (regression test for bug 50207 Compile errors fixed by 'refresh' do not reset problem list or package explorer error states)
