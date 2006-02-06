@@ -639,8 +639,8 @@ public class Factory
 			else
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value; // completely wrong.
 		}
-		else // some non-null, non-primitive wrapper object
-			return avoidReflectException ? null : value;
+		else // can't convert
+			return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
     }
     
     private static Class getJavaLangClass_Primitive(final PrimitiveType primitiveType){
