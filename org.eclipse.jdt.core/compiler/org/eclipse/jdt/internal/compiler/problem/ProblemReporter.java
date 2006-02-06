@@ -2164,6 +2164,34 @@ public void illegalVoidExpression(ASTNode location) {
 		location.sourceEnd);
 }
 public void importProblem(ImportReference importRef, Binding expectedImport) {
+	if (expectedImport instanceof FieldBinding) {
+		int id = IProblem.UndefinedField;
+		FieldBinding field = (FieldBinding) expectedImport;
+		switch (expectedImport.problemId()) {
+			case ProblemReasons.NotVisible :
+				this.handle(
+					IProblem.NotVisibleField,
+					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())},
+					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())},
+					importRef.sourceStart,
+					importRef.sourceEnd);			
+				return;
+			case ProblemReasons.Ambiguous :
+				id = IProblem.AmbiguousField;
+				break;
+			case ProblemReasons.ReceiverTypeNotVisible :
+				id = IProblem.NotVisibleType;
+				break;
+		}
+		this.handle(
+			id, 
+			new String[] {new String(field.declaringClass.leafComponentType().readableName())},
+			new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())},
+			importRef.sourceStart,
+			importRef.sourceEnd);
+		return;
+	}
+
 	if (expectedImport.problemId() == ProblemReasons.NotFound) {
 		char[][] tokens = expectedImport instanceof ProblemReferenceBinding
 			? ((ProblemReferenceBinding) expectedImport).compoundName

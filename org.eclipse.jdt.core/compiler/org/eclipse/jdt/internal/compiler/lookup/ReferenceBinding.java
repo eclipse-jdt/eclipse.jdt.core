@@ -72,7 +72,6 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	if (invocationType == this && invocationType == receiverType) return true;
 
 	if (isProtected()) {
-
 		// answer true if the invocationType is the declaringClass or they are in the same package
 		// OR the invocationType is a subclass of the declaringClass
 		//    AND the invocationType is the invocationType or its subclass
@@ -102,15 +101,13 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 				// special tolerance for type variable direct bounds
 				if (receiverType.isTypeVariable()) {
 					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
-					if (typeVariable.isErasureBoundTo(this.erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure())) {
+					if (typeVariable.isErasureBoundTo(this.erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure()))
 						break receiverCheck;
-					}
 				}
 				return false;
 			}
 		}
-		
-		
+
 		if (invocationType != this) {
 			ReferenceBinding outerInvocationType = invocationType;
 			ReferenceBinding temp = outerInvocationType.enclosingType();
@@ -137,9 +134,9 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	ReferenceBinding declaringClass = enclosingType() == null ? this : enclosingType();
 	do {
 		if (declaringClass == currentType) return true;
-		PackageBinding currentPackage;
+		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
-		if ((currentPackage = currentType.fPackage) != null && currentPackage != fPackage) return false;
+		if (currentPackage != null && currentPackage != fPackage) return false;
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
@@ -148,15 +145,13 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
  */
 
 public final boolean canBeSeenBy(Scope scope) {
-	
 	if (isPublic()) return true;
 
-	if (scope.kind == Scope.COMPILATION_UNIT_SCOPE){
-		return this.canBeSeenBy(((CompilationUnitScope)scope).fPackage);
-	}
-	
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (invocationType == this) return true;
+
+	if (invocationType == null) // static import call
+		return !isPrivate() && scope.getCurrentPackage() == fPackage;
 
 	if (isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package

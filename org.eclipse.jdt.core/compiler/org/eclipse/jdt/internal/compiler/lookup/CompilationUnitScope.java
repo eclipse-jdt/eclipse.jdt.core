@@ -504,8 +504,11 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	if (method != null) return method;
 
 	type = findMemberType(name, type);
-	if (type == null || !type.isStatic())
+	if (type == null || !type.isStatic()) {
+		if (field != null && !field.isValidBinding() && field.problemId() != ProblemReasons.NotFound)
+			return field;
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotFound);
+	}
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotVisible);
 	return type;

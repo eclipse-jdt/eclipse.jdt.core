@@ -132,10 +132,15 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { public static int C = 1; }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.A.C;\n" + 
+			"	              ^^^^^\n" + 
+			"The type I is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
 			"	public class X { int i = C; }\n" + 
 			"	                         ^\n" + 
-			"The type I is not visible\n" + 
+			"C cannot be resolved\n" + 
 			"----------\n"
 			// C in p.I is not defined in a public class or interface; cannot be accessed from outside package
 		);
@@ -241,7 +246,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		"1. ERROR in p\\X.java (at line 3)\n" + 
 		"	import static p2.Z.Zint;\n" + 
 		"	              ^^^^^^^^^\n" + 
-		"The import p2.Z.Zint cannot be resolved\n" + 
+		"The field Z.p2.Z.Zint is not visible\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\X.java (at line 4)\n" + 
 		"	import static p2.Z.ZMember;\n" + 
@@ -1329,6 +1334,58 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	void foo() { foo(1, 1); }\n" + 
 			"	             ^^^\n" + 
 			"The method foo() in the type A.B is not applicable for the arguments (int, int)\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564
+	public void test036() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.CONSTANT_I;\n" + 
+				"import static p.A.CONSTANT_B;\n" + 
+				"public class X {\n" + 
+				"  static int i = p.A.CONSTANT_I;\n" + 
+				"  static int j = p.A.CONSTANT_B;\n" + 
+				"  static int m = CONSTANT_I;\n" + 
+				"  static int n = CONSTANT_B;\n" + 
+				"}",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A extends B implements I {}\n" + 
+				"interface I { int CONSTANT_I = 1; }\n" + 
+				"class B { int CONSTANT_B = 1; }",
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.A.CONSTANT_I;\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"The type I is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	import static p.A.CONSTANT_B;\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"The type B is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	static int i = p.A.CONSTANT_I;\n" + 
+			"	               ^^^^^^^^^^^^^^\n" + 
+			"The type I is not visible\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	static int j = p.A.CONSTANT_B;\n" + 
+			"	               ^^^^^^^^^^^^^^\n" + 
+			"The type B is not visible\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	static int m = CONSTANT_I;\n" + 
+			"	               ^^^^^^^^^^\n" + 
+			"CONSTANT_I cannot be resolved\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	static int n = CONSTANT_B;\n" + 
+			"	               ^^^^^^^^^^\n" + 
+			"CONSTANT_B cannot be resolved\n" + 
 			"----------\n"
 		);
 	}

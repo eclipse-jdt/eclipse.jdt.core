@@ -68,6 +68,9 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (invocationType == declaringClass && invocationType == receiverType) return true;
 
+	if (invocationType == null) // static import call
+		return !isPrivate() && scope.getCurrentPackage() == declaringClass.fPackage;
+
 	if (isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package
 		// OR the invocationType is a subclass of the declaringClass
@@ -76,25 +79,23 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		//    OR previous assertions are true for one of the enclosing type
 		if (invocationType == declaringClass) return true;
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
-		
+
 		ReferenceBinding currentType = invocationType;
 		int depth = 0;
 		ReferenceBinding receiverErasure = (ReferenceBinding)receiverType.erasure();
 		ReferenceBinding declaringErasure = (ReferenceBinding) declaringClass.erasure();
 		do {
 			if (currentType.findSuperTypeWithSameErasure(declaringErasure) != null) {
-				if (invocationSite.isSuperAccess()){
+				if (invocationSite.isSuperAccess())
 					return true;
-				}
 				// receiverType can be an array binding in one case... see if you can change it
-				if (receiverType instanceof ArrayBinding){
+				if (receiverType instanceof ArrayBinding)
 					return false;
-				}
-				if (isStatic()){
+				if (isStatic()) {
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
 				}
-				if (currentType == receiverErasure || receiverErasure.findSuperTypeWithSameErasure(currentType) != null){
+				if (currentType == receiverErasure || receiverErasure.findSuperTypeWithSameErasure(currentType) != null) {
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true;
 				}
@@ -111,9 +112,8 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		receiverCheck: {
 			if (receiverType != declaringClass) {
 				// special tolerance for type variable direct bounds
-				if (receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(declaringClass.erasure())) {
+				if (receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(declaringClass.erasure()))
 					break receiverCheck;
-				}
 				return false;
 			}
 		}
@@ -126,7 +126,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 				temp = temp.enclosingType();
 			}
 
-			ReferenceBinding outerDeclaringClass = (ReferenceBinding)declaringClass.erasure();
+			ReferenceBinding outerDeclaringClass = (ReferenceBinding) declaringClass.erasure();
 			temp = outerDeclaringClass.enclosingType();
 			while (temp != null) {
 				outerDeclaringClass = temp;
@@ -139,7 +139,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 
 	// isDefault()
 	PackageBinding declaringPackage = declaringClass.fPackage;
-	if (invocationType.fPackage != (declaringPackage = declaringClass.fPackage)) return false;
+	if (invocationType.fPackage != declaringPackage) return false;
 
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
@@ -147,9 +147,9 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	do {
 		if (declaringClass == currentType) return true;
-		PackageBinding currentPackage;
+		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
-		if ((currentPackage = currentType.fPackage) != null && currentPackage != declaringPackage) return false;
+		if (currentPackage != null && currentPackage != declaringPackage) return false;
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
