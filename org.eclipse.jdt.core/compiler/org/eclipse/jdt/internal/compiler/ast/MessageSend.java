@@ -351,7 +351,21 @@ public TypeBinding resolveType(BlockScope scope) {
 				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;)
 					pseudoArgs[i] = argumentTypes[i] == null ? actualReceiverType : argumentTypes[i]; // replace args with errors with receiver
-				this.binding = scope.findMethod((ReferenceBinding) actualReceiverType, selector, pseudoArgs, this);
+				this.binding = 
+					receiver.isImplicitThis()
+						? scope.getImplicitMethod(selector, pseudoArgs, this)
+						: scope.findMethod((ReferenceBinding) actualReceiverType, selector, pseudoArgs, this);
+				if (binding != null && !binding.isValidBinding()) {
+					MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+					// record the closest match, for clients who may still need hint about possible method match
+					if (closestMatch != null) {
+						this.binding = closestMatch;
+						if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
+							// ignore cases where method is used from within inside itself (e.g. direct recursions)
+							closestMatch.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+						}
+					}
+				}
 			}
 			return null;
 		}

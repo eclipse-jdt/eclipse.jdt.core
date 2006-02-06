@@ -891,6 +891,31 @@ public void testMethodWithIncorrectParameter() throws JavaModelException {
 		elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126160
+public void testMethodWithIncorrectParameter2() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test\n" +
+			"  void called(String arg) {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    new Object() {\n" +
+			"      void bar() {\n" +
+			"        called(zzz);\n" +
+			"      }\n" +
+			"    };\n" +
+			"  }\n" +
+			"}\n",
+			"called");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"called(String) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+		elements
+	);
+
+}
 /**
  * Resolve method in inner type.
  */
