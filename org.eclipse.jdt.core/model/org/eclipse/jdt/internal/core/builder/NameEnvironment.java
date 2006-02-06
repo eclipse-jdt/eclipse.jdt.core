@@ -136,11 +136,7 @@ private void computeClasspathLocations(
 							: (IContainer) root.getFolder(prereqOutputPath);
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
-							ClasspathLocation bLocation = 
-								ClasspathLocation.forBinaryFolder(
-										binaryFolder, 
-										true, 
-										entry.getAccessRuleSet());
+							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet());
 							bLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
 								ClasspathLocation[] existingLocations = (ClasspathLocation[]) binaryLocationsPerProject.get(prereqProject);
