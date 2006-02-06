@@ -27858,4 +27858,24 @@ public void test900() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// Object array vs Object into generic method
+public void test901() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static <T> T foo(T p1, T p2) {\n" + 
+			"        return p1;\n" + 
+			"    }\n" + 
+			"    static Object[] bar(int[] i, float[] f) {\n" + 
+			"        return foo(i, f);\n" + 
+			"    }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	return foo(i, f);\n" + 
+		"	       ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Object[]\n" + 
+		"----------\n");
+}
 }
