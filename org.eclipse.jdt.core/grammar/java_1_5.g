@@ -581,6 +581,7 @@ VariableDeclaratorId ::= 'Identifier' Dimsopt
 VariableInitializer -> Expression
 VariableInitializer -> ArrayInitializer
 /:$readableName VariableInitializer:/
+/:$recovery_template Identifier:/
 
 --18.8.3 Productions from 8.4: Method Declarations
 --MethodModifier ::=

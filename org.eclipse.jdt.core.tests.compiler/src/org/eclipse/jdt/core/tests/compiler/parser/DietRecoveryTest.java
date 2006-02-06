@@ -146,7 +146,7 @@ public void checkParse(
 		}
 		
 		assertEquals(
-			"Invalid unit diet+body structure" + testName,
+			"Invalid unit diet+body structure with statements recovery" + testName,
 			expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
 			computedUnitToString);
 	}

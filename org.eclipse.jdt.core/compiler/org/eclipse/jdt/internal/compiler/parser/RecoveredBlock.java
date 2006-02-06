@@ -206,11 +206,63 @@ public Block updatedBlock(){
 	Statement[] updatedStatements = new Statement[this.statementCount];
 	int updatedCount = 0;
 	
+	
+	// may need to update the end of the last statement
+	RecoveredStatement lastStatement = statements[statementCount - 1];
+	RecoveredMethod enclosingMethod = this.enclosingMethod();
+	RecoveredInitializer enclosingIntializer = this.enclosingInitializer();
+	int bodyEndValue = 0;
+	if(enclosingMethod != null) {
+		bodyEndValue = enclosingMethod.methodDeclaration.bodyEnd;
+		if(enclosingIntializer != null && enclosingMethod.methodDeclaration.sourceStart < enclosingIntializer.fieldDeclaration.sourceStart) {
+			bodyEndValue = enclosingIntializer.fieldDeclaration.declarationSourceEnd;
+		}
+	} else if(enclosingIntializer != null) {
+		bodyEndValue = enclosingIntializer.fieldDeclaration.declarationSourceEnd;
+	} else {
+		bodyEndValue = this.blockDeclaration.sourceEnd - 1;
+	}
+	
+	if(lastStatement instanceof RecoveredLocalVariable) {
+		RecoveredLocalVariable lastLocalVariable = (RecoveredLocalVariable) lastStatement;
+		if(lastLocalVariable.localDeclaration.declarationSourceEnd == 0) {
+			lastLocalVariable.localDeclaration.declarationSourceEnd = bodyEndValue;
+			lastLocalVariable.localDeclaration.declarationEnd = bodyEndValue;
+		}
+	} else if(lastStatement instanceof RecoveredBlock) {
+		RecoveredBlock lastBlock = (RecoveredBlock) lastStatement;
+		if(lastBlock.blockDeclaration.sourceEnd == 0) {
+			lastBlock.blockDeclaration.sourceEnd = bodyEndValue;
+		}
+	} else if(!(lastStatement instanceof RecoveredType)){
+		if(lastStatement.statement.sourceEnd == 0) {
+			lastStatement.statement.sourceEnd = bodyEndValue;
+		}
+	}
+	
+	int lastEnd = blockDeclaration.sourceStart;
+	
 	// only collect the non-null updated statements
 	for (int i = 0; i < this.statementCount; i++){
 		Statement updatedStatement = this.statements[i].updatedStatement();
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
+			
+			if (updatedStatement instanceof LocalDeclaration) {
+				LocalDeclaration localDeclaration = (LocalDeclaration) updatedStatement;
+				if(localDeclaration.declarationSourceEnd > lastEnd) {
+					lastEnd = localDeclaration.declarationSourceEnd;
+				}
+			} else if (updatedStatement instanceof TypeDeclaration) {
+				TypeDeclaration typeDeclaration = (TypeDeclaration) updatedStatement;
+				if(typeDeclaration.declarationSourceEnd > lastEnd) {
+					lastEnd = typeDeclaration.declarationSourceEnd;
+				}
+			} else {
+				if (updatedStatement.sourceEnd > lastEnd) {
+					lastEnd = updatedStatement.sourceEnd;
+				}
+			}
 		}
 	}
 	if (updatedCount == 0) return null; // not interesting block
@@ -223,6 +275,10 @@ public Block updatedBlock(){
 		this.blockDeclaration.statements = updatedStatements;
 	}
 
+	if (this.blockDeclaration.sourceEnd == 0) {
+		this.blockDeclaration.sourceEnd = lastEnd;
+	}
+	
 	return this.blockDeclaration;
 }
 /*

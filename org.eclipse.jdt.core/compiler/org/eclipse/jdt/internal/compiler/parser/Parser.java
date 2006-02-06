@@ -1001,12 +1001,19 @@ public RecoveredElement buildInitialRecoveryState(){
 				element = element.add(statement, 0);
 				this.lastCheckPoint = statement.sourceEnd + 1;
 			} else if(node instanceof Expression) {
-				Expression statement = (Expression) node;
-				element = element.add(statement, 0);
-				if(statement.statementEnd != -1) {
-					this.lastCheckPoint = statement.statementEnd + 1;
-				} else {
-					this.lastCheckPoint = statement.sourceEnd + 1;
+				if(node instanceof Assignment ||
+						node instanceof PrefixExpression ||
+						node instanceof PostfixExpression ||
+						node instanceof MessageSend ||
+						node instanceof AllocationExpression) {
+					// recover only specific expressions
+					Expression statement = (Expression) node;
+					element = element.add(statement, 0);
+					if(statement.statementEnd != -1) {
+						this.lastCheckPoint = statement.statementEnd + 1;
+					} else {
+						this.lastCheckPoint = statement.sourceEnd + 1;
+					}
 				}
 			} else if(node instanceof Statement) {
 				Statement statement = (Statement) node;
