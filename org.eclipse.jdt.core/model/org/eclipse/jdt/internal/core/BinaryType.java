@@ -508,20 +508,22 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 	}
 }
 
-public String getSourceFileName() {
-		BinaryType typeParent = (BinaryType) getDeclaringType();
-		BinaryType declType = this;
-		while (typeParent != null) {
-			declType = typeParent;
-			typeParent = (BinaryType) declType.getDeclaringType();
-		}
-		IBinaryType info;
+public String getSourceFileName(IBinaryType info) {
+	if (info == null) {
 		try {
-			info = (IBinaryType) declType.getElementInfo();
+			info = (IBinaryType) getElementInfo();
 		} catch (JavaModelException e) {
-			return null;
+			// default to using the outer most declaring type name
+			IType type = this;
+			IType enclosingType = getDeclaringType();
+			while (enclosingType != null) {
+				type = enclosingType;
+				enclosingType = type.getDeclaringType();
+			}
+			return type.getElementName() + Util.defaultJavaExtension();
 		}
-		return declType.sourceFileName(info);
+	}
+	return sourceFileName(info);
 }
 
 /*

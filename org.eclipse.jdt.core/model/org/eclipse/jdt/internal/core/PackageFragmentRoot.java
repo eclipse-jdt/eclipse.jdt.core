@@ -42,10 +42,6 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 	 * No source attachment property
 	 */
 	protected final static String NO_SOURCE_ATTACHMENT = ""; //$NON-NLS-1$
-	/*
-	 * No source mapper singleton
-	 */
-	protected final static SourceMapper NO_SOURCE_MAPPER = new SourceMapper();
 
 	/**
 	 * The resource associated with this root.
@@ -714,28 +710,23 @@ public SourceMapper getSourceMapper() {
 		if (mapper == null) {
 			// first call to this method
 			IPath sourcePath= getSourceAttachmentPath();
-			if (sourcePath != null) {
-				IPath rootPath= getSourceAttachmentRootPath();
-				mapper = this.createSourceMapper(sourcePath, rootPath);
-				if (rootPath == null && mapper.rootPath != null) {
-					// as a side effect of calling the SourceMapper constructor, the root path was computed
-					rootPath = new Path(mapper.rootPath);
-					
-					//set the property to the path of the mapped source
-					this.setSourceAttachmentProperty(
+			IPath rootPath= getSourceAttachmentRootPath();
+			if (sourcePath == null)
+				mapper = createSourceMapper(getPath(), rootPath); // attach root to itself
+			else
+				mapper = createSourceMapper(sourcePath, rootPath);
+			if (rootPath == null && mapper.rootPath != null) {
+				// as a side effect of calling the SourceMapper constructor, the root path was computed
+				rootPath = new Path(mapper.rootPath);
+				
+				//set the property to the path of the mapped source
+				if (sourcePath != null)
+					setSourceAttachmentProperty(
 						sourcePath.toString() 
 						+ ATTACHMENT_PROPERTY_DELIMITER 
 						+ rootPath.toString());
-				}
-				rootInfo.setSourceMapper(mapper);
-			} else {
-				// remember that no source is attached
-				rootInfo.setSourceMapper(NO_SOURCE_MAPPER);
-				mapper = null;
 			}
-		} else if (mapper == NO_SOURCE_MAPPER) {
-			// a previous call to this method found out that no source was attached
-			mapper = null;
+			rootInfo.setSourceMapper(mapper);
 		}
 	} catch (JavaModelException e) {
 		// no source can be attached

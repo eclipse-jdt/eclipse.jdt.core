@@ -33,7 +33,7 @@ public class ClassFileWorkingCopy extends CompilationUnit {
 	public IClassFile classFile;
 	
 public ClassFileWorkingCopy(IClassFile classFile, WorkingCopyOwner owner) {
-	super((PackageFragment) classFile.getParent(), ((BinaryType) ((ClassFile) classFile).getType()).getSourceFileName(), owner);
+	super((PackageFragment) classFile.getParent(), ((BinaryType) ((ClassFile) classFile).getType()).getSourceFileName(null/*no info available*/), owner);
 	this.classFile = classFile;
 }
 

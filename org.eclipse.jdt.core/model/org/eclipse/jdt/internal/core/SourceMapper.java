@@ -822,11 +822,11 @@ public class SourceMapper
 	 * SourceMapper's ZIP file, or returns <code>null</code> if source
 	 * code cannot be found.
 	 */
-	public char[] findSource(IType type) {
+	public char[] findSource(IType type, IBinaryType info) {
 		if (!type.isBinary()) {
 			return null;
 		}
-		String simpleSourceFileName = ((BinaryType) type).getSourceFileName();
+		String simpleSourceFileName = ((BinaryType) type).getSourceFileName(info);
 		if (simpleSourceFileName == null) {
 			return null;
 		}
@@ -1128,8 +1128,8 @@ public class SourceMapper
 	/**
 	 * Maps the given source code to the given binary type and its children.
 	 */
-	public void mapSource(IType type, char[] contents) {
-		this.mapSource(type, contents, null);
+	public void mapSource(IType type, char[] contents, IBinaryType info) {
+		this.mapSource(type, contents, info, null);
 	}
 	
 	/**
@@ -1140,6 +1140,7 @@ public class SourceMapper
 	public synchronized ISourceRange mapSource(
 		IType type,
 		char[] contents,
+		IBinaryType info,
 		IJavaElement elementToFind) {
 			
 		this.binaryType = (BinaryType) type;
@@ -1165,17 +1166,16 @@ public class SourceMapper
 		try {
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = null;
-			boolean isAnonymousClass = false;
-			char[] fullName = null;
 			this.anonymousClassName = 0;
-			IBinaryType info = null;
-			try {
-				info = (IBinaryType) this.binaryType.getElementInfo();
-				isAnonymousClass = info.isAnonymous();
-				fullName = info.getName();
-			} catch(JavaModelException e) {
-				// ignore
+			if (info == null) {
+				try {
+					info = (IBinaryType) this.binaryType.getElementInfo();
+				} catch(JavaModelException e) {
+					return null;
+				}
 			}
+			boolean isAnonymousClass = info.isAnonymous();
+			char[] fullName = info.getName();
 			if (isAnonymousClass) {
 				String eltName = this.binaryType.getParent().getElementName();
 				eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());

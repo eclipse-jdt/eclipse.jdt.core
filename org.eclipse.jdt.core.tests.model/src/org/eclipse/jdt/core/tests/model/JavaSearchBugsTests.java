@@ -46,7 +46,7 @@ static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110336";
-//	TESTS_NAMES = new String[] { "testBug120816a" };
+//	TESTS_NAMES = new String[] { "testBug126330" };
 //	TESTS_NUMBERS = new int[] { 124469 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
@@ -5792,4 +5792,17 @@ public void testBug125178() throws CoreException {
 		"" // no result expected
 	);
 }
+
+/**
+ * Bug 126330: Type reference not found in jar file if sources was not already opened
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=126330"
+ */
+public void testBug126330() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b126330.jar", "").getClassFile("A126330.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b126330.jar B126330.a EXACT_MATCH"
+	);
+}
+
 }

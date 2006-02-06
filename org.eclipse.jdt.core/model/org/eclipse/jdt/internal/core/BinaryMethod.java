@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -144,9 +145,10 @@ public String[] getParameterNames() throws JavaModelException {
 		
 		// map source and try to find parameter names
 		if(paramNames == null) {
-			char[] source = mapper.findSource(type);
+			IBinaryType info = (IBinaryType) ((BinaryType) getDeclaringType()).getElementInfo();
+			char[] source = mapper.findSource(type, info);
 			if (source != null){
-				mapper.mapSource(type, source);
+				mapper.mapSource(type, source, info);
 			}
 			paramNames = mapper.getMethodParameterNames(this);
 		}

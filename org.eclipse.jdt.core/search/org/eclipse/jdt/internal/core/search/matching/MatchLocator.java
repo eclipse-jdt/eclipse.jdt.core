@@ -1891,7 +1891,7 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 			if (mapper != null) {
 				char[] contents = mapper.findSource(type, sourceFileName);
 				if (contents != null)
-					range = mapper.mapSource(type, contents, binaryMember);
+					range = mapper.mapSource(type, contents, info, binaryMember);
 			}
 		}
 	}

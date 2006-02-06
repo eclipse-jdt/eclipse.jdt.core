@@ -41,7 +41,6 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 
 	protected String name;
 	protected BinaryType binaryType = null;
-	private boolean checkAutomaticSourceMapping;
 /*
  * Creates a handle to a class file.
  */
@@ -50,7 +49,6 @@ protected ClassFile(PackageFragment parent, String name) {
 	// don't hold on the .class file extension to save memory
 	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
 	this.name = new String(name.substring(0, name.length() - 6)); // don't hold on the .class file extension to save memory
-	this.checkAutomaticSourceMapping = false;
 }
 
 /*
@@ -273,7 +271,13 @@ public IBuffer getBuffer() throws JavaModelException {
 		return super.getBuffer();
 	} else {
 		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
-		return openBuffer(null, null);
+		Object info = null;
+		try {
+			info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) getResource());
+		} catch (JavaModelException e) {		
+			// ignore
+		}
+		return openBuffer(null, info);
 	}
 }
 /**
@@ -541,96 +545,12 @@ private IStatus validateClassFile() {
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
-		return mapSource(mapper);
-	} else if (!this.checkAutomaticSourceMapping) {
-		/*
-		 * We try to see if we can automatically attach a source
-		 * source files located inside the same folder than its .class file
-		 * See bug 36510.
-		 */
-		PackageFragmentRoot root = getPackageFragmentRoot();
-		if (root.isArchive()) {
-			// root is a jar file or a zip file
-			String elementName = getElementName();
-			String sourceFileWithoutExtension = elementName.substring(0, elementName.lastIndexOf('.'));
-			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
-			ZipFile jar = null;
-			try {
-				jar = jarPackageFragmentRoot.getJar();
-				String[] pkgName = ((PackageFragment) getParent()).names;
-				char[][] javaLikeExtensions = Util.getJavaLikeExtensions();
-				for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
-					StringBuffer entryName = new StringBuffer();
-					for (int j = 0, pkgNameLength = pkgName.length; j < pkgNameLength; j++) {
-						entryName.append(pkgName[j]);
-						entryName.append('/');
-					}
-					entryName.append(sourceFileWithoutExtension);
-					entryName.append('.');
-					entryName.append(javaLikeExtensions[i]);
-					ZipEntry zipEntry = jar.getEntry(entryName.toString());
-					if (zipEntry != null) {
-						// found a source file
-						this.checkAutomaticSourceMapping = true;
-						root.attachSource(root.getPath(), null, null);
-						SourceMapper sourceMapper = getSourceMapper();
-						if (sourceMapper != null) {
-							return mapSource(sourceMapper);
-						}
-					}
-				}
-			} catch (CoreException e) {
-				if (e instanceof JavaModelException) throw (JavaModelException)e;
-				throw new JavaModelException(e);
-			} finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(jar);
-			}
-		} else {
-			// Attempts to find the corresponding java file
-			String qualifiedName = getType().getFullyQualifiedName();
-			NameLookup lookup = ((JavaProject) getJavaProject()).newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			ICompilationUnit cu = lookup.findCompilationUnit(qualifiedName);
-			if (cu != null) {
-				return cu.getBuffer();
-			} else	{
-				// root is a class folder
-				
-				IContainer pkgFolder = (IContainer) getParent().getResource();
-				IResource[] files = null;
-				try {
-					files = pkgFolder.members();
-				} catch (CoreException e) {
-					throw new JavaModelException(e);
-				}
-				IResource sourceFile = null;
-				String classFileName = getElementName();
-				String simpleName = classFileName.substring(0, classFileName.lastIndexOf('.'));
-				for (int i = 0, length = files.length; i < length; i++) {
-					IResource resource = files[i];
-					if (resource.getType() == IResource.FILE 
-							&& Util.equalsIgnoreJavaLikeExtension(resource.getName(), simpleName)) {
-						sourceFile = resource;
-						break;
-					}
-				}
-				if (sourceFile != null) {
-							
-					// found a source file
-					 // we don't need to check again. The source will be attached.
-					this.checkAutomaticSourceMapping = true;
-					root.attachSource(root.getPath(), null, null);
-					SourceMapper sourceMapper = getSourceMapper();
-					if (sourceMapper != null) {
-						return mapSource(sourceMapper);
-					}
-				}
-			}
-		}
+		return mapSource(mapper, info instanceof IBinaryType ? (IBinaryType) info : null);
 	}
 	return null;
 }
-private IBuffer mapSource(SourceMapper mapper) {
-	char[] contents = mapper.findSource(getType());
+private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
+	char[] contents = mapper.findSource(getType(), info);
 	if (contents != null) {
 		// create buffer
 		IBuffer buffer = getBufferManager().createBuffer(this);
@@ -647,7 +567,7 @@ private IBuffer mapSource(SourceMapper mapper) {
 		buffer.addBufferChangedListener(this);	
 				
 		// do the source mapping
-		mapper.mapSource(getType(), contents);
+		mapper.mapSource(getType(), contents, info);
 		
 		return buffer;
 	}
