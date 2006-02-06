@@ -6100,4 +6100,36 @@ public void test142c() {
     		"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
     		"----------\n");
     }
+// partial recompile - keep a binary
+public void test189() {
+	this.runConformTest(
+		new String[] {
+			"A1.java",
+			"@A2(@A1(m1 = \"u\"))\n" +
+			"public @interface A1 {\n" +
+			"  String m1();\n" +
+			"  String m2() default \"v\";\n" +
+			"}\n",
+			"A2.java",
+			"@A2(@A1(m1 = \"u\", m2 = \"w\"))\n" +
+			"public @interface A2 {\n" +
+			"  A1[] value();\n" +
+			"}\n",
+		},
+		"");
+	// keep A2 binary, recompile A1 with a name change
+	this.runConformTest(
+		new String[] {
+			"A1.java",
+			"@A2(@A1(m1 = \"u\"))\n" +
+			"public @interface A1 {\n" +
+			"  String m1();\n" +
+			"  String m3() default \"v\";\n" +
+			"}\n",
+		},
+		"",
+		null,
+		false, // do not flush A2.class
+		null);
+}
 }
