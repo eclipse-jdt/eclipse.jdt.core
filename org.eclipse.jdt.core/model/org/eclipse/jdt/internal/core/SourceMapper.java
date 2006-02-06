@@ -1053,7 +1053,6 @@ public class SourceMapper
 			for (int i = 0; i <= lastDollar; i++)
 				newClassFileName.append(classFileName.charAt(i));
 			newClassFileName.append(Integer.toString(this.anonymousCounter));
-			newClassFileName.append(SuffixConstants.SUFFIX_class);
 			PackageFragment pkg = (PackageFragment) classFile.getParent();
 			return new BinaryType(new ClassFile(pkg, newClassFileName.toString()), typeName);
 		} else if (this.binaryType.getElementName().equals(typeName))

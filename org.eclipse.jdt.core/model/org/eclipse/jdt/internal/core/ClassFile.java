@@ -41,14 +41,13 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 
 	protected String name;
 	protected BinaryType binaryType = null;
+	
 /*
  * Creates a handle to a class file.
  */
-protected ClassFile(PackageFragment parent, String name) {
+protected ClassFile(PackageFragment parent, String nameWithoutExtension) {
 	super(parent);
-	// don't hold on the .class file extension to save memory
-	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-	this.name = new String(name.substring(0, name.length() - 6)); // don't hold on the .class file extension to save memory
+	this.name = nameWithoutExtension;
 }
 
 /*
