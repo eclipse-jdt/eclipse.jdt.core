@@ -58,6 +58,7 @@
  *                                 TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_PARAMETER_ASSIGNMENT
+ *                                 COMPILER_PB_NULL_REFERENCE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -482,8 +483,8 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
 	 * @since 3.1
+	 * @deprecated use {@link #COMPILER_PB_NULL_REFERENCE} instead
 	 */
 	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
 	/**
@@ -654,6 +655,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_UNHANDLED_WARNING_TOKEN = PLUGIN_ID + ".compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_NULL_REFERENCE = PLUGIN_ID + ".compiler.problem.nullReference"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2048,7 +2055,7 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting Null Reference or Dereference
-	 *    When enabled, the compiler will issue an error or a warning whenever assumption were made on a variable
+	 *    When enabled, the compiler will issue an error or a warning whenever an assumption is made on a variable
 	 *    with respect to holding null/non-null values, but the assumption is not followed in a consistent manner.
 	 *    Situations include:
 	 *         - if variable was assumed to be null and further used to access field or methods
@@ -2056,7 +2063,7 @@ public final class JavaCore extends Plugin {
 	 *         
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"
+	 *     - default:           "ignore"
 	 * 
 	 * COMPILER / Reporting Use of Annotation Type as Super Interface
 	 *    When enabled, the compiler will issue an error or a warning whenever an annotation type is used
