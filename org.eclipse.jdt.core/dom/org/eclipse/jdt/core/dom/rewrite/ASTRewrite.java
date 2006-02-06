@@ -394,6 +394,30 @@ public class ASTRewrite {
 			this.eventStore.setEventEditGroup(nodeEvent, editGroup);
 		}
 	}
+	
+	/**
+	 * Returns the value of the given property as managed by this rewriter. If the property
+	 * has been removed, <code>null</code> is returned. If it has been replaced, the replacing value
+	 * is returned. If the property has not been changed yet, the original value is returned.
+	 * <p>
+	 * For child list properties use {@link ListRewrite#getRewrittenList()} to get access to the
+	 * rewritten nodes in a list. </p>
+	 * 
+	 * @param node the node
+	 * @param property the node's property
+	 * @return the value of the given property as managed by this rewriter
+	 * 
+	 * @since 3.2
+	 */
+	public Object get(ASTNode node, StructuralPropertyDescriptor property) {
+		if (node == null || property == null) {
+			throw new IllegalArgumentException();
+		}
+		if (property.isChildListProperty()) {
+			throw new IllegalArgumentException("Use the list rewriter to access nodes in a list"); //$NON-NLS-1$
+		}
+		return this.eventStore.getNewValue(node, property);
+	}
 
 	/**
 	 * Creates and returns a new rewriter for describing modifications to the
