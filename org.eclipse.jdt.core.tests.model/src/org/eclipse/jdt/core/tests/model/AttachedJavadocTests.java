@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -55,6 +56,9 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		super.setUpSuite();
 
 		this.project = setUpJavaProject("AttachedJavadocProject"); //$NON-NLS-1$
+		Map options = this.project.getOptions(true);
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
+		this.project.setOptions(options);
 		IClasspathEntry[] entries = this.project.getRawClasspath();
 		IResource resource = this.project.getProject().findMember("/doc/"); //$NON-NLS-1$
 		assertNotNull("doc folder cannot be null", resource); //$NON-NLS-1$
@@ -149,15 +153,12 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertTrue(method.exists());
 		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-		// TODO (olivier) reenable once 117740 is fixed
-		if (false) {
-			String[] paramNames = method.getParameterNames();
-			assertNotNull(paramNames);
-			assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
-			assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
-			assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
-			assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	// for a constructor
@@ -171,13 +172,10 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertTrue(method.exists());
 		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-		// TODO (olivier) reenable once 117740 is fixed
-		if (false) {
-			String[] paramNames = method.getParameterNames();
-			assertNotNull(paramNames);
-			assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
-			assertEquals("Wrong name for first param", "i", paramNames[0]);		 //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name for first param", "i", paramNames[0]);		 //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	// for a member type
