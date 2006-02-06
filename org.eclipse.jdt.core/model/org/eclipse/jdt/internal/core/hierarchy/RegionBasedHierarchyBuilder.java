@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 	
@@ -70,22 +71,27 @@ public void build(boolean computeSubtypes) {
 private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IProgressMonitor monitor) {
 	
 	int size = allOpenablesInRegion.size();
-	if (size != 0) {
-		this.infoToHandle = new HashMap(size);
+	if (size == 0) {
+		if (monitor != null) monitor.done();
+		return;
 	}
-	
+		
+	this.infoToHandle = new HashMap(size);
 	Iterator javaProjects = allOpenablesInRegion.keySet().iterator();
 	while (javaProjects.hasNext()) {
-		ArrayList allOpenables = (ArrayList) allOpenablesInRegion.get(javaProjects.next());
+		JavaProject project = (JavaProject) javaProjects.next();
+		ArrayList allOpenables = (ArrayList) allOpenablesInRegion.get(project);
 		Openable[] openables = new Openable[allOpenables.size()];
 		allOpenables.toArray(openables);
 	
 		try {
 			// resolve
 			if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-			if (size > 0) {
-				this.hierarchyResolver.resolve(openables, null, monitor);
-			}
+			SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.hierarchy.workingCopies);
+			this.nameLookup = searchableEnvironment.nameLookup;
+			this.hierarchyResolver.resolve(openables, null, monitor);
+		} catch (JavaModelException e) {
+			// project doesn't exit: ignore
 		} finally {
 			if (monitor != null) monitor.done();
 		}
