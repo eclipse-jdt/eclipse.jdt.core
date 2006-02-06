@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -48,6 +49,9 @@ public DefaultProblem(
 }
 
 public String errorReportSource(char[] unitSource) {
+	return errorReportSource(unitSource, 0);
+}
+public String errorReportSource(char[] unitSource, int tagBits) {
 	//extra from the source the innacurate     token
 	//and "highlight" it using some underneath ^^^^^
 	//put some context around too.
@@ -59,9 +63,12 @@ public String errorReportSource(char[] unitSource) {
 		|| ((this.startPosition < 0) && (this.endPosition < 0)))
 		return Messages.problem_noSourceInformation; 
 
-	StringBuffer errorBuffer = new StringBuffer(" "); //$NON-NLS-1$
-	errorBuffer.append(Messages.bind(Messages.problem_atLine, String.valueOf(this.line))); 
-	errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
+	StringBuffer errorBuffer = new StringBuffer();
+	if ((tagBits & Main.Logger.EMACS) == 0) {
+		errorBuffer.append(' ').append(Messages.bind(Messages.problem_atLine, String.valueOf(this.line))); 
+		errorBuffer.append(Util.LINE_SEPARATOR);
+	}
+	errorBuffer.append('\t');
 	
 	char c;
 	final char SPACE = '\u0020';
@@ -98,7 +105,6 @@ public String errorReportSource(char[] unitSource) {
 	}
 	return errorBuffer.toString();
 }
-
 /**
  * Answer back the original arguments recorded into the problem.
  * @return java.lang.String[]

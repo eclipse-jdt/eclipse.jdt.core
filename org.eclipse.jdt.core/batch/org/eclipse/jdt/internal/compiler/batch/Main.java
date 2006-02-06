@@ -262,7 +262,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			int startPosition = problem.getSourceStart();
 			int endPosition = problem.getSourceEnd();
 			if ((startPosition > endPosition)
-				|| ((startPosition < 0) && (endPosition < 0))) {
+					|| ((startPosition < 0) && (endPosition < 0))) {
 				this.parameters.put(VALUE, Messages.problem_noSourceInformation); 
 				this.parameters.put(SOURCE_START, "-1"); //$NON-NLS-1$
 				this.parameters.put(SOURCE_END, "-1"); //$NON-NLS-1$
@@ -508,6 +508,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						+ ": " //$NON-NLS-1$
 						+ problem.getMessage());
 				this.printlnErr(result);
+				this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource, this.tagBits));
 			} else {
 				if (localErrorCount == 0) {
 					this.printlnErr("----------"); //$NON-NLS-1$
@@ -521,16 +522,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 										"requestor.warning", //$NON-NLS-1$
 										Integer.toString(globalErrorCount),
 										new String(problem.getOriginatingFileName())));
-			}
-			try {
-				this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource));
-				if ((this.tagBits & EMACS) == 0) this.printlnErr(problem.getMessage());
-			} catch (Exception e) {
-				this.printlnErr(Main.bind(
-					"requestor.notRetrieveErrorMessage", problem.toString())); //$NON-NLS-1$
-			}
-			if ((this.tagBits & EMACS) == 0)
+				try {
+					this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource));
+					this.printlnErr(problem.getMessage());
+				} catch (Exception e) {
+					this.printlnErr(Main.bind(
+						"requestor.notRetrieveErrorMessage", problem.toString())); //$NON-NLS-1$
+				}
 				this.printlnErr("----------"); //$NON-NLS-1$
+			}
 		}
 		
 		/**
