@@ -52,6 +52,9 @@ public class FilerImpl implements Filer {
      */
     public PrintWriter createSourceFile(String typeName) throws IOException 
     {
+    	if (typeName == null || typeName.equals("")) { //$NON-NLS-1$
+    		throw new IllegalArgumentException("Cannot create a source file with the following name: " + typeName); //$NON-NLS-1$
+    	}
     	_env.checkValid();
         return new JavaSourceFilePrintWriter( typeName, new StringWriter(), _env ); 
     }
@@ -67,6 +70,9 @@ public class FilerImpl implements Filer {
      */
     public OutputStream createClassFile(String name) throws IOException 
     {
+    	if (name == null || name.equals("")) { //$NON-NLS-1$
+    		throw new IllegalArgumentException("Cannot create a class file with the following name: " + name); //$NON-NLS-1$
+    	}
     	_env.checkValid();
 		_generatedClassFiles = true;
 		
