@@ -2689,6 +2689,7 @@ class ASTConverter {
 			final SimpleName name = new SimpleName(this.ast);
 			name.internalSetIdentifier(new String(typeName[0]));
 			name.setSourceRange(typeReference.sourceStart, typeReference.sourceEnd - typeReference.sourceStart + 1);
+			name.index = 1;
 			if (this.resolveBindings) {
 				recordNodes(name, typeReference);
 			}
@@ -2742,6 +2743,7 @@ class ASTConverter {
 			final int start = (int)(positions[0]>>>32);
 			final int end = (int)(positions[0] & 0xFFFFFFFF);
 			name.setSourceRange(start, end - start + 1);
+			name.index = 1;
 			importDeclaration.setName(name);
 			if (this.resolveBindings) {
 				recordNodes(name, importReference);
@@ -2783,6 +2785,7 @@ class ASTConverter {
 			int start = (int)(positions[0]>>>32);
 			int end = (int)(positions[length - 1] & 0xFFFFFFFF);
 			name.setSourceRange(start, end - start + 1);
+			name.index = 1;
 			packageDeclaration.setName(name);
 			if (this.resolveBindings) {
 				recordNodes(name, compilationUnitDeclaration);
@@ -4893,6 +4896,7 @@ class ASTConverter {
 			int start = singleTypeReference.sourceStart;
 			int end = singleTypeReference.sourceEnd;
 			name.setSourceRange(start, end - start + 1);
+			name.index = 1;
 			annotation.setTypeName(name);
 			if (this.resolveBindings) {
 				recordNodes(name, typeReference);

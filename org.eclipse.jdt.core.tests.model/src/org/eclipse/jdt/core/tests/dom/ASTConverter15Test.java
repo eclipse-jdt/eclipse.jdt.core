@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 207 };
+//		TESTS_NUMBERS = new int[] { 209 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6313,4 +6313,50 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, pairs.length);
 		assertNotNull("Should not be null", pairs[0].getValue());
 	}
+	
+	public void test0209() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test/V.java", true/*resolve*/);
+		String contents =
+			"package test;\n" + 
+			"import pack.*;\n" + 
+			"public class V {\n" + 
+			"	void bar() {\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		@A3(\n" + 
+			"			annot = @A2(\n" + 
+			"				annot = @A1(value = E.CV, list = new E[] { E.CAV, E.CAV}, clazz = E.class),\n" + 
+			"				value = E.CV,\n" + 
+			"				list = new E[] { E.CAV, E.CAV},\n" + 
+			"				clazz = E.class),\n" + 
+			"			value = E.CV,\n" + 
+			"			list = new E[] { E.CAV, E.CAV},\n" + 
+			"			clazz = E.class)\n" + 
+			"		int x = 0;\n" + 
+			"		System.out.println(x);\n" + 
+			"		System.out.println(x + 1);\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		String problems =
+			"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
+			"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
+			"The array creation is unnecessary in an annotation value; only an array initializer is allowed";
+		assertProblemsSize(compilationUnit, 3, problems);
+		List imports = compilationUnit.imports();
+		assertEquals("wrong size", 1, imports.size());
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
+		Name name = importDeclaration.getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		SimpleName simpleName = (SimpleName) name;
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+	}	
 }
