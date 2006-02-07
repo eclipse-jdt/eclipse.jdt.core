@@ -27878,4 +27878,27 @@ public void test901() {
 		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Object[]\n" + 
 		"----------\n");
 }
+
+// circular references amongst generic interfaces with co-implementing classes
+public void test902() {
+	this.runConformTest(
+		new String[] {
+			"I.java",
+			"public interface I<U extends J<? extends I<U>>> {\n" + 
+			"}",
+			"J.java",
+			"public interface J<T extends I<? extends J<T>>> {\n" + 
+			"}",
+			"CI.java",
+			"class CI<U extends CJ<T, U> & J<T>,\n" + 
+			"			T extends CI<U, T> & I<U>>\n" + 
+			"	implements I<U> {\n" +
+			"}",
+			"CJ.java",
+			"class CJ<T extends CI<U, T> & I<U>,\n" +
+			"			U extends CJ<T, U> & J<T>>\n" +
+			"	implements J<T> {\n" +
+			"}"},
+		"");
+}
 }
