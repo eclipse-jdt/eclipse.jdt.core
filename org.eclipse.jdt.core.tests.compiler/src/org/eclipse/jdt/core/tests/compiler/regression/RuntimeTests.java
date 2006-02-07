@@ -123,6 +123,120 @@ public void test0500_synchronization() {
 	);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
+// reflection - access to a public method of a package visible
+// class through a public extending class
+public void _test0600_reflection() {
+	if (COMPLIANCE_1_3.equals(this.complianceLevel) ||
+			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.*;\n" + 
+				"import p.*;\n" + 
+				"public class X {\n" + 
+				"static public void main (String args[]) {\n" + 
+				"  Y y = new Y();\n" +
+				"  try {\n" +
+				"    Method foo = Y.class.getMethod(\"foo\", null);\n" +
+				"    foo.invoke(y, null);\n" +
+				"    y.foo();\n" +
+				"  }\n" +
+				"  catch (Throwable t) {\n" +
+				"    System.out.println(\"FAILURE: \" + t.getMessage());\n" +
+				"    t.printStackTrace(System.out);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends Z {\n" + 
+				"  /* empty */\n" + 
+				"}\n",
+				"p/Z.java",
+				"package p;\n" +
+				"class Z {\n" + 
+				"  public void foo() {\n" + 
+				"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" + 
+				"  }\n" + 
+				"}\n"},
+			"SUCCESS\nSUCCESS"
+		);
+	}
+	else {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.*;\n" + 
+				"import p.*;\n" + 
+				"public class X {\n" + 
+				"static public void main (String args[]) {\n" + 
+				"  Y y = new Y();\n" +
+				"  try {\n" +
+				"    Method foo = Y.class.getMethod(\"foo\");\n" +
+				"    foo.invoke(y);\n" +
+				"    y.foo();\n" +
+				"  }\n" +
+				"  catch (Throwable t) {\n" +
+				"    System.out.println(\"FAILURE: \" + t.getMessage());\n" +
+				"    t.printStackTrace(System.out);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends Z {\n" + 
+				"  /* empty */\n" + 
+				"}\n",
+				"p/Z.java",
+				"package p;\n" +
+				"class Z {\n" + 
+				"  public void foo() {\n" + 
+				"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" + 
+				"  }\n" + 
+				"}\n"},
+			"SUCCESS\nSUCCESS"
+		);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
+// reflection - access to a public field of a package visible
+// class through a public extending class
+public void _test0601_reflection() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.reflect.*;\n" + 
+			"import p.*;\n" + 
+			"public class X {\n" + 
+			"static public void main (String args[]) {\n" + 
+			"  Y y = new Y();\n" +
+			"  try {\n" +
+			"    Field f = Y.class.getField(\"m\");\n" +
+			"    System.out.println(y.m);\n" +
+			"    System.out.println(f.get(y));\n" +
+			"  }\n" +
+			"  catch (Throwable t) {\n" +
+			"    System.out.println(\"FAILURE: \" + t.getMessage());\n" +
+			"    t.printStackTrace(System.out);\n" +
+			"  }\n" + 
+			"}\n" + 
+			"}\n",
+			"p/Y.java",
+			"package p;\n" +
+			"public class Y extends Z {\n" + 
+			"  /* empty */\n" + 
+			"}\n",
+			"p/Z.java",
+			"package p;\n" +
+			"class Z {\n" + 
+			"  public String m = \"SUCCESS\";\n" + 
+			"}\n"},
+		"SUCCESS\nSUCCESS"
+	);
+}
+
 // partial rebuild - method signature changed (return type)
 public void test1000_partial_rebuild() {
 	this.runConformTest(
