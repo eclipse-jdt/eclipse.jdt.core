@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Tim Hanson (thanson@bea.com) - patch for https://bugs.eclipse.org/bugs/show_bug.cgi?id=126673
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -106,7 +107,9 @@ public void close() {
 		this.flags |= F_IS_CLOSED;
 	}
 	notifyChanged(event); // notify outside of synchronized block
-	this.changeListeners = null;
+	synchronized(this) { // ensure that no other thread is adding/removing a listener at the same time (https://bugs.eclipse.org/bugs/show_bug.cgi?id=126673)
+		this.changeListeners = null;
+	}
 }
 /**
  * @see IBuffer
