@@ -1034,8 +1034,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
 				break;
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :
-				// TODO (olivier) might want to add an option for annotation type
-				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
+				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_annotation_declaration_header;
 				break;
 			default:
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
@@ -1130,8 +1129,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 				break;
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :
-				// TODO (olivier) might want an option for annotation type
-				if (this.preferences.insert_new_line_in_empty_type_declaration) {
+				if (this.preferences.insert_new_line_in_empty_annotation_declaration) {
 					this.scribe.printNewLine();
 				}
 				break;

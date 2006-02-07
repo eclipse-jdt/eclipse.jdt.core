@@ -916,8 +916,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		final List bodyDeclarations = node.bodyDeclarations();
 		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, bodyDeclarations.size() != 0, node);
 		
-		// TODO (olivier) might want to add an option for annotation type
-		boolean indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
+		boolean indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_annotation_declaration_header;
 		if (indent_body_declarations_compare_to_header) {
 			this.scribe.indent();
 		}
@@ -928,8 +927,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.unIndent();
 		}
 		
-		// TODO (olivier) might want an option for annotation type
-		if (this.preferences.insert_new_line_in_empty_type_declaration) {
+		if (this.preferences.insert_new_line_in_empty_annotation_declaration) {
 			this.scribe.printNewLine();
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
@@ -1899,7 +1897,6 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 							if (this.preferences.insert_space_after_comma_in_for_inits) {
 								this.scribe.space();
 							}
-							// TODO (olivier) need to check why we need this here
 							this.scribe.printTrailingComment();
 						}
 				}
@@ -1963,7 +1960,6 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 					 * statement
 					 */
 					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, this.preferences.insert_space_before_opening_brace_in_block);
-					// TODO (olivier) might need an option for this
 					this.scribe.space();
 					((Statement) statements.get(0)).accept(this);
 					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, true);
@@ -2601,9 +2597,11 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	}
 
 	public boolean visit(NumberLiteral node) {
-		// TODO (olivier) possible option for space
 		if (isNextToken(TerminalTokens.TokenNameMINUS)) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS, this.preferences.insert_space_before_unary_operator);
+			if (this.preferences.insert_space_after_unary_operator) {
+				this.scribe.space();
+			}
 		}
 		this.scribe.printNextToken(NUMBER_LITERALS_EXPECTEDTOKENS); 
 		return false;

@@ -108,6 +108,7 @@ public class DefaultCodeFormatterOptions {
 	
 	public boolean indent_statements_compare_to_block;
 	public boolean indent_statements_compare_to_body;
+	public boolean indent_body_declarations_compare_to_annotation_declaration_header;
 	public boolean indent_body_declarations_compare_to_enum_constant_header;
 	public boolean indent_body_declarations_compare_to_enum_declaration_header;
 	public boolean indent_body_declarations_compare_to_type_header;
@@ -127,6 +128,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_before_while_in_do_statement;
 	public boolean insert_new_line_in_empty_anonymous_type_declaration;
 	public boolean insert_new_line_in_empty_block;
+	public boolean insert_new_line_in_empty_annotation_declaration;	
 	public boolean insert_new_line_in_empty_enum_constant;
 	public boolean insert_new_line_in_empty_enum_declaration;
 	public boolean insert_new_line_in_empty_method_body;
@@ -374,6 +376,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY, Integer.toString(this.blank_lines_at_beginning_of_method_body));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK, this.indent_statements_compare_to_block ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY, this.indent_statements_compare_to_body ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ANNOTATION_DECLARATION_HEADER, this.indent_body_declarations_compare_to_annotation_declaration_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_CONSTANT_HEADER, this.indent_body_declarations_compare_to_enum_constant_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_DECLARATION_HEADER, this.indent_body_declarations_compare_to_enum_declaration_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, this.indent_body_declarations_compare_to_type_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -392,6 +395,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT, this.insert_new_line_before_while_in_do_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION, this.insert_new_line_in_empty_anonymous_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, this.insert_new_line_in_empty_block? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANNOTATION_DECLARATION, this.insert_new_line_in_empty_annotation_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ENUM_CONSTANT, this.insert_new_line_in_empty_enum_constant? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ENUM_DECLARATION, this.insert_new_line_in_empty_enum_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY, this.insert_new_line_in_empty_method_body? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1051,6 +1055,10 @@ public class DefaultCodeFormatterOptions {
 		if (indentStatementsCompareToBodyOption != null) {
 			this.indent_statements_compare_to_body = DefaultCodeFormatterConstants.TRUE.equals(indentStatementsCompareToBodyOption);
 		}
+		final Object indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ANNOTATION_DECLARATION_HEADER);
+		if (indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption != null) {
+			this.indent_body_declarations_compare_to_annotation_declaration_header = DefaultCodeFormatterConstants.TRUE.equals(indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption);
+		}
 		final Object indentBodyDeclarationsCompareToEnumConstantHeaderOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_CONSTANT_HEADER);
 		if (indentBodyDeclarationsCompareToEnumConstantHeaderOption != null) {
 			this.indent_body_declarations_compare_to_enum_constant_header = DefaultCodeFormatterConstants.TRUE.equals(indentBodyDeclarationsCompareToEnumConstantHeaderOption);
@@ -1128,6 +1136,10 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineInEmptyBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK);
 		if (insertNewLineInEmptyBlockOption != null) {
 			this.insert_new_line_in_empty_block = JavaCore.INSERT.equals(insertNewLineInEmptyBlockOption);
+		}
+		final Object insertNewLineInEmptyAnnotationDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANNOTATION_DECLARATION);
+		if (insertNewLineInEmptyAnnotationDeclarationOption != null) {
+			this.insert_new_line_in_empty_annotation_declaration = JavaCore.INSERT.equals(insertNewLineInEmptyAnnotationDeclarationOption);
 		}
 		final Object insertNewLineInEmptyEnumConstantOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ENUM_CONSTANT);
 		if (insertNewLineInEmptyEnumConstantOption != null) {
@@ -1889,6 +1901,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_at_beginning_of_method_body = 0;
 		this.indent_statements_compare_to_block = true;
 		this.indent_statements_compare_to_body = true;
+		this.indent_body_declarations_compare_to_annotation_declaration_header = true;
 		this.indent_body_declarations_compare_to_enum_constant_header = true;
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
@@ -1907,6 +1920,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_before_while_in_do_statement = false;
 		this.insert_new_line_in_empty_anonymous_type_declaration = true;
 		this.insert_new_line_in_empty_block = true;
+		this.insert_new_line_in_empty_annotation_declaration = true;
 		this.insert_new_line_in_empty_enum_constant = true;
 		this.insert_new_line_in_empty_enum_declaration = true;
 		this.insert_new_line_in_empty_method_body = true;
@@ -2141,6 +2155,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_at_beginning_of_method_body = 0;
 		this.indent_statements_compare_to_block = true;
 		this.indent_statements_compare_to_body = true;
+		this.indent_body_declarations_compare_to_annotation_declaration_header = true;
 		this.indent_body_declarations_compare_to_enum_constant_header = true;
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
@@ -2159,6 +2174,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_before_while_in_do_statement = false;
 		this.insert_new_line_in_empty_anonymous_type_declaration = true;
 		this.insert_new_line_in_empty_block = true;
+		this.insert_new_line_in_empty_annotation_declaration = true;
 		this.insert_new_line_in_empty_enum_constant = true;
 		this.insert_new_line_in_empty_enum_declaration = true;
 		this.insert_new_line_in_empty_method_body = true;
