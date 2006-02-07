@@ -807,6 +807,9 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				case ASTNode.ANONYMOUS_CLASS_DECLARATION :
 					insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
 					break;
+				case ASTNode.ANNOTATION_TYPE_DECLARATION :
+					insertNewLine = this.preferences.insert_new_line_in_empty_annotation_declaration;
+					break;
 				default:
 					insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;
 			}
