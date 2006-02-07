@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -270,28 +271,39 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 }
 public void acceptLocalMethod(MethodBinding methodBinding) {
 	IJavaElement res = findLocalElement(methodBinding.sourceStart());
-	if(res != null && res.getElementType() == IJavaElement.METHOD) {
-		IMethod method = (IMethod) res;
-		
-		char[] uniqueKey = methodBinding.computeUniqueKey();
-		if(method.isBinary()) {
-			res = new ResolvedBinaryMethod(
-					(JavaElement)res.getParent(),
-					method.getElementName(),
-					method.getParameterTypes(), 
-					new String(uniqueKey));
-		} else {
-			res = new ResolvedSourceMethod(
-					(JavaElement)res.getParent(),
-					method.getElementName(),
-					method.getParameterTypes(), 
-					new String(uniqueKey));
-		}
-		addElement(res);
-		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-			System.out.print(res.toString());
-			System.out.println(")"); //$NON-NLS-1$
+	if(res != null) {
+		if(res.getElementType() == IJavaElement.METHOD) {
+			IMethod method = (IMethod) res;
+			
+			char[] uniqueKey = methodBinding.computeUniqueKey();
+			if(method.isBinary()) {
+				res = new ResolvedBinaryMethod(
+						(JavaElement)res.getParent(),
+						method.getElementName(),
+						method.getParameterTypes(), 
+						new String(uniqueKey));
+			} else {
+				res = new ResolvedSourceMethod(
+						(JavaElement)res.getParent(),
+						method.getElementName(),
+						method.getParameterTypes(), 
+						new String(uniqueKey));
+			}
+			addElement(res);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+				System.out.print(res.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		} else if(methodBinding.selector == TypeConstants.INIT && res.getElementType() == IJavaElement.TYPE) {
+			// it's a default constructor
+			res = new ResolvedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(methodBinding.declaringClass.computeUniqueKey()));
+			addElement(res);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+				System.out.print(res.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 	}
 }

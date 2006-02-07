@@ -535,6 +535,28 @@ public void testLocalClass7() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=126227
+ */
+public void testLocalClass8() throws JavaModelException {
+	// select the default constructor of a local class
+	IJavaElement[] elements = select(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test\n" +
+			"  void foo() {\n" +
+			"    class LocalClass {}\n" +
+			"    Object o = new LocalClass();\n" +
+			"  }\n" +
+			"}\n",
+			"LocalClass");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"LocalClass [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+		elements
+	);
+}
 /**
  * Resolve a local constructor
  */
