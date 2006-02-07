@@ -1234,7 +1234,7 @@ public void test077() throws JavaModelException {
 		"		return null;\n" + 
 		"	}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", -1); // last position
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "xstr", 2);
 	assertResults("");
 }
 

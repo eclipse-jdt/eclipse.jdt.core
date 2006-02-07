@@ -79,7 +79,7 @@ public final class NamingConventions {
 		// for acceptNameWithoutPrefixAndSuffix
 		private char[][] otherResults = new char[SIZE][];
 		private int otherResultsCount = 0;
-		public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix) {
+		public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix, int reusedCharacters) {
 			if(isFirstPrefix && isFirstSuffix) {
 				int length = this.firstPrefixAndFirstSuffixResults.length;
 				if(length == this.firstPrefixAndFirstSuffixResultsCount) {
@@ -127,7 +127,7 @@ public final class NamingConventions {
 			}
 		}
 
-		public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix) {
+		public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix, int reusedCharacters) {
 			if(isFirstPrefix) {
 				int length = this.firstPrefixResults.length;
 				if(length == this.firstPrefixResultsCount) {
@@ -153,7 +153,7 @@ public final class NamingConventions {
 			}
 		}
 
-		public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix) {
+		public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix, int reusedCharacters) {
 			if(isFirstSuffix) {
 				int length = this.firstSuffixResults.length;
 				if(length == this.firstSuffixResultsCount) {
@@ -179,7 +179,7 @@ public final class NamingConventions {
 			}
 		}
 
-		public void acceptNameWithoutPrefixAndSuffix(char[] name) {
+		public void acceptNameWithoutPrefixAndSuffix(char[] name, int reusedCharacters) {
 			int length = this.otherResults.length;
 			if(length == this.otherResultsCount) {
 				System.arraycopy(
@@ -490,6 +490,7 @@ public final class NamingConventions {
 			packageName,
 			qualifiedTypeName,
 			dim,
+			null,
 			excludedNames,
 			requestor);
 
@@ -573,6 +574,7 @@ public final class NamingConventions {
 			qualifiedTypeName,
 			dim,
 			modifiers,
+			null,
 			excludedNames,
 			requestor);
 
@@ -657,6 +659,7 @@ public final class NamingConventions {
 			packageName,
 			qualifiedTypeName,
 			dim,
+			null,
 			excludedNames,
 			requestor);
 

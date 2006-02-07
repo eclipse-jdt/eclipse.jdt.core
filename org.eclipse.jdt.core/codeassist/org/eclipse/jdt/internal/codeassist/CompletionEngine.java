@@ -5559,28 +5559,31 @@ public final class CompletionEngine
 		final char[] t = token;
 		final char[] q = qualifiedPackageName;
 		INamingRequestor namingRequestor = new INamingRequestor() {
-			public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix) {
-				accept(	name,
-					(isFirstPrefix ? R_NAME_FIRST_PREFIX : R_NAME_PREFIX) + (isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX));
+			public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix, int reusedCharacters) {
+				accept(
+						name,
+						(isFirstPrefix ? R_NAME_FIRST_PREFIX : R_NAME_PREFIX) + (isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX),
+						reusedCharacters);
 			}
 
-			public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix) {
-				accept(name, isFirstPrefix ? R_NAME_FIRST_PREFIX :  R_NAME_PREFIX);
+			public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix, int reusedCharacters) {
+				accept(name, isFirstPrefix ? R_NAME_FIRST_PREFIX :  R_NAME_PREFIX, reusedCharacters);
 			}
 
-			public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix) {
-				accept(name, isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX);
+			public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix, int reusedCharacters) {
+				accept(name, isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX, reusedCharacters);
 			}
 
-			public void acceptNameWithoutPrefixAndSuffix(char[] name) {
-				accept(name, 0);
+			public void acceptNameWithoutPrefixAndSuffix(char[] name,int reusedCharacters) {
+				accept(name, 0, reusedCharacters);
 			}
-			void accept(char[] name, int prefixAndSuffixRelevance){
+			void accept(char[] name, int prefixAndSuffixRelevance, int reusedCharacters){
 				if (CharOperation.prefixEquals(t, name, false)) {
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(t, name);
 					relevance += prefixAndSuffixRelevance;
+					if(reusedCharacters > 0) relevance += R_NAME_LESS_NEW_CHARACTERS;
 					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
 					
 					// accept result
@@ -5612,6 +5615,7 @@ public final class CompletionEngine
 					qualifiedSourceName,
 					dim,
 					modifiers,
+					token,
 					excludeNames,
 					namingRequestor);
 				break;
@@ -5621,6 +5625,7 @@ public final class CompletionEngine
 					qualifiedPackageName,
 					qualifiedSourceName,
 					dim,
+					token,
 					excludeNames,
 					namingRequestor);
 				break;
@@ -5630,6 +5635,7 @@ public final class CompletionEngine
 					qualifiedPackageName,
 					qualifiedSourceName,
 					dim,
+					token,
 					excludeNames,
 					namingRequestor);
 				break;
