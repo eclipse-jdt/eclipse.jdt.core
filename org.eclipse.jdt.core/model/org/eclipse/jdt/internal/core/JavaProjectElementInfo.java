@@ -210,7 +210,12 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				IPackageFragmentRoot root = roots[i];
 				IJavaElement[] frags = null;
 				try {
-					frags = root.getChildren();
+					if (root.isArchive() && !root.isOpen()) {
+						JarPackageFragmentRootInfo info = new JarPackageFragmentRootInfo();
+						((JarPackageFragmentRoot) root).computeChildren(info, new HashMap());
+						frags = info.children;
+					} else 
+						frags = root.getChildren();
 				} catch (JavaModelException e) {
 					// root doesn't exist: ignore
 					continue;
@@ -287,6 +292,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	void resetCaches() {
 		this.projectCache = null;
+		JavaModelManager.getJavaModelManager().resetJarTypeCache();
 	}
 	
 	/**

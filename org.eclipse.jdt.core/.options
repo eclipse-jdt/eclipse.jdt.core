@@ -26,10 +26,10 @@ org.eclipse.jdt.core/debug/indexmanager=false
 org.eclipse.jdt.core/debug/javadelta=false
 org.eclipse.jdt.core/debug/javadelta/verbose=false
 
-# Reports Java model elements opening/closing
+# Reports various Java model activities
 org.eclipse.jdt.core/debug/javamodel=false
 
-# Reports Java model cache flushing
+# Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel/cache=false
 
 # Reports post actions addition/run

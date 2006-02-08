@@ -374,7 +374,7 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 			"Focus: Y [in Y.class [in p [in " + externalJar2 + " [in P]]]]\n" + 
 			"Super types:\n" + 
 			"  X [in X.class [in p [in " + externalJar1 + " [in P]]]]\n" + 
-			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P]]]]\n" + 
 			"Sub types:\n",
 			focus.newTypeHierarchy(null)
 		);
@@ -721,7 +721,16 @@ public void testRegion4() throws CoreException {
 			"Sub types of root classes:\n" + 
 			"  X [in X.java [in <default> [in <project root> [in P1]]]]\n" + 
 			"    Z [in Z.java [in <default> [in <project root> [in P3]]]]\n" + 
-			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
+			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n" + 
+			"  Throwable [in Throwable.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"    Exception [in Exception.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"        IllegalMonitorStateException [in IllegalMonitorStateException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      CloneNotSupportedException [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"    Error [in Error.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"  String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"  Class [in Class.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n",
 			hierarchy);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
@@ -753,7 +762,7 @@ public void testMemberTypeSubtypeDifferentProject() throws CoreException {
 		assertHierarchyEquals(
 			"Focus: Member [in X [in X.java [in <default> [in <project root> [in P1]]]]]\n" + 
 			"Super types:\n" + 
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P2]]]]\n" + 
 			"Sub types:\n" + 
 			"  Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
 			hierarchy);

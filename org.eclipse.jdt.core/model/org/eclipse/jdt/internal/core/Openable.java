@@ -190,7 +190,7 @@ public String findRecommendedLineSeparator() throws JavaModelException {
 }
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 
-	if (JavaModelManager.VERBOSE){
+	if (JavaModelCache.VERBOSE){
 		String element;
 		switch (getElementType()) {
 			case JAVA_PROJECT:
@@ -236,8 +236,8 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	// remove out of sync buffer for this element
 	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 
-	if (JavaModelManager.VERBOSE) {
-		System.out.println(JavaModelManager.getJavaModelManager().cache.toStringFillingRation("-> ")); //$NON-NLS-1$
+	if (JavaModelCache.VERBOSE) {
+		System.out.println(JavaModelManager.getJavaModelManager().cacheToString("-> ")); //$NON-NLS-1$
 	}
 }
 /**

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.util.LRUCache;
 
 /**
  * The cache of java elements to their respective info.
@@ -26,6 +27,8 @@ public class JavaModelCache {
 	public static final int DEFAULT_OPENABLE_SIZE = 500; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
 	public static final int DEFAULT_CHILDREN_SIZE = 500*20; // average 20 children per openable
 	
+	public static final Object NON_EXISTING_JAR_TYPE_INFO = new Object();
+
 	/*
 	 * The memory ratio that should be applied to the above constants.
 	 */
@@ -61,6 +64,11 @@ public class JavaModelCache {
 	 */
 	protected Map childrenCache;
 	
+	/*
+	 * Cache of open binary type (inside a jar) that have a non-open parent
+	 */
+	protected LRUCache jarTypeCache;
+	
 public JavaModelCache() {
 	// set the size of the caches in function of the maximum amount of memory available
 	double ratio = getMemoryRatio();
@@ -75,6 +83,7 @@ public JavaModelCache() {
 		this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio));
 	}
 	this.childrenCache = new HashMap((int) (DEFAULT_CHILDREN_SIZE * ratio));
+	resetJarTypeCache();
 }
 
 /**
@@ -93,6 +102,12 @@ public Object getInfo(IJavaElement element) {
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.get(element);
+		case IJavaElement.TYPE:
+			Object result = this.jarTypeCache.get(element);
+			if (result != null)
+				return result;
+			else
+				return this.childrenCache.get(element);
 		default:
 			return this.childrenCache.get(element);
 	}
@@ -125,6 +140,12 @@ protected Object peekAtInfo(IJavaElement element) {
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.peek(element);
+		case IJavaElement.TYPE:
+			Object result = this.jarTypeCache.peek(element);
+			if (result != null)
+				return result;
+			else
+				return this.childrenCache.get(element);
 		default:
 			return this.childrenCache.get(element);
 	}
@@ -186,6 +207,12 @@ protected void removeInfo(JavaElement element) {
 			this.childrenCache.remove(element);
 	}
 }
+protected void resetJarTypeCache() {
+	this.jarTypeCache = new LRUCache((int) (DEFAULT_OPENABLE_SIZE * getMemoryRatio()));
+}
+public String toString() {
+	return toStringFillingRation(""); //$NON-NLS-1$
+}
 public String toStringFillingRation(String prefix) {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(prefix);
@@ -200,6 +227,9 @@ public String toStringFillingRation(String prefix) {
 	buffer.append('\n');
 	buffer.append(prefix);
 	buffer.append(this.openableCache.toStringFillingRation("Openable cache")); //$NON-NLS-1$
+	buffer.append('\n');
+	buffer.append(prefix);
+	buffer.append(this.jarTypeCache.toStringFillingRation("Jar type cache")); //$NON-NLS-1$
 	buffer.append('\n');
 	return buffer.toString();
 }

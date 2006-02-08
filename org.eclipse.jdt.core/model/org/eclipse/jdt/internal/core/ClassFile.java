@@ -174,6 +174,39 @@ public boolean equals(Object o) {
 public boolean exists() {
 	return super.exists() && validateClassFile().isOK();
 }
+public boolean existsUsingJarTypeCache() {
+	if (getPackageFragmentRoot().isArchive()) {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IType type = getType();
+		Object info = manager.getInfo(type);
+		if (info == JavaModelCache.NON_EXISTING_JAR_TYPE_INFO)
+			return false;
+		else if (info != null)
+			return true;
+		JavaElementInfo parentInfo = (JavaElementInfo) manager.getInfo(getParent());
+		if (parentInfo != null) {
+			// if parent is open, this class file must be in its children
+			IJavaElement[] children = parentInfo.getChildren();
+			for (int i = 0, length = children.length; i < length; i++) {
+				if (this.name.equals(((ClassFile) children[i]).name))
+					return true;
+			}
+			return false;
+		}
+		try {
+			info = getJarBinaryTypeInfo((PackageFragment) getParent());
+		} catch (CoreException e) {
+			info = null;
+		} catch (IOException e) {
+			info = null;
+		} catch (ClassFormatException e) {
+			info = null;
+		}
+		manager.putJarTypeInfo(type, info == null ? JavaModelCache.NON_EXISTING_JAR_TYPE_INFO : info);
+		return info != null;
+	} else
+		return exists();
+}
 
 /**
  * Finds the deepest <code>IJavaElement</code> in the hierarchy of
@@ -217,25 +250,10 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
  * or when this class file is not present in the JAR
  */
 public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
-	JavaElement le = (JavaElement) getParent();
-	if (le instanceof JarPackageFragment) {
+	JavaElement pkg = (JavaElement) getParent();
+	if (pkg instanceof JarPackageFragment) {
 		try {
-			JarPackageFragmentRoot root = (JarPackageFragmentRoot) le.getParent();
-			IBinaryType info = null;
-			ZipFile zip = null;
-			try {
-				zip = root.getJar();
-				PackageFragment pkg = (PackageFragment) le;
-				String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-				ZipEntry ze = zip.getEntry(entryName);
-				if (ze != null) {
-					byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
-					String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-					info = new ClassFileReader(contents, fileName.toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
-				}
-			} finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(zip);
-			}
+			IBinaryType info = getJarBinaryTypeInfo((PackageFragment) pkg);
 			if (info == null) {
 				throw newNotPresentException();
 			}
@@ -264,6 +282,23 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			return null;
 		}
 	}
+}
+private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg) throws CoreException, IOException, ClassFormatException {
+	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
+	ZipFile zip = null;
+	try {
+		zip = root.getJar();
+		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
+		ZipEntry ze = zip.getEntry(entryName);
+		if (ze != null) {
+			byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+			String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+			return new ClassFileReader(contents, fileName.toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
+		}
+	} finally {
+		JavaModelManager.getJavaModelManager().closeZipFile(zip);
+	}
+	return null;
 }
 public IBuffer getBuffer() throws JavaModelException {
 	if (validateClassFile().isOK()) {

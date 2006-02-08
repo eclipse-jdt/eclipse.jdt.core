@@ -817,7 +817,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Infos cache.
 	 */
-	public JavaModelCache cache;
+	private JavaModelCache cache;
 	
 	/*
 	 * Temporary cache of newly opened elements
@@ -2464,6 +2464,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.cache.putInfo(element, info);
 		}
 	}
+	
+	/*
+	 * Remember the info for the jar binary type
+	 */
+	protected synchronized void putJarTypeInfo(IJavaElement type, Object info) {
+		this.cache.jarTypeCache.put(type, info);
+	}
 
 	/**
 	 * Reads the build state for the relevant project.
@@ -2569,7 +2576,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (info != null) {
 			boolean wasVerbose = false;
 			try {
-				if (VERBOSE) {
+				if (JavaModelCache.VERBOSE) {
 					String elementType;
 					switch (element.getElementType()) {
 						case IJavaElement.JAVA_PROJECT:
@@ -2592,7 +2599,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					}
 					System.out.println(Thread.currentThread() + " CLOSING "+ elementType + " " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
 					wasVerbose = true;
-					VERBOSE = false;
+					JavaModelCache.VERBOSE = false;
 				}
 				element.closing(info);
 				if (element instanceof IParent && info instanceof JavaElementInfo) {
@@ -2607,7 +2614,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					System.out.println(this.cache.toStringFillingRation("-> ")); //$NON-NLS-1$
 				}
 			} finally {
-				JavaModelManager.VERBOSE = wasVerbose;
+				JavaModelCache.VERBOSE = wasVerbose;
 			}
 			return info;
 		}
@@ -2653,6 +2660,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static final void doNotUse() {
 		// used by tests to simulate a startup
 		MANAGER = new JavaModelManager();
+	}
+	
+	/*
+	 * Resets the cache that holds on binary type in jar files
+	 */
+	protected synchronized void resetJarTypeCache() {
+		this.cache.resetJarTypeCache();
 	}
 
 	/*
@@ -3929,5 +3943,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void contentTypeChanged(ContentTypeChangeEvent event) {
 		Util.resetJavaLikeExtensions();
 		
+	}
+
+	public synchronized String cacheToString(String prefix) {
+		return this.cache.toStringFillingRation(prefix);
 	}
 }

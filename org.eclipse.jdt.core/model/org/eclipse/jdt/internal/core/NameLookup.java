@@ -534,7 +534,7 @@ public class NameLookup implements SuffixConstants {
 	 * Find secondary type for a project.
 	 */
 	private IType findSecondaryType(String packageName, String typeName, IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) {
-		if (VERBOSE) {
+		if (JavaModelManager.VERBOSE) {
 			Util.verbose("NameLookup FIND SECONDARY TYPES:"); //$NON-NLS-1$
 			Util.verbose(" -> pkg name: " + packageName);  //$NON-NLS-1$
 			Util.verbose(" -> type name: " + typeName);  //$NON-NLS-1$
@@ -549,7 +549,7 @@ public class NameLookup implements SuffixConstants {
 				if (types != null && types.size() > 0) {
 					IType type = (IType) types.get(typeName);
 					if (type != null) {
-						if (VERBOSE) {
+						if (JavaModelManager.VERBOSE) {
 							Util.verbose(" -> type: " + type.getElementName());  //$NON-NLS-1$
 						}
 						return type;
@@ -936,27 +936,24 @@ public class NameLookup implements SuffixConstants {
 		if (VERBOSE)
 			start = System.currentTimeMillis();
 		try {
-			IClassFile[] classFiles= null;
-			try {
-				classFiles= pkg.getClassFiles();
-			} catch (JavaModelException npe) {
-				return; // the package is not present
-			}
-			int length= classFiles.length;
 			if (!partialMatch) {
 				// exact match
-				for (int i= 0; i < length; i++) {
-					if (requestor.isCanceled()) return;
-					ClassFile classFile= (ClassFile) classFiles[i];
-					if (name.equals(classFile.name)) { // ClassFile#name contains the name of the .class file without the .class extension
-						IType type = classFile.getType();
-						if (acceptType(type, acceptFlags, false/*not a source type*/)) {
-							requestor.acceptType(type);
-							break;  // since an exact match was requested, no other matching type can exist
-						}
+				if (requestor.isCanceled()) return;
+				ClassFile classFile =  new ClassFile((PackageFragment) pkg, name);
+				if (classFile.existsUsingJarTypeCache()) {
+					IType type = classFile.getType();
+					if (acceptType(type, acceptFlags, false/*not a source type*/)) {
+						requestor.acceptType(type);
 					}
 				}
 			} else {
+				IClassFile[] classFiles= null;
+				try {
+					classFiles= pkg.getClassFiles();
+				} catch (JavaModelException npe) {
+					return; // the package is not present
+				}
+				int length= classFiles.length;
 				String unqualifiedName = name;
 				int index = name.lastIndexOf('$');
 				if (index != -1) {

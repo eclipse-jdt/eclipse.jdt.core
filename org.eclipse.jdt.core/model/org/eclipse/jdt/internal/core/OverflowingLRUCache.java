@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.text.NumberFormat;
 import java.util.Enumeration;
 import java.util.Iterator;
 
@@ -199,20 +198,6 @@ public double getLoadFactor() {
 	 * Returns a new instance of the reciever.
 	 */
 	protected abstract LRUCache newInstance(int size, int overflow);
-	/**
-	 * Answers the value in the cache at the given key.
-	 * If the value is not in the cache, returns null
-	 *
-	 * This function does not modify timestamps.
-	 */
-	public Object peek(Object key) {
-		
-		LRUCacheEntry entry = (LRUCacheEntry) fEntryTable.get(key);
-		if (entry == null) {
-			return null;
-		}
-		return entry._fValue;
-	}
 /**
  * For testing purposes only
  */
@@ -413,8 +398,8 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
  */
 public String toString() {
 	return 
-		"OverflowingLRUCache " + NumberFormat.getInstance().format(this.fillingRatio()) + "% full\n" + //$NON-NLS-1$ //$NON-NLS-2$
-		this.toStringContents();
+		toStringFillingRation("OverflowingLRUCache ") + //$NON-NLS-1$
+		toStringContents();
 }
 /**
  * Updates the timestamp for the given entry, ensuring that the queue is 

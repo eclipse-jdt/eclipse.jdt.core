@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.text.NumberFormat;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.LRUCache;
@@ -96,13 +94,4 @@ protected void resetSpaceLimit(int defaultLimit, IJavaElement parent) {
 	}
 }
 
-public String toStringFillingRation(String cacheName) {
-	StringBuffer buffer = new StringBuffer(cacheName);
-	buffer.append('[');
-	buffer.append(getSpaceLimit());
-	buffer.append("]: "); //$NON-NLS-1$
-	buffer.append(NumberFormat.getInstance().format(fillingRatio()));
-	buffer.append("% full"); //$NON-NLS-1$
-	return buffer.toString();
-}
 }
