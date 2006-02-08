@@ -171,9 +171,11 @@ public IClassFile getClassFile(String classFileName) {
 		throw new IllegalArgumentException(Messages.element_invalidClassFileName); 
 	}
 	// don't hold on the .class file extension to save memory
-	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-	String nameWithoutExtension = new String(classFileName.substring(0, classFileName.length() - 6)); // don't hold on the .class file extension to save memory
-	return new ClassFile(this, nameWithoutExtension);
+	// also make sure to not use substring as the resulting String may hold on the underlying char[] which might be much bigger than necessary
+	int length = classFileName.length() - 6;
+	char[] nameWithoutExtension = new char[length];
+	classFileName.getChars(0, length, nameWithoutExtension, 0);
+	return new ClassFile(this, new String(nameWithoutExtension));
 }
 /**
  * Returns a the collection of class files in this - a folder package fragment which has a root
