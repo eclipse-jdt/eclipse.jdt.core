@@ -292,38 +292,36 @@ public class JavaModelManager implements ISaveParticipant {
 			if (extension == null) 
 				return;
 			IExtension[] extensions = extension.getExtensions();
-			for(int iExtension = 0; iExtension < extensions.length; iExtension++){
-				// for all extensions of this point...
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					// for all config elements named "compilationParticipant"
-					for(int j = 0; j < configElements.length; j++){
-						String elementName = configElements[j].getName();
-						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
-							continue;
-						}
-						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
+			// for all extensions of this point...
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+				// for all config elements named "compilationParticipant"
+				for(int j = 0; j < configElements.length; j++){
+					String elementName = configElements[j].getName();
+					if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
+						continue;
+					}
+					String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
 
-						String loadEarlyStr = configElements[j].getAttribute("loadEarly"); //$NON-NLS-1$ - name of attribute
-						boolean loadEarly = Boolean.valueOf(loadEarlyStr).booleanValue();
-						if (loadEarly == early) {
-							try {
-								Integer eventMask;
-								if (null != eventMaskStr) {
-									eventMask = Integer.decode(eventMaskStr);
-								}
-								else {
-									// if mask is unspecified, send it all events
-									eventMask = new Integer(-1); 
-								}
-								Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-								if (execExt instanceof CompilationParticipant){
-									pluginCPs.put(execExt, eventMask);
-								}
-							} catch(CoreException e) {
-								// TODO: what is the right way to handle exceptions?
-								e.printStackTrace();
+					String loadEarlyStr = configElements[j].getAttribute("loadEarly"); //$NON-NLS-1$ - name of attribute
+					boolean loadEarly = Boolean.valueOf(loadEarlyStr).booleanValue();
+					if (loadEarly == early) {
+						try {
+							Integer eventMask;
+							if (null != eventMaskStr) {
+								eventMask = Integer.decode(eventMaskStr);
 							}
+							else {
+								// if mask is unspecified, send it all events
+								eventMask = new Integer(-1); 
+							}
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+							if (execExt instanceof CompilationParticipant){
+								pluginCPs.put(execExt, eventMask);
+							}
+						} catch(CoreException e) {
+							// TODO: what is the right way to handle exceptions?
+							e.printStackTrace();
 						}
 					}
 				}
