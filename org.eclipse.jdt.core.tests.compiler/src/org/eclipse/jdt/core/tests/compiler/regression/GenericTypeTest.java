@@ -27901,4 +27901,50 @@ public void test902() {
 			"}"},
 		"");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
+// extraneous bound mismatch error
+// this order is OK
+public void test903() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T extends J<T,U>, U extends I<T,U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"interface J<T extends J<T,U>, U extends I<T,U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"final class Y<T, U> extends X<T, U> implements I<X<T, U>, Y<T, U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"abstract class X<T, U> implements J<X<T, U>, Y<T, U>> {\n" + 
+			"    // empty\n" + 
+			"}\n"
+			},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
+// extraneous bound mismatch error
+// this order is KO (X before Y)
+public void _test904() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T extends J<T,U>, U extends I<T,U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"interface J<T extends J<T,U>, U extends I<T,U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"abstract class X<T, U> implements J<X<T, U>, Y<T, U>> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"final class Y<T, U> extends X<T, U> implements I<X<T, U>, Y<T, U>> {\n" + 
+			"    // empty\n" + 
+			"}\n"
+			},
+		"");
+}
 }
