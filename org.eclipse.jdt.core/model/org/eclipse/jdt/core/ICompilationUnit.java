@@ -512,6 +512,11 @@ boolean isWorkingCopy();
  * creation of the DOM AST was not requested, or if the requested level of AST
  * API is not supported, or if the working copy was already consistent.
  * </p>
+ * 
+ * <p>
+ * This method doesn't perform statements recovery. To recover statements with syntax
+ * errors, {@link #reconcile(int, boolean, boolean, WorkingCopyOwner, IProgressMonitor)} must be use.
+ * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
  * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
