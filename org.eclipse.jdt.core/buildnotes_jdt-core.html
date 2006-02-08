@@ -60,10 +60,16 @@ What's new in this drop</h2>
 Variable name completion try to keep typed characters even if they don't match to a part of the type name.<br>
 e.g: Element rootE| is completed to Element rootElement.
 </li>
+<li>Added API <code>org.eclipse.jdt.core.CorrectionEngine#getAllWarningTokens()</code> to 
+    get all the valid warning tokens, which can be used into <code>@SuppressWarnings</code>
+    annotations. See bug 
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=126326">126326</a> for details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=121652">121652</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=126326">126326</a>
+[api] all supported SuppressWarning tokens
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=121652">121652</a>
 100% CPU usage when changing application focus or saving
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120838">120838</a>
 typos in spec of ICodeAssist

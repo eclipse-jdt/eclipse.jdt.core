@@ -910,6 +910,7 @@ public class CompilerOptions {
 	}
 	
 	public static String warningTokenFromIrritant(long irritant) {
+		// keep in sync with warningTokens and warningTokenToIrritant
 		int irritantInt = (int) irritant;
 		if (irritantInt == irritant) {
 			switch (irritantInt) {
@@ -954,16 +955,38 @@ public class CompilerOptions {
 					return "dep-ann"; //$NON-NLS-1$
 				case (int)(RawTypeReference >>> 32):
 					return "unchecked"; //$NON-NLS-1$
-				case (int) UnusedLabel:
+				case (int) (UnusedLabel >>> 32):
 					return "unused"; //$NON-NLS-1$
 				case (int) (DiscouragedReference >>> 32) :
 				case (int) (ForbiddenReference >>> 32) :
 					return "restriction"; //$NON-NLS-1$
+				case (int) (NullReference >>> 32) :
+					return "null"; //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
+	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
+	public final static String[] warningTokens = {
+		"all", //$NON-NLS-1$
+		"boxing", //$NON-NLS-1$
+		"dep-ann", //$NON-NLS-1$
+		"deprecation", //$NON-NLS-1$
+		"finally", //$NON-NLS-1$
+		"hiding", //$NON-NLS-1$
+		"incomplete-switch", //$NON-NLS-1$
+		"nls", //$NON-NLS-1$
+		"null", //$NON-NLS-1$
+		"restriction", //$NON-NLS-1$
+		"serial", //$NON-NLS-1$
+		"static-access", //$NON-NLS-1$
+		"synthetic-access", //$NON-NLS-1$
+		"unchecked", //$NON-NLS-1$
+		"unqualified-field-access", //$NON-NLS-1$
+		"unused", //$NON-NLS-1$
+	};
 	public static long warningTokenToIrritant(String warningToken) {
+		// keep in sync with warningTokens and warningTokenFromIrritant
 		if (warningToken == null || warningToken.length() == 0) return 0;
 		switch (warningToken.charAt(0)) {
 			case 'a' :

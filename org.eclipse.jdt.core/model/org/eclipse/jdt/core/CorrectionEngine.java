@@ -395,6 +395,26 @@ public class CorrectionEngine implements ProblemReasons {
 			}
 		}
 	};
+
+	
+	/**
+	 * Return an array of strings which contains one entry per warning token
+	 * accepted by the <code>@SuppressWarnings</code> annotation. This array is
+	 * neither null nor empty, it contains at least the String <code>all</code>.
+	 * It should not be modified by the caller (please take a copy if modifications
+	 * are needed).<br>
+	 * <b>Note:</b> The tokens returned are not necessarily standardized across Java 
+	 * compilers. If you were to use one of these tokens in a <code>@SuppressWarnings</code> 
+	 * annotation in the Java source code, the effects (if any) may vary from 
+	 * compiler to compiler.
+	 * 
+	 * @return an array of strings which contains one entry per warning token
+	 * 			accepted by the <code>@SuppressWarnings</code> annotation.
+	 * @since 3.2
+	 */
+	public static String[] getAllWarningTokens() {
+		return CompilerOptions.warningTokens;
+	}
 	
 	/**
 	 * Helper method for decoding problem marker attributes. Returns an array of String arguments
