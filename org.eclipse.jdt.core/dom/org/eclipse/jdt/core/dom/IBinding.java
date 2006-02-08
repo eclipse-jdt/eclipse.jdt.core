@@ -165,6 +165,7 @@ public interface IBinding {
 	 * <li>array types of any of the above</li>
 	 * <li>the "length" field of an array type</li>
 	 * <li>the default constructor of a source class</li>
+	 * <li>the constructor of an anonymous class</li>
 	 * </ul>
 	 * For all other kind of type, method, variable, and package bindings,
 	 * this method returns non-<code>null</code>.
