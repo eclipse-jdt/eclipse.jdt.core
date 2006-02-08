@@ -489,7 +489,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Messages.disassembler_sourceattributeheader); 
 				buffer.append(sourceAttribute.getSourceFileName());
 			}
-			String versionNumber = VERSION_UNKNOWN;//$NON-NLS-1$
+			String versionNumber = VERSION_UNKNOWN;
 			if (minorVersion == 3 && majorVersion == 45) {
 				versionNumber = JavaCore.VERSION_1_1;
 			} else if (minorVersion == 0 && majorVersion == 46) {
@@ -939,12 +939,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(Messages.disassembler_constantpoolindex) 
 			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
 			.append(" ")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClass()); //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClass());
 		if (enclosingMethodAttribute.getMethodNameAndTypeIndex() != 0) {
 			buffer
 				.append(".")//$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
+				.append(enclosingMethodAttribute.getMethodName())
+				.append(enclosingMethodAttribute.getMethodDescriptor());
 		}
 	}
 	
@@ -1271,7 +1271,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					case IConstantPoolConstant.CONSTANT_Utf8:
 						value = "\"" + decodeStringValue(constantPoolEntry.getUtf8Value()) + "\"";//$NON-NLS-1$//$NON-NLS-2$
 				}
-				buffer.append(value); //$NON-NLS-1$
+				buffer.append(value);
 				break;
 			case IAnnotationComponentValue.ENUM_TAG:
 				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');

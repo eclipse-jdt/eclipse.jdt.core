@@ -123,7 +123,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String actualOutput = null;
 		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1.class"));
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1MyLocal$A$Member$1.class"));
 			actualOutput =
 				disassembler.disassemble(
 					classFileBytes,

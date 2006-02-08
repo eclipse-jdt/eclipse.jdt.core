@@ -1471,7 +1471,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		reportMatching(unit, mustResolve);
 	} catch (AbortCompilation e) {
 		// could not resolve: report inaccurate matches
-		reportMatching(unit, true); // was partially resolved
+		reportMatching(unit, false); // do not resolve when cu has errors
 		if (!(e instanceof AbortCompilationUnit)) {
 			// problem with class path
 			throw e;
@@ -1524,7 +1524,7 @@ protected void report(SearchMatch match) throws CoreException {
 	if (BasicSearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
 		System.out.println("Reporting match"); //$NON-NLS-1$
-		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
+		System.out.println("\tResource: " + match.getResource());//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try {
 			if (this.parser != null && match.getOffset() > 0 && match.getLength() > 0 && !(match.getElement() instanceof BinaryMember)) {

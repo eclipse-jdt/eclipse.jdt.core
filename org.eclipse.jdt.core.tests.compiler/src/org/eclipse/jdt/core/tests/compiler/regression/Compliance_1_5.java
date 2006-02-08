@@ -51,7 +51,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_NAMES = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 85, 86 };
+//	TESTS_NUMBERS = new int[] { 103 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
@@ -3453,6 +3453,94 @@ public void test101() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108856
+public void test102() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						System.out.println(this.getClass().getName());\n" + 
+			"						System.out.println(this.getClass().getSimpleName());\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"X$1$1");
+}
+public void test103() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"		System.out.print(X.class);\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"class X");
+		
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String actualOutput = null;
+	try {
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		assertTrue("IOException", false);
+	}
+	
+	String expectedOutput = 
+		"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+		"public class X extends java.lang.Object {\n" + 
+		"  \n" + 
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  public X();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [9]\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 1]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  public static void main(String[] args);\n" + 
+		"    0  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+		"    3  ldc <Class X> [2]\n" + 
+		"    5  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [27]\n" + 
+		"    8  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
+		"}"
+;
+		
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

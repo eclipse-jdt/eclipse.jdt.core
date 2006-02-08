@@ -32,6 +32,8 @@ public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	private final static int JavadocNonStaticTypeFromStaticInvocation = IProblem.Javadoc + IProblem.Internal + 468;
 	/** @since 3.2 */ 
 	private final static int EnumStaticFieldInInInitializerContext = IProblem.FieldRelated + 762;
+	/** @since 3.2 */
+	private final static int NoAdditionalBoundAfterTypeVariable = IProblem.TypeRelated + 573;
 	
 	public ReferenceContext referenceContext;
 	
@@ -4226,6 +4228,14 @@ public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding 
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void noAdditionalBoundAfterTypeVariable(TypeReference boundReference) {
+	this.handle(
+		NoAdditionalBoundAfterTypeVariable,
+		new String[] { new String(boundReference.resolvedType.readableName()) },
+		new String[] { new String(boundReference.resolvedType.shortReadableName()) },
+		boundReference.sourceStart,
+		boundReference.sourceEnd);
+}
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.ObjectCannotBeGeneric,
@@ -4412,7 +4422,7 @@ public void parseError(
 	}
 	//extract the literal when it's a literal  
 	if (isLiteral(currentToken) ||
-		isIdentifier(currentToken)) { //$NON-NLS-1$
+		isIdentifier(currentToken)) {
 			errorTokenName = new String(currentTokenSource);
 	}
 
@@ -4927,7 +4937,7 @@ private void syntaxError(
 	String eTokenName;
 	if (isKeyword(currentKind) ||
 		isLiteral(currentKind) ||
-		isIdentifier(currentKind)) { //$NON-NLS-1$
+		isIdentifier(currentKind)) {
 			eTokenName = new String(currentTokenSource);
 	} else {
 		eTokenName = errorTokenName;
@@ -5162,8 +5172,8 @@ public void unnecessaryCast(CastExpression castExpression) {
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
 	this.handle(
 		IProblem.UnnecessaryCast,
-		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
-		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.type.resolvedType.readableName())},
+		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.type.resolvedType.shortReadableName())},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }

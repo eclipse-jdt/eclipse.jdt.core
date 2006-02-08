@@ -100,7 +100,7 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				if (isRenamingMainType(element, dest)) {
 					IPath path = element.getPath();
 					String extension = path.getFileExtension();
-					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + '.' + extension}, this.force); //$NON-NLS-1$
+					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + '.' + extension}, this.force);
 				} else {
 					String source = getSourceFor(element);
 					String lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(source, element.getJavaProject());

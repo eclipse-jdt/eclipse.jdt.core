@@ -1797,6 +1797,43 @@ public void test054() {
         },
         "");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106140
+public void test055() {
+    this.runNegativeTest(
+        new String[] {
+            "A.java",
+            "import p.*;\n" + 
+            "public class A {\n" + 
+            "    public void errors() {\n" + 
+	            "    B b = new B();\n" + 
+            "        String s1 = b.str;\n" + 
+            "        String s2 = B.str;\n" + 
+            "    }\n" + 
+            "}\n",
+            "p/B.java",
+            "package p;\n" + 
+            "class B {\n" + 
+            "    public static String str;\n" + 
+            "}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in A.java (at line 4)\r\n" + 
+		"	B b = new B();\r\n" + 
+		"	^\n" + 
+		"The type B is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 4)\r\n" + 
+		"	B b = new B();\r\n" + 
+		"	          ^\n" + 
+		"The type B is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 6)\r\n" + 
+		"	String s2 = B.str;\r\n" + 
+		"	            ^\n" + 
+		"The type B is not visible\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return LookupTest.class;
 }

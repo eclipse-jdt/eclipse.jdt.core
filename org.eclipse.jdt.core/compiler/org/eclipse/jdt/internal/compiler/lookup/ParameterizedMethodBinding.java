@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * their signature did involve generics or not, so as to get the proper declaringClass for
  * these methods.
  */
-
 public class ParameterizedMethodBinding extends MethodBinding {
 
 	protected MethodBinding originalMethod;
@@ -77,14 +76,28 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				TypeVariableBinding originalVariable = originalVariables[i];
 				TypeVariableBinding substitutedVariable = substitutedVariables[i];
 				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
-				substitutedVariable.superclass = (ReferenceBinding) (substitutedSuperclass.isArrayType() 
-							? parameterizedDeclaringClass.environment.getType(JAVA_LANG_OBJECT)
-							: substitutedSuperclass);
-				substitutedVariable.superInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
+				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
 				if (originalVariable.firstBound != null) {
 					substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
-						? substitutedSuperclass // could be array type
-						: substitutedVariable.superInterfaces[0];
+						? substitutedSuperclass // could be array type or interface
+						: substitutedInterfaces[0];
+				}				
+				switch (substitutedSuperclass.kind()) {
+					case Binding.ARRAY_TYPE :
+						substitutedVariable.superclass = parameterizedDeclaringClass.environment.getType(JAVA_LANG_OBJECT);
+						substitutedVariable.superInterfaces = substitutedInterfaces;
+						break;
+					default:
+						if (substitutedSuperclass.isInterface()) {
+							substitutedVariable.superclass = parameterizedDeclaringClass.environment.getType(JAVA_LANG_OBJECT);
+							int interfaceCount = substitutedInterfaces.length;
+							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
+							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
+							substitutedVariable.superInterfaces = substitutedInterfaces;
+						} else {
+							substitutedVariable.superclass = (ReferenceBinding) substitutedSuperclass; // typeVar was extending other typeVar which got substituted with interface
+							substitutedVariable.superInterfaces = substitutedInterfaces;
+						}
 				}
 			}
 		}
@@ -100,7 +113,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	}
 
 	/**
-	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends |X|> where |X| is X's erasure.
+	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends raw(X)>
 	 */
 	public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
 		ParameterizedMethodBinding method = new ParameterizedMethodBinding();
@@ -112,13 +125,15 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.parameters = originalMethod.parameters;
 		method.thrownExceptions = originalMethod.thrownExceptions;
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
-		method.returnType = scope.environment().createParameterizedType(
+		LookupEnvironment environment = scope.environment();
+		TypeBinding rawType = environment.convertToRawType(receiverType);
+		method.returnType = environment.createParameterizedType(
 			genericClassType,
-			new TypeBinding[] {  scope.environment().createWildcard(genericClassType, 0, receiverType.erasure(), null /*no extra bound*/, Wildcard.EXTENDS) },
+			new TypeBinding[] {  environment.createWildcard(genericClassType, 0, rawType, null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);
 		return method;
 	}
-
+	
 	/**
 	 * Returns true if some parameters got substituted.
 	 */

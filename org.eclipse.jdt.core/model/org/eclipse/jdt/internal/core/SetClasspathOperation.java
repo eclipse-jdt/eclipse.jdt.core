@@ -627,7 +627,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (this.newOutputLocation == DO_NOT_SET_OUTPUT){
 			buffer.append("<Reuse Existing Output Location>"); //$NON-NLS-1$
 		} else {
-			buffer.append(this.newOutputLocation.toString()); //$NON-NLS-1$
+			buffer.append(this.newOutputLocation.toString());
 		}
 		return buffer.toString();
 	}

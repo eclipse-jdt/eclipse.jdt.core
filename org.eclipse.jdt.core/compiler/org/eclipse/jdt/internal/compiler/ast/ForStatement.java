@@ -280,7 +280,7 @@ public class ForStatement extends Statement {
 			output.append(';');
 		else {
 			output.append('\n');
-			action.printStatement(tab + 1, output); //$NON-NLS-1$
+			action.printStatement(tab + 1, output);
 		}
 		return output.append(';');
 	}

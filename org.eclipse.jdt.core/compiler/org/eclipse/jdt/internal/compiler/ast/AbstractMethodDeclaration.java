@@ -12,9 +12,11 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -349,7 +351,7 @@ public abstract class AbstractMethodDeclaration
 		
 		TypeParameter[] typeParams = typeParameters();
 		if (typeParams != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeParams.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeParams[j].print(0, output);
@@ -390,7 +392,7 @@ public abstract class AbstractMethodDeclaration
 				this.statements[i].printStatement(indent, output); 
 			}
 		}
-		output.append('\n'); //$NON-NLS-1$
+		output.append('\n');
 		printIndent(indent == 0 ? 0 : indent - 1, output).append('}');
 		return output;
 	}
@@ -412,6 +414,13 @@ public abstract class AbstractMethodDeclaration
 			resolveJavadoc();
 			resolveAnnotations(scope, this.annotations, this.binding);
 			resolveStatements();
+			// check @Deprecated annotation presence
+			if (this.binding != null
+					&& (this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+					&& (this.binding.modifiers & IConstants.AccDeprecated) != 0
+					&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
+			}			
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 

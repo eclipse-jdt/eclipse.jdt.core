@@ -207,7 +207,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			output.append("new "); //$NON-NLS-1$
 		}
 		if (typeArguments != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeArguments.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeArguments[j].print(0, output);

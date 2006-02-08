@@ -226,7 +226,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 	
 	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
 	if (this.typeArguments != null) {
-		output.append('<');//$NON-NLS-1$
+		output.append('<');
 		int max = typeArguments.length - 1;
 		for (int j = 0; j < max; j++) {
 			typeArguments[j].print(0, output);
@@ -235,7 +235,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 		typeArguments[max].print(0, output);
 		output.append('>');
 	}
-	output.append(selector).append('(') ; //$NON-NLS-1$
+	output.append(selector).append('(') ;
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length ; i ++) {	
 			if (i > 0) output.append(", "); //$NON-NLS-1$

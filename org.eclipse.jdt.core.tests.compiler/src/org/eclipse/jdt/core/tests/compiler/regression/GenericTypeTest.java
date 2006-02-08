@@ -6651,35 +6651,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 				"SubTypes.java",
 				"class A extends X {\n" +
-				"    public A foo() { return this; }\n" +
+				"    @Override public A foo() { return this; }\n" +
 				"}\n" +
 				"class B extends X {\n" +
-				"    public X foo() { return new X(); }\n" +
-				"    public B foo() { return this; }\n" +
+				"    @Override public X foo() { return new X(); }\n" +
+				"    @Override public B foo() { return this; }\n" +
 				"}\n" +
 				"class C extends A {\n" +
-				"    public X foo() { return new X(); }\n" +
+				"    @Override public X foo() { return new X(); }\n" +
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in SubTypes.java (at line 2)\n" + 
-			"	public A foo() { return this; }\n" + 
-			"	         ^^^^^\n" + 
-			"The method foo() of type A should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"2. ERROR in SubTypes.java (at line 5)\n" + 
-			"	public X foo() { return new X(); }\n" + 
-			"	         ^^^^^\n" + 
+			"1. ERROR in SubTypes.java (at line 5)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                   ^^^^^\n" + 
 			"Duplicate method foo() in type B\n" + 
 			"----------\n" + 
-			"3. ERROR in SubTypes.java (at line 6)\n" + 
-			"	public B foo() { return this; }\n" + 
-			"	         ^^^^^\n" + 
+			"2. ERROR in SubTypes.java (at line 6)\n" + 
+			"	@Override public B foo() { return this; }\n" + 
+			"	                   ^^^^^\n" + 
 			"Duplicate method foo() in type B\n" + 
 			"----------\n" + 
-			"4. ERROR in SubTypes.java (at line 9)\n" + 
-			"	public X foo() { return new X(); }\n" + 
-			"	         ^^^^^\n" + 
+			"3. ERROR in SubTypes.java (at line 9)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                   ^^^^^\n" + 
 			"The return type is incompatible with A.foo()\n" + 
 			"----------\n");
 	}
@@ -10322,8 +10317,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X extends Y {\n" + 
-				"	Class<? extends String> foo() { return null; }\n" + 
-				"	Class<? extends String>[] foo2() { return null; }\n" + 
+				"	@Override Class<? extends String> foo() { return null; }\n" + 
+				"	@Override Class<? extends String>[] foo2() { return null; }\n" + 
 				"}\n" + 
 				"class Y {\n" +
 				"	Class<String> foo() { return null; }\n" + 
@@ -10332,13 +10327,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
-			"	Class<? extends String> foo() { return null; }\n" + 
-			"	                        ^^^^^\n" + 
+			"	@Override Class<? extends String> foo() { return null; }\n" + 
+			"	                                  ^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
-			"	Class<? extends String>[] foo2() { return null; }\n" + 
-			"	                          ^^^^^^\n" + 
+			"	@Override Class<? extends String>[] foo2() { return null; }\n" + 
+			"	                                    ^^^^^^\n" + 
 			"The return type is incompatible with Y.foo2()\n" + 
 			"----------\n");
 	}
@@ -19745,12 +19740,17 @@ public void test678() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public class X<T, T2 extends T & Serializable > {\n" + 
+		"	                                 ^^^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Serializable when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	X<String, Serializable> wrong1;\n" + 
 		"	          ^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type Serializable is not a valid substitute for the bounded parameter <T2 extends T & Serializable> of the type X<T,T2>\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
 		"	static class Y implements Serializable {\n" + 
 		"	             ^\n" + 
 		"The serializable class Y does not declare a static final serialVersionUID field of type long\n" + 
@@ -21495,11 +21495,6 @@ public void test743() {
 		"	@Override public Nested<B> getNested3() { // sub\n" + 
 		"	                           ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with TestGeneric3<B>.getNested3()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 15)\n" + 
-		"	@Override public Nested<B> getNested3() { // sub\n" + 
-		"	                           ^^^^^^^^^^^^\n" + 
-		"The method getNested3() of type TestGeneric3<A>.Nested<B> must override a superclass method\n" + 
 		"----------\n");
 }
 public void test744() {
@@ -21571,7 +21566,7 @@ public void test746() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
 public void test747() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -21580,7 +21575,12 @@ public void test747() {
 			"  }\n" +
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	class Y<U extends T & I> {\r\n" + 
+		"	                      ^\n" + 
+		"Cannot specify any additional bound X.I when first bound is a type parameter\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
 public void test748() {
@@ -22110,7 +22110,12 @@ public void test768() {
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"Cannot specify any additional bound Z when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
@@ -22549,14 +22554,14 @@ public void test779() {
 			"  public bridge synthetic Object get(int arg);\n" + 
 			"    0  aload_0\n" + 
 			"    1  iload_1\n" + 
-			"    2  invokevirtual X$1.get(int) : java.lang.String  [37]\n" + 
+			"    2  invokevirtual X$Entry$1.get(int) : java.lang.String  [37]\n" + 
 			"    5  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 	
 	// check no unnecessary checkcast on bridge method for X$1
 	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X$1.class");
+		File f = new File(OUTPUT_DIR + File.separator + "X$Entry$1.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
@@ -22595,7 +22600,7 @@ public void test780() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104109
 public void test781() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -22609,7 +22614,12 @@ public void test781() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\r\n" + 
+		"	                                ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<? super T> when first bound is a type parameter\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082
 public void test782() {
@@ -24218,6 +24228,547 @@ public void test827() {
 		"	t2.test(a, b); //this compiles OK\n" + 
 		"	   ^^^^\n" + 
 		"Bound mismatch: The generic method test(V1, V2) of type X<T> is not applicable for the arguments (XA, List<Object>). The inferred type List<Object> is not a valid substitute for the bounded parameter <V2 extends List<String>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111014
+public void test833() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A<T1> {}\n",
+			"B.java",
+			"class B<T2> extends A<B<T2>.Inner> { class Inner {} }\n",
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"",
+		null,
+		false,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208
+public void test836() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" import java.util.Iterator;\n" + 
+			" import java.util.List;\n" + 
+			"\n" + 
+			" public class X<A> {\n" + 
+			"\n" + 
+			" interface Factory<T> {\n" + 
+			" T invoke();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <E> Iterator<E> iterate(Iterable<E> iterable) {\n" + 
+			"		return iterable.iterator();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Factory<Iterator<? extends A>> factory(final Factory<? extends List<? extends A>> factory) {\n" + 
+			"		return new Factory<Iterator<? extends A>>() {\n" + 
+			"			public Iterator<? extends A> invoke() {\n" + 
+			"				//String s = iterate(factory.invoke());\n" + 
+			"				return iterate(factory.invoke());\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
+public void test837() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void foo(List<? extends List<? extends Number>> l) {\n" + 
+			"		bar(l.get(0));\n" + 
+			"		swap(l.get(0));\n" + 
+			"	}\n" + 
+			"	void bar(String s) {}\n" + 
+			"	private static <T> void swap(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	bar(l.get(0));\n" + 
+		"	^^^\n" + 
+		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
+public void test839() {
+	this.runConformTest(
+		new String[] {
+			"com/test/Tester.java",
+			"package com.test;\n" + 
+			"\n" + 
+			"import com.test.TestClass.MyException;\n" + 
+			"\n" + 
+			"public class Tester {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			TestClass<String> test = new TestClass<String>();\n" + 
+			"		} catch (MyException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",		
+			"com/test/TestClass.java",
+			"package com.test;\n" + 
+			"\n" + 
+			"public class TestClass<T> {\n" + 
+			"	\n" + 
+			"	public TestClass() throws MyException {\n" + 
+			"		throw new MyException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class MyException extends Exception {\n" + 
+			"		\n" + 
+			"		public MyException() {\n" + 
+			"			super();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"			
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112268
+public void test841() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  List<? extends Comparator> bar() {\n" + 
+			"	  List<? extends Comparator> l = foo();\n" + 
+			"	  return foo();\n" + 
+			"  }\n" + 
+			"  <T> List<T> foo() {\n" + 
+			"	  return null;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500
+public void test842() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> list1 = null;\n" + 
+			"		List<StringBuilder> list2 = null;\n" + 
+			"		List<? extends CharSequence> result = merge(list1, list2);\n" + 
+			"		List<? extends String> result2 = merge(list1, list2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	List<? extends String> result2 = merge(list1, list2);\n" + 
+		"	                       ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500 - variation
+public void test843() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> list1 = null;\n" + 
+			"		List<StringBuilder> list2 = null;\n" + 
+			"		Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+			"		Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 11)\n" + 
+		"	Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
+public void test846() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.Collection;\n" + 
+			"public class X {\n" + 
+			"	void m() {\n" + 
+			"		Collection<? super Collection<? super Number>> col = null;\n" + 
+			"		java.util.List<java.lang.Number> n = null;\n" + 
+			"		col.add(n);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
+public void test847() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void m() {\n" + 
+			"		Collection<? extends Collection<? super Number>> col = null;\n" + 
+			"		java.util.List<java.lang.Number> n = null;\n" + 
+			"		col.add(n);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	col.add(n);\n" + 
+		"	    ^^^\n" + 
+		"The method add(capture-of ? extends Collection<? super Number>) in the type Collection<capture-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106466
+public void test852() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\r\n" + 
+		"	                                   ^^^^^^^^\n" + 
+		"Cannot specify any additional bound Runnable when first bound is a type parameter\n" + 
+		"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112109
+public void test853() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<C extends I> {\n" + 
+			"	void test(java.util.List<C> list) { list.get(0).notify(null); }\n" + 
+			"}\n" +
+			"interface I { Object notify(Object o); }",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113070
+public void test857() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public <U, T extends U & Cloneable & Runnable> void m(T t) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public <U, T extends U & Cloneable & Runnable> void m(T t) {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Cloneable when first bound is a type parameter\n" + 
+		"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304
+public void test860() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test861() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends A.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test862() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test863() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    B.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test864() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I<T> { }\n" + 
+			"\n" + 
+			"    A.I<Object> foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J<E> extends B.I<E> { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J<Object> foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test865() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B<Object> {\n" + 
+			"	@Override\n" + 
+			"    C.J foo() { return (B.J)super.foo(); }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114997
+public void test866() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  public interface Interface {\n" + 
+			"	  // nothing\n" + 
+			"  }\n" + 
+			"  public List<? extends Interface> field = Collections.emptyList();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114087
+public void test867() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	static <T extends Runnable> List<List<T>> foo1() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar1(List<List<T>> l) {\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> List<T> foo2() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static <T extends Runnable> void bar2(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	{\n" + 
+			"		List<List> o = Foo.foo1();\n" + 
+			"		Foo.bar1(o);\n" + 
+			"	}\n" + 
+			"	{\n" + 
+			"		List o = Foo.foo2();\n" + 
+			"		Foo.bar2(o);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 20)\n" + 
+		"	List<List> o = Foo.foo1();\n" + 
+		"	                   ^^^^\n" + 
+		"The method foo1() in the type Foo is not applicable for the arguments ()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
+		"	Foo.bar1(o);\n" + 
+		"	    ^^^^\n" + 
+		"The method bar1(List<List<T>>) in the type Foo is not applicable for the arguments (List<List>)\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(List) of the generic method bar2(List<T>) of type Foo\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 25)\n" + 
+		"	Foo.bar2(o);\n" + 
+		"	         ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113950
+public void test870() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public interface I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public abstract class A<T> implements I<T> {\n" + 
+			"	        public <S extends T> void foo(List<S> ls) { }\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class C<T> extends A<List<T>> { }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121231
+public void test871() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public Collection<? extends Integer> getCollection() {\n" + 
+			"        return Collections.emptyList();\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123078
+public void test884() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public abstract class X<C extends X<C>> {\n" + 
+			"	public static <T extends X<T>> T getDefault(Class<T> clz) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Object getDefault() {\n" + 
+			"		String s = getClass();\n" + 
+			"		return (String) getDefault(getClass());\n" + 
+			"	}\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	String s = getClass();\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from Class<capture-of ? extends X> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return (String) getDefault(getClass());\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from capture-of ? extends X to String\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	return (String) getDefault(getClass());\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation getDefault(Class<capture-of ? extends X>) of the generic method getDefault(Class<T>) of type X<C>\n" + 
 		"----------\n");
 }
 }

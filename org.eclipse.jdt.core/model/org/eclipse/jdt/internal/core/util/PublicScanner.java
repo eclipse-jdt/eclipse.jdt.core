@@ -308,7 +308,7 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 	}
 	int foundTaskIndex = this.foundTaskCount;
 	char previous = src[commentStart+1]; // should be '*' or '/'
-	nextChar : for (
+	for (
 		int i = commentStart + 2; i < commentEnd && i < this.eofPosition; i++) {
 		char[] tag = null;
 		char[] priority = null;
@@ -1289,7 +1289,7 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
-					if (this.checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
+					if (this.checkNonExternalizedStringLiterals){ // check for presence of	NLS tags // $NON-NLS-?$ where ? is an int.
 						if (this.currentLine == null) {
 							this.currentLine = new NLSLine();
 						}

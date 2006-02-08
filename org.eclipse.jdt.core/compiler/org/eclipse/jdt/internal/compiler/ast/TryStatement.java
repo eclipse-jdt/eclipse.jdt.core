@@ -425,7 +425,7 @@ public class TryStatement extends SubRoutineStatement {
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printIndent(indent, output).append("try \n"); //$NON-NLS-1$
-		tryBlock.printStatement(indent + 1, output); //$NON-NLS-1$
+		tryBlock.printStatement(indent + 1, output);
 
 		//catches
 		if (catchBlocks != null)

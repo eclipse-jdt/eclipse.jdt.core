@@ -121,7 +121,7 @@ public class TokenScanner {
 					throw new CoreException(createError(END_OF_FILE, "End Of File", null)); //$NON-NLS-1$
 				}
 			} catch (InvalidInputException e) {
-				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e)); //$NON-NLS-1$
+				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e));
 			}
 		} while (ignoreComments && isComment(curr));
 		return curr;
@@ -140,7 +140,7 @@ public class TokenScanner {
 			try {
 				curr= this.scanner.getNextToken();
 			} catch (InvalidInputException e) {
-				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e)); //$NON-NLS-1$
+				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e));
 			}
 		} while (ignoreComments && isComment(curr));
 		return curr;
@@ -377,7 +377,7 @@ public class TokenScanner {
 				return this.document.getLineOfOffset(offset);
 			} catch (BadLocationException e) {
 				String message= "Illegal offset: " + offset; //$NON-NLS-1$
-				throw new CoreException(createError(DOCUMENT_ERROR, message, e)); //$NON-NLS-1$
+				throw new CoreException(createError(DOCUMENT_ERROR, message, e));
 			}
 		}
 		return getScanner().getLineNumber(offset);
@@ -390,7 +390,7 @@ public class TokenScanner {
 				return region.getOffset() + region.getLength();
 			} catch (BadLocationException e) {
 				String message= "Illegal line: " + line; //$NON-NLS-1$
-				throw new CoreException(createError(DOCUMENT_ERROR, message, e)); //$NON-NLS-1$
+				throw new CoreException(createError(DOCUMENT_ERROR, message, e));
 			}
 		}
 		return getScanner().getLineEnd(line);

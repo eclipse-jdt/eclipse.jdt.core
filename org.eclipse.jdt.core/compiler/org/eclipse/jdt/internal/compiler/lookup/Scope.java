@@ -408,7 +408,8 @@ public abstract class Scope
 				problemReporter().boundCannotBeArray(typeRef, superType);
 				continue nextVariable;
 			}
-			if (superType.isTypeVariable()) {
+			boolean isTypeVariableFirstBound =  superType.isTypeVariable();
+			if (isTypeVariableFirstBound) {
 				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
 				if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
 					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
@@ -440,6 +441,9 @@ public abstract class Scope
 					}
 					typeRef.resolvedType = superType; // hold onto the problem type
 					types[0] = superType;
+					if (isTypeVariableFirstBound && j == 0) {
+						problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);
+					}
 					if (superType.isArrayType()) {
 						problemReporter().boundCannotBeArray(typeRef, superType);
 						continue nextVariable;
@@ -1137,7 +1141,7 @@ public abstract class Scope
 				}
 			}
 			// when receiverType is abstract then need to find possible matches in interfaces
-			if (receiverType.isAbstract())
+			if (receiverType.isAbstract() || receiverType.isTypeVariable())
 				matchingMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (matchingMethod != null) return matchingMethod;
@@ -1597,6 +1601,8 @@ public abstract class Scope
 					return binding;
 			}
 			if (problemField != null) return problemField;
+			if (binding != null && binding.problemId() != NotFound)
+				return binding; // answer the better problem binding
 			return new ProblemBinding(name, enclosingSourceType(), NotFound);
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
@@ -1788,11 +1794,21 @@ public abstract class Scope
 								if (!isExactMatch) {
 									MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 									if (compatibleMethod == null) {
-										if (foundMethod == null || foundMethod.problemId() == NotVisible)
+										// likely not a match in the first place, 2 cases are possible
+										// first is when methodBinding was found thru inheritance starting from an nested type - in this case do not want to search outer scope
+										// second is when normal search turned up only this selector match so NotFound is expected
+										// except in 1.5 when static import methods can match correctly
+										if (foundMethod == null || foundMethod.problemId() == NotVisible) {
+											if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 && !receiverType.isNestedType()) {
+												foundFuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
+												break; // need to search for static import method matches
+											}
 											// inherited mismatch is reported directly, not looking at enclosing matches
 											return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
-										// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-										fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+										} else {
+											// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
+											fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+										}
 									} else if (!compatibleMethod.isValidBinding()) {
 										fuzzyProblem = compatibleMethod;
 									} else {
@@ -1881,13 +1897,6 @@ public abstract class Scope
 			scope = scope.parent;
 		}
 
-		if (foundFuzzyProblem != null)
-			return foundFuzzyProblem;
-		if (foundInsideProblem != null)
-			return foundInsideProblem;
-		if (foundMethod != null)
-			return foundMethod;
-
 		if (insideStaticContext && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			// at this point the scope is a compilation unit scope & need to check for imported static methods
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
@@ -1972,6 +1981,14 @@ public abstract class Scope
 				return foundMethod;
 			}
 		}
+
+		if (foundFuzzyProblem != null)
+			return foundFuzzyProblem;
+		if (foundInsideProblem != null)
+			return foundInsideProblem;
+		if (foundMethod != null)
+			return foundMethod;
+
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
 
@@ -2139,7 +2156,7 @@ public abstract class Scope
 		if (binding == null)
 			return new ProblemReferenceBinding(compoundName[0], null, NotFound);
 		if (!binding.isValidBinding())
-			return (ReferenceBinding) binding;
+			return binding;
 
 		if (!(binding instanceof PackageBinding)) return null; // compoundName does not start with a package
 
@@ -2418,7 +2435,7 @@ public abstract class Scope
 							Binding resolvedImport = unitScope.resolveSingleImport(importBinding);
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof MethodBinding) {
-								resolvedImport = (ReferenceBinding) getType(importBinding.compoundName, importBinding.compoundName.length);
+								resolvedImport = getType(importBinding.compoundName, importBinding.compoundName.length);
 								if (!resolvedImport.isValidBinding()) continue nextImport;
 							}
 							if (resolvedImport instanceof TypeBinding) {
@@ -3008,7 +3025,7 @@ public abstract class Scope
 		for (int i = 0; i < count; i++) {
 			TypeBinding mec = commonDim == 0 ? mecs[i] : mecs[i].leafComponentType();
 			if (mec.isInterface()) {
-				otherBounds[rank++] = (ReferenceBinding)mec;
+				otherBounds[rank++] = mec;
 			}
 		}
 		TypeBinding intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);

@@ -1409,7 +1409,7 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 			if (i < 0 || i >= length) 
 				throw new IllegalArgumentException();
 			// iterate over bounds
-			nextBound: while (methodOrTypeSignature[i] == ':') {
+			while (methodOrTypeSignature[i] == ':') {
 				i++; // skip colon
 				switch (methodOrTypeSignature[i]) {
 					case ':':
@@ -2411,7 +2411,7 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
-	if (c != C_CAPTURE) { //$NON-NLS-1$
+	if (c != C_CAPTURE) {
 		throw new IllegalArgumentException();
 	}
 	buffer.append(CAPTURE).append(' ');
@@ -2440,7 +2440,7 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
-	if (c != C_ARRAY) { //$NON-NLS-1$
+	if (c != C_ARRAY) {
 		throw new IllegalArgumentException();
 	}
 	

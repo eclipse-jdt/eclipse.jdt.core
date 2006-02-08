@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -977,7 +978,12 @@ public class TypeDeclaration
 			} finally {
 				this.staticInitializerScope.insideTypeAnnotation = old;
 			}
-			
+			// check @Deprecated annotation
+			if ((sourceType.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
+					&& (sourceType.modifiers & IConstants.AccDeprecated) != 0 
+					&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				scope.problemReporter().missingDeprecatedAnnotationForType(this);
+			}						
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}

@@ -2030,7 +2030,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2430,7 +2430,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2464,7 +2464,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_CAPTURE) { //$NON-NLS-1$
+		if (c != Signature.C_CAPTURE) {
 			throw new IllegalArgumentException();
 		}
 		return scanTypeBoundSignature(string, start + 1);
@@ -2772,7 +2772,7 @@ public class Util {
 		int paramOpening = 0;
 		
 		// Scan each signature character
-		scanUniqueKey: for (int idx=0, ln = source.length; idx < ln; idx++) {
+		for (int idx=0, ln = source.length; idx < ln; idx++) {
 			switch (source[idx]) {
 				case '>':
 					paramOpening--;

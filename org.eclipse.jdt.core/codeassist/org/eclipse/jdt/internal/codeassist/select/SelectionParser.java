@@ -90,7 +90,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
 	if(kind != 0) {
 //		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
-		nextElement : switch (kind) {
+		switch (kind) {
 			case K_BETWEEN_CASE_AND_COLON :
 				if(this.expressionPtr > 0) {
 					SwitchStatement switchStatement = new SwitchStatement();
@@ -1231,12 +1231,12 @@ public  String toString() {
 	String s = ""; //$NON-NLS-1$
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ 
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ 
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	return s + super.toString();

@@ -131,6 +131,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// process mandatory arguments
 			for (int i = 0; i < minArgLength; i++) {
 				parameters[i].collectSubstitutes(scope, arguments[i], collectedSubstitutes, CONSTRAINT_EXTENDS);
+				if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 			}
 			// process optional arguments
 			if (minArgLength < argLength) {
@@ -154,12 +155,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				}
 				for (int i = minArgLength; i < argLength; i++) {
 					varargType.collectSubstitutes(scope, arguments[i], collectedSubstitutes, CONSTRAINT_EXTENDS);
+					if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 				}
 			}
 		} else {
 			int paramLength = parameters.length;
 			for (int i = 0; i < paramLength; i++) {
 				parameters[i].collectSubstitutes(scope, arguments[i], collectedSubstitutes, CONSTRAINT_EXTENDS);
+				if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 			}
 		}
 		TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
@@ -206,7 +209,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						for (int j = 0, equalLength = equalSubstitutes.length; j < equalLength; j++) {
 							TypeBinding equalSubstitute = equalSubstitutes[j];
 							if (equalSubstitute == null) continue nextConstraint;
-//							if (equalSubstitute == current) continue nextConstraint;
 							if (equalSubstitute == current) {
 								// try to find a better different match if any in subsequent equal candidates
 								for (int k = j+1; k < equalLength; k++) {
@@ -387,6 +389,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		    // infer from expected return type
 			if (expectedType != null) {
 			    this.returnType.collectSubstitutes(scope, expectedType, collectedSubstitutes, CONSTRAINT_SUPER);
+				if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 			}
 		    // infer from bounds of type parameters
 			for (int i = 0; i < varLength; i++) {
@@ -396,18 +399,22 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				if (originalVariable.firstBound == originalVariable.superclass) {
 					TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superclass);
 					argument.collectSubstitutes(scope, substitutedBound, collectedSubstitutes, CONSTRAINT_SUPER);
+					if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 					// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
 					// e.g. given: <E extends Object, S extends Collection<E>> S test1(S param)
 					//                   invocation: test1(new Vector<String>())    will infer: S=Vector<String>  and with code below: E=String
 					if (argAlreadyInferred)
 						substitutedBound.collectSubstitutes(scope, argument, collectedSubstitutes, CONSTRAINT_EXTENDS);
+						if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 				}
 				for (int j = 0, max = originalVariable.superInterfaces.length; j < max; j++) {
 					TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superInterfaces[j]);
 					argument.collectSubstitutes(scope, substitutedBound, collectedSubstitutes, CONSTRAINT_SUPER);
+					if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 					// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
 					if (argAlreadyInferred)
 						substitutedBound.collectSubstitutes(scope, argument, collectedSubstitutes, CONSTRAINT_EXTENDS);
+						if (collectedSubstitutes.get(VoidBinding) != null) return null; // impossible substitution
 				}
 			}
 			substitutes = resolveSubstituteConstraints(scope, originalVariables, substitutes, true/*consider Ti<:Uk*/, collectedSubstitutes);
