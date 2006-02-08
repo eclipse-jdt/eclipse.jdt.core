@@ -21,8 +21,10 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -32,6 +34,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 
 public class ASTConverterRecoveryTest extends ConverterTestSetup {
 	public ASTConverterRecoveryTest(String name) {
@@ -351,5 +354,370 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		SimpleName simpleName = (SimpleName) expression2;
 		checkSourceRange(simpleName, ",", source); //$NON-NLS-1$
 		
+	}
+		
+	// check RECOVERED flag (insert tokens)
+	public void test0006() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar()\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar();\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar()", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) != 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
+	}
+	
+	// check RECOVERED flag (insert tokens)
+	public void test0007() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar(baz()\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar(baz());\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar(baz()", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) != 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar(baz()", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) != 0);
+		List arguments = methodInvocation.arguments();
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
+		Expression argument = (Expression) arguments.get(0);
+		assertTrue("Not a method invocation", argument.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation2 = (MethodInvocation) argument;
+		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
+	}
+	
+	// check RECOVERED flag (insert tokens)
+	public void test0008() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    for(int i\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    for (int i; ; )     ;\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Not flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) != 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not a for statement", statement.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) statement;
+		checkSourceRange(forStatement, "for(int i", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (forStatement.getFlags() & ASTNode.RECOVERED) != 0);
+		List initializers = forStatement.initializers();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Expression expression = (Expression)initializers.get(0);
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION); //$NON-NLS-1$
+		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression)expression;
+		checkSourceRange(variableDeclarationExpression, "int i", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (variableDeclarationExpression.getFlags() & ASTNode.RECOVERED) != 0);
+		List fragments = variableDeclarationExpression.fragments();
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fragments.get(0);
+		checkSourceRange(fragment, "i", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (fragment.getFlags() & ASTNode.RECOVERED) != 0);
+		SimpleName name = fragment.getName();
+		checkSourceRange(name, "i", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (name.getFlags() & ASTNode.RECOVERED) == 0);
+		Statement statement2 = forStatement.getBody();
+		assertTrue("Not an empty statement", statement2.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+		EmptyStatement emptyStatement = (EmptyStatement)statement2;
+		checkSourceRange(emptyStatement, "i", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (emptyStatement.getFlags() & ASTNode.RECOVERED) != 0);
+	}
+	
+	// check RECOVERED flag (remove tokens)
+	public void test0009() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar(baz());#\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar(baz());\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Not flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) != 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar(baz());", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) == 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar(baz())", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
+		List arguments = methodInvocation.arguments();
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
+		Expression argument = (Expression) arguments.get(0);
+		assertTrue("Not a method invocation", argument.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation2 = (MethodInvocation) argument;
+		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
+	}
+	
+	// check RECOVERED flag (remove tokens)
+	public void test0010() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar(baz())#;\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar(baz());\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar(baz())#;", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) != 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar(baz())", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
+		List arguments = methodInvocation.arguments();
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
+		Expression argument = (Expression) arguments.get(0);
+		assertTrue("Not a method invocation", argument.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation2 = (MethodInvocation) argument;
+		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
+	}
+	
+	// check RECOVERED flag (remove tokens)
+	public void test0011() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar(baz()#);\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar(baz());\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar(baz()#);", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) == 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar(baz()#)", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) != 0);
+		List arguments = methodInvocation.arguments();
+		assertEquals("wrong size", 1, arguments.size()); //$NON-NLS-1$
+		Expression argument = (Expression) arguments.get(0);
+		assertTrue("Not a method invocation", argument.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation2 = (MethodInvocation) argument;
+		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
+	}
+	
+	// check RECOVERED flag (insert tokens)
+	public void test0012() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    bar()#\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    bar();\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "bar()#", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (expressionStatement.getFlags() & ASTNode.RECOVERED) != 0);
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation)expression;
+		checkSourceRange(methodInvocation, "bar()", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
 	}
 }
