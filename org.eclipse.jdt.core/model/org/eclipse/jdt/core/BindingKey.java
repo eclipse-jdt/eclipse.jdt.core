@@ -221,14 +221,6 @@ public final class BindingKey {
 	}
 	
 	/**
-	 * @deprecated use toSignature() instead
-	 */
-	// TODO (jerome) remove before 3.2 M5
-	public String internalToSignature() {
-		return toSignature();
-	}
-	
-	/**
 	 * Transforms this binding key into a resolved signature.
 	 * If this binding key represents a field, the returned signature is
 	 * the declaring type's signature.
