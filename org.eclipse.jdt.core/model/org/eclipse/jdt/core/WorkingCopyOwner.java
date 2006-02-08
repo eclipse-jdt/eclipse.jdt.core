@@ -73,12 +73,6 @@ public abstract class WorkingCopyOwner {
 	}
 	
 	/**
-	 * @deprecated
-	 */
-	public final ICompilationUnit newWorkingCopy(String name, IProgressMonitor monitor) throws JavaModelException {
-		return newWorkingCopy(name, null, null, monitor);
-	}
-	/**
 	 * Returns a new working copy with the given name using this working copy owner to 
 	 * create its buffer. This working copy doesn't belong to any package, thus its 
 	 * parent is always <code>null</code> and it cannot be resolved in any way.
