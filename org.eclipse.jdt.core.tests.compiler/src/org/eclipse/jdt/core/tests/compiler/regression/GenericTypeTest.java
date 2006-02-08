@@ -27947,4 +27947,19 @@ public void _test904() {
 			},
 		"");
 }
+
+// array in super bound
+public void test905() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			" \n" + 
+			"class X {\n" + 
+			"    void foo(List<? super Object[]> p) {\n" + 
+			"        p.add(new Object[0]);\n" + 
+			"    }\n" + 
+			"}"},
+		"");
+}
 }
