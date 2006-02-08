@@ -114,7 +114,7 @@ class ASTConverter {
 						}
 				}
 			}
-			if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+			if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
 				expression.sourceEnd =  this.scanner.startPosition;
 			} else {
 				expression.sourceEnd = this.scanner.startPosition - 1;
@@ -1196,7 +1196,8 @@ class ASTConverter {
 	
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
 		if(unit.compilationResult.recoveryScannerData != null) {
-			this.scanner = new RecoveryScanner(this.scanner, unit.compilationResult.recoveryScannerData.removeUnused());
+			RecoveryScanner recoveryScanner = new RecoveryScanner(this.scanner, unit.compilationResult.recoveryScannerData.removeUnused());
+			this.scanner = recoveryScanner;
 			this.docParser.scanner = this.scanner;
 		}
 		this.compilationUnitSource = source;
@@ -1257,7 +1258,8 @@ class ASTConverter {
 			}
 			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
 			compilationUnit.accept(syntaxErrorPropagator);
-			ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(resizedProblems);
+			ASTRecoveryPropagator recoveryPropagator =
+				new ASTRecoveryPropagator(resizedProblems, unit.compilationResult.recoveryScannerData);
 			compilationUnit.accept(recoveryPropagator);
 			compilationUnit.setProblems(resizedProblems);
 		}
@@ -4125,13 +4127,13 @@ class ASTConverter {
 						balance --;
 						break;
 					case TerminalTokens.TokenNameCOMMA :
-						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
 							return this.scanner.startPosition;
 						}
 						if (balance == 0) return this.scanner.startPosition - 1;
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
-						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isFakeTokenInserted()) {
+						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
 							return this.scanner.startPosition;
 						}
 						return this.scanner.startPosition - 1;

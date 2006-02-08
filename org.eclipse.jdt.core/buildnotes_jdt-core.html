@@ -64,6 +64,9 @@ e.g: Element rootE| is completed to Element rootElement.
     get all the valid warning tokens, which can be used into <code>@SuppressWarnings</code>
     annotations. See bug 
     <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=126326">126326</a> for details.</li>
+<li>Changed the way to flag DOM AST nodes as RECOVERED.<br>
+Now only nodes which really contains added/removed/replaced tokens are flagged. A parent of these kind of node isn't flagged.
+Sometimes our heuristic can't recognize the really recovered node, so in this case all potentially recovered nodes are flagged.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

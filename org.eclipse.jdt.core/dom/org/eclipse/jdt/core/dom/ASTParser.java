@@ -970,7 +970,7 @@ public class ASTParser {
 							}
 						}
 					}
-					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation);
+					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation, data);
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
@@ -993,7 +993,7 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (expression != null) {
 					Expression expression2 = converter.convert(expression);
-					rootNodeToCompilationUnit(expression2.getAST(), compilationUnit, expression2, codeSnippetParsingUtil.recordedParsingInformation);
+					rootNodeToCompilationUnit(expression2.getAST(), compilationUnit, expression2, codeSnippetParsingUtil.recordedParsingInformation, null);
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return expression2;
@@ -1016,7 +1016,7 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
-					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation);
+					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return typeDeclaration;
@@ -1033,14 +1033,14 @@ public class ASTParser {
 		throw new IllegalStateException();
 	}
 
-	private void propagateErrors(ASTNode astNode, IProblem[] problems) {
+	private void propagateErrors(ASTNode astNode, IProblem[] problems, RecoveryScannerData data) {
 		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(problems);
 		astNode.accept(syntaxErrorPropagator);
-		ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(problems);
+		ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(problems, data);
 		astNode.accept(recoveryPropagator);
 	}
 	
-	private void rootNodeToCompilationUnit(AST ast, CompilationUnit compilationUnit, ASTNode node, RecordedParsingInformation recordedParsingInformation) {
+	private void rootNodeToCompilationUnit(AST ast, CompilationUnit compilationUnit, ASTNode node, RecordedParsingInformation recordedParsingInformation, RecoveryScannerData data) {
 		final int problemsCount = recordedParsingInformation.problemsCount;
 		switch(node.getNodeType()) {
 			case ASTNode.BLOCK :
@@ -1050,7 +1050,7 @@ public class ASTParser {
 						// propagate and record problems
 						final IProblem[] problems = recordedParsingInformation.problems;
 						for (int i = 0, max = block.statements().size(); i < max; i++) {
-							propagateErrors((ASTNode) block.statements().get(i), problems);
+							propagateErrors((ASTNode) block.statements().get(i), problems, data);
 						}
 						compilationUnit.setProblems(problems);
 					}
@@ -1068,7 +1068,7 @@ public class ASTParser {
 						// propagate and record problems
 						final IProblem[] problems = recordedParsingInformation.problems;
 						for (int i = 0, max = typeDeclaration.bodyDeclarations().size(); i < max; i++) {
-							propagateErrors((ASTNode) typeDeclaration.bodyDeclarations().get(i), problems);
+							propagateErrors((ASTNode) typeDeclaration.bodyDeclarations().get(i), problems, data);
 						}
 						compilationUnit.setProblems(problems);
 					}
@@ -1081,7 +1081,7 @@ public class ASTParser {
 					if (problemsCount != 0) {
 						// propagate and record problems
 						final IProblem[] problems = recordedParsingInformation.problems;
-						propagateErrors(expression, problems);
+						propagateErrors(expression, problems, data);
 						compilationUnit.setProblems(problems);
 					}
 					ExpressionStatement expressionStatement = ast.newExpressionStatement(expression);

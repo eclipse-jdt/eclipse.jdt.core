@@ -2654,11 +2654,32 @@ protected void consumeEmptyMemberValueArrayInitializer() {
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
-	if (this.scanner.source[this.endStatementPosition] == ';') {
+	char[] source = this.scanner.source;
+	if (source[this.endStatementPosition] == ';') {
 		pushOnAstStack(new EmptyStatement(this.endStatementPosition, this.endStatementPosition));
 	} else {
-		// we have a Unicode for the ';' (/u003B)
-		pushOnAstStack(new EmptyStatement(this.endStatementPosition - 5, this.endStatementPosition));
+		if(source.length > 5) {
+			int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+			int pos = this.endStatementPosition - 4;
+			while (source[pos] == 'u') {
+				pos--;
+			}
+			if (source[pos] == '\\' &&
+					!((c1 = Character.getNumericValue(source[this.endStatementPosition - 3])) > 15
+						|| c1 < 0
+						|| (c2 = Character.getNumericValue(source[this.endStatementPosition - 2])) > 15
+						|| c2 < 0
+						|| (c3 = Character.getNumericValue(source[this.endStatementPosition - 1])) > 15
+						|| c3 < 0
+						|| (c4 = Character.getNumericValue(source[this.endStatementPosition])) > 15
+						|| c4 < 0) &&
+					((char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4)) == ';'){
+				// we have a Unicode for the ';' (/u003B)
+				pushOnAstStack(new EmptyStatement(pos, this.endStatementPosition));
+				return;
+			}
+		}
+		pushOnAstStack(new EmptyStatement(this.endStatementPosition, this.endStatementPosition));
 	}
 }
 protected void consumeEmptySwitchBlock() {

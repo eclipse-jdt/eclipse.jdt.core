@@ -21,6 +21,7 @@ public class RecoveryScanner extends Scanner {
 	private int pendingTokensPtr = -1;
 	private char[] fakeTokenSource = null;
 	private boolean isInserted = true;
+	private boolean precededByRemoved = false;
 	private int skipNextInsertedTokens = -1;
 
 	public boolean record = true;
@@ -120,6 +121,7 @@ public class RecoveryScanner extends Scanner {
 		}
 		
 		this.fakeTokenSource = null;
+		this.precededByRemoved = false;
 		
 		if(this.data.insertedTokens != null) {
 			for (int i = 0; i <= this.data.insertedTokensPtr; i++) {
@@ -128,6 +130,7 @@ public class RecoveryScanner extends Scanner {
 					this.pendingTokens = this.data.insertedTokens[i];
 					this.pendingTokensPtr = this.data.insertedTokens[i].length - 1;
 					this.fakeTokenSource = CharOperation.NO_CHAR;
+					this.isInserted = true;
 					this.startPosition = this.currentPosition - 1;
 					this.skipNextInsertedTokens = i;
 					return this.pendingTokens[this.pendingTokensPtr--];
@@ -148,6 +151,7 @@ public class RecoveryScanner extends Scanner {
 					this.pendingTokens = this.data.replacedTokens[i];
 					this.pendingTokensPtr = this.data.replacedTokens[i].length - 1;
 					this.fakeTokenSource = CharOperation.NO_CHAR;
+					this.isInserted = false;
 					this.currentPosition = this.data.replacedTokensEnd[i] + 1;
 					return this.pendingTokens[this.pendingTokensPtr--];
 				}
@@ -160,6 +164,7 @@ public class RecoveryScanner extends Scanner {
 						this.data.removedTokensEnd[i] >= this.currentPosition - 1) {
 					this.data.removedTokenUsed[i] = true;
 					this.currentPosition = this.data.removedTokensEnd[i] + 1;
+					this.precededByRemoved = false;
 					return getNextToken();
 				}
 			}
@@ -190,12 +195,16 @@ public class RecoveryScanner extends Scanner {
 		return this.fakeTokenSource != null;
 	}
 	
-	public boolean isFakeTokenInserted() {
+	public boolean isInsertedToken() {
 		return this.fakeTokenSource != null && this.isInserted;
 	}
 	
-	public boolean isFakeTokenReplaced() {
+	public boolean isReplacedToken() {
 		return this.fakeTokenSource != null && !this.isInserted;
+	}
+	
+	public boolean isPrecededByRemovedToken() {
+		return this.precededByRemoved;
 	}
 	
 	public void setData(RecoveryScannerData data) {

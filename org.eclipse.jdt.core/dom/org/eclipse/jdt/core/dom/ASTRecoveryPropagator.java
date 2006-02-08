@@ -11,27 +11,282 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Vector;
+
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToIntArray;
 
 /**
  * Internal AST visitor for propagating syntax errors.
  */
 class ASTRecoveryPropagator extends DefaultASTVisitor {
+	private static final int NOTHING = -1;
+	HashtableOfObjectToIntArray endingTokens = new HashtableOfObjectToIntArray();
+	{
+		this.endingTokens.put(AnonymousClassDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ArrayAccess.class, new int[]{TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(ArrayCreation.class, new int[]{NOTHING, TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(ArrayInitializer.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ArrayType.class, new int[]{TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(AssertStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(Block.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(BooleanLiteral.class, new int[]{TerminalTokens.TokenNamefalse, TerminalTokens.TokenNametrue});
+		this.endingTokens.put(BreakStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(CharacterLiteral.class, new int[]{TerminalTokens.TokenNameCharacterLiteral});
+		this.endingTokens.put(ClassInstanceCreation.class, new int[]{TerminalTokens.TokenNameRBRACE, TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(ConstructorInvocation.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ContinueStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(DoStatement.class, new int[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(EmptyStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ExpressionStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(FieldDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ImportDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(Initializer.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(MethodDeclaration.class, new int[]{NOTHING, TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(MethodInvocation.class, new int[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(NullLiteral.class, new int[]{TerminalTokens.TokenNamenull});
+		this.endingTokens.put(NumberLiteral.class, new int[]{TerminalTokens.TokenNameIntegerLiteral, TerminalTokens.TokenNameLongLiteral, TerminalTokens.TokenNameFloatingPointLiteral, TerminalTokens.TokenNameDoubleLiteral});
+		this.endingTokens.put(PackageDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ParenthesizedExpression.class, new int[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(PostfixExpression.class, new int[]{TerminalTokens.TokenNamePLUS_PLUS, TerminalTokens.TokenNameMINUS_MINUS});
+		this.endingTokens.put(PrimitiveType.class, new int[]{TerminalTokens.TokenNamebyte, TerminalTokens.TokenNameshort, TerminalTokens.TokenNamechar, TerminalTokens.TokenNameint, TerminalTokens.TokenNamelong, TerminalTokens.TokenNamefloat, TerminalTokens.TokenNameboolean, TerminalTokens.TokenNamedouble, TerminalTokens.TokenNamevoid});
+		this.endingTokens.put(ReturnStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(SimpleName.class, new int[]{TerminalTokens.TokenNameIdentifier});
+		this.endingTokens.put(SingleVariableDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(StringLiteral.class, new int[]{TerminalTokens.TokenNameStringLiteral});
+		this.endingTokens.put(SuperConstructorInvocation.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(SuperMethodInvocation.class, new int[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(SwitchCase.class, new int[]{TerminalTokens.TokenNameCOLON});
+		this.endingTokens.put(SwitchStatement.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(SynchronizedStatement.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ThisExpression.class, new int[]{TerminalTokens.TokenNamethis});
+		this.endingTokens.put(ThrowStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(TypeDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(TypeLiteral.class, new int[]{TerminalTokens.TokenNameclass});
+		this.endingTokens.put(VariableDeclarationStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+	}
+
 	private IProblem[] problems;
+	private boolean[] usedOrIrrelevantProblems;
 	
-	ASTRecoveryPropagator(IProblem[] problems) {
+	private RecoveryScannerData data;
+	private int blockDepth = 0;
+	private int lastEnd;
+	
+	private int[] insertedTokensKind;
+	private int[] insertedTokensPosition;
+	private boolean[] insertedTokensFlagged;
+	
+	private boolean[] removedTokensFlagged;
+	private boolean[] replacedTokensFlagged;
+	
+	private Vector stack = new Vector();
+	
+	ASTRecoveryPropagator(IProblem[] problems, RecoveryScannerData data) {
 		// visit Javadoc.tags() as well
 		this.problems = problems;
+		this.usedOrIrrelevantProblems = new boolean[problems.length];
+		
+		this.data = data;
+		
+		if(this.data != null) {
+			
+			int length = 0;
+			for (int i = 0; i < data.insertedTokensPtr + 1; i++) {
+				length += data.insertedTokens[i].length;
+			}
+			this.insertedTokensKind = new int[length];
+			this.insertedTokensPosition = new int[length];
+			this.insertedTokensFlagged = new boolean[length];
+			int tokenCount = 0;
+			for (int i = 0; i < data.insertedTokensPtr + 1; i++) {
+				for (int j = 0; j < data.insertedTokens[i].length; j++) {
+					this.insertedTokensKind[tokenCount] = data.insertedTokens[i][j];
+					this.insertedTokensPosition[tokenCount] = data.insertedTokensPosition[i];
+					tokenCount++;
+				}
+			}
+			
+			if(data.removedTokensPtr != -1) {
+				this.removedTokensFlagged = new boolean[data.removedTokensPtr + 1];
+			}
+			if(data.replacedTokensPtr != -1) {
+				this.replacedTokensFlagged = new boolean[data.replacedTokensPtr + 1];
+			}
+		}
+	}
+
+	public void endVisit(Block node) {
+		this.blockDepth--;
+		if(this.blockDepth <= 0) {
+			flagNodeWithInsertedTokens();
+		}
+		super.endVisit(node);
+	}
+
+	
+
+	public boolean visit(Block node) {
+		boolean visitChildren = super.visit(node);
+		this.blockDepth++;
+		return visitChildren;
 	}
 	
 	protected boolean visitNode(ASTNode node) {
-		return checkAndTagAsMalformed(node);
+		if(this.blockDepth > 0) {
+			int start = node.getStartPosition();
+			int end = start + node.getLength() - 1;
+			
+			// continue to visit the node only if it contains tokens modifications
+			
+			if(this.insertedTokensFlagged != null) {
+				for (int i = 0; i < this.insertedTokensFlagged.length; i++) {
+					if(this.insertedTokensPosition[i] >= start &&
+							this.insertedTokensPosition[i] <= end) {
+						return true;
+					}
+				}
+			}
+			
+			if(this.removedTokensFlagged != null) {
+				for (int i = 0; i <= this.data.removedTokensPtr; i++) {
+					if(this.data.removedTokensStart[i] >= start &&
+							this.data.removedTokensEnd[i] <= end) {
+						return true;
+					}
+				}
+			}
+			
+			if(this.replacedTokensFlagged != null) {
+				for (int i = 0; i <= this.data.removedTokensPtr; i++) {
+					if(this.data.replacedTokensStart[i] >= start &&
+							this.data.replacedTokensEnd[i] <= end) {
+						return true;
+					}
+				}
+			}
+			
+			return false;
+		}
+		return true;
+	}
+
+	protected void endVisitNode(ASTNode node) {
+		int start = node.getStartPosition();
+		int end = start + node.getLength() - 1;
+		
+		// is inside diet part of the ast
+		if(this.blockDepth < 1) {
+			if(this.markIncludedProblems(start, end)) {
+				node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+			}
+		} else {			
+			this.markIncludedProblems(start, end);
+			
+			if(this.insertedTokensFlagged != null) {
+				if(this.lastEnd != end) {
+					flagNodeWithInsertedTokens();
+				}
+				this.stack.add(node);
+			}
+
+			if(this.removedTokensFlagged != null) {
+				for (int i = 0; i <= this.data.removedTokensPtr; i++) {
+					if(!this.removedTokensFlagged[i] &&
+							this.data.removedTokensStart[i] >= start &&
+							this.data.removedTokensEnd[i] <= end) {
+						node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+						this.removedTokensFlagged[i] = true;
+					}
+				}
+			}
+			
+			if(this.replacedTokensFlagged != null) {
+				for (int i = 0; i <= this.data.replacedTokensPtr; i++) {
+					if(!this.replacedTokensFlagged[i] &&
+							this.data.replacedTokensStart[i] >= start &&
+							this.data.replacedTokensEnd[i] <= end) {
+						node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+						this.replacedTokensFlagged[i] = true;
+					}
+				}
+			}
+		}
+		this.lastEnd = end;
 	}
 	
-	private boolean checkAndTagAsMalformed(ASTNode node) {
-		boolean tagWithErrors = false;
-		search: for (int i = 0, max = this.problems.length; i < max; i++) {
+	private void flagNodeWithInsertedTokens() {
+		if(this.insertedTokensKind != null && this.insertedTokensKind.length > 0) {
+			int s = this.stack.size();
+			for (int i = s - 1; i > -1; i--) {
+				flagNodesWithInsertedTokensAtEnd((ASTNode)this.stack.get(i));
+			}
+			for (int i = 0; i < s; i++) {
+				flagNodesWithInsertedTokensInside((ASTNode)this.stack.get(i));
+			}
+			this.stack = new Vector();
+		}
+	}
+	
+	private boolean flagNodesWithInsertedTokensAtEnd(ASTNode node) {
+		int[] expectedEndingToken = this.endingTokens.get(node.getClass());
+		if (expectedEndingToken != null) {
+			int start = node.getStartPosition();
+			int end = start + node.getLength() - 1;
+			
+			boolean flagParent = false;
+			done : for (int i = this.insertedTokensKind.length - 1; i > -1 ; i--) {
+				if(!this.insertedTokensFlagged[i] &&
+						this.insertedTokensPosition[i] == end){
+					this.insertedTokensFlagged[i] = true;
+					for (int j = 0; j < expectedEndingToken.length; j++) {
+						if(expectedEndingToken[j] == this.insertedTokensKind[i]) {
+							node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+							break done;
+						}
+					}
+					flagParent = true;
+				}
+			}
+			
+			if(flagParent) {
+				ASTNode parent = node.getParent();
+				while (parent != null) {
+					parent.setFlags(node.getFlags() | ASTNode.RECOVERED);
+					if((parent.getStartPosition() + parent.getLength() - 1) != end) {
+						parent = null;
+					} else {
+						parent = parent.getParent();
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean flagNodesWithInsertedTokensInside(ASTNode node) {
+		int start = node.getStartPosition();
+		int end = start + node.getLength() - 1;
+		for (int i = 0; i < this.insertedTokensKind.length; i++) {
+			if(!this.insertedTokensFlagged[i] &&
+					start <= this.insertedTokensPosition[i] &&
+					this.insertedTokensPosition[i] < end){
+				node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+				this.insertedTokensFlagged[i] = true;
+			}
+		}
+		return true;
+	}
+	
+	private boolean markIncludedProblems(int start, int end) {
+		boolean foundProblems = false;
+		next: for (int i = 0, max = this.problems.length; i < max; i++) {
 			IProblem problem = this.problems[i];
+			
+			if(this.usedOrIrrelevantProblems[i]) continue next;
+			
 			switch(problem.getID()) {
 				case IProblem.ParsingErrorOnKeywordNoSuggestion :
 				case IProblem.ParsingErrorOnKeyword :
@@ -64,18 +319,19 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 				case IProblem.InvalidDigit :
 					break;
 				default:
-					continue search;
+					this.usedOrIrrelevantProblems[i] = true;
+					continue next;
+					
 			}
+			
 			int problemStart = problem.getSourceStart();
 			int problemEnd = problem.getSourceEnd();
-			int start = node.getStartPosition();
-			int end = start + node.getLength();
 			if ((start <= problemStart) && (problemStart <= end) ||
 					(start <= problemEnd) && (problemEnd <= end)) {
-				node.setFlags(node.getFlags() | ASTNode.RECOVERED);
-				tagWithErrors = true;
+				this.usedOrIrrelevantProblems[i] = true;
+				foundProblems = true;
 			}
 		}
-		return tagWithErrors;
+		return foundProblems;
 	}
 }
