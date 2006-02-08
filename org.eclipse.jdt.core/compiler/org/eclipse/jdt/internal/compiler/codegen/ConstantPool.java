@@ -264,27 +264,23 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 	int index;
 	if ((index = UTF8Cache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
 		// The entry doesn't exit yet
-		if ((index = -index)> 0xFFFF){
+		if ((index = -index)> 0xFFFF) {
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
 		currentIndex++;
 		// Write the tag first
 		writeU1(Utf8Tag);
-		int savedCurrentOffset = currentOffset;
 		int utf8encodingLength = utf8encoding.length;
 		if (currentOffset + 2 + utf8encodingLength >= poolContent.length) {
 			// we need to resize the poolContent array because we won't have
 			// enough space to write the length
 			resizePoolContents(2 + utf8encodingLength);
 		}
-		currentOffset += 2;
+		poolContent[currentOffset++] = (byte) (utf8encodingLength >> 8);
+		poolContent[currentOffset++] = (byte) utf8encodingLength;
 		// add in once the whole byte array
 		System.arraycopy(utf8encoding, 0, poolContent, currentOffset, utf8encodingLength);
 		currentOffset += utf8encodingLength;
-		// Now we know the length that we have to write in the constant pool
-		// we use savedCurrentOffset to do that
-		poolContent[savedCurrentOffset] = (byte) (utf8encodingLength >> 8);
-		poolContent[savedCurrentOffset + 1] = (byte) utf8encodingLength;
 	}
 	return index;
 }
@@ -316,7 +312,7 @@ public int literalIndex(char[] utf8Constant) {
 				// we only need one byte: ASCII table
 				writeU1(current);
 				length++;
-			} else
+			} else {
 				if (current > 0x07FF) {
 					// we need 3 bytes
 					length += 3;
@@ -330,6 +326,7 @@ public int literalIndex(char[] utf8Constant) {
 					writeU1(0xC0 | ((current >> 6) & 0x1F)); // 0xC0 = 1100 0000
 					writeU1(0x80 | (current & 0x3F)); // 0x80 = 1000 0000
 				}
+			}
 		}
 		if (length >= 65535) {
 			currentOffset = savedCurrentOffset - 1;
@@ -665,6 +662,8 @@ public int literalIndexForField(char[] declaringClass, char[] name, char[] signa
  * @return <CODE>int</CODE>
  */
 public int literalIndexForLdc(char[] stringCharArray) {
+	int savedCurrentIndex = this.currentIndex;
+	int savedCurrentOffset = this.currentOffset;
 	int index;
 	if ((index = stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
 		// The entry doesn't exit yet
@@ -686,7 +685,7 @@ public int literalIndexForLdc(char[] stringCharArray) {
 			// Write the tag first
 			writeU1(Utf8Tag);
 			// Then the size of the stringName array
-			int savedCurrentOffset = currentOffset;
+			int lengthOffset = currentOffset;
 			if (currentOffset + 2 >= poolContent.length) {
 				// we need to resize the poolContent array because we won't have
 				// enough space to write the length
@@ -731,16 +730,14 @@ public int literalIndexForLdc(char[] stringCharArray) {
 					}
 			}
 			if (length >= 65535) {
-				currentOffset = savedCurrentOffset - 1;
+				this.currentOffset = savedCurrentOffset;
+				this.currentIndex = savedCurrentIndex;
+				this.stringCache.remove(stringCharArray);
+				this.UTF8Cache.remove(stringCharArray);
 				return 0;
 			}
-			// Now we know the length that we have to write in the constant pool
-			// we use savedCurrentOffset to do that
-			if (length > 65535) {
-				return 0;
-			}
-			poolContent[savedCurrentOffset++] = (byte) (length >> 8);
-			poolContent[savedCurrentOffset] = (byte) length;
+			poolContent[lengthOffset++] = (byte) (length >> 8);
+			poolContent[lengthOffset] = (byte) length;
 			stringIndex = -stringIndex;
 		}
 		if ((index = -index) > 0xFFFF){

@@ -4876,16 +4876,16 @@ public void ldc(int constant) {
 }
 public void ldc(String constant) {
 	countLabels = 0;
-	int currentConstantPoolIndex = constantPool.currentIndex;
-	int currentConstantPoolOffset = constantPool.currentOffset;
 	int currentCodeStreamPosition = position;
-	int index = constantPool.literalIndexForLdc(constant.toCharArray());
+	char[] constantChars = constant.toCharArray();
+	int index = constantPool.literalIndexForLdc(constantChars);
 	if (index > 0) {
 		// the string already exists inside the constant pool
 		// we reuse the same index
 		stackDepth++;
-		if (stackDepth > stackMax)
+		if (stackDepth > stackMax) {
 			stackMax = stackDepth;
+		}
 		if (index > 255) {
 			if (DEBUG) System.out.println(position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 			// Generate a ldc_w
@@ -4910,12 +4910,7 @@ public void ldc(String constant) {
 		// we have to split it into different pieces.
 		// first we clean all side-effects due to the code above
 		// this case is very rare, so we can afford to lose time to handle it
-		char[] constantChars = constant.toCharArray();
 		position = currentCodeStreamPosition;
-		constantPool.currentIndex = currentConstantPoolIndex;
-		constantPool.currentOffset = currentConstantPoolOffset;
-		constantPool.stringCache.remove(constantChars);
-		constantPool.UTF8Cache.remove(constantChars);
 		int i = 0;
 		int length = 0;
 		int constantLength = constant.length();
@@ -4955,8 +4950,9 @@ public void ldc(String constant) {
 		System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 		index = constantPool.literalIndex(subChars, utf8encoding);
 		stackDepth++;
-		if (stackDepth > stackMax)
+		if (stackDepth > stackMax) {
 			stackMax = stackDepth;
+		}
 		if (index > 255) {
 			// Generate a ldc_w
 			if (classFileOffset + 2 >= bCodeStream.length) {
@@ -4983,7 +4979,7 @@ public void ldc(String constant) {
 			while ((length < 65532) && (i < constantLength)) {
 				char current = constantChars[i];
 				// we resize the byte array immediately if necessary
-				if (constantLength + 2 > (utf8encodingLength = utf8encoding.length)) {
+				if (length + 3 > (utf8encodingLength = utf8encoding.length)) {
 					System.arraycopy(utf8encoding, 0, utf8encoding = new byte[Math.min(utf8encodingLength + 100, 65535)], 0, length);
 				}
 				if ((current >= 0x0001) && (current <= 0x007F)) {
@@ -5005,8 +5001,9 @@ public void ldc(String constant) {
 				i++;
 			}
 			// the next part is done
-			subChars = new char[i - startIndex];
-			System.arraycopy(constantChars, startIndex, subChars, 0, i - startIndex);
+			int newCharLength = i - startIndex;
+			subChars = new char[newCharLength];
+			System.arraycopy(constantChars, startIndex, subChars, 0, newCharLength);
 			System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 			index = constantPool.literalIndex(subChars, utf8encoding);
 			stackDepth++;
