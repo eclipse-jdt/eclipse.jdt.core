@@ -1497,15 +1497,6 @@ public void test034() {
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		try {\n" + 
-				"			scenario();\n" + 
-				"		} catch(Exception e){\n" + 
-				"			System.out.println(\"[end]\");\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"\n" + 
 				"	private static int scenario(){\n" + 
 				"		try {\n" + 
 				"			int i = 1;\n" + 
@@ -1534,86 +1525,96 @@ public void test034() {
 				"	private static void clean() {\n" + 
 				"		System.out.print(\"[clean]\");\n" + 
 				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			scenario();\n" + 
+				"		} catch(Exception e){\n" + 
+				"			System.out.println(\"[end]\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
 				"}\n",
 			},
 			"[i: 1][finally][clean][end]");
 	
+//	if (this.complianceLevel.compareTo(COMPLIANCE_1_6) >= 0) return;
 	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
-		?	"  // Method descriptor #19 ()I\n" + 
+		?	"  // Method descriptor #15 ()I\n" + 
 			"  // Stack: 4, Locals: 4\n" + 
 			"  private static int scenario();\n" + 
 			"      0  iconst_1\n" + 
 			"      1  istore_0 [i]\n" + 
-			"      2  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"      5  new java.lang.StringBuilder [40]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"      5  new java.lang.StringBuilder [22]\n" + 
 			"      8  dup\n" + 
-			"      9  ldc <String \"[i: \"> [42]\n" + 
-			"     11  invokespecial java.lang.StringBuilder(java.lang.String) [44]\n" + 
+			"      9  ldc <String \"[i: \"> [24]\n" + 
+			"     11  invokespecial java.lang.StringBuilder(java.lang.String) [26]\n" + 
 			"     14  iload_0 [i]\n" + 
-			"     15  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [46]\n" + 
-			"     18  ldc <String \"]\"> [50]\n" + 
-			"     20  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [52]\n" + 
-			"     23  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [55]\n" + 
-			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     15  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [29]\n" + 
+			"     18  ldc <String \"]\"> [33]\n" + 
+			"     20  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [35]\n" + 
+			"     23  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [38]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
 			"     29  iload_0 [i]\n" + 
 			"     30  iconst_5\n" + 
 			"     31  if_icmple 61\n" + 
 			"     34  iload_0 [i]\n" + 
 			"     35  istore_2\n" + 
-			"     36  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"     39  ldc <String \"[finally]\"> [62]\n" + 
-			"     41  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"     44  invokestatic X.throwRuntime() : void [64]\n" + 
+			"     36  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     39  ldc <String \"[finally]\"> [47]\n" + 
+			"     41  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     44  invokestatic X.throwRuntime() : void [49]\n" + 
 			"     47  goto 56\n" + 
 			"     50  astore_3\n" + 
-			"     51  invokestatic X.clean() : void [67]\n" + 
+			"     51  invokestatic X.clean() : void [52]\n" + 
 			"     54  aload_3\n" + 
 			"     55  athrow\n" + 
-			"     56  invokestatic X.clean() : void [67]\n" + 
+			"     56  invokestatic X.clean() : void [52]\n" + 
 			"     59  iload_2\n" + 
 			"     60  ireturn\n" + 
 			"     61  iload_0 [i]\n" + 
 			"     62  ineg\n" + 
 			"     63  istore_2\n" + 
-			"     64  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"     67  ldc <String \"[finally]\"> [62]\n" + 
-			"     69  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"     72  invokestatic X.throwRuntime() : void [64]\n" + 
+			"     64  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     67  ldc <String \"[finally]\"> [47]\n" + 
+			"     69  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     72  invokestatic X.throwRuntime() : void [49]\n" + 
 			"     75  goto 84\n" + 
 			"     78  astore_3\n" + 
-			"     79  invokestatic X.clean() : void [67]\n" + 
+			"     79  invokestatic X.clean() : void [52]\n" + 
 			"     82  aload_3\n" + 
 			"     83  athrow\n" + 
-			"     84  invokestatic X.clean() : void [67]\n" + 
+			"     84  invokestatic X.clean() : void [52]\n" + 
 			"     87  iload_2\n" + 
 			"     88  ireturn\n" + 
 			"     89  astore_0 [e]\n" + 
-			"     90  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"     93  ldc <String \"[WRONG CATCH]\"> [70]\n" + 
-			"     95  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"     98  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"    101  ldc <String \"[finally]\"> [62]\n" + 
-			"    103  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"    106  invokestatic X.throwRuntime() : void [64]\n" + 
+			"     90  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     93  ldc <String \"[WRONG CATCH]\"> [55]\n" + 
+			"     95  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     98  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    101  ldc <String \"[finally]\"> [47]\n" + 
+			"    103  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"    106  invokestatic X.throwRuntime() : void [49]\n" + 
 			"    109  goto 118\n" + 
 			"    112  astore_3\n" + 
-			"    113  invokestatic X.clean() : void [67]\n" + 
+			"    113  invokestatic X.clean() : void [52]\n" + 
 			"    116  aload_3\n" + 
 			"    117  athrow\n" + 
-			"    118  invokestatic X.clean() : void [67]\n" + 
+			"    118  invokestatic X.clean() : void [52]\n" + 
 			"    121  iconst_2\n" + 
 			"    122  ireturn\n" + 
 			"    123  astore_1\n" + 
-			"    124  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"    127  ldc <String \"[finally]\"> [62]\n" + 
-			"    129  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"    132  invokestatic X.throwRuntime() : void [64]\n" + 
+			"    124  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    127  ldc <String \"[finally]\"> [47]\n" + 
+			"    129  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"    132  invokestatic X.throwRuntime() : void [49]\n" + 
 			"    135  goto 144\n" + 
 			"    138  astore_3\n" + 
-			"    139  invokestatic X.clean() : void [67]\n" + 
+			"    139  invokestatic X.clean() : void [52]\n" + 
 			"    142  aload_3\n" + 
 			"    143  athrow\n" + 
-			"    144  invokestatic X.clean() : void [67]\n" + 
+			"    144  invokestatic X.clean() : void [52]\n" + 
 			"    147  aload_1\n" + 
 			"    148  athrow\n" + 
 			"      Exception Table:\n" + 
@@ -1627,22 +1628,22 @@ public void test034() {
 			"        [pc: 61, pc: 64] -> 123 when : any\n" + 
 			"        [pc: 89, pc: 98] -> 123 when : any\n" + 
 			"        [pc: 132, pc: 138] -> 138 when : any\n"
-	: 		"  // Method descriptor #19 ()I\n" + 
+	: 		"  // Method descriptor #15 ()I\n" + 
 			"  // Stack: 4, Locals: 6\n" + 
 			"  private static int scenario();\n" + 
 			"      0  iconst_1\n" + 
 			"      1  istore_0 [i]\n" + 
-			"      2  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"      5  new java.lang.StringBuffer [40]\n" + 
+			"      2  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"      5  new java.lang.StringBuffer [22]\n" + 
 			"      8  dup\n" + 
-			"      9  ldc <String \"[i: \"> [42]\n" + 
-			"     11  invokespecial java.lang.StringBuffer(java.lang.String) [44]\n" + 
+			"      9  ldc <String \"[i: \"> [24]\n" + 
+			"     11  invokespecial java.lang.StringBuffer(java.lang.String) [26]\n" + 
 			"     14  iload_0 [i]\n" + 
-			"     15  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer [46]\n" + 
-			"     18  ldc <String \"]\"> [50]\n" + 
-			"     20  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer [52]\n" + 
-			"     23  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [55]\n" + 
-			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     15  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer [29]\n" + 
+			"     18  ldc <String \"]\"> [33]\n" + 
+			"     20  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer [35]\n" + 
+			"     23  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [38]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
 			"     29  iload_0 [i]\n" + 
 			"     30  iconst_5\n" + 
 			"     31  if_icmple 41\n" + 
@@ -1658,9 +1659,9 @@ public void test034() {
 			"     47  iload_3\n" + 
 			"     48  ireturn\n" + 
 			"     49  astore_0 [e]\n" + 
-			"     50  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"     53  ldc <String \"[WRONG CATCH]\"> [62]\n" + 
-			"     55  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+			"     50  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     53  ldc <String \"[WRONG CATCH]\"> [47]\n" + 
+			"     55  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
 			"     58  jsr 69\n" + 
 			"     61  iconst_2\n" + 
 			"     62  ireturn\n" + 
@@ -1669,17 +1670,17 @@ public void test034() {
 			"     67  aload_2\n" + 
 			"     68  athrow\n" + 
 			"     69  astore_1\n" + 
-			"     70  getstatic java.lang.System.out : java.io.PrintStream [20]\n" + 
-			"     73  ldc <String \"[finally]\"> [64]\n" + 
-			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-			"     78  invokestatic X.throwRuntime() : void [66]\n" + 
+			"     70  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     73  ldc <String \"[finally]\"> [49]\n" + 
+			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     78  invokestatic X.throwRuntime() : void [51]\n" + 
 			"     81  goto 99\n" + 
 			"     84  astore 5\n" + 
 			"     86  jsr 92\n" + 
 			"     89  aload 5\n" + 
 			"     91  athrow\n" + 
 			"     92  astore 4\n" + 
-			"     94  invokestatic X.clean() : void [69]\n" + 
+			"     94  invokestatic X.clean() : void [54]\n" + 
 			"     97  ret 4\n" + 
 			"     99  jsr 92\n" + 
 			"    102  ret 1\n" + 
