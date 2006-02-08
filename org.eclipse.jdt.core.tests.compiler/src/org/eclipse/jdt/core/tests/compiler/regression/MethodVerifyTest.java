@@ -2446,7 +2446,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	class Y extends X implements I { }\n" + 
 			"	      ^\n" + 
-			"Varargs methods should only override other varargs methods unlike X.foo(String...) and I.foo(String[])\n" + 
+			"Varargs methods should only override or be overridden by other varargs methods unlike X.foo(String...) and I.foo(String[])\n" + 
 			"----------\n"
 			// warning: foo(java.lang.String...) in X cannot implement foo(java.lang.String[]) in I; overridden method has no '...'
 		);
@@ -2461,7 +2461,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	class Y extends X implements I { }\n" + 
 			"	      ^\n" + 
-			"Varargs methods should only override other varargs methods unlike X.foo(String[]) and I.foo(String...)\n" + 
+			"Varargs methods should only override or be overridden by other varargs methods unlike X.foo(String[]) and I.foo(String...)\n" + 
 			"----------\n"
 			// warning: foo(java.lang.String[]) in X cannot implement foo(java.lang.String...) in I; overriding method is missing '...'
 		);
