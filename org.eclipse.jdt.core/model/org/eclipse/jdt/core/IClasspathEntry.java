@@ -22,14 +22,16 @@ import org.eclipse.core.runtime.IPath;
  * 
  *	<li>Source code in the current project. In this case, the entry identifies a
  *		root folder in the current project containing package fragments and
- *		<code>.java</code> source files. The root folder itself represents a default
- *		package, subfolders represent package fragments, and <code>.java</code> files
+ *		source files with one of the {@link JavaCore#getJavaLikeExtensions() 
+ *		Java-like extensions}. The root folder itself represents a default
+ *		package, subfolders represent package fragments, and files with a
+ *     Java-like extension (e.g. <code>.java</code> files)
  *		represent compilation units. All compilation units will be compiled when
  * 		the project is built. The classpath entry must specify the
  *		absolute path to the root folder. Entries of this kind are 
  *		associated with the <code>CPE_SOURCE</code> constant.
  *      Source classpath entries can carry inclusion and exclusion patterns for
- *      selecting which <code>.java</code> source files appear as compilation
+ *      selecting which source files appear as compilation
  *      units and get compiled when the project is built.
  *  </li>
  * 

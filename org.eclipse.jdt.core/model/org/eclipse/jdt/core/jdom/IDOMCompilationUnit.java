@@ -11,7 +11,9 @@
 package org.eclipse.jdt.core.jdom;
 
 /**
- * Represents a Java compilation unit (<code>.java</code> source file). 
+ * Represents a Java compilation unit (source file with one of the 
+ * {@link org.eclipse.jdt.core.JavaCore#getJavaLikeExtensions() 
+ * Java-like extensions}). 
  * The corresponding syntactic unit is CompilationUnit (JLS2 7.3).  
  * Allowable child types for a compilation unit are <code>IDOMPackage</code>, <code>IDOMImport</code>,
  * and <code>IDOMType</code>.
@@ -38,7 +40,9 @@ public String getHeader();
  * method returns the name of this compilation unit.
  *
  * <p>The name of a compilation unit is the name of the first top-level public type
- * defined in the compilation unit, suffixed with ".java". For example, if the first
+ * defined in the compilation unit, suffixed with one of the 
+ * {@link org.eclipse.jdt.core.JavaCore#getJavaLikeExtensions() 
+ * Java-like extensions}. For example, if the first
  * top-level public type defined in this compilation unit has the name "Hanoi",
  * then name of this compilation unit is "Hanoi.java".</p>
  *

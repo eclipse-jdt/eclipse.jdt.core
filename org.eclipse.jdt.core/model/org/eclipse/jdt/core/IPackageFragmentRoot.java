@@ -245,11 +245,12 @@ public interface IPackageFragmentRoot
 	void delete(int updateResourceFlags, int updateModelFlags, IProgressMonitor monitor) throws JavaModelException;
 	/**
 	 * Returns this package fragment root's kind encoded as an integer.
-	 * A package fragment root can contain <code>.java</code> source files,
+	 * A package fragment root can contain source files (i.e. files with one 
+	 * of the {@link JavaCore#getJavaLikeExtensions() Java-like extensions},
 	 * or <code>.class</code> files, but not both.
 	 * If the underlying folder or archive contains other kinds of files, they are ignored.
 	 * In particular, <code>.class</code> files are ignored under a source package fragment root,
-	 * and <code>.java</code> files are ignored under a binary package fragment root.
+	 * and source files are ignored under a binary package fragment root.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.

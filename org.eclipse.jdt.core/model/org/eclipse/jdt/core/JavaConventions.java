@@ -112,7 +112,8 @@ public final class JavaConventions {
 	 * A compilation unit name must obey the following rules:
 	 * <ul>
 	 * <li> it must not be null
-	 * <li> it must include the <code>".java"</code> suffix
+	 * <li> it must be suffixed by a dot ('.') followed by one of the 
+	 *       {@link JavaCore#getJavaLikeExtensions() Java-like extensions}
 	 * <li> its prefix must be a valid identifier
 	 * <li> it must not contain any characters or substrings that are not valid 
 	 *		   on the file system on which workspace root is located.

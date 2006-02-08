@@ -1295,7 +1295,8 @@ public final class JavaCore extends Plugin {
 	 * with a Java element.
 	 *
 	 * <p>The file must be one of:<ul>
-	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions() 
+	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
 	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *	</ul>
@@ -1352,7 +1353,8 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * The resource must be one of:<ul>
 	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
-	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions() 
+	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
 	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
@@ -1397,11 +1399,12 @@ public final class JavaCore extends Plugin {
 	}
 	/**
 	 * Creates and returns a compilation unit element for
-	 * the given <code>.java</code> file. Returns <code>null</code> if unable
+	 * the given source file (i.e. a file with one of the {@link JavaCore#getJavaLikeExtensions() 
+	 * Java-like extensions}). Returns <code>null</code> if unable
 	 * to recognize the compilation unit.
 	 * 
-	 * @param file the given <code>.java</code> file
-	 * @return a compilation unit element for the given <code>.java</code> file, or <code>null</code> if unable
+	 * @param file the given source file
+	 * @return a compilation unit element for the given source file, or <code>null</code> if unable
 	 * to recognize the compilation unit
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {

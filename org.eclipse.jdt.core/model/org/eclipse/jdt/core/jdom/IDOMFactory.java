@@ -13,7 +13,9 @@ package org.eclipse.jdt.core.jdom;
 /**
  * A factory used to create document fragment (DF) nodes. An 
  * <code>IDOMCompilationUnit</code> represents the root of a complete JDOM (that
- * is, a ".java" file). Other node types represent fragments of a compilation
+ * is, a source file with one of the 
+ * {@link org.eclipse.jdt.core.JavaCore#getJavaLikeExtensions() 
+ * Java-like extensions}). Other node types represent fragments of a compilation
  * unit.
  * <p>
  * The factory can be used to create empty DFs or it can create DFs from source

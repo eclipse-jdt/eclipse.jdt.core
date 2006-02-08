@@ -17,12 +17,13 @@ import org.eclipse.jdt.core.dom.AST;
 
 
 /**
- * Represents an entire Java compilation unit (<code>.java</code> source file).
+ * Represents an entire Java compilation unit (source file with one of the 
+ * {@link JavaCore#getJavaLikeExtensions() Java-like extensions}).
  * Compilation unit elements need to be opened before they can be navigated or manipulated.
  * The children are of type {@link IPackageDeclaration},
  * {@link IImportContainer}, and {@link IType},
  * and appear in the order in which they are declared in the source.
- * If a <code>.java</code> file cannot be parsed, its structure remains unknown.
+ * If a source file cannot be parsed, its structure remains unknown.
  * Use {@link IJavaElement#isStructureKnown} to determine whether this is 
  * the case.
  * <p>

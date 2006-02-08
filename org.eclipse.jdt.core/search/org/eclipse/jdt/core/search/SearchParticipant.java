@@ -115,7 +115,9 @@ public abstract class SearchParticipant {
 	 * participant, it should use the original index location (and not the
 	 * delegatee's one). In the particular case of delegating to the default
 	 * search participant (see {@link SearchEngine#getDefaultSearchParticipant()}),
-	 * the provided document's path must be a path ending with '.java' or a '.class'.
+	 * the provided document's path must be a path ending with one of the 
+	 * {@link org.eclipse.jdt.core.JavaCore#getJavaLikeExtensions() Java-like extensions} 
+	 * or with '.class'.
 	 * <p>
 	 * The given index location must represent a path in the file system to a file that
 	 * either already exists or is going to be created. If it exists, it must be an index file,

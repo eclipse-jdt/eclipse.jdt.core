@@ -927,9 +927,11 @@ public final class AST {
 	 * </p>
 	 * <p>
 	 * The name of the compilation unit must be supplied for resolving bindings.
-	 * This name should include the ".java" suffix and match the name of the main
+	 * This name should be suffixed by a dot ('.') followed by one of the 
+	 * {@link JavaCore#getJavaLikeExtensions() Java-like extensions} 
+	 * and match the name of the main
 	 * (public) class or interface declared in the source. For example, if the source
-	 * declares a public class named "Foo", the name of the compilation should be
+	 * declares a public class named "Foo", the name of the compilation can be
 	 * "Foo.java". For the purposes of resolving bindings, types declared in the
 	 * source string hide types by the same name available through the classpath
 	 * of the given project.

@@ -145,7 +145,8 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	String getElementName();
 	/**
 	 * Returns this package fragment's root kind encoded as an integer.
-	 * A package fragment can contain <code>.java</code> source files,
+	 * A package fragment can contain source files (i.e. files with one of 
+	 * the {@link JavaCore#getJavaLikeExtensions() Java-like extensions}),
 	 * or <code>.class</code> files. This is a convenience method.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
