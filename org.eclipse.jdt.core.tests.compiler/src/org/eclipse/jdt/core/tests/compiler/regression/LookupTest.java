@@ -1834,6 +1834,32 @@ public void test055() {
 		"----------\n"
 	);
 }
+// final method in static inner class still found in extending classes
+public void test056() {
+    this.runConformTest(
+        new String[] {
+            "X.java",
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    I x = new Z();\n" + 
+			"    x.foo();\n" + 
+			"  }\n" + 
+			"  static interface I {\n" + 
+			"    Y foo();\n" + 
+			"  }\n" + 
+			"  static class Y {\n" + 
+			"    public final Y foo() { \n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"        return null; \n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  static class Z extends Y implements I {\n" + 
+			"      // empty\n" + 
+			"  }\n" + 
+			"}",
+        },
+        "SUCCESS");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
