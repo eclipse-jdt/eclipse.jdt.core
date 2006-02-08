@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -257,7 +257,7 @@ protected void notifyChanged(final BufferChangedEvent event) {
 	if (listeners != null) {
 		for (int i = 0, size = listeners.size(); i < size; ++i) {
 			final IBufferChangedListener listener = (IBufferChangedListener) listeners.get(i);
-			Platform.run(new ISafeRunnable() {
+			SafeRunner.run(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
 					Util.log(exception, "Exception occurred in listener of buffer change notification"); //$NON-NLS-1$
 				}

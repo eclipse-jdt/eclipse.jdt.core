@@ -428,7 +428,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
 			final IResourceChangeListener listener = this.preResourceChangeListeners[i];
 			if ((this.preResourceChangeEventMasks[i] & event.getType()) != 0)
-				Platform.run(new ISafeRunnable() {
+				SafeRunner.run(new ISafeRunnable() {
 					public void handleException(Throwable exception) {
 						Util.log(exception, "Exception occurred in listener of pre Java resource change notification"); //$NON-NLS-1$
 					}

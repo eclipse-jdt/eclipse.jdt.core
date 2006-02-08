@@ -1408,7 +1408,7 @@ public class DeltaProcessor {
 					start = System.currentTimeMillis();
 				}
 				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-				Platform.run(new ISafeRunnable() {
+				SafeRunner.run(new ISafeRunnable() {
 					public void handleException(Throwable exception) {
 						Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
 					}
@@ -1436,7 +1436,7 @@ public class DeltaProcessor {
 			if (!(listener instanceof TypeHierarchy)) continue;
 
 			// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-			Platform.run(new ISafeRunnable() {
+			SafeRunner.run(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
 					Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
 				}

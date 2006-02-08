@@ -221,7 +221,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				if (participants[i] instanceof IConfigurationElement) {
 					final IConfigurationElement configElement = (IConfigurationElement) participants[i];
 					final int participantIndex = i;
-					Platform.run(new ISafeRunnable() {
+					SafeRunner.run(new ISafeRunnable() {
 						public void handleException(Throwable exception) {
 							Util.log(exception, "Exception occurred while creating compilation participant"); //$NON-NLS-1$
 						}

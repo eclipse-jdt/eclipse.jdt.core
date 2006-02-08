@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
@@ -195,7 +195,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		final ReconcileContext context = new ReconcileContext(this, workingCopy);
 		for (int i = 0, length = participants.length; i < length; i++) {
 			final CompilationParticipant participant = participants[i];
-			Platform.run(new ISafeRunnable() {
+			SafeRunner.run(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
 					if (exception instanceof Error) {
 						throw (Error) exception; // errors are not supposed to be caught

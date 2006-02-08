@@ -25,31 +25,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IElementChangedListener;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.Region;
-import org.eclipse.jdt.internal.core.TypeVector;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -378,7 +358,7 @@ public void fireChange() {
 	listeners = (ArrayList)listeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
 		final ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
-		Platform.run(new ISafeRunnable() {
+		SafeRunner.run(new ISafeRunnable() {
 			public void handleException(Throwable exception) {
 				Util.log(exception, "Exception occurred in listener of Type hierarchy change notification"); //$NON-NLS-1$
 			}
