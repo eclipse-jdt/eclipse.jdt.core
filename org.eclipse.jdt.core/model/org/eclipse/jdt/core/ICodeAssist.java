@@ -144,13 +144,13 @@ public interface ICodeAssist {
 		throws JavaModelException;
 
 	/**
-	 * Returns the Java elements correspondiing to the given selected text in this compilation unit. 
+	 * Returns the Java elements corresponding to the given selected text in this compilation unit. 
 	 * The <code>offset</code> is the 0-based index of the first selected character. 
 	 * The <code>length</code> is the number of selected characters.
 	 * 
 	 * @param offset the given offset position
 	 * @param length the number of selected characters
-	 * @return the Java elements correspondiing to the given selected text
+	 * @return the Java elements corresponding to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -161,7 +161,7 @@ public interface ICodeAssist {
 	 */
 	IJavaElement[] codeSelect(int offset, int length) throws JavaModelException;
 	/**
-	 * Returns the Java elements correspondiing to the given selected text in this compilation unit. 
+	 * Returns the Java elements corresponding to the given selected text in this compilation unit. 
 	 * The <code>offset</code> is the 0-based index of the first selected character. 
 	 * The <code>length</code> is the number of selected characters.
 	 * It considers types in the working copies with the given owner first. In other words, 
@@ -175,7 +175,7 @@ public interface ICodeAssist {
 	 * @param offset the given offset position
 	 * @param length the number of selected characters
 	 * @param owner the owner of working copies that take precedence over their original compilation units
-	 * @return the Java elements correspondiing to the given selected text
+	 * @return the Java elements corresponding to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
