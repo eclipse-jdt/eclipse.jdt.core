@@ -6132,4 +6132,127 @@ public void test189() {
 		false, // do not flush A2.class
 		null);
 }
+
+// transitive closure on binary types does not need to include annotations 
+public void test190() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public @interface A {\n" +
+			"  int value();\n" +
+			"}\n"
+			},
+		"");
+	String binName1 = OUTPUT_DIR + File.separator + "bin1";
+	File bin1 = new File(binName1);
+	bin1.mkdir();
+	String [] javaClassLibs = Util.getJavaClassLibs();
+	int javaClassLibsLength;
+	String [] xClassLibs = new String[(javaClassLibsLength = javaClassLibs.length) + 2];
+	System.arraycopy(javaClassLibs, 0, xClassLibs, 0, javaClassLibsLength);
+	xClassLibs[javaClassLibsLength] = OUTPUT_DIR;
+	xClassLibs[javaClassLibsLength + 1] = binName1;
+	(new File(OUTPUT_DIR + File.separator + "A.class")).renameTo(new File(binName1 + File.separator + "A.class"));	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    @A(0)\n" + 
+			"    void foo() {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        new X().foo();\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS",
+		xClassLibs,
+		false, // do not flush
+		null);
+	String binName2 = OUTPUT_DIR + File.separator + "bin2";
+	File bin2 = new File(binName2);
+	bin2.mkdir();
+	(new File(OUTPUT_DIR + File.separator + "X.class")).renameTo(new File(binName2 + File.separator + "X.class"));	
+	String [] yClassLibs = new String[javaClassLibsLength + 2];
+	System.arraycopy(javaClassLibs, 0, yClassLibs, 0, javaClassLibsLength);
+	yClassLibs[javaClassLibsLength] = OUTPUT_DIR;
+	yClassLibs[javaClassLibsLength + 1] = binName2;
+	// Y compiles despite the fact that A is not on the classpath
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        new X().foo();\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS",
+		yClassLibs,
+		false, // do not flush
+		null);
+}
+
+// transitive closure on binary types does not need to include annotations - variant 
+public void test191() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+			"public @interface A {\n" +
+			"  int value();\n" +
+			"}\n"
+			},
+		"");
+	String binName1 = OUTPUT_DIR + File.separator + "bin1";
+	File bin1 = new File(binName1);
+	bin1.mkdir();
+	String [] javaClassLibs = Util.getJavaClassLibs();
+	int javaClassLibsLength;
+	String [] xClassLibs = new String[(javaClassLibsLength = javaClassLibs.length) + 2];
+	System.arraycopy(javaClassLibs, 0, xClassLibs, 0, javaClassLibsLength);
+	xClassLibs[javaClassLibsLength] = OUTPUT_DIR;
+	xClassLibs[javaClassLibsLength + 1] = binName1;
+	(new File(OUTPUT_DIR + File.separator + "A.class")).renameTo(new File(binName1 + File.separator + "A.class"));	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    @A(0)\n" + 
+			"    void foo() {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        new X().foo();\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS",
+		xClassLibs,
+		false, // do not flush
+		null);
+	String binName2 = OUTPUT_DIR + File.separator + "bin2";
+	File bin2 = new File(binName2);
+	bin2.mkdir();
+	(new File(OUTPUT_DIR + File.separator + "X.class")).renameTo(new File(binName2 + File.separator + "X.class"));	
+	String [] yClassLibs = new String[javaClassLibsLength + 2];
+	System.arraycopy(javaClassLibs, 0, yClassLibs, 0, javaClassLibsLength);
+	yClassLibs[javaClassLibsLength] = OUTPUT_DIR;
+	yClassLibs[javaClassLibsLength + 1] = binName2;
+	// Y compiles despite the fact that A is not on the classpath
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        new X().foo();\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS",
+		yClassLibs,
+		false, // do not flush
+		null);
+}
 }
