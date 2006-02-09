@@ -28019,4 +28019,29 @@ public void test906() {
 		"Unnecessary cast from null to I<Integer>\n" + 
 		"----------\n");
 }
+
+// parametrized method with array extends Object upper bound verification
+public void test907() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"public class X<T extends X<T, V>, V> {\n" + 
+			"    public void foo() {\n" + 
+			"        Y o = (new Z<Object>()).<Y, double[]> bar(Collections\n" + 
+			"                .singleton(new Y()));\n" + 
+			"        o.toString();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class Y extends X<Y, double[]> {\n" + 
+			"    // empty\n" + 
+			"}\n" + 
+			"class Z<V> {\n" + 
+			"    public <U extends X<U, W>, W extends V> U bar(Collection<U> c) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"},
+		"");
+}
 }
