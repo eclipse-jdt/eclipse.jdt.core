@@ -907,7 +907,6 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Possible  configurable option ID.
-	 * The name of this option is subject to change before 3.2 release.
 	 * @see #getDefaultOptions()
 	 * @since 3.2
 	 */
