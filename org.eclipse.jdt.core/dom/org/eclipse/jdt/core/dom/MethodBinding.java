@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
@@ -102,12 +101,12 @@ class MethodBinding implements IMethodBinding {
 		return name;
 	}
 
-	public IResolvedAnnotation[] getAnnotations() { 
-		AnnotationBinding[] annotations = this.binding.getAnnotations();
+	public IAnnotationBinding[] getAnnotations() { 
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annotations = this.binding.getAnnotations();
 		int length;
 		if (annotations == null || (length = annotations.length) == 0)
-			return ResolvedAnnotation.NoAnnotations;
-		IResolvedAnnotation[] domInstances = new ResolvedAnnotation[length];
+			return AnnotationBinding.NoAnnotations;
+		IAnnotationBinding[] domInstances = new AnnotationBinding[length];
 		for (int i = 0; i < length; i++)
 			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
 		return domInstances; 
@@ -123,12 +122,12 @@ class MethodBinding implements IMethodBinding {
 		return declaringClass;
 	}
 
-	public IResolvedAnnotation[] getParameterAnnotations(int index) {
-		AnnotationBinding[] annotations = this.binding.getParameterAnnotations(index);
+	public IAnnotationBinding[] getParameterAnnotations(int index) {
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annotations = this.binding.getParameterAnnotations(index);
 		int length;
 		if (annotations == null || (length = annotations.length) == 0)
-			return ResolvedAnnotation.NoAnnotations;
-		IResolvedAnnotation[] domInstances =new ResolvedAnnotation[length];
+			return AnnotationBinding.NoAnnotations;
+		IAnnotationBinding[] domInstances =new AnnotationBinding[length];
 		for (int i = 0; i < length; i++)
 			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
 		return domInstances; 
@@ -166,7 +165,7 @@ class MethodBinding implements IMethodBinding {
 
 	public Object getDefaultValue() {
 		if (isAnnotationMember())
-			return ResolvedMemberValuePair.buildDOMValue(this.binding.getDefaultValue(), this.resolver);
+			return MemberValuePairBinding.buildDOMValue(this.binding.getDefaultValue(), this.resolver);
 		return null;
 	}
 

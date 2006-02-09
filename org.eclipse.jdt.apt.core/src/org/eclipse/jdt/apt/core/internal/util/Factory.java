@@ -55,7 +55,7 @@ import org.eclipse.jdt.apt.core.internal.type.ErrorType;
 import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -221,7 +221,7 @@ public class Factory
      * @param env
      * @return a newly created {@link AnnotationMirror} object
      */
-    public static AnnotationMirror createAnnotationMirror(final IResolvedAnnotation annotation,
+    public static AnnotationMirror createAnnotationMirror(final IAnnotationBinding annotation,
                                                           final EclipseDeclarationImpl annotated,
                                                           final BaseProcessorEnv env)
     {
@@ -366,7 +366,7 @@ public class Factory
 				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env, leaf );				
 				if( o == null ) 
 					return null; 
-				assert( !( o instanceof IResolvedAnnotation ) ) : 
+				assert( !( o instanceof IAnnotationBinding ) ) : 
 					"Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " //$NON-NLS-1$
 					+ o.getClass().getName(); 
 				
@@ -380,9 +380,9 @@ public class Factory
         else if( domValue instanceof ITypeBinding )
 			returnValue = Factory.createTypeMirror((ITypeBinding)domValue, env);
 		
-        else if( domValue instanceof IResolvedAnnotation )
+        else if( domValue instanceof IAnnotationBinding )
 		{
-			returnValue = Factory.createAnnotationMirror((IResolvedAnnotation)domValue, decl, env);
+			returnValue = Factory.createAnnotationMirror((IAnnotationBinding)domValue, decl, env);
 		}
         else	        
 			// should never reach this point

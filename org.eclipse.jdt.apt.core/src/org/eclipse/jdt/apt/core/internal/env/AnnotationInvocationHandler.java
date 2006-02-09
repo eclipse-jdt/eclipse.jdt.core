@@ -26,7 +26,7 @@ import java.util.Collections;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 
@@ -195,11 +195,11 @@ public class AnnotationInvocationHandler implements InvocationHandler
 	    else if( domValue instanceof ITypeBinding )
 			throw new IllegalStateException("sourceValue is a type binding."); //$NON-NLS-1$
 		
-	    else if( domValue instanceof IResolvedAnnotation )
+	    else if( domValue instanceof IAnnotationBinding )
 		{
 			final AnnotationMirrorImpl annoMirror = 
 				(AnnotationMirrorImpl)Factory.createAnnotationMirror(
-					(IResolvedAnnotation)domValue, 
+					(IAnnotationBinding)domValue, 
 					_instance.getAnnotatedDeclaration(), 
 					_instance.getEnvironment());
 	        final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, expectedType);

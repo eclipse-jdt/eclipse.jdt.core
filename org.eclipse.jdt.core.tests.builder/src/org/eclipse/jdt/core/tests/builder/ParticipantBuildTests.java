@@ -368,7 +368,7 @@ public class ParticipantBuildTests extends Tests {
 						ITypeBinding typeBinding = typeDecl.resolveBinding();
 						if (typeBinding == null) continue;
 						typeBinding = typeBinding.getAnnotations()[0].getAnnotationType();
-						IResolvedAnnotation targetValue = typeBinding.getAnnotations()[0];
+						IAnnotationBinding targetValue = typeBinding.getAnnotations()[0];
 						IMethodBinding method = targetValue.getDeclaredMemberValuePairs()[0].getMethodBinding();
 						if (!"value".equals(method.getName()))
 							problems.add(new ParticipantProblem("method " + method.getName() + " not found", file.getName()));

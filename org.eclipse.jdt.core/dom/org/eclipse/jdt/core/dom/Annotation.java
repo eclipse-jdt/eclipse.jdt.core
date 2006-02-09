@@ -175,7 +175,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	 * @return the resolved annotation, or <code>null</code> if the annotation cannot be resolved
 	 * @since 3.2
 	 */	
-	public IResolvedAnnotation resolveAnnotation() {
+	public IAnnotationBinding resolveAnnotationBinding() {
 	    return this.ast.getBindingResolver().resolveAnnotation(this);
 	}
 }

@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.tests.builder.Tests;
@@ -307,7 +307,7 @@ public class ReadAnnotationTests2 extends Tests {
 		}
 	}
 	
-	private void assertAnnotation(final String[] expected, IResolvedAnnotation[] annotations)
+	private void assertAnnotation(final String[] expected, IAnnotationBinding[] annotations)
 	{
 		final int expectedLen = expected.length;		
 		TestCase.assertEquals("annotation number mismatch", expected.length, annotations.length); //$NON-NLS-1$
@@ -317,7 +317,7 @@ public class ReadAnnotationTests2 extends Tests {
 			expectedSet.add(expected[i]);
 			
 		int counter = 0;
-		for( IResolvedAnnotation mirror : annotations ){
+		for( IAnnotationBinding mirror : annotations ){
 			if( counter >= expectedLen )
 				TestCase.assertEquals("", mirror.toString()); //$NON-NLS-1$
 			else{

@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
@@ -49,18 +48,18 @@ class PackageBinding implements IPackageBinding {
 		this.resolver = resolver;
 	}
 
-	public IResolvedAnnotation[] getAnnotations() {
+	public IAnnotationBinding[] getAnnotations() {
 		try {
 			INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; 
 			if (!(nameEnvironment instanceof SearchableEnvironment))
-				return ResolvedAnnotation.NoAnnotations;
+				return AnnotationBinding.NoAnnotations;
 			NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
 			if (nameLookup == null)
-				return ResolvedAnnotation.NoAnnotations;
+				return AnnotationBinding.NoAnnotations;
 			final String pkgName = getName();
 			IPackageFragment[] pkgs = nameLookup.findPackageFragments(pkgName, false/*exact match*/);
 			if (pkgs == null)
-				return ResolvedAnnotation.NoAnnotations;
+				return AnnotationBinding.NoAnnotations;
 
 			for (int i = 0, len = pkgs.length; i < len; i++) {
 				int fragType = pkgs[i].getKind();
@@ -80,14 +79,14 @@ class PackageBinding implements IPackageBinding {
 							if (pkgDecl != null) {
 								List annos = pkgDecl.annotations();
 								if (annos == null || annos.isEmpty())
-									return ResolvedAnnotation.NoAnnotations; 
-								IResolvedAnnotation[] result = new IResolvedAnnotation[annos.size()];
+									return AnnotationBinding.NoAnnotations; 
+								IAnnotationBinding[] result = new IAnnotationBinding[annos.size()];
 								int index=0;
 		 						for (Iterator it = annos.iterator(); it.hasNext(); index++) {
-									result[index] = ((Annotation) it.next()).resolveAnnotation();
+									result[index] = ((Annotation) it.next()).resolveAnnotationBinding();
 									// not resolving bindings
 									if (result[index] == null)
-										return ResolvedAnnotation.NoAnnotations;							
+										return AnnotationBinding.NoAnnotations;							
 								}
 								return result;
 							}
@@ -99,25 +98,25 @@ class PackageBinding implements IPackageBinding {
 						if (answer != null && answer.isBinaryType()) {
 							IBinaryType type = answer.getBinaryType();
 							IBinaryAnnotation[] binaryAnnotations = type.getAnnotations();
-							AnnotationBinding[] binaryInstances =
+							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] binaryInstances =
 								BinaryTypeBinding.createAnnotations(binaryAnnotations, this.binding.environment);
-							AnnotationBinding[] allInstances =
-								AnnotationBinding.addStandardAnnotations(binaryInstances, type.getTagBits(), this.binding.environment);
+							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] allInstances =
+								org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding.addStandardAnnotations(binaryInstances, type.getTagBits(), this.binding.environment);
 							int total = allInstances.length;
-							IResolvedAnnotation[] domInstances = new ResolvedAnnotation[total];
+							IAnnotationBinding[] domInstances = new AnnotationBinding[total];
 							for (int a = 0; a < total; a++) {
 								domInstances[a] = this.resolver.getAnnotationInstance(allInstances[a]);
 								if (domInstances[a] == null) // not resolving binding
-									return ResolvedAnnotation.NoAnnotations; 
+									return AnnotationBinding.NoAnnotations; 
 							}
 							return domInstances;
 						}
 				}	
 			}		
 		} catch(JavaModelException e) {
-			return ResolvedAnnotation.NoAnnotations;
+			return AnnotationBinding.NoAnnotations;
 		}		
-		return ResolvedAnnotation.NoAnnotations;
+		return AnnotationBinding.NoAnnotations;
 	}
 
 	/*

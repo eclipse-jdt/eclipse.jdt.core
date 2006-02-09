@@ -93,13 +93,13 @@ public interface IMethodBinding extends IBinding {
 	 * is not the binding for an annotation type member.
 	 * <p>
 	 * Resolved values are represented as follows (same as for
-	 * {@link IResolvedMemberValuePair#getValue()}):
+	 * {@link IMemberValuePairBinding#getValue()}):
 	 * <ul>
 	 * <li>Primitive type - the equivalent boxed object</li>
 	 * <li>java.lang.Class - the <code>ITypeBinding</code> for the class object</li>
 	 * <li>java.lang.String - the string value itself</li>
 	 * <li>enum type - the <code>IVariableBinding</code> for the enum constant</li>
-	 * <li>annotation type - an <code>IResolvedAnnotation</code></li>
+	 * <li>annotation type - an <code>IAnnotationBinding</code></li>
 	 * <li>array type - an <code>Object[]</code> whose elements are as per above
 	 * (the language only allows single dimensional arrays in annotations)</li>
 	 * </ul>
@@ -122,7 +122,7 @@ public interface IMethodBinding extends IBinding {
 	 * not a valid index
 	 * @since 3.2
 	 */
-	public IResolvedAnnotation[] getParameterAnnotations(int paramIndex);
+	public IAnnotationBinding[] getParameterAnnotations(int paramIndex);
 
 	/**
 	 * Returns a list of type bindings representing the formal parameter types,

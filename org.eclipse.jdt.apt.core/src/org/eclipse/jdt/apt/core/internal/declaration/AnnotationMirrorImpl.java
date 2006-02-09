@@ -25,8 +25,8 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
-import org.eclipse.jdt.core.dom.IResolvedMemberValuePair;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MemberValuePair;
@@ -46,13 +46,13 @@ import com.sun.mirror.util.SourcePosition;
 public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 {
     /**The ast node that correspond to the annotation.*/
-    private final IResolvedAnnotation _domAnnotation;
+    private final IAnnotationBinding _domAnnotation;
     private final BaseProcessorEnv _env;
     /** the declaration that is annotated by this annotation or the annotation element declaration
      *  if this is (part of) a default value*/
     private final EclipseDeclarationImpl _annotated;
     
-    public AnnotationMirrorImpl(IResolvedAnnotation annotationAstNode, EclipseDeclarationImpl decl, BaseProcessorEnv env)
+    public AnnotationMirrorImpl(IAnnotationBinding annotationAstNode, EclipseDeclarationImpl decl, BaseProcessorEnv env)
     {
 		_domAnnotation = annotationAstNode;
         _env = env;
@@ -80,14 +80,14 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 
     public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
     {
-		final IResolvedMemberValuePair[] pairs = _domAnnotation.getDeclaredMemberValuePairs();
+		final IMemberValuePairBinding[] pairs = _domAnnotation.getDeclaredMemberValuePairs();
 		if (pairs.length == 0) {
 			return Collections.emptyMap();
 		}
 		
 		final Map<AnnotationTypeElementDeclaration, AnnotationValue> result =
 			new LinkedHashMap<AnnotationTypeElementDeclaration, AnnotationValue>(pairs.length * 4 / 3 + 1 );
-		for( IResolvedMemberValuePair pair : pairs ){
+		for( IMemberValuePairBinding pair : pairs ){
 			 final String name = pair.getName();
              if( name == null ) continue;
              IMethodBinding elementMethod = pair.getMethodBinding();            
@@ -142,8 +142,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     public ITypeBinding[] getMemberValueTypeBinding(String membername)
     {
         if( membername == null ) return null;
-		final IResolvedMemberValuePair[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
-		for( IResolvedMemberValuePair pair : declaredPairs ){			
+		final IMemberValuePairBinding[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
+		for( IMemberValuePairBinding pair : declaredPairs ){			
 			if( membername.equals(pair.getName()) ){
 				final Object value = pair.getValue();
 				return getValueTypeBinding(value, pair.getMethodBinding().getReturnType());
@@ -191,8 +191,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     public Object getValue(final String memberName)
     {
 		if( memberName == null ) return null;
-		final IResolvedMemberValuePair[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
-		for( IResolvedMemberValuePair pair : declaredPairs ){			
+		final IMemberValuePairBinding[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
+		for( IMemberValuePairBinding pair : declaredPairs ){			
 			if( memberName.equals(pair.getName()) ){
 				return pair.getValue();				
 			}
@@ -221,7 +221,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
         return null;
     }
     
-    public IResolvedAnnotation getResolvedAnnotaion(){return _domAnnotation; }
+    public IAnnotationBinding getResolvedAnnotaion(){return _domAnnotation; }
 
     
 

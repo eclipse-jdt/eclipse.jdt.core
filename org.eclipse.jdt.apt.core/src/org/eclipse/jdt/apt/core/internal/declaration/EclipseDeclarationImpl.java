@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -58,7 +58,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
     }        
 
     <A extends Annotation> A _getAnnotation(Class<A> annotationClass,
-                                            IResolvedAnnotation[] annoInstances)
+                                            IAnnotationBinding[] annoInstances)
     {
     	if( annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
     		return null;
@@ -68,7 +68,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         annoTypeName = annoTypeName.replace('$', '.');
 		final int len = annoInstances == null ? 0 : annoInstances.length;
         if( len == 0 ) return null;
-        for( IResolvedAnnotation annoInstance :  annoInstances){
+        for( IAnnotationBinding annoInstance :  annoInstances){
             final ITypeBinding binding = annoInstance.getAnnotationType();            
             if( binding != null && binding.isAnnotation() ){
                 final String curTypeName = binding.getQualifiedName();
@@ -84,12 +84,12 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         return null; 
     }
 
-    Collection<AnnotationMirror> _getAnnotationMirrors(IResolvedAnnotation[] annoInstances)
+    Collection<AnnotationMirror> _getAnnotationMirrors(IAnnotationBinding[] annoInstances)
     {
 		final int len = annoInstances == null ? 0 : annoInstances.length;
         if( len == 0 ) return Collections.emptyList();
         final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(len);
-        for(IResolvedAnnotation annoInstance : annoInstances){
+        for(IAnnotationBinding annoInstance : annoInstances){
             final AnnotationMirrorImpl annoMirror =
                         (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
             result.add(annoMirror);
@@ -103,7 +103,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 		final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.size());
 		for( org.eclipse.jdt.core.dom.Annotation annoInstance : annoInstances){
 			final AnnotationMirrorImpl annoMirror =
-				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
+				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotationBinding(), this, _env);
 			result.add(annoMirror);
 		}
 		return result;

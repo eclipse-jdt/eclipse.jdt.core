@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -75,15 +74,15 @@ class TypeBinding implements ITypeBinding {
 		this.resolver = resolver;
 	}
 
-	public IResolvedAnnotation[] getAnnotations() { 
-		IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
+	public IAnnotationBinding[] getAnnotations() { 
+		IAnnotationBinding[] domInstances = AnnotationBinding.NoAnnotations;
 		if (this.binding.isAnnotationType() || this.binding.isClass() || this.binding.isEnum() || this.binding.isInterface()) {
 			org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refType = 
 				(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.binding;
-			AnnotationBinding[] internalAnnotations = refType.getAnnotations();
+			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = refType.getAnnotations();
 			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 			if (length > 0) {
-				domInstances = new ResolvedAnnotation[length];
+				domInstances = new AnnotationBinding[length];
 				for (int i = 0; i < length; i++)
 					domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
 			}

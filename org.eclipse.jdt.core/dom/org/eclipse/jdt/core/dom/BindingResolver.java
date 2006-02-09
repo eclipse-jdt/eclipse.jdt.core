@@ -11,9 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 /**
@@ -105,7 +105,7 @@ class BindingResolver {
 	 * @return the corresponding node where the bindings is declared, 
 	 *    or <code>null</code> if none
 	 */
-	ASTNode findDeclaringNode(IResolvedAnnotation instance) {
+	ASTNode findDeclaringNode(IAnnotationBinding instance) {
 		return null;
 	}
 
@@ -135,6 +135,20 @@ class BindingResolver {
 	 * @return the new method binding
 	 */
 	IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+		return null;
+	}
+	
+	/**
+	 * Returns the new member value pair binding corresponding to the given old value pair binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param valuePair the old value pair binding
+	 * @return the new member value pair binding
+	 */
+	IMemberValuePairBinding getMemberValuePairBinding(ElementValuePair valuePair) {
 		return null;
 	}
 
@@ -190,7 +204,7 @@ class BindingResolver {
 	 * @param instance the old annotation 
 	 * @return the new DOM annotation
 	 */
-	IResolvedAnnotation getAnnotationInstance(AnnotationBinding instance) {
+	IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding instance) {
 		return null;
 	}
 
@@ -818,7 +832,7 @@ class BindingResolver {
 	/**
 	 * Resolves the given annotation instance and returns the DOM representation for it.
 	 * <p>
-	 * The implementation of {@link Annotation#resolveAnnotation()}
+	 * The implementation of {@link Annotation#resolveAnnotationBinding()}
 	 * forwards to this method. 
 	 * </p>
 	 * <p>
@@ -830,7 +844,7 @@ class BindingResolver {
 	 * @return the DOM annotation representation for the given ast node, or 
 	 *    <code>null</code> if none is available
 	 */
-	IResolvedAnnotation resolveAnnotation(Annotation annotation) {
+	IAnnotationBinding resolveAnnotation(Annotation annotation) {
 		return null;
 	}
 

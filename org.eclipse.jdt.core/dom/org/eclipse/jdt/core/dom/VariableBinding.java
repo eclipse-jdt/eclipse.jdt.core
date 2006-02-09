@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -43,12 +42,12 @@ class VariableBinding implements IVariableBinding {
 		this.binding = binding;
 	}
 
-	public IResolvedAnnotation[] getAnnotations() { 
-		AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
+	public IAnnotationBinding[] getAnnotations() { 
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
 		// the variable is not an enum constant nor a field nor an argument.
 		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
-		IResolvedAnnotation[] domInstances =
-			length == 0 ? ResolvedAnnotation.NoAnnotations : new ResolvedAnnotation[length];
+		IAnnotationBinding[] domInstances =
+			length == 0 ? AnnotationBinding.NoAnnotations : new AnnotationBinding[length];
 		for (int i = 0; i < length; i++)
 			domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
 		return domInstances;                                                                  

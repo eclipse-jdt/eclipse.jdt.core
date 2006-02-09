@@ -7,6 +7,8 @@
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
+ *    IBM Corporation - changed interface to extend IBinding
+ *    IBM Corporation - renamed from IResolvedMemberValuePair to IMemberValuePairBinding
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
@@ -14,10 +16,13 @@ package org.eclipse.jdt.core.dom;
  * Represents a resolved instance of an annotation's member value pair.
  * Resolved annotation are computed along with other bindings; these objects
  * correspond to {@link MemberValuePair} nodes.
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
  * 
  * @since 3.2
  */
-public interface IResolvedMemberValuePair {
+public interface IMemberValuePairBinding extends IBinding {
 /**
  * Returns the name of the annotation type member.
  * 
@@ -39,7 +44,7 @@ public IMethodBinding getMethodBinding();
  * <li>java.lang.Class - the <code>ITypeBinding</code> for the class object</li>
  * <li>java.lang.String - the string value itself</li>
  * <li>enum type - the <code>IVariableBinding</code> for the enum constant</li>
- * <li>annotation type - an <code>IResolvedAnnotation</code></li>
+ * <li>annotation type - an <code>IAnnotationBinding</code></li>
  * <li>array type - an <code>Object[]</code> whose elements are as per above
  * (the language only allows single dimensional arrays in annotations)</li>
  * </ul>

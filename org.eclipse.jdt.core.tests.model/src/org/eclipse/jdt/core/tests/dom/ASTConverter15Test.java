@@ -6276,7 +6276,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
 		assertNotNull("Should not be null", binding);
-		IResolvedAnnotation[] annotations = binding.getAnnotations();
+		IAnnotationBinding[] annotations = binding.getAnnotations();
 		assertNotNull("Should not be null", annotations);
 		assertEquals("Should be empty", 0, annotations.length);
 	}
@@ -6308,8 +6308,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 2, modifiers.size());
 		assertTrue("Wrong type", modifiers.get(0) instanceof NormalAnnotation);
 		NormalAnnotation normalAnnotation = (NormalAnnotation) modifiers.get(0);
-		IResolvedAnnotation resolvedAnnotation = normalAnnotation.resolveAnnotation();
-		IResolvedMemberValuePair[] pairs = resolvedAnnotation.getDeclaredMemberValuePairs();
+		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
+		IMemberValuePairBinding[] pairs = annotationBinding.getDeclaredMemberValuePairs();
 		assertEquals("Wrong size", 1, pairs.length);
 		assertNotNull("Should not be null", pairs[0].getValue());
 	}

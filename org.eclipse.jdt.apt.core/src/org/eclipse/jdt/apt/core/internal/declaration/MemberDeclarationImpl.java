@@ -38,20 +38,20 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
-		final IResolvedAnnotation[] instances = getAnnotationInstances();
+		final IAnnotationBinding[] instances = getAnnotationInstances();
 		return _getAnnotation(annotationClass, instances);
     }
 
     public Collection<AnnotationMirror> getAnnotationMirrors()
     {
-		final IResolvedAnnotation[] instances = getAnnotationInstances();
+		final IAnnotationBinding[] instances = getAnnotationInstances();
 		return _getAnnotationMirrors(instances);		
     }
 	
-	private IResolvedAnnotation[] getAnnotationInstances()
+	private IAnnotationBinding[] getAnnotationInstances()
 	{
 		final IBinding binding = getDeclarationBinding();
-		final IResolvedAnnotation[] instances;
+		final IAnnotationBinding[] instances;
 		switch( binding.getKind() )
 		{
 		case IBinding.TYPE:

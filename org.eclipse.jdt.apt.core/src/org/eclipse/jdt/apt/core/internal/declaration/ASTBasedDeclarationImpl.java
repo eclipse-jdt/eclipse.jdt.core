@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -111,19 +111,19 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 	
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
-		final IResolvedAnnotation[] instances = getAnnotationInstancesFromAST();
+		final IAnnotationBinding[] instances = getAnnotationInstancesFromAST();
 		return _getAnnotation(annotationClass, instances);
     }
 
     public Collection<AnnotationMirror> getAnnotationMirrors()
     {
-		final IResolvedAnnotation[] instances = getAnnotationInstancesFromAST();
+		final IAnnotationBinding[] instances = getAnnotationInstancesFromAST();
 		return _getAnnotationMirrors(instances);		
     }
 	
-	private IResolvedAnnotation[] getAnnotationInstancesFromAST()
+	private IAnnotationBinding[] getAnnotationInstancesFromAST()
 	{	
-		IResolvedAnnotation[] instances = null;
+		IAnnotationBinding[] instances = null;
 		List extendsMods = null;
 		switch( _astNode.getNodeType() )
 		{
@@ -156,13 +156,13 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 				if( extMod.isAnnotation() )
 					count ++;
 			}
-			instances = new IResolvedAnnotation[count];
+			instances = new IAnnotationBinding[count];
 			int index = 0;
 			for( Object obj : extendsMods ){
 				final IExtendedModifier extMod = (IExtendedModifier)obj;
 				if( extMod.isAnnotation() )
 					instances[index ++] = 
-						((org.eclipse.jdt.core.dom.Annotation)extMod).resolveAnnotation();
+						((org.eclipse.jdt.core.dom.Annotation)extMod).resolveAnnotationBinding();
 			}
 		}
 		return instances;

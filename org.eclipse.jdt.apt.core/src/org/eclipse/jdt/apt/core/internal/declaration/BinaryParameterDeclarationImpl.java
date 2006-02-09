@@ -28,7 +28,7 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -101,14 +101,14 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
-		final IResolvedAnnotation[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
+		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
         return _getAnnotation(annotationClass, paramAnnos);
     }
 
     public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
-		final IResolvedAnnotation[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
+		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
         return _getAnnotationMirrors(paramAnnos);
     }    
     

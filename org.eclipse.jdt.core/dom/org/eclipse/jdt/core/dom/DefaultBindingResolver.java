@@ -43,11 +43,11 @@ import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -178,7 +178,7 @@ class DefaultBindingResolver extends BindingResolver {
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
 
-	synchronized ASTNode findDeclaringNode(IResolvedAnnotation instance) {
+	synchronized ASTNode findDeclaringNode(IAnnotationBinding instance) {
 		if (instance == null)
 			return null;
 		return (ASTNode) this.bindingsToAstNodes.get(instance);
@@ -250,6 +250,18 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	
+	synchronized IMemberValuePairBinding getMemberValuePairBinding(ElementValuePair valuePair) {
+		if (valuePair == null) return null;
+		IMemberValuePairBinding binding = 
+			(IMemberValuePairBinding) this.bindingTables.compilerBindingsToASTBindings.get(valuePair);
+		if (binding != null)
+			return binding;
+		binding = new MemberValuePairBinding(valuePair, this);
+		this.bindingTables.compilerBindingsToASTBindings.put(valuePair, binding);
+		return binding;
+	}
+
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -355,13 +367,13 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 	
-	synchronized IResolvedAnnotation getAnnotationInstance(AnnotationBinding internalInstance) {
+	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
-		IResolvedAnnotation domInstance = 
-			(IResolvedAnnotation) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
+		IAnnotationBinding domInstance = 
+			(IAnnotationBinding) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
 		if (domInstance != null)
 			return domInstance;
-		domInstance = new ResolvedAnnotation(internalInstance, this);
+		domInstance = new AnnotationBinding(internalInstance, this);
 		this.bindingTables.compilerBindingsToASTBindings.put(internalInstance, domInstance);
 		return domInstance;
 	}
@@ -1550,13 +1562,13 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
-	synchronized IResolvedAnnotation resolveAnnotation(final Annotation domASTNode) {
+	synchronized IAnnotationBinding resolveAnnotation(final Annotation domASTNode) {
 		Object oldNode = this.newAstToOldAst.get(domASTNode);
 		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
 			org.eclipse.jdt.internal.compiler.ast.Annotation internalAstNode = 
 				(org.eclipse.jdt.internal.compiler.ast.Annotation) oldNode;
 			
-			IResolvedAnnotation domAnnotation = this.getAnnotationInstance(internalAstNode.getCompilerAnnotation());
+			IAnnotationBinding domAnnotation = this.getAnnotationInstance(internalAstNode.getCompilerAnnotation());
 			if (domAnnotation == null)
 				return null;
 			this.bindingsToAstNodes.put(domAnnotation, domASTNode);			

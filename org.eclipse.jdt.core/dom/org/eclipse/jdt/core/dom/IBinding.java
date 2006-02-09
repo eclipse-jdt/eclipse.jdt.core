@@ -68,6 +68,26 @@ public interface IBinding {
 	public static final int METHOD = 4;
 
 	/**
+	 * Kind constant (value 5) indicating an annotation binding.
+	 * Bindings of this kind can be safely cast to <code>IAnnotationBinding</code>.
+	 * 
+	 * @see #getKind()
+	 * @see IAnnotationBinding
+	 * @since 3.2
+	 */
+	public static final int ANNOTATION = 5;
+
+	/**
+	 * Kind constant (value 6) indicating a member value pair binding.
+	 * Bindings of this kind can be safely cast to <code>IMemberValuePairBinding</code>.
+	 * 
+	 * @see #getKind()
+	 * @see IMemberValuePairBinding
+	 * @since 3.2
+	 */
+	public static final int MEMBER_VALUE_PAIR = 6;
+
+	/**
 	 * Return the resolved annotations associated with this binding.
 	 * <ul>
 	 * <li>Package bindings - these are annotations on a package declaration.
@@ -80,22 +100,31 @@ public interface IBinding {
 	 * parameterized.</li>
 	 * <li>Variable bindings - these are annotations on a field, enum constant,
 	 * or formal parameter declaration.</li>
+	 * <li>Annotation bindings - an empty array is always returned</li>
+	 * <li>Member value pair bindings - an empty array is always returned<li>
 	 * </ul>
 	 * 
 	 * @return the list of resolved annotations, or the empty list if there are no
 	 * annotations associated with the object
 	 * @since 3.2
 	 */
-	public IResolvedAnnotation[] getAnnotations();
+	public IAnnotationBinding[] getAnnotations();
 
 	/**
-	 * Returns the kind of bindings this is.
-	 * 
-	 * @return one of the kind constants:
-	 * 	<code>PACKAGE</code>,
+	 * Returns the kind of bindings this is. That is one of the kind constants:
+	 * <code>PACKAGE</code>,
 	 * 	<code>TYPE</code>,
 	 * 	<code>VARIABLE</code>,
-	 * 	or <code>METHOD</code>.
+	 * 	<code>METHOD</code>,
+	 * 	<code>ANNOTATION</code>,
+	 * or <code>MEMBER_VALUE_PAIR</code>.
+	 * <p>
+	 * Note that additional kinds might be added in the
+	 * future, so clients should not assume this list is exhaustive and 
+	 * should program defensively, e.g. by having a reasonable default
+	 * in a switch statement.
+	 * </p>
+	 * @return one of the kind constants
 	 */
 	public int getKind();
 	
@@ -166,8 +195,9 @@ public interface IBinding {
 	 * <li>the "length" field of an array type</li>
 	 * <li>the default constructor of a source class</li>
 	 * <li>the constructor of an anonymous class</li>
+	 * <li>member value pairs</li>
 	 * </ul>
-	 * For all other kind of type, method, variable, and package bindings,
+	 * For all other kind of type, method, variable, annotation and package bindings,
 	 * this method returns non-<code>null</code>.
 	 * </p>
 	 * 
@@ -230,6 +260,9 @@ public interface IBinding {
 	 * instance and the key of the corresponding member in the generic
 	 * type</li>
 	 * </ul>
+	 * </p>
+	 * <p>Note that the key for annotation bindings and member value pair bindings is
+	 * not yet implemented. This returns <code>null</code> for these 2 kinds of bindings.
 	 * </p>
 	 * 
 	 * @return the key for this binding

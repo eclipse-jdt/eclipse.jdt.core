@@ -298,6 +298,8 @@ public class CompilationUnit extends ASTNode {
      * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
      * <li>type variable - a <code>TypeParameter</code></li>
      * <li>capture binding - none</li>
+     * <li>annotation binding - an <code>Annotation</code></li>
+     * <li>member value pair binding - an <code>MemberValuePair</code></li>
 	 * </ul>
      * For parameterized or raw type bindings, the declaring node is
      * that of the corresponding generic type. And for parameterized or raw
@@ -322,24 +324,6 @@ public class CompilationUnit extends ASTNode {
 		return this.ast.getBindingResolver().findDeclaringNode(binding);
 	}
 	
-	/**
-	 * Finds the corresponding AST node in the given compilation unit from 
-	 * which the given resolved annotation originated. Returns <code>null</code>
-	 * if the resolved annotation does not correspond to any node in this compilation unit.
-	 *
-	 * This method always returns <code>null</code> when the resolved annotation
-	 * comes from a different AST.
-	 * 
-	 * @param resolvedAnnotation the resolved annotation
-	 * @return the corresponding node where the given resolved annotation is declared,
-	 * or <code>null</code> if the resolved annotation does not correspond to a node in this
-	 * compilation unit or if bindings were not requested when this AST was built
-	 * @since 3.2
-	 */
-	public ASTNode findDeclaringNode(IResolvedAnnotation resolvedAnnotation) {
-		return this.ast.getBindingResolver().findDeclaringNode(resolvedAnnotation);
-	}
-
 	/**
 	 * Finds the corresponding AST node in the given compilation unit from 
 	 * which the binding with the given key originated. Returns
