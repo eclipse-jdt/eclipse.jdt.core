@@ -606,6 +606,7 @@ public class ASTParser {
      */
 	public ASTNode createAST(IProgressMonitor monitor) {
 	   ASTNode result = null;
+	   if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
 		try {
 			if ((this.rawSource == null)
 		   	  && (this.compilationUnitSource == null)
@@ -616,6 +617,7 @@ public class ASTParser {
 		} finally {
 	   	   // re-init defaults to allow reuse (and avoid leaking)
 	   	   initializeDefaults();
+	   	   if (monitor != null) monitor.done();
 		}
    	   return result;
 	}
