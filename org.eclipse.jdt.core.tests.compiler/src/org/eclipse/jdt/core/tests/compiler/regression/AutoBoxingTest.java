@@ -3493,4 +3493,23 @@ public void test117() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+
+// Integer array and method with T extends Integer bound
+public void test118() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static <T extends Integer> void foo(final T[] p) {\n" +
+			// we have a warning here, since no class can extend Integer, but the code
+			// still needs to execute
+			"        System.out.println(p[0] / 4);\n" + 
+			"    }\n" + 
+			"    public static void main(final String[] args) {\n" + 
+			"        X.foo(new Integer[] { 4, 8, 16 });\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"1");
+}
 }
