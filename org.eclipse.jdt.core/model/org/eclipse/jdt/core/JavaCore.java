@@ -904,16 +904,6 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK= PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
-	
-	// TODO (olivier) remove warning for name change before 3.2 release
-	/**
-	 * Possible  configurable option ID.
-	 * The name of this option is subject to change before 3.2 release.
-	 * @see #getDefaultOptions()
-	 * @since 3.2
-	 * @deprecated Use TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC instead
-	 */
-	public static final String CODEASSIST_TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".codeAssist.timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
 
 	/**
 	 * Possible  configurable option ID.

@@ -87,9 +87,6 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
-		// TODO (olivier) To remove after M4
-		// deprecated constant
-		defaultOptionsMap.put("org.eclipse.jdt.core.codeAssist.timeoutForParameterNameFromAttachedJavadoc", "50"); //$NON-NLS-1$//$NON-NLS-2$
 		
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
