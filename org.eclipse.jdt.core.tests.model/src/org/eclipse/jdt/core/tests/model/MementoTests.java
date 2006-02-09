@@ -30,7 +30,7 @@ public MementoTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testArray";
-//	TESTS_NAMES = new String[] { "testProjectMemento3" };
+//	TESTS_NAMES = new String[] { "testPackageFragmentRootMemento8" };
 //	TESTS_NUMBERS = new int[] { 8 };
 //	TESTS_RANGE = new int[] { 6, -1 };
 }
@@ -581,6 +581,19 @@ public void testPackageFragmentRootMemento7() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalJCLPathString());
 	assertMemento(
 		"=P/" + getEscapedExternalJCLPath() + "",
+		root);
+}
+/*
+ * Tests that a library folder package fragment root being another project
+ * can be persisted and restored using its memento.
+ * (regression test for bug 108539 Error popup at breakpoint in tomcat project)
+ */
+public void testPackageFragmentRootMemento8() {
+	IJavaProject project = getJavaProject("P");
+	IProject otherLibFolder = getProject("/OtherProj");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(otherLibFolder);
+	assertMemento(
+		"=P/\\/OtherProj",
 		root);
 }
 /**

@@ -1762,7 +1762,11 @@ public class JavaProject
 						return getPackageFragmentRoot(resource);
 					}
 					return getPackageFragmentRoot0(path);
+				} else if (segmentCount == 1) {
+					// lib being another project
+					return getPackageFragmentRoot(this.project.getWorkspace().getRoot().getProject(path.lastSegment()));
 				} else {
+					// lib being a folder
 					return getPackageFragmentRoot(this.project.getWorkspace().getRoot().getFolder(path));
 				}
 		}
