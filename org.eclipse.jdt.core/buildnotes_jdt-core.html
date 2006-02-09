@@ -112,7 +112,7 @@ We will now trust that the Ant build was successful and propagate any changes to
 <br>Note: When projects are associated with the Java builder, it is able to track structural changes to classfiles (signatures etc...) and only recompile
 dependents of structurally changed classfiles. In the absence of a Java builder on a prereq project, all modified classfiles will be considered as
 (potentially) structurally changed; and thus recompilation will be less optimal.</li>
-<li>Access restriction warnings (discouraged & non-accessible) can now be silenced using <code>@SuppressWarnings("restriction")</code>.
+<li>Access restriction warnings (discouraged &amp; non-accessible) can now be silenced using <code>@SuppressWarnings("restriction")</code>.
      Note: if certain restrictions are configured as errors, the annotation has no effect. </li>
 <li>Added API <code>org.eclipse.jdt.core.formatter.CodeFormatter#createIndentationString(int)</code> to return the indentation string corresponding to the given indentation level.<br>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111446">111446</a> for details.</li>
