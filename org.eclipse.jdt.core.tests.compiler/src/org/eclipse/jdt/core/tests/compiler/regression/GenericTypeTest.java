@@ -28044,4 +28044,18 @@ public void test907() {
 			"}\n"},
 		"");
 }
+
+// check capture for conditional operator - variant
+public void test908() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"    protected <T> void foo(Class<? extends T> clazz) {\n" + 
+			"        Class<? extends T> l = clazz.isInterface() ? bar(clazz) : clazz;\n" + 
+			"    }\n" + 
+			"    abstract public <T> Class<? extends T> bar(Class<T> p);\n" + 
+			"}"},
+		"");
+}
 }
