@@ -714,8 +714,7 @@ public int nullStatus(FlowInfo flowInfo) {
 				return FlowInfo.UNKNOWN;
 			}
 	}
-	return FlowInfo.NON_NULL; 
-// REVIEW should never get here?
+	return FlowInfo.NON_NULL; // never get there 
 }
 
 	/**

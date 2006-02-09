@@ -198,10 +198,6 @@ public void test0007_local_with_member() {
 }
 
 // null analysis -- local with member
-// REVIEW le diagnostic montre x.m au lieu de x ; noter que c'est aussi le cas pour
-// REVIEW      le message "n'a pas été initialisé" ; ouvrir un bug dédié ?
-// REVIEW      la cause est que QualifiedNameReference est l'ASTNode concerné, et que l'on
-// REVIEW      n'a pas de support pour en montrer une sous-partie
 public void test0008_local_with_member() {
 	this.runNegativeTest(
 		new String[] {
@@ -1757,7 +1753,7 @@ public void test0318_if_else_nested() {
 }
 
 // null analysis - if/else
-// REVIEW we do nothing at this point to diagnose the contents of fake reachable code
+// we do nothing to diagnose the contents of fake reachable code
 public void test0319_if_else_dead_branch() {
 	this.runConformTest(
 		new String[] {
@@ -1766,7 +1762,7 @@ public void test0319_if_else_dead_branch() {
 			"  void foo(Object o, boolean b) {\n" + 
 			"    if (false) {\n" + 
 			"      o = null;\n" + 
-			"      if (o == null) { /* */ }\n" + 
+			"      if (o == null) { /* */ }\n" + // may have considered complaining here 
 			"    }\n" + 
 			"  }\n" + 
 			"}"},
@@ -1909,8 +1905,8 @@ public void test0325_if_else_nested() {
 }
 
 // null analysis - if/else
-// REVIEW limit: we cannot sync on external factors, even if this is a pattern
-// REVIEW that is quite used
+// limit: we cannot sync on external factors, even if this is a pattern
+// that is quite used
 public void test0326_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -1933,8 +1929,8 @@ public void test0326_if_else() {
 }
 
 // null analysis - if/else
-// REVIEW limit: we cannot sync on external factors, even if this is a pattern
-// REVIEW that is quite used
+// limit: we cannot sync on external factors, even if this is a pattern
+// that is quite used
 public void test0327_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -1983,7 +1979,6 @@ public void test0328_if_else() {
 }
 
 // null analysis - if/else
-// REVIEW may be surprising within more elaborate code
 public void test0329_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -2551,7 +2546,7 @@ public void test0422_while() {
 }
 
 // null analysis -- while
-// REVIEW we get one extraneous message that looks a bit strange
+// the second message looks a bit strange
 public void test0423_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3157,10 +3152,10 @@ public void test0448_while() {
 } 
 
 // null analysis - while
-// REVIEW this series (up to 451) shows that the merge of the states
-// REVIEW potential non null and potential unknown yields damages in
-// REVIEW case of nested loops (unested loops still OK because we can
-// REVIEW carry the definite non null property)
+// this series (up to 451) shows that the merge of the states
+// potential non null and potential unknown yields damages in
+// case of nested loops (unested loops still OK because we can
+// carry the definite non null property)
 public void test0449_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -5383,7 +5378,6 @@ public void _test1009() {
 		"----------\n");
 }
 
-// REVIEW maybe leave this one in AssignmentTest?
 public void test1010() {
 	this.runConformTest(
 		new String[] {
@@ -5459,7 +5453,8 @@ public void test1012() {
 	);
 }
 
-// REVIEW here we do not catch the dead branch: x cannot equal this then null with no assignment in between
+// x cannot equal this then null with no assignment in between
+// each diagnostic is locally sound though
 public void test1013() {
 	this.runNegativeTest(
 		new String[] {

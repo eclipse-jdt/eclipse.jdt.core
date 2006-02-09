@@ -9905,7 +9905,6 @@ protected boolean resumeAfterRecovery() {
 protected boolean resumeOnSyntaxError() {
 	this.checkExternalizeStrings = false;
 	this.scanner.checkNonExternalizedStringLiterals = false;
-	// REVIEW don't know if we should reset checkNullReferences here as well...
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery

@@ -551,10 +551,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
-	if ((this.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0) {
-		this.modifiers |= ClassFileConstants.AccDeprecated;
-		// REVIEW already done in getAnnotationsTagBits
-	}
+	getAnnotationTagBits(); // marks as deprecated by side effect
 	ReferenceBinding enclosingType = this.enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
 		modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
@@ -1109,8 +1106,6 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			field.modifiers |= ClassFileConstants.AccDeprecated;
-		// REVIEW in the case of fields, getAnnotationTagBits does not mark, whereas it
-		//        does it for types
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	

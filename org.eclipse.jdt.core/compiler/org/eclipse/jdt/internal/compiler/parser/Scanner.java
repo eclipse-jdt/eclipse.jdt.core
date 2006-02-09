@@ -1844,7 +1844,7 @@ public final void jumpOverMethodBody() {
 										getNextUnicodeChar();
 									}
 							   	}
-								recordComment(TokenNameCOMMENT_LINE);  // REVIEW why do we record comments while jumping over (method bodies)?
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 										if (this.checkNonExternalizedStringLiterals) {

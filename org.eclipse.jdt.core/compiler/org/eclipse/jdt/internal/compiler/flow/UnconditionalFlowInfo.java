@@ -58,10 +58,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// 0 1 is assigned non null or potential anything but null
 	// 1 0 is assigned null or potential null
 	// 1 1 is potential null and potential anything but null or definite unknown
-	// REVIEW consider reintroducing the difference between potential non null and potential
-	// REVIEW unknown; if this is done, rename to nullAssignmentBit[1-4] since the semantics
-	// REVIEW would be ever less clear
-	// REVIEW went public in order to grant access to tests; do not like it...
+	// consider reintroducing the difference between potential non null and potential
+	// unknown; if this is done, rename to nullAssignmentBit[1-4] since the semantics
+	// would be ever less clear
+	// went public in order to grant access to tests; do not like it...
 
 	public static final int extraLength = 6;
 	public long extra[][];
@@ -91,7 +91,6 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 	// coming with otherInits, because of loops
 	boolean considerNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0;
 	long a1, na1, a2, na2, a3, a4, na4, b1, b2, nb2, b3, nb3, b4, nb4;
-	// REVIEW does an inner declaration save stack space? does duplicate declaration waste time?
 	if (considerNulls) {
 		if ((this.tagBits & NULL_FLAG_MASK) == 0) {
 			this.nullAssignmentStatusBit1 = otherInits.nullAssignmentStatusBit1;
@@ -103,14 +102,6 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 			}
 		}
 		else {
-		// TODO (maxime) indent as follows: 
-			/*
-			 *   a 
-			 *   	| (b
-			 *   		& c)
-			 *   
-			 */
-			// REVIEW indentation example
 			this.nullAssignmentStatusBit1 =
 				(b1 = otherInits.nullAssignmentStatusBit1) 
 					| ((a1 = this.nullAssignmentStatusBit1) 
@@ -309,7 +300,6 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 			otherLength);
 	}
 	this.addPotentialNullInfoFrom(otherInits);
-	// REVIEW inline?
 	return this;
 }
 
@@ -681,9 +671,7 @@ final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 		return false;
 	}
 	if ((local.type.tagBits & TagBits.IsBaseType) != 0 || 
-			local.constant() != Constant.NotAConstant) { 
-		// REVIEW only true if local is of a non object type, hence 
-		// REVIEW		second test is useless?
+			local.constant() != Constant.NotAConstant) { // String instances
 		return true;
 	}
 	int position = local.id + this.maxFieldCount;
@@ -807,17 +795,10 @@ final private boolean isPotentiallyAssigned(int position) {
 			(1L << (position % BitCacheSize))) != 0;
 }
 
-/**
- * REVIEW wrong comment?
- * Check status of definite assignment for a field.
- */
 final public boolean isPotentiallyAssigned(FieldBinding field) {
 	return isPotentiallyAssigned(field.id); 
 }
 
-/**
- * Check status of potential assignment for a local.
- */
 final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 	// final constants are inlined, and thus considered as always initialized
 	if (local.constant() != Constant.NotAConstant) {
@@ -826,11 +807,6 @@ final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 	return isPotentiallyAssigned(local.id + this.maxFieldCount);
 }
 
-// REVIEW should rename this -- what we do is that we ask if there is a reasonable
-// REVIEW	expectation that the variable be null at this point; which means that
-// REVIEW	we add the protected null case, to augment diagnostics, but we do not
-// REVIEW	really check that someone deliberately has assigned to null on a given 
-// REVIEW	path
 final public boolean isPotentiallyNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
@@ -1025,7 +1001,6 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 	}
 }
 
-// REVIEW javadoc policy?
 public void markAsComparedEqualToNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
@@ -1052,7 +1027,6 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 				this.nullAssignmentValueBit1 &= mask | ~unknownAssigned;
 				this.nullAssignmentValueBit2 &= mask;
 				// clear potential anything but null
-				// REVIEW relative cost between an assignment and a negation 
 				if (coverageTestFlag && coverageTestId == 24) {
 					this.nullAssignmentValueBit2 = ~0;
 				}
@@ -1112,9 +1086,6 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 
 /**
  * Record a definite assignment at a given position.
- * REVIEW wrong comment?
- * It deals with the dual representation of the InitializationInfo2:
- * bits for the first 64 entries, then an array of booleans.
  */
 final private void markAsDefinitelyAssigned(int position) {
 	
@@ -1185,7 +1156,6 @@ final private void markAsDefinitelyNonNull(int position) {
 	else {
 		// use extra vector
 		int vectorIndex = (position / BitCacheSize) - 1;
-		// REVIEW seems to be guarded
 		this.extra[2][vectorIndex] |= 
 			(mask = 1L << (position % BitCacheSize));
 		this.extra[5][vectorIndex] |= mask;
@@ -1230,7 +1200,6 @@ final private void markAsDefinitelyNull(int position) {
 	else {
 		// use extra vector
 		int vectorIndex = (position / BitCacheSize) - 1;
-		// REVIEW seems to be guarded
 		this.extra[2][vectorIndex] |= 
 			(mask = 1L << (position % BitCacheSize));
 		this.extra[3][vectorIndex] &= ~mask;
@@ -1284,7 +1253,6 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 		else {
 			// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
-			// REVIEW seems to be guarded
 			this.extra[4][vectorIndex] |=
 				(mask = 1L << (position % BitCacheSize));
 			this.extra[5][vectorIndex] |= mask;
