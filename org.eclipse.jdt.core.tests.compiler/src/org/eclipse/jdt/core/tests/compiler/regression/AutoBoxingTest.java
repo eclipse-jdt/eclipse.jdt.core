@@ -3512,4 +3512,24 @@ public void test118() {
 		},
 		"1");
 }
+
+// Integer as member of a parametrized class
+public void test119() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    T m;\n" + 
+			"    X(T p) {\n" + 
+			"        this.m = p;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X<Integer> l = new X<Integer>(0);\n" + // boxing
+			"        l.m++;\n" + // boxing + unboxing
+			"        System.out.println(l.m);\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"1");
+}
 }
