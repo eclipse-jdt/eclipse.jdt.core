@@ -1860,6 +1860,28 @@ public void test056() {
         },
         "SUCCESS");
 }
+// unresolved type does not fool methods signature comparison
+public void test057() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.awt.*;\n" + 
+			"public class X {\n" + 
+			"    public void foo(Window w) {\n" + 
+			"        // empty\n" + 
+			"    }\n" + 
+			"    public void foo(Applet a) {\n" + 
+			"        // empty\n" + 
+			"    }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	public void foo(Applet a) {\n" + 
+		"	                ^^^^^^\n" + 
+		"Applet cannot be resolved to a type\n" + 
+		"----------\n"
+		);
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
