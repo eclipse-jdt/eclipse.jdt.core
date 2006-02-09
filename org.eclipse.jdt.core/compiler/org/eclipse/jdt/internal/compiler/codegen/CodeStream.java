@@ -4882,29 +4882,7 @@ public void ldc(String constant) {
 	if (index > 0) {
 		// the string already exists inside the constant pool
 		// we reuse the same index
-		stackDepth++;
-		if (stackDepth > stackMax) {
-			stackMax = stackDepth;
-		}
-		if (index > 255) {
-			if (DEBUG) System.out.println(position + "\t\tldc_w:"+constant); //$NON-NLS-1$
-			// Generate a ldc_w
-			if (classFileOffset + 2 >= bCodeStream.length) {
-				resizeByteArray();
-			}
-			position++;
-			bCodeStream[classFileOffset++] = Opcodes.OPC_ldc_w;
-			writeUnsignedShort(index);
-		} else {
-			if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
-			// Generate a ldc
-			if (classFileOffset + 1 >= bCodeStream.length) {
-				resizeByteArray();
-			}
-			position += 2;
-			bCodeStream[classFileOffset++] = Opcodes.OPC_ldc;
-			bCodeStream[classFileOffset++] = (byte) index;
-		}
+		this.ldcForIndex(index, constantChars);
 	} else {
 		// the string is too big to be utf8-encoded in one pass.
 		// we have to split it into different pieces.
@@ -4949,27 +4927,7 @@ public void ldc(String constant) {
 		System.arraycopy(constantChars, 0, subChars, 0, i);
 		System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 		index = constantPool.literalIndex(subChars, utf8encoding);
-		stackDepth++;
-		if (stackDepth > stackMax) {
-			stackMax = stackDepth;
-		}
-		if (index > 255) {
-			// Generate a ldc_w
-			if (classFileOffset + 2 >= bCodeStream.length) {
-				resizeByteArray();
-			}
-			position++;
-			bCodeStream[classFileOffset++] = Opcodes.OPC_ldc_w;
-			writeUnsignedShort(index);
-		} else {
-			// Generate a ldc
-			if (classFileOffset + 1 >= bCodeStream.length) {
-				resizeByteArray();
-			}
-			position += 2;
-			bCodeStream[classFileOffset++] = Opcodes.OPC_ldc;
-			bCodeStream[classFileOffset++] = (byte) index;
-		}
+		this.ldcForIndex(index, subChars);
 		// write the remaining part
 		invokeStringConcatenationStringConstructor();
 		while (i < constantLength) {
@@ -5006,26 +4964,7 @@ public void ldc(String constant) {
 			System.arraycopy(constantChars, startIndex, subChars, 0, newCharLength);
 			System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 			index = constantPool.literalIndex(subChars, utf8encoding);
-			stackDepth++;
-			if (stackDepth > stackMax)
-				stackMax = stackDepth;
-			if (index > 255) {
-				// Generate a ldc_w
-				if (classFileOffset + 2 >= bCodeStream.length) {
-					resizeByteArray();
-				}
-				position++;
-				bCodeStream[classFileOffset++] = Opcodes.OPC_ldc_w;
-				writeUnsignedShort(index);
-			} else {
-				// Generate a ldc
-				if (classFileOffset + 1 >= bCodeStream.length) {
-					resizeByteArray();
-				}
-				position += 2;
-				bCodeStream[classFileOffset++] = Opcodes.OPC_ldc;
-				bCodeStream[classFileOffset++] = (byte) index;
-			}
+			this.ldcForIndex(index, subChars);
 			// now on the stack it should be a StringBuffer and a string.
 			invokeStringConcatenationAppendForType(TypeIds.T_JavaLangString);
 		}
@@ -5088,6 +5027,31 @@ public void ldc2_w(long constant) {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_ldc2_w;
 	writeUnsignedShort(index);
+}
+public void ldcForIndex(int index, char[] constant) {
+	stackDepth++;
+	if (stackDepth > stackMax) {
+		stackMax = stackDepth;
+	}
+	if (index > 255) {
+		// Generate a ldc_w
+		if (DEBUG) System.out.println(position + "\t\tldc_w:"+ new String(constant)); //$NON-NLS-1$
+		if (classFileOffset + 2 >= bCodeStream.length) {
+			resizeByteArray();
+		}
+		position++;
+		bCodeStream[classFileOffset++] = Opcodes.OPC_ldc_w;
+		writeUnsignedShort(index);
+	} else {
+		// Generate a ldc
+		if (DEBUG) System.out.println(position + "\t\tldc:"+ new String(constant)); //$NON-NLS-1$
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
+		}
+		position += 2;
+		bCodeStream[classFileOffset++] = Opcodes.OPC_ldc;
+		bCodeStream[classFileOffset++] = (byte) index;
+	}
 }
 public void ldiv() {
 	if (DEBUG) System.out.println(position + "\t\tldiv"); //$NON-NLS-1$

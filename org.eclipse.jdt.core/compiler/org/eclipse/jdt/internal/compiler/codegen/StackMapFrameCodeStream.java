@@ -1402,6 +1402,10 @@ public void ldc2_w(long constant) {
 	super.ldc2_w(constant);
 	this.currentFrame.addStackItem(TypeBinding.LONG);
 }
+public void ldcForIndex(int index, char[] constant) {
+	super.ldcForIndex(index, constant);
+	this.currentFrame.addStackItem(new VerificationTypeInfo(TypeIds.T_JavaLangString, ConstantPool.JavaLangStringConstantPoolName));
+}
 public void ldiv() {
 	super.ldiv();
 	this.currentFrame.numberOfStackItems--;
