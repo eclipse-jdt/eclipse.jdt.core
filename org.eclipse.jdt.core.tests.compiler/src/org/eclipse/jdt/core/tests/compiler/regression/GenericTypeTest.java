@@ -27962,4 +27962,61 @@ public void test905() {
 			"}"},
 		"");
 }
+
+// raw types in casts
+public void test906() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<V> {\n" + 
+			"    // empty\n" + 
+			"}         \n" + 
+			"public class X implements I {\n" + 
+			"    I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+			"    I<Integer> x2 = (I<Integer>) new X();\n" + 
+			"    I<Integer> x3 = (I<Integer>) null;\n" + 
+			"    X x4 = (X) (I<Integer>) null;\n" + 
+			"}"},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	public class X implements I {\n" + 
+		"	                          ^\n" + 
+		"I is a raw type. References to generic type I<V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from X to I<Integer>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 5)\n" + 
+		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+		"	                             ^^^^^^^^\n" + 
+		"Unnecessary cast from null to X\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	I<Integer> x2 = (I<Integer>) new X();\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from X to I<Integer>\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 6)\n" + 
+		"	I<Integer> x2 = (I<Integer>) new X();\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 7)\n" + 
+		"	I<Integer> x3 = (I<Integer>) null;\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from null to I<Integer>\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 8)\n" + 
+		"	X x4 = (X) (I<Integer>) null;\n" + 
+		"	           ^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from null to I<Integer>\n" + 
+		"----------\n");
+}
 }
