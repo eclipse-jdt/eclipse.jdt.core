@@ -56,10 +56,11 @@ What's new in this drop</h2>
 	preference:
 	<code>Window&gt;Preferences&gt;Java&gt;Compiler&gt;Errors/Warnings&gt;Potential programming problems&gt;Null reference</code>.
 	Also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110030">110030</a> for details.
-	Note that the analysis is fairly conservative, aligned on definite assignment rules.  It is intentionnally not complaining on all
+	<br>Note that the analysis is fairly conservative, aligned on definite assignment rules.  It is intentionnally not complaining on all
 	possible cases, but only considering these for which a suspicion gets introduced (e.g. if later on a null check is performed).
 	The analysis could be further improved by introducing annotations (@CanBeNull, @CannotBeNull) but these would need to
-	get standardized before adopted. </li>
+	get standardized before adopted. 
+	<br>	Null reference warnings can be silenced using <code>@SuppressWarnings("null")</code>.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
