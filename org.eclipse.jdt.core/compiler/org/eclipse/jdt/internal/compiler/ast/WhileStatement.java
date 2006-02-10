@@ -78,15 +78,13 @@ public class WhileStatement extends Statement {
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;
 			} else {
-				FlowInfo mergedInfo = condInfo.initsWhenFalse();
+				FlowInfo mergedInfo = flowInfo.copy().addInitializationsFrom(condInfo.initsWhenFalse());
 				if (isConditionOptimizedTrue){
 					mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergedInfo);
-				return flowInfo.unconditionalInits().
-					addPotentialNullInfoFrom(
-							condInfo.initsWhenFalse().unconditionalInits()); 
+				return mergedInfo; 
 			}
 		} else {
 			// in case the condition was inlined to false, record the fact that there is no way to reach any 

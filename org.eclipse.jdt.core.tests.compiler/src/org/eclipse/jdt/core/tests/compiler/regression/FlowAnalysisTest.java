@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -50,6 +54,110 @@ public void test001() {
 	"	              ^^^^^^^^^^\n" + 
 	"This method must return a result of type String\n" + 
 	"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
+// Compiler incorrectly reports "variable may not have been initialized"
+public void test002() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public void test() {\n" + 
+			"        int c1, c2;\n" + 
+			"        while ((char) (c1 = 0) == 1) {}\n" + 
+			"        if (c1 == 0) {} // silent\n" + 
+			"        if (c2 == 0) {} // complain\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (c2 == 0) {} // complain\n" + 
+		"	    ^^\n" + 
+		"The local variable c2 may not have been initialized\n" + 
+		"----------\n",
+		null, true, options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
+// Compiler incorrectly reports "variable may not have been initialized"
+public void test003() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public void test() {\n" + 
+			"        int c1, c2;\n" + 
+			"        while ((char) (c1 = 0) == 1) ;\n" + 
+			"        if (c1 == 0) {} // silent\n" + 
+			"        if (c2 == 0) {} // complain\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (c2 == 0) {} // complain\n" + 
+		"	    ^^\n" + 
+		"The local variable c2 may not have been initialized\n" + 
+		"----------\n",
+		null, true, options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
+// Compiler incorrectly reports "variable may not have been initialized"
+public void test004() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public void test() {\n" + 
+			"        int c1, c2;\n" + 
+			"        for (;(char) (c1 = 0) == 1;) ;\n" + 
+			"        if (c1 == 0) {} // silent\n" + 
+			"        if (c2 == 0) {} // complain\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (c2 == 0) {} // complain\n" + 
+		"	    ^^\n" + 
+		"The local variable c2 may not have been initialized\n" + 
+		"----------\n",
+		null, true, options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
+// Compiler incorrectly reports "variable may not have been initialized"
+public void test005() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public void test() {\n" + 
+			"        int c1, c2;\n" + 
+			"        do ; while ((char) (c1 = 0) == 1);\n" + 
+			"        if (c1 == 0) {} // silent\n" + 
+			"        if (c2 == 0) {} // complain\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (c2 == 0) {} // complain\n" + 
+		"	    ^^\n" + 
+		"The local variable c2 may not have been initialized\n" + 
+		"----------\n",
+		null, true, options);
 }
 
 public static Class testClass() {
