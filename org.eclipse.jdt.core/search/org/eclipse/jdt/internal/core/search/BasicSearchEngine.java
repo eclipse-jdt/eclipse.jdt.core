@@ -629,6 +629,7 @@ public class BasicSearchEngine {
 			if (copies != null) {
 				for (int i = 0, length = copies.length; i < length; i++) {
 					ICompilationUnit workingCopy = copies[i];
+					if (!scope.encloses(workingCopy)) continue;
 					final String path = workingCopy.getPath().toString();
 					if (workingCopy.isConsistent()) {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();

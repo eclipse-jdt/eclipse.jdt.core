@@ -45,7 +45,7 @@ public static Test suite() {
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//	TESTS_PREFIX =  "testBug110336";
+//	TESTS_PREFIX =  "testBug110060";
 //	TESTS_NAMES = new String[] { "testBug126330" };
 //	TESTS_NUMBERS = new int[] { 124469 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
@@ -4539,7 +4539,7 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4563,7 +4563,7 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4587,7 +4587,7 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4611,7 +4611,7 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4635,7 +4635,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4657,7 +4657,7 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4678,7 +4678,7 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4700,7 +4700,7 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4721,7 +4721,7 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4743,7 +4743,7 @@ public void testBug110060_AllTypeNames10() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4764,7 +4764,7 @@ public void testBug110060_AllTypeNames11() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4785,7 +4785,7 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4807,7 +4807,7 @@ public void testBug110060_AllTypeNames13() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4828,7 +4828,7 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScope(),
+		getJavaSearchScopeBugs(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null

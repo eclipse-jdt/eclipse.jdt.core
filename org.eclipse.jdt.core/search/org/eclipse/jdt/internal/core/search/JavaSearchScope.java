@@ -210,8 +210,13 @@ public void add(IJavaElement element) throws JavaModelException {
 				add(relativePath, containerPathToString, true/*package*/, null);
 			} else {
 				IResource resource = element.getResource();
-				if (resource != null && resource.isAccessible()) {
-					containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
+				if (resource != null) {
+					if (resource.isAccessible()) {
+						containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
+					} else {
+						// for working copies, get resource container full path
+						containerPath = resource.getParent().getFullPath();
+					}
 					containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 					String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
 					add(relativePath, containerPathToString, true/*package*/, null);

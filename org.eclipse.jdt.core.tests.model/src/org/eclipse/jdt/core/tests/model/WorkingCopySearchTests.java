@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -33,7 +34,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testAllTypeNames";
-//		TESTS_NAMES = new String[] { "testAllTypeNamesBug99915" };
+//		TESTS_NAMES = new String[] { "testAllTypeNamesBug98684" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { -1, -1 };
 	}
@@ -278,7 +279,57 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"wc.AAABBB",
 			requestor);
 	}
-	
+
+	/**
+	 * Bug 98684: [search] Code assist shown inner types of unreleated project
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=98684"
+	 */
+	public void testAllTypeNamesBug98684() throws CoreException {
+		try {
+			IJavaProject[] projects = new IJavaProject[2];
+			projects[0] = createJavaProject("P1");
+			projects[1] = createJavaProject("P2");
+			workingCopies = new ICompilationUnit[2];
+			workingCopies[0] = getWorkingCopy("/P1/p1/A1.java",
+				"package p1;\n" + 
+				"public class A1 {\n" + 
+				"	public static class A1Inner1 {}" + 
+				"	public static class A1Inner2 {}" + 
+				"}"
+			);
+			workingCopies[1] = getWorkingCopy("/P2/p2/A2.java",
+				"package p2;\n" + 
+				"public class A2 {\n" + 
+				"	public static class A2Inner2 {}" + 
+				"	public static class A2Inner2 {}" + 
+				"}"
+			);
+			TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+			IJavaSearchScope scope = 	SearchEngine.createJavaSearchScope(new IJavaElement[] { projects[1] });
+			new SearchEngine(this.workingCopies).searchAllTypeNames(
+				null,
+				"A".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				TYPE,
+				scope,
+				requestor,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null
+			);
+			this.discard = false;
+			assertSearchResults(
+				"Unexpected all type names",
+				"p2.A2\n" + 
+				"p2.A2$A2Inner2\n" + 
+				"p2.A2$A2Inner2",
+				requestor);
+		}
+		finally {
+			deleteProject("P1");
+			deleteProject("P2");
+		}
+	}
+
 	/**
 	 * Declaration of referenced types test.
 	 * (Regression test for bug 5355 search: NPE in searchDeclarationsOfReferencedTypes  )
