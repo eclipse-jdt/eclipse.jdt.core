@@ -192,7 +192,7 @@ public void test0007_local_with_member() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x.m.toString();\n" + 
-		"	^^^\n" + 
+		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }
@@ -212,7 +212,7 @@ public void test0008_local_with_member() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	System.out.println(x.m);\n" + 
-		"	                   ^^^\n" + 
+		"	                   ^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }
@@ -613,7 +613,7 @@ public void test0029_field_assignment() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x.m = new Object();\n" + 
-		"	^^^\n" + 
+		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }

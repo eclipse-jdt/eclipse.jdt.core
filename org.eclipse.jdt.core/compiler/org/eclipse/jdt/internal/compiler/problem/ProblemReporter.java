@@ -4068,7 +4068,7 @@ public void localVariableCannotBeNull(LocalVariableBinding local, ASTNode locati
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		localSourceEnd(local, location));
 }
 public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] {new String(local.name)  };
@@ -4077,7 +4077,7 @@ public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode locat
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		localSourceEnd(local, location));
 }
 public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
 	if (hiddenVariable instanceof LocalVariableBinding) {
@@ -4112,7 +4112,7 @@ public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location)
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		localSourceEnd(local, location));
 }
 public void methodMustOverride(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;
@@ -4617,7 +4617,7 @@ public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		location.sourceEnd); // should never be a qualified name reference
 }
 private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean makeShort) {
     StringBuffer nameBuffer = new StringBuffer(10);
