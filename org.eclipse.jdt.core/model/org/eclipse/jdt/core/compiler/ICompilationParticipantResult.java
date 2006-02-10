@@ -13,6 +13,9 @@ package org.eclipse.jdt.core.compiler;
 
 import org.eclipse.core.resources.IFile;
 
+/**
+ * @since 3.2
+ */
 public interface ICompilationParticipantResult {
 
 /**

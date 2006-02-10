@@ -82,6 +82,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the component type binding, or <code>null</code> if this is
 	 *   not an array type
+	 * @since 3.2
 	 */	
 	public ITypeBinding getComponentType();
 
