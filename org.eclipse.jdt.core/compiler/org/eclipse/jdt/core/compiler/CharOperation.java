@@ -2615,6 +2615,56 @@ public static final boolean prefixEquals(
 }
 
 /**
+ * Answers a new array removing a given character. Answers the given array if there is
+ * no occurence of the character to remove.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    array = { 'a' , 'b', 'b', 'c', 'b', 'a' }
+ *    toBeRemoved = 'b'
+ *    return { 'a' , 'c', 'a' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+ *    toBeRemoved = 'c'
+ *    return array
+ * </pre>
+ * </li>
+ * </ol>
+ * 
+ * @param array the given array
+ * @param toBeRemoved the character to be removed
+ * @return a new array removing given character
+ * @since 3.2
+ */
+public static final char[] remove(char[] array, char toBeRemoved) {
+
+	if (array == null) return null;
+	int length = array.length;
+	if (length == 0) return array;
+	char[] result = null;
+	int count = 0;
+	for (int i = 0; i < length; i++) {
+		char c = array[i];
+		if (c == toBeRemoved) {
+			if (result == null) {
+				result = new char[length];
+				System.arraycopy(array, 0, result, 0, i);
+				count = i;
+			}
+		} else if (result != null) {
+			result[count++] = c;
+		}
+	}
+	if (result == null) return array;
+	System.arraycopy(result, 0, result = new char[count], 0, count);
+	return result;
+}
+
+/**
  * Replace all occurrence of the character to be replaced with the remplacement character in the
  * given array.
  * <br>

@@ -2073,25 +2073,7 @@ public static String[] getSimpleNames(String name) {
  * @since 3.1
  */
 public static char[] removeCapture(char[] methodOrTypeSignature) {
-		
-// TODO (frederic) Create remove(char[], char) method on CharOperation and call it from here
-	char[] result = null;
-	int count = 0;
-	for (int i = 0, length = methodOrTypeSignature.length; i < length; i++) {
-		char c = methodOrTypeSignature[i];
-		if (c == C_CAPTURE) {
-			if (result == null) {
-				result = new char[length];
-				System.arraycopy(methodOrTypeSignature, 0, result, 0, i);
-				count = i;
-			}
-		} else if (result != null) {
-			result[count++] = c;
-		}
-	}
-	if (result == null) return methodOrTypeSignature;
-	System.arraycopy(result, 0, result = new char[count], 0, count);
-	return result;
+	return CharOperation.remove(methodOrTypeSignature, C_CAPTURE);
 }
 	
 /**
