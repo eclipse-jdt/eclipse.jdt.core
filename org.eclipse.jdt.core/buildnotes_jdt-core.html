@@ -97,6 +97,8 @@ e.g: Element rootE| is completed to Element rootElement.
 <li>Changed the way to flag DOM AST nodes as RECOVERED.<br>
 Now only nodes which really contains added/removed/replaced tokens are flagged. A parent of these kind of node isn't flagged.
 Sometimes our heuristic can't recognize the really recovered node, so in this case all potentially recovered nodes are flagged.</li>
+<li>Fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119203">119203</a>
+has been removed due to bad side effects (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127048">127048</a>)</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -732,8 +734,6 @@ was slightly modified as it introduced an non-deterministic behavior of these AP
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119108">119108</a>
 Access Rules and Path separators
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=119203">119203</a>
-[search] references to method gives many inaccurate matches in Plug-in Dependencies
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110593">110593</a>
 [1.5][compiler] NPE in ProblemReporter
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115693">115693</a>
