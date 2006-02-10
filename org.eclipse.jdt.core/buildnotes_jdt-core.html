@@ -67,6 +67,10 @@ e.g: Element rootE| is completed to Element rootElement.
 <li>Changed the way to flag DOM AST nodes as RECOVERED.<br>
 Now only nodes which really contains added/removed/replaced tokens are flagged. A parent of these kind of node isn't flagged.
 Sometimes our heuristic can't recognize the really recovered node, so in this case all potentially recovered nodes are flagged.</li>
+<li>Added support for null reference analysis. Limited to local variables so far. Enabled using
+    the <code>Null reference</code> preference of the <code>Potential programming problems</code> 
+    section in the user interface. See bug
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110030">110030</a> for details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
