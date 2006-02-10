@@ -162,7 +162,52 @@ public void test007() {
 
 	});
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127078
+public void test008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"	class Y {\n" + 
+			"		Y innerY;\n" + 
+			"\n" + 
+			"		int longMemberName;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static public void main(String args[]) {\n" + 
+			"		Y y;\n" + 
+			"		System.out.println(y.innerY.longMemberName);\n" + 
+			"	}\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	System.out.println(y.innerY.longMemberName);\n" + 
+			"	                   ^\n" + 
+			"The local variable y may not have been initialized\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127078
+public void test009() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"	class Y {\n" + 
+			"		int longMemberName;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static public void main(String args[]) {\n" + 
+			"		Y y;\n" + 
+			"		System.out.println(y.longMemberName);\n" + 
+			"	}\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(y.longMemberName);\n" + 
+			"	                   ^\n" + 
+			"The local variable y may not have been initialized\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return LocalVariableTest.class;
 }
