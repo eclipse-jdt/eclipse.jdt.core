@@ -12,15 +12,15 @@
 package org.eclipse.jdt.apt.core.internal.type; 
 
 import com.sun.mirror.type.ArrayType;
-import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
-public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
+public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
 {
     private final ITypeBinding _arrayBinding;
 	private final BaseProcessorEnv _env;
@@ -38,7 +38,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
         visitor.visitArrayType(this);
     }
 
-    public TypeMirror getComponentType()
+    public EclipseMirrorType getComponentType()
     {
 		final ITypeBinding elementType = _arrayBinding.getElementType();
         final int dimension = _arrayBinding.getDimensions();
@@ -55,9 +55,9 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
 				throw new IllegalStateException("unknown component type for " + _arrayBinding); //$NON-NLS-1$
         }
 
-        final TypeMirror mirror = Factory.createTypeMirror(componentType, _env);
+        final EclipseMirrorType mirror = Factory.createTypeMirror(componentType, _env);
         if( mirror == null )
-            return Factory.createErrorClassType(componentType);
+            return (EclipseMirrorType)Factory.createErrorClassType(componentType);
         return mirror;
     }
 
@@ -79,11 +79,30 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
         return false;
     }
 
-    public ITypeBinding getArrayBinding(){ return _arrayBinding; }
+    public ITypeBinding getTypeBinding(){ return _arrayBinding; }
 
     public int hashCode(){ return _arrayBinding.hashCode(); }
 
     public MirrorKind kind(){ return MirrorKind.TYPE_ARRAY; }
 	
 	public BaseProcessorEnv getEnvironment(){ return _env; }
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return isSubTypeCompatible(left);
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		if (type.kind() == MirrorKind.TYPE_CLASS)
+			return "java.lang.Object".equals(type.getTypeBinding().getQualifiedName()); //$NON-NLS-1$
+		if (type.kind() == MirrorKind.TYPE_INTERFACE)
+			return "java.lang.Cloneable".equals(type.getTypeBinding().getQualifiedName()) || //$NON-NLS-1$
+				"java.io.Serializable".equals(type.getTypeBinding().getQualifiedName()); //$NON-NLS-1$
+		if (type.kind() == MirrorKind.TYPE_ARRAY) {
+			EclipseMirrorType element1 = getComponentType();
+			EclipseMirrorType element2 = ((ArrayTypeImpl)type).getComponentType();
+			return element1.isSubTypeCompatible(element2);
+		}
+		return false;
+	}
+
 }

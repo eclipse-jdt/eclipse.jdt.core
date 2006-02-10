@@ -8,18 +8,47 @@
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
+package org.eclipse.jdt.apt.core.internal.declaration;
 
-package org.eclipse.jdt.apt.core.internal;
-
-import org.eclipse.jdt.apt.core.env.EclipseMirrorObject;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 
-public interface EclipseMirrorImpl extends EclipseMirrorObject
-{	
+/**
+ * The base of all eclipse type system object
+ * @author tyeung
+ *
+ */
+public interface EclipseMirrorObject {
+	
+	public enum MirrorKind
+    {
+        CONSTRUCTOR,
+        METHOD,
+        ANNOTATION_ELEMENT,
+        FIELD,
+        ENUM_CONSTANT,
+        ANNOTATION_VALUE,
+        ANNOTATION_MIRROR,
+        TYPE_ANNOTATION,
+        TYPE_INTERFACE,
+        TYPE_CLASS,
+        TYPE_ENUM,
+        TYPE_ARRAY,
+        TYPE_WILDCARD,
+        TYPE_VOID,
+        TYPE_PRIMITIVE,
+        TYPE_PARAMETER_VARIABLE,
+        TYPE_ERROR,
+        FORMAL_PARAMETER,
+        PACKAGE
+    }
+
+    public MirrorKind kind();
+    
 	/**
 	 * @return the processor environment associated with the object.
 	 * return null for primitive, void and error type. 
 	 */
 	public BaseProcessorEnv getEnvironment();
 
-} 
+
+}

@@ -13,12 +13,13 @@ package org.eclipse.jdt.apt.core.internal.type;
 
 import com.sun.mirror.type.VoidType;
 import com.sun.mirror.util.TypeVisitor;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
-public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
+public class VoidTypeImpl implements VoidType, EclipseMirrorType
 {   
 	private final ITypeBinding _binding;
 
@@ -40,4 +41,12 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
     public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
 	
 	public BaseProcessorEnv getEnvironment(){ return null; }
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return false;
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		return false;
+	}
 }

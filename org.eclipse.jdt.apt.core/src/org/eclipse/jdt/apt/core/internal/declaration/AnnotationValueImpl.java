@@ -17,20 +17,19 @@ import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.util.SourcePosition;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-public class AnnotationValueImpl implements EclipseMirrorImpl, AnnotationValue
+public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 {   
 	/**
 	 * Either the annotation that directly contains this annotation value
 	 * or an annotation method, which indicates that this is its default value.
 	 */
-	private EclipseMirrorImpl _parent;
+	private EclipseMirrorObject _parent;
 	private final BaseProcessorEnv _env;
 	/** the annotation value */
 	private final Object _value;

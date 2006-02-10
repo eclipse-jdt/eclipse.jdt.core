@@ -17,12 +17,12 @@ import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.jdt.apt.core.env.EclipseMirrorObject.MirrorKind;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
-public class WildcardTypeImpl implements WildcardType
+public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
 {
     private final ITypeBinding _binding;
 	private final BaseProcessorEnv _env;
@@ -76,7 +76,16 @@ public class WildcardTypeImpl implements WildcardType
 
     public MirrorKind kind(){ return MirrorKind.TYPE_WILDCARD; }
 
-    public ITypeBinding getWildcardBinding(){ return _binding; }
+    public ITypeBinding getTypeBinding(){ return _binding; }
 	
 	public BaseProcessorEnv getEnvironment(){ return _env; }
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return false;
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		return false;
+	}
+
 }

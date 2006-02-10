@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -42,7 +41,7 @@ import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirrorImpl
+public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirrorObject
 {	
     final BaseProcessorEnv _env;
 

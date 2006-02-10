@@ -37,7 +37,8 @@ import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.TypeVisitor;
 
-public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implements TypeDeclaration, DeclaredType, ReferenceType
+public abstract class TypeDeclarationImpl extends MemberDeclarationImpl 
+	implements TypeDeclaration, DeclaredType, ReferenceType, EclipseMirrorType
 {
 	// jdt core compiler add a field to a type with the following name when there is a hierachy problem with the type.	
 	private static final String HAS_INCONSISTENT_TYPE_HIERACHY = "has inconsistent hierarchy"; //$NON-NLS-1$
@@ -326,4 +327,53 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     }
 
     public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return isSubTypeCompatible(left);
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		// Operate on erasures - ignore generics for now
+		// Also ignore boxing for now
+		ITypeBinding thisErased = getTypeBinding().getErasure();
+		ITypeBinding typeErased = type.getTypeBinding().getErasure();
+		
+		if (kind() == MirrorKind.TYPE_CLASS) {
+			if (type.kind() == MirrorKind.TYPE_CLASS)
+				return isSubClassOf(thisErased, typeErased);
+			if (type.kind() == MirrorKind.TYPE_INTERFACE)
+				return isImplementorOf(thisErased, typeErased);
+			return false;
+		}
+		else { //kind() == MirrorKind.TYPE_INTERFACE
+			if (type.kind() == MirrorKind.TYPE_INTERFACE)
+				return isImplementorOf(thisErased, typeErased);
+			if (type.kind() == MirrorKind.TYPE_CLASS)
+				return "java.lang.Object".equals(getQualifiedName()); //$NON-NLS-1$
+			return false;
+		}
+	}
+
+	private static boolean isImplementorOf(ITypeBinding t1, ITypeBinding t2) {
+		if (eq(t1,t2)) return true;
+		ITypeBinding[] intfs = t1.getInterfaces();
+		
+		for (ITypeBinding intf : intfs) {
+			if (isImplementorOf(intf.getErasure(), t2))
+				return true;
+		}
+		return false;
+	}
+
+	private static boolean isSubClassOf(ITypeBinding t1, ITypeBinding t2) {
+		while(t1 != null) {
+			if (eq(t1, t2))	return true;
+			t1 = t1.getSuperclass();
+		}
+		return false;
+	}
+
+	private static boolean eq(ITypeBinding t1, ITypeBinding t2) {
+		return t1.getQualifiedName().equals(t2.getQualifiedName());
+	}
 }

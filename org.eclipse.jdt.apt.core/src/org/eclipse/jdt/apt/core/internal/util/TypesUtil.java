@@ -24,16 +24,11 @@ import com.sun.mirror.type.VoidType;
 import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.util.Types;
 import java.util.Collection;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
-import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.*;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
-import org.eclipse.jdt.apt.core.internal.type.PrimitiveTypeImpl;
-import org.eclipse.jdt.apt.core.internal.type.VoidTypeImpl;
-import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -54,33 +49,24 @@ public class TypesUtil implements Types
     public ArrayType getArrayType(TypeMirror componentType)
     {
         if( componentType == null ) return null;
-        if( componentType instanceof EclipseMirrorImpl ){
-            final EclipseMirrorImpl impl = (EclipseMirrorImpl)componentType;
+        if( componentType instanceof EclipseMirrorType ){
+            final EclipseMirrorType impl = (EclipseMirrorType)componentType;
             // the leaf type of the array
             final ITypeBinding leaf;
             final int dimension;
             switch( impl.kind() )
             {
-                case TYPE_ERROR:
-                    throw new IllegalArgumentException("cannot create an array from error type"); //$NON-NLS-1$
-                case TYPE_VOID:
-                    throw new IllegalArgumentException("cannot create an array from void type"); //$NON-NLS-1$
-                case TYPE_PRIMITIVE:
-                    leaf = ((PrimitiveTypeImpl)componentType).getTypeBinding();
-                    dimension = 1;
-                    break;
+                case TYPE_ERROR: case TYPE_VOID:
+                    throw new IllegalArgumentException("Illegal element type for array"); //$NON-NLS-1$
                 case TYPE_ARRAY:
-                    final ITypeBinding array = ((ArrayTypeImpl)componentType).getArrayBinding();
+                    final ITypeBinding array = ((ArrayTypeImpl)componentType).getTypeBinding();
                     dimension = array.getDimensions() + 1;
                     leaf = array.getElementType();
                     break;
-                case TYPE_WILDCARD:
-                    leaf = ((WildcardTypeImpl)componentType).getWildcardBinding();
+                default:
+                    leaf = impl.getTypeBinding();
                     dimension = 1;
                     break;
-                default:
-                    leaf = ((TypeDeclarationImpl)componentType).getTypeBinding();
-                    dimension = 1;
             }
             if( leaf == null || leaf.isParameterizedType() )
                 throw new IllegalArgumentException("illegal component type: " + componentType); //$NON-NLS-1$
@@ -188,8 +174,8 @@ public class TypesUtil implements Types
     {	
         if( t == null ) return null;
         
-        if(t instanceof EclipseMirrorImpl){
-            final EclipseMirrorImpl impl = (EclipseMirrorImpl)t;
+        if(t instanceof EclipseMirrorType){
+            final EclipseMirrorType impl = (EclipseMirrorType)t;
             final ITypeBinding binding;
             switch( impl.kind() )
             {
@@ -197,14 +183,9 @@ public class TypesUtil implements Types
                 case TYPE_VOID:
                 case TYPE_ERROR:
                     return t;
-                case TYPE_ARRAY:
-                    binding = ((ArrayTypeImpl)t).getArrayBinding();
-                    break;
-                case TYPE_WILDCARD:
-                    binding = ((WildcardTypeImpl)t).getWildcardBinding();                   
-                    break;
+                
                 default:
-                    binding = ((TypeDeclarationImpl)t).getTypeBinding();
+                    binding = impl.getTypeBinding();
             }
             final ITypeBinding erasure = binding.getErasure();
             if( erasure == binding ) return t;
@@ -284,28 +265,25 @@ public class TypesUtil implements Types
      */
     public boolean isAssignable(TypeMirror t1, TypeMirror t2)
     {
-        final ITypeBinding left = getTypeBinding(t2);
-        final ITypeBinding right = getTypeBinding(t1);
-        
-        if( left == right ) return true;
-        else if( left == null || right == null ) return false;
-        return right.isAssignmentCompatible(left);       
+    	EclipseMirrorType left = (EclipseMirrorType)t1;
+    	EclipseMirrorType right = (EclipseMirrorType)t2;
+    	return left.isAssignmentCompatible(right);
+    	
     }
 
     public boolean isSubtype(TypeMirror t1, TypeMirror t2)
     {
-        final ITypeBinding b1 = getTypeBinding(t1);
-        final ITypeBinding b2 = getTypeBinding(t2);
-        if( b1 == null || b2 == null ) return false;
-
-        return b1.isSubTypeCompatible(b2);
+    	EclipseMirrorType left = (EclipseMirrorType)t1;
+    	EclipseMirrorType right = (EclipseMirrorType)t2;
+    	
+    	return left.isSubTypeCompatible(right);
     }
     
     public static IPackageBinding getPackageBinding(PackageDeclaration pkg)
     	throws NonEclipseImplementationException
     {	
         if(pkg == null) return null;
-        if( pkg instanceof EclipseMirrorImpl ){
+        if( pkg instanceof EclipseMirrorObject ){
             final PackageDeclarationImpl impl = (PackageDeclarationImpl)pkg;
             return impl.getPackageBinding();
         }
@@ -320,22 +298,12 @@ public class TypesUtil implements Types
      * @throws NonEclipseImplementationException
      */
 
-    public static ITypeBinding getTypeBinding(TypeMirror type)
+    private static ITypeBinding getTypeBinding(TypeMirror type)
         throws NonEclipseImplementationException
     {	
         if(type == null ) return null;
-        if( type instanceof EclipseMirrorImpl ){
-            final EclipseMirrorImpl impl = (EclipseMirrorImpl)type;
-            switch(impl.kind() )
-            {
-                case TYPE_PRIMITIVE: return ((PrimitiveTypeImpl)type).getTypeBinding();
-                case TYPE_VOID:  	 return ((VoidTypeImpl)type).getTypeBinding();
-                case TYPE_ERROR: 	 return null;
-                case TYPE_ARRAY: 	 return ((ArrayTypeImpl)type).getArrayBinding();
-                case TYPE_WILDCARD:  return ((WildcardTypeImpl)type).getWildcardBinding();
-                case TYPE_PARAMETER_VARIABLE: return ((TypeParameterDeclarationImpl)type).getDeclarationBinding();
-                default: return ((TypeDeclarationImpl)type).getTypeBinding();
-            }
+        if( type instanceof EclipseMirrorType ){
+            return ((EclipseMirrorType)type).getTypeBinding();
         }
 
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
@@ -350,7 +318,7 @@ public class TypesUtil implements Types
         throws NonEclipseImplementationException
     {
         if(type == null ) return null;
-        if( type instanceof EclipseMirrorImpl ){           
+        if( type instanceof EclipseMirrorObject ){           
             return ((TypeDeclarationImpl)type).getTypeBinding();
         }
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$

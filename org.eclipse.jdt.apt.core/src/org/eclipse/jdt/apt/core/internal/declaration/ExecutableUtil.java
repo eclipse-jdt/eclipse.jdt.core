@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.env.EclipseMirrorObject.MirrorKind;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject.MirrorKind;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;

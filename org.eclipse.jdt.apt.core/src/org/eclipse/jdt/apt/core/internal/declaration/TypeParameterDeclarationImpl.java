@@ -34,7 +34,8 @@ import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 import com.sun.mirror.util.TypeVisitor;
 
-public class TypeParameterDeclarationImpl extends DeclarationImpl implements TypeParameterDeclaration, TypeVariable
+public class TypeParameterDeclarationImpl extends DeclarationImpl implements 
+	TypeParameterDeclaration, TypeVariable, EclipseMirrorType
 {
     public TypeParameterDeclarationImpl(final ITypeBinding binding,
                                         final BaseProcessorEnv env)
@@ -87,17 +88,19 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 
     public Declaration getOwner()
     {
+		return Factory.createDeclaration(getOwnerBinding(), _env);    
+    }
+
+	private IBinding getOwnerBinding() {
 		final ITypeBinding binding = getDeclarationBinding();
 		// declared on a class
 		IBinding owner = binding.getDeclaringClass();
 		if( owner == null )
 			// declared on the method
 			owner = binding.getDeclaringMethod();
-		// actually don't know for some reason.
-		if( owner == null ) return null;
-		return Factory.createDeclaration(owner, _env);    
-    }
-
+		return owner;
+	}
+    
     public SourcePosition getPosition()
     {
         if( isFromSource() )
@@ -144,6 +147,26 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
     public MirrorKind kind(){ return MirrorKind.TYPE_PARAMETER_VARIABLE; }
 	
 	public ITypeBinding getDeclarationBinding(){ return (ITypeBinding) _binding; }
+	public ITypeBinding getTypeBinding() { return (ITypeBinding)_binding;}
 
-	public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }   
+	public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return isSubTypeCompatible(left);
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		if (type.kind() == MirrorKind.TYPE_PARAMETER_VARIABLE) {
+			TypeParameterDeclarationImpl other = (TypeParameterDeclarationImpl) type;
+			return getOwnerBinding() == other.getOwnerBinding() &&
+				getSimpleName().equals(other.getSimpleName());
+		}
+		
+		for (ReferenceType bound : getBounds()) {
+			if (((EclipseMirrorType)bound).isSubTypeCompatible(type))
+				return true;
+		}
+		
+		return false;
+	}   
 }
