@@ -68,6 +68,7 @@ public abstract class CategorizedProblem implements IProblem {
 	public static final int CAT_UNNECESSARY_CODE = 110;
 	public static final int CAT_UNCHECKED_RAW = 120;
 	public static final int CAT_NLS = 130;
+	public static final int CAT_RESTRICTION = 140;	
 	
 	
 /** 

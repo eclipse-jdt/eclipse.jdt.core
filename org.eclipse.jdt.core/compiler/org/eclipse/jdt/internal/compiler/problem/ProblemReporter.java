@@ -1628,7 +1628,7 @@ public static int getProblemCategory(int problemID) {
 
 				case (int)(CompilerOptions.ForbiddenReference >>> 32):
 				case (int)(CompilerOptions.DiscouragedReference >>> 32):
-					return CategorizedProblem.CAT_BUILDPATH;
+					return CategorizedProblem.CAT_RESTRICTION;
 	
 				case (int)(CompilerOptions.RawTypeReference >>> 32):
 					return CategorizedProblem.CAT_UNCHECKED_RAW;
