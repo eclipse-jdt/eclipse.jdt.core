@@ -932,6 +932,10 @@ public void testBug101777() throws CoreException {
 /**
  * Bug 119203: Search doesn't work with imported plugin
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
+ * WARNING: Fix for this bug has been disabled due to bad regression
+ * 
+ * Bug 127048: [search] References to Java element 'CorrectionEngine' not found
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127048"
  */
 public void testBug119203() throws CoreException {
 	try {
@@ -952,7 +956,7 @@ public void testBug119203() throws CoreException {
 		resultCollector.showProject = true;
 		search("Test", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"", // cannot find result due to abort compilation error (java.lang.Object not defined)
+			"src/X.java [in P1] X.test [Test]",
 			resultCollector);
 	}
 	finally {
