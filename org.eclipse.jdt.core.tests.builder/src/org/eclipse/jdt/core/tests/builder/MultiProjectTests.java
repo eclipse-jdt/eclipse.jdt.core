@@ -824,7 +824,7 @@ public class MultiProjectTests extends Tests {
 			);
 		
 		fullBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -875,7 +875,7 @@ public class MultiProjectTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -919,7 +919,7 @@ public class MultiProjectTests extends Tests {
 			);
 		
 		fullBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 2
@@ -969,7 +969,7 @@ public class MultiProjectTests extends Tests {
 			);
 		
 		fullBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -1020,7 +1020,7 @@ public class MultiProjectTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -1064,7 +1064,7 @@ public class MultiProjectTests extends Tests {
 			);
 		
 		fullBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 2
@@ -1169,7 +1169,7 @@ public class MultiProjectTests extends Tests {
 			);
 
 		fullBuild();
-		expectingSpecificProblemFor(project3Path, new Problem("", "Discouraged access: The type A is not accessible due to restriction on required project Project2", b, 35, 38, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project3Path, new Problem("", "Discouraged access: The type A is not accessible due to restriction on required project Project2", b, 35, 38, CategorizedProblem.CAT_RESTRICTION)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public void testMissingRequiredBinaries() throws JavaModelException {
