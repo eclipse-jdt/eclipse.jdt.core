@@ -608,6 +608,27 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves the given member value pair and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MemberValuePair.resolveMemberValuePairBinding</code> forwards to
+	 * this method. How the name resolves is often a function of the context
+	 * in which the name node is embedded as well as the name itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param memberValuePair the member value pair of interest
+	 * @return the binding for the member value pair, or <code>null</code> if no binding is
+	 *    available
+	 * @since 3.2
+	 */
+	IMemberValuePairBinding resolveMemberValuePair(MemberValuePair memberValuePair) {
+		return null;
+	}
+	
+	/**
 	 * Resolves the given reference and returns the binding for it.
 	 * <p>
 	 * The implementation of <code>MethodRef.resolveBinding</code> forwards to

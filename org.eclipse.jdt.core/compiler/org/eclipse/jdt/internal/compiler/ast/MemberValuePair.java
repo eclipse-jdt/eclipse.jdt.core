@@ -31,7 +31,7 @@ public class MemberValuePair extends ASTNode {
 	/** 
 	 *  The representation of this pair in the type system. 
 	 */
-	ElementValuePair compilerElementPair = null;
+	public ElementValuePair compilerElementPair = null;
 	
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
 		this.name = token;

@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
@@ -176,12 +177,6 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding == null) 
 			return null;
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
-	}
-
-	synchronized ASTNode findDeclaringNode(IAnnotationBinding instance) {
-		if (instance == null)
-			return null;
-		return (ASTNode) this.bindingsToAstNodes.get(instance);
 	}
 
 	IBinding getBinding(org.eclipse.jdt.internal.compiler.lookup.Binding binding) {
@@ -1254,6 +1249,15 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	/* (non-Javadoc)
+	 * @see BindingResolver#resolveMemberValuePair(MemberValuePair)
+     * @since 3.2
+	 */
+	synchronized IMemberValuePairBinding resolveMemberValuePair(org.eclipse.jdt.core.dom.MemberValuePair memberValuePair) {
+		MemberValuePair valuePair = (MemberValuePair) this.newAstToOldAst.get(memberValuePair);
+		return getMemberValuePairBinding(valuePair.compilerElementPair);
+	}
+	
+	/* (non-Javadoc)
 	 * @see BindingResolver#resolveReference(MethodRef)
      * @since 3.0
 	 */
@@ -1571,7 +1575,7 @@ class DefaultBindingResolver extends BindingResolver {
 			IAnnotationBinding domAnnotation = this.getAnnotationInstance(internalAstNode.getCompilerAnnotation());
 			if (domAnnotation == null)
 				return null;
-			this.bindingsToAstNodes.put(domAnnotation, domASTNode);			
+			this.bindingsToAstNodes.put(domAnnotation, domASTNode);	
 			return domAnnotation;
 		}
 		return null;

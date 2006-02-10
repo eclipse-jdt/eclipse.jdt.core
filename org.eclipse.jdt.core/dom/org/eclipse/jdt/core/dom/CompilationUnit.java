@@ -299,7 +299,8 @@ public class CompilationUnit extends ASTNode {
      * <li>type variable - a <code>TypeParameter</code></li>
      * <li>capture binding - none</li>
      * <li>annotation binding - an <code>Annotation</code></li>
-     * <li>member value pair binding - an <code>MemberValuePair</code></li>
+     * <li>member value pair binding - an <code>MemberValuePair</code>, 
+     *      or <code>null</code> if it represents a default value or a single member value</li>
 	 * </ul>
      * For parameterized or raw type bindings, the declaring node is
      * that of the corresponding generic type. And for parameterized or raw

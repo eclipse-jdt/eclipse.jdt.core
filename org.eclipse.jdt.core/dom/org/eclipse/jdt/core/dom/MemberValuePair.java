@@ -80,7 +80,7 @@ public class MemberValuePair extends ASTNode {
 	 * legal expression.
 	 */
 	private Expression value = null;
-
+	
 	/**
 	 * Creates a new AST node for a member value pair owned by the given 
 	 * AST. By default, the node has an unspecified (but legal) member
@@ -185,6 +185,21 @@ public class MemberValuePair extends ASTNode {
 		return this.name;
 	}
 	
+	/**
+	 * Resolves and returns the member value pair binding for this member value pair.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be 
+	 *    resolved
+	 * @since 3.2
+	 */	
+	public final IMemberValuePairBinding resolveMemberValuePairBinding() {
+		return this.ast.getBindingResolver().resolveMemberValuePair(this);
+	}
+
 	/**
 	 * Sets the member name.
 	 * 

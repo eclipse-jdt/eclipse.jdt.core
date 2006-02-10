@@ -182,7 +182,8 @@ public interface IBinding {
 	 * <p>
 	 * For array types, this method returns the Java element that corresponds
 	 * to the array's element type. For raw and parameterized types, this method
-	 * returns the Java element of the erasure.
+	 * returns the Java element of the erasure. For annotations, this methods
+	 * returns the Java element of the annotation type.
 	 * </p>
 	 * <p>
 	 * Here are the cases where a <code>null</code> should be expected:
