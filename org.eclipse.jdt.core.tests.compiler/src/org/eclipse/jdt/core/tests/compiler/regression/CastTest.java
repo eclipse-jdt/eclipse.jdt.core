@@ -28,13 +28,18 @@ public class CastTest extends AbstractRegressionTest {
 public CastTest(String name) {
 	super(name);
 }
+protected Map getCompilerOptions() {
+	Map defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	return defaultOptions;
+}
 public static Test suite() {
 
 	if (false) {
 	   	TestSuite ts;
 		//some of the tests depend on the order of this suite.
 		ts = new TestSuite();
-		ts.addTest(new CastTest("test221"));
+		ts.addTest(new CastTest("test040"));
 		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 	}
 	return setupSuite(testClass());
@@ -1462,7 +1467,63 @@ public void test039() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	Object fo = (String) new Object();\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from Object to String\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	List l = (List) al;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	o = (ArrayList) al;\n" + 
+		"	    ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList to ArrayList\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 8)\n" + 
+		"	Object o2 = (ArrayList) al;\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList to ArrayList\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\n" + 
+		"	o = (ArrayList) l;\n" + 
+		"	    ^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List to ArrayList\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	Object o3 = (ArrayList) l;\n" + 
+		"	            ^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List to ArrayList\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=116647
+public void test040() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	{\n" + 
+			"		int i = 12;\n" + 
+			"		int j = (byte) i;\n" + 
+			"		float f = (float) i;\n" + 
+			"		Zork z;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	float f = (float) i;\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"Unnecessary cast from int to float\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
