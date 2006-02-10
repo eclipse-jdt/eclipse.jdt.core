@@ -1162,6 +1162,15 @@ private int fieldSourceEnd(FieldBinding field, ASTNode node) {
 	}	
 	return node.sourceEnd;
 }
+private int localSourceEnd(LocalVariableBinding binding, ASTNode node) {
+	if (node instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) node;
+		if (ref.binding == binding) {
+			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
+		}
+	}
+	return node.sourceEnd;
+}
 private int fieldSourceStart(FieldBinding field, ASTNode node) {
 	if (node instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) node;
@@ -5442,7 +5451,7 @@ public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode loc
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		localSourceEnd(binding, location));
 }
 public void unmatchedBracket(int position, ReferenceContext context, CompilationResult compilationResult) {
 	this.handle(
