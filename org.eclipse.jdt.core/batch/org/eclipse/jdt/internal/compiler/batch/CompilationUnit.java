@@ -25,27 +25,27 @@ public class CompilationUnit implements ICompilationUnit {
 	
 public CompilationUnit(char[] contents, String fileName, String encoding) {
 	this.contents = contents;
-	if (File.separator.equals("/")) { //$NON-NLS-1$
-		if (fileName.indexOf("\\") != -1) { //$NON-NLS-1$
-			fileName = fileName.replace('\\', File.separatorChar);
-		}
-	} else {
-		// the file separator is \
-		if (fileName.indexOf('/') != -1) {
-			fileName = fileName.replace('/', File.separatorChar);
-		}
+	char[] fileNameCharArray = fileName.toCharArray();
+	switch(File.separatorChar) {
+		case '/' :
+			if (CharOperation.indexOf('\\', fileNameCharArray) != -1) {
+				CharOperation.replace(fileNameCharArray, '\\', '/');
+			}
+			break;
+		case '\\' :
+			if (CharOperation.indexOf('/', fileNameCharArray) != -1) {
+				CharOperation.replace(fileNameCharArray, '/', '\\');
+			}
 	}
-	this.fileName = fileName.toCharArray();
+	this.fileName = fileNameCharArray;
+	int start = CharOperation.lastIndexOf(File.separatorChar, fileNameCharArray) + 1; 
 
-	int start = fileName.lastIndexOf("/") + 1; //$NON-NLS-1$
-	if (start == 0 || start < fileName.lastIndexOf("\\")) //$NON-NLS-1$
-		start = fileName.lastIndexOf("\\") + 1; //$NON-NLS-1$
+	int end = CharOperation.lastIndexOf('.', fileNameCharArray);
+	if (end == -1) {
+		end = fileNameCharArray.length;
+	}
 
-	int end = fileName.lastIndexOf("."); //$NON-NLS-1$
-	if (end == -1)
-		end = fileName.length();
-
-	this.mainTypeName = fileName.substring(start, end).toCharArray();
+	this.mainTypeName = CharOperation.subarray(fileNameCharArray, start, end);
 	this.encoding = encoding;
 }
 public char[] getContents() {

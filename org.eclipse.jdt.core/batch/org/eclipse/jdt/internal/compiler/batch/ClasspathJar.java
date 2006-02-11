@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -27,6 +28,7 @@ private File file;
 private ZipFile zipFile;
 private boolean closeZipFileAtEnd;
 private Hashtable packageCache;
+private char[] normalizedPath;
 
 public ClasspathJar(File file) throws IOException {
 	this(file, true, null);
@@ -90,9 +92,15 @@ public void reset() {
 public String toString() {
 	return "Classpath for jar file " + this.file.getPath(); //$NON-NLS-1$
 }
-public String normalizedPath(){
-	String rawName = this.file.getPath();
-	return rawName.substring(0, rawName.lastIndexOf('.'));
+public char[] normalizedPath() {
+	if (this.normalizedPath == null) {
+		char[] rawName = this.file.getPath().toCharArray();
+		if (File.separatorChar == '\\') {
+			CharOperation.replace(rawName, '\\', '/');
+		}
+		this.normalizedPath = CharOperation.subarray(rawName, 0, CharOperation.lastIndexOf('.', rawName));
+	}
+	return this.normalizedPath;
 }
 public String getPath(){
 	return this.file.getPath();

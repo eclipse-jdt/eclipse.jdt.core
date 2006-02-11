@@ -14,16 +14,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public class ClasspathDirectory extends ClasspathLocation {
 
-String path;
-Hashtable directoryCache;
-String[] missingPackageHolder = new String[1];
-String encoding;
+private char[] normalizedPath;
+private String path;
+private Hashtable directoryCache;
+private String[] missingPackageHolder = new String[1];
+private String encoding;
 public int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
 
 public static final int SOURCE = 1;
@@ -133,8 +135,14 @@ public void reset() {
 public String toString() {
 	return "ClasspathDirectory " + this.path; //$NON-NLS-1$
 }
-public String normalizedPath() {
-	return this.path;
+public char[] normalizedPath() {
+	if (this.normalizedPath == null) {
+		this.normalizedPath = this.path.toCharArray();
+		if (File.separatorChar == '\\') {
+			CharOperation.replace(this.normalizedPath, '\\', '/');
+		}
+	}
+	return this.normalizedPath;
 }
 public String getPath() {
 	return this.path;

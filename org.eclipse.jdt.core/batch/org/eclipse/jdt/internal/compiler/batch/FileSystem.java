@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -21,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class FileSystem implements INameEnvironment, SuffixConstants {
 	Classpath[] classpaths;
-	String[] knownFileNames;
+	Set knownFileNames;
 
 	interface Classpath {
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
@@ -37,7 +39,7 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 * (resp. '.zip') extension for jar (resp. zip) files.
 		 * @return a normalized path for file based classpath entries
 		 */
-		String normalizedPath();
+		char[] normalizedPath();
 		/**
 		 * Return the path for file based classpath entries. This is an absolute path
 		 * ending with a file separator for directories, an absolute path including the '.jar'
@@ -117,26 +119,28 @@ static Classpath getClasspath(String classpathName, String encoding,
 	return result;
 }
 private void initializeKnownFileNames(String[] initialFileNames) {
-	this.knownFileNames = new String[initialFileNames.length];
+	this.knownFileNames = new HashSet(initialFileNames.length * 2);
 	for (int i = initialFileNames.length; --i >= 0;) {
-		String fileName = initialFileNames[i];
-		String matchingPathName = null;
-		if (fileName.lastIndexOf(".") != -1) //$NON-NLS-1$
-			fileName = fileName.substring(0, fileName.lastIndexOf('.')); // remove trailing ".java"
-
-		fileName = convertPathSeparators(fileName);
+		char[] fileName = initialFileNames[i].toCharArray();
+		char[] matchingPathName = null;
+		final int lastIndexOf = CharOperation.lastIndexOf('.', fileName);
+		if (lastIndexOf != -1) {
+			fileName = CharOperation.subarray(fileName, 0, lastIndexOf);
+		}
+		CharOperation.replace(fileName, '\\', '/');
 		for (int j = 0; j < classpaths.length; j++){
-			String matchCandidate = this.classpaths[j].normalizedPath();
+			char[] matchCandidate = this.classpaths[j].normalizedPath();
 			if (this.classpaths[j] instanceof  ClasspathDirectory && 
-					fileName.startsWith(matchCandidate) && 
-					(matchingPathName == null || 
-							matchCandidate.length() < matchingPathName.length()))
+					CharOperation.prefixEquals(matchCandidate, fileName) && 
+					(matchingPathName == null ||
+							matchCandidate.length < matchingPathName.length))
 				matchingPathName = matchCandidate;
 		}
-		if (matchingPathName == null)
-			this.knownFileNames[i] = fileName; // leave as is...
-		else
-			this.knownFileNames[i] = fileName.substring(matchingPathName.length());
+		if (matchingPathName == null) {
+			this.knownFileNames.add(new String(fileName)); // leave as is...
+		} else {
+			this.knownFileNames.add(new String(CharOperation.subarray(fileName, matchingPathName.length, fileName.length)));
+		}
 		matchingPathName = null;
 	}
 }
@@ -150,9 +154,7 @@ private static String convertPathSeparators(String path) {
 		 : path.replace('/', '\\');
 }
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName){
-	for (int i = 0, length = this.knownFileNames.length; i < length; i++)
-		if (qualifiedTypeName.equals(this.knownFileNames[i]))
-			return null; // looking for a file which we know was provided at the beginning of the compilation
+	if (this.knownFileNames.contains(qualifiedTypeName)) return null; // looking for a file which we know was provided at the beginning of the compilation
 
 	String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 	String qualifiedPackageName =
