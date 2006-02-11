@@ -958,8 +958,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 			if (ambiguous != null)
 				return ambiguous;
-			if (visibleField != null && !visibleField.declaringClass.canBeSeenBy(this)) // double check that interface is visible
-				return new ProblemFieldBinding(visibleField, visibleField.declaringClass, fieldName, ProblemReasons.ReceiverTypeNotVisible);
+			//if (visibleField != null && !visibleField.declaringClass.canBeSeenBy(this)) // double check that interface is visible
+			//	return new ProblemFieldBinding(visibleField, visibleField.declaringClass, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 		}
 
 		if (visibleField != null)

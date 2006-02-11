@@ -132,15 +132,10 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { public static int C = 1; }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import static p.A.C;\n" + 
-			"	              ^^^^^\n" + 
-			"The type I is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
 			"	public class X { int i = C; }\n" + 
 			"	                         ^\n" + 
-			"C cannot be resolved\n" + 
+			"The type I is not visible\n" + 
 			"----------\n"
 			// C in p.I is not defined in a public class or interface; cannot be accessed from outside package
 		);
@@ -1338,7 +1333,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564
-	public void test036() {
+	public void _test036() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",

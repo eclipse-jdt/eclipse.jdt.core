@@ -1882,6 +1882,32 @@ public void test057() {
 		"----------\n"
 		);
 }
+public void test058() {
+    this.runConformTest(
+        new String[] {
+        		"p/X.java", // =================
+        		"package p;\n" + 
+        		"\n" + 
+        		"import p.q.Z;\n" + 
+        		"public class X { \n" + 
+        		"  public static void main(String argv[]) {\n" + 
+        		"     System.out.println(Z.z);\n" + 
+        		"  }\n" + 
+        		"}", // =================
+        		"p/q/Z.java", // =================
+        		"package p.q;\n" + 
+        		"\n" + 
+        		"public class Z extends Y implements I { \n" + 
+        		"}\n" + 
+        		"class Y {\n" + 
+        		"    protected static int z = 1;\n" + 
+        		"}\n" + 
+        		"interface I {\n" + 
+        		"    int z = 0;\n" + 
+        		"}", // =================
+		},
+		"0");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
