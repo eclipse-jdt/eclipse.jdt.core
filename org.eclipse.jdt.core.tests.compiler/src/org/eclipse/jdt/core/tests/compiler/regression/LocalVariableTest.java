@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -207,6 +211,31 @@ public void test009() {
 			"	                   ^\n" + 
 			"The local variable y may not have been initialized\n" + 
 			"----------\n");
+}
+public void test010() {
+	Map options = getCompilerOptions();
+	options.put(
+		CompilerOptions.OPTION_DocCommentSupport,
+		CompilerOptions.ENABLED);
+	this.runConformTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"/**\n" + 
+		" * @see Y\n" + 
+		" */\n" + 
+		"public class X {\n" + 
+		"}",
+		"p/Y.java",
+		"package p;\n" + 
+		"class Z {\n" + 
+		"}",
+	},
+	"",
+	null,
+	true,
+	null,
+	options,
+	null);
 }
 public static Class testClass() {
 	return LocalVariableTest.class;
