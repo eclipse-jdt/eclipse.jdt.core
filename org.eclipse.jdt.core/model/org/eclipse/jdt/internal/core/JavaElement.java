@@ -694,9 +694,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 		return null;
 	}
-	public String getAttachedJavadoc(IProgressMonitor monitor, String encoding) throws JavaModelException {
-		return getAttachedJavadoc(monitor);
-	}
 	
 	int getIndexOf(byte[] array, byte[] toBeFound, int start) {
 		if (array == null || toBeFound == null)
