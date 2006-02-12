@@ -24,24 +24,20 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
 
 public final class ImportRewriteAnalyzer {
 	
@@ -637,20 +633,8 @@ public final class ImportRewriteAnalyzer {
 	 * @return  Probes if the formatter allows spaces between imports
 	 */
 	private boolean useSpaceBetweenGroups() {
-		try {
-			String sample= "import a.A;\n\n import b.B;\nclass C {}"; //$NON-NLS-1$
-			TextEdit res= ToolFactory.createCodeFormatter(this.compilationUnit.getJavaProject().getOptions(true)).format(CodeFormatter.K_COMPILATION_UNIT, sample, 0, sample.length(), 0, String.valueOf('\n'));
-			Document doc= new Document(sample);
-			res.apply(doc);
-			int idx1= doc.search(0, "import", true, true, false); //$NON-NLS-1$
-			int line1= doc.getLineOfOffset(idx1);
-			int idx2= doc.search(idx1 + 1, "import", true, true, false); //$NON-NLS-1$
-			int line2= doc.getLineOfOffset(idx2);
-			return line2 - line1 > 1; 
-		} catch (BadLocationException e) {
-			// should not happen 
-		}
-		return true;
+		String option= this.compilationUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, true);
+		return Integer.valueOf(option).intValue() > 0;
 	}
 
 	private Set evaluateStarImportConflicts(IProgressMonitor monitor) throws JavaModelException {
