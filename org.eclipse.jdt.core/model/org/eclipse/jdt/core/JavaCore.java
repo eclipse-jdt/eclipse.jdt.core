@@ -59,6 +59,8 @@
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_PARAMETER_ASSIGNMENT
  *                                 COMPILER_PB_NULL_REFERENCE
+ *     IBM Corporation - added the following constants:
+ *                                 CODEASSIST_DEPRECATION_CHECK
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -832,6 +834,12 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_VISIBILITY_CHECK = PLUGIN_ID + ".codeComplete.visibilityCheck"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String CODEASSIST_DEPRECATION_CHECK = PLUGIN_ID + ".codeComplete.deprecationCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2420,6 +2428,12 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 * 
+	 *  CODEASSIST / Activate Deprecation Sensitive Completion
+	 *    When active, completion doesn't show deprecated members and types.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.deprecationCheck"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disable"
 	 * 
 	 *	CODEASSIST / Automatic Qualification of Implicit Members
 	 *    When active, completion automatically qualifies completion on implicit

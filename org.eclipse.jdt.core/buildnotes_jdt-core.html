@@ -42,6 +42,35 @@
   </tr>
 </table>
 
+<a name="v_639"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2M5 - ?th February 2006 - 3.2 MILESTONE 5
+<br>Project org.eclipse.jdt.core v_639
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_639">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Code Assist can filter deprecated types and members.<br>
+When filtering is enabled all deprecated types and members aren't proposed unless
+they are in the same compilation unit as the completion location.<br>
+Added new options to control this new behavior.
+<pre>
+ *  CODEASSIST / Activate Deprecation Sensitive Completion
+ *    When active, completion doesn't show deprecated members and types.
+ *     - option id:         "org.eclipse.jdt.core.codeComplete.deprecationCheck"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "disable"
+ * 
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127296">127296</a>
+[codeasist]Add the ability to hide deprecated methods from Code Assist
+
 <a name="v_638"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>

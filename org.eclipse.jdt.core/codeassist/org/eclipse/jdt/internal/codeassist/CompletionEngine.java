@@ -324,6 +324,8 @@ public final class CompletionEngine
 		int modifiers,
 		AccessRestriction accessRestriction) {
 
+		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0) return;
+		
 		if (this.options.checkVisibility) {
 			if((modifiers & ClassFileConstants.AccPublic) == 0) {
 				if((modifiers & ClassFileConstants.AccPrivate) != 0) return;
@@ -827,7 +829,7 @@ public final class CompletionEngine
 								astNodeParent instanceof ParameterizedQualifiedTypeReference)) {
 					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
 					
-					findParameterizedType((TypeReference)astNodeParent);
+					findParameterizedType((TypeReference)astNodeParent, scope);
 				} else { 
 					findTypesAndPackages(this.completionToken, scope);
 				}
@@ -940,7 +942,7 @@ public final class CompletionEngine
 
 				setSourceRange(astNode.sourceStart, (int) completionPosition);
 				// replace to the end of the completion identifier
-				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding);
+				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 			}
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
 
@@ -972,7 +974,7 @@ public final class CompletionEngine
 
 				setSourceRange(astNode.sourceStart, (int) completionPosition);
 				// replace to the end of the completion identifier
-				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding);
+				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 			}
 		} else if (astNode instanceof CompletionOnMemberAccess) {
 			this.insideQualifiedReference = true;
@@ -1170,7 +1172,7 @@ public final class CompletionEngine
 
 					setSourceRange(astNode.sourceStart, (int) completionPosition);
 					// replace to the end of the completion identifier
-					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding);
+					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 				} else {
 					setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 
@@ -1193,7 +1195,7 @@ public final class CompletionEngine
 				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
 
-					findAnnotationReference(annotation.type);
+					findAnnotationReference(annotation.type, scope);
 				}
 			} else {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
@@ -1267,7 +1269,7 @@ public final class CompletionEngine
 
 					setSourceRange(astNode.sourceStart, (int) completionPosition);
 					// replace to the end of the completion identifier
-					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding);
+					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 				}
 			} else if (astNode instanceof CompletionOnJavadocFieldReference) {
 
@@ -1826,10 +1828,16 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void findAnnotationReference(TypeReference ref) {
+	private void findAnnotationReference(TypeReference ref, Scope scope) {
 		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
 		if(refBinding != null) {
 			char[] typeName = refBinding.qualifiedSourceName();
+			
+			if (this.options.checkDeprecation &&
+					refBinding.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(refBinding)) {
+				return;
+			}
 			
 			int accessibility = IAccessRule.K_ACCESSIBLE;
 			if(refBinding.hasRestrictedAccess()) {
@@ -2053,6 +2061,11 @@ public final class CompletionEngine
 					
 					if (constructor.isSynthetic()) continue next;
 						
+					if (this.options.checkDeprecation &&
+							constructor.isViewedAsDeprecated() &&
+							!scope.isDefinedInSameUnit(constructor.declaringClass))
+						continue next;
+					
 					if (this.options.checkVisibility
 						&& !constructor.canBeSeenBy(invocationSite, scope))	continue next;
 					
@@ -2129,6 +2142,11 @@ public final class CompletionEngine
 					
 					if (constructor.isSynthetic()) continue next;
 						
+					if (this.options.checkDeprecation &&
+							constructor.isViewedAsDeprecated() &&
+							!scope.isDefinedInSameUnit(constructor.declaringClass))
+						continue next;
+					
 					if (this.options.checkVisibility
 						&& !constructor.canBeSeenBy(invocationSite, scope)) {
 						if(!forAnonymousType || !constructor.isProtected())
@@ -2341,6 +2359,11 @@ public final class CompletionEngine
 			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
 
+			if (this.options.checkDeprecation &&
+					field.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(field.declaringClass))
+				continue next;
+			
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 
@@ -2786,6 +2809,8 @@ public final class CompletionEngine
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
 				continue next;
 
+			if (this.options.checkDeprecation && memberType.isViewedAsDeprecated()) continue next;
+			
 			if (this.options.checkVisibility
 				&& !memberType.canBeSeenBy(this.unitScope.fPackage))
 				continue next;
@@ -2836,6 +2861,8 @@ public final class CompletionEngine
 				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
 				continue next;
 
+			if (this.options.checkDeprecation && field.isViewedAsDeprecated()) continue next;
+			
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(this.unitScope.fPackage))
 				continue next;
@@ -2891,6 +2918,8 @@ public final class CompletionEngine
 
 			if (!method.isStatic()) continue next;
 
+			if (this.options.checkDeprecation && method.isViewedAsDeprecated()) continue next;
+			
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(this.unitScope.fPackage)) continue next;
 			
@@ -3187,7 +3216,8 @@ public final class CompletionEngine
 		SourceTypeBinding invocationType,
 		boolean staticOnly,
 		boolean fromStaticImport,
-		boolean checkQualification) {
+		boolean checkQualification,
+		Scope scope) {
 
 		// Inherited member types which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
@@ -3208,6 +3238,11 @@ public final class CompletionEngine
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
 				continue next;
 
+			if (this.options.checkDeprecation &&
+					memberType.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(memberType))
+				continue next;
+			
 			if (this.options.checkVisibility) {
 				if (invocationType != null && !memberType.canBeSeenBy(receiverType, invocationType)) {
 					continue next;
@@ -3348,7 +3383,8 @@ public final class CompletionEngine
 				typeInvocation,
 				staticOnly,
 				fromStaticImport,
-				checkQualification);
+				checkQualification,
+				scope);
 			return;
 		}
 
@@ -3381,7 +3417,8 @@ public final class CompletionEngine
 				typeInvocation,
 				staticOnly,
 				fromStaticImport,
-				checkQualification);
+				checkQualification,
+				scope);
 			
 			currentType = currentType.superclass();
 
@@ -3422,7 +3459,8 @@ public final class CompletionEngine
 							typeInvocation,
 							staticOnly,
 							fromStaticImport,
-							checkQualification);
+							checkQualification,
+							scope);
 								
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
@@ -3510,7 +3548,8 @@ public final class CompletionEngine
 				typeInvocation,
 				staticOnly,
 				fromStaticImport,
-				true);
+				true,
+				scope);
 		
 		ReferenceBinding[] memberTypes = receiverType.memberTypes();
 		next : for (int i = 0; i < memberTypes.length; i++) {
@@ -3706,6 +3745,11 @@ public final class CompletionEngine
 			if (method.isDefaultAbstract())	continue next;
 
 			if (method.isConstructor()) continue next;
+			
+			if (this.options.checkDeprecation &&
+					method.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(method.declaringClass))
+				continue next;
 
 			//TODO (david) perhaps the relevance of a void method must be lesser than other methods
 			//if (expectedTypesPtr > -1 && method.returnType == BaseTypes.VoidBinding) continue next;
@@ -3959,7 +4003,12 @@ public final class CompletionEngine
 			if (method.isConstructor()) continue next;
 
 			if (!method.isStatic()) continue next;
-
+			
+			if (this.options.checkDeprecation &&
+					method.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(method.declaringClass))
+				continue next;
+			
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
 
@@ -4213,6 +4262,11 @@ public final class CompletionEngine
                 newMethodsFound.add(method);
                 continue next;
             }
+			
+			if (this.options.checkDeprecation &&
+					method.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(method.declaringClass))
+				continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if(method.isStatic()) continue next;
@@ -4779,9 +4833,13 @@ public final class CompletionEngine
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 
-	private void findParameterizedType(TypeReference ref) {
+	private void findParameterizedType(TypeReference ref, Scope scope) {
 		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
 		if(refBinding != null) {
+			if (this.options.checkDeprecation &&
+					refBinding.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(refBinding))
+				return;
 			
 			int accessibility = IAccessRule.K_ACCESSIBLE;
 			if(refBinding.hasRestrictedAccess()) {
@@ -4986,6 +5044,10 @@ public final class CompletionEngine
 							// don't propose type variable if the completion is a constructor ('new |')
 							continue next;
 						}
+						if (this.options.checkDeprecation &&
+								refBinding.isViewedAsDeprecated() &&
+								!scope.isDefinedInSameUnit(refBinding))
+							continue next;
 						
 						int accessibility = IAccessRule.K_ACCESSIBLE;
 						if(refBinding.hasRestrictedAccess()) {
@@ -5105,7 +5167,8 @@ public final class CompletionEngine
 
 	private void findTypesAndSubpackages(
 		char[] token,
-		PackageBinding packageBinding) {
+		PackageBinding packageBinding,
+		Scope scope) {
 
 		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
 		
@@ -5141,6 +5204,11 @@ public final class CompletionEngine
 
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName)))	continue;
+				
+				if (this.options.checkDeprecation &&
+						sourceType.isViewedAsDeprecated() &&
+						!scope.isDefinedInSameUnit(sourceType))
+					continue;
 				
 				int accessibility = IAccessRule.K_ACCESSIBLE;
 				if(sourceType.hasRestrictedAccess()) {
