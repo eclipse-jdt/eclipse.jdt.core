@@ -305,7 +305,7 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 			}			
 		}
 
-		if (mode == CONFIG_MODE) {
+		if (mode == CONFIG_MODE || this.options == null) {
 			displayHelp(Messages.bind(Messages.CommandLineErrorNoConfigFile));
 			return null;			
 		}
