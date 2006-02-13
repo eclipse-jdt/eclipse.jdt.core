@@ -129,24 +129,20 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"import static p.A.C;\n" + 
-				"public class X { int i = C; }\n",
+				"public class X { \n" +
+				"	int i = C; \n" +
+				"	int j = p.A.C; \n" +
+				"}\n",
 				"p/A.java",
 				"package p;\n" + 
 				"public class A implements I {}\n" +
 				"interface I { public static int C = 1; }\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	public class X { int i = C; }\n" + 
-			"	                         ^\n" + 
-			"The type I is not visible\n" + 
-			"----------\n"
-			// C in p.I is not defined in a public class or interface; cannot be accessed from outside package
-		);
+			"");
 	}
 
 	public void test004() { // test static vs. instance
@@ -1341,7 +1337,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564
-	public void _test036() {
+	public void test036() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1360,41 +1356,25 @@ public class StaticImportTest extends AbstractComparableTest {
 				"class B { int CONSTANT_B = 1; }",
 			}, 
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import static p.A.CONSTANT_I;\n" + 
-			"	              ^^^^^^^^^^^^^^\n" + 
-			"The type I is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
 			"	import static p.A.CONSTANT_B;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
 			"The type B is not visible\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
-			"	static int i = p.A.CONSTANT_I;\n" + 
-			"	               ^^^^^^^^^^^^^^\n" + 
-			"The type I is not visible\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	static int j = p.A.CONSTANT_B;\n" + 
 			"	               ^^^^^^^^^^^^^^\n" + 
 			"The type B is not visible\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 6)\n" + 
-			"	static int m = CONSTANT_I;\n" + 
-			"	               ^^^^^^^^^^\n" + 
-			"CONSTANT_I cannot be resolved\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 7)\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
 			"	static int n = CONSTANT_B;\n" + 
 			"	               ^^^^^^^^^^\n" + 
 			"CONSTANT_B cannot be resolved\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
-	public void _test037() {
-		this.runNegativeTest(
+	public void test037() {
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"import static p.A.CONSTANT_I;\n" + 
@@ -1411,6 +1391,93 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { int CONSTANT_I = 1; }\n" + 
 				"class B { public static int CONSTANT_B = 1; }",
 			}, 
-			"?");
-	}	
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	public void test038() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.foo_I;\n" + 
+				"import static p.A.foo_B;\n" + 
+				"public class X {\n" + 
+				"  static int i = p.A.foo_I();\n" + 
+				"  static int j = p.A.foo_B();\n" + 
+				"  static int m = foo_I();\n" + 
+				"  static int n = foo_B();\n" + 
+				"}",
+				"p/A.java",
+				"package p;\n" + 
+				"public abstract class A extends B implements I {}\n" + 
+				"interface I { int foo_I(); }\n" + 
+				"class B { int foo_B() { return 2;} }",
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.A.foo_I;\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"The import p.A.foo_I cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	import static p.A.foo_B;\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"The import p.A.foo_B cannot be resolved\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	static int i = p.A.foo_I();\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Cannot make a static reference to the non-static method foo_I() from the type I\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	static int j = p.A.foo_B();\n" + 
+			"	                   ^^^^^\n" + 
+			"The method foo_B() from the type B is not visible\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	static int m = foo_I();\n" + 
+			"	               ^^^^^\n" + 
+			"The method foo_I() is undefined for the type X\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	static int n = foo_B();\n" + 
+			"	               ^^^^^\n" + 
+			"The method foo_B() is undefined for the type X\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	public void test039() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.foo_I;\n" + 
+				"import static p.A.foo_B;\n" + 
+				"public class X {\n" + 
+				"  static int i = p.A.foo_I();\n" + 
+				"  static int j = p.A.foo_B();\n" + 
+				"  static int m = foo_I();\n" + 
+				"  static int n = foo_B();\n" + 
+				"}",
+				"p/A.java",
+				"package p;\n" + 
+				"public abstract class A extends B implements I {}\n" + 
+				"interface I { int foo_I(); }\n" + 
+				"class B { public static int foo_B() { return 2;} }",
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	import static p.A.foo_I;\r\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"The import p.A.foo_I cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	static int i = p.A.foo_I();\r\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Cannot make a static reference to the non-static method foo_I() from the type I\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\r\n" + 
+			"	static int m = foo_I();\r\n" + 
+			"	               ^^^^^\n" + 
+			"The method foo_I() is undefined for the type X\n" + 
+			"----------\n");
+	}		
 }

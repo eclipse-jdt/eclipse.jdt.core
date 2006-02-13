@@ -496,7 +496,7 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	// look to see if its a static field first
 	ReferenceBinding type = (ReferenceBinding) binding;
 	FieldBinding field = findField(type, name, null, true);
-	if (field != null && field.isValidBinding() && field.isStatic() && field.canBeSeenBy(fPackage))
+	if (field != null && field.isValidBinding() && field.isStatic() && field.canBeSeenBy(type, null, this))
 		return field;
 
 	// look to see if there is a static method with the same selector

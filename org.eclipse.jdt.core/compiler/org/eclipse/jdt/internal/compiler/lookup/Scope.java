@@ -958,8 +958,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 			if (ambiguous != null)
 				return ambiguous;
-			//if (visibleField != null && !visibleField.declaringClass.canBeSeenBy(this)) // double check that interface is visible
-			//	return new ProblemFieldBinding(visibleField, visibleField.declaringClass, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 		}
 
 		if (visibleField != null)
@@ -1653,15 +1651,15 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
 									if (unitScope.resolveSingleImport(importBinding) != null && importBinding.resolvedImport instanceof FieldBinding) {
-										ReferenceBinding declaringClass = ((FieldBinding) importBinding.resolvedImport).declaringClass;
-										if (declaringClass.canBeSeenBy(this)) {
-											ImportReference importReference = importBinding.reference;
-											if (importReference != null) importReference.used = true;
-											invocationSite.setActualReceiverType(declaringClass);											
-											return importBinding.resolvedImport;
+										foundField = (FieldBinding) importBinding.resolvedImport;
+										ImportReference importReference = importBinding.reference;
+										if (importReference != null) importReference.used = true;
+										invocationSite.setActualReceiverType(foundField.declaringClass);											
+										if (foundField.isValidBinding()) {
+											return foundField;
 										}
 										if (problemField == null)
-											problemField = new ProblemFieldBinding(declaringClass, name, ProblemReasons.ReceiverTypeNotVisible);
+											problemField = foundField;
 									}
 								}
 							}
