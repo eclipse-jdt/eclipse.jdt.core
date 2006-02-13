@@ -686,11 +686,11 @@ void setSourceStart(int sourceStart);
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;
 	/** @since 3.1 */
-	int LocalVariableCannotBeNull = MethodRelated + 397;
+	int LocalVariableCannotBeNull = Internal + 397;
 	/** @since 3.1 */
-	int LocalVariableCanOnlyBeNull = MethodRelated + 398;
+	int LocalVariableCanOnlyBeNull = Internal + 398;
 	/** @since 3.2 */
-	int LocalVariableMayBeNull = MethodRelated + 399;
+	int LocalVariableMayBeNull = Internal + 399;
 
 	// method verifier problems
 	int AbstractMethodMustBeImplemented = MethodRelated + 400;

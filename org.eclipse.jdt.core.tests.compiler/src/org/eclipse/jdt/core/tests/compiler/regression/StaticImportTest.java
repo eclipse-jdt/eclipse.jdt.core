@@ -14,6 +14,14 @@ import junit.framework.Test;
 
 public class StaticImportTest extends AbstractComparableTest {
 
+	// Static initializer to specify tests subset using TESTS_* static variables
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		TESTS_NAMES = new String[] { "test036" };
+//		TESTS_NUMBERS = new int[] { 188 };
+//		TESTS_RANGE = new int[] { 169, 180 };
+	}
+	
 	public StaticImportTest(String name) {
 		super(name);
 	}
