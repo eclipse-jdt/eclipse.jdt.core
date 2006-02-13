@@ -462,7 +462,7 @@ protected BuildContext[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
 				}
 				if (!uniqueFiles.includes(sourceFile))
 					uniqueFiles.add(sourceFile);
-					CompilationParticipantResult newResult = new CompilationParticipantResult(sourceFile);
+					CompilationParticipantResult newResult = new BuildContext(sourceFile);
 					// is there enough room to add all the addedGeneratedFiles.length ?
 					if (toAdd == null) {
 						toAdd = new CompilationParticipantResult[addedGeneratedFiles.length];

@@ -1,2 +1,0 @@
-# Turn on debug tracing for org.eclipse.jdt.core plugin
-org.eclipse.jdt.apt.core/debug=false
