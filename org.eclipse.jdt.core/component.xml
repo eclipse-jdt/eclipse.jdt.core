@@ -70,15 +70,20 @@
    <type name="WorkingCopyOwner" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.compiler">
-   <type name="IScanner" implement="false"/>
-   <type name="ITerminalSymbols" implement="false"/>
+   <type name="BuildContext" subclass="false" instantiate="false"/>
+   <type name="CategorizedProblem" instantiate="false"/>
    <type name="CharOperation" subclass="false" instantiate="false"/>
+   <type name="CompilationParticipant" instantiate="false"/>
    <type name="InvalidInputException" subclass="false" instantiate="false"/>
    <type name="IProblem" implement="false"/>
+   <type name="IScanner" implement="false"/>
+   <type name="ITerminalSymbols" implement="false"/>
+   <type name="ReconcileContext" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.dom">
    <type name="AbstractTypeDeclaration" instantiate="false"/>
    <type name="Annotation" instantiate="false"/>
+   <type name="AnnotationBinding" reference="false"/>
    <type name="AnnotationTypeDeclaration" instantiate="false"/>
    <type name="AnnotationTypeMemberDeclaration" instantiate="false"/>
    <type name="AnonymousClassDeclaration" instantiate="false"/>
@@ -93,6 +98,7 @@
    <type name="ASTMatcher"/>
    <type name="ASTNode" instantiate="false"/>
    <type name="ASTParser" instantiate="false"/>
+   <type name="ASTRecoveryPropagator" reference="false"/>  
    <type name="ASTRequestor" instantiate="false"/>
    <type name="ASTSyntaxErrorPropagator" reference="false"/>
    <type name="ASTVisitor"/>
@@ -118,6 +124,7 @@
    <type name="DefaultASTVisitor" reference="false"/>
    <type name="DefaultBindingResolver" reference="false"/>
    <type name="DefaultCommentMapper" reference="false"/>
+   <type name="DefaultValuePairBinding" reference="false"/>
    <type name="DocCommentParser" reference="false"/>
    <type name="DoStatement" instantiate="false"/>
    <type name="EmptyStatement" instantiate="false"/>
@@ -129,10 +136,12 @@
    <type name="FieldAccess" instantiate="false"/>
    <type name="FieldDeclaration" instantiate="false"/>
    <type name="ForStatement" instantiate="false"/>
+   <type name="IAnnotationBinding" instantiate="false" implement="false"/>
    <type name="IBinding" instantiate="false" implement="false"/>
    <type name="IDocElement" reference="false"/>
    <type name="IExtendedModifier" instantiate="false"/>
    <type name="IfStatement" instantiate="false"/>
+   <type name="IMemberValuePairBinding" instantiate="false" implement="false"/>
    <type name="IMethodBinding" instantiate="false" implement="false"/>
    <type name="ImportDeclaration" instantiate="false"/>
    <type name="InfixExpression" instantiate="false"/>
@@ -148,6 +157,7 @@
    <type name="MarkerAnnotation" instantiate="false"/>
    <type name="MemberRef" instantiate="false"/>
    <type name="MemberValuePair" instantiate="false"/>
+   <type name="MemberValuePairBinding" reference="false"/>
    <type name="Message" instantiate="false"/>
    <type name="MethodBinding" reference="false"/>
    <type name="MethodDeclaration" instantiate="false"/>
@@ -207,6 +217,7 @@
  </package>
  <package name="org.eclipse.jdt.core.dom.rewrite">
    <type name="ASTRewrite" subclass="false" instantiate="false"/>
+   <type name="ImportRewrite" subclass="false"/>
    <type name="ITrackedNodePosition" implement="false"/>
    <type name="ListRewrite" subclass="false"/>
    <type name="TargetSourceRangeComputer"/> 
@@ -218,7 +229,9 @@
  </package>
  <package name="org.eclipse.jdt.core.formatter">
    <type name="CodeFormatter"/>
+   <type name="CodeFormatterApplication" subclass="false" instantiate="false"/>
    <type name="DefaultCodeFormatterConstants" subclass="false" instantiate="false"/>
+   <type name="IndentManipulation" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.jdom">
    <type name="DOMException"/>
@@ -300,6 +313,9 @@
    <type name="IRuntimeVisibleParameterAnnotationsAttribute"/>
    <type name="ISignatureAttribute"/>
    <type name="ISourceAttribute"/>
+   <type name="IStackMapAttribute"/>
+   <type name="IStackMapFrame"/>
+   <type name="IStackMapTableAttribute"/>
    <type name="IVerificationTypeInfo"/>
    <type name="OpcodeStringValues" subclass="false" instantiate="false"/>
  </package>
