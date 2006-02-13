@@ -40,7 +40,7 @@ public class ReconcileProcessorEnv extends CompilationProcessorEnv implements Ec
     {	
 		CompilationUnit compilationUnit = null;
 		try{
-			compilationUnit = reconcileContext.getAST(AST.JLS3, true);
+			compilationUnit = reconcileContext.getAST3();
 		}catch( JavaModelException e){
 			// TODO: log error
 			compilationUnit = EMPTY_AST_UNIT;

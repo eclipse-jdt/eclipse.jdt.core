@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
  * participants while a reconcile operation is running.
  * <p>
  * A reconcile participant can get the AST for the reconcile-operation using
- * {@link #getAST(int, boolean)}. If the participant modifies in any way the AST 
+ * {@link #getAST3()}. If the participant modifies in any way the AST 
  * (either by modifying the source of the working copy, or modifying another entity 
  * that would result in different bindings for the AST), it is expected to reset the 
  * AST in the context using {@link #resetAST()}.
@@ -65,20 +65,19 @@ public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit
 }
 
 /**
- * Returns the AST created from the current state of the working copy.
+ * Returns a resolved AST with {@link AST#JLS3 JLS3} level.
+ * It is created from the current state of the working copy.
  * Creates one if none exists yet.
  * Returns <code>null</code> if the current state of the working copy
  * doesn't allow the AST to be created (e.g. if the working copy's content 
  * cannot be parsed).
  * <p>
- * If the requested AST level is different from the {@link #getASTLevel() current AST level}
- * or if binding resolutions is requested when no {@link #isResolvingBindings() binding resolution}
- * was requested when reconciling, then a different AST is created. Note that this AST does not 
- * become the current AST and it is only valid for the requestor.
+ * If the AST level requested during reconciling is not {@link AST#JLS3}
+ * or if binding resolutions was not requested, then a different AST is created. 
+ * Note that this AST does not become the current AST and it is only valid for 
+ * the requestor.
  * </p>
  * 
- * @param astLevel the level of AST requested
- * @param resolveBindings whether the bindings in the returned AST should be resolved
  * @return the AST created from the current state of the working copy,
  *   or <code>null</code> if none could be created
  * @exception JavaModelException  if the contents of the working copy
@@ -87,12 +86,12 @@ public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit
  * <li> The working copy does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  */
-public org.eclipse.jdt.core.dom.CompilationUnit getAST(int astLevel, boolean resolveBindings) throws JavaModelException {
-	if (this.operation.astLevel != astLevel || !this.operation.resolveBindings & resolveBindings) {
+public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelException {
+	if (this.operation.astLevel != AST.JLS3 || !this.operation.resolveBindings) {
 		// create AST (optionally resolving bindings)
-		ASTParser parser = ASTParser.newParser(astLevel);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setCompilerOptions(workingCopy.getJavaProject().getOptions(true));
-		if (resolveBindings && JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
+		if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
 			parser.setResolveBindings(true);
 		parser.setSource(workingCopy);
 		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);		
@@ -122,7 +121,7 @@ public boolean isResolvingBindings() {
 /**
  * Returns the delta describing the change to the working copy being reconciled.
  * Returns <code>null</code> if there is no change.
- * Note that the delta's AST is not yet positionnned at this stage. Use {@link #getAST(int, boolean)}
+ * Note that the delta's AST is not yet positionnned at this stage. Use {@link #getAST3()}
  * to get the current AST.
  *
  * @return the delta describing the change, or <code>null</code> if none

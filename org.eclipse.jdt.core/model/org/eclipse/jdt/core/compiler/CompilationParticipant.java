@@ -56,10 +56,10 @@ public int aboutToBuild(IJavaProject project) {
  * When isBatchBuild is true, then files contains all source files in the project.
  * Only sent to participants interested in the current build project.
  *
- * @param files is an array of CompilationParticipantResult
+ * @param files is an array of BuildContext
  * @param isBatch identifies when the build is a batch build
   */
-public void buildStarting(ICompilationParticipantResult[] files, boolean isBatch) {
+public void buildStarting(BuildContext[] files, boolean isBatch) {
 	// do nothing by default
 }
 
@@ -102,11 +102,11 @@ public boolean isAnnotationProcessor() {
 /**
  * Notifies this participant that a compile operation has found source files using Annotations.
  * Only sent to participants interested in the current build project that answer true to isAnnotationProcessor().
- * Each CompilationParticipantResult was informed whether its source file currently hasAnnotations().
+ * Each BuildContext was informed whether its source file currently hasAnnotations().
  *
- * @param files is an array of CompilationParticipantResult
+ * @param files is an array of BuildContext
   */
-public void processAnnotations(ICompilationParticipantResult[] files) {
+public void processAnnotations(BuildContext[] files) {
 	// do nothing by default
 }
 

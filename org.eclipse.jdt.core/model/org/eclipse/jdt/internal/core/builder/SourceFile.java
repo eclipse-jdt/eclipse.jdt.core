@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class SourceFile implements ICompilationUnit {
 
-IFile resource;
+public IFile resource;
 ClasspathMultiDirectory sourceLocation;
 String initialTypeName;
 boolean updateClassFile;

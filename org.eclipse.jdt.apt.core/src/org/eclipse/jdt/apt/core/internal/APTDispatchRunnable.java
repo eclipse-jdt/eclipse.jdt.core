@@ -39,7 +39,7 @@ import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
+import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -50,9 +50,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class APTDispatchRunnable implements IWorkspaceRunnable
 {
-	private static final ICompilationParticipantResult[] NO_FILES_TO_PROCESS = new ICompilationParticipantResult[0];
-	private /*final*/ ICompilationParticipantResult[] _filesWithAnnotation = null;
-	private /*final*/ ICompilationParticipantResult[] _filesWithoutAnnotation = null;
+	private static final BuildContext[] NO_FILES_TO_PROCESS = new BuildContext[0];
+	private /*final*/ BuildContext[] _filesWithAnnotation = null;
+	private /*final*/ BuildContext[] _filesWithoutAnnotation = null;
 	private final AptProject _aptProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
 	/** Batch processor dispatched in the previous rounds */
@@ -63,8 +63,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	
 	
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
-			ICompilationParticipantResult[] filesWithAnnotations, 
-			ICompilationParticipantResult[] filesWithoutAnnotations,
+			BuildContext[] filesWithAnnotations, 
+			BuildContext[] filesWithoutAnnotations,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -105,8 +105,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	
 	/** create a runnable used during build */
 	private APTDispatchRunnable( 
-			ICompilationParticipantResult[] filesWithAnnotation,
-			ICompilationParticipantResult[] filesWithoutAnnotation,
+			BuildContext[] filesWithAnnotation,
+			BuildContext[] filesWithoutAnnotation,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -242,9 +242,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private void runAPTInFileBasedMode(final ProcessorEnvImpl processorEnv,
 									   final Map<IFile, Set<IFile>> lastGeneratedFiles)
 	{
-		final ICompilationParticipantResult[] cpResults = processorEnv.getFilesWithAnnotation();
+		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-		for (ICompilationParticipantResult curResult : cpResults ) {			
+		for (BuildContext curResult : cpResults ) {			
 			processorEnv.beginFileProcessing(curResult);
 			dispatchToFileBasedProcessor(processorEnv);
 			final IFile curFile = curResult.getFile();
@@ -273,7 +273,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * @param processorEnv
 	 */
 	private void reportResult(
-			ICompilationParticipantResult curResult,
+			BuildContext curResult,
 			Set<IFile> lastGeneratedFiles,
 			Set<IFile> generatedFiles,
 			Set<IFile> modifiedGeneratedFiles,
@@ -336,9 +336,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			final Map<IFile, Set<IFile>> lastGeneratedFiles,
 			final ProcessorEnvImpl processorEnv)
 	{
-		final ICompilationParticipantResult[] cpResults = processorEnv.getFilesWithAnnotation();
-		final Map<ICompilationParticipantResult, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
-			new HashMap<ICompilationParticipantResult, Set<AnnotationTypeDeclaration>>(cpResults.length * 4/3 + 1);
+		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
+		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
+			new HashMap<BuildContext, Set<AnnotationTypeDeclaration>>(cpResults.length * 4/3 + 1);
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
 		
@@ -433,15 +433,15 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// TODO: Is this correct?
 			// Why is it ok (today):
 			// 1) Problems are reported as IMarkers and not IProblem thru the 
-			// ICompilationParticipantResult API. 
+			// BuildContext API. 
 			// 2) jdt is currently not doing anything about the parent->generated file relation
-			//    so it doesn't matter which ICompilationParticipantResult we attach the 
+			//    so it doesn't matter which BuildContext we attach the 
 			//    creation/modification/deletion of generated files. -theodora
-			ICompilationParticipantResult firstResult = null; 
+			BuildContext firstResult = null; 
 			if( cpResults.length > 0 )
 				firstResult = cpResults[0];
 			else{
-				final ICompilationParticipantResult[] others = processorEnv.getFilesWithoutAnnotation();
+				final BuildContext[] others = processorEnv.getFilesWithoutAnnotation();
 				if(others != null && others.length > 0 )
 					firstResult = others[0];
 			}
@@ -465,7 +465,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		
 		// Now, do the file based dispatch
 		if( !fileFactory2Annos.isEmpty() ){
-			for(ICompilationParticipantResult curResult : cpResults ){
+			for(BuildContext curResult : cpResults ){
 				final Set<AnnotationTypeDeclaration> annotationTypesInFile = file2AnnotationDecls.get(curResult);
 				if( annotationTypesInFile == null || annotationTypesInFile.isEmpty() )
 					continue;
@@ -548,10 +548,10 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private Set<AnnotationProcessorFactory> build(final ProcessorEnvImpl processorEnv)
 	{
 		try {
-			final ICompilationParticipantResult[] results = processorEnv.getFilesWithAnnotation();
+			final BuildContext[] results = processorEnv.getFilesWithAnnotation();
 			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 			final Map<IFile,Set<IFile>> lastGeneratedFiles = new HashMap<IFile,Set<IFile>>();
-			for( ICompilationParticipantResult result : results ){
+			for( BuildContext result : results ){
 				final IFile parentIFile = result.getFile();
 				lastGeneratedFiles.put(parentIFile, gfm.getGeneratedFilesForParent(parentIFile));
 			}
@@ -612,11 +612,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 	}
 	
-	private void cleanupAllGeneratedFilesFrom(ICompilationParticipantResult[] cpResults){
+	private void cleanupAllGeneratedFilesFrom(BuildContext[] cpResults){
 		final List<IFile> deleted = new ArrayList<IFile>();
 		if( cpResults != null ){
 			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-			for( ICompilationParticipantResult cpResult : cpResults){			
+			for( BuildContext cpResult : cpResults){			
 				Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( cpResult.getFile() );
 				cleanupNoLongerGeneratedFiles( 
 						cpResult, 
@@ -638,7 +638,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	//       types during build phase.
 	//       Do not call unless caller is sure this is during build phase.
 	private void cleanupNoLongerGeneratedFiles(
-			ICompilationParticipantResult parent,
+			BuildContext parent,
 			Set<IFile> lastGeneratedFiles, 
 			Set<IFile> newGeneratedFiles,
 			GeneratedFileManager gfm,		
@@ -749,7 +749,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		final IFile file = processorEnv.getFile();
 		if( file != null )
 			return file.getName();
-		final ICompilationParticipantResult[] results = processorEnv.getFilesWithAnnotation();
+		final BuildContext[] results = processorEnv.getFilesWithAnnotation();
 		final int len = results.length;
 		switch( len )
 		{
@@ -760,7 +760,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		default:
 			StringBuilder sb = new StringBuilder();
 			boolean firstItem = true;
-			for (ICompilationParticipantResult curResult : results) {
+			for (BuildContext curResult : results) {
 				if (firstItem) {
 					firstItem = false;
 				}

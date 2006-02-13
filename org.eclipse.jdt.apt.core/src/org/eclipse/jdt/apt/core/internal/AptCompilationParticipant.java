@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
-import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
+import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -76,7 +76,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		return true;
 	}
 	
-	public void buildStarting(ICompilationParticipantResult[] files, boolean isBatch){
+	public void buildStarting(BuildContext[] files, boolean isBatch){
 		// this gets called multiple times during a build.
 		// This gets called:
 		// 1) after "aboutToBuild" is called.
@@ -86,7 +86,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			_isBatch = isBatch;
 	}
 	
-	public void processAnnotations(ICompilationParticipantResult[] allfiles) {	
+	public void processAnnotations(BuildContext[] allfiles) {	
 		// This should not happen. There should always be file that that needs 
 		// building when 
 		final int total = allfiles == null ? 0 : allfiles.length;
@@ -129,13 +129,13 @@ public class AptCompilationParticipant extends CompilationParticipant
 			if( annoFileCount == 0 && noAnnoFileCount == 0 )
 				return;
 			
-			ICompilationParticipantResult[] withAnnotation = null;
-			ICompilationParticipantResult[] withoutAnnotation = null;
+			BuildContext[] withAnnotation = null;
+			BuildContext[] withoutAnnotation = null;
 			
 			if( annoFileCount != 0 )
-				withAnnotation = new ICompilationParticipantResult[annoFileCount];
+				withAnnotation = new BuildContext[annoFileCount];
 			if(noAnnoFileCount != 0 )
-				withoutAnnotation = new ICompilationParticipantResult[noAnnoFileCount];
+				withoutAnnotation = new BuildContext[noAnnoFileCount];
 			int wIndex = 0; // index for 'withAnnotation' array
 			int woIndex = 0; // index of 'withoutAnnotation' array
 			for( int i=0; i<total; i++ ){		
@@ -147,7 +147,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 					withoutAnnotation[woIndex ++] = allfiles[i];
 			}
 			
-			for( ICompilationParticipantResult file : allfiles )
+			for( BuildContext file : allfiles )
 				_processedFiles.add(file.getFile());
 		
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =

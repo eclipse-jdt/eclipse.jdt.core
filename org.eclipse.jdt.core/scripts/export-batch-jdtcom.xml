@@ -22,7 +22,7 @@
 	        </fileset>
 	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
 	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/ICompilationParticipantResult.class"/>
+	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/ITerminalSymbols*.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/ReconcileContext*.class"/>

@@ -73,7 +73,7 @@ public class ParticipantBuildTests extends Tests {
 		public String getMarkerType() { return "Test_Marker"; }
 	}
 
-	CompilationUnit buildCompilationUnit(ICompilationParticipantResult file) {
+	CompilationUnit buildCompilationUnit(BuildContext file) {
 		IJavaProject javaProject = JavaCore.create(file.getFile().getProject());
 		ASTParser p = ASTParser.newParser(AST.JLS3);
 		p.setProject(javaProject);
@@ -98,11 +98,11 @@ public class ParticipantBuildTests extends Tests {
 		// install compilationParticipant
 		new BuildTestParticipant() {
 			boolean createFile = true;
-			public void buildStarting(ICompilationParticipantResult[] files, boolean isBatchBuild) {
+			public void buildStarting(BuildContext[] files, boolean isBatchBuild) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				if (!this.createFile) return;
 				this.createFile = false;
-				ICompilationParticipantResult result = files[0];
+				BuildContext result = files[0];
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 				try {
 					genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
@@ -144,7 +144,7 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
+			public void processAnnotations(BuildContext[] files) {
 				for (int i = 0, total = files.length; i < total; i++) {
 					IFile file = files[i].getFile();
 					// Traversing the members of test.ClassWithNestedAnnotation through a reference in EntryPoint.java
@@ -228,11 +228,11 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
+			public void processAnnotations(BuildContext[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
 				if (this.count == 2) {
 					this.count--;
-					ICompilationParticipantResult result = files[0];
+					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("MissingAnnotation.java")); //$NON-NLS-1$
 					try {
 						genedType.create(new ByteArrayInputStream("public @interface MissingAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
@@ -242,7 +242,7 @@ public class ParticipantBuildTests extends Tests {
 					result.recordAddedGeneratedFiles(new IFile[] {genedType});
 				} else if (this.count == 1) {
 					this.count--;
-					ICompilationParticipantResult result = files[0];
+					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 					try {
 						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
@@ -281,9 +281,9 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
+			public void processAnnotations(BuildContext[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
-				ICompilationParticipantResult result = files[0];
+				BuildContext result = files[0];
 				IFile genedType = result.getFile().getProject().getFile(new Path("src/p1/p2/GeneratedType.java")); //$NON-NLS-1$
 				if (genedType.exists()) return;
 				try {
@@ -319,9 +319,9 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
+			public void processAnnotations(BuildContext[] files) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
-				ICompilationParticipantResult result = files[0];
+				BuildContext result = files[0];
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedAnnotation.java")); //$NON-NLS-1$
 				if (genedType.exists()) return;
 				try {
@@ -354,7 +354,7 @@ public class ParticipantBuildTests extends Tests {
 			public boolean isAnnotationProcessor() {
 				return true;
 			}
-			public void processAnnotations(ICompilationParticipantResult[] files) {
+			public void processAnnotations(BuildContext[] files) {
 				for (int i = 0, total = files.length; i < total; i++) {
 					IFile file = files[i].getFile();
 					// Traversing the members of test.ClassWithNestedAnnotation through a reference in EntryPoint.java

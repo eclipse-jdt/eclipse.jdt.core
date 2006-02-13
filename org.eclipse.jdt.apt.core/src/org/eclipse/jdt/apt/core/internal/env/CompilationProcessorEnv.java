@@ -37,7 +37,7 @@ import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
+import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -78,8 +78,8 @@ public abstract class CompilationProcessorEnv
 	}
     
     public static ProcessorEnvImpl newBuildEnv(
-    		ICompilationParticipantResult[] filesWithAnnotation,
-    		final ICompilationParticipantResult[] additionalFiles,
+    		BuildContext[] filesWithAnnotation,
+    		final BuildContext[] additionalFiles,
     		IJavaProject javaProj )
     {
     	assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$    	

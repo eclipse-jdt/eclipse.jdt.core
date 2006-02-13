@@ -212,7 +212,7 @@ protected void compile(SourceFile[] units) {
 		this.filesWithAnnotations.clear();
 
 	// notify CompilationParticipants which source files are about to be compiled
-	CompilationParticipantResult[] participantResults = this.javaBuilder.participants == null ? null : notifyParticipants(units);
+	BuildContext[] participantResults = this.javaBuilder.participants == null ? null : notifyParticipants(units);
 	if (participantResults != null && participantResults.length > units.length) {
 		units = new SourceFile[participantResults.length];
 		for (int i = participantResults.length; --i >= 0;)
@@ -428,10 +428,10 @@ protected Compiler newCompiler() {
 	return newCompiler;
 }
 
-protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
-	CompilationParticipantResult[] results = new CompilationParticipantResult[unitsAboutToCompile.length];
+protected BuildContext[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
+	BuildContext[] results = new BuildContext[unitsAboutToCompile.length];
 	for (int i = unitsAboutToCompile.length; --i >= 0;)
-		results[i] = new CompilationParticipantResult(unitsAboutToCompile[i]);
+		results[i] = new BuildContext(unitsAboutToCompile[i]);
 
 	// TODO (kent) do we expect to have more than one participant?
 	// and if so should we pass the generated files from the each processor to the others to process?
@@ -478,7 +478,7 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 
 	if (added >0 ) {
 		int length = results.length;
-		System.arraycopy(results, 0, results = new CompilationParticipantResult[length + added], 0 , length);
+		System.arraycopy(results, 0, results = new BuildContext[length + added], 0 , length);
 		System.arraycopy(toAdd, 0, results, length, added);
 	}
 	return results;
@@ -486,7 +486,7 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 
 protected abstract void processAnnotationResults(CompilationParticipantResult[] results);
 
-protected void processAnnotations(CompilationParticipantResult[] results) {
+protected void processAnnotations(BuildContext[] results) {
 	boolean hasAnnotationProcessor = false;
 	for (int i = 0, l = this.javaBuilder.participants.length; !hasAnnotationProcessor && i < l; i++)
 		hasAnnotationProcessor = this.javaBuilder.participants[i].isAnnotationProcessor();
@@ -494,7 +494,7 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 
 	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.elementSize > 0;
 	for (int i = results.length; --i >= 0;)
-		results[i].reset(foundAnnotations && this.filesWithAnnotations.includes(results[i].sourceFile));
+		((CompilationParticipantResult) results[i]).reset(foundAnnotations && this.filesWithAnnotations.includes(results[i].sourceFile));
 
 	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
 	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)

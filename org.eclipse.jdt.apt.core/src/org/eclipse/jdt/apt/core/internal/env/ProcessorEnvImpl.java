@@ -42,7 +42,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.ICompilationParticipantResult;
+import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -81,13 +81,13 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	 * If we are not in batch mode, <code>super._file</code> holds the file 
 	 * being processed at the time. 
 	 */ 
-	private ICompilationParticipantResult[] _filesWithAnnotation = null;
+	private BuildContext[] _filesWithAnnotation = null;
 	
 	/**
 	 * These are files that are part of a build but does not have annotations on it.
 	 * During batch mode processing, these files still also need to be included. 
 	 */
-	private ICompilationParticipantResult[] _additionFiles = null;
+	private BuildContext[] _additionFiles = null;
 	/** 
 	 * This is intialized when <code>_batchMode</code> is set to be <code>true</code> or
 	 * when batch processing is expected. @see #getAllAnnotationTypes(Map)
@@ -104,8 +104,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
      * @param phase
      */
     ProcessorEnvImpl(
-			final ICompilationParticipantResult[] filesWithAnnotations,
-			final ICompilationParticipantResult[] additionalFiles,
+			final BuildContext[] filesWithAnnotations,
+			final BuildContext[] additionalFiles,
 			final IJavaProject javaProj) {
     	
     	super(null, null, javaProj, Phase.BUILD);
@@ -362,7 +362,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	 * @return the map containing all annotation types found within this environment.
 	 */
     public Map<String, AnnotationTypeDeclaration> getAllAnnotationTypes(
-    		final Map<ICompilationParticipantResult, Set<AnnotationTypeDeclaration>> file2Annotations) {
+    		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2Annotations) {
     	
     	checkValid();
     	if( _filesWithAnnotation == null )  
@@ -428,11 +428,11 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		completedProcessing();
 	}
 	
-	private CompilationUnit[] createASTsFrom(ICompilationParticipantResult[] cpResults){
+	private CompilationUnit[] createASTsFrom(BuildContext[] cpResults){
 		final int size = cpResults.length;
 		final IFile[] files = new IFile[size];
 		int i=0;
-		for( ICompilationParticipantResult cpResult : cpResults )
+		for( BuildContext cpResult : cpResults )
 			files[i++] = cpResult.getFile();
 		return createASTsFrom(files);
 	}
@@ -450,7 +450,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		return createASTs(_javaProject, units);
 	}
 
-	private CompilationUnit createASTFrom(ICompilationParticipantResult result){
+	private CompilationUnit createASTFrom(BuildContext result){
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setSource(result.getContents());		
 		p.setResolveBindings( true );
@@ -462,7 +462,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		return node == null ? EMPTY_AST_UNIT : (CompilationUnit)node;	
 	}
 	
-	public void beginFileProcessing(ICompilationParticipantResult result){		
+	public void beginFileProcessing(BuildContext result){		
 		if( result == null )
 			throw new IllegalStateException("missing compilation result"); //$NON-NLS-1$
 		_batchMode = false;
@@ -688,12 +688,12 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		}
     }
 	
-	public ICompilationParticipantResult[] getFilesWithAnnotation()
+	public BuildContext[] getFilesWithAnnotation()
 	{
 		return _filesWithAnnotation;
 	}
 	
-	public ICompilationParticipantResult[] getFilesWithoutAnnotation()
+	public BuildContext[] getFilesWithoutAnnotation()
 	{
 		return _additionFiles;
 	}

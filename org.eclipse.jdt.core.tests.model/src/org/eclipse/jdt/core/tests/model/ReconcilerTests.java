@@ -60,17 +60,10 @@ public class ReconcilerTests extends ModifyingResourceTests {
 	}
 	
 	class ReconcileParticipant extends CompilationParticipant {
-		int astLevel;
-		boolean resolveBinding;
 		IJavaElementDelta delta;
 		org.eclipse.jdt.core.dom.CompilationUnit ast;
 		ReconcileParticipant() {
-			this(ICompilationUnit.NO_AST, false);
-		}
-		ReconcileParticipant(int astLevel, boolean resolveBinding) {
 			TestCompilationParticipant.PARTICIPANT = this;
-			this.astLevel = astLevel;
-			this.resolveBinding = resolveBinding;
 		}
 		public boolean isActive(IJavaProject project) {
 			return true;
@@ -78,7 +71,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST(this.astLevel, this.resolveBinding);
+				this.ast = context.getAST3();
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -2123,7 +2116,7 @@ public void testReconcileParticipant02() throws CoreException {
  * Ensures that a reconcile participant is notified with the correct AST.
  */
 public void testReconcileParticipant03() throws CoreException {
-	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	ReconcileParticipant participant = new ReconcileParticipant();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -2149,7 +2142,7 @@ public void testReconcileParticipant03() throws CoreException {
  * Ensures that the same AST as the one a reconcile participant requested is reported.
  */
 public void testReconcileParticipant04() throws CoreException {
-	ReconcileParticipant participant = new ReconcileParticipant(AST.JLS3, false/*don't resolve binding*/);
+	ReconcileParticipant participant = new ReconcileParticipant();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -2170,7 +2163,7 @@ public void testReconcileParticipant04() throws CoreException {
  * Ensures that a participant can fix an error during reconcile.
  */
 public void testReconcileParticipant05() throws CoreException {
-	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+	new ReconcileParticipant() {
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
@@ -2205,7 +2198,7 @@ public void testReconcileParticipant05() throws CoreException {
  * Ensures that a participant can introduce an error during reconcile.
  */
 public void testReconcileParticipant06() throws CoreException {
-	new ReconcileParticipant(AST.JLS3, true/*resolve binding*/) {
+	new ReconcileParticipant() {
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
