@@ -16,9 +16,7 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -52,32 +50,7 @@ public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
 			super.acceptProblem(problem);
 		}		
 	}
-	
-	class ReconcileParticipant extends CompilationParticipant {
-		int astLevel;
-		boolean resolveBinding;
-		IJavaElementDelta delta;
-		org.eclipse.jdt.core.dom.CompilationUnit ast;
-		ReconcileParticipant() {
-			this(ICompilationUnit.NO_AST, false);
-		}
-		ReconcileParticipant(int astLevel, boolean resolveBinding) {
-			TestCompilationParticipant.PARTICIPANT = this;
-			this.astLevel = astLevel;
-			this.resolveBinding = resolveBinding;
-		}
-		public boolean isActive(IJavaProject project) {
-			return true;
-		}
-		public void reconcile(ReconcileContext context) {
-			this.delta = context.getDelta();
-			try {
-				this.ast = context.getAST(this.astLevel, this.resolveBinding);
-			} catch (JavaModelException e) {
-				assertNull("Unexpected exception", e);
-			}
-		}
-	}
+
 /**
  */
 public ReconcilerStatementsRecoveryTests(String name) {
