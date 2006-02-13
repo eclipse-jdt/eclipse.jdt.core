@@ -194,8 +194,8 @@ public class ParticipantBuildTests extends Tests {
 						}
 					}
 					if (!problems.isEmpty()) {
-						IProblem[] problemArray = new IProblem[problems.size()];
-						problemArray = (IProblem[]) problems.toArray(problemArray);
+						CategorizedProblem[] problemArray = new CategorizedProblem[problems.size()];
+						problemArray = (CategorizedProblem[]) problems.toArray(problemArray);
 						files[i].recordNewProblems(problemArray);
 					}
 				}
@@ -374,8 +374,8 @@ public class ParticipantBuildTests extends Tests {
 							problems.add(new ParticipantProblem("method " + method.getName() + " not found", file.getName()));
 					}
 					if (!problems.isEmpty()) {
-						IProblem[] problemArray = new IProblem[problems.size()];
-						problemArray = (IProblem[]) problems.toArray(problemArray);
+						CategorizedProblem[] problemArray = new CategorizedProblem[problems.size()];
+						problemArray = (CategorizedProblem[]) problems.toArray(problemArray);
 						files[i].recordNewProblems(problemArray);
 					}
 				}

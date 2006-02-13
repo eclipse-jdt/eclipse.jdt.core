@@ -17,6 +17,9 @@ import org.eclipse.jdt.internal.core.builder.CompilationParticipantResult;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
 /**
+ * The context of a build event that is notified to interested compilation 
+ * participants when {@link CompilationParticipant#buildStarting(BuildContext[], boolean) a build is starting},
+ * or to annotations processors when {@link CompilationParticipant#processAnnotations(BuildContext[]) a source file has annotations}.
  * <p>
  * This class is not intended to be instanciated or subclassed by clients.
  * </p>
@@ -38,13 +41,17 @@ public BuildContext(SourceFile sourceFile) {
 
 /**
  * Returns the contents of the compilation unit.
+ * 
+ * @return the contents of the compilation unit
  */
 public char[] getContents() {
 	return this.sourceFile.getContents();
 }
 
 /**
- * Returns the IFile representing the compilation unit.
+ * Returns the <code>IFile</code> representing the compilation unit.
+ * 
+ * @return the <code>IFile</code> representing the compilation unit
  */
 public IFile getFile() {
 	return this.sourceFile.resource;
@@ -53,7 +60,9 @@ public IFile getFile() {
 /**
  * Returns whether the compilation unit contained any annotations when it was compiled.
  * 
- * NOTE: Only valid during CompilationParticipant.processAnnotations(files)
+ * NOTE: This is only valid during {@link CompilationParticipant#processAnnotations(BuildContext[])}.
+ * 
+ * @return whether the compilation unit contained any annotations when it was compiled
  */
 public boolean hasAnnotations() {
 	return this.hasAnnotations; // only set during processAnnotations
@@ -61,6 +70,8 @@ public boolean hasAnnotations() {
 
 /**
  * Record the added/changed generated files that need to be compiled.
+ * 
+ * @param addedGeneratedFiles the added/changed files
  */
 public void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles) {
 	int length2 = addedGeneratedFiles.length;
@@ -76,6 +87,8 @@ public void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles) {
 
 /**
  * Record the generated files that need to be deleted.
+ * 
+ * @param deletedGeneratedFiles the files that need to be deleted
  */
 public void recordDeletedGeneratedFiles(IFile[] deletedGeneratedFiles) {
 	int length2 = deletedGeneratedFiles.length;
@@ -90,7 +103,9 @@ public void recordDeletedGeneratedFiles(IFile[] deletedGeneratedFiles) {
 }
 
 /**
- * Record the fully-qualified type names of any new dependencies, each name is of the form 'p1.p2.A.B'.
+ * Record the fully-qualified type names of any new dependencies, each name is of the form "p1.p2.A.B".
+ * 
+ * @param typeNameDependencies the fully-qualified type names of new dependencies
  */
 public void recordDependencies(String[] typeNameDependencies) {
 	int length2 = typeNameDependencies.length;
@@ -106,8 +121,10 @@ public void recordDependencies(String[] typeNameDependencies) {
 
 /**
  * Record new problems to report against this compilationUnit.
+ * 
+ * @param newProblems the problems to report
  */
-public void recordNewProblems(IProblem[] newProblems) {
+public void recordNewProblems(CategorizedProblem[] newProblems) {
 	int length2 = newProblems.length;
 	if (length2 == 0) return;
 
