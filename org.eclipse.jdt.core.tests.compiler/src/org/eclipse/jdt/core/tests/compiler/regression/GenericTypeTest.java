@@ -28058,4 +28058,43 @@ public void test908() {
 			"}"},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126105
+public void test909() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private static class B<T> {\n" + 
+			"		private Object x;\n" + 
+			"\n" + 
+			"		public B(T x) {\n" + 
+			"			this.x = x;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static class C {\n" + 
+			"		private Object x;\n" + 
+			"\n" + 
+			"		public C(Object x) {\n" + 
+			"			this.x = x;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Throwable {\n" + 
+			"		B<String> b = new B<String>(\"foo\");\n" + 
+			"		System.out.println(b.x);\n" + 
+			"\n" + 
+			"		C c = new C(\"foo\");\n" + 
+			"		System.out.println(c.x);\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 24)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
