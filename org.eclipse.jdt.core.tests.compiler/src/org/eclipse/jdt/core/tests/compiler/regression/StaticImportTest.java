@@ -1392,4 +1392,25 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	public void _test037() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.CONSTANT_I;\n" + 
+				"import static p.A.CONSTANT_B;\n" + 
+				"public class X {\n" + 
+				"  static int i = p.A.CONSTANT_I;\n" + 
+				"  static int j = p.A.CONSTANT_B;\n" + 
+				"  static int m = CONSTANT_I;\n" + 
+				"  static int n = CONSTANT_B;\n" + 
+				"}",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A extends B implements I {}\n" + 
+				"interface I { int CONSTANT_I = 1; }\n" + 
+				"class B { public static int CONSTANT_B = 1; }",
+			}, 
+			"?");
+	}	
 }
