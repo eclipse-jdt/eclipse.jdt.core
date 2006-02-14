@@ -79,14 +79,14 @@ public abstract class WorkingCopyOwner {
 	 * Problems are never reported and a DOM AST created using this working copy
 	 * will not have bindings resolved.
 	 * <p>
-	 * When the working copy instance is created, an {@link IJavaElementDelta#ADDED} is 
+	 * When the working copy instance is created, an {@link IJavaElementDelta#ADDED added delta} is 
 	 * reported on this working copy.
 	 * </p><p>
 	 * Once done with the working copy, users of this method must discard it using 
 	 * {@link ICompilationUnit#discardWorkingCopy()}.
 	 * </p><p>
-	 * Note that when such working copy is committed, only its buffer is saved (
-	 * see {@link IBuffer#save(IProgressMonitor, boolean)}) but no resource is created.
+	 * Note that when such working copy is committed, only its buffer is saved (see 
+	 * {@link IBuffer#save(IProgressMonitor, boolean)}) but no resource is created.
 	 * </p><p>
 	 * This method is not intended to be overriden by clients.
 	 * </p>
