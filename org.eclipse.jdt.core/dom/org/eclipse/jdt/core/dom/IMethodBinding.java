@@ -271,18 +271,7 @@ public interface IMethodBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public IMethodBinding getMethodDeclaration();
-
-	/**
-	 * Returns whether this method overrides at least another method,
-	 * as specified in section 8.4.8.1 and 9.4.1 of <em>The Java Language 
-	 * Specification, Third Edition</em> (JLS3).
-	 * 
-	 * @return whether this method overrides at least another method
-	 * @see #overrides(IMethodBinding)
-	 * @since 3.2
-	 */
-	public boolean isOverriding();
-
+	
 	/**
 	 * Returns whether this method binding represents an instance of
 	 * a generic method corresponding to a raw method reference.

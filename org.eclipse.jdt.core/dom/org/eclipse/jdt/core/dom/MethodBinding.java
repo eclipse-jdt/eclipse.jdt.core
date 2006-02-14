@@ -61,14 +61,14 @@ class MethodBinding implements IMethodBinding {
 		return getDeclaringClass().isAnnotation();
 	}
 
-	/*
+	/**
 	 * @see IMethodBinding#isConstructor()
 	 */
 	public boolean isConstructor() {
 		return this.binding.isConstructor();
 	}
 	
-	/*
+	/**
 	 * @see IMethodBinding#isDefaultConstructor()
 	 * @since 3.0
 	 */
@@ -87,7 +87,7 @@ class MethodBinding implements IMethodBinding {
 		return (this.binding.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0;
 	}	
 
-	/*
+	/**
 	 * @see IBinding#getName()
 	 */
 	public String getName() {
@@ -112,7 +112,7 @@ class MethodBinding implements IMethodBinding {
 		return domInstances; 
 	}
 
-	/*
+	/**
 	 * @see IMethodBinding#getDeclaringClass()
 	 */
 	public ITypeBinding getDeclaringClass() {
@@ -133,7 +133,7 @@ class MethodBinding implements IMethodBinding {
 		return domInstances; 
 	}
 
-	/*
+	/**
 	 * @see IMethodBinding#getParameterTypes()
 	 */
 	public ITypeBinding[] getParameterTypes() {
@@ -153,7 +153,7 @@ class MethodBinding implements IMethodBinding {
 		return this.parameterTypes;
 	}
 
-	/*
+	/**
 	 * @see IMethodBinding#getReturnType()
 	 */
 	public ITypeBinding getReturnType() {
@@ -169,7 +169,7 @@ class MethodBinding implements IMethodBinding {
 		return null;
 	}
 
-	/*
+	/**
 	 * @see IMethodBinding#getExceptionTypes()
 	 */
 	public ITypeBinding[] getExceptionTypes() {
@@ -261,42 +261,35 @@ class MethodBinding implements IMethodBinding {
 		}
 	}
 	
-	/*
+	/**
 	 * @see IBinding#getKind()
 	 */
 	public int getKind() {
 		return IBinding.METHOD;
 	}
 
-	/*
+	/**
 	 * @see IBinding#getModifiers()
 	 */
 	public int getModifiers() {
 		return this.binding.getAccessFlags() & VALID_MODIFIERS;
 	}
 
-	/*
+	/**
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
 		return this.binding.isDeprecated();
 	}
 
-	/*
-	 * @see IMethodBinding#isOverriding()
-	 */
-	public boolean isOverriding() {
-		return this.binding.isOverriding() || this.binding.isImplementing();
-	}
-	
-	/*
+	/**
 	 * @see IBinding#isSynthetic()
 	 */
 	public boolean isSynthetic() {
 		return this.binding.isSynthetic();
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isVarargs()
 	 * @since 3.1
 	 */
@@ -304,7 +297,7 @@ class MethodBinding implements IMethodBinding {
 		return this.binding.isVarargs();
 	}
 
-	/*
+	/**
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
@@ -314,8 +307,8 @@ class MethodBinding implements IMethodBinding {
 		return this.key;
 	}
 	
-	/*
-	 * @see IBinding#isEqualTo(Binding)
+	/**
+	 * @see IBinding#isEqualTo(IBinding)
 	 * @since 3.1
 	 */
 	public boolean isEqualTo(IBinding other) {
@@ -334,7 +327,7 @@ class MethodBinding implements IMethodBinding {
 		return BindingComparator.isEqual(this.binding, otherBinding);
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
@@ -358,8 +351,8 @@ class MethodBinding implements IMethodBinding {
 		return this.typeParameters;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isGenericMethod()
+	/**
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isGenericMethod()
 	 * @since 3.1
 	 */
 	public boolean isGenericMethod() {
@@ -371,7 +364,7 @@ class MethodBinding implements IMethodBinding {
 		return (typeVariableBindings != null && typeVariableBindings.length > 0);
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {
@@ -401,7 +394,7 @@ class MethodBinding implements IMethodBinding {
 		return this.typeArguments;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isParameterizedMethod()
 	 */
 	public boolean isParameterizedMethod() {
@@ -409,7 +402,7 @@ class MethodBinding implements IMethodBinding {
 			&& !((ParameterizedGenericMethodBinding) this.binding).isRaw;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isRawMethod()
 	 */
 	public boolean isRawMethod() {
@@ -431,7 +424,7 @@ class MethodBinding implements IMethodBinding {
 		return this.resolver.getMethodBinding(this.binding.original());
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see IMethodBinding#overrides(IMethodBinding)
 	 */
 	public boolean overrides(IMethodBinding overridenMethod) {
@@ -455,7 +448,7 @@ class MethodBinding implements IMethodBinding {
 		return false;
 	}
 
-	/* 
+	/**
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()
 	 */
