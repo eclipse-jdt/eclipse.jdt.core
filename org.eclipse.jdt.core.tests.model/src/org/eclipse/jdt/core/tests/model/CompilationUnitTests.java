@@ -142,23 +142,6 @@ public void testCommitWorkingCopy() {
 	}
 	assertTrue("A compilation unit should throw an exception is a commit is attempted", false);
 }
-/*
- * Ensure that the absence of flags is correctly reported
- * (regression test fo bug 127213 Flags class missing methods)
- */
-public void testDefaultFlag1() throws JavaModelException {
-	IField field = this.cu.getType("X").getField("f4");
-	assertTrue("X#f4 should have no flags", Flags.isDefault(field.getFlags()));
-}
-
-/*
- * Ensure that the presence of flags is correctly reported
- * (regression test fo bug 127213 Flags class missing methods)
- */
-public void testDefaultFlag2() throws JavaModelException {
-	IType type = this.cu.getType("X");
-	assertTrue("X should have flags", !Flags.isDefault(type.getFlags()));
-}
 
 /*
  * Ensure that the deprecated flag is correctly reported
@@ -1031,6 +1014,43 @@ public void testNotPresent2() throws CoreException {
 	assertTrue("CU should not exist", !compilationUnit.exists());
 	assertTrue("CU should still not be open", !compilationUnit.isOpen());
 }
+
+/*
+ * Ensure that the absence of visibility flags is correctly reported as package default
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testPackageDefaultFlag1() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f4");
+	assertTrue("X#f4 should be package default", Flags.isPackageDefault(field.getFlags()));
+}
+
+/*
+ * Ensure that the presence of a visibility flags is correctly reported as non package default
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testPackageDefaultFlag2() throws JavaModelException {
+	IType type = this.cu.getType("X");
+	assertTrue("X should not be package default", !Flags.isPackageDefault(type.getFlags()));
+}
+
+/*
+ * Ensure that the presence of a visibility flags as well as the deprecated flag is correctly reported as non package default
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testPackageDefaultFlag3() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f2");
+	assertTrue("X#f2 should not be package default", !Flags.isPackageDefault(field.getFlags()));
+}
+
+/*
+ * Ensure that the absence of a visibility flags and the presence of the deprecated flag is correctly reported as package default
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testPackageDefaultFlag4() throws JavaModelException {
+	IType type = this.cu.getType("I");
+	assertTrue("X should be package default", Flags.isPackageDefault(type.getFlags()));
+}
+
 /**
  * Ensures that the "structure is known" flag is set for a valid compilation unit. 
  */

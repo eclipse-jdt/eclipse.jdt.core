@@ -158,16 +158,6 @@ public final class Flags {
 		return (flags & AccAbstract) != 0;
 	}
 	/**
-	 * Returns whether the given integer indicates the absence of any flag.
-	 *
-	 * @param flags the flags
-	 * @return <code>true</code> if no flag is set
-	 * @since 3.2
-	 */
-	public static boolean isDefault(int flags) {
-		return flags == AccDefault;
-	}
-	/**
 	 * Returns whether the given integer includes the indication that the 
 	 * element is deprecated (<code>@deprecated</code> tag in Javadoc comment).
 	 *
@@ -204,6 +194,17 @@ public final class Flags {
 	 */
 	public static boolean isNative(int flags) {
 		return (flags & AccNative) != 0;
+	}
+	/**
+	 * Returns whether the given integer does not include one of the 
+	 * <code>public</code>, <code>private</code>, or <code>protected</code> flags.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if no visibility flag is set
+	 * @since 3.2
+	 */
+	public static boolean isPackageDefault(int flags) {
+		return (flags & (AccPublic | AccPrivate | AccProtected)) == 0;
 	}
 	/**
 	 * Returns whether the given integer includes the <code>private</code> modifier.
