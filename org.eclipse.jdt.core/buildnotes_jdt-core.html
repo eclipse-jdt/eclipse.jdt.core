@@ -61,6 +61,8 @@ User editing experience is thus significantly improved on large workspaces conta
 As a consequence, our experiments show that the memory requirement for developing Eclipse in Eclipse can be lowered 
 to 128MB only (i.e. passing -Xmx128m to the VM) as opposed to 256MB as currently specified in the eclipse.ini file. 
 </li>
+<li>Removed <code> IMethodBinding#isOverriding()</code> API introduced during 3.2 in DOM AST, as it doesn't meet
+client expectation, who isn't even using it (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=90660">90660</a>).
 </ul>
 
 <h3>Problem Reports Fixed</h3>
