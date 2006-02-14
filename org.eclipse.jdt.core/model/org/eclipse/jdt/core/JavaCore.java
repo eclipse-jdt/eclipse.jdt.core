@@ -57,6 +57,7 @@
  *     IBM Corporation - added the following constants:
  *                                 TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC
  *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_FALLTHROUGH_CASE
  *                                 COMPILER_PB_PARAMETER_ASSIGNMENT
  *                                 COMPILER_PB_NULL_REFERENCE
  *     IBM Corporation - added the following constants:
@@ -362,6 +363,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.possibleAccidentalBooleanAssignment"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_FALLTHROUGH_CASE = PLUGIN_ID + ".compiler.problem.fallthroughCase"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2268,6 +2275,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning if a parameter is
 	 *    assigned to.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.parameterAssignment"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Switch Fall-Through Case
+	 *    When enabled, the compiler will issue an error or a warning if a case may be
+	 *    entered by falling through previous case. Empty cases are allowed.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fallthroughCase"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 
