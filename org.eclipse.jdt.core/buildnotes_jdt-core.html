@@ -52,6 +52,15 @@ Eclipse SDK 3.2M5 - ?th February 2006 - 3.2 MILESTONE 5
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The Java model now better accommodates very big JAR files (i.e. containing lots of packages). Before 3.2 M5, such JAR files would 
+cause the Java model cache to overflow frequently, which induced poor performance, since the same JAR file kept being read over 
+and over again. A workaround was to start Eclipse with more memory to enjoy good performance again (as the cache size is a function 
+of the memory size).
+<p>JAR files are now read more selectively, and thus interesting portions remain in the cache longer without consuming lots of memory.
+User editing experience is thus significantly improved on large workspaces containing big JARs. 
+As a consequence, our experiments show that the memory requirement for developing Eclipse in Eclipse can be lowered 
+to 128MB only (i.e. passing -Xmx128m to the VM) as opposed to 256MB as currently specified in the eclipse.ini file. 
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
