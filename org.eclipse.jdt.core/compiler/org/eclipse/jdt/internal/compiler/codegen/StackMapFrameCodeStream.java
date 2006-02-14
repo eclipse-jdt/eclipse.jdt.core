@@ -1386,10 +1386,6 @@ public void ldc(int constant) {
 	super.ldc(constant);
 	this.currentFrame.addStackItem(TypeBinding.INT);
 }
-public void ldc(String constant) {
-	super.ldc(constant);
-	this.currentFrame.addStackItem(new VerificationTypeInfo(TypeIds.T_JavaLangString, ConstantPool.JavaLangStringConstantPoolName));
-}
 public void ldc(TypeBinding typeBinding) {
 	super.ldc(typeBinding);
 	this.currentFrame.addStackItem(typeBinding);
