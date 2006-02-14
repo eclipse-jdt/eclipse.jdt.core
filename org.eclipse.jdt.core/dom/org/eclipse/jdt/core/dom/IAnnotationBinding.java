@@ -42,9 +42,9 @@ public interface IAnnotationBinding extends IBinding {
 	
 	/**
 	 * Returns the list of declared member value pairs for this annotation.
-	 * Returns an empty list for a <code>MarkerAnnotation</code>, a one element
-	 * list for a <code>SingleMemberAnnotation</code>, and one entry for each
-	 * of the explicitly listed values in a <code>NormalAnnotation</code>.
+	 * Returns an empty list for a {@link MarkerAnnotation}, a one element
+	 * list for a {@link SingleMemberAnnotation}, and one entry for each
+	 * of the explicitly listed values in a {@link NormalAnnotation}.
 	 * <p>
 	 * Note that the list only includes entries for annotation type members that are
 	 * explicitly mentioned in the annotation. The list does not include any 
