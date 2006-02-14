@@ -158,6 +158,16 @@ public final class Flags {
 		return (flags & AccAbstract) != 0;
 	}
 	/**
+	 * Returns whether the given integer indicates the absence of any flag.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if no flag is set
+	 * @since 3.2
+	 */
+	public static boolean isDefault(int flags) {
+		return flags == AccDefault;
+	}
+	/**
 	 * Returns whether the given integer includes the indication that the 
 	 * element is deprecated (<code>@deprecated</code> tag in Javadoc comment).
 	 *
@@ -230,6 +240,16 @@ public final class Flags {
 	 */
 	public static boolean isStatic(int flags) {
 		return (flags & AccStatic) != 0;
+	}
+	/**
+	 * Returns whether the given integer includes the <code>super</code> modifier.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>super</code> modifier is included
+	 * @since 3.2
+	 */
+	public static boolean isSuper(int flags) {
+		return (flags & AccSuper) != 0;
 	}
 	/**
 	 * Returns whether the given integer includes the <code>strictfp</code> modifier.

@@ -85,7 +85,7 @@ public void setUpSuite() throws Exception {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testGetChildren";
-//	TESTS_NAMES = new String[] { "testGetCategories13", "testGetCategories14", "testGetCategories15" };
+//	TESTS_NAMES = new String[] { "testDefaultFlag1" };
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -143,7 +143,25 @@ public void testCommitWorkingCopy() {
 	assertTrue("A compilation unit should throw an exception is a commit is attempted", false);
 }
 /*
- * Ensure that the deprecated flags is correctly reported
+ * Ensure that the absence of flags is correctly reported
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testDefaultFlag1() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f4");
+	assertTrue("X#f4 should have no flags", Flags.isDefault(field.getFlags()));
+}
+
+/*
+ * Ensure that the presence of flags is correctly reported
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testDefaultFlag2() throws JavaModelException {
+	IType type = this.cu.getType("X");
+	assertTrue("X should have flags", !Flags.isDefault(type.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
  */
 public void testDeprecatedFlag() throws JavaModelException {
@@ -1032,6 +1050,22 @@ public void testStructureUnknownForCU() throws CoreException {
 	} finally {
 		this.deleteFile("/P/src/p/Invalid.java");
 	}
+}
+
+/*
+ * Ensure that the super flags is correctly reported
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testSuperFlag1() throws JavaModelException {
+	assertTrue("Should contain super flag", Flags.isSuper(Flags.AccSuper));
+}
+
+/*
+ * Ensure that the super flags is correctly reported
+ * (regression test fo bug 127213 Flags class missing methods)
+ */
+public void testSuperFlag2() throws JavaModelException {
+	assertTrue("Should not contain super flag", !Flags.isSuper(Flags.AccDefault));
 }
 
 /*
