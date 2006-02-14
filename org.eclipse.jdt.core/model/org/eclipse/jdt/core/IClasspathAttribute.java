@@ -58,7 +58,7 @@ public interface IClasspathAttribute {
 	
 	/**
 	 * Constant for the name of the optional attribute. The possible values
-	 * for this attributes are <code>"true"</code> or <code>"false"</code>. 
+	 * for this attribute are <code>"true"</code> or <code>"false"</code>. 
 	 * When not present, <code>"false"</code> is assumed.
 	 * If the value of this attribute is <code>"true"</code>, the classpath entry
 	 * is optional. If the underlying resource or jar file doesn't exist, no error
