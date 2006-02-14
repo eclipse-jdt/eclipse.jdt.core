@@ -55,21 +55,36 @@ public abstract class CategorizedProblem implements IProblem {
 	 * in the future.
 	 */
 	public static final int CAT_UNSPECIFIED = 0;
+	/** Category for problems related to buildpath */
 	public static final int CAT_BUILDPATH = 10;
+	/** Category for syntax problems */
 	public static final int CAT_SYNTAX = 20;
+	/** Category for standard problems in import statements */
 	public static final int CAT_IMPORT = 30;
+	/** Category for standard problems related to types, could be addressed by some type change */
 	public static final int CAT_TYPE = 40;
+	/** Category for standard problems related to type members, could be addressed by some field or method change */
 	public static final int CAT_MEMBER = 50;
-	public static final int CAT_JAVADOC = 60;
-	public static final int CAT_CODE_STYLE = 70;
-	public static final int CAT_POTENTIAL_PROGRAMMING_PROBLEM = 80;
-	public static final int CAT_NAME_SHADOWING_CONFLICT = 90;
-	public static final int CAT_DEPRECATION = 100;
-	public static final int CAT_UNNECESSARY_CODE = 110;
-	public static final int CAT_UNCHECKED_RAW = 120;
-	public static final int CAT_NLS = 130;
-	public static final int CAT_RESTRICTION = 140;	
-	
+	/** Category for standard problems which could not be addressed by external changes, but require an edit to be addressed */
+	public static final int CAT_INTERNAL = 60;	
+	/** Category for optional problems in Javadoc */
+	public static final int CAT_JAVADOC = 70;
+	/** Category for optional problems related to coding style practices */
+	public static final int CAT_CODE_STYLE = 80;
+	/** Category for optional problems related to potential programming flaws */
+	public static final int CAT_POTENTIAL_PROGRAMMING_PROBLEM = 90;
+	/** Category for optional problems related to naming conflicts */
+	public static final int CAT_NAME_SHADOWING_CONFLICT = 100;
+	/** Category for optional problems related to deprecation */
+	public static final int CAT_DEPRECATION = 110;
+	/** Category for optional problems related to unnecessary code */
+	public static final int CAT_UNNECESSARY_CODE = 120;
+	/** Category for optional problems related to type safety in generics */
+	public static final int CAT_UNCHECKED_RAW = 130;
+	/** Category for optional problems related to internationalization of String literals */
+	public static final int CAT_NLS = 140;
+	/** Category for optional problems related to access restrictions */
+	public static final int CAT_RESTRICTION = 150;	
 	
 /** 
  * Returns an integer identifying the category of this problem. Categories, like problem IDs are

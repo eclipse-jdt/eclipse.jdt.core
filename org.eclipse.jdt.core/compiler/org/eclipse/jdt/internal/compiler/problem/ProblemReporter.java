@@ -1654,7 +1654,7 @@ public static int getProblemCategory(int problemID) {
 			if ((problemID & (IProblem.FieldRelated|IProblem.MethodRelated|IProblem.ConstructorRelated)) != 0)
 				return CategorizedProblem.CAT_MEMBER;
 	}
-	return CategorizedProblem.CAT_UNSPECIFIED;
+	return CategorizedProblem.CAT_INTERNAL;
 }
 
 // use this private API when the compilation unit result can be found through the
