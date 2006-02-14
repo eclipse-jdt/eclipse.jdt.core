@@ -1857,6 +1857,46 @@ public void test038() {
 			},
 			"Loaded fine");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127603
+public void test039() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void someMethod() {\n" + 
+				"		int count = 0;\n" + 
+				"		int code = -1;\n" + 
+				"		while (count < 2 && (code == -1 || code == 2)) {\n" + 
+				"			count++;\n" + 
+				"			try {\n" + 
+				"				{\n" + 
+				"					System.out.print(\"[Try:\" + count + \";\" + code+\"]\");\n" + 
+				"				}\n" + 
+				"				code = 0;\n" + 
+				"\n" + 
+				"			} finally {\n" + 
+				"				System.out.print(\"[Finally\" + count + \";\" + code+\"]\");\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		System.out.print(\"[Outering\");\n" + 
+				"\n" + 
+				"		if (code == 0) {\n" + 
+				"			System.out.print(\"[Return:\" + count + \";\" + code+\"]\");\n" + 
+				"			return;\n" + 
+				"		}\n" + 
+				"		throw new RuntimeException(null + \"a\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) throws Exception {\n" + 
+				"		for (int i = 0; i < 1; i++) {\n" + 
+				"			someMethod();\n" + 
+				"			System.out.println();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"[Try:1;-1][Finally1;0][Outering[Return:1;0]");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
