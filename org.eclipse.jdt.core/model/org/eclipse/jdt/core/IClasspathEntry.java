@@ -239,13 +239,13 @@ public interface IClasspathEntry {
 	 * Combinations of *'s and ?'s are allowed.
 	 * </p>
 	 * <p>
-	 * The special pattern '**' matches zero or more segments. In a source enry,
+	 * The special pattern '**' matches zero or more segments. In a source entry,
 	 * a path like <code>tests/</code> that ends in a trailing separator is interpreted
 	 * as <code>tests/&#42;&#42;</code>, and would match everything under
 	 * the folder named <code>tests</code>.
 	 * </p>
 	 * <p>
-	 * Example patterns in source entries:
+	 * Example patterns in source entries (assuming that "java" is the only {@link JavaCore#getJavaLikeExtensions() Java-like extension}):
 	 * <ul>
 	 * <li>
 	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
