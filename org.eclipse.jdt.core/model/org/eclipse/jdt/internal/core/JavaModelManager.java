@@ -1612,7 +1612,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * of open ZipFiles. 
 	 * 
 	 * The path must be a file system path if representing an external 
-	 * zip/jar, or it must be an abosulte workspace relative path if 
+	 * zip/jar, or it must be an absolute workspace relative path if 
 	 * representing a zip/jar inside the workspace.
 	 *
 	 * @exception CoreException If unable to create/open the ZipFile
