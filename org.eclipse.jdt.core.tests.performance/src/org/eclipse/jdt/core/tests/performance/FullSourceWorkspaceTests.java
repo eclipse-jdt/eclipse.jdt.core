@@ -518,7 +518,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	private static String getPluginDirectoryPath() {
 		try {
 			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.performance").getEntry("/");
-			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -69,7 +70,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	protected String getPluginDirectoryPath() {
 		try {
 			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
-			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
