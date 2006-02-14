@@ -79,7 +79,7 @@ public abstract class WorkingCopyOwner {
 	 * Problems are never reported and a DOM AST created using this working copy
 	 * will not have bindings resolved.
 	 * <p>
-	 * When the working copy instance is created, an ADDED IJavaElementDelta is 
+	 * When the working copy instance is created, an {@link IJavaElementDelta#ADDED} is 
 	 * reported on this working copy.
 	 * </p><p>
 	 * Once done with the working copy, users of this method must discard it using 
