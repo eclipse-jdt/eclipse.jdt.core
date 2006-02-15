@@ -43,59 +43,91 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		super(document);
 	}
 	private void addBinaryStandardAnnotations(long annotationTagBits) {
-		char[][] compoundName = null;
 		if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
+			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
+			addTypeReference(compoundName[compoundName.length-1]);
 			addBinaryTargetAnnotation(annotationTagBits);
 		}
 		if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTION;
+			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTION;
+			addTypeReference(compoundName[compoundName.length-1]);
 			addBinaryRetentionAnnotation(annotationTagBits);
 		}
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_DEPRECATED;
+			char[][] compoundName = TypeConstants.JAVA_LANG_DEPRECATED;
+			addTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationDocumented) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED;
+			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED;
+			addTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationInherited) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_INHERITED;
+			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_INHERITED;
+			addTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationOverride) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_OVERRIDE;
+			char[][] compoundName = TypeConstants.JAVA_LANG_OVERRIDE;
+			addTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
-			compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
+			char[][] compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
+			addTypeReference(compoundName[compoundName.length-1]);
 		}
-		if (compoundName == null) return;
-		addTypeReference(compoundName[compoundName.length-1]);
 	}
 	private void addBinaryTargetAnnotation(long bits) {
-		if ((bits & TagBits.AnnotationTarget) != 0) return;
-		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
-		addTypeReference(compoundName[compoundName.length-1]);
+		char[][] compoundName = null;
 		if ((bits & TagBits.AnnotationForAnnotationType) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+			addTypeReference(compoundName[compoundName.length-1]);
 			addFieldReference(TypeConstants.UPPER_ANNOTATION_TYPE);
 		}
 		if ((bits & TagBits.AnnotationForConstructor) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_CONSTRUCTOR);
 		}
 		if ((bits & TagBits.AnnotationForField) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_FIELD);
 		}
 		if ((bits & TagBits.AnnotationForLocalVariable) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_LOCAL_VARIABLE);
 		}
 		if ((bits & TagBits.AnnotationForMethod) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_METHOD);
 		}
 		if ((bits & TagBits.AnnotationForPackage) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_PACKAGE);
 		}
 		if ((bits & TagBits.AnnotationForParameter) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.UPPER_PARAMETER);
 		}
 		if ((bits & TagBits.AnnotationForType) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
 			addFieldReference(TypeConstants.TYPE);
 		}
 	}
