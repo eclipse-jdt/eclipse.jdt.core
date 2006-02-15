@@ -784,7 +784,7 @@ public void testWarningTokens() {
 	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.TypeParameterHidingType));
 	assertEquals("wrong token", "nls", CorrectionEngine.getWarningToken(IProblem.NonExternalizedStringLiteral));
 	assertEquals("wrong token", "incomplete-switch", CorrectionEngine.getWarningToken(IProblem.MissingEnumConstantCase));
-	assertNull("Not supported", CorrectionEngine.getWarningToken(IProblem.UnusedImport));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedImport));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.LocalVariableIsNeverUsed));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.ArgumentIsNeverUsed));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateConstructor));
