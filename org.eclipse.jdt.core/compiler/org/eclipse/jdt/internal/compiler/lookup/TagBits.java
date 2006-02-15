@@ -97,6 +97,7 @@ public interface TagBits {
 	long AnnotationInherited = ASTNode.Bit48L;
 	long AnnotationOverride = ASTNode.Bit49L;
 	long AnnotationSuppressWarnings = ASTNode.Bit50L;
+	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
 	
 	long DefaultValueResolved = ASTNode.Bit51L;
 }

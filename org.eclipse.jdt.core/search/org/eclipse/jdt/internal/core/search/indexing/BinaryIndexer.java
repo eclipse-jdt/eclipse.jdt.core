@@ -23,6 +23,8 @@ import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
@@ -39,6 +41,76 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 	public BinaryIndexer(SearchDocument document) {
 		super(document);
+	}
+	private void addBinaryStandardAnnotations(long annotationTagBits) {
+		char[][] compoundName = null;
+		if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
+			addBinaryTargetAnnotation(annotationTagBits);
+		}
+		if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTION;
+			addBinaryRetentionAnnotation(annotationTagBits);
+		}
+		if ((annotationTagBits & TagBits.AnnotationDeprecated) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_DEPRECATED;
+		}
+		if ((annotationTagBits & TagBits.AnnotationDocumented) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED;
+		}
+		if ((annotationTagBits & TagBits.AnnotationInherited) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_ANNOTATION_INHERITED;
+		}
+		if ((annotationTagBits & TagBits.AnnotationOverride) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_OVERRIDE;
+		}
+		if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
+			compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
+		}
+		if (compoundName == null) return;
+		addTypeReference(compoundName[compoundName.length-1]);
+	}
+	private void addBinaryTargetAnnotation(long bits) {
+		if ((bits & TagBits.AnnotationTarget) != 0) return;
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+		addTypeReference(compoundName[compoundName.length-1]);
+		if ((bits & TagBits.AnnotationForAnnotationType) != 0) {
+			addFieldReference(TypeConstants.UPPER_ANNOTATION_TYPE);
+		}
+		if ((bits & TagBits.AnnotationForConstructor) != 0) {
+			addFieldReference(TypeConstants.UPPER_CONSTRUCTOR);
+		}
+		if ((bits & TagBits.AnnotationForField) != 0) {
+			addFieldReference(TypeConstants.UPPER_FIELD);
+		}
+		if ((bits & TagBits.AnnotationForLocalVariable) != 0) {
+			addFieldReference(TypeConstants.UPPER_LOCAL_VARIABLE);
+		}
+		if ((bits & TagBits.AnnotationForMethod) != 0) {
+			addFieldReference(TypeConstants.UPPER_METHOD);
+		}
+		if ((bits & TagBits.AnnotationForPackage) != 0) {
+			addFieldReference(TypeConstants.UPPER_PACKAGE);
+		}
+		if ((bits & TagBits.AnnotationForParameter) != 0) {
+			addFieldReference(TypeConstants.UPPER_PARAMETER);
+		}
+		if ((bits & TagBits.AnnotationForType) != 0) {
+			addFieldReference(TypeConstants.TYPE);
+		}
+	}
+	private void addBinaryRetentionAnnotation(long bits) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY;
+		addTypeReference(compoundName[compoundName.length-1]);
+		if ((bits & TagBits.AnnotationRuntimeRetention) != 0) {
+			addFieldReference(TypeConstants.UPPER_RUNTIME);
+		}
+		else if ((bits & TagBits.AnnotationClassRetention) != 0) {
+			addFieldReference(TypeConstants.UPPER_CLASS);
+		}
+		else if ((bits & TagBits.AnnotationSourceRetention) != 0) {
+			addFieldReference(TypeConstants.UPPER_SOURCE);
+		}
 	}
 	private void addBinaryAnnotation(IBinaryAnnotation annotation) {
 		addTypeReference(replace('/', '.', Signature.toCharArray(annotation.getTypeName())));
@@ -549,6 +621,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					IBinaryAnnotation annotation = annotations[a];
 					addBinaryAnnotation(annotation);
 				}
+			}
+			long tagBits = reader.getTagBits() & TagBits.AllStandardAnnotationsMask;
+			if (tagBits != 0) {
+				addBinaryStandardAnnotations(tagBits);
 			}
 
 			// first reference all methods declarations and field declarations
