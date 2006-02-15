@@ -5169,14 +5169,17 @@ public void test142c() {
 				"			private void bar() {}\n" + 			
 				"		}\n" +
 				"    }\n" + 
-				"}" 
-            },
-            "----------\n" + 
-    		"1. WARNING in X.java (at line 1)\n" + 
-    		"	import java.io.*;\n" + 
-    		"	       ^^^^^^^\n" + 
-    		"The import java.io is never used\n" + 
-    		"----------\n",
+				"}",
+				"Y.java", // =================
+				"public class Y extends Zork {\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 1)\n" + 
+			"	public class Y extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
 			null,
 			true,
 			options

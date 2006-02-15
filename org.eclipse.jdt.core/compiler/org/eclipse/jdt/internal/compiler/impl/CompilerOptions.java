@@ -931,6 +931,7 @@ public class CompilerOptions {
 					return "nls"; //$NON-NLS-1$
 				case (int) UnusedLocalVariable :
 				case (int) UnusedArgument :
+				case (int) UnusedImport :
 				case (int) UnusedPrivateMember:
 				case (int) UnusedDeclaredThrownException:
 					return "unused"; //$NON-NLS-1$
@@ -1043,7 +1044,7 @@ public class CompilerOptions {
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel;
+					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel | UnusedImport;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
 					return UncheckedTypeOperation | RawTypeReference;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
