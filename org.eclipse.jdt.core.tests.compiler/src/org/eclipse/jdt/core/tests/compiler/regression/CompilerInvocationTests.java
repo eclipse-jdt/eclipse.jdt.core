@@ -11,10 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
