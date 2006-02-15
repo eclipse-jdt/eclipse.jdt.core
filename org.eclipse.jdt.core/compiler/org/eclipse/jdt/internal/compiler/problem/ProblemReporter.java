@@ -1561,7 +1561,6 @@ public static int getProblemCategory(int problemID) {
 				case (int)CompilerOptions.UnqualifiedFieldAccess:
 				case (int)CompilerOptions.UndocumentedEmptyBlock:
 				case (int)CompilerOptions.IndirectStaticAccess:
-				case (int)CompilerOptions.FinalParameterBound:
 					return CategorizedProblem.CAT_CODE_STYLE;
 					
 				case (int)CompilerOptions.MaskedCatchBlock:
@@ -1610,6 +1609,7 @@ public static int getProblemCategory(int problemID) {
 		} else {
 			irritantInt = (int)(irritant >>> 32);
 			switch (irritantInt) {
+				case (int)(CompilerOptions.FinalParameterBound >>> 32):
 				case (int)(CompilerOptions.EnumUsedAsAnIdentifier >>> 32):
 				case (int)(CompilerOptions.AnnotationSuperInterface >>> 32):
 				case (int)(CompilerOptions.AutoBoxing >>> 32):
@@ -1628,6 +1628,7 @@ public static int getProblemCategory(int problemID) {
 					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
 					
 				case (int)(CompilerOptions.UnhandledWarningToken >>> 32):
+				case (int)(CompilerOptions.UnusedLabel >>> 32):
 					return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 				case (int)(CompilerOptions.ForbiddenReference >>> 32):
