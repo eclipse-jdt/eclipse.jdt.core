@@ -104,6 +104,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
 	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
 	public static final String OPTION_ReportParameterAssignment =  "org.eclipse.jdt.core.compiler.problem.parameterAssignment"; //$NON-NLS-1$
+	public static final String OPTION_ReportFallthroughCase =  "org.eclipse.jdt.core.compiler.problem.fallthroughCase"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -187,6 +188,7 @@ public class CompilerOptions {
 	public static final long RawTypeReference = ASTNode.Bit46L;
 	public static final long UnusedLabel = ASTNode.Bit47L;
 	public static final long ParameterAssignment = ASTNode.Bit48L;
+	public static final long FallthroughCase = ASTNode.Bit49L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -381,7 +383,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
 		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); 
-		
 		if (this.defaultEncoding != null) {
 			optionsMap.put(OPTION_Encoding, this.defaultEncoding); 
 		}
@@ -397,6 +398,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
+		optionsMap.put(OPTION_ReportFallthroughCase, getSeverityString(FallthroughCase));
 		return optionsMap;		
 	}
 	
@@ -638,6 +640,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLabel)) != null) updateSeverity(UnusedLabel, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportParameterAssignment)) != null) updateSeverity(ParameterAssignment, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportFallthroughCase)) != null) updateSeverity(FallthroughCase, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -867,6 +870,7 @@ public class CompilerOptions {
 			OPTION_ReportDiscouragedReference,
 			OPTION_ReportEmptyStatement,
 			OPTION_ReportEnumIdentifier,
+			OPTION_ReportFallthroughCase,
 			OPTION_ReportFieldHiding,
 			OPTION_ReportFinalParameterBound,
 			OPTION_ReportFinallyBlockNotCompletingNormally,
@@ -962,6 +966,8 @@ public class CompilerOptions {
 					return "restriction"; //$NON-NLS-1$
 				case (int) (NullReference >>> 32) :
 					return "null"; //$NON-NLS-1$
+				case (int) (FallthroughCase >>> 32) :
+					return "fallthrough"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -972,6 +978,7 @@ public class CompilerOptions {
 		"boxing", //$NON-NLS-1$
 		"dep-ann", //$NON-NLS-1$
 		"deprecation", //$NON-NLS-1$
+		"fallthrough", //$NON-NLS-1$
 		"finally", //$NON-NLS-1$
 		"hiding", //$NON-NLS-1$
 		"incomplete-switch", //$NON-NLS-1$
@@ -1004,6 +1011,8 @@ public class CompilerOptions {
 					return MissingDeprecatedAnnotation;
 				break;
 			case 'f' :
+				if ("fallthrough".equals(warningToken)) //$NON-NLS-1$
+					return FallthroughCase;
 				if ("finally".equals(warningToken)) //$NON-NLS-1$
 					return FinallyBlockNotCompleting;
 				break;

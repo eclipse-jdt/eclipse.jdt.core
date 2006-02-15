@@ -40,7 +40,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
 	public final static int Bit18 = 0x20000;				// non null (expression)				
-	public final static int Bit19 = 0x40000; 
+	public final static int Bit19 = 0x40000;
 	public final static int Bit20 = 0x80000; 
 	public final static int Bit21 = 0x100000; 		
 	public final static int Bit22 = 0x200000; 			// parenthesis count (expression)
@@ -51,7 +51,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000; 			// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement) | try block exit (try statement)
+	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement) | try block exit (try statement) | fall-through (case statement)
 	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
@@ -112,6 +112,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsReachable = Bit32; 
 	public static final int IsLocalDeclarationReachable = Bit31; 
 	public static final int LabelUsed = Bit7;
+	public static final int DocumentedFallthrough = Bit30;
 	
 	// try statements
 	public static final int IsSubRoutineEscaping = Bit15;

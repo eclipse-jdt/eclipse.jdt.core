@@ -32,6 +32,12 @@ public class SwitchStatement extends Statement {
 	public int caseCount;
 	int[] constants;
 	
+	// fallthrough
+	public final static int CASE = 0;
+	public final static int FALLTHROUGH = 1;
+	public final static int ESCAPING = 2;
+	
+	
 	public SyntheticMethodBinding synthetic; // use for switch on enums types
 	
 	// for local variables table attributes
@@ -57,20 +63,36 @@ public class SwitchStatement extends Statement {
 			int caseIndex = 0;
 			if (statements != null) {
 				boolean didAlreadyComplain = false;
+				int fallThroughState = CASE;
 				for (int i = 0, max = statements.length; i < max; i++) {
 					Statement statement = statements[i];
 					if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
+						if (fallThroughState == FALLTHROUGH
+								&& (statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
+							scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
+						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
+						fallThroughState = CASE;
 					} else if (statement == defaultCase) { // statement is the default case
 						this.scope.enclosingCase = defaultCase; // record entering in a switch case block
+						if (fallThroughState == FALLTHROUGH 
+								&& (statement.bits & ASTNode.DocumentedFallthrough) == 0) {
+							scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
+						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
+						fallThroughState = CASE;
+					} else {
+						fallThroughState = FALLTHROUGH; // reset below if needed
 					}
 					if (!statement.complainIfUnreachable(caseInits, scope, didAlreadyComplain)) {
 						caseInits = statement.analyseCode(scope, switchContext, caseInits);
+						if (caseInits == FlowInfo.DEAD_END) {
+							fallThroughState = ESCAPING;
+						}
 					} else {
 						didAlreadyComplain = true;
 					}

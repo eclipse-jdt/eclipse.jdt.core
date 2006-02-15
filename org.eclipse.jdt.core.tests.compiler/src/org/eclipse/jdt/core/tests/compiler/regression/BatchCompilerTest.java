@@ -883,6 +883,7 @@ public void test012(){
 		"      discouraged        + use of types matching a discouraged access rule\n" + 
 		"      emptyBlock           undocumented empty block\n" + 
 		"      enumSwitch           incomplete enum switch\n" + 
+		"      fallthrough          possible fall-through case\n" + 
 		"      fieldHiding          field hiding another variable\n" + 
 		"      finalBound           type parameter with final bound\n" + 
 		"      finally            + finally block not completing normally\n" + 
@@ -1031,6 +1032,7 @@ public void test012(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" + 
@@ -2714,6 +2716,97 @@ public void test048(){
 		"----------\n" + 
 		"1 problem (1 warning)", 
         false);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
+// [compiler] warning on fall through
+// disable warning on command line (implicit)
+public void test049(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"    public void test(int p) {\n" + 
+			"        switch (p) {\n" + 
+			"        case 0:\n" + 
+			"            System.out.println(0);\n" + 
+			"        case 1:\n" + 
+			"            System.out.println(1); // possible fall-through\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -nowarn"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
+// [compiler] warning on fall through
+// disable warning on command line (explicit)
+public void test050(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"    public void test(int p) {\n" + 
+			"        switch (p) {\n" + 
+			"        case 0:\n" + 
+			"            System.out.println(0);\n" + 
+			"        case 1:\n" + 
+			"            System.out.println(1); // possible fall-through\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -warn:-fallthrough"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "",
+        true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
+// [compiler] warning on fall through
+// enable warning on command line
+public void test051(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"    public void test(int p) {\n" + 
+			"        switch (p) {\n" + 
+			"        case 0:\n" + 
+			"            System.out.println(0);\n" + 
+			"        case 1:\n" + 
+			"            System.out.println(1); // complain: possible fall-through\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -warn:+fallthrough"
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		" (at line 7)\n" + 
+		"	case 1:\n" + 
+		"	^^^^^^\n" + 
+		"Switch case may be entered by falling through previous case\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+        true);
 }
 
 public static Class testClass() {

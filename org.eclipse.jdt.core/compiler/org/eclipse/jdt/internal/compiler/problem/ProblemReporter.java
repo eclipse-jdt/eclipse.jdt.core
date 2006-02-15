@@ -1535,6 +1535,9 @@ public static long getIrritant(int problemID) {
 
 		case IProblem.ParameterAssignment:
 			return CompilerOptions.ParameterAssignment;
+
+		case IProblem.FallthroughCase:
+			return CompilerOptions.FallthroughCase;
 	}
 	return 0;
 }
@@ -1618,6 +1621,7 @@ public static int getProblemCategory(int problemID) {
 				case (int)(CompilerOptions.VarargsArgumentNeedCast >>> 32):
 				case (int)(CompilerOptions.NullReference >>> 32):
 				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
+				case (int)(CompilerOptions.FallthroughCase >>> 32):
 					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 	
 				case (int)(CompilerOptions.TypeParameterHiding >>> 32):
@@ -4926,6 +4930,15 @@ public void parseErrorUnexpectedEnd(
 		arguments,
 		start,
 		end);
+}
+public void possibleFallThroughCase(CaseStatement caseStatement) {
+	// as long as we consider fake reachable as reachable, better keep 'possible' in the name
+	this.handle(
+		IProblem.FallthroughCase,
+		NoArgument,
+		NoArgument,
+		caseStatement.sourceStart,
+		caseStatement.sourceEnd);
 }
 public void possibleAccidentalBooleanAssignment(Assignment assignment) {
 	this.handle(

@@ -1962,6 +1962,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportForbiddenReference,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("fallthrough")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportFallthroughCase,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}

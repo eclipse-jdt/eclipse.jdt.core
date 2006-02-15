@@ -74,6 +74,7 @@
  *								   InvalidDigit
  *     IBM Corporation - added the following constants
  *								   ParameterAssignment
+ *								   FallthroughCase
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -275,7 +276,8 @@ void setSourceStart(int sourceStart);
 	int DuplicateFinalLocalInitialization = Internal + 57;
 	/** @since 2.1 */
 	int NonBlankFinalLocalAssignment = Internal + 58;
-	
+	/** @since 3.2 */
+	int ParameterAssignment = Internal + 59;	
 	int FinalOuterLocalAssignment = Internal + 60;
 	int LocalVariableIsNeverUsed = Internal + 61;
 	int ArgumentIsNeverUsed = Internal + 62;
@@ -289,8 +291,6 @@ void setSourceStart(int sourceStart);
 	int TooManyArrayDimensions = Internal + 68;
 	/** @since 2.1 */
 	int BytecodeExceeds64KLimitForConstructor = Internal + 69;
-	/** @since 3.2 */
-	int ParameterAssignment = Internal + 860;
 	
 	// fields
 	int UndefinedField = FieldRelated + 70;
@@ -406,6 +406,7 @@ void setSourceStart(int sourceStart);
 	// switch       
 	int IncorrectSwitchType = TypeRelated + 169;
 	int DuplicateCase = FieldRelated + 170;
+
 	// labelled
 	int DuplicateLabel = Internal + 171;
 	int InvalidBreak = Internal + 172;
@@ -449,6 +450,9 @@ void setSourceStart(int sourceStart);
 	int NeedToEmulateMethodAccess = MethodRelated + 192;
 	int NeedToEmulateConstructorAccess = MethodRelated + 193;
 
+	/** @since 3.2 */
+	int FallthroughCase = Internal + 194;	
+	
 	//inherited name hides enclosing name (sort of ambiguous)
 	int InheritedMethodHidesEnclosingName = MethodRelated + 195;
 	int InheritedFieldHidesEnclosingName = FieldRelated + 196;

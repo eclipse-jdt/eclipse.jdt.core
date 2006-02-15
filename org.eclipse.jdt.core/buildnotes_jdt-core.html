@@ -63,10 +63,24 @@ to 128MB only (i.e. passing -Xmx128m to the VM) as opposed to 256MB as currently
 </li>
 <li>Removed <code> IMethodBinding#isOverriding()</code> API introduced during 3.2 in DOM AST, as it doesn't meet
 client expectation, who isn't even using it (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=90660">90660</a>).
-</ul>
+<li>
+Added optional compiler diagnosis for signaling fall-through switch cases.
+<pre>
+* COMPILER / Reporting Switch Fall-Through Case
+*    When enabled, the compiler will issue an error or a warning if a case may be
+*    entered by falling through previous case. Empty cases are allowed.         *     
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.fallthroughCase"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+Fall-through warnings can be silenced using <code>@SuppressWarnings("fallthrough")</code>.<br>
+Also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=67836">67836</a> for details.
+</li></ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127393">127393</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=67836">67836</a>
+[compiler] warning on fall through
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127393">127393</a>
 uncategorized problems
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127213">127213</a>
 Flags class missing methods
