@@ -114,8 +114,8 @@ public abstract String getMarkerType();
  * markers. By default, no EXTRA attributes is persisted, and a categorized problem only persists the following attributes:
  * <ul>
  * <li>	{@link IMarker#MESSAGE} -&gt; {@link IProblem#getMessage()}</li>
- * <li>	{@link IMarker#SEVERITY} -&gt; {@link IMarker#SEVERITY_ERROR} /{@link IMarker#SEVERITY_WARNING} 
- *         according to {@link IProblem#isError()}</li>
+ * <li>	{@link IMarker#SEVERITY} -&gt; {@link IMarker#SEVERITY_ERROR} or {@link IMarker#SEVERITY_WARNING} 
+ *         depending on {@link IProblem#isError()} or {@link IProblem#isWarning()}</li>
  * <li>	{@link IJavaModelMarker#ID} -&gt; {@link IProblem#getID()}</li>
  * <li>	{@link IMarker#CHAR_START}  -&gt; {@link IProblem#getSourceStart()}</li>
  * <li>	{@link IMarker#CHAR_END}  -&gt; {@link IProblem#getSourceEnd()}</li>
