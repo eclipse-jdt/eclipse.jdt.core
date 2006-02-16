@@ -123,7 +123,6 @@ public abstract String getMarkerType();
  * <li>	{@link IJavaModelMarker#ARGUMENTS}  -&gt; some <code>String[]</code> used to compute quickfixes </li>
  * <li>	{@link IJavaModelMarker#CATEGORY_ID}  -&gt; {@link CategorizedProblem#getCategoryID()}</li>
  * </ul>
- * </ul>
  * The names must be eligible for marker creation, as defined by {@link IMarker#setAttributes(String[], Object[])}, 
  * and there must be as many names as values according to {@link #getExtraMarkerAttributeValues()}.
  * Note that extra marker attributes will be inserted after default ones (as described in {@link CategorizedProblem#getMarkerType()},
