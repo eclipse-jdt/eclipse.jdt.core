@@ -89,9 +89,11 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         if( len == 0 ) return Collections.emptyList();
         final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(len);
         for(IResolvedAnnotation annoInstance : annoInstances){
-            final AnnotationMirrorImpl annoMirror =
+        	if (annoInstance != null) {
+        		final AnnotationMirrorImpl annoMirror =
                         (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
-            result.add(annoMirror);
+        		result.add(annoMirror);
+        	}
         }
         return result;
     }  
@@ -101,9 +103,11 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 		if( annoInstances == null || annoInstances.size() == 0 ) return Collections.emptyList();
 		final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.size());
 		for( org.eclipse.jdt.core.dom.Annotation annoInstance : annoInstances){
-			final AnnotationMirrorImpl annoMirror =
-				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
-			result.add(annoMirror);
+			if (annoInstance != null) {
+				final AnnotationMirrorImpl annoMirror =
+					(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
+				result.add(annoMirror);
+			}
 		}
 		return result;
 	}  
