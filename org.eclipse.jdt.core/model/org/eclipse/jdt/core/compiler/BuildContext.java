@@ -121,6 +121,8 @@ public void recordDependencies(String[] typeNameDependencies) {
 
 /**
  * Record new problems to report against this compilationUnit.
+ * Markers are persisted for these problems only for the declared managed marker type
+ * (see the 'compilationParticipant' extension point).
  * 
  * @param newProblems the problems to report
  */
