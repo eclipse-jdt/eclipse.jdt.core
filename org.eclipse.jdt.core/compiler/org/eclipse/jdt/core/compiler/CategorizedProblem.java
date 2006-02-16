@@ -105,8 +105,17 @@ public abstract int getCategoryID();
  * Returns the marker type associated to this problem, if it gets persisted into a marker by the JavaBuilder
  * Standard Java problems are associated to marker type "org.eclipse.jdt.core.problem"), standard tasks 
  * are associated to marker type "org.eclipse.jdt.core.task".
- * <p>
- * By default, a categorized Java problem persists the following attributes:
+ * Note: problem markers are expected to extend "org.eclipse.core.resources.problemmarker" marker type.
+ * Note: tasks are expected to extend "org.eclipse.core.resources.taskmarker" marker type.
+ * @return the type of the marker which would be associated to the problem
+ */
+public abstract String getMarkerType();
+
+/**
+ * Returns the names of the extra marker attributes associated to this problem, so it can persisted into a marker 
+ * by the JavaBuilder.
+ * By default, no EXTRA attributes is persisted, but clients may choose to add more information into the marker.
+ * Thus, a categorized problem persists the following attributes:
  * <ul>
  * <li>	{@link IMarker#MESSAGE} -&gt; {@link IProblem#getMessage()}</li>
  * <li>	{@link IMarker#SEVERITY} -&gt; {@link IMarker#SEVERITY_ERROR}/{@link IMarker#SEVERITY_WARNING}</li>
@@ -117,7 +126,8 @@ public abstract int getCategoryID();
  * <li>	{@link IJavaModelMarker#ARGUMENTS}  -&gt; some <code>String[]</code> used to compute quickfixes </li>
  * <li>	{@link IJavaModelMarker#CATEGORY_ID}  -&gt; {@link CategorizedProblem#getCategoryID()}</li>
  * </ul>
- * By default, a categorized Java task persists the following attributes:
+ * whereas a categorized task persists the following attributes (problems and tasks are differenciated by their
+ * associated marker type, {@link CategorizedProblem#getMarkerType()}) :
  * <ul>
  * <li>	{@link IMarker#MESSAGE} -&gt; {@link IProblem#getMessage()}</li>
  * <li>	{@link IMarker#PRIORITY} -&gt; {@link IMarker#PRIORITY_HIGH}/{@link IMarker#PRIORITY_NORMAL}/{@link IMarker#PRIORITY_LOW}</li>
@@ -127,14 +137,7 @@ public abstract int getCategoryID();
  * <li>	{@link IMarker#LINE_NUMBER}  -&gt; {@link IProblem#getSourceLineNumber()}</li>
  * <li>	{@link IMarker#USER_EDITABLE}  -&gt; {@link Boolean#FALSE}</li>
  * </ul>
- * @return the type of the marker which would be associated to the problem
- */
-public abstract String getMarkerType();
 
-/**
- * Returns the names of the extra marker attributes associated to this problem, so it can persisted into a marker 
- * by the JavaBuilder.
- * By default, no extra attributes is persisted, but clients may choose to add more information into the marker.
  * The names must be eligible for marker creation, as defined by {@link IMarker#setAttributes(String[], Object[])}, 
  * and there must be as many names as values according to {@link #getExtraMarkerAttributeValues()}.
  * Note that extra marker attributes will be inserted after default ones (as described in {@link CategorizedProblem#getMarkerType()},
