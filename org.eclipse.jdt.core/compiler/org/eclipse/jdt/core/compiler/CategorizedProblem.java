@@ -112,10 +112,9 @@ public abstract int getCategoryID();
 public abstract String getMarkerType();
 
 /**
- * Returns the names of the extra marker attributes associated to this problem, so it can persisted into a marker 
- * by the JavaBuilder.
- * By default, no EXTRA attributes is persisted, but clients may choose to add more information into the marker.
- * Thus, a categorized problem persists the following attributes:
+ * Returns the names of the extra marker attributes associated to this problem when persisted into a marker 
+ * by the JavaBuilder. Extra attributes are only optional, and are allowing client customization of generated
+ * markers. By default, no EXTRA attributes is persisted, and a categorized problem only persists the following attributes:
  * <ul>
  * <li>	{@link IMarker#MESSAGE} -&gt; {@link IProblem#getMessage()}</li>
  * <li>	{@link IMarker#SEVERITY} -&gt; {@link IMarker#SEVERITY_ERROR}/{@link IMarker#SEVERITY_WARNING}</li>
