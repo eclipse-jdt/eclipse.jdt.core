@@ -154,10 +154,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	}
 	
 	/**
-     * @return the list of all named type declarations in compilation unit associated with
-     *         this environment.
-     * This implementation is different from the API specification that it does not return
-     * all included types in the universe.
+     * @return the list of all named type declarations in the compilation units associated with
+     *         this environment - usually just one compilation unit, except in batch mode
+     *         where it will be all compilation units in the build.
+     * This implementation is different from the API specification in that it does not return
+     * all included source types in the universe.
      */
     public Collection<TypeDeclaration> getTypeDeclarations()
     {
