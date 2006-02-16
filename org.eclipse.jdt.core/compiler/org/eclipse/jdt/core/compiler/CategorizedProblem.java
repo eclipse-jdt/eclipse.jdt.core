@@ -32,8 +32,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * problems are listed as constants on <code>IProblem</code>, </li>
  * <li> its marker type : a string identfying the problem creator. It corresponds to the marker type
  * chosen if this problem was to be persisted. Standard Java problems are associated to marker
- * type "org.eclipse.jdt.core.problem"), standard tasks are associated to marker type 
- * "org.eclipse.jdt.core.task", </li>
+ * type "org.eclipse.jdt.core.problem"), </li>
  * <li> its category ID : a number identifying the category this problem belongs to. All possible IDs for 
  * standard Java problem categories are listed in this class. </li>
  * </ul>
