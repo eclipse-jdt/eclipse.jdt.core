@@ -552,6 +552,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		_modifiedGeneratedSourceFiles = null;
 		if(_listeners != null)
 			_listeners.clear();
+		_typeCache.clear();
+		_packageRootsCache = null;
 		_isClosed = true;
     }
 
