@@ -51,6 +51,7 @@
       <complexType>
          <sequence>
             <element ref="requires" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="managedMarker" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="class" type="string" use="required">
             <annotation>
@@ -101,6 +102,23 @@
             <annotation>
                <documentation>
                   the unique identifier of the participant that is required
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="managedMarker">
+      <annotation>
+         <documentation>
+            a managed marker is created from the recorded problems (see BuildContext#recordNewProblems(CategorizedProblem[])) and is removed when the corresponding source file is re-built or when the project is cleaned
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="markerType" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the type of the managed marker
                </documentation>
             </annotation>
          </attribute>
