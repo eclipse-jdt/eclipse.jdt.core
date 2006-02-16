@@ -144,7 +144,7 @@ public abstract String getMarkerType();
  * @return the names of the corresponding marker attributes
  */
 public String[] getExtraMarkerAttributeNames() {
-	return DefaultProblem.EMPTY_NAMES;
+	return CharOperation.NO_STRINGS;
 }
 
 /**

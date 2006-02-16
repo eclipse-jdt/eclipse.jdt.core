@@ -28,6 +28,8 @@ public class DefaultProblem extends CategorizedProblem {
 	private static final String MARKER_TYPE_PROBLEM = "org.eclipse.jdt.core.problem"; //$NON-NLS-1$
 	private static final String MARKER_TYPE_TASK = "org.eclipse.jdt.core.task"; //$NON-NLS-1$
 	
+	public static final Object[] EMPTY_VALUES = new Object[0];
+	
 public DefaultProblem(
 	char[] originatingFileName,
 	String message,
