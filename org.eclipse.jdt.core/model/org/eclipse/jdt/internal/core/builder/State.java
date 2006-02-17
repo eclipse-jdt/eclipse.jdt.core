@@ -380,10 +380,10 @@ void write(DataOutputStream out) throws IOException {
 	Object[] valueTable;
 
 /*
- * byte			VERSION
+ * byte		VERSION
  * String		project name
- * int				build number
- * int				last structural build number
+ * int			build number
+ * int			last structural build number
 */
 	out.writeByte(VERSION);
 	out.writeUTF(javaProjectName);
@@ -392,7 +392,7 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * ClasspathMultiDirectory[]
- * int				id
+ * int			id
  * String		path(s)
 */
 	out.writeInt(length = sourceLocations.length);
@@ -407,7 +407,7 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * ClasspathLocation[]
- * int				id
+ * int			id
  * String		path(s)
 */
 	out.writeInt(length = binaryLocations.length);
@@ -444,7 +444,7 @@ void write(DataOutputStream out) throws IOException {
 /*
  * Structural build numbers table
  * String		prereq project name
- * int				last structural build number
+ * int			last structural build number
 */
 	out.writeInt(length = structuralBuildTimes.elementSize);
 	if (length > 0) {
@@ -462,10 +462,10 @@ void write(DataOutputStream out) throws IOException {
 	}
 
 /*
- * String[]		Interned type locators
+ * String[]	Interned type locators
  */
 	out.writeInt(length = references.elementSize);
-	ArrayList internedTypeLocators = new ArrayList(length);
+	SimpleLookupTable internedTypeLocators = new SimpleLookupTable(length);
 	if (length > 0) {
 		keyTable = references.keyTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
@@ -473,7 +473,7 @@ void write(DataOutputStream out) throws IOException {
 				length--;
 				String key = (String) keyTable[i];
 				out.writeUTF(key);
-				internedTypeLocators.add(key);
+				internedTypeLocators.put(key, new Integer(internedTypeLocators.elementSize));
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
@@ -483,7 +483,7 @@ void write(DataOutputStream out) throws IOException {
 /*
  * Type locators table
  * String		type name
- * int				interned locator id
+ * int			interned locator id
  */
 	out.writeInt(length = typeLocators.elementSize);
 	if (length > 0) {
@@ -493,7 +493,8 @@ void write(DataOutputStream out) throws IOException {
 			if (keyTable[i] != null) {
 				length--;
 				out.writeUTF((String) keyTable[i]);
-				out.writeInt(internedTypeLocators.indexOf(valueTable[i]));
+				Integer index = (Integer) internedTypeLocators.get(valueTable[i]);
+				out.writeInt(index.intValue());
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
@@ -502,10 +503,10 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * char[][][]	Interned qualified names
- * char[][]		Interned simple names
+ * char[][]	Interned simple names
  */
-	ArrayList internedQualifiedNames = new ArrayList(31);
-	ArrayList internedSimpleNames = new ArrayList(31);
+	SimpleLookupTable internedQualifiedNames = new SimpleLookupTable(31);
+	SimpleLookupTable internedSimpleNames = new SimpleLookupTable(31);
 	valueTable = references.valueTable;
 	for (int i = 0, l = valueTable.length; i < l; i++) {
 		if (valueTable[i] != null) {
@@ -513,39 +514,57 @@ void write(DataOutputStream out) throws IOException {
 			char[][][] qNames = collection.qualifiedNameReferences;
 			for (int j = 0, m = qNames.length; j < m; j++) {
 				char[][] qName = qNames[j];
-				if (!internedQualifiedNames.contains(qName)) { // remember the names have been interned
-					internedQualifiedNames.add(qName);
+				if (!internedQualifiedNames.containsKey(qName)) { // remember the names have been interned
+					internedQualifiedNames.put(qName, new Integer(internedQualifiedNames.elementSize));
 					for (int k = 0, n = qName.length; k < n; k++) {
 						char[] sName = qName[k];
-						if (!internedSimpleNames.contains(sName)) // remember the names have been interned
-							internedSimpleNames.add(sName);
+						if (!internedSimpleNames.containsKey(sName)) // remember the names have been interned
+							internedSimpleNames.put(sName, new Integer(internedSimpleNames.elementSize));
 					}
 				}
 			}
 			char[][] sNames = collection.simpleNameReferences;
 			for (int j = 0, m = sNames.length; j < m; j++) {
 				char[] sName = sNames[j];
-				if (!internedSimpleNames.contains(sName)) // remember the names have been interned
-					internedSimpleNames.add(sName);
+				if (!internedSimpleNames.containsKey(sName)) // remember the names have been interned
+					internedSimpleNames.put(sName, new Integer(internedSimpleNames.elementSize));
 			}
 		}
 	}
-	char[][] internedArray = new char[internedSimpleNames.size()][];
-	internedSimpleNames.toArray(internedArray);
+	char[][] internedArray = new char[internedSimpleNames.elementSize][];
+	Object[] simpleNames = internedSimpleNames.keyTable;
+	Object[] positions = internedSimpleNames.valueTable;
+	for (int i = positions.length; --i >= 0; ) {
+		if (positions[i] != null) {
+			int index = ((Integer) positions[i]).intValue();
+			internedArray[index] = (char[]) simpleNames[i];
+		}
+	}
 	writeNames(internedArray, out);
 	// now write the interned qualified names as arrays of interned simple names
-	out.writeInt(length = internedQualifiedNames.size());
+	char[][][] internedQArray = new char[internedQualifiedNames.elementSize][][];
+	Object[] qualifiedNames = internedQualifiedNames.keyTable;
+	positions = internedQualifiedNames.valueTable;
+	for (int i = positions.length; --i >= 0; ) {
+		if (positions[i] != null) {
+			int index = ((Integer) positions[i]).intValue();
+			internedQArray[index] = (char[][]) qualifiedNames[i];
+		}
+	}
+	out.writeInt(length = internedQArray.length);
 	for (int i = 0; i < length; i++) {
-		char[][] qName = (char[][]) internedQualifiedNames.get(i);
+		char[][] qName = internedQArray[i];
 		int qLength = qName.length;
 		out.writeInt(qLength);
-		for (int j = 0; j < qLength; j++)
-			out.writeInt(internedSimpleNames.indexOf(qName[j]));
+		for (int j = 0; j < qLength; j++) {
+			Integer index = (Integer) internedSimpleNames.get(qName[j]);
+			out.writeInt(index.intValue());
+		}
 	}
 
 /*
  * References table
- * int			interned locator id
+ * int		interned locator id
  * ReferenceCollection
 */
 	out.writeInt(length = references.elementSize);
@@ -554,7 +573,8 @@ void write(DataOutputStream out) throws IOException {
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				length--;
-				out.writeInt(internedTypeLocators.indexOf(keyTable[i]));
+				Integer index = (Integer) internedTypeLocators.get(keyTable[i]);
+				out.writeInt(index.intValue());
 				ReferenceCollection collection = (ReferenceCollection) valueTable[i];
 				if (collection instanceof AdditionalTypeCollection) {
 					out.writeByte(1);
@@ -566,13 +586,17 @@ void write(DataOutputStream out) throws IOException {
 				char[][][] qNames = collection.qualifiedNameReferences;
 				int qLength = qNames.length;
 				out.writeInt(qLength);
-				for (int j = 0; j < qLength; j++)
-					out.writeInt(internedQualifiedNames.indexOf(qNames[j]));
+				for (int j = 0; j < qLength; j++) {
+					index = (Integer) internedQualifiedNames.get(qNames[j]);
+					out.writeInt(index.intValue());
+				}
 				char[][] sNames = collection.simpleNameReferences;
 				int sLength = sNames.length;
 				out.writeInt(sLength);
-				for (int j = 0; j < sLength; j++)
-					out.writeInt(internedSimpleNames.indexOf(sNames[j]));
+				for (int j = 0; j < sLength; j++) {
+					index = (Integer) internedSimpleNames.get(sNames[j]);
+					out.writeInt(index.intValue());
+				}
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
