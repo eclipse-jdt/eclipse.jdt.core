@@ -1781,9 +1781,11 @@ class ASTConverter {
 		}
 		Expression leftExpression = convert(expression.expression);
 		instanceOfExpression.setLeftOperand(leftExpression);
-		instanceOfExpression.setRightOperand(convertType(expression.type));
+		final Type convertType = convertType(expression.type);
+		instanceOfExpression.setRightOperand(convertType);
 		int startPosition = leftExpression.getStartPosition();
-		instanceOfExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		int sourceEnd = convertType.getStartPosition() + convertType.getLength() - 1;
+		instanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return instanceOfExpression;
 	}
 

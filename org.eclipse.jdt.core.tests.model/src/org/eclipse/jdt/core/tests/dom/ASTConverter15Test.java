@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 209 };
+//		TESTS_NUMBERS = new int[] { 210 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6358,5 +6358,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
-	}	
+	}
+	public void test0210() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", false);
+		String contents =
+			"public class X {\n" + 
+			"	void foo(Object r) {\n" + 
+			"		if (r instanceof Future<?>) {\n" + 
+			"			System.out.println(\"TRUE\");\n" + 
+			"		} else {\n" + 
+			"			System.out.println(\"FALSE\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		checkSourceRange(expression, "r instanceof Future<?>", contents);
+		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+		Type type = instanceofExpression.getRightOperand();
+		checkSourceRange(type, "Future<?>", contents);
+	}
 }
