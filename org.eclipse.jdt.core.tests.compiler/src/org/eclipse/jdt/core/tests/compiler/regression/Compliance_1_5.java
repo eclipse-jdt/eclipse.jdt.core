@@ -3572,6 +3572,35 @@ public void test104() {
 		},
 		"class X$1$1$1Y Y");
 }
+
+// enclosing instance - note that the behavior is different in 1.4
+public void test105() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static class Y { }\n" + 
+			"    static class Z1 {\n" + 
+			"        Runnable m;\n" + 
+			"        Z1(Runnable p) {\n" + 
+			"            this.m = p;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    class Z2 extends Z1 {\n" + 
+			"        Z2(final Y p) {\n" + 
+			"            super(new Runnable() {\n" + 
+			"                public void run() {\n" + 
+			"                    foo(p);\n" + 
+			"                }\n" + 
+			"            });\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    void foo(Y p) { }\n" + 
+			"}\n"
+		},
+		"");
+}
+
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
