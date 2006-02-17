@@ -55,10 +55,13 @@ What's new in this drop</h2>
 <li>In problem view, all optional errors treated as fatal are now grouped into the "Fatal errors" category.
 Note that there is an option to control whether optional errors are intended to be fatal or not, by default
 they are considered fatal (see <code>Preferences&gt;Java&gt;Compiler&gt;Building&gt;Treat configurable errors like fatal errors...</code></li>
+<li>Build states for very large projects should now save in a fraction of the time.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128389">128389</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127996">127996</a>
+Performance: long time spent in State.write(..) looping over ArrayList<char[][]>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128389">128389</a>
 [compiler][1.5] generic inner type cannot extend Throwable
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127583">127583</a>
 [1.5][compiler] Call to constructor with mismatched type parameter and arguement not detected
