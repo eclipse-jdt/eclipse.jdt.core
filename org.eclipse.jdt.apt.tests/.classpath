@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry output="binext" kind="src" path="srcext"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/executionEnvironments/J2SE-1.5"/>
-	<classpathentry kind="lib" path="resources/question.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
