@@ -28122,6 +28122,7 @@ public void test909() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583
 public void test910() {
 	this.runNegativeTest(
@@ -28470,4 +28471,74 @@ public void test914() {
 		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128389
+public void _test915() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    class Y extends Throwable {\n" + // missing error 
+			"        private static final long serialVersionUID = 1L;\n" + 
+			"        T t;\n" + 
+			"    }\n" + 
+			"    class Z<U> extends Throwable {\n" + 
+			"        private static final long serialVersionUID = 1L;\n" + 
+			"        T t;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SHOULD COMPLAIN FOR Z AND Y");
+}
+
+// synchronized inheritance for multiple generic types
+public void test916() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X2<?>> {\n" + 
+			"    T m2;\n" + 
+			"    T getX2() {\n" + 
+			"        return this.m2;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class X2<T extends X3> {\n" + 
+			"    T m3;\n" + 
+			"    T getX3() {\n" + 
+			"        return this.m3;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class X3 {\n" + 
+			"}\n" + 
+			"class Y1<T extends Y2<?>> extends X<T> {\n" + 
+			"    public void foo() {\n" + 
+			"        getX2().getX3().bar(); // getX3 appropriately returns an Y3\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class Y2<T extends Y3> extends X2<T> {\n" + 
+			"}\n" + 
+			"class Y3 extends X3 {\n" + 
+			"    public void bar() {\n" + 
+			"    }\n" + 
+			"}\n"},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423
+// [1.5][compiler] ClassCastException on illegal code fragment
+public void _test917() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  class X1<T> { \n" + 
+			"      public static Class clazz = T.getClass();\n" + 
+			"  }\n" + 
+			"  class X2<T> { }\n" + 
+			"  class X3<T> extends X2<T.clazz> { }\n" + 
+			"}\n",
+		},
+		"ERR");
+}
+
 }
