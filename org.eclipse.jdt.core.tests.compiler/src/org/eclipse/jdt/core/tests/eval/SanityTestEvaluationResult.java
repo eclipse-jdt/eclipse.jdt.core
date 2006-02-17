@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.tests.eval;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
@@ -62,7 +62,7 @@ public void testGetEvaluationType() {
  * Sanity test of IEvaluationResult.getProblems()
  */
 public void testGetProblems() {
-	IProblem[] problems = result.getProblems();
+	CategorizedProblem[] problems = result.getProblems();
 	assertTrue("Problems", problems == null || problems.length == 0);
 }
 /**

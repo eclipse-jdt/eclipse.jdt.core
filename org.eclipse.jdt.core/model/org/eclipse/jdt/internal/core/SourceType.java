@@ -817,7 +817,7 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
-		public void acceptError(IProblem error) {
+		public void acceptError(CategorizedProblem error) {
 			// ignore
 		}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, char[] uniqueKey, int start, int end) {

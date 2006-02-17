@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.Vector;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -68,7 +69,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 		this.endingTokens.put(VariableDeclarationStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
 	}
 
-	private IProblem[] problems;
+	private CategorizedProblem[] problems;
 	private boolean[] usedOrIrrelevantProblems;
 	
 	private RecoveryScannerData data;
@@ -84,7 +85,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	
 	private Vector stack = new Vector();
 	
-	ASTRecoveryPropagator(IProblem[] problems, RecoveryScannerData data) {
+	ASTRecoveryPropagator(CategorizedProblem[] problems, RecoveryScannerData data) {
 		// visit Javadoc.tags() as well
 		this.problems = problems;
 		this.usedOrIrrelevantProblems = new boolean[problems.length];
@@ -283,7 +284,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	private boolean markIncludedProblems(int start, int end) {
 		boolean foundProblems = false;
 		next: for (int i = 0, max = this.problems.length; i < max; i++) {
-			IProblem problem = this.problems[i];
+			CategorizedProblem problem = this.problems[i];
 			
 			if(this.usedOrIrrelevantProblems[i]) continue next;
 			

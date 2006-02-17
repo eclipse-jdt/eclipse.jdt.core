@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /**
  * A selection requestor accepts results from the selection engine.
@@ -53,7 +53,7 @@ public interface ISelectionRequestor {
 
 	/**
 	 * Code assist notification of a compilation error detected during selection.
-	 *  @param error org.eclipse.jdt.internal.compiler.IProblem
+	 *  @param error CategorizedProblem
 	 *      Only problems which are categorized as errors are notified to the requestor,
 	 *		warnings are silently ignored.
 	 *		In case an error got signaled, no other completions might be available,
@@ -63,7 +63,7 @@ public interface ISelectionRequestor {
 	 *		during the code assist process).
 	 *      Note: the problem knows its originating file name.
 	 */
-	void acceptError(IProblem error);
+	void acceptError(CategorizedProblem error);
 
 	/**
 	 * Code assist notification of a field selection.

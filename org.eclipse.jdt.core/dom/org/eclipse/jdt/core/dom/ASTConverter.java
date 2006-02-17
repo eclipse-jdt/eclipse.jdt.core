@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -524,10 +525,10 @@ class ASTConverter {
 				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 				end = methodDeclaration.bodyEnd;
 				// try to get the best end position
-				IProblem[] problems = methodDeclaration.compilationResult().problems;
+				CategorizedProblem[] problems = methodDeclaration.compilationResult().problems;
 				if (problems != null) {
 					for (int i = 0, max = methodDeclaration.compilationResult().problemCount; i < max; i++) {
-						IProblem currentProblem = problems[i];
+						CategorizedProblem currentProblem = problems[i];
 						if (currentProblem.getSourceStart() == start && currentProblem.getID() == IProblem.ParsingErrorInsertToComplete) {
 							end = currentProblem.getSourceEnd();
 							break;
@@ -1248,13 +1249,13 @@ class ASTConverter {
 		
 		int problemLength = unit.compilationResult.problemCount;
 		if (problemLength != 0) {
-			IProblem[] resizedProblems = null;
-			final IProblem[] problems = unit.compilationResult.getProblems();
+			CategorizedProblem[] resizedProblems = null;
+			final CategorizedProblem[] problems = unit.compilationResult.getProblems();
 			final int realProblemLength=problems.length;
 			if (realProblemLength == problemLength) {
 				resizedProblems = problems;
 			} else {
-				System.arraycopy(problems, 0, (resizedProblems = new IProblem[realProblemLength]), 0, realProblemLength);
+				System.arraycopy(problems, 0, (resizedProblems = new CategorizedProblem[realProblemLength]), 0, realProblemLength);
 			}
 			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
 			compilationUnit.accept(syntaxErrorPropagator);

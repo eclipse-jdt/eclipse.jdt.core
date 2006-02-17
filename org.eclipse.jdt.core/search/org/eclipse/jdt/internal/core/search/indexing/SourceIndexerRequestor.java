@@ -81,9 +81,9 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 	this.packageName = name;
 }
 /**
- * @see ISourceElementRequestor#acceptProblem(IProblem)
+ * @see ISourceElementRequestor#acceptProblem(CategorizedProblem)
  */
-public void acceptProblem(IProblem problem) {
+public void acceptProblem(CategorizedProblem problem) {
 	// implements interface method
 }
 /**

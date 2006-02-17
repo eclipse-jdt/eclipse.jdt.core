@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.eval;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -54,7 +53,7 @@ CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnviron
 /**
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
-protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProblem problem, char[] cuSource) {
+protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, CategorizedProblem problem, char[] cuSource) {
 	CodeSnippetToCuMapper sourceMapper = getMapper();
 	int pbLineNumber = problem.getSourceLineNumber();
 	int evaluationType = sourceMapper.getEvaluationType(pbLineNumber);
@@ -95,7 +94,7 @@ protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProbl
 
 	EvaluationResult result = (EvaluationResult)resultsByIDs.get(evaluationID);
 	if (result == null) {
-		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new IProblem[] {problem}));
+		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new CategorizedProblem[] {problem}));
 	} else {
 		result.addProblem(problem);
 	}

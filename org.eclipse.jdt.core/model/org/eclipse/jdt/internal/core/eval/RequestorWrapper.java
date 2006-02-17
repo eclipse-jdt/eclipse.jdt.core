@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.eval.IRequestor;
@@ -50,7 +50,7 @@ public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassN
  * @see ICodeSnippetRequestor
  * @deprecated
  */
-public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
+public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
 	try {
 		IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
 		marker.setAttribute(IJavaModelMarker.ID, problem.getID());

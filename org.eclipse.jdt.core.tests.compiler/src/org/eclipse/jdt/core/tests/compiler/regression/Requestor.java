@@ -16,7 +16,7 @@ import java.util.Hashtable;
 
 import junit.framework.Assert;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
@@ -41,7 +41,7 @@ public void acceptResult(CompilationResult compilationResult) {
 	StringBuffer buffer = new StringBuffer(100);
 	hasErrors |= compilationResult.hasErrors();
 	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-		IProblem[] problems = compilationResult.getAllProblems();
+		CategorizedProblem[] problems = compilationResult.getAllProblems();
 		int count = problems.length;
 		int problemCount = 0;
 		char[] unitSource = compilationResult.compilationUnit.getContents();

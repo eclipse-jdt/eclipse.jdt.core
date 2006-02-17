@@ -66,9 +66,9 @@ public DefaultProblemFactory(Locale loc) {
  * @param startPosition int
  * @param endPosition int
  * @param lineNumber int
- * @return org.eclipse.jdt.internal.compiler.IProblem
+ * @return CategorizedProblem
  */
-public IProblem createProblem(
+public CategorizedProblem createProblem(
 	char[] originatingFileName, 
 	int problemId, 
 	String[] problemArguments, 
@@ -157,10 +157,10 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	return new String(output.toString());
 }
 /**
- * @param problem org.eclipse.jdt.internal.compiler.IProblem
+ * @param problem CategorizedProblem
  * @return String
  */
-public final String localizedMessage(IProblem problem) {
+public final String localizedMessage(CategorizedProblem problem) {
 	return getLocalizedMessage(problem.getID(), problem.getArguments());
 }
 

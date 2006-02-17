@@ -579,8 +579,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			/* distant problem which could not be reported back there? */
 			if (abortException.problem != null) {
 				recordDistantProblem: {
-					IProblem distantProblem = abortException.problem;
-					IProblem[] knownProblems = result.problems;
+				CategorizedProblem distantProblem = abortException.problem;
+				CategorizedProblem[] knownProblems = result.problems;
 					for (int i = 0; i < result.problemCount; i++) {
 						if (knownProblems[i] == distantProblem) { // already recorded
 							break recordDistantProblem;

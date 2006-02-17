@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -35,13 +35,13 @@ public class CodeSnippetParsingUtil {
 
 	private RecordedParsingInformation getRecordedParsingInformation(CompilationResult compilationResult, CommentRecorderParser parser) {
 		int problemsCount = compilationResult.problemCount;
-		IProblem[] problems = null;
+		CategorizedProblem[] problems = null;
 		if (problemsCount != 0) {
-			final IProblem[] compilationResultProblems = compilationResult.problems;
+			final CategorizedProblem[] compilationResultProblems = compilationResult.problems;
 			if (compilationResultProblems.length == problemsCount) {
 				problems = compilationResultProblems;
 			} else {
-				System.arraycopy(compilationResultProblems, 0, (problems = new IProblem[problemsCount]), 0, problemsCount);
+				System.arraycopy(compilationResultProblems, 0, (problems = new CategorizedProblem[problemsCount]), 0, problemsCount);
 			}
 		}
 		return new RecordedParsingInformation(problems, compilationResult.getLineSeparatorPositions(), parser.getCommentsPositions());

@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -61,7 +61,7 @@ public void checkParse(
 
 	StringBuffer buffer = new StringBuffer(100);
 	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-		IProblem[] problems = compilationResult.getAllProblems();
+		CategorizedProblem[] problems = compilationResult.getAllProblems();
 		int count = problems.length;
 		int problemCount = 0;
 		char[] unitSource = compilationResult.compilationUnit.getContents();

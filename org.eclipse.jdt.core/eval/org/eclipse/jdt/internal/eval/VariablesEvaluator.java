@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.eval;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
@@ -38,7 +37,7 @@ VariablesEvaluator(EvaluationContext context, INameEnvironment environment, Map 
 /**
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
-protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProblem problem, char[] cuSource) {
+protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, CategorizedProblem problem, char[] cuSource) {
 	// set evaluation id and type to an internal problem by default
 	char[] evaluationID = cuSource;
 	int evaluationType = EvaluationResult.T_INTERNAL;
@@ -130,7 +129,7 @@ protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProbl
 
 	EvaluationResult result = (EvaluationResult)resultsByIDs.get(evaluationID);
 	if (result == null) {
-		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new IProblem[] {problem}));
+		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new CategorizedProblem[] {problem}));
 	} else {
 		result.addProblem(problem);
 	}

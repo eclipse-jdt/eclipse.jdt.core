@@ -20,8 +20,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -979,7 +979,7 @@ public class ASTParser {
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
 				} else {
-					IProblem[] problems = recordedParsingInformation.problems;
+					CategorizedProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
@@ -1002,7 +1002,7 @@ public class ASTParser {
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return expression2;
 				} else {
-					IProblem[] problems = recordedParsingInformation.problems;
+					CategorizedProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
@@ -1025,7 +1025,7 @@ public class ASTParser {
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return typeDeclaration;
 				} else {
-					IProblem[] problems = recordedParsingInformation.problems;
+					CategorizedProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
@@ -1037,7 +1037,7 @@ public class ASTParser {
 		throw new IllegalStateException();
 	}
 
-	private void propagateErrors(ASTNode astNode, IProblem[] problems, RecoveryScannerData data) {
+	private void propagateErrors(ASTNode astNode, CategorizedProblem[] problems, RecoveryScannerData data) {
 		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(problems);
 		astNode.accept(syntaxErrorPropagator);
 		ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(problems, data);
@@ -1052,7 +1052,7 @@ public class ASTParser {
 					Block block = (Block) node;
 					if (problemsCount != 0) {
 						// propagate and record problems
-						final IProblem[] problems = recordedParsingInformation.problems;
+						final CategorizedProblem[] problems = recordedParsingInformation.problems;
 						for (int i = 0, max = block.statements().size(); i < max; i++) {
 							propagateErrors((ASTNode) block.statements().get(i), problems, data);
 						}
@@ -1070,7 +1070,7 @@ public class ASTParser {
 					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 					if (problemsCount != 0) {
 						// propagate and record problems
-						final IProblem[] problems = recordedParsingInformation.problems;
+						final CategorizedProblem[] problems = recordedParsingInformation.problems;
 						for (int i = 0, max = typeDeclaration.bodyDeclarations().size(); i < max; i++) {
 							propagateErrors((ASTNode) typeDeclaration.bodyDeclarations().get(i), problems, data);
 						}
@@ -1084,7 +1084,7 @@ public class ASTParser {
 					Expression expression = (Expression) node;
 					if (problemsCount != 0) {
 						// propagate and record problems
-						final IProblem[] problems = recordedParsingInformation.problems;
+						final CategorizedProblem[] problems = recordedParsingInformation.problems;
 						propagateErrors(expression, problems, data);
 						compilationUnit.setProblems(problems);
 					}

@@ -13,8 +13,8 @@ package org.eclipse.jdt.internal.core.jdom;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -33,7 +33,7 @@ public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceEleme
 /**
  * Does nothing.
  */
-public void acceptProblem(IProblem problem) {
+public void acceptProblem(CategorizedProblem problem) {
 	// nothing to do
 }
 

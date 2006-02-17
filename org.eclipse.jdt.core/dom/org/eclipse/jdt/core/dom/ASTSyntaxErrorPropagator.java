@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
@@ -18,9 +19,9 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 class ASTSyntaxErrorPropagator extends ASTVisitor {
 
-	private IProblem[] problems;
+	private CategorizedProblem[] problems;
 	
-	ASTSyntaxErrorPropagator(IProblem[] problems) {
+	ASTSyntaxErrorPropagator(CategorizedProblem[] problems) {
 		// visit Javadoc.tags() as well
 		super(true);
 		this.problems = problems;
@@ -29,7 +30,7 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	private boolean checkAndTagAsMalformed(ASTNode node) {
 		boolean tagWithErrors = false;
 		search: for (int i = 0, max = this.problems.length; i < max; i++) {
-			IProblem problem = this.problems[i];
+			CategorizedProblem problem = this.problems[i];
 			switch(problem.getID()) {
 				case IProblem.ParsingErrorOnKeywordNoSuggestion :
 				case IProblem.ParsingErrorOnKeyword :

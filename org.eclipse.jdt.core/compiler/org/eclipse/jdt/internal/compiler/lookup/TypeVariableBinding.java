@@ -76,7 +76,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 								if (!wildcardBound.isCompatibleWith(superclassBound))
 									return TypeConstants.MISMATCH;
 							} else {
-								ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
+								TypeBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
 								if (match != null) {
 									if (!match.isIntersectingWith(superclassBound)) {
 										return TypeConstants.MISMATCH;
@@ -96,7 +96,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 							if (!wildcardBound.isCompatibleWith(superInterfaceBound))
 									return TypeConstants.MISMATCH;
 						} else {
-							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superInterfaceBound);
+							TypeBinding match = wildcardBound.findSuperTypeWithSameErasure(superInterfaceBound);
 							if (match != null) {
 								if (!match.isIntersectingWith(superInterfaceBound)) {
 									return TypeConstants.MISMATCH;
@@ -125,15 +125,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
-				if (argumentType instanceof ReferenceBinding) {
-					ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
-					if (match != null){
-						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-						if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
-							unchecked = true;
-					}
-				} 
+				TypeBinding match = argumentType.findSuperTypeWithSameErasure(substitutedSuperType);
+				if (match != null){
+					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
+						unchecked = true;
+				}
 			}
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
@@ -143,14 +140,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
-				if (argumentType instanceof ReferenceBinding) {
-					ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
-					if (match != null){
-						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-						if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
-							unchecked = true;
-					}
+				TypeBinding match = argumentType.findSuperTypeWithSameErasure(substitutedSuperType);
+				if (match != null){
+					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
+						unchecked = true;
 				}
 	    	}
 	    }

@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
 import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
@@ -121,7 +121,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDo
  *
  * @see IDocumentElementRequestor
  */
-public void acceptProblem(IProblem problem){
+public void acceptProblem(CategorizedProblem problem){
 	if (fBuildingSingleMember && fFinishedSingleMember) {
 		return;
 	}

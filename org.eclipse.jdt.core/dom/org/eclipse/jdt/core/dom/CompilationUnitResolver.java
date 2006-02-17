@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -516,7 +516,7 @@ class CompilationUnitResolver extends Compiler {
 				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options, statementsRecovery);
 				final int problemCount = unit.compilationResult.problemCount;
 				if (problemCount != 0) {
-					unitDeclaration.compilationResult.problems = new IProblem[problemCount];
+					unitDeclaration.compilationResult.problems = new CategorizedProblem[problemCount];
 					System.arraycopy(unit.compilationResult.problems, 0, unitDeclaration.compilationResult.problems, 0, problemCount);
 					unitDeclaration.compilationResult.problemCount = problemCount;
 				}

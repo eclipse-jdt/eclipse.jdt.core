@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -190,7 +189,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 					true); // generate code
 			}
 			CompilationResult unitResult = unit.compilationResult;
-			IProblem[] unitProblems = unitResult.getProblems();
+			CategorizedProblem[] unitProblems = unitResult.getProblems();
 			int length = unitProblems == null ? 0 : unitProblems.length;
 			if (length > 0) {
 				CategorizedProblem[] categorizedProblems = new CategorizedProblem[length];

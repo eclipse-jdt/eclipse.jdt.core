@@ -505,50 +505,6 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
 	return null;
 }
 
-/**
- * Find supertype which erases to a given type, or null if not found
- */
-public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
-
-    // do not allow type variables to match with erasures for free
-    if (!otherType.isTypeVariable()) otherType = otherType.erasure();
-    if (this == otherType || (!isTypeVariable() && erasure() == otherType)) return this;
-    
-    ReferenceBinding currentType = this;
-    if (!otherType.isInterface()) {
-		while ((currentType = currentType.superclass()) != null) {
-			if (currentType == otherType || (!currentType.isTypeVariable() && currentType.erasure() == otherType)) return currentType;
-		}
-		return null;
-    }
-	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-	int lastPosition = -1;
-	do {
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-			interfacesToVisit[lastPosition] = itsInterfaces;
-		}
-	} while ((currentType = currentType.superclass()) != null);
-			
-	for (int i = 0; i <= lastPosition; i++) {
-		ReferenceBinding[] interfaces = interfacesToVisit[i];
-		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]) == otherType || (!currentType.isTypeVariable() && currentType.erasure() == otherType))
-				return currentType;
-
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
-			}
-		}
-	}
-	return null;
-}
-
 public final int getAccessFlags() {
 	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
@@ -628,7 +584,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
     
     ReferenceBinding currentType = this;
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-	ReferenceBinding match;
+	TypeBinding match;
 	int lastPosition = -1;
 	do {
 		match = otherType.findSuperTypeWithSameErasure(currentType);

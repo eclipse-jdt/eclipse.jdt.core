@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -25,7 +25,7 @@ public class AbortCompilation extends RuntimeException {
 
 	public CompilationResult compilationResult;
 	public Throwable exception;
-	public IProblem problem;
+	public CategorizedProblem problem;
 	
 	/* special fields used to abort silently (e.g. when cancelling build process) */
 	public boolean isSilent;
@@ -37,7 +37,7 @@ public class AbortCompilation extends RuntimeException {
 		// empty
 	}
 
-	public AbortCompilation(CompilationResult compilationResult, IProblem problem) {
+	public AbortCompilation(CompilationResult compilationResult, CategorizedProblem problem) {
 		this();
 		this.compilationResult = compilationResult;
 		this.problem = problem;

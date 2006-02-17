@@ -14,9 +14,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -165,7 +163,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		this.newElements.put(handle, info);
 
 }
-public void acceptProblem(IProblem problem) {
+public void acceptProblem(CategorizedProblem problem) {
 	if ((problem.getID() & IProblem.Syntax) != 0){
 		this.hasSyntaxErrors = true;
 	}

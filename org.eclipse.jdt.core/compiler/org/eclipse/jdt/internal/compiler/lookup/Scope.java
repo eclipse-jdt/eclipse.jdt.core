@@ -3208,7 +3208,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					TypeBinding erasedSuperType = erasedSuperTypes[j];
 					if (erasedSuperType == null || erasedSuperType == otherType) continue nextSuperType;
 					TypeBinding match;
-					if ((match = ((ArrayBinding)otherType).findSuperTypeWithSameErasure(erasedSuperType)) == null) {
+					if ((match = otherType.findSuperTypeWithSameErasure(erasedSuperType)) == null) {
 						erasedSuperTypes[j] = null;
 						if (--remaining == 0) return null;
 						continue nextSuperType;
@@ -3221,7 +3221,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				}
 				continue nextOtherType;
 			}
-			ReferenceBinding otherRefType = (ReferenceBinding) otherType;
 			nextSuperType: for (int j = 0; j < superLength; j++) {
 				TypeBinding erasedSuperType = erasedSuperTypes[j];
 				if (erasedSuperType == null) continue nextSuperType;
@@ -3232,7 +3231,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (erasedSuperType.isArrayType()) {
 						match = null;
 					} else {
-						match = otherRefType.findSuperTypeWithSameErasure(erasedSuperType);
+						match = otherType.findSuperTypeWithSameErasure(erasedSuperType);
 					}
 					if (match == null) { // incompatible super type
 						erasedSuperTypes[j] = null;
@@ -3258,7 +3257,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (otherType == null) continue nextOtherType;
 					if (erasedSuperType instanceof ReferenceBinding) {
 						if (otherType.id == T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType; // keep Object for an interface
-						if (((ReferenceBinding)erasedSuperType).findSuperTypeWithSameErasure(otherType) != null) {
+						if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
 							erasedSuperTypes[j] = null; // discard non minimal supertype
 							remaining--;
 						}
@@ -3267,7 +3266,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							&& otherType.leafComponentType().id == T_JavaLangObject
 							&& otherType.dimensions() == erasedSuperType.dimensions()
 							&& erasedSuperType.leafComponentType().isInterface()) continue nextOtherType;
-						if (((ArrayBinding)erasedSuperType).findSuperTypeWithSameErasure(otherType) != null) {
+						if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
 							erasedSuperTypes[j] = null; // discard non minimal supertype
 							remaining--;
 						}
@@ -3384,8 +3383,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (method.areParametersEqual(method2)) {
 						if (method.isStatic() && method2.isStatic()) {
 							// if you knew that method overrode method2, it would help
-							ReferenceBinding declaringClass = (ReferenceBinding) method.declaringClass.erasure();
-							ReferenceBinding superType = declaringClass.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
+							TypeBinding superType = method.declaringClass.erasure().findSuperTypeWithSameErasure(method2.declaringClass.erasure());
 							if (superType == null)
 								continue nextVisible; // static methods from unrelated types
 						}
@@ -3400,12 +3398,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							// class A<T> { void foo(T t) {} }
 							// class B<T, S> extends A<S> { void foo(T t) {} }
 							receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
-							ReferenceBinding superType = receiverType.findSuperTypeWithSameErasure(method.declaringClass.erasure());
-							if (original.declaringClass == superType || superType == null) {
+							TypeBinding superType = receiverType.findSuperTypeWithSameErasure(method.declaringClass.erasure());
+							if (original.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
 								method = original;
 							} else {
 								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = superType.getMethods(method.selector);
+								MethodBinding[] superMethods = ((ReferenceBinding)superType).getMethods(method.selector);
 								for (int m = 0, l = superMethods.length; m < l; m++) {
 									if (superMethods[m].original() == original) {
 										method = superMethods[m];
@@ -3414,11 +3412,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								}
 							}
 							superType = receiverType.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
-							if (original2.declaringClass == superType || superType == null) {
+							if (original2.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
 								method2 = original2;
 							} else {
 								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = superType.getMethods(method2.selector);
+								MethodBinding[] superMethods = ((ReferenceBinding)superType).getMethods(method2.selector);
 								for (int m = 0, l = superMethods.length; m < l; m++) {
 									if (superMethods[m].original() == original2) {
 										method2 = superMethods[m];

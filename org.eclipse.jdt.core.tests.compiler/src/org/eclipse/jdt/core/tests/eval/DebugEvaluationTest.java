@@ -19,7 +19,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
@@ -2098,7 +2098,7 @@ public void test032() {
 			requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", result.hasProblems());
-		IProblem[] problems = result.getProblems();
+		CategorizedProblem[] problems = result.getProblems();
 		StringBuffer buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
@@ -3632,7 +3632,7 @@ public void testNegative001() {
 		}
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
-		IProblem[] problems = result.getProblems();
+		CategorizedProblem[] problems = result.getProblems();
 		StringBuffer buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
@@ -3692,7 +3692,7 @@ public void testNegative002() {
 		}
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
-		IProblem[] problems = result.getProblems();
+		CategorizedProblem[] problems = result.getProblems();
 		StringBuffer buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
@@ -3752,7 +3752,7 @@ public void testNegative003() {
 		}
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
-		IProblem[] problems = result.getProblems();
+		CategorizedProblem[] problems = result.getProblems();
 		StringBuffer buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
@@ -3798,7 +3798,7 @@ public void testNegative004() {
 	}
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
-	IProblem[] problems = result.getProblems();
+	CategorizedProblem[] problems = result.getProblems();
 	StringBuffer buffer = null;
 	for (int i = 0, max = problems.length; i < max; i++){
 		if (problems[i].isError()){

@@ -508,8 +508,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	TypeBinding receiverErasure = this.receiverType.erasure();
 	if (receiverErasure instanceof ReferenceBinding) {
-		ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeWithSameErasure(fieldBinding.declaringClass);
-		if (match == null) {
+		if (receiverErasure.findSuperTypeWithSameErasure(fieldBinding.declaringClass) == null) {
 			this.receiverType = fieldBinding.declaringClass; // handle indirect inheritance thru variable secondary bound
 		}
 	}

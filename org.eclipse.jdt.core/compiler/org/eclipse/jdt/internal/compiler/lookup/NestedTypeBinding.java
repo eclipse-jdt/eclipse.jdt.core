@@ -209,7 +209,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 		if (!onlyExactMatch){
 			for (int i = enclosingInstances.length; --i >= 0;)
 				if (enclosingInstances[i].actualOuterLocalVariable == null)
-					if (((ReferenceBinding)enclosingInstances[i].type).findSuperTypeWithSameErasure(targetEnclosingType) != null)
+					if (enclosingInstances[i].type.findSuperTypeWithSameErasure(targetEnclosingType) != null)
 						return enclosingInstances[i];
 		}
 		return null;

@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.compiler.*;
 
 public interface IProblemFactory {
 
-	IProblem createProblem(
+	CategorizedProblem createProblem(
 		char[] originatingFileName,
 		int problemId,
 		String[] problemArguments,

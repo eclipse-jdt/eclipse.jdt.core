@@ -754,8 +754,7 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 					TypeBinding fieldReceiverType = type;
 					TypeBinding receiverErasure = type.erasure();
 					if (receiverErasure instanceof ReferenceBinding) {
-						ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeWithSameErasure(field.declaringClass);
-						if (match == null) {
+						if (receiverErasure.findSuperTypeWithSameErasure(field.declaringClass) == null) {
 							fieldReceiverType = field.declaringClass; // handle indirect inheritance thru variable secondary bound
 						}
 					}				

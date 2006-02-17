@@ -71,7 +71,7 @@ public class TypeDeclaration
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
-	public void abort(int abortLevel, IProblem problem) {
+	public void abort(int abortLevel, CategorizedProblem problem) {
 
 		switch (abortLevel) {
 			case AbortCompilation :

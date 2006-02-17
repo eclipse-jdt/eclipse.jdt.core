@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -27,8 +28,8 @@ public class DefaultProblem extends CategorizedProblem {
 	// cannot directly point to IJavaModelMarker constants from within batch compiler
 	private static final String MARKER_TYPE_PROBLEM = "org.eclipse.jdt.core.problem"; //$NON-NLS-1$
 	private static final String MARKER_TYPE_TASK = "org.eclipse.jdt.core.task"; //$NON-NLS-1$
-	
-	public static final Object[] EMPTY_VALUES = new Object[0];
+
+	public static final Object[] EMPTY_VALUES = {};
 	
 public DefaultProblem(
 	char[] originatingFileName,
@@ -118,7 +119,7 @@ public String[] getArguments() {
  * @see org.eclipse.jdt.core.compiler.CategorizedProblem#getCategoryID()
  */
 public int getCategoryID() {
-	return ProblemReporter.getProblemCategory(this.id);
+	return ProblemReporter.getProblemCategory(this.severity, this.id);
 }
 
 /**
@@ -135,7 +136,7 @@ public int getID() {
  * @see org.eclipse.jdt.core.compiler.CategorizedProblem#getMarkerType()
  */
 public String getMarkerType() {
-	return this.id == Task 
+	return this.id == IProblem.Task 
 		? MARKER_TYPE_TASK
 		: MARKER_TYPE_PROBLEM;
 }
@@ -230,7 +231,7 @@ public void setSourceStart(int sourceStart) {
 }
 
 public String toString() {
-	String s = "Pb(" + (this.id & IgnoreCategoriesMask) + ") "; //$NON-NLS-1$ //$NON-NLS-2$
+	String s = "Pb(" + (this.id & IProblem.IgnoreCategoriesMask) + ") "; //$NON-NLS-1$ //$NON-NLS-2$
 	if (this.message != null) {
 		s += this.message;
 	} else {

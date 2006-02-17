@@ -250,7 +250,7 @@ public ISelectionRequestor getSelectionRequestor(final ISelectionRequestor origi
 		public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			originalRequestor.acceptType(packageName, typeName, modifiers, isDeclaration, uniqueKey, start, end);
 		}
-		public void acceptError(IProblem error) {
+		public void acceptError(CategorizedProblem error) {
 			error.setSourceLineNumber(error.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);
 			error.setSourceStart(error.getSourceStart() - CodeSnippetToCuMapper.this.startPosOffset);
 			error.setSourceEnd(error.getSourceEnd() - CodeSnippetToCuMapper.this.startPosOffset);

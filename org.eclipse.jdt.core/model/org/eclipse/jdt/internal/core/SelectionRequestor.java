@@ -174,7 +174,7 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 /**
  * @see ISelectionRequestor#acceptError
  */
-public void acceptError(IProblem error) {
+public void acceptError(CategorizedProblem error) {
 	// do nothing
 }
 /**

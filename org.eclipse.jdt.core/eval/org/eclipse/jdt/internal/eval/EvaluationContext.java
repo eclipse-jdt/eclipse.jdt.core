@@ -203,7 +203,7 @@ public void evaluate(
 			public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
 				return requestor.acceptClassFiles(classFiles, codeSnippetClassName);
 			}
-			public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
+			public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
 				requestor.acceptProblem(problem, fragmentSource, fragmentKind);
 				if (problem.isError()) {
 					this.hasErrors = true;
@@ -278,7 +278,7 @@ public void evaluate(char[] codeSnippet, INameEnvironment environment, Map optio
  */
 public void evaluateImports(INameEnvironment environment, IRequestor requestor, IProblemFactory problemFactory) {
 	for (int i = 0; i < this.imports.length; i++) {
-		IProblem[] problems = new IProblem[] {null};
+		CategorizedProblem[] problems = new CategorizedProblem[] {null};
 		char[] importDeclaration = this.imports[i];
 		char[][] splitDeclaration = CharOperation.splitOn('.', importDeclaration);
 		int splitLength = splitDeclaration.length;

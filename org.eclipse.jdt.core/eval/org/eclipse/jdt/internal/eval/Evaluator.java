@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -54,7 +53,7 @@ Evaluator(EvaluationContext context, INameEnvironment environment, Map options, 
  * are computed so that they correspond to the given problem. If it is found to be an internal problem,
  * then the evaluation id of the result is the given compilation unit source.
  */
-protected abstract void addEvaluationResultForCompilationProblem(Map resultsByIDs,IProblem problem, char[] cuSource);
+protected abstract void addEvaluationResultForCompilationProblem(Map resultsByIDs,CategorizedProblem problem, char[] cuSource);
 /**
  * Returns the evaluation results that converts the given compilation result that has problems.
  * If the compilation result has more than one problem, then the problems are broken down so that
@@ -62,7 +61,7 @@ protected abstract void addEvaluationResultForCompilationProblem(Map resultsByID
  */
 protected EvaluationResult[] evaluationResultsForCompilationProblems(CompilationResult result, char[] cuSource) {
 	// Break down the problems and group them by ids in evaluation results
-	IProblem[] problems = result.getAllProblems();
+	CategorizedProblem[] problems = result.getAllProblems();
 	HashMap resultsByIDs = new HashMap(5);
 	for (int i = 0; i < problems.length; i++) {
 		addEvaluationResultForCompilationProblem(resultsByIDs, problems[i], cuSource);
@@ -94,7 +93,7 @@ ClassFile[] getClasses() {
 				EvaluationResult[] evalResults = evaluationResultsForCompilationProblems(result, source);
 				for (int i = 0; i < evalResults.length; i++) {
 					EvaluationResult evalResult = evalResults[i];
-					IProblem[] problems = evalResult.getProblems();
+					CategorizedProblem[] problems = evalResult.getProblems();
 					for (int j = 0; j < problems.length; j++) {
 						Evaluator.this.requestor.acceptProblem(problems[j], evalResult.getEvaluationID(), evalResult.getEvaluationType());
 					}

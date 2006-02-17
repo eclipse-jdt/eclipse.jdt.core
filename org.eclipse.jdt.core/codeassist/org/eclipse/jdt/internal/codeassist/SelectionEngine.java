@@ -67,7 +67,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	int acceptedAnnotationsCount;
 	
 	boolean noProposal = true;
-	IProblem problem = null;
+	CategorizedProblem problem = null;
 
 	/**
 	 * The SelectionEngine is responsible for computing the selected object.
@@ -102,7 +102,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault())) {
 					
-			public IProblem createProblem(
+			public CategorizedProblem createProblem(
 				char[] fileName,
 				int problemId,
 				String[] problemArguments,
@@ -111,7 +111,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				int problemStartPosition,
 				int problemEndPosition,
 				int lineNumber) {
-				IProblem pb =  super.createProblem(
+				CategorizedProblem pb =  super.createProblem(
 					fileName,
 					problemId,
 					problemArguments,

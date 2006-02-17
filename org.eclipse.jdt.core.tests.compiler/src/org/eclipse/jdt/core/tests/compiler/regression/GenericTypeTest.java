@@ -10534,7 +10534,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	// check param type equivalences
 	public void test367() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",	
 				"public class X { \n" + 
@@ -10553,7 +10553,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"class MX<E> {\n" + 
 				"}\n"	,
 			},
-			"");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\r\n" + 
+			"	void foo1(MX<? extends MX> target, MX<MX<String>> value) {\r\n" + 
+			"	                       ^^\n" + 
+			"MX is a raw type. References to generic type MX<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\r\n" + 
+			"	void foo3(MX<? super MX> target, MX<MX<String>> value) {\r\n" + 
+			"	                     ^^\n" + 
+			"MX is a raw type. References to generic type MX<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\r\n" + 
+			"	target= value; // foo3\r\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<MX<String>> to MX<? super MX>\n" + 
+			"----------\n");
 	}
 	// check param type equivalences
 	public void test368() {
@@ -16280,9 +16295,9 @@ public void test500(){
 			"Type mismatch: cannot convert from X.I1 to X.I2\n" + 
 			"----------\n");
 	}
-	// javac incorrectly rejects it
+	// test paramtype argument compatibility
 	public void test540() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"Baz.java",
 				"import java.util.*;\n" + 
@@ -16298,7 +16313,17 @@ public void test500(){
 				"    }\n" + 
 				"}\n",
 			},
-			"");
+			"----------\n" + 
+			"1. WARNING in Baz.java (at line 3)\r\n" + 
+			"	interface Bar extends Foo {\r\n" + 
+			"	                      ^^^\n" + 
+			"Foo is a raw type. References to generic type Foo<X> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in Baz.java (at line 10)\r\n" + 
+			"	return visit(c, d);\r\n" + 
+			"	       ^^^^^\n" + 
+			"The method visit(Collection<? extends Foo<?>>, D) in the type Baz<R,D> is not applicable for the arguments (Collection<Bar>, D)\n" + 
+			"----------\n");
 	}		
 	public void test541() {
 		this.runConformTest(
@@ -28095,6 +28120,354 @@ public void test909() {
 		"	Zork z;\r\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583
+public void test910() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void bar() {\n" + 
+			"		List<Collection> lc1 = null;\n" + 
+			"		List<Collection<?>> lc2 = null;\n" + 
+			"		List<? extends Collection<?>> lc3 = null;\n" + 
+			"		List<? extends Collection> lc4 = null;\n" + 
+			"		lc1 = lc2; //1 ko\n" + 
+			"		lc1 = lc3; //2 ko\n" + 
+			"		lc1 = lc4; //3 ko\n" + 
+			"		lc2 = lc1; //4 ko\n" + 
+			"		lc2 = lc3; //5 ko\n" + 
+			"		lc2 = lc4; //6 ko\n" + 
+			"		lc3 = lc1; //7 ko\n" + 
+			"		lc3 = lc2; //8 ok\n" + 
+			"		lc3 = lc4; //9 ko\n" + 
+			"		lc4 = lc1; //10 ok\n" + 
+			"		lc4 = lc2; //11 ok\n" + 
+			"		lc4 = lc3; //12 ok\n" + 
+			"	}\n" + 
+			"	private final List<Collection> aList = new ArrayList<Collection>();\n" + 
+			"	public void foo() {\n" + 
+			"		final List<Collection<?>> listCopy = new ArrayList<Collection<?>>(this.aList); // ko\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	List<Collection> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 11)\n" + 
+		"	List<? extends Collection> lc4 = null;\n" + 
+		"	               ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	lc1 = lc2; //1 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>> to List<Collection>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	lc1 = lc3; //2 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>> to List<Collection>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 14)\n" + 
+		"	lc1 = lc4; //3 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<Collection>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 15)\n" + 
+		"	lc2 = lc1; //4 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 16)\n" + 
+		"	lc2 = lc3; //5 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 17)\n" + 
+		"	lc2 = lc4; //6 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 18)\n" + 
+		"	lc3 = lc1; //7 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection> to List<? extends Collection<?>>\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 20)\n" + 
+		"	lc3 = lc4; //9 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<? extends Collection<?>>\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 25)\n" + 
+		"	private final List<Collection> aList = new ArrayList<Collection>();\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"12. WARNING in X.java (at line 25)\n" + 
+		"	private final List<Collection> aList = new ArrayList<Collection>();\n" + 
+		"	                                                     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 27)\n" + 
+		"	final List<Collection<?>> listCopy = new ArrayList<Collection<?>>(this.aList); // ko\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor ArrayList<Collection<?>>(List<Collection>) is undefined\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
+public void test911() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		List<Collection> lc1 = null;\n" + 
+			"		List<Collection<?>> lc2 = null;\n" + 
+			"		List<? super Collection<?>> lc3 = null;\n" + 
+			"		List<? super Collection> lc4 = null;\n" + 
+			"		lc1 = lc2; //1 ko\n" + 
+			"		lc1 = lc3; //2 ko\n" + 
+			"		lc1 = lc4; //3 ko\n" + 
+			"		lc2 = lc1; //4 ko\n" + 
+			"		lc2 = lc3; //5 ko\n" + 
+			"		lc2 = lc4; //6 ko\n" + 
+			"		lc3 = lc1; //7 ok\n" + 
+			"		lc3 = lc2; //8 ok\n" + 
+			"		lc3 = lc4; //9 ok\n" + 
+			"		lc4 = lc1; //10 ok\n" + 
+			"		lc4 = lc2; //11 ko\n" + 
+			"		lc4 = lc3; //12 ko\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	List<Collection> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	List<? super Collection> lc4 = null;\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	lc1 = lc2; //1 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>> to List<Collection>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 12)\n" + 
+		"	lc1 = lc3; //2 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<Collection>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
+		"	lc1 = lc4; //3 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection> to List<Collection>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	lc2 = lc1; //4 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 15)\n" + 
+		"	lc2 = lc3; //5 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 16)\n" + 
+		"	lc2 = lc4; //6 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection> to List<Collection<?>>\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 21)\n" + 
+		"	lc4 = lc2; //11 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>> to List<? super Collection>\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 22)\n" + 
+		"	lc4 = lc3; //12 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<? super Collection>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
+public void test912() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(List<? extends Collection<String>[]> l1, List<Collection[]> l2) {\n" + 
+			"		l1 = l2;\n" + 
+			"		l2 = l1;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	l1 = l2;\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<String>[]>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	l2 = l1;\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection<String>[]> to List<Collection[]>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
+public void test913() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		List<Collection[]> lc1 = null;\n" + 
+			"		List<Collection<?>[]> lc2 = null;\n" + 
+			"		List<? extends Collection<?>[]> lc3 = null;\n" + 
+			"		List<? extends Collection[]> lc4 = null;\n" + 
+			"		lc1 = lc2; //1 ko\n" + 
+			"		lc1 = lc3; //2 ko\n" + 
+			"		lc1 = lc4; //3 ko\n" + 
+			"		lc2 = lc1; //4 ko\n" + 
+			"		lc2 = lc3; //5 ko\n" + 
+			"		lc2 = lc4; //6 ko\n" + 
+			"		lc3 = lc1; //7 ko\n" + 
+			"		lc3 = lc2; //8 ok\n" + 
+			"		lc3 = lc4; //9 ko\n" + 
+			"		lc4 = lc1; //10 ok\n" + 
+			"		lc4 = lc2; //11 ok\n" + 
+			"		lc4 = lc3; //12 ok		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	lc1 = lc2; //1 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	lc1 = lc3; //2 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	lc1 = lc4; //3 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	lc2 = lc1; //4 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
+		"	lc2 = lc3; //5 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
+		"	lc2 = lc4; //6 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 14)\n" + 
+		"	lc3 = lc1; //7 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<?>[]>\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 16)\n" + 
+		"	lc3 = lc4; //9 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<? extends Collection<?>[]>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
+public void test914() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		List<Collection[]> lc1 = null;\n" + 
+			"		List<Collection<?>[]> lc2 = null;\n" + 
+			"		List<? super Collection<?>[]> lc3 = null;\n" + 
+			"		List<? super Collection[]> lc4 = null;\n" + 
+			"		lc1 = lc2; //1 ko\n" + 
+			"		lc1 = lc3; //2 ko\n" + 
+			"		lc1 = lc4; //3 ko\n" + 
+			"		lc2 = lc1; //4 ko\n" + 
+			"		lc2 = lc3; //5 ko\n" + 
+			"		lc2 = lc4; //6 ko\n" + 
+			"		lc3 = lc1; //7 ok\n" + 
+			"		lc3 = lc2; //8 ok\n" + 
+			"		lc3 = lc4; //9 ok\n" + 
+			"		lc4 = lc1; //10 ok\n" + 
+			"		lc4 = lc2; //11 ko\n" + 
+			"		lc4 = lc3; //12 ko		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	lc1 = lc2; //1 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	lc1 = lc3; //2 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	lc1 = lc4; //3 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection[]>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	lc2 = lc1; //4 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
+		"	lc2 = lc3; //5 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
+		"	lc2 = lc4; //6 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection<?>[]>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 18)\n" + 
+		"	lc4 = lc2; //11 ko\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<Collection<?>[]> to List<? super Collection[]>\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 19)\n" + 
+		"	lc4 = lc3; //12 ko		\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
 		"----------\n");
 }
 }

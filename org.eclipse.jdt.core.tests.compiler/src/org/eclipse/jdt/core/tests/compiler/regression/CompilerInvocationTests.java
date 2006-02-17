@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import junit.framework.Test;
 
@@ -592,7 +593,7 @@ public void test002_problem_categories() {
 			if (field.getType() == Integer.TYPE) {
 				if ((pureProblemId = field.getInt(iProblemClass) & IProblem.IgnoreCategoriesMask) != 0
 						&& pureProblemId != IProblem.IgnoreCategoriesMask
-						&& ProblemReporter.getProblemCategory(pureProblemId)
+						&& ProblemReporter.getProblemCategory(ProblemSeverities.Error, pureProblemId)
 							== CategorizedProblem.CAT_UNSPECIFIED
 						&& !excludedProblems.containsKey(field.getName())) {
 					 fail("unspecified category for problem " + field.getName());

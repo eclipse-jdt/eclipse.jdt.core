@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -48,8 +49,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class CompilationResult {
 	private static final int[] EMPTY_LINE_ENDS = new int[0];
 	
-	public IProblem problems[];
-	public IProblem tasks[];
+	public CategorizedProblem problems[];
+	public CategorizedProblem tasks[];
 	public int problemCount;
 	public int taskCount;
 	public ICompilationUnit compilationUnit;
@@ -97,7 +98,7 @@ public class CompilationResult {
 		this.maxProblemPerUnit = maxProblemPerUnit;
 	}
 
-	private int computePriority(IProblem problem){
+	private int computePriority(CategorizedProblem problem){
 	
 		final int P_STATIC = 10000;
 		final int P_OUTSIDE_METHOD = 40000;
@@ -133,7 +134,7 @@ public class CompilationResult {
 		if (this.suppressWarningsCount == 0) return;
 		int removed = 0;
 		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
-			IProblem problem = this.problems[i];
+			CategorizedProblem problem = this.problems[i];
 			int problemID = problem.getID();
 			if (!problem.isWarning()) {
 				switch (problemID) {
@@ -164,7 +165,7 @@ public class CompilationResult {
 		}
 		if (removed > 0) {
 			for (int i = 0, index = 0; i < this.problemCount; i++) {
-				IProblem problem;
+				CategorizedProblem problem;
 				if ((problem = this.problems[i]) != null) {
 					if (i > index) {
 						this.problems[index++] = problem;
@@ -177,10 +178,10 @@ public class CompilationResult {
 		}
 	}
 	
-	public IProblem[] getAllProblems() {
-		IProblem[] onlyProblems = this.getProblems();
+	public CategorizedProblem[] getAllProblems() {
+		CategorizedProblem[] onlyProblems = this.getProblems();
 		int onlyProblemCount = onlyProblems != null ? onlyProblems.length : 0;
-		IProblem[] onlyTasks = this.getTasks();
+		CategorizedProblem[] onlyTasks = this.getTasks();
 		int onlyTaskCount = onlyTasks != null ? onlyTasks.length : 0;
 		if (onlyTaskCount == 0) {
 			return onlyProblems;
@@ -190,13 +191,13 @@ public class CompilationResult {
 		}
 
 		int totalNumberOfProblem = onlyProblemCount + onlyTaskCount;
-		IProblem[] allProblems = new IProblem[totalNumberOfProblem];
+		CategorizedProblem[] allProblems = new CategorizedProblem[totalNumberOfProblem];
 		int allProblemIndex = 0;
 		int taskIndex = 0;
 		int problemIndex = 0;
 		while (taskIndex + problemIndex < totalNumberOfProblem) {
-			IProblem nextTask = null;
-			IProblem nextProblem = null;
+			CategorizedProblem nextTask = null;
+			CategorizedProblem nextProblem = null;
 			if (taskIndex < onlyTaskCount) {
 				nextTask = onlyTasks[taskIndex];
 			}
@@ -204,7 +205,7 @@ public class CompilationResult {
 				nextProblem = onlyProblems[problemIndex];
 			}
 			// select the next problem
-			IProblem currentProblem = null;
+			CategorizedProblem currentProblem = null;
 			if (nextProblem != null) {
 				if (nextTask != null) {
 					if (nextProblem.getSourceStart() < nextTask.getSourceStart()) {
@@ -252,15 +253,15 @@ public class CompilationResult {
 	/**
 	 * Answer the errors encountered during compilation.
 	 */
-	public IProblem[] getErrors() {
+	public CategorizedProblem[] getErrors() {
 	
-		IProblem[] reportedProblems = getProblems();
+		CategorizedProblem[] reportedProblems = getProblems();
 		int errorCount = 0;
 		for (int i = 0; i < this.problemCount; i++) {
 			if (reportedProblems[i].isError()) errorCount++;
 		}
 		if (errorCount == this.problemCount) return reportedProblems;
-		IProblem[] errors = new IProblem[errorCount];
+		CategorizedProblem[] errors = new CategorizedProblem[errorCount];
 		int index = 0;
 		for (int i = 0; i < this.problemCount; i++) {
 			if (reportedProblems[i].isError()) errors[index++] = reportedProblems[i];
@@ -281,20 +282,20 @@ public class CompilationResult {
 	 * and makes sure the problems slot as the exact size of the number of
 	 * problems.
 	 */
-	public IProblem[] getProblems() {
+	public CategorizedProblem[] getProblems() {
 		
 		// Re-adjust the size of the problems if necessary.
 		if (problems != null) {
 			discardSuppressedWarnings();
 	
 			if (this.problemCount != problems.length) {
-				System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
+				System.arraycopy(problems, 0, (problems = new CategorizedProblem[problemCount]), 0, problemCount);
 			}
 	
 			if (this.maxProblemPerUnit > 0 && this.problemCount > this.maxProblemPerUnit){
 				quickPrioritize(problems, 0, problemCount - 1);
 				this.problemCount = this.maxProblemPerUnit;
-				System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
+				System.arraycopy(problems, 0, (problems = new CategorizedProblem[problemCount]), 0, problemCount);
 			}
 	
 			// Sort problems per source positions.
@@ -311,13 +312,13 @@ public class CompilationResult {
 	 * and makes sure the problems slot as the exact size of the number of
 	 * problems.
 	 */
-	public IProblem[] getTasks() {
+	public CategorizedProblem[] getTasks() {
 		
 		// Re-adjust the size of the tasks if necessary.
 		if (this.tasks != null) {
 	
 			if (this.taskCount != this.tasks.length) {
-				System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount]), 0, this.taskCount);
+				System.arraycopy(this.tasks, 0, (this.tasks = new CategorizedProblem[this.taskCount]), 0, this.taskCount);
 			}
 			quickSort(tasks, 0, tasks.length-1);
 		}
@@ -353,7 +354,7 @@ public class CompilationResult {
 		return false;
 	}
 	
-	private static void quickSort(IProblem[] list, int left, int right) {
+	private static void quickSort(CategorizedProblem[] list, int left, int right) {
 
 		if (left >= right) return;
 	
@@ -367,7 +368,7 @@ public class CompilationResult {
 			while (mid < list[right].getSourceStart())
 				right--;
 			if (left <= right) {
-				IProblem tmp = list[left];
+				CategorizedProblem tmp = list[left];
 				list[left] = list[right];
 				list[right] = tmp;
 				left++;
@@ -380,7 +381,7 @@ public class CompilationResult {
 			quickSort(list, left, original_right);
 	}
 	
-	private void quickPrioritize(IProblem[] list, int left, int right) {
+	private void quickPrioritize(CategorizedProblem[] list, int left, int right) {
 		
 		if (left >= right) return;
 	
@@ -394,7 +395,7 @@ public class CompilationResult {
 			while (mid < computePriority(list[left]))
 				left++;
 			if (left <= right) {
-				IProblem tmp = list[left];
+				CategorizedProblem tmp = list[left];
 				list[left] = list[right];
 				list[right] = tmp;
 				left++;
@@ -419,7 +420,7 @@ public class CompilationResult {
 		compiledTypes.put(typeName, classFile);
 	}
 
-	public void record(IProblem newProblem, ReferenceContext referenceContext) {
+	public void record(CategorizedProblem newProblem, ReferenceContext referenceContext) {
 
 		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
 		if(newProblem.getID() == IProblem.Task) {
@@ -427,9 +428,9 @@ public class CompilationResult {
 				return;
 		}
 		if (problemCount == 0) {
-			problems = new IProblem[5];
+			problems = new CategorizedProblem[5];
 		} else if (problemCount == problems.length) {
-			System.arraycopy(problems, 0, (problems = new IProblem[problemCount * 2]), 0, problemCount);
+			System.arraycopy(problems, 0, (problems = new CategorizedProblem[problemCount * 2]), 0, problemCount);
 		}
 		problems[problemCount++] = newProblem;
 		if (referenceContext != null){
@@ -454,11 +455,11 @@ public class CompilationResult {
 		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 	}
 
-	private void recordTask(IProblem newProblem) {
+	private void recordTask(CategorizedProblem newProblem) {
 		if (this.taskCount == 0) {
-			this.tasks = new IProblem[5];
+			this.tasks = new CategorizedProblem[5];
 		} else if (this.taskCount == this.tasks.length) {
-			System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount * 2]), 0, this.taskCount);
+			System.arraycopy(this.tasks, 0, (this.tasks = new CategorizedProblem[this.taskCount * 2]), 0, this.taskCount);
 		}
 		this.tasks[this.taskCount++] = newProblem;
 	}

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 
 /**
@@ -24,5 +24,5 @@ boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName);
 /**
  * @see org.eclipse.jdt.core.eval.ICodeSnippetRequestor
  */
-void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind);
+void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind);
 }

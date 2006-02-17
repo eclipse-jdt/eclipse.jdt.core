@@ -12,8 +12,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
 import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
@@ -52,7 +52,7 @@ public void test01() {
 			}
 			public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition) {
 			}
-			public void acceptProblem(IProblem problem) {
+			public void acceptProblem(CategorizedProblem problem) {
 			}
 			public void enterClass(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, int classStart, char[] name, int nameStart, int nameEnd, char[] superclass, int superclassStart, int superclassEnd, char[][] superinterfaces, int[] superinterfaceStarts, int[] superinterfaceEnds, int bodyStart) {
 			}
@@ -110,7 +110,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDo
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.IDocumentElementRequestor#acceptProblem(org.eclipse.jdt.core.compiler.IProblem)
  */
-public void acceptProblem(IProblem problem) {
+public void acceptProblem(CategorizedProblem problem) {
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.IDocumentElementRequestor#enterClass(int, int[], int, int, int, char[], int, int, char[], int, int, char[][], int[], int[], int)

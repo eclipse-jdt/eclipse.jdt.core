@@ -57,7 +57,7 @@ public abstract class AbstractMethodDeclaration
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
-	public void abort(int abortLevel, IProblem problem) {
+	public void abort(int abortLevel, CategorizedProblem problem) {
 
 		switch (abortLevel) {
 			case AbortCompilation :
@@ -163,9 +163,9 @@ public abstract class AbstractMethodDeclaration
 			if (this.binding == null)
 				return; // handle methods with invalid signature or duplicates
 			int problemsLength;
-			IProblem[] problems =
+			CategorizedProblem[] problems =
 				this.scope.referenceCompilationUnit().compilationResult.getProblems();
-			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+			CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 			classFile.addProblemMethod(this, this.binding, problemsCopy);
 			return;
@@ -185,18 +185,18 @@ public abstract class AbstractMethodDeclaration
 					this.generateCode(classFile); // restart method generation
 				} catch (AbortMethod e2) {
 					int problemsLength;
-					IProblem[] problems =
+					CategorizedProblem[] problems =
 						this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-					IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+					CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 					classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
 				}
 			} else {
 				// produce a problem method accounting for this fatal error
 				int problemsLength;
-				IProblem[] problems =
+				CategorizedProblem[] problems =
 					this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+				CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 				classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
 			}

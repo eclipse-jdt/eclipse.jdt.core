@@ -18,15 +18,13 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.*;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
@@ -88,8 +86,8 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			}
 			return true;
 		}
-		public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
-			this.acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new IProblem[]{problem}));
+		public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
+			this.acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new CategorizedProblem[]{problem}));
 		}
 		public void acceptResult(EvaluationResult result) {
 			try {
@@ -177,7 +175,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Returns whether the 2 given problems are equals.
 	 */
-	public boolean equals(IProblem pb1, IProblem pb2) {
+	public boolean equals(CategorizedProblem pb1, CategorizedProblem pb2) {
 		if ((pb1 == null) && (pb2 == null)) {
 			return true;
 		}
@@ -248,14 +246,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
 	 */
-	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, IProblem expected) {
+	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, CategorizedProblem expected) {
 		evaluateWithExpectedImportProblem(codeSnippet, importDeclaration, getCompilerOptions(), expected);
 	}
 	
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
 	 */
-	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, Map options, IProblem expected) {
+	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, Map options, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
 			context.evaluate(codeSnippet, getEnv(), options, requestor, getProblemFactory());
@@ -268,7 +266,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertTrue("Has problem", result.hasProblems());
 			assertEquals("Evaluation type", EvaluationResult.T_IMPORT, result.getEvaluationType());
 			assertEquals("Evaluation id", importDeclaration, result.getEvaluationID());
-			IProblem[] problems = result.getProblems();
+			CategorizedProblem[] problems = result.getProblems();
 			if (equals(expected, problems[0])) {
 				return;
 			}
@@ -279,7 +277,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
 	 */
-	protected void evaluateWithExpectedProblem(char[] codeSnippet, IProblem expected) {
+	protected void evaluateWithExpectedProblem(char[] codeSnippet, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
 			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
@@ -292,7 +290,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertTrue("Has problem", result.hasProblems());
 			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 			assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-			IProblem[] problems = result.getProblems();
+			CategorizedProblem[] problems = result.getProblems();
 			if (equals(expected, problems[0])) {
 				return;
 			}
@@ -317,7 +315,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 		assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
 		StringBuffer problemBuffer = new StringBuffer(20);
-		IProblem[] problems = result.getProblems();
+		CategorizedProblem[] problems = result.getProblems();
 		for (int i = 0; i < problems.length; i++) {
 			problemBuffer.append(problems[i].getMessage()).append('\n');
 		}
@@ -327,7 +325,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Evaluates the given variable and makes sure the evaluation result has at least the given problem.
 	 */
-	protected void evaluateWithExpectedProblem(GlobalVariable var, IProblem expected) {
+	protected void evaluateWithExpectedProblem(GlobalVariable var, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
 			context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
@@ -340,7 +338,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertTrue("Has problem", result.hasProblems());
 			assertEquals("Evaluation type", EvaluationResult.T_VARIABLE, result.getEvaluationType());
 			assertEquals("Evaluation id", var.getName(), result.getEvaluationID());
-			IProblem[] problems = result.getProblems();
+			CategorizedProblem[] problems = result.getProblems();
 			if (equals(expected, problems[0])) {
 				return;
 			}
@@ -427,7 +425,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Evaluates the given code snippet and makes sure an evaluation result has at least the given warning, and that another evaluation result has the given display string.
 	 */
-	protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final IProblem[] expected, final char[] displayString) {
+	protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final CategorizedProblem[] expected, final char[] displayString) {
 		class ResultRequestor extends Requestor {
 			ArrayList collectedProblems = new ArrayList();
 			boolean gotDisplayString = false;
@@ -440,7 +438,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 					}
 				} else {
 					assertTrue("Has problem", result.hasProblems());
-					IProblem[] problems = result.getProblems();
+					CategorizedProblem[] problems = result.getProblems();
 					for (int i = 0; i < problems.length; i++) {
 						collectedProblems.add(problems[i]);
 					}
@@ -455,7 +453,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		if (expected.length == requestor.collectedProblems.size()) {
 			for (int i = 0; i < expected.length; i++) {
-				assertTrue("Problem mismatch" + requestor.collectedProblems.get(i), this.equals(expected[i], (IProblem)requestor.collectedProblems.get(i)));
+				assertTrue("Problem mismatch" + requestor.collectedProblems.get(i), this.equals(expected[i], (CategorizedProblem)requestor.collectedProblems.get(i)));
 			}
 		} else {
 			assertTrue("Wrong problem count", false);

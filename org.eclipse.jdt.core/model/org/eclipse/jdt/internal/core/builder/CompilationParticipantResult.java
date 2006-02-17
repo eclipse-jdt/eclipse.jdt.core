@@ -20,7 +20,7 @@ public class CompilationParticipantResult {
 	protected boolean hasAnnotations; // only set during processAnnotations
 	protected IFile[] addedFiles; // added/changed generated source files that need to be compiled
 	protected IFile[] deletedFiles; // previously generated source files that should be deleted
-	protected IProblem[] problems; // new problems to report against this compilationUnit
+	protected CategorizedProblem[] problems; // new problems to report against this compilationUnit
 	protected String[] dependencies; // fully-qualified type names of any new dependencies, each name is of the form 'p1.p2.A.B'
 
 protected CompilationParticipantResult(SourceFile sourceFile) {

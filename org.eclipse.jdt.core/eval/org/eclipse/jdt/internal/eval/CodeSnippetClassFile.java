@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -159,11 +159,11 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	AbstractMethodDeclaration[] methodDeclarations = typeDeclaration.methods;
 	int maxMethodDecl = methodDeclarations == null ? 0 : methodDeclarations.length;
 	int problemsLength;
-	IProblem[] problems = unitResult.getErrors();
+	CategorizedProblem[] problems = unitResult.getErrors();
 	if (problems == null) {
-		problems = new IProblem[0];
+		problems = new CategorizedProblem[0];
 	}
-	IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+	CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 	System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 	if (methods != null) {
 		if (typeBinding.isInterface()) {

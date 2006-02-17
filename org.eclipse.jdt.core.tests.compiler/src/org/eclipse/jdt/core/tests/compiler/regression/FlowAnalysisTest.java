@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -612,7 +613,7 @@ public void test020() {
 // [compiler] warning on fall through
 // problem category
 public void test021() {
-	if (ProblemReporter.getProblemCategory(IProblem.FallthroughCase) != 
+	if (ProblemReporter.getProblemCategory(ProblemSeverities.Warning, IProblem.FallthroughCase) != 
 			CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM) {
 		fail("bad category for fall-through case problem");
 	}

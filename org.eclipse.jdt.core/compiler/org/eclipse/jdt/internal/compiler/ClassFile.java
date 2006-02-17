@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -185,11 +186,11 @@ public class ClassFile
 		AbstractMethodDeclaration[] methodDeclarations = typeDeclaration.methods;
 		int maxMethodDecl = methodDeclarations == null ? 0 : methodDeclarations.length;
 		int problemsLength;
-		IProblem[] problems = unitResult.getErrors();
+		CategorizedProblem[] problems = unitResult.getErrors();
 		if (problems == null) {
-			problems = new IProblem[0];
+			problems = new CategorizedProblem[0];
 		}
-		IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+		CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 		System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 		if (methods != null) {
 			if (typeBinding.isInterface()) {
@@ -980,7 +981,7 @@ public class ClassFile
 		innerClassesBindings[numberOfInnerClasses++] = refBinding;
 	}
 	
-	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, IProblem problem, CompilationResult compilationResult) {
+	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, CategorizedProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
@@ -1018,7 +1019,7 @@ public class ClassFile
 	 *
 	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 */
-	public void addProblemClinit(IProblem[] problems) {
+	public void addProblemClinit(CategorizedProblem[] problems) {
 		generateMethodInfoHeaderForClinit();
 		// leave two spaces for the number of attributes
 		contentsOffset -= 2;
@@ -1036,7 +1037,7 @@ public class ClassFile
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
-				IProblem problem = problems[i];
+				CategorizedProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
 					buffer.append("\t"  +problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 					count++;
@@ -1078,7 +1079,7 @@ public class ClassFile
 	public void addProblemConstructor(
 		AbstractMethodDeclaration method,
 		MethodBinding methodBinding,
-		IProblem[] problems) {
+		CategorizedProblem[] problems) {
 
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
@@ -1097,7 +1098,7 @@ public class ClassFile
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
-				IProblem problem = problems[i];
+				CategorizedProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
 					buffer.append("\t"  +problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 					count++;
@@ -1142,7 +1143,7 @@ public class ClassFile
 	public void addProblemConstructor(
 		AbstractMethodDeclaration method,
 		MethodBinding methodBinding,
-		IProblem[] problems,
+		CategorizedProblem[] problems,
 		int savedOffset) {
 		// we need to move back the contentsOffset to the value at the beginning of the method
 		contentsOffset = savedOffset;
@@ -1161,7 +1162,7 @@ public class ClassFile
 	public void addProblemMethod(
 		AbstractMethodDeclaration method,
 		MethodBinding methodBinding,
-		IProblem[] problems) {
+		CategorizedProblem[] problems) {
 		if (methodBinding.isAbstract() && methodBinding.declaringClass.isInterface()) {
 			method.abort(ProblemSeverities.AbortType, null);
 		}
@@ -1183,7 +1184,7 @@ public class ClassFile
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
-				IProblem problem = problems[i];
+				CategorizedProblem problem = problems[i];
 				if ((problem != null)
 					&& (problem.isError())
 					&& (problem.getSourceStart() >= method.declarationSourceStart)
@@ -1232,7 +1233,7 @@ public class ClassFile
 	public void addProblemMethod(
 		AbstractMethodDeclaration method,
 		MethodBinding methodBinding,
-		IProblem[] problems,
+		CategorizedProblem[] problems,
 		int savedOffset) {
 		// we need to move back the contentsOffset to the value at the beginning of the method
 		contentsOffset = savedOffset;
@@ -5487,10 +5488,10 @@ public class ClassFile
 				MethodDeclaration methodDeclaration = methodDeclarations[i];
 				MethodBinding methodBinding = methodDeclaration.binding;
 		 		String readableName = new String(methodBinding.readableName());
-		 		IProblem[] problems = compilationResult.problems;
+		 		CategorizedProblem[] problems = compilationResult.problems;
 		 		int problemsCount = compilationResult.problemCount;
 				for (int j = 0; j < problemsCount; j++) {
-					IProblem problem = problems[j];
+					CategorizedProblem problem = problems[j];
 					if (problem != null
 						&& problem.getID() == IProblem.AbstractMethodMustBeImplemented
 						&& problem.getMessage().indexOf(readableName) != -1) {

@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -120,7 +121,7 @@ public final class CompletionEngine
 	boolean resolvingStaticImports = false;
 	boolean insideQualifiedReference = false;
 	boolean noProposal = true;
-	IProblem problem = null;
+	CategorizedProblem problem = null;
 	char[] fileName = null;
 	int startPosition, actualCompletionPosition, endPosition, offset;
 	int javadocTagPosition; // Position of previous tag while completing in javadoc
@@ -261,7 +262,7 @@ public final class CompletionEngine
 				new DefaultProblemFactory(Locale.getDefault()) {
 					int lastErrorStart;
 					
-					public IProblem createProblem(
+					public CategorizedProblem createProblem(
 						char[] originatingFileName,
 						int problemId,
 						String[] problemArguments,
@@ -271,7 +272,7 @@ public final class CompletionEngine
 						int end,
 						int lineNumber) {
 						
-						IProblem pb = super.createProblem(
+						CategorizedProblem pb = super.createProblem(
 							originatingFileName,
 							problemId,
 							problemArguments,
@@ -6520,7 +6521,7 @@ public final class CompletionEngine
 		return inlineCompletion;
 	}
 
-	protected void printDebug(IProblem error) {
+	protected void printDebug(CategorizedProblem error) {
 		if(CompletionEngine.DEBUG) {
 			System.out.print("COMPLETION - completionFailure("); //$NON-NLS-1$
 			System.out.print(error);

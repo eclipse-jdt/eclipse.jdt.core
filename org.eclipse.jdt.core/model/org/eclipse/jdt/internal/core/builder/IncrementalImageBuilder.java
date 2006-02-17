@@ -669,7 +669,7 @@ protected void resetCollections() {
 
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	IMarker[] markers = JavaBuilder.getProblemsFor(sourceFile.resource);
-	IProblem[] problems = result.getProblems();
+	CategorizedProblem[] problems = result.getProblems();
 	if (problems == null && markers.length == 0) return;
 
 	notifier.updateProblemCounts(markers, problems);
@@ -679,7 +679,7 @@ protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result
 
 protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	IMarker[] markers = JavaBuilder.getTasksFor(sourceFile.resource);
-	IProblem[] tasks = result.getTasks();
+	CategorizedProblem[] tasks = result.getTasks();
 	if (tasks == null && markers.length == 0) return;
 
 	JavaBuilder.removeTasksFor(sourceFile.resource);

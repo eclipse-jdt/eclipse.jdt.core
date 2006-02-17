@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /*
  * Part of the source element parser responsible for building the output. It
@@ -124,7 +124,7 @@ public interface ISourceElementRequestor {
 	
 	void acceptPackage(int declarationStart, int declarationEnd, char[] name);
 
-	void acceptProblem(IProblem problem);
+	void acceptProblem(CategorizedProblem problem);
 
 	void acceptTypeReference(char[][] typeName, int sourceStart, int sourceEnd);
 

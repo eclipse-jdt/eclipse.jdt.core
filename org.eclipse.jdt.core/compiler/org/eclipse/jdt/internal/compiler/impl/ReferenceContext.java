@@ -15,11 +15,11 @@ package org.eclipse.jdt.internal.compiler.impl;
  *	For example: method, type or compilation unit.
  */
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 public interface ReferenceContext {
-	void abort(int abortLevel, IProblem problem);
+	void abort(int abortLevel, CategorizedProblem problem);
 	CompilationResult compilationResult();
 	boolean hasErrors();
 	void tagAsHavingErrors();

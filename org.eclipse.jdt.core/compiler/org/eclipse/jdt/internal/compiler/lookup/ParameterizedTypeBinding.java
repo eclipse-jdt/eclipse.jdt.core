@@ -127,19 +127,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	
 		if (this.arguments == null) return;
 		if (!(actualType instanceof ReferenceBinding)) return;
-		ReferenceBinding formalEquivalent, actualEquivalent;
+		TypeBinding formalEquivalent, actualEquivalent;
 		switch (constraint) {
 			case TypeConstants.CONSTRAINT_EQUAL :
 			case TypeConstants.CONSTRAINT_EXTENDS :
 				formalEquivalent = this;
-		        actualEquivalent = ((ReferenceBinding)actualType).findSuperTypeWithSameErasure(this.type);
+		        actualEquivalent = actualType.findSuperTypeWithSameErasure(this.type);
 		        if (actualEquivalent == null) return;
 		        break;
 			case TypeConstants.CONSTRAINT_SUPER :
 	        default:
 		        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
 		        if (formalEquivalent == null) return;
-		        actualEquivalent = (ReferenceBinding) actualType;
+		        actualEquivalent = actualType;
 		        break;
 		}
         TypeBinding[] formalArguments;

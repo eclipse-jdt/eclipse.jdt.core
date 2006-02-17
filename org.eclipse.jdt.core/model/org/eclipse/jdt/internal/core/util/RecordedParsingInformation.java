@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 /**
@@ -18,12 +18,12 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
  * line ends or problems.
  */
 public class RecordedParsingInformation {
-	public IProblem[] problems;
+	public CategorizedProblem[] problems;
 	public int problemsCount;
 	public int[] lineEnds;
 	public int[][] commentPositions;
 	
-	public RecordedParsingInformation(IProblem[] problems, int[] lineEnds, int[][] commentPositions) {
+	public RecordedParsingInformation(CategorizedProblem[] problems, int[] lineEnds, int[][] commentPositions) {
 		this.problems = problems;
 		this.lineEnds = lineEnds;
 		this.commentPositions = commentPositions;

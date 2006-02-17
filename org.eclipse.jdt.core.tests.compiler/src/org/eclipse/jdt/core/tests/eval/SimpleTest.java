@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.tests.eval;
 
 import java.io.File;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
 
@@ -88,7 +88,7 @@ public class SimpleTest {
 			} 
 			return true;
 		}
-		public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
+		public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
 			int localErrorCount = 0;
 			globalProblemCount++;
 			char[] source = fragmentSource;

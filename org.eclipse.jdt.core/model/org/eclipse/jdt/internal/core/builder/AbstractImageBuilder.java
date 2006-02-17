@@ -507,7 +507,7 @@ protected void recordParticipantResult(CompilationParticipantResult result) {
 	// any added/changed/deleted generated files have already been taken care
 	// just record the problems and dependencies - do not expect there to be many
 	// must be called after we're finished with the compilation unit results but before incremental loop adds affected files
-	IProblem[] problems = result.problems;
+	CategorizedProblem[] problems = result.problems;
 	if (problems != null && problems.length > 0) {
 		// existing problems have already been removed so just add these as new problems
 		this.notifier.updateProblemCounts(problems);
@@ -537,13 +537,13 @@ protected void recordParticipantResult(CompilationParticipantResult result) {
  *	 - its range is the problem's range
  *	 - it has an extra attribute "ID" which holds the problem's id
  */
-protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) throws CoreException {
+protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] problems) throws CoreException {
 	if (sourceFile == null || problems == null || problems.length == 0) return;
 
 	String missingClassFile = null;
 	IResource resource = sourceFile.resource;
 	for (int i = 0, l = problems.length; i < l; i++) {
-		IProblem problem = problems[i];
+		CategorizedProblem problem = problems[i];
 		int id = problem.getID();
 		if (id == IProblem.IsClassPathCorrect) {
 			JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
@@ -552,7 +552,11 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 		}
 
 		if (id != IProblem.Task) {
+//			TODO need to ask problem for its marker type, once they are fully managed (clean/flush) 
 			IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+			//IMarker marker = resource.createMarker(problem.getMarkerType());
+			
+			// standard attributes
 			marker.setAttributes(
 				JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES,
 				new Object[] { 
@@ -563,40 +567,27 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 					new Integer(problem.getSourceEnd() + 1), // end
 					new Integer(problem.getSourceLineNumber()), // line
 					Util.getProblemArgumentsForMarker(problem.getArguments()), // arguments
-					new Integer(ProblemReporter.getProblemCategory(id)), // category ID
+					new Integer(problem.getCategoryID()), // category ID
 				}
 			);
+			// optional extra attributes
+			String[] extraAttributeNames = problem.getExtraMarkerAttributeNames();
+			int extraLength = extraAttributeNames == null ? 0 : extraAttributeNames.length;
+			if (extraLength > 0) {
+				marker.setAttributes(extraAttributeNames, problem.getExtraMarkerAttributeValues());
+			}
 		}
-
-/* Do NOT want to populate the Java Model just to find the matching Java element.
- * Also cannot query compilation units located in folders with invalid package
- * names such as 'a/b.c.d/e'.
-
-		// compute a user-friendly location
-		IJavaElement element = JavaCore.create(resource);
-		if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
-			org.eclipse.jdt.core.ICompilationUnit unit = (org.eclipse.jdt.core.ICompilationUnit) element;
-			IJavaElement fragment = unit.getElementAt(problem.getSourceStart());
-			if (fragment != null) element = fragment;
-		}
-		String location = null;
-		if (element instanceof JavaElement)
-			location = ((JavaElement) element).readableName();
-		if (location != null)
-			marker.setAttribute(IMarker.LOCATION, location);
-*/
-
 		if (missingClassFile != null)
 			throw new MissingClassFileException(missingClassFile);
 	}
 }
 
-protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws CoreException {
+protected void storeTasksFor(SourceFile sourceFile, CategorizedProblem[] tasks) throws CoreException {
 	if (sourceFile == null || tasks == null || tasks.length == 0) return;
 
 	IResource resource = sourceFile.resource;
 	for (int i = 0, l = tasks.length; i < l; i++) {
-		IProblem task = tasks[i];
+		CategorizedProblem task = tasks[i];
 		if (task.getID() == IProblem.Task) {
 			IMarker marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
 			Integer priority = P_NORMAL;
@@ -616,12 +607,17 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					new Integer(task.getSourceLineNumber()),
 					Boolean.FALSE,
 				});
+			String[] extraAttributeNames = task.getExtraMarkerAttributeNames();
+			int extraLength = extraAttributeNames == null ? 0 : extraAttributeNames.length;
+			if (extraLength > 0) {
+				marker.setAttributes(extraAttributeNames, task.getExtraMarkerAttributeValues());
+			}			
 		}
 	}
 }
 
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
-	IProblem[] problems = result.getProblems();
+	CategorizedProblem[] problems = result.getProblems();
 	if (problems == null || problems.length == 0) return;
 
 	notifier.updateProblemCounts(problems);
@@ -629,7 +625,7 @@ protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result
 }
 
 protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
-	IProblem[] tasks = result.getTasks();
+	CategorizedProblem[] tasks = result.getTasks();
 	if (tasks == null || tasks.length == 0) return;
 
 	storeTasksFor(sourceFile, tasks);

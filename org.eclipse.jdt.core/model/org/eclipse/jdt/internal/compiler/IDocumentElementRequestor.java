@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /**
  * Part of the source element parser responsible for building the output.
@@ -121,7 +121,7 @@ void acceptPackage(
 /**
  * @param problem - Used to report a problem while running the JDOM
  */
-void acceptProblem(IProblem problem);
+void acceptProblem(CategorizedProblem problem);
 /**
  * @param declarationStart - a source position corresponding to the start
  *  of this class.

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -234,7 +235,7 @@ public void testProblemInInnerClass() {
 		"		return \"an inner class\";",
 		"	}",
 		"};"}), 
-		new IProblem[] {
+		new CategorizedProblem[] {
 			newProblem(IProblem.LocalVariableIsNeverUsed, Warning, 56, 56, 3), // The local variable i is never used
 		},
 		"an inner class".toCharArray()); 
@@ -356,7 +357,7 @@ public void testWarning() {
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"int i;",
 		"1 + 1"}), 
-		new IProblem[] {
+		new CategorizedProblem[] {
 			newProblem(IProblem.LocalVariableIsNeverUsed, Warning, 4, 4, 1), // The local variable i is never used
 		},
 		"2".toCharArray());

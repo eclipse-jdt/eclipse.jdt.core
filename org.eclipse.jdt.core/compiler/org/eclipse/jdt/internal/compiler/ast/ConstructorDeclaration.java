@@ -151,9 +151,9 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			if (this.binding == null)
 				return; // Handle methods with invalid signature or duplicates
 			int problemsLength;
-			IProblem[] problems =
+			CategorizedProblem[] problems =
 				scope.referenceCompilationUnit().compilationResult.getProblems();
-			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+			CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 			classFile.addProblemConstructor(this, binding, problemsCopy);
 			return;
@@ -171,17 +171,17 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					this.internalGenerateCode(classScope, classFile); // restart method generation
 				} catch (AbortMethod e2) {
 					int problemsLength;
-					IProblem[] problems =
+					CategorizedProblem[] problems =
 						scope.referenceCompilationUnit().compilationResult.getAllProblems();
-					IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+					CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 					classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
 				}
 			} else {
 				int problemsLength;
-				IProblem[] problems =
+				CategorizedProblem[] problems =
 					scope.referenceCompilationUnit().compilationResult.getAllProblems();
-				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+				CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 				classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
 			}

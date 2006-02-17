@@ -14,7 +14,7 @@ import java.util.Locale;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -109,7 +109,7 @@ public void acceptPackage(
 /**
  * acceptProblem method comment.
  */
-public void acceptProblem(IProblem problem) {}
+public void acceptProblem(CategorizedProblem problem) {}
 /**
  * acceptTypeReference method comment.
  */

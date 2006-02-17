@@ -37,7 +37,7 @@ public void abortDueToInternalError(String errorMessage) {
 		IProblem.Unclassified,
 		arguments,
 		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		0,
 		0);
 }
@@ -47,7 +47,7 @@ public void abortDueToInternalError(String errorMessage, ASTNode location) {
 		IProblem.Unclassified,
 		arguments,
 		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -328,7 +328,7 @@ public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 			IProblem.BytecodeExceeds64KLimitForConstructor,
 			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, false)},
 			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, true)},
-			ProblemSeverities.Error | ProblemSeverities.Abort,
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 			location.sourceStart,
 			location.sourceEnd);
 	} else {
@@ -336,7 +336,7 @@ public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 			IProblem.BytecodeExceeds64KLimit,
 			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, false)},
 			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, true)},
-			ProblemSeverities.Error | ProblemSeverities.Abort,
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 			location.sourceStart,
 			location.sourceEnd);
 	}
@@ -346,7 +346,7 @@ public void bytecodeExceeds64KLimit(TypeDeclaration location) {
 		IProblem.BytecodeExceeds64KLimitForClinit,
 		NoArgument,
 		NoArgument,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -493,7 +493,7 @@ public void cannotUseSuperInCodeSnippet(int start, int end) {
 		IProblem.CannotUseSuperInCodeSnippet,
 		NoArgument,
 		NoArgument,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		start,
 		end);
 }
@@ -531,7 +531,7 @@ public void codeSnippetMissingClass(String missing, int start, int end) {
 		IProblem.CodeSnippetMissingClass,
 		arguments,
 		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		start,
 		end);
 }
@@ -541,7 +541,7 @@ public void codeSnippetMissingMethod(String className, String missingMethod, Str
 		IProblem.CodeSnippetMissingMethod,
 		arguments,
 		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		start,
 		end);
 }
@@ -632,7 +632,7 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Ignore;
 		return this.options.getSeverity(irritant);
 	}
-	return ProblemSeverities.Error;
+	return ProblemSeverities.Error | ProblemSeverities.Fatal;
 }
 public void conditionalArgumentsIncompatibleTypes(ConditionalExpression expression, TypeBinding trueType, TypeBinding falseType) {
 	this.handle(
@@ -720,7 +720,7 @@ public void corruptedSignature(TypeBinding enclosingType, char[] signature, int 
 		IProblem.CorruptedSignature,
 		new String[] { new String(enclosingType.readableName()), new String(signature), String.valueOf(position) },
 		new String[] { new String(enclosingType.shortReadableName()), new String(signature), String.valueOf(position) },
-		ProblemSeverities.Error | ProblemSeverities.Abort,
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		0,
 		0);
 }
@@ -1548,10 +1548,13 @@ public static long getIrritant(int problemID) {
  * @return a category ID
  * @see CategorizedProblem
  */
-public static int getProblemCategory(int problemID) {
-	long irritant = getIrritant(problemID);
-	int irritantInt = (int) irritant;
+public static int getProblemCategory(int severity, int problemID) {
 	categorizeOnIrritant: {
+		// fatal problems even if optional are all falling into same category (not irritant based)
+		if ((severity & ProblemSeverities.Fatal) != 0)
+			break categorizeOnIrritant;
+		long irritant = getIrritant(problemID);
+		int irritantInt = (int) irritant;
 		if (irritantInt == irritant) {
 			switch (irritantInt) {
 				case (int)CompilerOptions.MethodWithConstructorName:
@@ -1643,7 +1646,7 @@ public static int getProblemCategory(int problemID) {
 			}
 		}	
 	}
-	// categorize non optional problems per ID
+	// categorize fatal problems per ID
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
@@ -2326,7 +2329,7 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 			IProblem.IncorrectArityForParameterizedType,
 			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
 		return; // not reached since aborted above
@@ -3371,7 +3374,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		IProblem.IsClassPathCorrect,
 		arguments, 
 		arguments,
-		ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+		ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		0,
 		0);
 }
@@ -4344,7 +4347,7 @@ public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode 
 			: IProblem.TooManyArgumentSlots,
 		arguments,
 		arguments,
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -4354,7 +4357,7 @@ public void noMoreAvailableSpaceForConstant(TypeDeclaration typeDeclaration) {
 		IProblem.TooManyBytesForStringConstant,
 		new String[]{ new String(typeDeclaration.binding.readableName())},
 		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
@@ -4364,7 +4367,7 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode loc
 		IProblem.TooManyLocalVariableSlots,
 		arguments,
 		arguments,
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -4374,7 +4377,7 @@ public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) 
 		IProblem.TooManyConstantsInConstantPool,
 		new String[]{ new String(typeDeclaration.binding.readableName())},
 		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
@@ -4392,7 +4395,7 @@ public void nonGenericTypeCannotBeParameterized(ASTNode location, TypeBinding ty
 			IProblem.NonGenericType,
 			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
 	    return;
@@ -4644,7 +4647,7 @@ public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBindin
 			IProblem.MissingArgumentsForParameterizedMemberType,
 			new String[] {new String(type.readableName())},
 			new String[] {new String(type.shortReadableName())},
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
 	    return;
@@ -4966,7 +4969,7 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 			IProblem.RawMemberTypeCannotBeParameterized,
 			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false), new String(type.enclosingType().readableName())},
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true), new String(type.enclosingType().shortReadableName())},
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
 	    return;
@@ -5167,7 +5170,7 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 			IProblem.StaticMemberOfParameterizedType,
 			new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
 			new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
 	    return;
@@ -5285,7 +5288,7 @@ public void tooManyFields(TypeDeclaration typeDeclaration) {
 		IProblem.TooManyFields,
 		new String[]{ new String(typeDeclaration.binding.readableName())},
 		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
@@ -5294,7 +5297,7 @@ public void tooManyMethods(TypeDeclaration typeDeclaration) {
 		IProblem.TooManyMethods,
 		new String[]{ new String(typeDeclaration.binding.readableName())},
 		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		ProblemSeverities.Abort | ProblemSeverities.Error,
+		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
@@ -5348,7 +5351,7 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 			IProblem.TypeArgumentMismatch,
 			new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
 			new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			1);
         return;
@@ -5399,7 +5402,7 @@ public void undefinedTypeVariableSignature(char[] variableName, ReferenceBinding
 		IProblem.UndefinedTypeVariable,
 		new String[] {new String(variableName), new String(binaryType.readableName()) },	
 		new String[] {new String(variableName), new String(binaryType.shortReadableName())},
-		ProblemSeverities.AbortCompilation | ProblemSeverities.Error,
+		ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		0,
 		1);
 }
@@ -5580,7 +5583,6 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		IProblem.UndefinedName,
 		arguments,
 		arguments,
-		ProblemSeverities.Error,
 		nameRef.sourceStart,
 		end);
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.eval;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
@@ -228,7 +229,7 @@ public void testFinallyOneBlock() {
 		"} finally {",
 		"	return 2;",
 		"}"}), 
-		new IProblem[] {
+		new CategorizedProblem[] {
 			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 30, 40, 4), 
 		},
 		"2".toCharArray());
@@ -247,7 +248,7 @@ public void testFinallyTwoBlock() {
 		"} finally {",
 		"	return 3;",
 		"}"}), 
-		new IProblem[] {
+		new CategorizedProblem[] {
 			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 40, 51, 5), 
 			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 66, 76, 8), 
 		},

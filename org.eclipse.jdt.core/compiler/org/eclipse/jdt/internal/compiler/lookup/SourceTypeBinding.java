@@ -838,7 +838,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
-				&& ((ReferenceBinding) field.type).findSuperTypeWithSameErasure(targetEnclosingType) != null)
+				&& field.type.findSuperTypeWithSameErasure(targetEnclosingType) != null)
 					return field;
 		}
 	}

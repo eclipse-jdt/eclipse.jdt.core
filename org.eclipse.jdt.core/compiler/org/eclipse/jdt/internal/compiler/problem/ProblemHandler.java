@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -53,7 +53,7 @@ public int computeSeverity(int problemId){
 	
 	return ProblemSeverities.Error; // by default all problems are errors
 }
-public IProblem createProblem(
+public CategorizedProblem createProblem(
 	char[] fileName, 
 	int problemId, 
 	String[] problemArguments, 
@@ -89,14 +89,14 @@ public void handle(
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
 		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
-			IProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0);			
+			CategorizedProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0);			
 			throw new AbortCompilation(null, problem);
 		} else {
 			return; // ignore non reportable warning
 		}
 	}
 
-	IProblem problem = 
+	CategorizedProblem problem = 
 		this.createProblem(
 			unitResult.getFileName(), 
 			problemId, 
@@ -113,7 +113,7 @@ public void handle(
 	switch (severity & ProblemSeverities.Error) {
 		case ProblemSeverities.Error :
 			this.record(problem, unitResult, referenceContext);
-			if ((severity & ProblemSeverities.Optional) == 0 || options.treatOptionalErrorAsFatal) {
+			if ((severity & ProblemSeverities.Fatal) != 0) {
 				referenceContext.tagAsHavingErrors();
 				// should abort ?
 				int abortLevel;
@@ -150,7 +150,7 @@ public void handle(
 		referenceContext,
 		unitResult);
 }
-public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
+public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 	unitResult.record(problem, referenceContext);
 }
 /**

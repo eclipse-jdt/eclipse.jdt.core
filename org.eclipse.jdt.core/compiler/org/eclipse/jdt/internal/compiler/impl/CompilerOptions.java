@@ -403,8 +403,11 @@ public class CompilerOptions {
 	}
 	
 	public int getSeverity(long irritant) {
-		if((this.errorThreshold & irritant) != 0)
-			return ProblemSeverities.Error | ProblemSeverities.Optional;
+		if((this.errorThreshold & irritant) != 0) {
+			return this.treatOptionalErrorAsFatal
+				? ProblemSeverities.Error | ProblemSeverities.Optional | ProblemSeverities.Fatal
+				: ProblemSeverities.Error | ProblemSeverities.Optional;
+		}
 		if((this.warningThreshold & irritant) != 0)
 			return ProblemSeverities.Warning | ProblemSeverities.Optional;
 		return ProblemSeverities.Ignore;

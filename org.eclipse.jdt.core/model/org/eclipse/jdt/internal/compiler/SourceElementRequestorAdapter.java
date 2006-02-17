@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 
@@ -71,9 +71,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#acceptProblem(IProblem)
+	 * @see ISourceElementRequestor#acceptProblem(CategorizedProblem)
 	 */
-	public void acceptProblem(IProblem problem) {
+	public void acceptProblem(CategorizedProblem problem) {
 		// default implementation: do nothing
 	}
 

@@ -39,6 +39,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -257,7 +258,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.tab--;
 		}
 		
-		private void extractContext(IProblem problem, char[] unitSource) {
+		private void extractContext(CategorizedProblem problem, char[] unitSource) {
 			//sanity .....
 			int startPosition = problem.getSourceStart();
 			int endPosition = problem.getSourceEnd();
@@ -497,7 +498,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		private void logProblem(IProblem problem, int localErrorCount,
+		private void logProblem(CategorizedProblem problem, int localErrorCount,
 			int globalErrorCount, char[] unitSource) {
 			if ((this.tagBits & EMACS) != 0) {
 				String result = (new String(problem.getOriginatingFileName())
@@ -602,7 +603,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		public int logProblems(IProblem[] problems, char[] unitSource, Main currentMain) {
+		public int logProblems(CategorizedProblem[] problems, char[] unitSource, Main currentMain) {
 			final int count = problems.length;
 			int localErrorCount = 0;
 			int localProblemCount = 0;
@@ -612,7 +613,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					int warnings = 0;
 					int tasks = 0;
 					for (int i = 0; i < count; i++) {
-						IProblem problem = problems[i];
+						CategorizedProblem problem = problems[i];
 						if (problem != null) {
 							currentMain.globalProblemsCount++;
 							this.logProblem(problem, localProblemCount, currentMain.globalProblemsCount, unitSource);
@@ -633,7 +634,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					if ((errors + warnings) != 0) {
 						this.startLoggingProblems(errors, warnings);
 						for (int i = 0; i < count; i++) {
-							IProblem problem = problems[i];
+							CategorizedProblem problem = problems[i];
 							if (problem!= null) {
 								if (problem.getID() != IProblem.Task) {
 									this.logXmlProblem(problem, unitSource);
@@ -645,7 +646,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					if (tasks != 0) {
 						this.startLoggingTasks(tasks);
 						for (int i = 0; i < count; i++) {
-							IProblem problem = problems[i];
+							CategorizedProblem problem = problems[i];
 							if (problem!= null) {
 								if (problem.getID() == IProblem.Task) {
 									this.logXmlTask(problem, unitSource);
@@ -795,7 +796,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param unitSource
 		 *            the given unit source
 		 */
-		private void logXmlProblem(IProblem problem, char[] unitSource) {
+		private void logXmlProblem(CategorizedProblem problem, char[] unitSource) {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
 			this.parameters.clear();
@@ -830,7 +831,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param unitSource
 		 *            the given unit source
 		 */
-		private void logXmlTask(IProblem problem, char[] unitSource) {
+		private void logXmlTask(CategorizedProblem problem, char[] unitSource) {
 			this.parameters.clear();
 			this.parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));

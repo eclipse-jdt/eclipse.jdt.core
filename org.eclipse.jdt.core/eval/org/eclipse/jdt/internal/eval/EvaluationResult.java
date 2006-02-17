@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /**
  * An EvaluationResult is the result of a code snippet evaluation, a global 
@@ -23,11 +23,11 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public class EvaluationResult {
 
-	static final IProblem[] NO_PROBLEMS = new IProblem[0];
+	static final CategorizedProblem[] NO_PROBLEMS = new CategorizedProblem[0];
 	
 	char[] evaluationID;
 	int evaluationType;
-	IProblem[] problems;
+	CategorizedProblem[] problems;
 	char[] displayString;
 	char[] typeName;
 
@@ -68,7 +68,7 @@ public EvaluationResult(char[] evaluationID, int evaluationType, char[] displayS
 	this.typeName = typeName;
 	this.problems = NO_PROBLEMS;
 }
-public EvaluationResult(char[] evaluationID, int evaluationType, IProblem[] problems) {
+public EvaluationResult(char[] evaluationID, int evaluationType, CategorizedProblem[] problems) {
 	this.evaluationID = evaluationID;
 	this.evaluationType = evaluationType;
 	this.problems = problems;
@@ -76,10 +76,10 @@ public EvaluationResult(char[] evaluationID, int evaluationType, IProblem[] prob
 /**
  * Adds the given problem to the list of problems of this evaluation result.
  */
-void addProblem(IProblem problem) {
-	IProblem[] existingProblems = this.problems;
+void addProblem(CategorizedProblem problem) {
+	CategorizedProblem[] existingProblems = this.problems;
 	int existingLength = existingProblems.length;
-	this.problems = new IProblem[existingLength + 1];
+	this.problems = new CategorizedProblem[existingLength + 1];
 	System.arraycopy(existingProblems, 0, this.problems, 0, existingLength);
 	this.problems[existingLength] = problem;
 }
@@ -108,7 +108,7 @@ public int getEvaluationType() {
  * or during the analysis of a package name or an import.
  * Returns an empty array if there are no problems.
  */
-public IProblem[] getProblems() {
+public CategorizedProblem[] getProblems() {
 	return this.problems;
 }
 /**
