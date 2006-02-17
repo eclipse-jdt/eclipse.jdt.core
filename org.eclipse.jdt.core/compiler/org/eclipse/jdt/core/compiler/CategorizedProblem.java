@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * participating in compilation operations, so as to allow participant to contribute their own marker types, and thus
  * defining their own domain specific problem/category IDs.
  * 
- * @see CompilationParticipant
  * @since 3.2
  */
 public abstract class CategorizedProblem implements IProblem {
