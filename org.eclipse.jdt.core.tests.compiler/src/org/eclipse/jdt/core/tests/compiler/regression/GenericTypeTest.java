@@ -28473,22 +28473,48 @@ public void test914() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128389
-public void _test915() {
+public void test915() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X <T> {\n" + 
-			"    class Y extends Throwable {\n" + // missing error 
-			"        private static final long serialVersionUID = 1L;\n" + 
-			"        T t;\n" + 
-			"    }\n" + 
-			"    class Z<U> extends Throwable {\n" + 
-			"        private static final long serialVersionUID = 1L;\n" + 
-			"        T t;\n" + 
-			"    }\n" + 
-			"}\n",
+			"public class X<T> {\n" + 
+			"	class Y1 extends Throwable {\n" + 
+			"		private static final long serialVersionUID = 1L;\n" + 
+			"		T t;\n" + 
+			"	}\n" + 
+			"	static class Y2 extends Throwable {\n" + 
+			"		private static final long serialVersionUID = 1L;\n" + 
+			"	}\n" + 
+			"	class Y3<U> extends Throwable {\n" + 
+			"		private static final long serialVersionUID = 1L;\n" + 
+			"\n" + 
+			"		T t;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y4<E> extends Throwable {}\n" + 
+			"\n",
 		},
-		"SHOULD COMPLAIN FOR Z AND Y");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y1 extends Throwable {\n" + 
+		"	                 ^^^^^^^^^\n" + 
+		"The generic class X<T>.Y1 may not subclass java.lang.Throwable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	class Y3<U> extends Throwable {\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"The generic class X<T>.Y3<U> may not subclass java.lang.Throwable\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	class Y4<E> extends Throwable {}\n" + 
+		"	      ^^\n" + 
+		"The serializable class Y4 does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
+		"	class Y4<E> extends Throwable {}\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"The generic class Y4<E> may not subclass java.lang.Throwable\n" + 
+		"----------\n");
 }
 
 // synchronized inheritance for multiple generic types

@@ -998,9 +998,18 @@ public class TypeDeclaration
 							&& !sourceType.isAbstract() 
 							&& sourceType.findSuperTypeErasingTo(T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
 			
-			if (this.typeParameters != null && scope.getJavaLangThrowable().isSuperclassOf(sourceType)) {
-				this.scope.problemReporter().genericTypeCannotExtendThrowable(this);
+			// generics (and non static generic members) cannot extend Throwable
+			if (sourceType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) != null) {
+				ReferenceBinding current = sourceType;
+				checkEnclosedInGeneric : do {
+					if (current.isGenericType()) {
+						this.scope.problemReporter().genericTypeCannotExtendThrowable(this);
+						break checkEnclosedInGeneric;						
+					}
+					if (current.isStatic()) break checkEnclosedInGeneric;
+				} while ((current = current.enclosingType()) != null);
 			}
+
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
 			boolean hasEnumConstants = false;
