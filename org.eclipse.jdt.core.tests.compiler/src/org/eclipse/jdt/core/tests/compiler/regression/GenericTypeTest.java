@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 899 };
+//		TESTS_NUMBERS = new int[] { 637 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -19109,7 +19109,7 @@ public void test617() {
 				"		return null;\n" + 
 				"	}\n" + 
 				"\n" + 
-				"	public final class Ex3 extends Exception {\n" + 
+				"	public final static class Ex3 extends Exception {\n" + 
 				"		private static final long serialVersionUID = 1;\n" + 
 				"	}\n" + 
 				"\n" + 
