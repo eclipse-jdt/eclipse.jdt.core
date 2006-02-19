@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 629, 630, 631 };
+//		TESTS_NUMBERS =  new int[] { 633 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7226,5 +7226,66 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		checkSourceRange(fragment, "s =  {\"\",,,", source);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=128539
+	 */
+	public void test0632() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	void m(int state) {\n" +
+				"		switch (state) {\n" + 
+				"			case 4:\n" + 
+				"				double M0,M1;\n" + 
+				"		}\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, node.getNodeType());
+			SwitchStatement statement = (SwitchStatement) node;
+			List statements = statement.statements();
+			assertEquals("wrong size", 2, statements.size());
+			assertEquals("Not a switch case", ASTNode.SWITCH_CASE, ((ASTNode) statements.get(0)).getNodeType());
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, ((ASTNode) statements.get(1)).getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=128539
+	 */
+	public void test0633() {
+		String src = "switch (state) {case 4:double M0,M1;}";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 1, statements.size());
+		final ASTNode node = (ASTNode) statements.get(0);
+		assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, node.getNodeType());
+		SwitchStatement statement = (SwitchStatement) node;
+		statements = statement.statements();
+		assertEquals("wrong size", 2, statements.size());
+		assertEquals("Not a switch case", ASTNode.SWITCH_CASE, ((ASTNode) statements.get(0)).getNodeType());
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, ((ASTNode) statements.get(1)).getNodeType());	
 	}
 }
