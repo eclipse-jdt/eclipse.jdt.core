@@ -25937,8 +25937,7 @@ public void test838() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
-// TODO need to be updated regarding fix for 128389
-public void _test839() {
+public void test839() {
 	this.runConformTest(
 		new String[] {
 			"com/test/Tester.java",
@@ -25965,7 +25964,7 @@ public void _test839() {
 			"		throw new MyException();\n" + 
 			"	}\n" + 
 			"\n" + 
-			"	public class MyException extends Exception {\n" + 
+			"	public static class MyException extends Exception {\n" + 
 			"		\n" + 
 			"		public MyException() {\n" + 
 			"			super();\n" + 
