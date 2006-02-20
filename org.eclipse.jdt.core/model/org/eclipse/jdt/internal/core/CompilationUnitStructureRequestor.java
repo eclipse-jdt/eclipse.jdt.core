@@ -338,7 +338,7 @@ public void enterType(TypeInfo typeInfo) {
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	String nameString= new String(typeInfo.name);
-	SourceType handle = handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	SourceType handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	SourceTypeElementInfo info = new SourceTypeElementInfo();
@@ -375,7 +375,7 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
 	String nameString = new String(typeParameterInfo.name);
-	TypeParameter handle = handle = new TypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	TypeParameter handle = new TypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	TypeParameterElementInfo info = new TypeParameterElementInfo();

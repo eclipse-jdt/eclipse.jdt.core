@@ -1120,11 +1120,10 @@ public void parseCompilationUnit(ICompilationUnit unit) {
 		goForCompilationUnit();
 		referenceContext =
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1141,11 +1140,10 @@ public void parseConstructor(char[] regionSource) {
 		goForClassBodyDeclarations();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1162,11 +1160,10 @@ public void parseField(char[] regionSource) {
 		goForFieldDeclaration();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1184,11 +1181,10 @@ public void parseImport(char[] regionSource) {
 		goForImportDeclaration();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1209,11 +1205,10 @@ public void parseInitializer(char[] regionSource) {
 		goForInitializer();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1231,18 +1226,16 @@ public void parseMethod(char[] regionSource) {
 		goForGenericMethodDeclaration();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
 		// ignore this exception
 	}
-
 }
 /*
  * Investigate one package statement declaration.
@@ -1253,11 +1246,10 @@ public void parsePackage(char[] regionSource) {
 		goForPackageDeclaration();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();
@@ -1275,11 +1267,10 @@ public void parseType(char[] regionSource) {
 		goForTypeDeclaration();
 		referenceContext = 
 			compilationUnit = 
-				compilationUnit = 
-					new CompilationUnitDeclaration(
-						problemReporter(), 
-						new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
-						regionSource.length); 
+				new CompilationUnitDeclaration(
+					problemReporter(), 
+					new CompilationResult(regionSource, 0, 0, this.options.maxProblemsPerUnit), 
+					regionSource.length); 
 		scanner.resetTo(0, regionSource.length);
 		scanner.setSource(regionSource);
 		parse();

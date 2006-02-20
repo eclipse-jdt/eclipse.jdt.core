@@ -56,6 +56,12 @@ What's new in this drop</h2>
 Note that there is an option to control whether optional errors are intended to be fatal or not, by default
 they are considered fatal (see <code>Preferences&gt;Java&gt;Compiler&gt;Building&gt;Treat configurable errors like fatal errors...</code></li>
 <li>Build states for very large projects should now save in a fraction of the time.</li>
+<li>Diagnosis for assignment with no effect can now recognize following patterns:
+  <ul>
+  <li><code>int i = i = 0;</code></li>
+  <li><code>i = i = 0;</code></li>
+  <li><code>i = ++i;</code></li>
+  </ul>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
