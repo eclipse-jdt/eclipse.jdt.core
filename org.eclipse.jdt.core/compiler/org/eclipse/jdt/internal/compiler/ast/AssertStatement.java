@@ -54,9 +54,11 @@ public class AssertStatement extends Statement {
 		boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
-		UnconditionalFlowInfo assertInfo = assertExpression.
-			analyseCode(currentScope, flowContext, flowInfo.copy()).
+		FlowInfo assertRawInfo = assertExpression.
+			analyseCode(currentScope, flowContext, flowInfo.copy());
+		UnconditionalFlowInfo assertWhenTrueInfo = assertRawInfo.initsWhenTrue().
 			unconditionalInits();
+		UnconditionalFlowInfo assertInfo = assertRawInfo.unconditionalCopy();
 		if (isOptimizedTrueAssertion) {
 			assertInfo.setReachMode(FlowInfo.UNREACHABLE);
 		}
@@ -80,8 +82,13 @@ public class AssertStatement extends Statement {
 		}
 		if (isOptimizedFalseAssertion) {
 			return flowInfo; // if assertions are enabled, the following code will be unreachable
+			// change this if we need to carry null analysis results of the assert
+			// expression downstream
 		} else {
-			return flowInfo.mergedWith(assertInfo); 
+			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
+				addInitializationsFrom(assertWhenTrueInfo.nullInfo());
+			// keep the merge from the initial code for the definite assignment 
+			// analysis, tweak the null part to influence nulls downstream
 		}
 	}
 

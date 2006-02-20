@@ -1510,6 +1510,24 @@ static int numberOfEnclosingFields(ReferenceBinding type){
 	return count;
 }
 
+/**
+ * Erase definite inits and potential inits from this, then return this. 
+ * @return this flow info, minus definite inits and potential inits
+ */
+public UnconditionalFlowInfo nullInfo() {
+	if (this == DEAD_END) {
+		return this;
+	}
+	this.definiteInits =
+		this.potentialInits = 0;
+	if (this.extra != null) {
+		for (int i = 0, length = this.extra[0].length; i < length; i++) {
+			this.extra[0][i] = this.extra[1][i] = 0;
+		}
+	}
+	return this;
+}
+
 public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	if (this == DEAD_END) {
 		return this;

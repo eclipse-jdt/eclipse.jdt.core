@@ -5093,6 +5093,163 @@ public void test0906_non_null_protection_tag() {
 		"----------\n");
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0950_assert() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o) {\n" + 
+				"    boolean b = o != null;\n" + // shades doubts upon o 
+				"    assert(o != null);\n" + 	// protection
+				"    o.toString();\n" + 		// quiet
+				"  }\n" + 
+				"}\n"},
+			"");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0951_assert() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o) {\n" + 
+				"    assert(o == null);\n" + 	// forces null
+				"    o.toString();\n" + 		// can only be null
+				"  }\n" + 
+				"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0952_assert() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o, boolean b) {\n" + 
+				"    assert(o != null || b);\n" + // shade doubts
+				"    o.toString();\n" + 		// complain
+				"  }\n" + 
+				"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0953_assert_combined() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o1, Object o2) {\n" + 
+				"    assert(o1 != null && o2 == null);\n" +
+				"    if (o1 == null) { };\n" + 		// complain
+				"    if (o2 == null) { };\n" + 		// complain
+				"  }\n" + 
+				"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o1 == null) { };\n" + 
+		"	    ^^\n" + 
+		"The variable o1 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	if (o2 == null) { };\n" + 
+		"	    ^^\n" + 
+		"The variable o2 can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0954_assert_fake_reachable() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o) {\n" + 
+				"    assert(false && o != null);\n" +
+				"    if (o == null) { };\n" + 		// quiet
+				"  }\n" + 
+				"}\n"},
+		"");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0955_assert_combined() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o) {\n" + 
+				"    assert(false || o != null);\n" +
+				"    if (o == null) { };\n" + 		// complain
+				"  }\n" + 
+				"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o == null) { };\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
+// [compiler] Null reference analysis doesn't understand assertions
+public void test0956_assert_combined() {
+	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo() {\n" +
+				"    Object o = null;\n" + 
+				"    assert(o != null);\n" +    // complain
+				"    if (o == null) { };\n" +   // complain
+				"  }\n" + 
+				"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	assert(o != null);\n" + 
+		"	       ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null) { };\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+	}
+}
+
 // null analysis -- notNull protection tag
 public void _test0900_notNull_protection_tag() {
 	this.runNegativeTest(
