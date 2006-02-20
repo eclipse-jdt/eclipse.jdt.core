@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
 import junit.framework.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -4623,4 +4625,34 @@ public class MethodVerifyTest extends AbstractComparableTest {
 */
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
+	public void test078() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);			    
+		customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+		customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X implements IAppendable {\n" + 
+				"    public X append(char c) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IAppendable {\n" + 
+				"	IAppendable append(char c);\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public X append(char c) {\n" + 
+			"	         ^^^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with IAppendable.append(char)\n" + 
+			"----------\n",
+		null,
+		true,
+		customOptions);		
+	}			
+	
 }
