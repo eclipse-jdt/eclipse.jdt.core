@@ -28567,4 +28567,25 @@ public void _test917() {
 		"ERR");
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
+public void test918() {
+	this.runConformTest(
+		new String[] {
+			"BasicNode.java",
+			"class BasicEdge<N extends BasicNode<E, N> & Node<E>, E extends BasicEdge<N, E> & Edge<N>>\n" + 
+			"		implements Edge<N> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class BasicNode<E extends BasicEdge<N, E> & Edge<N>, N extends BasicNode<E, N> & Node<E>>\n" + 
+			"		implements Node<E> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Edge<N extends Node<? extends Edge<N>>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Node<E extends Edge<? extends Node<E>>> {\n" + 
+			"}\n",
+		},
+		"");
+}
 }
