@@ -51,7 +51,7 @@ private boolean inCompiler;
 
 protected SimpleSet filesWithAnnotations = null;
 
-public static int MAX_AT_ONCE = 1000;
+public static int MAX_AT_ONCE = 2000; // best compromise between space used and speed
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.MESSAGE, 
 	IMarker.SEVERITY, 
@@ -154,17 +154,18 @@ public void acceptResult(CompilationResult result) {
 					if (duplicateTypeNames == null)
 						duplicateTypeNames = new ArrayList();
 					duplicateTypeNames.add(compoundName);
-					if (mainType == null)
+					if (mainType == null) {
 						try {
 							mainTypeName = compilationUnit.initialTypeName; // slash separated qualified name "p1/p1/A"
 							mainType = javaBuilder.javaProject.findType(mainTypeName.replace('/', '.'));
 						} catch (JavaModelException e) {
 							// ignore
 						}
+					}
 					IType type;
-					if (qualifiedTypeName.equals(mainTypeName))
+					if (qualifiedTypeName.equals(mainTypeName)) {
 						type = mainType;
-					else {
+					} else {
 						String simpleName = qualifiedTypeName.substring(qualifiedTypeName.lastIndexOf('/')+1);
 						type = mainType == null ? null : mainType.getCompilationUnit().getType(simpleName);
 					}
@@ -172,6 +173,8 @@ public void acceptResult(CompilationResult result) {
 					continue;
 				}
 				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
+				if (!qualifiedTypeName.equals(compilationUnit.initialTypeName))
+					acceptSecondaryType(classFile);
 			}
 			try {
 				definedTypeNames.add(writeClassFile(classFile, compilationUnit, !isNestedType));
@@ -189,6 +192,10 @@ public void acceptResult(CompilationResult result) {
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 		notifier.compiled(compilationUnit);
 	}
+}
+
+protected void acceptSecondaryType(ClassFile classFile) {
+	// noop
 }
 
 protected void cleanUp() {
@@ -226,30 +233,35 @@ protected void compile(SourceFile[] units) {
 		if (JavaBuilder.DEBUG)
 			for (int i = 0; i < unitsLength; i++)
 				System.out.println("About to compile " + units[i].typeLocator()); //$NON-NLS-1$
-		compile(units, null);
+		compile(units, null, true);
 	} else {
-		int i = 0;
+		SourceFile[] remainingUnits = new SourceFile[unitsLength]; // copy of units, removing units when about to compile
+		System.arraycopy(units, 0, remainingUnits, 0, unitsLength);
+		int doNow = unitsLength < MAX_AT_ONCE ? unitsLength : MAX_AT_ONCE;
+		SourceFile[] toCompile = new SourceFile[doNow];
+		int remainingIndex = 0;
 		boolean compilingFirstGroup = true;
-		while (i < unitsLength) {
-			int doNow = unitsLength < MAX_AT_ONCE ? unitsLength : MAX_AT_ONCE;
-			int index = 0;
-			SourceFile[] toCompile = new SourceFile[doNow];
-			while (i < unitsLength && index < doNow) {
+		while (remainingIndex < unitsLength) {
+			int count = 0;
+			while (remainingIndex < unitsLength && count < doNow) {
 				// Although it needed compiling when this method was called, it may have
 				// already been compiled when it was referenced by another unit.
-				SourceFile unit = units[i++];
-				if (compilingFirstGroup || workQueue.isWaiting(unit)) {
+				SourceFile unit = remainingUnits[remainingIndex];
+				if (unit != null && (compilingFirstGroup || this.workQueue.isWaiting(unit))) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("About to compile " + unit.typeLocator()); //$NON-NLS-1$
-					toCompile[index++] = unit;
+						System.out.println("About to compile #" + remainingIndex + " : "+ unit.typeLocator()); //$NON-NLS-1$ //$NON-NLS-2$
+					toCompile[count++] = unit;
 				}
+				remainingUnits[remainingIndex++] = null;
 			}
-			if (index < doNow)
-				System.arraycopy(toCompile, 0, toCompile = new SourceFile[index], 0, index);
-			SourceFile[] additionalUnits = new SourceFile[unitsLength - i];
-			System.arraycopy(units, i, additionalUnits, 0, additionalUnits.length);
+			if (count < doNow)
+				System.arraycopy(toCompile, 0, toCompile = new SourceFile[count], 0, count);
+			if (!compilingFirstGroup)
+				for (int a = remainingIndex; a < unitsLength; a++)
+					if (remainingUnits[a] != null && this.workQueue.isCompiled(remainingUnits[a]))
+						remainingUnits[a] = null; // use the class file for this source file since its been compiled
+			compile(toCompile, remainingUnits, compilingFirstGroup);
 			compilingFirstGroup = false;
-			compile(toCompile, additionalUnits);
 		}
 	}
 
@@ -262,7 +274,7 @@ protected void compile(SourceFile[] units) {
 	}
 }
 
-void compile(SourceFile[] units, SourceFile[] additionalUnits) {
+protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean compilingFirstGroup) {
 	if (units.length == 0) return;
 	notifier.aboutToCompile(units[0]); // just to change the message
 
@@ -609,9 +621,8 @@ protected void storeTasksFor(SourceFile sourceFile, CategorizedProblem[] tasks) 
 				});
 			String[] extraAttributeNames = task.getExtraMarkerAttributeNames();
 			int extraLength = extraAttributeNames == null ? 0 : extraAttributeNames.length;
-			if (extraLength > 0) {
+			if (extraLength > 0)
 				marker.setAttributes(extraAttributeNames, task.getExtraMarkerAttributeValues());
-			}			
 		}
 	}
 }
@@ -631,7 +642,7 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isSecondaryType) throws CoreException {
+protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isTopLevelType) throws CoreException {
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);
 	IContainer outputFolder = compilationUnit.sourceLocation.binaryFolder; 
@@ -642,7 +653,7 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType, compilationUnit.updateClassFile);
+	writeClassFileBytes(classFile.getBytes(), file, fileName, isTopLevelType, compilationUnit.updateClassFile);
 	if (classFile.ownSharedArrays) {
 		org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = this.compiler.lookupEnvironment;
 		synchronized (env) {
@@ -654,7 +665,7 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType, boolean updateClassFile) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, boolean updateClassFile) throws CoreException {
 	if (file.exists()) {
 		// Deal with shared output folders... last one wins... no collision cases detected
 		if (JavaBuilder.DEBUG)

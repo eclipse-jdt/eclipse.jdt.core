@@ -50,6 +50,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 protected IncrementalImageBuilder(BatchImageBuilder batchBuilder) {
 	super(batchBuilder.javaBuilder, true, batchBuilder.newState);
 	this.nameEnvironment.isIncrementalBuild = true;
+	resetCollections();
 }
 
 public boolean build(SimpleLookupTable deltas) {
@@ -129,24 +130,70 @@ public boolean build(SimpleLookupTable deltas) {
 	return true;
 }
 
+protected void buildAfterBatchBuild() {
+	// called from a batch builder once all source files have been compiled AND some changes
+	// need to be propagated incrementally (annotations, missing secondary types)
+
+	if (JavaBuilder.DEBUG)
+		System.out.println("INCREMENTAL build after batch build @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
+
+	// this is a copy of the incremental build loop
+	try {
+		addAffectedSourceFiles();
+		while (this.sourceFiles.size() > 0) {
+			notifier.checkCancel();
+			SourceFile[] allSourceFiles = new SourceFile[this.sourceFiles.size()];
+			this.sourceFiles.toArray(allSourceFiles);
+			resetCollections();
+			notifier.setProgressPerCompilationUnit(0.08f / allSourceFiles.length);
+			this.workQueue.addAll(allSourceFiles);
+			compile(allSourceFiles);
+			removeSecondaryTypes();
+			addAffectedSourceFiles();
+		}
+	} catch (CoreException e) {
+		throw internalException(e);
+	} finally {
+		cleanUp();
+	}
+}
+
 protected void addAffectedSourceFiles() {
 	if (qualifiedStrings.elementSize == 0 && simpleStrings.elementSize == 0) return;
 
+	addAffectedSourceFiles(qualifiedStrings, simpleStrings);
+}
+
+protected void addAffectedSourceFiles(char[] secondaryTypeName) {
+	// the secondary type search can have too many false hits if we addAffectedSource files using all the qualified type names
+	// of each secondary type... so look for the dependents 1 file at a time
+	int index = CharOperation.lastIndexOf('/', secondaryTypeName);
+	String packageName = index == -1 ? null : new String(CharOperation.subarray(secondaryTypeName, 0, index));
+	StringSet packageNames = new StringSet(1);
+	packageNames.add(packageName);
+	String typeName = new String(index == -1 ? secondaryTypeName : CharOperation.subarray(secondaryTypeName, index + 1, secondaryTypeName.length));
+	StringSet typeNames = new StringSet(1);
+	typeNames.add(typeName);
+
+	addAffectedSourceFiles(packageNames, typeNames);
+}
+
+private void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet) {
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
-	char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedStrings);
+	char[][][] internedQualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedSet);
 	// if a well known qualified name was found then we can skip over these
-	if (qualifiedNames.length < qualifiedStrings.elementSize)
-		qualifiedNames = null;
-	char[][] simpleNames = ReferenceCollection.internSimpleNames(simpleStrings);
+	if (internedQualifiedNames.length < qualifiedSet.elementSize)
+		internedQualifiedNames = null;
+	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(simpleSet);
 	// if a well known name was found then we can skip over these
-	if (simpleNames.length < simpleStrings.elementSize)
-		simpleNames = null;
+	if (internedSimpleNames.length < simpleSet.elementSize)
+		internedSimpleNames = null;
 
 	Object[] keyTable = newState.references.keyTable;
 	Object[] valueTable = newState.references.valueTable;
 	next : for (int i = 0, l = valueTable.length; i < l; i++) {
 		ReferenceCollection refs = (ReferenceCollection) valueTable[i];
-		if (refs != null && refs.includes(qualifiedNames, simpleNames)) {
+		if (refs != null && refs.includes(internedQualifiedNames, internedSimpleNames)) {
 			String typeLocator = (String) keyTable[i];
 			IFile file = javaBuilder.currentProject.getFile(typeLocator);
 			SourceFile sourceFile = findSourceFile(file);
@@ -686,7 +733,7 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType, boolean updateClassFile) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, boolean updateClassFile) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occured then add dependent source files
 	if (file.exists()) {
@@ -700,8 +747,8 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 			System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
 		}
 	} else {
-		if (isSecondaryType)
-			addDependentsOf(new Path(qualifiedFileName), true); // new secondary type
+		if (isTopLevelType)
+			addDependentsOf(new Path(qualifiedFileName), true); // new type
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
 		try {
