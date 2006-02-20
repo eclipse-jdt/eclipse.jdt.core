@@ -248,6 +248,10 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					} else {
 						this.binding.setConstant(Constant.NotAConstant);
 					}
+					// check for assignment with no effect
+					if (this.binding == Assignment.getDirectBinding(this.initialization)) {
+						initializationScope.problemReporter().assignmentHasNoEffect(this, this.name);
+					}					
 				}
 				// Resolve Javadoc comment if one is present
 				if (this.javadoc != null) {

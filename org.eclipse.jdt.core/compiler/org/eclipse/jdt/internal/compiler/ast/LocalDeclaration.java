@@ -227,7 +227,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 					}
 				}
 			}
-
+			// check for assignment with no effect
+			if (this.binding == Assignment.getDirectBinding(this.initialization)) {
+				scope.problemReporter().assignmentHasNoEffect(this, this.name);
+			}
 			// change the constant in the binding when it is final
 			// (the optimization of the constant propagation will be done later on)
 			// cast from constant actual type to variable type

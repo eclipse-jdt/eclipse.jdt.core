@@ -602,7 +602,17 @@ public void test035() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	i = ++i;\n" + 
+		"	^^^^^^^\n" + 
+		"The assignment to variable i has no effect\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	f = ++f;\n" + 
+		"	^^^^^^^\n" + 
+		"The assignment to variable f has no effect\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	Zork z;	}\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -843,6 +853,62 @@ public void test043() {
 		"The final local variable b cannot be assigned. It must be blank and not using a compound assignment\n" + 
 		"----------\n",
 		null, true, options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100369
+public void test044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	int length1 = 0;\n" + 
+			"	{\n" + 
+			"		length1 = length1; // already detected\n" + 
+			"	}\n" + 
+			"	int length2 = length2 = 0; // not detected\n" + 
+			"	int length3 = 0;\n" + 
+			"	{\n" + 
+			"		length3 = length3 = 0; // not detected\n" + 
+			"	}\n" + 
+			"	static void foo() {\n" + 
+			"		int length1 = 0;\n" + 
+			"		length1 = length1; // already detected\n" + 
+			"		int length2 = length2 = 0; // not detected\n" + 
+			"		int length3 = 0;\n" + 
+			"		length3 = length3 = 0; // not detected\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	length1 = length1; // already detected\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length1 has no effect\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	int length2 = length2 = 0; // not detected\n" + 
+		"	    ^^^^^^^\n" + 
+		"The assignment to variable length2 has no effect\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	length3 = length3 = 0; // not detected\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length3 has no effect\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	length1 = length1; // already detected\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length1 has no effect\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 14)\n" + 
+		"	int length2 = length2 = 0; // not detected\n" + 
+		"	    ^^^^^^^\n" + 
+		"The assignment to variable length2 has no effect\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 16)\n" + 
+		"	length3 = length3 = 0; // not detected\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length3 has no effect\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
