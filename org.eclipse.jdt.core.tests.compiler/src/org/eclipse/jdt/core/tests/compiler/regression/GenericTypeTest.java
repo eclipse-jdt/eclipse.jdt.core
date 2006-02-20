@@ -28588,4 +28588,116 @@ public void test918() {
 		},
 		"");
 }
+
+public void test919() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Box<E> {\n" + 
+			"	private E element;\n" + 
+			"	void put(E elem) {\n" + 
+			"		this.element = elem;\n" + 
+			"	}\n" + 
+			"	E get() {\n" + 
+			"		return this.element;\n" + 
+			"	}\n" + 
+			"	Pair<E, E> asPair() {\n" + 
+			"		return new Pair<E, E>(this.element, this.element);\n" + 
+			"	}\n" + 
+			"	Box<Box<E>> nest() {\n" + 
+			"		Box<Box<E>> wrapper = new Box<Box<E>>();\n" + 
+			"		wrapper.put(this);\n" + 
+			"		return wrapper;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Pair<U, V> {\n" + 
+			"	Pair(U u, V v) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class PandoraBox<T extends Box<T>> extends Box<T> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void test(PandoraBox<?> pbox) {\n" + 
+			"		Box<?> box = pbox.get();\n" + 
+			"		Pair<?,?> pair = pbox.asPair();\n" + 
+			"		Box<?> nbox = pbox.nest();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test920() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"class Stack<E> {\n" + 
+			"	private List<E> contents = new ArrayList<E>();\n" + 
+			"	void push(E e) {\n" + 
+			"		this.contents.add(e);\n" + 
+			"	}\n" + 
+			"	E pop() {\n" + 
+			"		int last = this.contents.size() - 1;\n" + 
+			"		if (last < 0) throw new EmptyStackException();\n" + 
+			"		return this.contents.remove(last);\n" + 
+			"	}\n" + 
+			"	private static <T> void doSwap(Stack<T> s) {\n" + 
+			"		T t1 = s.pop();\n" + 
+			"		T t2 = s.pop();\n" + 
+			"		s.push(t1);\n" + 
+			"		s.push(t2);\n" + 
+			"	}\n" + 
+			"	static void swap(Stack<?> s) { doSwap(s); }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Stack<Integer> si = new Stack<Integer>();\n" + 
+			"		Integer[] ints = { 12, 13, 14, 15, };\n" + 
+			"		for (Integer i : ints) si.push(i);\n" + 
+			"		try {\n" + 
+			"			while(true) {\n" + 
+			"				System.out.print(\"[\"+si.pop()+\"]\");\n" + 
+			"			}\n" + 
+			"		} catch(EmptyStackException e) {\n" + 
+			"			System.out.println(\"[done]\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"[15][14][13][12][done]");
+}
+public void test921() {
+	this.runConformTest(
+		new String[] {
+			"Graph.java",
+			"class Node<N extends Node<N,E>, E extends Edge<N,E>> {\n" + 
+			"}\n" + 
+			"class Edge<N extends Node<N,E>, E extends Edge<N,E>> {\n" + 
+			"}\n" + 
+			"class Graph<N extends Node<N,E>, E extends Edge<N,E>>{\n" + 
+			"	N n;\n" + 
+			"	E e;\n" + 
+			"	private Graph(N n, E e) {\n" + 
+			"		this.n = n;\n" + 
+			"		this.e = e;\n" + 
+			"	}\n" + 
+			"	static <N extends Node<N,E>, E extends Edge<N,E>>\n" + 
+			"	Graph<N,E> copy(Graph<N,E> g) {\n" + 
+			"		return create(g.n,g.e);\n" + 
+			"	}\n" + 
+			"	static <N extends Node<N,E>, E extends Edge<N,E>>\n" + 
+			"	Graph<N,E> create(N n, E e) {\n" + 
+			"		return new Graph<N,E>(n,e);\n" + 
+			"	}\n" + 
+			"	Graph<?,?> builder() {\n" + 
+			"		Graph<?,?> g = null;\n" + 
+			"		return copy(g);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
