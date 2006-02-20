@@ -1988,7 +1988,7 @@ public final class CompletionEngine
 			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
 			int alreadyUsedConstantCount = 0;
 			for (int i = 0; i < switchStatement.caseCount; i++) {
-				if(cases[i].isEnumConstant) {
+				if(cases[i].isEnumConstant && cases[i].constantExpression instanceof SingleNameReference) {
 					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
 				}
 			}
