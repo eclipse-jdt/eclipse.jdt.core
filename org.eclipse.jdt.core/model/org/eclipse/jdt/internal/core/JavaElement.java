@@ -773,7 +773,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				try {
 					stream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					// ignore
 				}
 			}
 			if (connection2 != null) {
