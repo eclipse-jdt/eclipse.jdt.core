@@ -9051,6 +9051,46 @@ public void testCompletionVariableName14() throws JavaModelException {
 		JavaCore.setOptions(options);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128045
+public void testCompletionVariableName15() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
+	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
+	try {
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionVariableName15.java",
+	            "class FooBar {\n"+
+	            "}\n"+
+	            "public class CompletionVariableName15 {\n"+
+	            "	void foo(){\n"+
+	            "		FooBar pro\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "pro";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	    assertResults(
+				"proBar[VARIABLE_DECLARATION]{proBar, null, LFooBar;, proBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"proFooBar[VARIABLE_DECLARATION]{proFooBar, null, LFooBar;, proFooBar, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"proBarsuf[VARIABLE_DECLARATION]{proBarsuf, null, LFooBar;, proBarsuf, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"proFooBarsuf[VARIABLE_DECLARATION]{proFooBarsuf, null, LFooBar;, proFooBarsuf, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_CASE + R_NON_RESTRICTED)+"}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
+		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
+		JavaCore.setOptions(options);
+	}
+}
 public void testCompletionNonEmptyToken1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionNonEmptyToken1.java");

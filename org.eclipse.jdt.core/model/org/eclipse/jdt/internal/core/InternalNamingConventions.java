@@ -322,30 +322,70 @@ public class InternalNamingConventions {
 		char[] withoutPrefixName = name;
 		if (prefixes != null) {
 			int bestLength = 0;
+			int nameLength = name.length;
 			for (int i= 0; i < prefixes.length; i++) {
 				char[] prefix = prefixes[i];
-				int max = prefix.length < name.length ? prefix.length : name.length;
-				int currLen = 0;
-				for (; currLen < max; currLen++) {
-					if(Character.toLowerCase(prefix[currLen]) != Character.toLowerCase(name[currLen])) {
-						if (currLen > bestLength) {
-							bestLength = currLen;
+				
+				int prefixLength = prefix.length;
+				if(prefixLength <= nameLength) {
+					if(CharOperation.prefixEquals(prefix, name, false)) {
+						if (prefixLength > bestLength) {
+							bestLength = prefixLength;
 						}
-						break;
 					}
-				}
-				if(currLen == max && currLen > bestLength) {
-					bestLength = max;
+				} else {
+					int currLen = 0;
+					for (; currLen < nameLength; currLen++) {
+						if(Character.toLowerCase(prefix[currLen]) != Character.toLowerCase(name[currLen])) {
+							if (currLen > bestLength) {
+								bestLength = currLen;
+							}
+							break;
+						}
+					}
+					if(currLen == nameLength && currLen > bestLength) {
+						bestLength = currLen;
+					}
 				}
 			}
 			if(bestLength > 0) {
-				if(bestLength == name.length) {
+				if(bestLength == nameLength) {
 					withoutPrefixName = CharOperation.NO_CHAR;
 				} else {
-					withoutPrefixName = CharOperation.subarray(name, bestLength, name.length);
+					withoutPrefixName = CharOperation.subarray(name, bestLength, nameLength);
 				}
 			}
 		}
+//		
+//		
+//		// remove longer prefix
+//		char[] withoutPrefixName = name;
+//		if (prefixes != null) {
+//			int bestLength = 0;
+//			for (int i= 0; i < prefixes.length; i++) {
+//				char[] prefix = prefixes[i];
+//				int max = prefix.length < name.length ? prefix.length : name.length;
+//				int currLen = 0;
+//				for (; currLen < max; currLen++) {
+//					if(Character.toLowerCase(prefix[currLen]) != Character.toLowerCase(name[currLen])) {
+//						if (currLen > bestLength) {
+//							bestLength = currLen;
+//						}
+//						break;
+//					}
+//				}
+//				if(currLen == max && currLen > bestLength) {
+//					bestLength = max;
+//				}
+//			}
+//			if(bestLength > 0) {
+//				if(bestLength == name.length) {
+//					withoutPrefixName = CharOperation.NO_CHAR;
+//				} else {
+//					withoutPrefixName = CharOperation.subarray(name, bestLength, name.length);
+//				}
+//			}
+//		}
 		
 		return withoutPrefixName;
 	}
