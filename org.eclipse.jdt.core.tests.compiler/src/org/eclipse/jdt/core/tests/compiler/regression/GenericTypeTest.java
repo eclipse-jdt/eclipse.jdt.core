@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 637 };
+//		TESTS_NUMBERS = new int[] { 922 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -28699,5 +28699,31 @@ public void test921() {
 			"}\n",
 		},
 		"");
+}
+// Test case which comes from JDT/UI tests TypeEnvironmentTest.testWildcardAssignements
+public void test922() {
+	this.runNegativeTest(
+		new String[] {
+		"Test.java",
+		"import java.util.*;\n" + 
+		"public class Test {\n" + 
+		"	List<List> list_raw_list;\n" + 
+		"	{\n" + 
+		"		Collection<? extends Collection<? extends Number>> col = list_raw_list;\n" + 
+		"	}\n" + 
+		"}\n"				
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 3)\n" + 
+		"	List<List> list_raw_list;\n" + 
+		"	     ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 5)\n" + 
+		"	Collection<? extends Collection<? extends Number>> col = list_raw_list;\n" + 
+		"	                                                         ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<List> to Collection<? extends Collection<? extends Number>>\n" + 
+		"----------\n"
+	);
 }
 }
