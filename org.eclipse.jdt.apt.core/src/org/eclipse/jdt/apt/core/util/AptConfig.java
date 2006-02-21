@@ -168,6 +168,15 @@ public class AptConfig {
 	    			}
     			}
     			else if (kind == IClasspathEntry.CPE_SOURCE) {
+    				IResource res = root.findMember(entry.getPath());
+    				if (res == null) {
+    					continue;
+    				}
+    				IPath srcPath = res.getLocation();
+    				if (srcPath == null) {
+    					continue;
+    				}
+    				
     				if (firstSP) {
     					firstSP = false;
     				}
@@ -175,7 +184,7 @@ public class AptConfig {
     					sourcepathSB.append(File.pathSeparatorChar);
     				}
     				
-    				sourcepathSB.append(root.findMember(entry.getPath()).getLocation().toOSString());
+    				sourcepathSB.append(srcPath.toOSString());
     			}
     		}
     		// if you add options here, also add them in isAutomaticProcessorOption(),
