@@ -6258,4 +6258,22 @@ public void test191() {
 		false, // do not flush
 		null);
 }
+public void test192() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@ATest(groups={\"a\",\"b\"})\n" + 
+			"	void foo(){\n" + 
+			"	}\n" + 
+			"	@ATest(groups=\"c\")\n" + 
+			"	void bar(){\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"@interface ATest {\n" + 
+			"	String[] groups();\n" + 
+			"}\n"
+		},
+		"");
+}
 }
