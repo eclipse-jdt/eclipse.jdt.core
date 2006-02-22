@@ -161,7 +161,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 			}
 			
 			if(this.replacedTokensFlagged != null) {
-				for (int i = 0; i <= this.data.removedTokensPtr; i++) {
+				for (int i = 0; i <= this.data.replacedTokensPtr; i++) {
 					if(this.data.replacedTokensStart[i] >= start &&
 							this.data.replacedTokensEnd[i] <= end) {
 						return true;

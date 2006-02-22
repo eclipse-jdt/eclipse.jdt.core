@@ -7288,4 +7288,40 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a switch case", ASTNode.SWITCH_CASE, ((ASTNode) statements.get(0)).getNodeType());
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, ((ASTNode) statements.get(1)).getNodeType());	
 	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=128823
+	 */
+	public void test0634() throws JavaModelException {
+		try {
+			String src =
+				"public class X {\n" + 
+					"	void foo() {\n" +
+					"		int i1 i1;\n" + 
+					"		int i2 i2;\n" + 
+					"		int i3 i3;\n" + 
+					"		int i4 i4;\n" + 
+	 				"		int i5 i5;\n" + 
+					"		int i6 i6;\n" + 
+	 				"		int i7 i7;\n" + 
+					"		int i8 i8;\n" + 
+					"		int i9 i9;\n" + 
+					"		int i10 i10;\n" + 
+					"		int i11 i11;\n" + 
+					"		\n" + 
+					"		for for ;;){}\n" + 
+					"	}\n" +
+					"}";
+			
+			char[] source = src.toCharArray();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setKind (ASTParser.K_COMPILATION_UNIT);
+			parser.setSource (source);
+			parser.setStatementsRecovery(true);
+			ASTNode result = parser.createAST (null);
+			assertNotNull("no result", result);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			assertTrue("ArrayIndexOutOfBoundsException", false);
+		}
+	}
 }
