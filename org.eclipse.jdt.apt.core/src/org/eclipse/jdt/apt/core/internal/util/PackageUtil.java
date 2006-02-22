@@ -3,8 +3,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -21,10 +19,10 @@ public class PackageUtil {
 			final String packageName, 
 			final BaseProcessorEnv env) {
 		
-		IJavaProject project = env.getJavaProject();
 		List<IPackageFragment> packages = new ArrayList<IPackageFragment>();
 		try {
-			IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
+			// The environment caches our package fragment roots
+			IPackageFragmentRoot[] roots = env.getAllPackageFragmentRoots();
 			for (IPackageFragmentRoot root : roots) {
 				IPackageFragment fragment = root.getPackageFragment(packageName);
 				if (fragment != null && fragment.exists())

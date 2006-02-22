@@ -52,6 +52,11 @@ public class FilerImpl implements Filer {
      */
     public PrintWriter createSourceFile(String typeName) throws IOException 
     {
+    	if (typeName == null)
+    		throw new IllegalArgumentException("Type name cannot be null"); //$NON-NLS-1$
+    	if ("".equals(typeName)) //$NON-NLS-1$
+    		throw new IllegalArgumentException("Type name cannot be empty"); //$NON-NLS-1$
+    	
     	_env.checkValid();
         return new JavaSourceFilePrintWriter( typeName, new StringWriter(), _env ); 
     }
@@ -62,11 +67,16 @@ public class FilerImpl implements Filer {
      * file's name and path (relative to the root of all newly created class 
      * files) is based on the name of the type being written. 
      *  
-     * @param name - canonical (fully qualified) name of the type being written 
+     * @param typeName - canonical (fully qualified) name of the type being written 
      * @return -a stream for writing to the new file 
      */
-    public OutputStream createClassFile(String name) throws IOException 
+    public OutputStream createClassFile(String typeName) throws IOException 
     {
+    	if (typeName == null)
+    		throw new IllegalArgumentException("Type name cannot be null"); //$NON-NLS-1$
+    	if ("".equals(typeName)) //$NON-NLS-1$
+    		throw new IllegalArgumentException("Type name cannot be empty"); //$NON-NLS-1$
+
     	_env.checkValid();
 		_generatedClassFiles = true;
 		
@@ -88,7 +98,7 @@ public class FilerImpl implements Filer {
     		throw new IOException();
     	}
     	
-    	path = path.append(name.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
+    	path = path.append(typeName.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
     	
         IFile file = _env.getProject().getFile(path);
         return new BinaryFileOutputStream(file, _env);
@@ -116,6 +126,11 @@ public class FilerImpl implements Filer {
     public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
     {
+    	if (relPath == null)
+    		throw new IllegalArgumentException("Path cannot be null"); //$NON-NLS-1$
+    	if ("".equals(relPath.getPath())) //$NON-NLS-1$
+    		throw new IllegalArgumentException("Path cannot be empty"); //$NON-NLS-1$
+    	
     	_env.checkValid();
     	
     	// If we're reconciling, we do not want to actually create the text file
@@ -152,6 +167,11 @@ public class FilerImpl implements Filer {
     public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
         throws IOException 
     {
+    	if (relPath == null)
+    		throw new IllegalArgumentException("Path cannot be null"); //$NON-NLS-1$
+    	if ("".equals(relPath.getPath())) //$NON-NLS-1$
+    		throw new IllegalArgumentException("Path cannot be empty"); //$NON-NLS-1$
+    	
     	_env.checkValid();
     	
     	// We do not want to write to disk during reconcile

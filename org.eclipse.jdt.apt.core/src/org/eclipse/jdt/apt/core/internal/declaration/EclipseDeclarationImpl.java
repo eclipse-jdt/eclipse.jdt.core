@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -42,7 +41,7 @@ import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirrorImpl
+public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirrorObject
 {	
     final BaseProcessorEnv _env;
 
@@ -90,9 +89,11 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         if( len == 0 ) return Collections.emptyList();
         final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(len);
         for(IAnnotationBinding annoInstance : annoInstances){
-            final AnnotationMirrorImpl annoMirror =
+        	if (annoInstance != null) {
+	            final AnnotationMirrorImpl annoMirror =
                         (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
-            result.add(annoMirror);
+        		result.add(annoMirror);
+         	}
         }
         return result;
     }  
@@ -102,9 +103,11 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 		if( annoInstances == null || annoInstances.size() == 0 ) return Collections.emptyList();
 		final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.size());
 		for( org.eclipse.jdt.core.dom.Annotation annoInstance : annoInstances){
-			final AnnotationMirrorImpl annoMirror =
-				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotationBinding(), this, _env);
-			result.add(annoMirror);
+			if (annoInstance != null) {
+				final AnnotationMirrorImpl annoMirror =
+					(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotationBinding(), this, _env);
+				result.add(annoMirror);
+			}
 		}
 		return result;
 	}  

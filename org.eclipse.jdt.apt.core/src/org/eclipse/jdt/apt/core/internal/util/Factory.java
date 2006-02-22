@@ -27,28 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedAnnotationElementDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedConstructorDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedFieldDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedMethodDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.AnnotationDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.AnnotationElementDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.BinaryParameterDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ConstructorDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.EnumConstantDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.EnumDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ExecutableDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.FieldDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.InterfaceDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.SourceParameterDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.*;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.ErrorType;
@@ -159,7 +138,7 @@ public class Factory
     	 }
     }
 
-    public static TypeMirror createTypeMirror(ITypeBinding binding, BaseProcessorEnv env)
+    public static EclipseMirrorType createTypeMirror(ITypeBinding binding, BaseProcessorEnv env)
     {		
         if( binding == null ) return null;        
 
@@ -294,7 +273,7 @@ public class Factory
 	public static AnnotationValue createAnnotationValueFromDOMValue(Object convertedValue, 
 																	String name,
 																	int index,
-																	EclipseMirrorImpl mirror, 
+																	EclipseMirrorObject mirror, 
 																	BaseProcessorEnv env)	
 	{
 		if( convertedValue == null ) return null;
@@ -323,7 +302,7 @@ public class Factory
      */
     private static Object convertDOMValueToMirrorValue(Object domValue, 
 													   String name,	
-													   EclipseMirrorImpl parent,
+													   EclipseMirrorObject parent,
 													   EclipseDeclarationImpl decl, 
 													   BaseProcessorEnv env,
 													   TypeMirror expectedType)													   
@@ -639,8 +618,8 @@ public class Factory
 			else
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value; // completely wrong.
 		}
-		else // some non-null, non-primitive wrapper object
-			return avoidReflectException ? null : value;
+		else // can't convert
+			return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
     }
     
     private static Class getJavaLangClass_Primitive(final PrimitiveType primitiveType){
@@ -670,7 +649,7 @@ public class Factory
     private static Object performNecessaryTypeConversion(final TypeMirror expectedType,
 	    											     final Object value,
 	    											     final String name,
-	    											     final EclipseMirrorImpl parent,
+	    											     final EclipseMirrorObject parent,
 	    											     final BaseProcessorEnv env)
     {
     	if( expectedType == null )return value;

@@ -11,10 +11,10 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
 import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
 import org.eclipse.jdt.apt.core.internal.declaration.MemberDeclarationImpl;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -129,7 +129,7 @@ public class DeclarationsUtil implements Declarations
         throws NonEclipseImplementationException
     {
         if( memberDecl == null ) return null;
-        if( memberDecl instanceof EclipseMirrorImpl ){
+        if( memberDecl instanceof EclipseMirrorObject ){
         	if( memberDecl instanceof DeclarationImpl )
         		return ((DeclarationImpl)memberDecl).getDeclarationBinding();
         	else

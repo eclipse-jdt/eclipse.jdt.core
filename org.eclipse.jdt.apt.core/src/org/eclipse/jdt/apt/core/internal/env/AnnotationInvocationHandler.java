@@ -112,7 +112,6 @@ public class AnnotationInvocationHandler implements InvocationHandler
     private Object getReflectionValueWithTypeConversion(
     		final Object domValue, 
     		final Class expectedType )
-    	throws IllegalAccessException, NoSuchFieldException
     {
     	
     	final Object actualValue = _getReflectionValue(domValue, expectedType);
@@ -120,7 +119,6 @@ public class AnnotationInvocationHandler implements InvocationHandler
     }
 
 	private Object _getReflectionValue(final Object domValue, final Class expectedType)
-		throws IllegalAccessException, NoSuchFieldException
 	{
 		if( expectedType == null || domValue == null )
 			return null;
@@ -130,15 +128,24 @@ public class AnnotationInvocationHandler implements InvocationHandler
 			final IVariableBinding varBinding = (IVariableBinding)domValue;
 	        final ITypeBinding declaringClass = varBinding.getDeclaringClass();
 	        if( declaringClass != null ){
-	        	final Field returnedField = expectedType.getField( varBinding.getName() );
-	        	return returnedField == null ? null : returnedField.get(null);
+	        	try {
+	        		final Field returnedField = expectedType.getField( varBinding.getName() );
+	        		return returnedField == null ? null : returnedField.get(null);
+	        	}
+	        	catch (NoSuchFieldException nsfe) {
+	        		return null;
+	        	}
+	        	catch (IllegalAccessException iae) {
+	        		return null;
+	        	}
 	        }
 	        return null;
 		}
 	    else if (domValue instanceof Object[])
 		{
 			final Object[] elements = (Object[])domValue;
-			assert expectedType.isArray();
+			if(!expectedType.isArray())
+				return null; // bad user source
 	        final Class componentType = expectedType.getComponentType();
 	        final int length = elements.length;
 	        final Object array = Array.newInstance(componentType, length);
@@ -197,6 +204,11 @@ public class AnnotationInvocationHandler implements InvocationHandler
 		
 	    else if( domValue instanceof IAnnotationBinding )
 		{
+	    	// Make sure the expected value is not a String or a primitive
+	    	if (expectedType.isPrimitive() || expectedType == String.class) {
+	    		return domValue;
+	    	}
+	    	
 			final AnnotationMirrorImpl annoMirror = 
 				(AnnotationMirrorImpl)Factory.createAnnotationMirror(
 					(IAnnotationBinding)domValue, 

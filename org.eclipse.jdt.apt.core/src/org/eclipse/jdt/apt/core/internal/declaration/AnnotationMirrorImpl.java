@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
@@ -43,7 +42,7 @@ import com.sun.mirror.util.SourcePosition;
 /**
  * Annotation instance from source.
  */
-public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
+public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObject
 {
     /**The ast node that correspond to the annotation.*/
     private final IAnnotationBinding _domAnnotation;
@@ -93,7 +92,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
              IMethodBinding elementMethod = pair.getMethodBinding();            
              if( elementMethod != null ){           
                  final EclipseDeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
-                 if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  )
+                 if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorObject.MirrorKind.ANNOTATION_ELEMENT  )
                  {
                 	 final AnnotationTypeElementDeclaration elementDecl = 
                 		 (AnnotationTypeElementDeclaration)mirrorDecl;

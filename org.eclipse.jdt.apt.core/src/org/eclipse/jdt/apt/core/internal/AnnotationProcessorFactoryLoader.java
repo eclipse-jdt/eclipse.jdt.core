@@ -14,6 +14,9 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -120,8 +123,8 @@ public class AnnotationProcessorFactoryLoader {
 	private final Map<IJavaProject, ClassLoader> _iterativeLoaders = 
 		new HashMap<IJavaProject, ClassLoader>();
 	
-	private final Map<IJavaProject,JarClassLoader> _batchLoaders = 
-		new HashMap<IJavaProject,JarClassLoader>();
+	private final Map<IJavaProject,ClassLoader> _batchLoaders = 
+		new HashMap<IJavaProject,ClassLoader>();
 	
 	// Caches information about which resources affect which projects'
 	// factory paths.
@@ -301,8 +304,10 @@ public class AnnotationProcessorFactoryLoader {
     	_iterativeLoaders.clear();
     	_container2Project.clear();
     	
-    	for (JarClassLoader cl : _batchLoaders.values())
-    		cl.close();
+    	for (ClassLoader cl : _batchLoaders.values()) {
+    		if (cl instanceof JarClassLoader)
+    			((JarClassLoader)cl).close();
+    	}
     	_batchLoaders.clear();
     	
     	// Validate all projects
@@ -334,8 +339,8 @@ public class AnnotationProcessorFactoryLoader {
     		_project2Factories.remove(javaProj);
     	}
 
-    	JarClassLoader c = _batchLoaders.remove(javaProj);
-    	if (c != null) c.close();
+    	ClassLoader c = _batchLoaders.remove(javaProj);
+    	if (c instanceof JarClassLoader) ((JarClassLoader)c).close();
     }
     
     /**
@@ -416,7 +421,7 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		_createBatchClassLoader(containers, project);
-		JarClassLoader batchClassLoader = _batchLoaders.get(project);
+		ClassLoader batchClassLoader = _batchLoaders.get(project);
 		
 		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
@@ -475,10 +480,12 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
+			AptPlugin.log(e, "Failed to load " + factoryName); //$NON-NLS-1$
 			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
+			AptPlugin.log(ncdfe, "Failed to load " + factoryName); //$NON-NLS-1$
 			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		return f;
@@ -522,8 +529,8 @@ public class AnnotationProcessorFactoryLoader {
 		if (c instanceof JarClassLoader)
 			((JarClassLoader)c).close();
 		
-		JarClassLoader jc = _batchLoaders.remove(jproj);
-		if (jc != null) jc.close();
+		ClassLoader cl = _batchLoaders.remove(jproj);
+		if (cl instanceof JarClassLoader) ((JarClassLoader)cl).close();
 		
 		removeProjectFromResourceMap(jproj);
 	}
@@ -698,7 +705,7 @@ public class AnnotationProcessorFactoryLoader {
 		
 		ClassLoader cl;
 		if ( fileList.size() > 0 ) {
-			cl = new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			cl = createClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		else {
 			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
@@ -724,7 +731,22 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		if ( fileList.size() > 0 ) {
-			_batchLoaders.put(p,new JarClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader()));
+			_batchLoaders.put(p,createClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader()));
 		}
+	}
+	
+	private static ClassLoader createClassLoader(List<File> files, ClassLoader parentCL) {
+		//return new JarClassLoader(files, parentCL);
+		List<URL> urls = new ArrayList<URL>(files.size());
+		for (int i=0;i<files.size();i++) {
+			try {
+				urls.add(files.get(i).toURL());
+			}
+			catch (MalformedURLException mue) {
+				// ignore
+			}
+		}
+		URL[] urlArray = urls.toArray(new URL[urls.size()]);
+		return new URLClassLoader(urlArray, parentCL);
 	}
 }

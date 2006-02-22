@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -57,7 +58,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -119,6 +119,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
+	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<String,TypeDeclaration>();
+	protected IPackageFragmentRoot[] _packageRootsCache;
 	
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
 						    IFile file,
@@ -154,10 +156,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	}
 	
 	/**
-     * @return the list of all named type declarations in compilation unit associated with
-     *         this environment.
-     * This implementation is different from the API specification that it does not return
-     * all included types in the universe.
+     * @return the list of all named type declarations in the compilation units associated with
+     *         this environment - usually just one compilation unit, except in batch mode
+     *         where it will be all compilation units in the build.
+     * This implementation is different from the API specification in that it does not return
+     * all included source types in the universe.
      */
     public Collection<TypeDeclaration> getTypeDeclarations()
     {
@@ -301,7 +304,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             binding = ((AbstractTypeDeclaration)node).resolveBinding();
             break;
         case ASTNode.SINGLE_VARIABLE_DECLARATION:
-            binding = ((SingleVariableDeclaration)node).resolveBinding();
+        	// Need to create the declaration with the ast node, not the binding
+            binding = null;
             break;
         case ASTNode.PACKAGE_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
@@ -339,11 +343,16 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     
     public Map<String, String> getOptions(){ return Collections.emptyMap(); }
     
-    // does not generated dependencies
+    // does not generate dependencies
     public TypeDeclaration getTypeDeclaration(String name)
     {	
     	if( name == null || name.length() == 0 ) return null;
-		// get rid of the generics parts.
+
+    	//First check cache
+    	TypeDeclaration result = _typeCache.get(name);
+    	if (result != null) return result;
+
+    	// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )
 			name = name.substring(0, index);
@@ -368,16 +377,17 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
 			}
 		}
-		if( typeBinding != null )
-			return Factory.createReferenceType(typeBinding, this);
-
+		
 		// finally go search for it in the universe.
-		typeBinding = getTypeDefinitionBindingFromName(name);
-		if( typeBinding != null ){			
-			return Factory.createReferenceType(typeBinding, this);
-		}
-
-		return null;
+		if (typeBinding == null)
+			typeBinding = getTypeDefinitionBindingFromName(name);
+		
+		result = Factory.createReferenceType(typeBinding, this);
+    	
+    	// update cache
+    	if (result != null)
+    		_typeCache.put(name, result);
+    	return result;
     }
     
     /**
@@ -658,6 +668,17 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			aTypeBinding = aTypeBinding.getDeclaringClass();
 		}
 		return aTypeBinding;
+	}
+	
+	/**
+	 * The environment caches the package fragment roots, as
+	 * they are expensive to compute
+	 */
+	public IPackageFragmentRoot[] getAllPackageFragmentRoots() throws JavaModelException {
+		if (_packageRootsCache == null) {
+			_packageRootsCache = getJavaProject().getAllPackageFragmentRoots();
+		}
+		return _packageRootsCache;		
 	}
 	
 	protected IFile searchLocallyForIFile(final IBinding binding)

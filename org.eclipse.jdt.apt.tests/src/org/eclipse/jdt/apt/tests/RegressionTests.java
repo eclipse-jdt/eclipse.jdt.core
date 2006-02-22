@@ -128,7 +128,7 @@ public class RegressionTests extends APTTestBase {
     }
     
     // doesn't work because of a jdt.core type system universe problem.
-    public void DISABLED_testBugzilla120255() throws Exception{
+    public void testBugzilla120255() throws Exception{
     	final String projName = RegressionTests.class.getName() + "120255.Project"; //$NON-NLS-1$
 		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );

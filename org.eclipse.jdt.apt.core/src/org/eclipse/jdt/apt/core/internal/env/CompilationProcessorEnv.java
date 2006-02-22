@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -280,7 +280,7 @@ public abstract class CompilationProcessorEnv
 				continue;
 			final TypeDeclarationImpl decl = 
 				Factory.createReferenceType(annoType, this);
-			if (decl.kind() == EclipseMirrorImpl.MirrorKind.TYPE_ANNOTATION){
+			if (decl.kind() == EclipseMirrorObject.MirrorKind.TYPE_ANNOTATION){
 				final AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)decl;
 				decls.put(annoDecl.getQualifiedName(), annoDecl);
 			}
@@ -301,6 +301,8 @@ public abstract class CompilationProcessorEnv
 		if(_listeners != null)
 			_listeners.clear();
 		_problems = null;
+		_typeCache.clear();
+		_packageRootsCache = null;
 		_isClosed = true;
 	}
 	

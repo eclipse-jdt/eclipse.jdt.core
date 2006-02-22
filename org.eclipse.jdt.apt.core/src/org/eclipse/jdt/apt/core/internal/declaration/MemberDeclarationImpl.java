@@ -13,7 +13,6 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.*;
@@ -23,7 +22,7 @@ import com.sun.mirror.declaration.MemberDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 
-public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration, EclipseMirrorImpl
+public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration, EclipseMirrorObject
 {
     MemberDeclarationImpl(final IBinding binding, BaseProcessorEnv env)
     {

@@ -26,13 +26,15 @@ import com.sun.mirror.util.TypeVisitor;
 
 import java.util.Collection;
 import java.util.Collections;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 /**
  * This is the error type marker
  */
-public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseMirrorImpl
+public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseMirrorType
 {
     final String _name;
 
@@ -134,4 +136,16 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     		return buffer.toString();
     	}
     }
+
+	public ITypeBinding getTypeBinding() {
+		return null;
+	}
+
+	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		return false;
+	}
+
+	public boolean isSubTypeCompatible(EclipseMirrorType type) {
+		return false;
+	}
 }

@@ -18,12 +18,17 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.jdt.apt.core.AptPlugin;
+
 
 /**
  * This classloader allows us to close out underlying jars,
@@ -39,13 +44,17 @@ public class JarClassLoader extends ClassLoader {
 	
 	// This is nulled out when the classloader is closed
 	private List<JarFile> _jars;
-	private final List<File> _files;
+	private final LinkedHashSet<File> _files;
 	private List<JarCLInputStream> _openStreams = new LinkedList<JarCLInputStream>();
 	private boolean _open = true;
 	
 	public JarClassLoader(List<File> jarFiles, final ClassLoader parent) {
 		super(parent);
-		_files = jarFiles;
+		// Handle manifest classpath entries
+		_files = new LinkedHashSet<File>(jarFiles);
+		for (File f : jarFiles) {
+			_recursiveGetManifestJars(f, _files);
+		}
 		open();
 	}
 	
@@ -269,4 +278,47 @@ public class JarClassLoader extends ClassLoader {
 			return _input.skip(n);
 		}
 	}
+	
+	/**
+	 * Scan manifest classpath entries of a jar, adding all found jar files
+	 * to the set of manifest jars.
+	 */
+    private static void _recursiveGetManifestJars(File jarFile, Set<File> manifestJars) {
+        if (!jarFile.exists())
+            return;
+
+        JarFile jar = null;
+        try {
+            jar = new JarFile(jarFile);
+            Manifest mf = jar.getManifest();
+            if (mf == null)
+                return;
+            String classpath = mf.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+            if (classpath == null)
+                return;
+
+            // We've got some entries
+            File parent = jarFile.getParentFile();
+
+            String[] rgPaths = classpath.split(" "); //$NON-NLS-1$
+            for (String path : rgPaths)
+            {
+                if (path.length() == 0)
+                    continue;
+                File file = new File(parent, path);
+                // If we haven't seen this, we need to get its manifest jars as well
+                if (!manifestJars.contains(file) && file.exists()) {
+                    manifestJars.add(file);
+                    _recursiveGetManifestJars(file, manifestJars);
+                }
+            }
+        }
+        catch (IOException ioe) {
+        }
+        finally {
+            if (jar != null) {
+                try {jar.close();} catch (IOException ioe) {}
+            }
+        }
+    }
 }

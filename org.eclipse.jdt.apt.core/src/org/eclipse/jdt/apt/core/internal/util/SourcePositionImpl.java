@@ -17,10 +17,10 @@ import java.io.File;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
 
 public class SourcePositionImpl implements SourcePosition
 {
@@ -29,7 +29,7 @@ public class SourcePositionImpl implements SourcePosition
     private final int _line;
     private final int _column;
     /** the back pointer to the declaration that created this object */
-    private final EclipseMirrorImpl _decl;
+    private final EclipseMirrorObject _decl;
 
     public SourcePositionImpl(final int startingOffset,
                               final int length,
