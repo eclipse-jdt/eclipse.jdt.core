@@ -8041,7 +8041,6 @@ public void test0265() throws JavaModelException {
 		"}");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	requestor.setIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, true);
 	
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "case ";
@@ -8052,6 +8051,100 @@ public void test0265() throws JavaModelException {
 			"bar[FIELD_REF]{bar, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"baz[FIELD_REF]{baz, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, baz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"foo[FIELD_REF]{foo, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128169
+public void test0266() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T, U, TU> extends SuperTest<T> {\n"+
+		"  foo\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperTest.java",
+		"package test;\n"+
+		"public class SuperTest<E> {\n"+
+		"  public <T, U, TU> T foo(SuperTest<T> t, SuperTest<U> u, SuperTest<TU> tu, SuperTest<E> e) {return null;}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest.Test<TT;TU;TTU;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public <V, W, TU2> V foo(test.SuperTest<V> t, test.SuperTest<W> u, test.SuperTest<TU2> tu, test.SuperTest<T> e), " +
+				"Ltest.SuperTest<TT;>;, <V:Ljava.lang.Object;W:Ljava.lang.Object;TU2:Ljava.lang.Object;>(Ltest.SuperTest<TV;>;Ltest.SuperTest<TW;>;" +
+				"Ltest.SuperTest<TTU2;>;Ltest.SuperTest<TT;>;)TV;, foo, (t, u, tu, e), " +
+				(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128169
+public void test0267() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T, U, TU> extends SuperTest {\n"+
+		"  foo\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperTest.java",
+		"package test;\n"+
+		"public class SuperTest<E> {\n"+
+		"  public <T, U, TU> T foo(SuperTest<T> t, SuperTest<U> u, SuperTest<TU> tu, SuperTest<E> e) {return null;}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest.Test<TT;TU;TTU;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public Object foo(SuperTest t, SuperTest u, SuperTest tu, SuperTest e), Ltest.SuperTest;, (Ltest.SuperTest;" +
+				"Ltest.SuperTest;Ltest.SuperTest;Ltest.SuperTest;)Ljava.lang.Object;, foo, (t, u, tu, e), " +
+				(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128169
+public void test0268() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test<T, U, TU> extends SuperTest {\n"+
+		"  foo\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperTest.java",
+		"package test;\n"+
+		"public class SuperTest {\n"+
+		"  public <T, U, TU> T foo(T t, U u, TU tu) {return null;}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest.Test<TT;TU;TTU;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public <V, W, TU2> V foo(V t, W u, TU2 tu), Ltest.SuperTest;, <V:Ljava.lang.Object;W:Ljava.lang.Object;TU2:Ljava.lang.Object;>(TV;TW;TTU2;)TV;, foo, (t, u, tu), " +
+				(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }

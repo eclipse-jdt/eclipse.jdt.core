@@ -2329,6 +2329,57 @@ public final class CompletionEngine
 		}
 	}
 	
+	private char[][] findEnclosingTypeNames(Scope scope){
+		char[][] excludedNames = new char[10][];
+		int excludedNameCount = 0;
+		
+		Scope currentScope = scope;
+		while(currentScope != null) {
+			switch (currentScope.kind) {
+				case Scope.CLASS_SCOPE :
+					ClassScope classScope = (ClassScope) currentScope;
+					
+					TypeDeclaration typeDeclaration = classScope.referenceContext;
+					
+					if(excludedNameCount == excludedNames.length) {
+						System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+					}
+					excludedNames[excludedNameCount++] = typeDeclaration.name;
+					
+					TypeParameter[] classTypeParameters = typeDeclaration.typeParameters;
+					for (int i = 0; i < classTypeParameters.length; i++) {
+						TypeParameter typeParameter = classTypeParameters[i];
+						if(excludedNameCount == excludedNames.length) {
+							System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+						}
+						excludedNames[excludedNameCount++] = typeParameter.name;
+					}
+					break;
+				case Scope.METHOD_SCOPE :
+					MethodScope methodScope = (MethodScope) currentScope;
+					if(methodScope.referenceContext instanceof AbstractMethodDeclaration) {
+						TypeParameter[] methodTypeParameters = ((AbstractMethodDeclaration)methodScope.referenceContext).typeParameters();
+						for (int i = 0; i < methodTypeParameters.length; i++) {
+							TypeParameter typeParameter = methodTypeParameters[i];
+							if(excludedNameCount == excludedNames.length) {
+								System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+							}
+							excludedNames[excludedNameCount++] = typeParameter.name;
+						}
+					}
+					break;
+			}
+			
+			currentScope = currentScope.parent;
+		}
+		
+		if(excludedNameCount == 0) {
+			return CharOperation.NO_CHAR_CHAR;
+		}
+		System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount][], 0, excludedNameCount);
+		return excludedNames;
+	}
+	
 	// Helper method for findFields(char[], ReferenceBinding, Scope, ObjectVector, boolean)
 	private void findFields(
 		char[] fieldName,
@@ -4314,6 +4365,18 @@ public final class CompletionEngine
 
 			char[][] parameterNames = findMethodParameterNames(method, parameterFullTypeNames);
 			
+			if(method.typeVariables != null && method.typeVariables.length > 0) {
+				char[][] excludedNames = findEnclosingTypeNames(scope);
+				char[][] substituedParameterNames = substituteMethodTypeParameterNames(method.typeVariables, excludedNames);
+				if(substituedParameterNames != null) {
+					method = new ParameterizedMethodBinding(
+								method.declaringClass,
+								method,
+								substituedParameterNames,
+								scope.environment());
+				}
+			}
+			
 			StringBuffer completion = new StringBuffer(10);
 			if (!exactMatch) {
 				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, completion);
@@ -4357,6 +4420,7 @@ public final class CompletionEngine
 		}
 		methodsFound.addAll(newMethodsFound);
 	}
+	
 	private void createTypeVariable(TypeVariableBinding typeVariable, StringBuffer completion) {
 		completion.append(typeVariable.sourceName);
 		
@@ -6610,5 +6674,93 @@ public final class CompletionEngine
 
 		buffer.append("}\n");//$NON-NLS-1$
 		System.out.println(buffer.toString());
+	}
+	
+	private char[][] substituteMethodTypeParameterNames(TypeVariableBinding[] typeVariables, char[][] excludedNames) {
+		char[][] substituedParameterNames = new char[typeVariables.length][];
+		
+		for (int i = 0; i < substituedParameterNames.length; i++) {
+			substituedParameterNames[i] = typeVariables[i].sourceName;
+		}
+		
+		boolean foundConflicts = false;
+		
+		nextTypeParameter : for (int i = 0; i < typeVariables.length; i++) {
+			TypeVariableBinding typeVariableBinding = typeVariables[i];
+			char[] methodParameterName = typeVariableBinding.sourceName;
+			
+			for (int j = 0; j < excludedNames.length; j++) {
+				char[] typeParameterName = excludedNames[j];
+				if(CharOperation.equals(typeParameterName, methodParameterName, false)) {
+					char[] substitution;
+					if(methodParameterName.length == 1) {
+						if(Character.isUpperCase(methodParameterName[0])) {
+							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'A', 'Z', excludedNames, substituedParameterNames);
+						} else {
+							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'a', 'z', excludedNames, substituedParameterNames);				
+						}
+					} else {
+						substitution = substituteMethodTypeParameterName(methodParameterName, excludedNames, substituedParameterNames);
+					}
+					substituedParameterNames[i] = substitution;
+					
+					foundConflicts = true;
+					continue nextTypeParameter;
+				}
+			}
+		}
+		
+		if(foundConflicts) return substituedParameterNames;
+		return null;
+	}
+	
+	private char[] substituteMethodTypeParameterName(char firstName, char startChar, char endChar, char[][] excludedNames, char[][] otherParameterNames) {
+		char name = firstName;
+		next : while (true) {
+			for (int i = 0 ; i < excludedNames.length ; i++){
+				if(excludedNames[i].length == 1 && Character.toLowerCase(excludedNames[i][0]) == Character.toLowerCase(name)) {
+					name++;
+					if(name > endChar)
+						name = startChar;
+					if(name == firstName)
+						return substituteMethodTypeParameterName(new char[]{firstName}, excludedNames, otherParameterNames);
+					continue next;
+				}
+			}
+			
+			for (int i = 0; i < otherParameterNames.length; i++) {
+				if(otherParameterNames[i].length == 1 && Character.toLowerCase(otherParameterNames[i][0]) == Character.toLowerCase(name)) {
+					name++;
+					if(name > endChar)
+						name = startChar;
+					if(name == firstName)
+						return substituteMethodTypeParameterName(new char[]{firstName}, excludedNames, otherParameterNames);
+					continue next;
+				}
+			}
+			break next;
+		}
+		return new char[]{name};
+	}
+	
+	private char[] substituteMethodTypeParameterName(char[] firstName, char[][] excludedNames, char[][] otherParameterNames) {
+		char[] name = firstName;
+		int count = 2;
+		next : while(true) {
+			for(int k = 0 ; k < excludedNames.length ; k++){
+				if(CharOperation.equals(name, excludedNames[k], false)) {
+					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
+					continue next;
+				}
+			}
+			for (int i = 0; i < otherParameterNames.length; i++) {
+				if(CharOperation.equals(name, otherParameterNames[i], false)) {
+					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
+					continue next;
+				}
+			}
+			break next;
+		}
+		return name;
 	}
 }

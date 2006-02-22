@@ -108,6 +108,95 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
 		}
 	}
+	
+	/**
+	 * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
+	 * This is a CODE ASSIST method ONLY.
+	 */
+	public ParameterizedMethodBinding(final ReferenceBinding declaringClass, MethodBinding originalMethod, char[][] alternateParamaterNames, final LookupEnvironment environment) {
+
+		super(
+				originalMethod.modifiers,
+				originalMethod.selector,
+				 originalMethod.returnType,
+				originalMethod.parameters,
+				originalMethod.thrownExceptions,
+				declaringClass);
+		this.originalMethod = originalMethod;
+		this.tagBits = originalMethod.tagBits;
+		
+		final TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+		Substitution substitution = null;
+		final int length = originalVariables.length;
+		if (length == 0) {
+			this.typeVariables = Binding.NO_TYPE_VARIABLES;
+		} else {
+			// at least fix up the declaringElement binding + bound substitution if non static
+			final TypeVariableBinding[] substitutedVariables = new TypeVariableBinding[length];
+			for (int i = 0; i < length; i++) { // copy original type variable to relocate
+				TypeVariableBinding originalVariable = originalVariables[i];
+				substitutedVariables[i] = new TypeVariableBinding(
+						alternateParamaterNames == null ?
+								originalVariable.sourceName :
+								alternateParamaterNames[i],
+							this,
+							originalVariable.rank);
+			}
+			this.typeVariables = substitutedVariables;
+			
+			// need to substitute old var refs with new ones (double substitution: declaringClass + new type variables)
+			substitution = new Substitution() {
+				public LookupEnvironment environment() { 
+					return environment; 
+				}
+				public boolean isRawSubstitution() {
+					return false;
+				}
+				public TypeBinding substitute(TypeVariableBinding typeVariable) {
+			        // check this variable can be substituted given copied variables
+			        if (typeVariable.rank < length && originalVariables[typeVariable.rank] == typeVariable) {
+						return substitutedVariables[typeVariable.rank];
+			        }
+			        return typeVariable;
+				}
+			};
+		
+			// initialize new variable bounds
+			for (int i = 0; i < length; i++) {
+				TypeVariableBinding originalVariable = originalVariables[i];
+				TypeVariableBinding substitutedVariable = substitutedVariables[i];
+				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
+				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
+				if (originalVariable.firstBound != null) {
+					substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
+						? substitutedSuperclass // could be array type or interface
+						: substitutedInterfaces[0];
+				}				
+				switch (substitutedSuperclass.kind()) {
+					case Binding.ARRAY_TYPE :
+						substitutedVariable.superclass = environment.getResolvedType(JAVA_LANG_OBJECT, null);
+						substitutedVariable.superInterfaces = substitutedInterfaces;
+						break;
+					default:
+						if (substitutedSuperclass.isInterface()) {
+							substitutedVariable.superclass = environment.getResolvedType(JAVA_LANG_OBJECT, null);
+							int interfaceCount = substitutedInterfaces.length;
+							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
+							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
+							substitutedVariable.superInterfaces = substitutedInterfaces;
+						} else {
+							substitutedVariable.superclass = (ReferenceBinding) substitutedSuperclass; // typeVar was extending other typeVar which got substituted with interface
+							substitutedVariable.superInterfaces = substitutedInterfaces;
+						}
+				}
+			}
+		}
+		if (substitution != null) {
+			this.returnType = Scope.substitute(substitution, this.returnType);
+			this.parameters = Scope.substitute(substitution, this.parameters);
+			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
+		}
+	}
 
 	public ParameterizedMethodBinding() {
 		// no init
