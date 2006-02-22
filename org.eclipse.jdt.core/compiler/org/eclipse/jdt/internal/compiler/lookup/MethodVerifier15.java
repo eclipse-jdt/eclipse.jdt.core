@@ -149,7 +149,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 			MethodBinding substitute = computeSubstituteMethod(otherInheritedMethod, compareMethod);
 			if (substitute == null || doesSubstituteMethodOverride(compareMethod, substitute))
 				continue;
-			if (detectInheritedMethodClash(originalInherited, otherOriginal))
+			if (detectInheritedNameClash(originalInherited, otherOriginal))
 				return;
 		}
 	}
@@ -168,7 +168,7 @@ void checkForInheritedNameClash(MethodBinding inheritedMethod, MethodBinding oth
 	//		abstract class X extends Y implements I {}
 
 	if (!inheritedMethod.declaringClass.isInterface())
-		detectInheritedMethodClash(inheritedMethod, otherInheritedMethod);
+		detectInheritedNameClash(inheritedMethod, otherInheritedMethod);
 }
 void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// sent from checkMethods() to compare a current method and an inherited method that are not 'equal'
@@ -473,22 +473,18 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	}
    return substitute;
 }
-boolean detectInheritedMethodClash(MethodBinding inherited, MethodBinding otherInherited) {
+boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInherited) {
 	if (!inherited.areParameterErasuresEqual(otherInherited) || inherited.returnType.erasure() != otherInherited.returnType.erasure()) return false;
-	if (doTypeVariablesClash(inherited, otherInherited) || doParametersClash(inherited, otherInherited)) {
-		problemReporter().inheritedMethodsHaveNameClash(this.type, inherited, otherInherited);
-		return true;
-	}
-	return false;
+
+	problemReporter().inheritedMethodsHaveNameClash(this.type, inherited, otherInherited);
+	return true;
 }
 boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure()) return false;
-	if (doTypeVariablesClash(current, inherited) || doParametersClash(current, original)) {
-		problemReporter(current).methodNameClash(current, original);
-		return true;
-	}
-	return false;
+
+	problemReporter(current).methodNameClash(current, original);
+	return true;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
@@ -515,28 +511,6 @@ boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substit
 		if (params[i] != inheritedParams[i].erasure())
 			return false;
 	return true;
-}
-boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
-	// must check each parameter pair to see if parameterized types are compatible
-	TypeBinding[] oneParams = one.parameters;
-	TypeBinding[] twoParams = substituteTwo.parameters;
-	for (int i = 0, l = oneParams.length; i < l; i++) {
-		if (oneParams[i] == twoParams[i]) continue;
-		switch (oneParams[i].leafComponentType().kind()) {
-			case Binding.PARAMETERIZED_TYPE :
-				if (!twoParams[i].leafComponentType().isParameterizedType()
-					|| !oneParams[i].isEquivalentTo(twoParams[i])
-					|| !twoParams[i].isEquivalentTo(oneParams[i])) {
-						return true;
-				}
-				break;
-			case Binding.TYPE_PARAMETER :
-				return true; // type variables must be identical (due to substitution) given their erasures are equal
-		}
-		if (twoParams[i].leafComponentType().isTypeVariable())
-			return true; // type variables must be identical (due to substitution) given their erasures are equal
-	}
-	return false;
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	// one has type variables and substituteTwo did not pass bounds check in computeSubstituteMethod()

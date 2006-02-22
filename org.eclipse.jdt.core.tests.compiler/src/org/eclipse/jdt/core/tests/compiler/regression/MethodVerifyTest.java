@@ -4654,5 +4654,49 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		true,
 		customOptions);		
 	}			
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81222
+	public void test079() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A<E> { void x(A<String> s) {} }\n" +
+				"class B extends A { void x(A<String> s) {} }\n" +
+				"class C extends A { @Override void x(A s) {} }\n" +
+				"class D extends A { void x(A<Object> s) {} }"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 2)\r\n" + 
+			"	class B extends A { void x(A<String> s) {} }\r\n" + 
+			"	                ^\n" + 
+			"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\r\n" + 
+			"	class B extends A { void x(A<String> s) {} }\r\n" + 
+			"	                         ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method x(A<String>) of type B has the same erasure as x(A<String>) of type A<E> but does not override it\n" + 
+			"----------\n" + 
+			"3. WARNING in A.java (at line 3)\r\n" + 
+			"	class C extends A { @Override void x(A s) {} }\r\n" + 
+			"	                ^\n" + 
+			"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in A.java (at line 3)\r\n" + 
+			"	class C extends A { @Override void x(A s) {} }\r\n" + 
+			"	                                     ^\n" + 
+			"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in A.java (at line 4)\r\n" + 
+			"	class D extends A { void x(A<Object> s) {} }\r\n" + 
+			"	                ^\n" + 
+			"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+			"----------\n" + 
+			"6. ERROR in A.java (at line 4)\r\n" + 
+			"	class D extends A { void x(A<Object> s) {} }\r\n" + 
+			"	                         ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method x(A<Object>) of type D has the same erasure as x(A<String>) of type A<E> but does not override it\n" + 
+			"----------\n"
+			// name clash: x(A<java.lang.String>) in B and x(A<java.lang.String>) in A have the same erasure, yet neither overrides the other
+			// name clash: x(A<java.lang.Object>) in D and x(A<java.lang.String>) in A have the same erasure, yet neither overrides the other
+		);
+	}
 }
