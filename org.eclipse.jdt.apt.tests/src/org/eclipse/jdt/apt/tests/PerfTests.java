@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -59,7 +60,7 @@ public class PerfTests extends Tests
 		File destRoot = path.toFile();
 		
 		URL platformURL = Platform.getBundle("org.eclipse.jdt.apt.tests").getEntry("/");  //$NON-NLS-1$//$NON-NLS-2$
-		File f = new File(Platform.asLocalURL(platformURL).getFile());
+		File f = new File(FileLocator.toFileURL(platformURL).getFile());
 		f = new File(f, "perf-test-project.zip"); //$NON-NLS-1$
 
 		

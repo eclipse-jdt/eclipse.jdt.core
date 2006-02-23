@@ -527,7 +527,7 @@ public final class FactoryPathUtil {
 				}
 				
 				// Create and cache a PluginFactoryContainer for this plugin.
-				String pluginId = extension.getNamespace();
+				String pluginId = extension.getNamespaceIdentifier();
 				PluginFactoryContainer pfc = new PluginFactoryContainer(pluginId, enableDefault);
 				PLUGIN_CONTAINER_MAP.put(pluginId, pfc);
 				

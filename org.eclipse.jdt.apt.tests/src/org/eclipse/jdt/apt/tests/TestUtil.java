@@ -36,9 +36,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -220,7 +220,7 @@ public class TestUtil
 			if(null == installURL)
 				return null; // File Not found
 			
-			URL localURL = Platform.asLocalURL( installURL );
+			URL localURL = FileLocator.toFileURL( installURL );
 			return new java.io.File( localURL.getFile() );
 		}
 		catch( IOException e )
