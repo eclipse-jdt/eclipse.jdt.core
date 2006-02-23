@@ -5694,7 +5694,7 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 				int offset = position - ((CaseLabel) label).instructionPosition;
 				for (int j = 0; j < label.forwardReferenceCount; j++) {
 					int forwardPosition = label.forwardReferences[j];
-					this.writeWidePosition(forwardPosition, offset);
+					this.writeSignedShort(forwardPosition, offset);
 				}
 			} else {
 				for (int j = 0; j < label.forwardReferenceCount; j++) {
@@ -6252,6 +6252,7 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_tableswitch;
+	// padding
 	for (int i = (3 - (pos % 4)); i > 0; i--) {
 		if (classFileOffset >= bCodeStream.length) {
 			resizeByteArray();
@@ -6376,7 +6377,7 @@ private final void writeSignedShort(int pos, int value) {
 	bCodeStream[currentOffset] = (byte) (value >> 8);
 	bCodeStream[currentOffset + 1] = (byte) value;
 }
-private final void writeSignedWord(int value) {
+protected final void writeSignedWord(int value) {
 	// we keep the resize in here because it is used outside the code stream
 	if (classFileOffset + 3 >= bCodeStream.length) {
 		resizeByteArray();
@@ -6387,9 +6388,9 @@ private final void writeSignedWord(int value) {
 	bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
 	bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
 }
-private final void writeSignedWord(int pos, int value) {
+protected final void writeSignedWord(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
-	if (currentOffset + 4 >= bCodeStream.length) {
+	if (currentOffset + 3 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
@@ -6401,15 +6402,20 @@ private final void writeSignedWord(int pos, int value) {
  * Write a unsigned 16 bits value into the byte array
  * @param value the unsigned short
  */
-protected final void writeUnsignedShort(int value) {
+private final void writeUnsignedShort(int value) {
+	// no bound check since used only from within codestream where already checked
 	position += 2;
 	bCodeStream[classFileOffset++] = (byte) (value >>> 8);
 	bCodeStream[classFileOffset++] = (byte) value;
 }
-protected void writeWidePosition(int offset) {
+protected void writeWidePosition(BranchLabel label) {
+	int labelPos = label.position;
+	int offset = labelPos - this.position + 1;
 	this.writeSignedWord(offset);
-}
-protected void writeWidePosition(int forwardReference, int offset) {
-	this.writeSignedWord(forwardReference, offset);
+	for (int i = 0, max = label.forwardReferenceCount; i < max; i++) {
+		int forward = label.forwardReferences[i];
+		offset = labelPos - forward + 1;
+		this.writeSignedWord(forward, offset);
+	}	
 }
 }

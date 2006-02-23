@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
 public class CaseLabel extends BranchLabel {
 	
 	public int instructionPosition = POS_NOT_SET;
-	public int backwardsBranch = POS_NOT_SET;
 	
 /**
  * CaseLabel constructor comment.
@@ -27,28 +26,20 @@ public CaseLabel(CodeStream codeStream) {
 * Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
+	this.tagBits |= USED;	
 	if (position == POS_NOT_SET) {
 		addForwardReference(codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
 		codeStream.position += 4;
 		codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
-		codeStream.writeWidePosition(position - codeStream.position + 1);
+		/*
+		 * Position is set. Write it if it is not a wide branch.
+		 */
+		this.codeStream.writeSignedWord(this.position - this.instructionPosition);
 	}
 }
 
-/*
-* Put down  a refernece to the array at the location in the codestream.
-*/
-void branchWide() {
-	if (position == POS_NOT_SET) {
-		addForwardReference(codeStream.position);
-		// Leave 4 bytes free to generate the jump offset afterwards
-		codeStream.position += 4;
-	} else { //Position is set. Write it!
-		codeStream.writeWidePosition(position - codeStream.position + 1);
-	}
-}
 public boolean isCaseLabel() {
 	return true;
 }
@@ -64,12 +55,10 @@ public void place() {
 	} else {
 		position = codeStream.position;
 	}
-	if (instructionPosition == POS_NOT_SET)
-		backwardsBranch = position;
-	else {
+	if (instructionPosition != POS_NOT_SET) {
 		int offset = position - instructionPosition;
 		for (int i = 0; i < forwardReferenceCount; i++) {
-			codeStream.writeWidePosition(forwardReferences[i], offset);
+			codeStream.writeSignedWord(forwardReferences[i], offset);
 		}
 		// add the label int the codeStream labels collection
 		codeStream.addLabel(this);
@@ -82,12 +71,6 @@ public void place() {
 void placeInstruction() {
 	if (instructionPosition == POS_NOT_SET) {
 		instructionPosition = codeStream.position;
-		if (backwardsBranch != POS_NOT_SET) {
-			int offset = backwardsBranch - instructionPosition;
-			for (int i = 0; i < forwardReferenceCount; i++)
-				codeStream.writeWidePosition(forwardReferences[i], offset);
-			backwardsBranch = POS_NOT_SET;
-		}
 	}
 }
 }

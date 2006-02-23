@@ -135,7 +135,7 @@ void branchWide() {
 		codeStream.position += 4;
 		codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
-		codeStream.writeWidePosition(position - codeStream.position + 1);
+		codeStream.writeWidePosition(this);
 	}
 }
 
