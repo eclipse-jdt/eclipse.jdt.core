@@ -555,6 +555,7 @@ VariableDeclarators ::= VariableDeclarators ',' VariableDeclarator
 VariableDeclarator ::= VariableDeclaratorId EnterVariable ExitVariableWithoutInitialization
 VariableDeclarator ::= VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 /:$readableName VariableDeclarator:/
+/:$recovery_template Identifier:/
 
 EnterVariable ::= $empty
 /.$putCase consumeEnterVariable(); $break ./

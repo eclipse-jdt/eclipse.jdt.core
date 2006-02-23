@@ -6800,4 +6800,54 @@ public void test113() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129142
+public void test114() {
+	String s = 
+		"public class X {\n"+
+		"  public void foo() {\n"+
+		"    int int;\n"+
+		"  }\n"+
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    int ;\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }
