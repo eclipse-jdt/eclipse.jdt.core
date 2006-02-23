@@ -316,7 +316,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
 				false,
-				clientRequestor);
+				clientRequestor,
+				false, /* show category */
+				false /* show warning token*/);
 
 		Map options = getCompilerOptions();
 		if (customOptions != null) {
@@ -413,7 +415,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
 				false,
-				null/*no custom requestor*/);
+				null/*no custom requestor*/,
+				false, /* show category */
+				false /* show warning token*/);
+		
 		Compiler batchCompiler = 
 			new Compiler(
 				getNameEnvironment(new String[]{}, classLib), 
@@ -485,7 +490,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		boolean shouldFlushOutputDirectory, 
 		Map customOptions) {
 		
-		runNegativeTest(testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory, customOptions, false);
+		runNegativeTest(testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory, customOptions, false, false, false);
 	}
 	/**
 	 * Log contains all problems (warnings+errors)
@@ -496,7 +501,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String[] classLib,
 		boolean shouldFlushOutputDirectory, 
 		Map customOptions, 
-		boolean generateOutput) {
+		boolean generateOutput,
+		boolean showCategory,
+		boolean showWarningToken) {
 
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -507,7 +514,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
 				generateOutput,
-				null/*no custom requestor*/);
+				null/*no custom requestor*/,
+				showCategory,
+				showWarningToken);
 		Map options = getCompilerOptions();
 		if (customOptions != null) {
 			options.putAll(customOptions);
@@ -567,7 +576,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
 				true,
-				clientRequestor);
+				clientRequestor,
+				false /*show category*/,
+				false /*show warning token*/);
 
 		Map options = getCompilerOptions();
 		if (customOptions != null) {

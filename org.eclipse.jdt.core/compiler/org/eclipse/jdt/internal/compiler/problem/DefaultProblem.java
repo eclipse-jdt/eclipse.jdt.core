@@ -132,6 +132,50 @@ public int getID() {
 }
 
 /**
+ * Answers a readable name for the category which this problem belongs to,
+ * or null if none could be found.
+ * FOR TESTING PURPOSE
+ * @return java.lang.String
+ */
+public String getInternalCategoryMessage() {
+	switch(getCategoryID()) {
+		case CAT_UNSPECIFIED:
+			return "unspecified"; //$NON-NLS-1$
+		case CAT_BUILDPATH:
+			return "buildpath"; //$NON-NLS-1$
+		case CAT_SYNTAX:
+			return "syntax"; //$NON-NLS-1$
+		case CAT_IMPORT:
+			return "import"; //$NON-NLS-1$
+		case CAT_TYPE:
+			return "type"; //$NON-NLS-1$
+		case CAT_MEMBER:
+			return "member"; //$NON-NLS-1$
+		case CAT_INTERNAL:
+			return "internal"; //$NON-NLS-1$
+		case CAT_JAVADOC:
+			return "javadoc"; //$NON-NLS-1$
+		case CAT_CODE_STYLE:
+			return "code style"; //$NON-NLS-1$
+		case CAT_POTENTIAL_PROGRAMMING_PROBLEM:
+			return "potential programming problem"; //$NON-NLS-1$
+		case CAT_NAME_SHADOWING_CONFLICT:
+			return "name shadowing conflict"; //$NON-NLS-1$
+		case CAT_DEPRECATION:
+			return "deprecation"; //$NON-NLS-1$
+		case CAT_UNNECESSARY_CODE:
+			return "unnecessary code"; //$NON-NLS-1$
+		case CAT_UNCHECKED_RAW:
+			return "unchecked/raw"; //$NON-NLS-1$
+		case CAT_NLS:
+			return "nls"; //$NON-NLS-1$
+		case CAT_RESTRICTION:
+			return "restriction"; //$NON-NLS-1$
+	}
+	return null;
+}
+
+/**
  * Returns the marker type associated to this problem.
  * @see org.eclipse.jdt.core.compiler.CategorizedProblem#getMarkerType()
  */

@@ -22,6 +22,7 @@ public class JavadocBugsTest extends JavadocTest {
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
+	String reportDeprecation = CompilerOptions.ERROR;
 
 	public JavadocBugsTest(String name) {
 		super(name);
@@ -61,7 +62,7 @@ public class JavadocBugsTest extends JavadocTest {
 		}
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportDeprecation, reportDeprecation);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 		return options;
 	}
@@ -74,6 +75,7 @@ public class JavadocBugsTest extends JavadocTest {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportDeprecation = CompilerOptions.ERROR;
 	}
 
 	/**
@@ -3991,4 +3993,86 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+	/**
+	 * Bug 128954: Javadoc problems with category CAT_INTERNAL
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954"
+	 */
+	public void testBug128954() {
+		this.reportInvalidJavadoc = CompilerOptions.WARNING;
+		this.reportDeprecation = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"X.java", //========================
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar()\n" + 
+				"	 */\n" + 
+				"	void foo() {\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n",
+				"p/A.java",  //========================
+				"package p;\n" +
+				"public class A {\n" + 
+				"	/** @deprecated */\n" +
+				"	public void bar() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	* @see p.A#bar()\n" + 
+			"	           ^^^^^\n" + 
+			"[@cat:javadoc] [@sup:deprecation] Javadoc: The method bar() from the type A is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"[@cat:type] Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true,
+			null,
+			false,
+			true,
+			true);
+	}	
+	/**
+	 * Bug 128954: Javadoc problems with category CAT_INTERNAL - variation
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954" 
+	 */
+	public void testBug128954a() {
+		this.reportInvalidJavadoc = CompilerOptions.WARNING;
+		this.reportDeprecation = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar()\n" + 
+				"	 */\n" + 
+				"	void foo() {\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	* @see p.A#bar()\n" + 
+			"	       ^^^\n" + 
+			"[@cat:javadoc] Javadoc: p cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"[@cat:type] Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true,
+			null,
+			false,
+			true,
+			true);
+	}	
 }

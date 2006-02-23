@@ -347,10 +347,11 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	protected void runNegativeTest(String[] testFiles,
 			String expectedProblemLog, String[] classLib,
 			boolean shouldFlushOutputDirectory, Map customOptions,
-			boolean generateOutput) {
+			boolean generateOutput, boolean showCategory, boolean showWarningToken) {
 		try {
 			super.runNegativeTest(testFiles, expectedProblemLog, classLib,
-					shouldFlushOutputDirectory, customOptions, generateOutput);
+					shouldFlushOutputDirectory, customOptions, generateOutput,
+					showCategory, showWarningToken);
 		} catch (AssertionFailedError e) {
 			throw e;
 		} finally {

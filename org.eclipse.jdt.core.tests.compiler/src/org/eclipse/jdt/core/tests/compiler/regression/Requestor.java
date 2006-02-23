@@ -21,7 +21,9 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class Requestor extends Assert implements ICompilerRequestor {
 	public boolean hasErrors = false;
@@ -31,11 +33,16 @@ public class Requestor extends Assert implements ICompilerRequestor {
 	public Hashtable expectedProblems = new Hashtable();
 	public String problemLog = "";
 	public ICompilerRequestor clientRequestor;
-public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput, ICompilerRequestor clientRequestor) {
+	public boolean showCategory = false;
+	public boolean showWarningToken = false;
+	
+public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput, ICompilerRequestor clientRequestor, boolean showCategory, boolean showWarningToken) {
 	this.problemFactory = problemFactory;
 	this.outputPath = outputPath;
 	this.generateOutput = generateOutput;
 	this.clientRequestor = clientRequestor;
+	this.showCategory = showCategory;
+	this.showWarningToken = showWarningToken;
 }
 public void acceptResult(CompilationResult compilationResult) {
 	StringBuffer buffer = new StringBuffer(100);
@@ -46,16 +53,32 @@ public void acceptResult(CompilationResult compilationResult) {
 		int problemCount = 0;
 		char[] unitSource = compilationResult.compilationUnit.getContents();
 		for (int i = 0; i < count; i++) { 
-			if (problems[i] != null) {
+			DefaultProblem problem = (DefaultProblem) problems[i];
+			if (problem != null) {
 				if (problemCount == 0)
 					buffer.append("----------\n");
 				problemCount++;
-				buffer.append(problemCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
-				buffer.append(" in " + new String(problems[i].getOriginatingFileName()).replace('/', '\\'));
+				buffer.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+				buffer.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
 				try {
-					buffer.append(((DefaultProblem)problems[i]).errorReportSource(unitSource));
+					buffer.append(problem.errorReportSource(unitSource));
 					buffer.append("\n");
-					buffer.append(problems[i].getMessage());
+					if (showCategory) {
+						String category = problem.getInternalCategoryMessage();
+						if (category != null) {
+							buffer.append("[@cat:").append(category).append("] ");
+						}
+					}
+					if (showWarningToken) {
+						long irritant = ProblemReporter.getIrritant(problem.getID());
+						if (irritant != 0) {
+							String warningToken = CompilerOptions.warningTokenFromIrritant(irritant);
+							if (warningToken != null) {
+								buffer.append("[@sup:").append(warningToken).append("] ");
+							}
+						}
+					}
+					buffer.append(problem.getMessage());
 					buffer.append("\n");
 				} catch (Exception e) {
 				}

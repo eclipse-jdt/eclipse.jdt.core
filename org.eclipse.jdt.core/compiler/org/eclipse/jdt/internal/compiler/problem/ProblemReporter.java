@@ -1601,6 +1601,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)CompilerOptions.MissingJavadocComments:
 				case (int)CompilerOptions.MissingJavadocTags:
 				case (int)CompilerOptions.InvalidJavadoc:
+				case (int)(CompilerOptions.InvalidJavadoc | CompilerOptions.UsingDeprecatedAPI):
 					return CategorizedProblem.CAT_JAVADOC;
 					
 				case (int)CompilerOptions.UncheckedTypeOperation:

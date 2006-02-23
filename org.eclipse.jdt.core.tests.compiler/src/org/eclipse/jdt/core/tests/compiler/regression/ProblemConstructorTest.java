@@ -45,8 +45,9 @@ public void test001() {
 		null,
 		true,
 		null,
-		true
-		);
+		true,
+		false,
+		false);
 
 	this.runNegativeTest(
 		new String[] {

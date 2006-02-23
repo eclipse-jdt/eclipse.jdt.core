@@ -68,7 +68,10 @@ public static void compile(String[] pathsAndContents, Map options, String output
 				problemFactory, 
 				outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator, 
 				false,
-				null/*no custom requestor*/);
+				null/*no custom requestor*/,
+				false, /* show category */
+				false /* show warning token*/);
+		
 		INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
 		IErrorHandlingPolicy errorHandlingPolicy = 
 			new IErrorHandlingPolicy() {
