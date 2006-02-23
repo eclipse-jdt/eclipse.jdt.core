@@ -4699,4 +4699,55 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: x(A<java.lang.Object>) in D and x(A<java.lang.String>) in A have the same erasure, yet neither overrides the other
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106880
+	public void test080() {
+		this.runNegativeTest(
+			new String[] {
+				"HashOrder.java",
+				"public class HashOrder extends DoubleHash<String> {\n" +
+				"	public static HashOrder create() { return null; }\n" +
+				"}\n" +
+				"class DoubleHash<T> {\n" +
+				"	public static <U> DoubleHash<U> create() { return null; }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in HashOrder.java (at line 2)\n" + 
+			"	public static HashOrder create() { return null; }\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"Type safety: The return type HashOrder for create() from the type HashOrder needs unchecked conversion to conform to DoubleHash<Object> from the type DoubleHash<String>\n" + 
+			"----------\n"
+			// warning: create() in HashOrder overrides <U>create() in DoubleHash; return type requires unchecked conversion
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106880
+	public void test081() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X<U> implements I {\n" +
+				"	public A<String> foo() { return null; }\n" +
+				"	public <S> A<U> bar() { return null; }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	<T> A<T> foo();\n" +
+				"	<S> A<S> bar();\n" +
+				"}\n" +
+				"class A<V> {}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\r\n" + 
+			"	public A<String> foo() { return null; }\r\n" + 
+			"	       ^\n" + 
+			"Type safety: The return type A<String> for foo() from the type X<U> needs unchecked conversion to conform to A<Object> from the type I\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	public <S> A<U> bar() { return null; }\r\n" + 
+			"	                ^^^^^\n" + 
+			"The return type is incompatible with I.bar()\n" + 
+			"----------\n"
+			// <S>bar() in X cannot implement <S>bar() in I; attempting to use incompatible return type
+			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
+		);
+	}
 }

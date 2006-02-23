@@ -127,10 +127,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 		}
 
-		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
-			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-			continue nextMethod;
-		}
+		if (!areReturnTypesEqual(currentMethod, inheritedMethod))
+			if (reportIncompatibleReturnTypeError(currentMethod, inheritedMethod))
+				continue nextMethod;
 
 		if (currentMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 			checkExceptions(currentMethod, inheritedMethod);
@@ -570,6 +569,10 @@ ProblemReporter problemReporter(MethodBinding currentMethod) {
 	if (currentMethod.declaringClass == type && currentMethod.sourceMethod() != null)	// only report against the currentMethod if its implemented by the type
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
+}
+boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+	return true;
 }
 ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	ReferenceBinding[] exceptions = method.thrownExceptions;

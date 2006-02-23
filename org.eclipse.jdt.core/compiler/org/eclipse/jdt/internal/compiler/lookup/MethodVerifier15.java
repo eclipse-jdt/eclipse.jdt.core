@@ -525,6 +525,15 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 		&& inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
+boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	if (currentMethod.typeVariables == Binding.NO_TYPE_VARIABLES
+		&& inheritedMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES
+		&& currentMethod.returnType.erasure().findSuperTypeWithSameErasure(inheritedMethod.returnType.erasure()) != null) {
+			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, this.type);
+			return false;
+	}
+	return super.reportIncompatibleReturnTypeError(currentMethod, inheritedMethod);
+}
 void verify(SourceTypeBinding someType) {
 	if (someType.isAnnotationType())
 		someType.detectAnnotationCycle();
