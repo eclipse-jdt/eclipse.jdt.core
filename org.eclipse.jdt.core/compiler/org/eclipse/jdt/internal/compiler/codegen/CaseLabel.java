@@ -40,6 +40,13 @@ void branch() {
 	}
 }
 
+/*
+* No support for wide branches yet
+*/
+void branchWide() {
+	this.branch(); // case label branch is already wide
+}
+
 public boolean isCaseLabel() {
 	return true;
 }

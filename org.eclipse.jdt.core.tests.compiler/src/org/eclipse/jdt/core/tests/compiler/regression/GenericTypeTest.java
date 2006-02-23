@@ -28726,4 +28726,26 @@ public void test922() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129129 
+public void test923() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"public class X<T> {\n" + 
+		"\n" + 
+		"  static void a(Class<? extends X<?>> c) {}\n" + 
+		"\n" + 
+		"  static void b(X<?> t) {\n" + 
+		"    X.a(t.getClass());\n" + 
+		"  }\n" + 
+		"}\n"			
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X.a(t.getClass());\n" + 
+		"	  ^\n" + 
+		"The method a(Class<? extends X<?>>) in the type X is not applicable for the arguments (Class<capture-of ? extends X>)\n" + 
+		"----------\n"
+	);
+}
 }

@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -38,6 +39,10 @@ public class TryStatement extends SubRoutineStatement {
 		returnAddressVariable,
 		secretReturnValue;
 
+	// only used in RET instruction emulation mode
+//	CaseLabel[] returnLocationLabels;
+//	int returnLocationsCount = 0;
+	
 	public final static char[] SecretReturnName = " returnAddress".toCharArray(); //$NON-NLS-1$
 	public final static char[] SecretAnyHandlerName = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
 	public static final char[] SecretLocalDeclarationName = " returnValue".toCharArray(); //$NON-NLS-1$
@@ -261,20 +266,26 @@ public class TryStatement extends SubRoutineStatement {
 		// in case the labels needs to be reinitialized
 		// when the code generation is restarted in wide mode
 		this.anyExceptionLabel = null;
+//		this.returnLocationsCount = 0;
+//		this.returnLocationLabels = null;
 
 		int pc = codeStream.position;
-		final int NO_FINALLY = 0;									// no finally block
+		final int NO_FINALLY = 0;										// no finally block
 		final int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
-		final int FINALLY_DOES_NOT_COMPLETE = 2;	// non returning finally is optimized with only one instance of finally block
-		final int FINALLY_MUST_BE_INLINED = 3;			// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
+		final int FINALLY_DOES_NOT_COMPLETE = 2;		// non returning finally is optimized with only one instance of finally block
+		final int FINALLY_INLINE = 3;								// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
+		final int FINALLY_EMULATE_RET = 4;					// finally ret is emulated since cannot use jsr/ret bytecodes >1.5 (NOT WORKING)
 		int finallyMode;
-		if (this.subRoutineStartLabel == null) { 
+		if (this.subRoutineStartLabel == null) {
 			finallyMode = NO_FINALLY;
 		} else {
+			CompilerOptions options = currentScope.compilerOptions();
 			if (isSubRoutineEscaping()) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
-			} else if (this.scope.compilerOptions().inlineJsrBytecode) {
-				finallyMode = FINALLY_MUST_BE_INLINED;
+//			} else if (options.noJSRBytecode) {
+//				finallyMode = FINALLY_EMULATE_RET;
+			} else if (options.inlineJsrBytecode) {
+				finallyMode = FINALLY_INLINE;
 			} else {
 				finallyMode = FINALLY_SUBROUTINE;
 			}
@@ -315,7 +326,8 @@ public class TryStatement extends SubRoutineStatement {
 				int position = codeStream.position;
 				switch(finallyMode) {
 					case FINALLY_SUBROUTINE :
-					case FINALLY_MUST_BE_INLINED :
+					case FINALLY_INLINE :
+					case FINALLY_EMULATE_RET :
 						requiresNaturalExit = true;
 						// fall through
 					case NO_FINALLY :
@@ -360,7 +372,8 @@ public class TryStatement extends SubRoutineStatement {
 					if (!this.catchExits[i]) {
 						switch(finallyMode) {
 							case FINALLY_SUBROUTINE :
-							case FINALLY_MUST_BE_INLINED :
+							case FINALLY_INLINE :
+							case FINALLY_EMULATE_RET :
 								requiresNaturalExit = true;
 								// fall through
 							case NO_FINALLY :
@@ -375,8 +388,9 @@ public class TryStatement extends SubRoutineStatement {
 			}
 			this.exitAnyExceptionHandler();
 			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
-			ExceptionLabel naturalExitExceptionHandler = 
-				finallyMode == FINALLY_SUBROUTINE && requiresNaturalExit ? new ExceptionLabel(codeStream, null) : null;
+			ExceptionLabel naturalExitExceptionHandler = requiresNaturalExit && (finallyMode == FINALLY_SUBROUTINE || finallyMode == FINALLY_EMULATE_RET) 
+						? new ExceptionLabel(codeStream, null) 
+						: null;
 
 			// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 			// inside catch blocks) will run the finally block
@@ -390,15 +404,18 @@ public class TryStatement extends SubRoutineStatement {
 				this.placeAllAnyExceptionHandler();
 				if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
 				
-
+//				CaseLabel defaultReturnLocationLabel = null; // only used when emulating RET instruction
+//				CaseLabel naturalExitReturnLocationLabel = null; // only used when emulating RET instruction
 				switch(finallyMode) {
 					case FINALLY_SUBROUTINE :
+						// any exception handler
 						codeStream.store(this.anyExceptionVariable, false);
 						codeStream.jsr(this.subRoutineStartLabel);
 						codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
 						int position = codeStream.position;						
 						codeStream.throwAnyException(this.anyExceptionVariable);
 						codeStream.recordPositionsFrom(position, this.finallyBlock.sourceEnd);
+						// subroutine
 						this.subRoutineStartLabel.place();
 						codeStream.pushOnStack(this.scope.getJavaLangThrowable());
 						position = codeStream.position;	
@@ -407,15 +424,16 @@ public class TryStatement extends SubRoutineStatement {
 						this.finallyBlock.generateCode(this.scope, codeStream);
 						position = codeStream.position;
 						codeStream.ret(this.returnAddressVariable.resolvedPosition);
-//						codeStream.updateLastRecordedEndPC(position);
 						codeStream.recordPositionsFrom(
 							position,
 							this.finallyBlock.sourceEnd);
 						// the ret bytecode is part of the subroutine
 						break;
-					case FINALLY_MUST_BE_INLINED :
+					case FINALLY_INLINE :
+						// any exception handler
 						codeStream.store(this.anyExceptionVariable, false);
 						codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
+						// subroutine
 						this.finallyBlock.generateCode(currentScope, codeStream);
 						position = codeStream.position;
 						codeStream.throwAnyException(this.anyExceptionVariable);
@@ -423,11 +441,46 @@ public class TryStatement extends SubRoutineStatement {
 						codeStream.recordPositionsFrom(position, this.finallyBlock.sourceEnd);
 						break;
 					case FINALLY_DOES_NOT_COMPLETE :
+						// any exception handler
 						codeStream.pop();
 						this.subRoutineStartLabel.place();
 						codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
+						// subroutine
 						this.finallyBlock.generateCode(this.scope, codeStream);
 						break;
+					case FINALLY_EMULATE_RET :
+						// any exception handler
+//						codeStream.store(this.anyExceptionVariable, false);
+//						CaseLabel returnLocationLabel = recordReturnLocation(codeStream);
+//						codeStream.generateInlinedValue(this.returnLocationsCount-1);
+//						codeStream.store(this.returnAddressVariable, false);
+//						codeStream.goto_(this.subRoutineStartLabel);
+//						codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
+//						returnLocationLabel.place();
+//						position = codeStream.position;						
+//						codeStream.throwAnyException(this.anyExceptionVariable);
+//						codeStream.recordPositionsFrom(position, this.finallyBlock.sourceEnd);
+//						// subroutine
+//						this.subRoutineStartLabel.place();
+//						codeStream.pushOnStack(this.scope.getJavaLangThrowable());
+//						position = codeStream.position;	
+//						this.finallyBlock.generateCode(this.scope, codeStream);
+//						position = codeStream.position;
+//						// RET emulation
+//						naturalExitReturnLocationLabel = recordReturnLocation(codeStream);
+//						System.arraycopy(this.returnLocationLabels, 0, this.returnLocationLabels = new CaseLabel[this.returnLocationsCount], 0, this.returnLocationsCount);
+//						int[] sortedIndexes = new int[this.returnLocationsCount];
+//						for (int i = 0; i < this.returnLocationsCount; i++) {
+//							sortedIndexes[i] = i;
+//						}
+//						defaultReturnLocationLabel = new CaseLabel(codeStream);
+//						codeStream.load(this.returnAddressVariable);
+//						codeStream.tableswitch(defaultReturnLocationLabel, 0, this.returnLocationsCount-1, sortedIndexes, sortedIndexes, this.returnLocationLabels);
+//						codeStream.recordPositionsFrom(
+//							position,
+//							this.finallyBlock.sourceEnd);
+						break;
+						// the tableswitch bytecode is part of the subroutine						
 				}
 				// will naturally fall into subsequent code after subroutine invocation
 				naturalExitLabel.place();
@@ -442,7 +495,7 @@ public class TryStatement extends SubRoutineStatement {
 								position,
 								this.finallyBlock.sourceEnd);	
 							break;
-						case FINALLY_MUST_BE_INLINED :
+						case FINALLY_INLINE :
 							// May loose some local variable initializations : affecting the local variable attributes
 							// needed since any exception handler got inlined subroutine
 							if (this.preTryInitStateIndex != -1) {
@@ -452,6 +505,19 @@ public class TryStatement extends SubRoutineStatement {
 							this.finallyBlock.generateCode(this.scope, codeStream);
 							break;
 						case FINALLY_DOES_NOT_COMPLETE :
+							break;
+						case FINALLY_EMULATE_RET :
+//							position = codeStream.position;
+//							naturalExitExceptionHandler.placeStart();
+//							codeStream.generateInlinedValue(this.returnLocationsCount);
+//							codeStream.store(this.returnAddressVariable, false);
+//							codeStream.goto_(this.subRoutineStartLabel);
+//							naturalExitExceptionHandler.placeEnd();
+//							naturalExitReturnLocationLabel.place();
+//							codeStream.recordPositionsFrom(
+//								position,
+//								this.finallyBlock.sourceEnd);	
+//							defaultReturnLocationLabel.place();
 							break;
 					}
 				}
@@ -483,7 +549,8 @@ public class TryStatement extends SubRoutineStatement {
 		if (isSubRoutineEscaping()) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.compilerOptions().inlineJsrBytecode) {
+			CompilerOptions options = currentScope.compilerOptions();
+			if (options.inlineJsrBytecode) {
 				// cannot use jsr bytecode, then simply inline the subroutine
 				this.exitAnyExceptionHandler();
 				// inside try block, ensure to deactivate all catch block exception handlers while inlining finally block
@@ -496,6 +563,12 @@ public class TryStatement extends SubRoutineStatement {
 				for (int i = 0, length = this.enclosingExceptionLabels == null ? 0 : this.enclosingExceptionLabels.length; i < length; i++) {
 					this.enclosingExceptionLabels[i].placeStart();
 				}
+//			} else if (options.noJSRBytecode) {
+//				CaseLabel returnLocationLabel = recordReturnLocation(codeStream);
+//				codeStream.generateInlinedValue(this.returnLocationsCount-1);
+//				codeStream.store(this.returnAddressVariable, false);
+//				codeStream.goto_(this.subRoutineStartLabel);
+//				returnLocationLabel.place();
 			} else {
 				// classic subroutine invocation, distinguish case of non-returning subroutine
 				codeStream.jsr(this.subRoutineStartLabel);
@@ -524,7 +597,21 @@ public class TryStatement extends SubRoutineStatement {
 
 		return output;
 	}
-
+	
+	/**
+	 * Only used when emulating RET instruction for branching back from subroutine
+	 */
+//	private CaseLabel recordReturnLocation(CodeStream codeStream) {
+//		CaseLabel label = new CaseLabel(codeStream);
+//		if (this.returnLocationLabels == null) {
+//			this.returnLocationLabels = new CaseLabel[5];
+//		} else if (this.returnLocationLabels.length == this.returnLocationsCount) {
+//			System.arraycopy(this.returnLocationLabels, 0, this.returnLocationLabels = new CaseLabel[this.returnLocationsCount*2], 0, this.returnLocationsCount);
+//		}
+//		this.returnLocationLabels[this.returnLocationsCount++] = label;
+//		return label;
+//	}
+	
 	public void resolve(BlockScope upperScope) {
 
 		// special scope for secret locals optimization.	
@@ -544,10 +631,15 @@ public class TryStatement extends SubRoutineStatement {
 				// provision for returning and forcing the finally block to run
 				MethodScope methodScope = this.scope.methodScope();
 	
-				// the type does not matter as long as it is not a base type
-				if (!upperScope.compilerOptions().inlineJsrBytecode) {
-					this.returnAddressVariable =
-						new LocalVariableBinding(TryStatement.SecretReturnName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
+				CompilerOptions options = upperScope.compilerOptions();
+				if (!options.inlineJsrBytecode) {
+//					if (options.noJSRBytecode) {
+//						// variable encoding the return site location
+//						this.returnAddressVariable = new LocalVariableBinding(TryStatement.SecretReturnName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
+//					} else {
+						// the type does not matter as long as it is not a base type
+						this.returnAddressVariable = new LocalVariableBinding(TryStatement.SecretReturnName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
+//					}
 					finallyScope.addLocalVariable(this.returnAddressVariable);
 					this.returnAddressVariable.setConstant(Constant.NotAConstant); // not inlinable
 				}
