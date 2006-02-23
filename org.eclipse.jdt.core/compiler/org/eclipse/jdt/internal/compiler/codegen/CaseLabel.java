@@ -24,9 +24,9 @@ public CaseLabel(CodeStream codeStream) {
 
 /*
 * Put down  a reference to the array at the location in the codestream.
+* #placeInstruction() must be performed prior to any #branch()
 */
 void branch() {
-	this.tagBits |= USED;	
 	if (position == POS_NOT_SET) {
 		addForwardReference(codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards

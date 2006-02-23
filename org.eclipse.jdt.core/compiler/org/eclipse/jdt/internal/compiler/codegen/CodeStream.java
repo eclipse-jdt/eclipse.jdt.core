@@ -5694,7 +5694,7 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 				int offset = position - ((CaseLabel) label).instructionPosition;
 				for (int j = 0; j < label.forwardReferenceCount; j++) {
 					int forwardPosition = label.forwardReferences[j];
-					this.writeSignedShort(forwardPosition, offset);
+					this.writeSignedWord(forwardPosition, offset);
 				}
 			} else {
 				for (int j = 0; j < label.forwardReferenceCount; j++) {

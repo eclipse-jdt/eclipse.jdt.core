@@ -258,6 +258,24 @@ public void test010() {
 	"Zork cannot be resolved to a type\n" + 
 	"----------\n");
 }
+public void test011() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String args[]) {\n" + 
+		"		switch (args.length) {\n" + 
+		"			case 1 :\n" + 
+		"				System.out.println();\n" + 
+		"			case 3 :\n" + 
+		"				break;\n" + 
+		"			default :\n" + 
+		"		}\n" + 
+		"		System.out.println(\"SUCCESS\");\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }
