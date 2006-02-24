@@ -415,17 +415,6 @@ public class Scribe2 {
 		}
 		return null;
 	}
-	
-	public final int getLineEnd(int lineNumber) {
-		if (this.lineEnds == null) 
-			return -1;
-		if (lineNumber >= this.lineEnds.length + 1) 
-			return this.scannerEndPosition;
-		if (lineNumber <= 0) 
-			return -1;
-		return this.lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line	
-	}
-	
 	Alignment2 getMemberAlignment() {
 		return this.memberAlignment;
 	}

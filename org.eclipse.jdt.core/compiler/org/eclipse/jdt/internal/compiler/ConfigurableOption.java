@@ -17,7 +17,11 @@ package org.eclipse.jdt.internal.compiler;
  * @deprecated backport 1.0 internal functionality
  */
 
-import java.util.*;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 public class ConfigurableOption {
 	private String componentName;
@@ -28,7 +32,6 @@ public class ConfigurableOption {
 	private String name;
 	private String description;
 	private int currentValueIndex;
-	private int defaultValueIndex;
 	private String[] possibleValues;
 
 	// special value for <possibleValues> indicating that 
@@ -135,18 +138,6 @@ public String getComponentName() {
  */
 public int getCurrentValueIndex() {
 	return currentValueIndex;
-}
-/**
- * Answer the index (in possibleValues array) of the default setting for this
- * particular option.
- *
- * In case the set of possibleValues is NoDiscreteValue, then this index is the
- * actual value (e.g. max line length set to 80).
- *
- * @return int
- */
-public int getDefaultValueIndex() {
-	return defaultValueIndex;
 }
 /**
  * Return an String that represents the localized description of the receiver.
