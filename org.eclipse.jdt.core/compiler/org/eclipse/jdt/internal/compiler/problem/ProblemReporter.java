@@ -376,8 +376,8 @@ public void cannotAssignToFinalLocal(LocalVariableBinding local, ASTNode locatio
 		IProblem.NonBlankFinalLocalAssignment,
 		arguments,
 		arguments,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] {new String(local.readableName())};
@@ -385,8 +385,8 @@ public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, ASTNode lo
 		IProblem.FinalOuterLocalAssignment,
 		arguments,
 		arguments,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 public void cannotDefineDimensionsAndInitializer(ArrayAllocationExpression expresssion) {
 	this.handle(
@@ -453,8 +453,8 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 		IProblem.OuterLocalMustBeFinal,
 		arguments,
 		arguments,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 public void cannotReturnInInitializer(ASTNode location) {
 	this.handle(
@@ -872,8 +872,8 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		IProblem.DuplicateFinalLocalInitialization,
 		arguments,
 		arguments,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 
 public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
@@ -1133,16 +1133,16 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			IProblem.FieldHidingLocalVariable,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name) },
 			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) },
-			fieldDecl.sourceStart,
-			fieldDecl.sourceEnd);
+			localSourceStart((LocalVariableBinding) hiddenVariable, fieldDecl),
+			localSourceEnd((LocalVariableBinding) hiddenVariable, fieldDecl));
 	} else if (hiddenVariable instanceof FieldBinding) {
 		FieldBinding hiddenField = (FieldBinding) hiddenVariable;
 		this.handle(
 			IProblem.FieldHidingField,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name) , new String(hiddenField.declaringClass.readableName())  },
 			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) , new String(hiddenField.declaringClass.shortReadableName()) },
-			fieldDecl.sourceStart,
-			fieldDecl.sourceEnd);
+			fieldSourceStart(hiddenField, fieldDecl),
+			fieldSourceEnd(hiddenField, fieldDecl));
 	}
 }
 private int fieldSourceEnd(FieldBinding field, ASTNode node) {
@@ -1161,6 +1161,19 @@ private int fieldSourceEnd(FieldBinding field, ASTNode node) {
 		}
 	}	
 	return node.sourceEnd;
+}
+private int localSourceStart(LocalVariableBinding binding, ASTNode node) {
+	if (node instanceof FieldReference) {
+		FieldReference fieldReference = (FieldReference) node;
+		return (int) (fieldReference.nameSourcePosition >> 32);
+	} else 	if (node instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) node;
+		if (ref.binding == binding) {
+			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
+		}
+	}
+
+	return node.sourceStart;
 }
 private int localSourceEnd(LocalVariableBinding binding, ASTNode node) {
 	if (node instanceof QualifiedNameReference) {
@@ -1269,8 +1282,8 @@ public void forbiddenReference(FieldBinding field, ASTNode location,
 				new String[]{
 					new String(field.shortReadableName()),
 			        new String(field.declaringClass.shortReadableName())})},
-		location.sourceStart,
-		location.sourceEnd);
+		fieldSourceStart(field, location),
+		fieldSourceEnd(field, location));
 }
 public void forwardReference(Reference reference, int indexInQualification, TypeBinding type) {
 	this.handle(
@@ -2191,8 +2204,8 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 					IProblem.NotVisibleField,
 					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())},
 					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())},
-					importRef.sourceStart,
-					importRef.sourceEnd);			
+					fieldSourceStart(field, importRef),
+					fieldSourceEnd(field, importRef));			
 				return;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.AmbiguousField;
@@ -2205,8 +2218,8 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 			id, 
 			new String[] {new String(field.declaringClass.leafComponentType().readableName())},
 			new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())},
-			importRef.sourceStart,
-			importRef.sourceEnd);
+			fieldSourceStart(field, importRef),
+			fieldSourceEnd(field, importRef));
 		return;
 	}
 
@@ -2748,7 +2761,6 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 	
 	int id = IProblem.UndefinedField;
 	FieldBinding field = fieldRef.binding;
-	final int sourceStart= (int) (fieldRef.nameSourcePosition >> 32);
 	switch (field.problemId()) {
 		case ProblemReasons.NotFound :
 			id = IProblem.UndefinedField;
@@ -2762,8 +2774,8 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 				IProblem.NotVisibleField,
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.readableName())},
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.shortReadableName())},
-				sourceStart,
-				fieldRef.sourceEnd);			
+				fieldSourceStart(field, fieldRef),
+				fieldSourceEnd(field, fieldRef));			
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
@@ -2797,8 +2809,8 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		id,
 		arguments,
 		arguments,
-		sourceStart,
-		fieldRef.sourceEnd);
+		fieldSourceStart(field, fieldRef),
+		fieldSourceEnd(field, fieldRef));
 }
 public void invalidField(NameReference nameRef, FieldBinding field) {
 	if (nameRef instanceof QualifiedNameReference) {
@@ -2820,8 +2832,8 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 				IProblem.NotVisibleField,
 				new String[] {new String(name), new String(field.declaringClass.readableName())},
 				new String[] {new String(name), new String(field.declaringClass.shortReadableName())},
-				nameRef.sourceStart,
-				nameRef.sourceEnd);				
+				fieldSourceStart(field, nameRef),
+				fieldSourceEnd(field, nameRef));				
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
@@ -2898,8 +2910,8 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 				IProblem.NotVisibleField,
 				new String[] {fieldName, new String(field.declaringClass.readableName())},
 				new String[] {fieldName, new String(field.declaringClass.shortReadableName())},
-				nameRef.sourceStart, 
-				(int) nameRef.sourcePositions[index]);				
+				fieldSourceStart(field, nameRef), 
+				fieldSourceEnd(field, nameRef));				
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
@@ -3468,8 +3480,8 @@ public void javadocDeprecatedField(FieldBinding field, ASTNode location, int mod
 			IProblem.JavadocUsingDeprecatedField,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-			location.sourceStart,
-			location.sourceEnd);
+			fieldSourceStart(field, location),
+			fieldSourceEnd(field, location));
 	}
 }
 public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int modifiers) {
@@ -4076,7 +4088,7 @@ public void localVariableCannotBeNull(LocalVariableBinding local, ASTNode locati
 		IProblem.LocalVariableCannotBeNull,
 		arguments,
 		arguments,
-		location.sourceStart,
+		localSourceStart(local, location),
 		localSourceEnd(local, location));
 }
 public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode location) {
@@ -4085,7 +4097,7 @@ public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode locat
 		IProblem.LocalVariableCanOnlyBeNull,
 		arguments,
 		arguments,
-		location.sourceStart,
+		localSourceStart(local, location),
 		localSourceEnd(local, location));
 }
 public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
@@ -4097,8 +4109,8 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 				: IProblem.LocalVariableHidingLocalVariable,
 			arguments,
 			arguments,
-			local.sourceStart,
-			local.sourceEnd);
+			localSourceStart((LocalVariableBinding) hiddenVariable, local),
+			localSourceEnd((LocalVariableBinding) hiddenVariable, local));
 	} else if (hiddenVariable instanceof FieldBinding) {
 		if (isSpecialArgHidingField && !this.options.reportSpecialParameterHidingField){
 			return;
@@ -4120,7 +4132,7 @@ public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location)
 		IProblem.LocalVariableMayBeNull,
 		arguments,
 		arguments,
-		location.sourceStart,
+		localSourceStart(local, location),
 		localSourceEnd(local, location));
 }
 public void methodMustOverride(AbstractMethodDeclaration method) {
@@ -4200,8 +4212,8 @@ public void missingDeprecatedAnnotationForField(FieldDeclaration field) {
 		IProblem.FieldMissingDeprecatedAnnotation,
 		new String[] {new String(binding.declaringClass.readableName()), new String(binding.name), },
 		new String[] {new String(binding.declaringClass.shortReadableName()), new String(binding.name), },
-		field.sourceStart,
-		field.sourceEnd);
+		fieldSourceStart(binding, field),
+		fieldSourceEnd(binding, field));
 }
 public void missingDeprecatedAnnotationForMethod(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;
@@ -4349,8 +4361,8 @@ public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode 
 		arguments,
 		arguments,
 		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 
 public void noMoreAvailableSpaceForConstant(TypeDeclaration typeDeclaration) {
@@ -4369,8 +4381,8 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode loc
 		arguments,
 		arguments,
 		ProblemSeverities.Abort | ProblemSeverities.Error | ProblemSeverities.Fatal,
-		location.sourceStart,
-		location.sourceEnd);
+		localSourceStart(local, location),
+		localSourceEnd(local, location));
 }
 
 public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {
@@ -4625,8 +4637,8 @@ public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
 		IProblem.ParameterAssignment,
 		arguments,
 		arguments,
-		location.sourceStart,
-		location.sourceEnd); // should never be a qualified name reference
+		localSourceStart(local, location),
+		localSourceEnd(local, location)); // should never be a qualified name reference
 }
 private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean makeShort) {
     StringBuffer nameBuffer = new StringBuffer(10);
@@ -5468,7 +5480,7 @@ public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode loc
 		IProblem.UninitializedLocalVariable,
 		arguments,
 		arguments,
-		location.sourceStart,
+		localSourceStart(binding, location),
 		localSourceEnd(binding, location));
 }
 public void unmatchedBracket(int position, ReferenceContext context, CompilationResult compilationResult) {
@@ -5529,8 +5541,7 @@ public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) 
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		fieldSourceStart(field, reference),
-		fieldSourceEnd(field, reference)); 
-
+		fieldSourceEnd(field, reference));
 }
 public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
@@ -5855,8 +5866,8 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			new String(field.declaringClass.shortReadableName()),
 			new String(field.name),
 		 }, 
-		fieldDecl.sourceStart,
-		fieldDecl.sourceEnd);
+		fieldSourceStart(field, fieldDecl),
+		fieldSourceEnd(field, fieldDecl));
 }
 public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 

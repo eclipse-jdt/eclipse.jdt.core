@@ -897,7 +897,7 @@ public void test026() {
 		"----------\n" + 
 		"1. ERROR in p2\\B.java (at line 6)\n" + 
 		"	bleh.B = 35;						\n" + 
-		"	^^^^^^\n" + 
+		"	     ^\n" + 
 		"The field A.B.B is not visible\n" + 
 		"----------\n");
 }

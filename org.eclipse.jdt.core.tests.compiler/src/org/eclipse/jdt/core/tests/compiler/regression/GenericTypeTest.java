@@ -13790,7 +13790,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in test2\\FooBar.java (at line 6)\n" + 
 			"	f.s = \"foo\"; \n" + 
-			"	^^^\n" + 
+			"	  ^\n" + 
 			"The field Foo<String>.s is not visible\n" + 
 			"----------\n" + 
 			"2. ERROR in test2\\FooBar.java (at line 7)\n" + 
