@@ -284,7 +284,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 							}
 						}
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.InconsistentHierarchy)) {
-						this.accessFlags |= ClassFileConstants.AccHierarchyInconsistent;
+						this.tagBits |= TagBits.HasInconsistentHierarchy;
 					}
 					break;
 				case 'S' :
@@ -662,8 +662,15 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		if (this.getModifiers() != newClassFile.getModifiers())
 			return true;
 
+		// only consider a portion of the tagbits which indicate a structural change for dependents
+		// e.g. @Override change has no influence outside
+		long OnlyStructuralTagBits = TagBits.AnnotationTargetMASK // different @Target status ?
+			| TagBits.AnnotationDeprecated // different @Deprecated status ?
+			| TagBits.AnnotationRetentionMASK // different @Retention status ?
+			| TagBits.HasInconsistentHierarchy; // different hierarchy status ?
+		
 		// meta-annotations
-		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK))
+		if ((this.getTagBits() & OnlyStructuralTagBits) != (newClassFile.getTagBits() & OnlyStructuralTagBits))
 			return true;
 		
 		// generic signature

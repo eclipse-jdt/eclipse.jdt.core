@@ -46,7 +46,6 @@ public interface ClassFileConstants {
 	 */
 	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
 	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"
-	int AccHierarchyInconsistent = ASTNode.Bit22; 
 
 	int Utf8Tag = 1;
 	int IntegerTag = 3;

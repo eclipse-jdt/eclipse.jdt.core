@@ -26,6 +26,8 @@ public interface TagBits {
 	long AnonymousTypeMask = LocalTypeMask | IsAnonymousType;
 	long IsBinaryBinding = ASTNode.Bit7;
 	
+	long HasInconsistentHierarchy = ASTNode.Bit8; // for binary type binding only
+	
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type
