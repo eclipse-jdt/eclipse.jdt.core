@@ -2971,21 +2971,24 @@ class ASTConverter {
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
 		int start = localDeclaration.sourceEnd;
-		if (localDeclaration.initialization != null) {
-			final Expression expression = convert(localDeclaration.initialization);
+		org.eclipse.jdt.internal.compiler.ast.Expression initialization = localDeclaration.initialization;
+		boolean hasInitialization = initialization != null;
+		if (hasInitialization) {
+			final Expression expression = convert(initialization);
 			variableDeclarationFragment.setInitializer(expression);
 			start = expression.getStartPosition() + expression.getLength();
 		}
 		int end = retrievePositionBeforeNextCommaOrSemiColon(start, localDeclaration.declarationSourceEnd);
 		if (end == -1) {
-			if (localDeclaration.initialization != null) {
-				variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, localDeclaration.initialization.sourceEnd - localDeclaration.sourceStart + 1);
+			if (hasInitialization) {
+				// the initiazation sourceEnd is modified during convert(initialization)
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=128961
+				end = start - 1;
 			} else {
-				variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
+				end = localDeclaration.sourceEnd;
 			}
-		} else {
-			variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
 		}
+		variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength));
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
