@@ -4720,7 +4720,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: create() in HashOrder overrides <U>create() in DoubleHash; return type requires unchecked conversion
 		);
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106880
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125956
 	public void test081() {
 		this.runNegativeTest(
 			new String[] {
@@ -4748,6 +4748,26 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// <S>bar() in X cannot implement <S>bar() in I; attempting to use incompatible return type
 			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105339
+	public void test082() {
+		this.runNegativeTest(
+			new String[] {
+				"V.java",
+				"public class V extends U { @Override public C<B> foo() { return null; } }\n" +
+				"class U { public <T extends A> C<T> foo() { return null; } }\n" +
+				"class A {}\n" +
+				"class B extends A {}\n" +
+				"class C<T> {}"
+			},
+			"----------\n" + 
+			"1. WARNING in V.java (at line 1)\n" + 
+			"	public class V extends U { @Override public C<B> foo() { return null; } }\n" + 
+			"	                                            ^\n" + 
+			"Type safety: The return type C<B> for foo() from the type V needs unchecked conversion to conform to C<A> from the type U\n" + 
+			"----------\n"
+			// warning: foo() in V overrides <T>foo() in U; return type requires unchecked conversion
 		);
 	}
 }
