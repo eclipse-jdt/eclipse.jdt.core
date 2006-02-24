@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 633 };
+//		TESTS_NUMBERS =  new int[] { 635, 636 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7322,6 +7322,75 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("no result", result);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			assertTrue("ArrayIndexOutOfBoundsException", false);
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=128960
+	 */
+	public void test0635() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	void foo(Object tab[]) {\n" + 
+				"    }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration declaration = (MethodDeclaration) node;
+			List parameters = declaration.parameters();
+			assertEquals("wrong number", 1, parameters.size());
+			SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			checkSourceRange(variableDeclaration, "Object tab[]", contents);
+			checkSourceRange(variableDeclaration.getType(), "Object", contents);
+			checkSourceRange(variableDeclaration.getName(), "tab", contents);
+			assertEquals("wrong number of extra dimensions", 1, variableDeclaration.getExtraDimensions());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=128961
+	 */
+	public void test0636() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	void foo(java.lang.Object tab[]) {\n" + 
+				"    }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration declaration = (MethodDeclaration) node;
+			List parameters = declaration.parameters();
+			assertEquals("wrong number", 1, parameters.size());
+			SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			checkSourceRange(variableDeclaration, "java.lang.Object tab[]", contents);
+			checkSourceRange(variableDeclaration.getType(), "java.lang.Object", contents);
+			checkSourceRange(variableDeclaration.getName(), "tab", contents);
+			assertEquals("wrong number of extra dimensions", 1, variableDeclaration.getExtraDimensions());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
 		}
 	}
 }

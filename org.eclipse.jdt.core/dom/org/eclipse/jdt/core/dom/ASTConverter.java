@@ -3262,6 +3262,7 @@ class ASTConverter {
 				simpleType.setName(qualifiedName);
 				type = simpleType;
 				type.setSourceRange(sourceStart, length);
+				length = typeReference.sourceEnd - sourceStart + 1;
 			}
 
 			if (dimensions != 0) {
