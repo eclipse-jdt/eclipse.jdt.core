@@ -618,6 +618,35 @@ public void test021() {
 		fail("bad category for fall-through case problem");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128840
+public void test022() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if (true)\n" + 
+			"            ;\n" + 
+			"        else\n" + 
+			"            ;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	;\n" + 
+		"	^\n" + 
+		"Empty control-flow statement\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	;\n" + 
+		"	^\n" + 
+		"Empty control-flow statement\n" + 
+		"----------\n",
+		null, true, options);
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

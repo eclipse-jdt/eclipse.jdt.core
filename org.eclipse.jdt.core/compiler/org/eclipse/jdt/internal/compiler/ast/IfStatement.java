@@ -50,6 +50,7 @@ public class IfStatement extends Statement {
 		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatement;
 		this.elseStatement = elseStatement;
 		if (elseStatement instanceof IfStatement) elseStatement.bits |= IsElseIfStatement;
+		if (elseStatement instanceof EmptyStatement) elseStatement.bits |= IsUsefulEmptyStatement;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
