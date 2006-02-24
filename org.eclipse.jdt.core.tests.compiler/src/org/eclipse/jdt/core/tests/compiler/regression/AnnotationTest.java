@@ -6276,4 +6276,80 @@ public void test192() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102160
+public void test193() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public @interface A {\n" + 
+			"	A circular1();\n" + 
+			"}\n" + 
+			"@interface B {\n" + 
+			"	A circular2();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 2)\r\n" + 
+		"	A circular1();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: the annotation type A cannot contain attributes of the annotation type itself\n" + 
+		"----------\n"
+	);
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public @interface A {\n" + 
+			"	B circular2();\n" + 
+			"	A circular1();\n" + 
+			"}\n" + 
+			"@interface B {\n" + 
+			"	A circular();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 2)\r\n" + 
+		"	B circular2();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: a cycle exists in between annotation attributes of A and B\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 3)\r\n" + 
+		"	A circular1();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: the annotation type A cannot contain attributes of the annotation type itself\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 6)\r\n" + 
+		"	A circular();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: a cycle exists in between annotation attributes of B and A\n" + 
+		"----------\n"
+	);
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public @interface A {\n" + 
+			"	A circular1();\n" + 
+			"	B circular2();\n" + 
+			"}\n" + 
+			"@interface B {\n" + 
+			"	A circular();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 2)\r\n" + 
+		"	A circular1();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: the annotation type A cannot contain attributes of the annotation type itself\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 3)\r\n" + 
+		"	B circular2();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: a cycle exists in between annotation attributes of A and B\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 6)\r\n" + 
+		"	A circular();\r\n" + 
+		"	^\n" + 
+		"Cycle detected: a cycle exists in between annotation attributes of B and A\n" + 
+		"----------\n"
+	);
+}
 }
