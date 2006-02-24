@@ -141,7 +141,7 @@ public int getCurrentValueIndex() {
  * particular option.
  *
  * In case the set of possibleValues is NoDiscreteValue, then this index is the
- * actual value (e.g. max line lenght set to 80).
+ * actual value (e.g. max line length set to 80).
  *
  * @return int
  */
