@@ -60,7 +60,6 @@ public class Scribe2 {
 	public int lastNumberOfNewLines;
 	public int line;
 	
-	private int[] lineEnds;
 	private String lineSeparator;
 	public Alignment2 memberAlignment;
 	public boolean needSpace = false;

@@ -52,6 +52,7 @@ public class ClassFormatException extends Exception {
 
 	public ClassFormatException(RuntimeException e, char[] fileName) {
 		this.nestedException = e;
+		this.fileName = fileName;
 	}
 	public ClassFormatException(int code) {
 		errorCode = code;
