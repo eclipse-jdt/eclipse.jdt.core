@@ -287,7 +287,7 @@ public FlowInfo analyseCode(
 			if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 				Constant cst = expression.optimizedBooleanConstant();
 				if (cst != Constant.NotAConstant) 
-					this.optimizedBooleanConstant = Constant.fromValue(!cst.booleanValue());
+					this.optimizedBooleanConstant = BooleanConstant.fromValue(!cst.booleanValue());
 			}
 		}
 		if (expressionIsCast) {

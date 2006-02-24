@@ -21,7 +21,7 @@ public class IntLiteral extends NumberLiteral {
 	public static final IntLiteral
 		One = new IntLiteral(new char[]{'1'},0,0,1);//used for ++ and -- 
 
-	static final Constant FORMAT_ERROR = new DoubleConstant(1.0/0.0); // NaN;
+	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;
 public IntLiteral(char[] token, int s, int e) {
 	super(token, s,e);
 }
@@ -37,7 +37,7 @@ public IntLiteral(int intValue) {
 	//	sourceStart = 0;
 	//	sourceEnd = 0;
 	super(null,0,0);
-	constant = Constant.fromValue(intValue);
+	constant = IntConstant.fromValue(intValue);
 	value = intValue;
 	
 }
@@ -47,13 +47,13 @@ public void computeConstant() {
 	//notice that Integer.MIN_VALUE  == -2147483648
 
 	long MAX = Integer.MAX_VALUE;
-	if (this == One) {	constant = Constant.One; return ;}
+	if (this == One) {	constant = IntConstant.fromValue(1); return ;}
 	
 	int length = source.length;
 	long computedValue = 0L;
 	if (source[0] == '0')
 	{	MAX = 0xFFFFFFFFL ; //a long in order to be positive ! 	
-		if (length == 1) {	constant = Constant.fromValue(0); return ;}
+		if (length == 1) {	constant = IntConstant.fromValue(0); return ;}
 		final int shift,radix;
 		int j ;
 		if ( (source[1] == 'x') || (source[1] == 'X') )
@@ -64,7 +64,7 @@ public void computeConstant() {
 		{	j++; //jump over redondant zero
 			if (j == length)
 			{	//watch for 000000000000000000
-				constant = Constant.fromValue(value = (int)computedValue);
+				constant = IntConstant.fromValue(value = (int)computedValue);
 				return ;}}
 		
 		while (j<length)
@@ -82,7 +82,7 @@ public void computeConstant() {
 			computedValue = 10*computedValue + digitValue;
 			if (computedValue > MAX) return /*constant stays null*/ ; }}
 
-	constant = Constant.fromValue(value = (int)computedValue);
+	constant = IntConstant.fromValue(value = (int)computedValue);
 		
 }
 /**

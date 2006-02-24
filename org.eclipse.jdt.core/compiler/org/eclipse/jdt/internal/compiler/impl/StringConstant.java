@@ -11,9 +11,14 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class StringConstant extends Constant {
-	public String value;
+private String value;
     
-public StringConstant(String value) {
+
+public static Constant fromValue(String value) {
+	return new StringConstant(value);
+}
+
+private StringConstant(String value) {
 	this.value = value ;
 }
 

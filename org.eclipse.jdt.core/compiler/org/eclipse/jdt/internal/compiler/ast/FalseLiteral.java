@@ -11,9 +11,11 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class FalseLiteral extends MagicLiteral {
 	static final char[] source = {'f', 'a', 'l', 's', 'e'};
@@ -21,7 +23,7 @@ public FalseLiteral(int s , int e) {
 	super(s,e);
 }
 public void computeConstant() {
-	constant = Constant.fromValue(false);
+	constant = BooleanConstant.fromValue(false);
 }
 /**
  * Code generation for false literal

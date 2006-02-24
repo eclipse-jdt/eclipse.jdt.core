@@ -39,7 +39,7 @@ public class DoubleLiteral extends NumberLiteral {
 					return;
 				}
 				value = v;
-				constant = Constant.fromValue(v);
+				constant = DoubleConstant.fromValue(v);
 			} catch (NumberFormatException e1) {
 				// if the computation of the constant fails
 			}
@@ -87,7 +87,7 @@ public class DoubleLiteral extends NumberLiteral {
 			}
 		}
 		value = doubleValue;
-		constant = Constant.fromValue(value);
+		constant = DoubleConstant.fromValue(value);
 	}
 	/**
 	 * Code generation for the double literak

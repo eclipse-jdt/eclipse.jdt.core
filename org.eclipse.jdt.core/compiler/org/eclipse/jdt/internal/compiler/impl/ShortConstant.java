@@ -11,8 +11,12 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class ShortConstant extends Constant {
-	short value;
-public ShortConstant(short value) {
+private short value;
+
+public static Constant fromValue(short value) {
+	return new ShortConstant(value);
+}
+private ShortConstant(short value) {
 	this.value = value;
 }
 public byte byteValue() {

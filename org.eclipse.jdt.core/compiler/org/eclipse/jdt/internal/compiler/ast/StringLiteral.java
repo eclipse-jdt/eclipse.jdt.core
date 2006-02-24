@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -35,7 +35,7 @@ public class StringLiteral extends Literal {
 
 	public void computeConstant() {
 	
-		constant = Constant.fromValue(String.valueOf(source));
+		constant = StringConstant.fromValue(String.valueOf(source));
 	}
 
 	public ExtendedStringLiteral extendWith(CharLiteral lit){

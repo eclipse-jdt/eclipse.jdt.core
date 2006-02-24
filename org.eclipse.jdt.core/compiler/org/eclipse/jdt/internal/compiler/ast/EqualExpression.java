@@ -126,7 +126,7 @@ public class EqualExpression extends BinaryExpression {
 					right.constant,
 					rightType.id);
 			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT_EQUAL)
-				constant = Constant.fromValue(!constant.booleanValue());
+				constant = BooleanConstant.fromValue(!constant.booleanValue());
 		} else {
 			this.constant = Constant.NotAConstant;
 			// no optimization for null == null

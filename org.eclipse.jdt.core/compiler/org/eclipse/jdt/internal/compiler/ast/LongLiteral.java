@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class LongLiteral extends NumberLiteral {
 	long value;
 	
-	static final Constant FORMAT_ERROR = new DoubleConstant(1.0/0.0); // NaN;	
+	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;	
 		
 public LongLiteral(char[] token, int s,int e) {
 	super(token, s,e);
@@ -35,7 +35,7 @@ public void computeConstant() {
 	long computedValue ;
 	if (source[0] == '0') {
 		if (length == 1) {
-			constant = Constant.fromValue(0L);
+			constant = LongConstant.fromValue(0L);
 			return;
 		}
 		final int shift,radix;
@@ -50,7 +50,7 @@ public void computeConstant() {
 			j++; //jump over redondant zero
 			if ( j == length) {
 				//watch for 0000000000000L
-				constant = Constant.fromValue(value = 0L);
+				constant = LongConstant.fromValue(value = 0L);
 				return ;
 			}
 		}
@@ -95,7 +95,7 @@ public void computeConstant() {
 				return /*constant stays null*/;
 		}
 	}
-	constant = Constant.fromValue(value = computedValue);
+	constant = LongConstant.fromValue(value = computedValue);
 }
 /**
  * Code generation for long literal

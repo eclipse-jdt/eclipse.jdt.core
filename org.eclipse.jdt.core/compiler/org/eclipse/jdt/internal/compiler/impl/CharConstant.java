@@ -12,9 +12,13 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class CharConstant extends Constant {
 
-	char value;
+	private char value;
 
-	public CharConstant(char value) {
+	public static Constant fromValue(char value) {
+		return new CharConstant(value);
+	}	
+
+	private CharConstant(char value) {
 		this.value = value;
 	}
 	public byte byteValue() {

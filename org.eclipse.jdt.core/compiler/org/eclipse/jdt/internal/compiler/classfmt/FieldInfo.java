@@ -281,19 +281,19 @@ private void readConstantAttribute() {
 					if (sign.length == 1) {
 						switch (sign[0]) {
 							case 'Z' : // boolean constant
-								constant = new BooleanConstant(i4At(relativeOffset + 1) == 1);
+								constant = BooleanConstant.fromValue(i4At(relativeOffset + 1) == 1);
 								break;
 							case 'I' : // integer constant
-								constant = new IntConstant(i4At(relativeOffset + 1));
+								constant = IntConstant.fromValue(i4At(relativeOffset + 1));
 								break;
 							case 'C' : // char constant
-								constant = new CharConstant((char) i4At(relativeOffset + 1));
+								constant = CharConstant.fromValue((char) i4At(relativeOffset + 1));
 								break;
 							case 'B' : // byte constant
-								constant = new ByteConstant((byte) i4At(relativeOffset + 1));
+								constant = ByteConstant.fromValue((byte) i4At(relativeOffset + 1));
 								break;
 							case 'S' : // short constant
-								constant = new ShortConstant((short) i4At(relativeOffset + 1));
+								constant = ShortConstant.fromValue((short) i4At(relativeOffset + 1));
 								break;
 							default:
 								constant = Constant.NotAConstant;                   
@@ -303,18 +303,18 @@ private void readConstantAttribute() {
 					}
 					break;
 				case ClassFileConstants.FloatTag :
-					constant = new FloatConstant(floatAt(relativeOffset + 1));
+					constant = FloatConstant.fromValue(floatAt(relativeOffset + 1));
 					break;
 				case ClassFileConstants.DoubleTag :
-					constant = new DoubleConstant(doubleAt(relativeOffset + 1));
+					constant = DoubleConstant.fromValue(doubleAt(relativeOffset + 1));
 					break;
 				case ClassFileConstants.LongTag :
-					constant = new LongConstant(i8At(relativeOffset + 1));
+					constant = LongConstant.fromValue(i8At(relativeOffset + 1));
 					break;
 				case ClassFileConstants.StringTag :
 					utf8Offset = constantPoolOffsets[u2At(relativeOffset + 1)] - structOffset;
 					constant = 
-						new StringConstant(
+						StringConstant.fromValue(
 							String.valueOf(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)))); 
 					break;
 			}

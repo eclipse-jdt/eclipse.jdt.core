@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -23,7 +23,7 @@ public TrueLiteral(int s , int e) {
 	super(s,e);
 }
 public void computeConstant() {
-	this.constant = Constant.fromValue(true);
+	this.constant = BooleanConstant.fromValue(true);
 }
 /**
  * Code generation for the true literal

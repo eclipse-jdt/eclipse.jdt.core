@@ -26,7 +26,7 @@ public void computeConstant() {
 	//This is true for both regular char AND unicode char
 	//BUT not for escape char like '\b' which are char[4]....
 
-	constant = Constant.fromValue(value);
+	constant = CharConstant.fromValue(value);
 }
 private void computeValue() {
 	//The source is a  char[3] first and last char are '
@@ -66,7 +66,7 @@ private void computeValue() {
 			if ((digit = source[3]) != '\'')
 				number = (number * 8) + Character.getNumericValue(digit);
 			else {
-				constant = Constant.fromValue(value = (char) number);
+				constant = CharConstant.fromValue(value = (char) number);
 				break;
 			}
 			if ((digit = source[4]) != '\'')

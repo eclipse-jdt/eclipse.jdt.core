@@ -11,8 +11,17 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class LongConstant extends Constant {
-	long value;
-public LongConstant(long value) {
+private static final LongConstant ZERO = new LongConstant(0L);
+
+private long value;
+
+public static Constant fromValue(long value) {
+	if (value == 0L) {
+		return ZERO;
+	}
+	return new LongConstant(value);
+}
+private LongConstant(long value) {
 	this.value = value;
 }
 public byte byteValue() {

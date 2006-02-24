@@ -14,7 +14,11 @@ public class FloatConstant extends Constant {
 	
 	float value;
 	
-	public FloatConstant(float value) {
+	public static Constant fromValue(float value) {
+		return new FloatConstant(value);
+	}
+
+	private FloatConstant(float value) {
 		this.value = value;
 	}
 	

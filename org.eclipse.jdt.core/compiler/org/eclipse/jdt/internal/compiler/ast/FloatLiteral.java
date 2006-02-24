@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
@@ -41,7 +41,7 @@ public class FloatLiteral extends NumberLiteral {
 					return;
 				}
 				value = v;
-				constant = Constant.fromValue(v);
+				constant = FloatConstant.fromValue(v);
 			} catch (NumberFormatException e1) {
 				// if the computation of the constant fails
 			}
@@ -89,7 +89,7 @@ public class FloatLiteral extends NumberLiteral {
 			}
 		}
 		value = floatValue;
-		constant = Constant.fromValue(value);
+		constant = FloatConstant.fromValue(value);
 	}
 	/**
 	 * Code generation for float literal

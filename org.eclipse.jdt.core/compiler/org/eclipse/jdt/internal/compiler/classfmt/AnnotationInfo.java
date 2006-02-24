@@ -72,47 +72,47 @@ Object decodeDefaultValue() {
 	switch (tag) {
 		case 'Z': // boolean constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new BooleanConstant(i4At(constValueOffset + 1) == 1);
+			value = BooleanConstant.fromValue(i4At(constValueOffset + 1) == 1);
 			this.readOffset += 2;
 			break;
 		case 'I': // integer constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new IntConstant(i4At(constValueOffset + 1));
+			value = IntConstant.fromValue(i4At(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'C': // char constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new CharConstant((char) i4At(constValueOffset + 1));
+			value = CharConstant.fromValue((char) i4At(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'B': // byte constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new ByteConstant((byte) i4At(constValueOffset + 1));
+			value = ByteConstant.fromValue((byte) i4At(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'S': // short constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new ShortConstant((short) i4At(constValueOffset + 1));
+			value = ShortConstant.fromValue((short) i4At(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'D': // double constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new DoubleConstant(doubleAt(constValueOffset + 1));
+			value = DoubleConstant.fromValue(doubleAt(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'F': // float constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new FloatConstant(floatAt(constValueOffset + 1));
+			value = FloatConstant.fromValue(floatAt(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 'J': // long constant
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new LongConstant(i8At(constValueOffset + 1));
+			value = LongConstant.fromValue(i8At(constValueOffset + 1));
 			this.readOffset += 2;
 			break;
 		case 's': // String
 			constValueOffset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-			value = new StringConstant(String.valueOf(utf8At(constValueOffset + 3, u2At(constValueOffset + 1))));
+			value = StringConstant.fromValue(String.valueOf(utf8At(constValueOffset + 3, u2At(constValueOffset + 1))));
 			this.readOffset += 2;
 			break;
 		case 'e':
