@@ -27,7 +27,7 @@ public class IncrementalTests extends Tests {
 	public static Test suite() {
 		return new TestSuite(IncrementalTests.class);
 	}
-
+	
 	/*
 	 * Ensures that the source range for a duplicate secondary type error is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=77283)
@@ -667,5 +667,49 @@ public class IncrementalTests extends Tests {
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 		}
+	}
+
+	
+	public void test129316() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
+
+		IPath yPath = env.addClass(projectPath, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + 
+			"public class Y extends Z {}"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "p", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" +
+			"public class Z {}"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"import p.Y;\n" +
+			"public class X {\n" +
+			"	boolean b(Object o) {\n" + 
+			"		return o instanceof Y;\n" + 
+			"    }\n" +
+			"}"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+		
+		env.addClass(projectPath, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p;\n" +
+				"public class Y extends Zork {}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		IPath xPath = env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class X {\n" +
+				"	boolean b(Object o) {\n" + 
+				"		return o instanceof p.Y;\n" + 
+				"    }\n" +
+				"}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingNoProblemsFor(xPath);
 	}
 }
