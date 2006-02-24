@@ -14,6 +14,22 @@ public class IntConstant extends Constant {
 	
 	int value;
 	
+	public static final IntConstant MINUS_FOUR = new IntConstant(-4);
+	public static final IntConstant MINUS_THREE = new IntConstant(-3);
+	public static final IntConstant MINUS_TWO = new IntConstant(-2);
+	public static final IntConstant MINUS_ONE = new IntConstant(-1);
+	public static final IntConstant ZERO = new IntConstant(0);
+	public static final IntConstant ONE = new IntConstant(1);
+	public static final IntConstant TWO = new IntConstant(2);
+	public static final IntConstant THREE = new IntConstant(3);
+	public static final IntConstant FOUR = new IntConstant(4);
+	public static final IntConstant FIVE = new IntConstant(5);
+	public static final IntConstant SIX = new IntConstant(6);
+	public static final IntConstant SEVEN = new IntConstant(7);
+	public static final IntConstant EIGHT= new IntConstant(8);
+	public static final IntConstant NINE = new IntConstant(9);
+	public static final IntConstant TEN = new IntConstant(10);
+	
 	public IntConstant(int value) {
 		this.value = value;
 	}

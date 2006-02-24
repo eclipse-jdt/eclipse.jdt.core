@@ -9,28 +9,32 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
+
 public class BooleanConstant extends Constant {
 
 	boolean value;
 	
-	public BooleanConstant(boolean value) {
-		this.value = value;
-	}
+	public static final BooleanConstant TRUE = new BooleanConstant(true);
+	public static final BooleanConstant FALSE = new BooleanConstant(false);
+	
+public BooleanConstant(boolean value) {
+	this.value = value;
+}
 
-	public boolean booleanValue() {
-		return value;
-	}
+public boolean booleanValue() {
+	return value;
+}
 
-	public String stringValue() {
-		//spec 15.17.11
-		return String.valueOf(this.value);
-	}
+public String stringValue() {
+	//spec 15.17.11
+	return String.valueOf(this.value);
+}
 
-	public String toString(){
-		return "(boolean)" + value ;  //$NON-NLS-1$
-	}
+public String toString(){
+	return "(boolean)" + value ;  //$NON-NLS-1$
+}
 
-	public int typeID() {
-		return T_boolean;
-	}
+public int typeID() {
+	return T_boolean;
+}
 }

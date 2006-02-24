@@ -505,7 +505,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 				if (rightId == T_JavaLangString) {
 					//String are interned in th compiler==>thus if two string constant
 					//get to be compared, it is an equal on the vale which is done
-					return Constant.fromValue(((StringConstant)left).compileTimeEqual((StringConstant)right));
+					return Constant.fromValue(((StringConstant)left).hasSameValue(right));
 				}
 			break;	
 			case T_null :
@@ -1544,6 +1544,23 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	public static Constant fromValue(int value) {
 
+		switch (value) {
+			case -4 : return IntConstant.MINUS_FOUR;
+			case -3 : return IntConstant.MINUS_THREE;
+			case -2 : return IntConstant.MINUS_TWO;
+			case -1 : return IntConstant.MINUS_ONE;
+			case 0 : return IntConstant.ZERO;
+			case 1 : return IntConstant.ONE;
+			case 2 : return IntConstant.TWO;
+			case 3 : return IntConstant.THREE;
+			case 4 : return IntConstant.FOUR;
+			case 5 : return IntConstant.FIVE;
+			case 6 : return IntConstant.SIX;
+			case 7 : return IntConstant.SEVEN;
+			case 8 : return IntConstant.EIGHT;
+			case 9 : return IntConstant.NINE;
+			case 10 : return IntConstant.TEN;
+		}
 		return new IntConstant(value);
 	}
 
@@ -1564,9 +1581,46 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	public static Constant fromValue(boolean value) {
 
-		return new BooleanConstant(value);
+		return value ? BooleanConstant.TRUE : BooleanConstant.FALSE;
+		//return new BooleanConstant(value);
 	}
 
+	/**
+	 * Returns true if both constants have the same type and the same actual value
+	 * @param otherConstant
+	 */
+	public boolean hasSameValue(Constant otherConstant) {
+		if (this == otherConstant) 
+			return true;
+		int typeID;
+		if ((typeID = typeID()) != otherConstant.typeID()) 
+			return false;
+		switch (typeID) {
+			case TypeIds.T_boolean:
+				return booleanValue() == otherConstant.booleanValue();
+			case TypeIds.T_byte:
+				return byteValue() == otherConstant.byteValue();
+			case TypeIds.T_char:
+				return charValue() == otherConstant.charValue();
+			case TypeIds.T_double:
+				return doubleValue() == otherConstant.doubleValue();
+			case TypeIds.T_float:
+				return floatValue() == otherConstant.floatValue();
+			case TypeIds.T_int:
+				return intValue() == otherConstant.intValue();
+			case TypeIds.T_short:
+				return shortValue() == otherConstant.shortValue();
+			case TypeIds.T_long:
+				return longValue() == otherConstant.longValue();
+			case TypeIds.T_JavaLangString:
+				String value = stringValue();
+				return value == null 
+					? otherConstant.stringValue() == null
+					: value.equals(otherConstant.stringValue());
+		}
+		return false;
+	}
+	
 	public int intValue() {
 
 		throw new ShouldNotImplement(Messages.bind(Messages.constant_cannotCastedInto, new String[] { typeName(), "int" })); //$NON-NLS-1$
