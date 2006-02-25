@@ -5188,12 +5188,18 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 			1);
 	    return;
 	}
+	int end = location.sourceEnd;
+	/*if (location instanceof ArrayTypeReference) {
+		ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
+		if (arrayTypeReference.token != null && arrayTypeReference.token.length == 0) return;
+		end = arrayTypeReference.originalSourceEnd;
+	}*/
     this.handle(
 		IProblem.StaticMemberOfParameterizedType,
 		new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
 		new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
 		location.sourceStart,
-		location.sourceEnd);
+		end);
 }
 public void stringConstantIsExceedingUtf8Limit(ASTNode location) {
 	this.handle(

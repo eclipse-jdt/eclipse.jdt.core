@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 210 };
+//		TESTS_NUMBERS = new int[] { 211 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6388,5 +6388,61 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
 		Type type = instanceofExpression.getRightOperand();
 		checkSourceRange(type, "Future<?>", contents);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129096
+	 */
+	public void test0211() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"	void foo(java.util.List<?> tab[]) {\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			workingCopy,
+			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		List parameters = declaration.parameters();
+		assertEquals("wrong number", 1, parameters.size());
+		SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		checkSourceRange(variableDeclaration, "java.util.List<?> tab[]", contents);
+		checkSourceRange(variableDeclaration.getType(), "java.util.List<?>", contents);
+		checkSourceRange(variableDeclaration.getName(), "tab", contents);
+		assertEquals("wrong number of extra dimensions", 1, variableDeclaration.getExtraDimensions());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129096
+	 */
+	public void test0212() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"	void foo(java.util.List<?> tab[][]) {\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			workingCopy,
+			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		List parameters = declaration.parameters();
+		assertEquals("wrong number", 1, parameters.size());
+		SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		checkSourceRange(variableDeclaration, "java.util.List<?> tab[][]", contents);
+		checkSourceRange(variableDeclaration.getType(), "java.util.List<?>", contents);
+		checkSourceRange(variableDeclaration.getName(), "tab", contents);
+		assertEquals("wrong number of extra dimensions", 2, variableDeclaration.getExtraDimensions());
 	}
 }

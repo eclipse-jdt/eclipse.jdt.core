@@ -8242,7 +8242,11 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 				currentIdentifiersLength = this.identifierLengthStack[this.identifierLengthPtr--];
 			}
 		}
-		return new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
+		ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
+		if (dim != 0) {
+			parameterizedQualifiedTypeReference.sourceEnd = this.endPosition;
+		}
+		return parameterizedQualifiedTypeReference;
 	}
 }
 protected NameReference getUnspecifiedReference() {

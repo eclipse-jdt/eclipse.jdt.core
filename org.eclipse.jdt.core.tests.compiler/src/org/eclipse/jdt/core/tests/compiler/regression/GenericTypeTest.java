@@ -8323,8 +8323,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in C.java (at line 2)\r\n" + 
-			"	public B<Z> test(Z zValue,B<D<Y>> yValue){ return new B<Z>(zValue,yValue); }\r\n" + 
+			"1. ERROR in C.java (at line 2)\n" + 
+			"	public B<Z> test(Z zValue,B<D<Y>> yValue){ return new B<Z>(zValue,yValue); }\n" + 
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The constructor B<Z>(Z, B<D<Y>>) is undefined\n" + 
 			"----------\n",
@@ -10159,8 +10159,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	<T, S> S foo(Class<S> c) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T, S> S foo(Class<S> c) { return null; }\n" + 
 			"	         ^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
 			"----------\n");
@@ -10177,8 +10177,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	<T, S> T foo(Class<T> c) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T, S> T foo(Class<T> c) { return null; }\n" + 
 			"	         ^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
@@ -10195,8 +10195,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	<T> T foo(Class<T> c) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T> T foo(Class<T> c) { return null; }\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
@@ -10554,18 +10554,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"	,
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\r\n" + 
-			"	void foo1(MX<? extends MX> target, MX<MX<String>> value) {\r\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	void foo1(MX<? extends MX> target, MX<MX<String>> value) {\n" + 
 			"	                       ^^\n" + 
 			"MX is a raw type. References to generic type MX<E> should be parameterized\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\r\n" + 
-			"	void foo3(MX<? super MX> target, MX<MX<String>> value) {\r\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	void foo3(MX<? super MX> target, MX<MX<String>> value) {\n" + 
 			"	                     ^^\n" + 
 			"MX is a raw type. References to generic type MX<E> should be parameterized\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\r\n" + 
-			"	target= value; // foo3\r\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	target= value; // foo3\n" + 
 			"	        ^^^^^\n" + 
 			"Type mismatch: cannot convert from MX<MX<String>> to MX<? super MX>\n" + 
 			"----------\n");
@@ -11394,18 +11394,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 22)\r\n" + 
-			"	final Collection<String> cL = (Collection<String>)emptyList(); // 2\r\n" + 
+			"1. ERROR in X.java (at line 22)\n" + 
+			"	final Collection<String> cL = (Collection<String>)emptyList(); // 2\n" + 
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from List<Object> to Collection<String>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 25)\r\n" + 
-			"	final Iterable<String> iL = (Iterable<String>)emptyList(); // 3\r\n" + 
+			"2. ERROR in X.java (at line 25)\n" + 
+			"	final Iterable<String> iL = (Iterable<String>)emptyList(); // 3\n" + 
 			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from List<Object> to Iterable<String>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 31)\r\n" + 
-			"	final Iterable<String> iC = (Iterable<String>)emptyCollection(); // 5\r\n" + 
+			"3. ERROR in X.java (at line 31)\n" + 
+			"	final Iterable<String> iC = (Iterable<String>)emptyCollection(); // 5\n" + 
 			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Collection<Object> to Iterable<String>\n" + 
 			"----------\n");
@@ -12939,13 +12939,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"	,
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	Zork z;\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\r\n" + 
-			"	final T val = (T) getProperty(src, name); // this gives erroneous cast warning\r\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	final T val = (T) getProperty(src, name); // this gives erroneous cast warning\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
 			"----------\n");
@@ -13122,13 +13122,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\r\n" + 
-			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\r\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
 			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\r\n" + 
-			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\r\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\n" + 
 			"	                                  ^^^^^^^^^^^^^^^\n" + 
 			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" + 
 			"----------\n");
@@ -13191,8 +13191,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"interface I {}\n" ,
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	public class X<T extends I & I> {}\r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T extends I & I> {}\n" + 
 			"	                             ^\n" + 
 			"Duplicate bound I\n" + 
 			"----------\n"
@@ -13742,8 +13742,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in test2\\FooBar.java (at line 7)\r\n" + 
-			"	this.s = \"foo\";\r\n" + 
+			"1. ERROR in test2\\FooBar.java (at line 7)\n" + 
+			"	this.s = \"foo\";\n" + 
 			"	         ^^^^^\n" + 
 			"Type mismatch: cannot convert from String to R\n" + 
 			"----------\n"	);
@@ -14101,8 +14101,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\r\n" + 
-			"	m(new Y<Short>(), new Y<Integer>());\r\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	m(new Y<Short>(), new Y<Integer>());\n" + 
 			"	^\n" + 
 			"The method m(Y<T>, Y<T>) in the type X is not applicable for the arguments (Y<Short>, Y<Integer>)\n" + 
 			"----------\n");
@@ -16314,13 +16314,13 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in Baz.java (at line 3)\r\n" + 
-			"	interface Bar extends Foo {\r\n" + 
+			"1. WARNING in Baz.java (at line 3)\n" + 
+			"	interface Bar extends Foo {\n" + 
 			"	                      ^^^\n" + 
 			"Foo is a raw type. References to generic type Foo<X> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in Baz.java (at line 10)\r\n" + 
-			"	return visit(c, d);\r\n" + 
+			"2. ERROR in Baz.java (at line 10)\n" + 
+			"	return visit(c, d);\n" + 
 			"	       ^^^^^\n" + 
 			"The method visit(Collection<? extends Foo<?>>, D) in the type Baz<R,D> is not applicable for the arguments (Collection<Bar>, D)\n" + 
 			"----------\n");
@@ -20856,13 +20856,13 @@ public void test675() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\r\n" + 
-		"	Store<? extends Key<T>> store1;\r\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store1;\n" + 
 		"	                    ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\r\n" + 
-		"	Store<? extends Key<? extends T>> store2;\r\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Store<? extends Key<? extends T>> store2;\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n");
@@ -22538,8 +22538,8 @@ public void test736() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\r\n" + 
-		"	D<? extends Exception> d = (D<? extends Exception>) c;\r\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	D<? extends Exception> d = (D<? extends Exception>) c;\n" + 
 		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from C to D<? extends Exception>\n" + 
 		"----------\n");
@@ -22780,8 +22780,8 @@ public void test744() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in java\\util\\X.java (at line 23)\r\n" + 
-		"	Zork z;\r\n" + 
+		"1. ERROR in java\\util\\X.java (at line 23)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -22829,8 +22829,8 @@ public void test747() {
 			"}",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\r\n" + 
-		"	class Y<U extends T & I> {\r\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	class Y<U extends T & I> {\n" + 
 		"	                      ^\n" + 
 		"Cannot specify any additional bound X.I when first bound is a type parameter\n" + 
 		"----------\n");
@@ -23037,13 +23037,13 @@ public void test755() {
 			"}",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\r\n" + 
-		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
-		"	^^^^^^\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<?>.B[] b = new X<?>.B[1];\n" + 
+		"	^^^^^^^^\n" + 
 		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\r\n" + 
-		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	X<?>.B[] b = new X<?>.B[1];\n" + 
 		"	                 ^^^^^^\n" + 
 		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" + 
 		"----------\n");
@@ -23278,8 +23278,8 @@ public void test764() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\r\n" + 
-		"	this(label, bindings, (List<IIfClosure>)Collections.emptyList());\r\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	this(label, bindings, (List<IIfClosure>)Collections.emptyList());\n" + 
 		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from List<Object> to List<IIfClosure>\n" + 
 		"----------\n");
@@ -23912,8 +23912,8 @@ public void test781() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\r\n" + 
-		"	public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\r\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\n" + 
 		"	                                ^^^^^^^^^^\n" + 
 		"Cannot specify any additional bound Comparable<? super T> when first bound is a type parameter\n" + 
 		"----------\n");
@@ -25080,7 +25080,7 @@ public void test817() {
 			"----------\n" + 
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 14)\n" + 
@@ -25702,28 +25702,28 @@ public void test830() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\r\n" + 
-		"	X x = (X) o;\r\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	X x = (X) o;\n" + 
 		"	^\n" + 
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\r\n" + 
-		"	X<String> xs = (X<String>)o;\r\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	X<String> xs = (X<String>)o;\n" + 
 		"	               ^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to X<String> is actually checking against the erased type X\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\r\n" + 
-		"	Zork z;\r\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 10)\r\n" + 
-		"	List l = (List) al;\r\n" + 
+		"4. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
 		"	^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 10)\r\n" + 
-		"	List l = (List) al;\r\n" + 
+		"5. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
 		"	         ^^^^^^^^^\n" + 
 		"Unnecessary cast from ArrayList<String> to List\n" + 
 		"----------\n");
@@ -26407,8 +26407,8 @@ public void test852() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\r\n" + 
-		"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\r\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\n" + 
 		"	                                   ^^^^^^^^\n" + 
 		"Cannot specify any additional bound Runnable when first bound is a type parameter\n" + 
 		"----------\n");	
@@ -27872,13 +27872,13 @@ public void test900() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 11)\r\n" + 
-		"	((Comparable<R>) new Implements()).toString();\r\n" + 
+		"1. WARNING in X.java (at line 11)\n" + 
+		"	((Comparable<R>) new Implements()).toString();\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from X.Implements to Comparable<R> is actually checking against the erased type Comparable\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 16)\r\n" + 
-		"	Zork z;\r\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -28116,8 +28116,8 @@ public void test909() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 24)\r\n" + 
-		"	Zork z;\r\n" + 
+		"1. ERROR in X.java (at line 24)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
