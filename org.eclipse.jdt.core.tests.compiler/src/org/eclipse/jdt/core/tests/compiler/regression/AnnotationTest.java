@@ -117,12 +117,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in Foo.java (at line 2)\n" + 
 			"	Bar value();\n" + 
 			"	^^^\n" + 
-			"Cycle detected: a cycle exists in between annotation attributes of Foo and Bar\n" + 
+			"Cycle detected: a cycle exists between annotation attributes of Foo and Bar\n" + 
 			"----------\n" + 
 			"2. ERROR in Foo.java (at line 6)\n" + 
 			"	Foo value();\n" + 
 			"	^^^\n" + 
-			"Cycle detected: a cycle exists in between annotation attributes of Bar and Foo\n" + 
+			"Cycle detected: a cycle exists between annotation attributes of Bar and Foo\n" + 
 			"----------\n");
 	    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85538
 		this.runNegativeTest(
@@ -140,12 +140,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	N2 nest();\n" + 
 			"	^^\n" + 
-			"Cycle detected: a cycle exists in between annotation attributes of Nested and N2\n" + 
+			"Cycle detected: a cycle exists between annotation attributes of Nested and N2\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	Nested n2() default @Nested(name=\"Haus\", nest= @N2);\n" + 
 			"	^^^^^^\n" + 
-			"Cycle detected: a cycle exists in between annotation attributes of N2 and Nested\n" + 
+			"Cycle detected: a cycle exists between annotation attributes of N2 and Nested\n" + 
 			"----------\n");
 	}
 
@@ -6310,7 +6310,7 @@ public void test193() {
 		"1. ERROR in A.java (at line 2)\r\n" + 
 		"	B circular2();\r\n" + 
 		"	^\n" + 
-		"Cycle detected: a cycle exists in between annotation attributes of A and B\n" + 
+		"Cycle detected: a cycle exists between annotation attributes of A and B\n" + 
 		"----------\n" + 
 		"2. ERROR in A.java (at line 3)\r\n" + 
 		"	A circular1();\r\n" + 
@@ -6320,7 +6320,7 @@ public void test193() {
 		"3. ERROR in A.java (at line 6)\r\n" + 
 		"	A circular();\r\n" + 
 		"	^\n" + 
-		"Cycle detected: a cycle exists in between annotation attributes of B and A\n" + 
+		"Cycle detected: a cycle exists between annotation attributes of B and A\n" + 
 		"----------\n"
 	);
 	this.runNegativeTest(
@@ -6343,12 +6343,12 @@ public void test193() {
 		"2. ERROR in A.java (at line 3)\r\n" + 
 		"	B circular2();\r\n" + 
 		"	^\n" + 
-		"Cycle detected: a cycle exists in between annotation attributes of A and B\n" + 
+		"Cycle detected: a cycle exists between annotation attributes of A and B\n" + 
 		"----------\n" + 
 		"3. ERROR in A.java (at line 6)\r\n" + 
 		"	A circular();\r\n" + 
 		"	^\n" + 
-		"Cycle detected: a cycle exists in between annotation attributes of B and A\n" + 
+		"Cycle detected: a cycle exists between annotation attributes of B and A\n" + 
 		"----------\n"
 	);
 }
