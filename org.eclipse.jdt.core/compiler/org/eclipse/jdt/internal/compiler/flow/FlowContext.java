@@ -34,21 +34,117 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  */
 public class FlowContext implements TypeConstants {
 	
-	public ASTNode associatedNode;
-	public FlowContext parent;
-	boolean deferNullDiagnostic, preemptNullDiagnostic; 
-		// preempt marks looping contexts
+	// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
+	public static final int 
+	  CAN_ONLY_NULL_NON_NULL = 20, 
+	  	// check against null and non null, with definite values -- comparisons
+	  CAN_ONLY_NULL = 21,
+	  	// check against null, with definite values -- assignment to null
+	  MAY_NULL = 22;
+			// check against null, with potential values -- NPE guard
+	public ASTNode associatedNode; 
+		public FlowContext parent;
 		
+boolean deferNullDiagnostic, preemptNullDiagnostic;
+
 public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
 	this.associatedNode = associatedNode;
-	deferNullDiagnostic = parent != null && 
+	this.deferNullDiagnostic = parent != null && 
 		(parent.deferNullDiagnostic || parent.preemptNullDiagnostic); 
 }
 
 public BranchLabel breakLabel() {
 	return null;
+}
+
+public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location, FlowInfo flowInfo, BlockScope scope) {
+	// LIGHT-VERSION OF THE EQUIVALENT WITH AN ARRAY OF EXCEPTIONS
+	// check that all the argument exception types are handled
+	// JDK Compatible implementation - when an exception type is thrown, 
+	// all related catch blocks are marked as reachable... instead of those only
+	// until the point where it is safely handled (Smarter - see comment at the end)
+	FlowContext traversedContext = this;
+	while (traversedContext != null) {
+		SubRoutineStatement sub;
+		if (((sub = traversedContext.subroutine()) != null) && sub.isSubRoutineEscaping()) {
+			// traversing a non-returning subroutine means that all unhandled 
+			// exceptions will actually never get sent...
+			return;
+		}
+		
+		// filter exceptions that are locally caught from the innermost enclosing 
+		// try statement to the outermost ones.
+		if (traversedContext instanceof ExceptionHandlingFlowContext) {
+			ExceptionHandlingFlowContext exceptionContext =
+				(ExceptionHandlingFlowContext) traversedContext;
+			ReferenceBinding[] caughtExceptions;
+			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
+				boolean definitelyCaught = false;
+				for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
+					caughtIndex < caughtCount;
+					caughtIndex++) {
+					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
+				    int state = caughtException == null 
+				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
+				        : Scope.compareTypes(raisedException, caughtException);						
+					switch (state) {
+						case Scope.EQUAL_OR_MORE_SPECIFIC :
+							exceptionContext.recordHandlingException(
+								caughtException,
+								flowInfo.unconditionalInits(),
+								raisedException,
+								location,
+								definitelyCaught);
+							// was it already definitely caught ?
+							definitelyCaught = true;
+							break;
+						case Scope.MORE_GENERIC :
+							exceptionContext.recordHandlingException(
+								caughtException,
+								flowInfo.unconditionalInits(),
+								raisedException,
+								location,
+								false);
+							// was not caught already per construction
+					}
+				}
+				if (definitelyCaught)
+					return;
+			}
+			// method treatment for unchecked exceptions
+			if (exceptionContext.isMethodContext) {
+				if (raisedException.isUncheckedException(false))
+					return;
+					
+				// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
+				// clause will be fixed up later as per JLS 8.6).
+				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
+					AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
+					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
+								
+						exceptionContext.mergeUnhandledException(raisedException);
+						return; // no need to complain, will fix up constructor exceptions						
+					}
+				}
+				break; // not handled anywhere, thus jump to error handling
+			}
+		}
+
+		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+		
+		if (traversedContext instanceof InsideSubRoutineFlowContext) {
+			ASTNode node = traversedContext.associatedNode;
+			if (node instanceof TryStatement) {
+				TryStatement tryStatement = (TryStatement) node;
+				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
+			}
+		}
+		traversedContext = traversedContext.parent;
+	}
+	// if reaches this point, then there are some remaining unhandled exception types.
+	scope.problemReporter().unhandledException(raisedException, location);
 }
 
 public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode location, FlowInfo flowInfo, BlockScope scope) {
@@ -75,7 +171,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 
 	while (traversedContext != null) {
 		SubRoutineStatement sub;
-		if (((sub = traversedContext.subRoutine()) != null) && sub.isSubRoutineEscaping()) {
+		if (((sub = traversedContext.subroutine()) != null) && sub.isSubRoutineEscaping()) {
 			// traversing a non-returning subroutine means that all unhandled 
 			// exceptions will actually never get sent...
 			return;
@@ -165,10 +261,14 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 			return;
 			
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
-		if (traversedContext.associatedNode instanceof TryStatement){
-			TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
-				flowInfo = flowInfo.addInitializationsFrom(tryStatement.subRoutineInits);
-		}
+		
+		if (traversedContext instanceof InsideSubRoutineFlowContext) {
+			ASTNode node = traversedContext.associatedNode;
+			if (node instanceof TryStatement) {
+				TryStatement tryStatement = (TryStatement) node;
+				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
+			}
+		}		
 		traversedContext = traversedContext.parent;
 	}
 	// if reaches this point, then there are some remaining unhandled exception types.	
@@ -182,90 +282,6 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 			scope.problemReporter().unhandledException(exception, location);
 		}
 	}
-}
-
-public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location, FlowInfo flowInfo, BlockScope scope) {
-	// LIGHT-VERSION OF THE EQUIVALENT WITH AN ARRAY OF EXCEPTIONS
-	// check that all the argument exception types are handled
-	// JDK Compatible implementation - when an exception type is thrown, 
-	// all related catch blocks are marked as reachable... instead of those only
-	// until the point where it is safely handled (Smarter - see comment at the end)
-	FlowContext traversedContext = this;
-	while (traversedContext != null) {
-		SubRoutineStatement sub;
-		if (((sub = traversedContext.subRoutine()) != null) && sub.isSubRoutineEscaping()) {
-			// traversing a non-returning subroutine means that all unhandled 
-			// exceptions will actually never get sent...
-			return;
-		}
-		
-		// filter exceptions that are locally caught from the innermost enclosing 
-		// try statement to the outermost ones.
-		if (traversedContext instanceof ExceptionHandlingFlowContext) {
-			ExceptionHandlingFlowContext exceptionContext =
-				(ExceptionHandlingFlowContext) traversedContext;
-			ReferenceBinding[] caughtExceptions;
-			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
-				boolean definitelyCaught = false;
-				for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
-					caughtIndex < caughtCount;
-					caughtIndex++) {
-					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
-				    int state = caughtException == null 
-				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
-				        : Scope.compareTypes(raisedException, caughtException);						
-					switch (state) {
-						case Scope.EQUAL_OR_MORE_SPECIFIC :
-							exceptionContext.recordHandlingException(
-								caughtException,
-								flowInfo.unconditionalInits(),
-								raisedException,
-								location,
-								definitelyCaught);
-							// was it already definitely caught ?
-							definitelyCaught = true;
-							break;
-						case Scope.MORE_GENERIC :
-							exceptionContext.recordHandlingException(
-								caughtException,
-								flowInfo.unconditionalInits(),
-								raisedException,
-								location,
-								false);
-							// was not caught already per construction
-					}
-				}
-				if (definitelyCaught)
-					return;
-			}
-			// method treatment for unchecked exceptions
-			if (exceptionContext.isMethodContext) {
-				if (raisedException.isUncheckedException(false))
-					return;
-					
-				// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
-				// clause will be fixed up later as per JLS 8.6).
-				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
-					AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
-					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
-								
-						exceptionContext.mergeUnhandledException(raisedException);
-						return; // no need to complain, will fix up constructor exceptions						
-					}
-				}
-				break; // not handled anywhere, thus jump to error handling
-			}
-		}
-
-		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
-		if (traversedContext.associatedNode instanceof TryStatement){
-			TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
-				flowInfo = flowInfo.addInitializationsFrom(tryStatement.subRoutineInits);
-		}
-		traversedContext = traversedContext.parent;
-	}
-	// if reaches this point, then there are some remaining unhandled exception types.
-	scope.problemReporter().unhandledException(raisedException, location);
 }
 
 public BranchLabel continueLabel() {
@@ -324,7 +340,7 @@ public FlowContext getTargetContextForContinueLabel(char[] labelName) {
 				return lastNonReturningSubRoutine;
 			} 
 			// label is found, but not a continuable location
-			return NotContinuableContext;
+			return FlowContext.NotContinuableContext;
 		}
 		current = current.parent;
 	}
@@ -446,14 +462,6 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
 	}
 }
 
-public static final int 
-  CAN_ONLY_NULL_NON_NULL = 20, 
-  	// check against null and non null, with definite values -- comparisons
-  CAN_ONLY_NULL = 21,
-  	// check against null, with definite values -- assignment to null
-  MAY_NULL = 22;
-		// check against null, with potential values -- NPE guard
-
 /**
  * Record a null reference for use by deferred checks. Only looping or 
  * finally contexts really record that information. The context may
@@ -510,8 +518,8 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		default:
 			// never happens
 	}
-	if (parent != null) {
-		parent.recordUsingNullReference(scope, local, reference, checkType, 
+	if (this.parent != null) {
+		this.parent.recordUsingNullReference(scope, local, reference, checkType, 
 				flowInfo);
 	}
 }
@@ -520,7 +528,7 @@ void removeFinalAssignmentIfAny(Reference reference) {
 	// default implementation: do nothing
 }
 
-public SubRoutineStatement subRoutine() {
+public SubRoutineStatement subroutine() {
 	return null;
 }
 

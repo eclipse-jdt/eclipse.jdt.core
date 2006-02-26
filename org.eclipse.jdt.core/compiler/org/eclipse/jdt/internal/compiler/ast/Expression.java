@@ -915,6 +915,17 @@ public void markAsNonNull() {
 	}
 
 	/**
+	 * Returns an object which can be used to identify identical JSR sequence targets
+	 * (see TryStatement subroutine codegen)
+	 * or <code>null</null> if not reusable
+	 */
+	public Object reusableJSRTarget() {
+		if (this.constant != Constant.NotAConstant)
+			return this.constant;
+		return null;
+	}
+	
+	/**
 	 * Record the type expectation before this expression is typechecked.
 	 * e.g. String s = foo();, foo() will be tagged as being expected of type String
 	 * Used to trigger proper inference of generic method invocations.

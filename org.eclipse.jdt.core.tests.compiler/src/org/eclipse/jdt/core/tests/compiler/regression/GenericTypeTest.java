@@ -28748,4 +28748,84 @@ public void test923() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 
+public void test924() {
+	this.runConformTest(
+		new String[] {
+		"ExtendedOuter.java",
+		"class Outer<O> {\n" + 
+		"	class Inner {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	static void method(Outer<?>.Inner x) {\n" + 
+		"		System.out.println(\"SUCCESS\");\n" +
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+		"	class ExtendedInner extends Inner {\n" + 
+		"		{\n" + 
+		"			Outer.method(this);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		new ExtendedOuter<String>().new ExtendedInner();\n" +
+		"	}\n" +
+		"}\n"		
+		},
+		"SUCCESS");
+}
+public void test925() {
+	this.runConformTest(
+		new String[] {
+		"X.java",
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X<A, B> {\n" + 
+		"	private List<A> toAdd;\n" + 
+		"\n" + 
+		"	public X(List<A> toAdd) {\n" + 
+		"		this.toAdd = toAdd;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private List<A> getRelated(B b) {\n" + 
+		"		// some application logic\n" + 
+		"		// for demo\n" + 
+		"		return toAdd;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@SuppressWarnings(\"unchecked\")\n" + 
+		"	public <L extends List<? super A>, LF extends Factory<L>> L addOrCreate4(\n" + 
+		"			B b, L l, LF lf) {\n" + 
+		"		if (l == null) {\n" + 
+		"			l = lf.create();\n" + 
+		"		}\n" + 
+		"		((List<? super A>) l).addAll(getRelated(b)); \n" + 
+		"		l.addAll(getRelated(b));\n" + 
+		"		return l;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static class ListFactory<T> implements Factory<List<T>> {\n" + 
+		"		public List<T> create() {\n" + 
+		"			return new ArrayList<T>();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static interface Factory<T> {\n" + 
+		"		public T create();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static void main(String... args) {\n" + 
+		"		ListFactory<Number> lf = new ListFactory<Number>();\n" + 
+		"		List<Long> longs = new ArrayList<Long>();\n" + 
+		"		longs.add(new Long(1));\n" + 
+		"		X<Long, Number> test = new X<Long, Number>(longs);\n" + 
+		"		List<Number> ret4 = null;\n" + 
+		"		ret4 = test.addOrCreate4(1, ret4, lf);\n" + 
+		"		System.out.println(\"SUCCESS\");\n" +
+		"	}\n" + 
+		"}\n"
+		},
+		"SUCCESS");
+}
 }

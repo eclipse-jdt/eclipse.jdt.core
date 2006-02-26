@@ -14,49 +14,50 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class BranchStatement extends Statement {
+	
 	public char[] label;
 	public BranchLabel targetLabel;
 	public SubRoutineStatement[] subroutines;
+	
 /**
  * BranchStatement constructor comment.
  */
-public BranchStatement(char[] l, int s,int e) {
-	label = l ;
-	sourceStart = s;
-	sourceEnd = e;
+public BranchStatement(char[] label, int sourceStart,int sourceEnd) {
+	this.label = label ;
+	this.sourceStart = sourceStart;
+	this.sourceEnd = sourceEnd;
 }
+
 /**
  * Branch code generation
  *
  *   generate the finallyInvocationSequence.
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
-	if ((bits & IsReachable) == 0) {
+	if ((this.bits & ASTNode.IsReachable) == 0) {
 		return;
 	}
 	int pc = codeStream.position;
 
 	// generation of code responsible for invoking the finally 
 	// blocks in sequence
-	if (subroutines != null){
-		for (int i = 0, max = subroutines.length; i < max; i++){
-			SubRoutineStatement sub = subroutines[i];
-			sub.generateSubRoutineInvocation(currentScope, codeStream);
-			if (sub.isSubRoutineEscaping()) {
+	if (this.subroutines != null){
+		for (int i = 0, max = this.subroutines.length; i < max; i++){
+			SubRoutineStatement sub = this.subroutines[i];
+			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel);
+			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
-					SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, i, codeStream);
+					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
 					return;
 			}
-			sub.exitAnyExceptionHandler();
 		}
 	}
-	codeStream.goto_(targetLabel);
+	codeStream.goto_(this.targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
-	SubRoutineStatement.reenterAnyExceptionHandlers(subroutines, -1, codeStream);
+	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
 }
+
 public void resolve(BlockScope scope) {
 	// nothing to do during name resolution
 }
-
 }

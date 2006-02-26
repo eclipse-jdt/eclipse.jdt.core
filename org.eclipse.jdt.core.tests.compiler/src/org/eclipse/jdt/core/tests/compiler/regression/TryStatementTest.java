@@ -1621,8 +1621,7 @@ public void test034() {
 			"        [pc: 44, pc: 50] -> 50 when : any\n" + 
 			"        [pc: 72, pc: 78] -> 78 when : any\n" + 
 			"        [pc: 0, pc: 36] -> 89 when : java.lang.Exception\n" + 
-			"        [pc: 59, pc: 64] -> 89 when : java.lang.Exception\n" + 
-			"        [pc: 87, pc: 89] -> 89 when : java.lang.Exception\n" + 
+			"        [pc: 61, pc: 64] -> 89 when : java.lang.Exception\n" + 
 			"        [pc: 106, pc: 112] -> 112 when : any\n" + 
 			"        [pc: 0, pc: 36] -> 123 when : any\n" + 
 			"        [pc: 61, pc: 64] -> 123 when : any\n" + 
@@ -1685,7 +1684,8 @@ public void test034() {
 			"     99  jsr 92\n" + 
 			"    102  ret 1\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 49] -> 49 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 39] -> 49 when : java.lang.Exception\n" + 
+			"        [pc: 41, pc: 47] -> 49 when : java.lang.Exception\n" + 
 			"        [pc: 0, pc: 39] -> 63 when : any\n" + 
 			"        [pc: 41, pc: 47] -> 63 when : any\n" + 
 			"        [pc: 49, pc: 61] -> 63 when : any\n" + 
@@ -1896,6 +1896,974 @@ public void test039() {
 				"}\n",
 			},
 			"[Try:1;-1][Finally1;0][Outering[Return:1;0]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705
+public void test040() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(boolean b) {\n" + 
+				"		try { \n" + 
+				"			if (b){ \n" + 
+				"				int i = 0;\n" + 
+				"				return;\n" + 
+				"			} else {\n" + 
+				"				Object o = null;\n" + 
+				"				return;\n" + 
+				"			}\n" + 
+				"		} finally {\n" + 
+				"			System.out.println(\"done\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(true);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"done");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #15 (Z)V\n" + 
+			"  // Stack: 2, Locals: 4\n" + 
+			"  public void foo(boolean b);\n" + 
+			"     0  iload_1 [b]\n" + 
+			"     1  ifeq 15\n" + 
+			"     4  iconst_0\n" + 
+			"     5  istore_2 [i]\n" + 
+			"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     9  ldc <String \"done\"> [22]\n" + 
+			"    11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    14  return\n" + 
+			"    15  aconst_null\n" + 
+			"    16  astore_2 [o]\n" + 
+			"    17  goto 6\n" + 
+			"    20  astore_3\n" + 
+			"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    24  ldc <String \"done\"> [22]\n" + 
+			"    26  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    29  aload_3\n" + 
+			"    30  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 6] -> 20 when : any\n" + 
+			"        [pc: 15, pc: 20] -> 20 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 6, line: 12]\n" + 
+			"        [pc: 14, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 17, line: 9]\n" + 
+			"        [pc: 20, line: 11]\n" + 
+			"        [pc: 21, line: 12]\n" + 
+			"        [pc: 29, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 31] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 31] local: b index: 1 type: boolean\n" + 
+			"        [pc: 6, pc: 15] local: i index: 2 type: int\n" + 
+			"        [pc: 17, pc: 20] local: o index: 2 type: java.lang.Object\n"
+	: 		"  // Method descriptor #15 (Z)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  public void foo(boolean b);\n" + 
+			"     0  iload_1 [b]\n" + 
+			"     1  ifeq 10\n" + 
+			"     4  iconst_0\n" + 
+			"     5  istore_2 [i]\n" + 
+			"     6  jsr 23\n" + 
+			"     9  return\n" + 
+			"    10  aconst_null\n" + 
+			"    11  astore_2 [o]\n" + 
+			"    12  goto 6\n" + 
+			"    15  astore 4\n" + 
+			"    17  jsr 23\n" + 
+			"    20  aload 4\n" + 
+			"    22  athrow\n" + 
+			"    23  astore_3\n" + 
+			"    24  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    27  ldc <String \"done\"> [22]\n" + 
+			"    29  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    32  ret 3\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 9] -> 15 when : any\n" + 
+			"        [pc: 10, pc: 15] -> 15 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"        [pc: 12, line: 9]\n" + 
+			"        [pc: 15, line: 11]\n" + 
+			"        [pc: 20, line: 13]\n" + 
+			"        [pc: 23, line: 11]\n" + 
+			"        [pc: 24, line: 12]\n" + 
+			"        [pc: 32, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 34] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 34] local: b index: 1 type: boolean\n" + 
+			"        [pc: 6, pc: 10] local: i index: 2 type: int\n" + 
+			"        [pc: 12, pc: 15] local: o index: 2 type: java.lang.Object\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
+public void test041() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(boolean b) {\n" + 
+				"		try { \n" + 
+				"			int i = 0;\n" + 
+				"			return;\n" + 
+				"		} catch(Exception e) {\n" + 
+				"			return;\n" + 
+				"		} finally {\n" + 
+				"			System.out.println(\"done\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(true);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"done");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #15 (Z)V\n" + 
+			"  // Stack: 2, Locals: 4\n" + 
+			"  public void foo(boolean b);\n" + 
+			"     0  iconst_0\n" + 
+			"     1  istore_2 [i]\n" + 
+			"     2  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     5  ldc <String \"done\"> [22]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    10  return\n" + 
+			"    11  astore_2 [e]\n" + 
+			"    12  goto 2\n" + 
+			"    15  astore_3\n" + 
+			"    16  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    19  ldc <String \"done\"> [22]\n" + 
+			"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    24  aload_3\n" + 
+			"    25  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 2] -> 11 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 2] -> 15 when : any\n" + 
+			"        [pc: 11, pc: 15] -> 15 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 2, line: 9]\n" + 
+			"        [pc: 10, line: 5]\n" + 
+			"        [pc: 11, line: 6]\n" + 
+			"        [pc: 12, line: 7]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 16, line: 9]\n" + 
+			"        [pc: 24, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 26] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 26] local: b index: 1 type: boolean\n" + 
+			"        [pc: 2, pc: 11] local: i index: 2 type: int\n" + 
+			"        [pc: 12, pc: 15] local: e index: 2 type: java.lang.Exception\n"
+	: 		"  // Method descriptor #15 (Z)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  public void foo(boolean b);\n" + 
+			"     0  iconst_0\n" + 
+			"     1  istore_2 [i]\n" + 
+			"     2  jsr 18\n" + 
+			"     5  return\n" + 
+			"     6  astore_2 [e]\n" + 
+			"     7  goto 2\n" + 
+			"    10  astore 4\n" + 
+			"    12  jsr 18\n" + 
+			"    15  aload 4\n" + 
+			"    17  athrow\n" + 
+			"    18  astore_3\n" + 
+			"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    22  ldc <String \"done\"> [22]\n" + 
+			"    24  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    27  ret 3\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 5] -> 6 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 5] -> 10 when : any\n" + 
+			"        [pc: 6, pc: 10] -> 10 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 7, line: 7]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"        [pc: 15, line: 10]\n" + 
+			"        [pc: 18, line: 8]\n" + 
+			"        [pc: 19, line: 9]\n" + 
+			"        [pc: 27, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 29] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 29] local: b index: 1 type: boolean\n" + 
+			"        [pc: 2, pc: 6] local: i index: 2 type: int\n" + 
+			"        [pc: 7, pc: 10] local: e index: 2 type: java.lang.Exception\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
+public void test042() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				" public class X {\n" + 
+				" public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().foo(args));\n" + 
+				"	}\n" + 
+				"	String foo(String[] args) {\n" + 
+				"		try {\n" + 
+				"			if (args == null) return \"KO\";\n" + 
+				"			switch(args.length) {\n" + 
+				"			case 0:\n" + 
+				"				return \"OK\";\n" + 
+				"			case 1:\n" + 
+				"				return \"KO\";\n" + 
+				"			case 3:\n" + 
+				"				return \"OK\";\n" + 
+				"			default:\n" + 
+				"				return \"KO\";\n" + 
+				"			}\n" + 
+				"		} finally {\n" + 
+				"			System.out.print(\"FINALLY:\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"FINALLY:OK");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #26 ([Ljava/lang/String;)Ljava/lang/String;\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  java.lang.String foo(java.lang.String[] args);\n" + 
+			"     0  aload_1 [args]\n" + 
+			"     1  ifnonnull 15\n" + 
+			"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     7  ldc <String \"FINALLY:\"> [35]\n" + 
+			"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
+			"    12  ldc <String \"KO\"> [40]\n" + 
+			"    14  areturn\n" + 
+			"    15  aload_1 [args]\n" + 
+			"    16  arraylength\n" + 
+			"    17  tableswitch default: 65\n" + 
+			"          case 0: 48\n" + 
+			"          case 1: 59\n" + 
+			"          case 2: 65\n" + 
+			"          case 3: 62\n" + 
+			"    48  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    51  ldc <String \"FINALLY:\"> [35]\n" + 
+			"    53  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
+			"    56  ldc <String \"OK\"> [42]\n" + 
+			"    58  areturn\n" + 
+			"    59  goto 4\n" + 
+			"    62  goto 48\n" + 
+			"    65  goto 4\n" + 
+			"    68  astore_2\n" + 
+			"    69  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    72  ldc <String \"FINALLY:\"> [35]\n" + 
+			"    74  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
+			"    77  aload_2\n" + 
+			"    78  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 4] -> 68 when : any\n" + 
+			"        [pc: 15, pc: 48] -> 68 when : any\n" + 
+			"        [pc: 59, pc: 68] -> 68 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 4, line: 19]\n" + 
+			"        [pc: 12, line: 7]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 48, line: 19]\n" + 
+			"        [pc: 56, line: 10]\n" + 
+			"        [pc: 59, line: 12]\n" + 
+			"        [pc: 62, line: 14]\n" + 
+			"        [pc: 65, line: 16]\n" + 
+			"        [pc: 68, line: 18]\n" + 
+			"        [pc: 69, line: 19]\n" + 
+			"        [pc: 77, line: 20]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 79] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 79] local: args index: 1 type: java.lang.String[]\n"
+	: 		"  // Method descriptor #26 ([Ljava/lang/String;)Ljava/lang/String;\n" + 
+			"  // Stack: 2, Locals: 4\n" + 
+			"  java.lang.String foo(java.lang.String[] args);\n" + 
+			"     0  aload_1 [args]\n" + 
+			"     1  ifnonnull 10\n" + 
+			"     4  jsr 65\n" + 
+			"     7  ldc <String \"KO\"> [35]\n" + 
+			"     9  areturn\n" + 
+			"    10  aload_1 [args]\n" + 
+			"    11  arraylength\n" + 
+			"    12  tableswitch default: 56\n" + 
+			"          case 0: 44\n" + 
+			"          case 1: 50\n" + 
+			"          case 2: 56\n" + 
+			"          case 3: 53\n" + 
+			"    44  jsr 65\n" + 
+			"    47  ldc <String \"OK\"> [37]\n" + 
+			"    49  areturn\n" + 
+			"    50  goto 4\n" + 
+			"    53  goto 44\n" + 
+			"    56  goto 4\n" + 
+			"    59  astore_3\n" + 
+			"    60  jsr 65\n" + 
+			"    63  aload_3\n" + 
+			"    64  athrow\n" + 
+			"    65  astore_2\n" + 
+			"    66  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    69  ldc <String \"FINALLY:\"> [39]\n" + 
+			"    71  invokevirtual java.io.PrintStream.print(java.lang.String) : void [41]\n" + 
+			"    74  ret 2\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 7] -> 59 when : any\n" + 
+			"        [pc: 10, pc: 47] -> 59 when : any\n" + 
+			"        [pc: 50, pc: 59] -> 59 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"        [pc: 44, line: 10]\n" + 
+			"        [pc: 50, line: 12]\n" + 
+			"        [pc: 53, line: 14]\n" + 
+			"        [pc: 56, line: 16]\n" + 
+			"        [pc: 59, line: 18]\n" + 
+			"        [pc: 63, line: 20]\n" + 
+			"        [pc: 65, line: 18]\n" + 
+			"        [pc: 66, line: 19]\n" + 
+			"        [pc: 74, line: 20]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 76] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 76] local: args index: 1 type: java.lang.String[]\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
+public void test043() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void save() {\n" + 
+				"		int a = 3;\n" + 
+				"		try {\n" + 
+				"			Object warnings = null;\n" + 
+				"			Object contexts = null;\n" + 
+				"			try {\n" + 
+				"				System.out.print(warnings);\n" + 
+				"				return;\n" + 
+				"			} catch (NullPointerException npe) {\n" + 
+				"				System.out.print(contexts);\n" + 
+				"				return;\n" + 
+				"			} finally {\n" + 
+				"				System.out.print(\"#inner -> \" + a);\n" + 
+				"			}\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			return;\n" + 
+				"		} finally {\n" + 
+				"			int var = 0;\n" + 
+				"			System.out.println(\"#save -> \" + a);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().save();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"null#inner -> 3#save -> 3");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 4, Locals: 8\n" + 
+			"  public void save();\n" + 
+			"      0  iconst_3\n" + 
+			"      1  istore_1 [a]\n" + 
+			"      2  aconst_null\n" + 
+			"      3  astore_2 [warnings]\n" + 
+			"      4  aconst_null\n" + 
+			"      5  astore_3 [contexts]\n" + 
+			"      6  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"      9  aload_2 [warnings]\n" + 
+			"     10  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [21]\n" + 
+			"     13  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     16  new java.lang.StringBuilder [27]\n" + 
+			"     19  dup\n" + 
+			"     20  ldc <String \"#inner -> \"> [29]\n" + 
+			"     22  invokespecial java.lang.StringBuilder(java.lang.String) [31]\n" + 
+			"     25  iload_1 [a]\n" + 
+			"     26  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [34]\n" + 
+			"     29  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [38]\n" + 
+			"     32  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     35  iconst_0\n" + 
+			"     36  istore 7 [var]\n" + 
+			"     38  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     41  new java.lang.StringBuilder [27]\n" + 
+			"     44  dup\n" + 
+			"     45  ldc <String \"#save -> \"> [44]\n" + 
+			"     47  invokespecial java.lang.StringBuilder(java.lang.String) [31]\n" + 
+			"     50  iload_1 [a]\n" + 
+			"     51  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [34]\n" + 
+			"     54  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [38]\n" + 
+			"     57  invokevirtual java.io.PrintStream.println(java.lang.String) : void [46]\n" + 
+			"     60  return\n" + 
+			"     61  astore 4 [npe]\n" + 
+			"     63  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     66  aload_3 [contexts]\n" + 
+			"     67  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [21]\n" + 
+			"     70  goto 13\n" + 
+			"     73  astore 5\n" + 
+			"     75  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     78  new java.lang.StringBuilder [27]\n" + 
+			"     81  dup\n" + 
+			"     82  ldc <String \"#inner -> \"> [29]\n" + 
+			"     84  invokespecial java.lang.StringBuilder(java.lang.String) [31]\n" + 
+			"     87  iload_1 [a]\n" + 
+			"     88  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [34]\n" + 
+			"     91  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [38]\n" + 
+			"     94  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     97  aload 5\n" + 
+			"     99  athrow\n" + 
+			"    100  astore_2 [e]\n" + 
+			"    101  goto 35\n" + 
+			"    104  astore 6\n" + 
+			"    106  iconst_0\n" + 
+			"    107  istore 7 [var]\n" + 
+			"    109  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    112  new java.lang.StringBuilder [27]\n" + 
+			"    115  dup\n" + 
+			"    116  ldc <String \"#save -> \"> [44]\n" + 
+			"    118  invokespecial java.lang.StringBuilder(java.lang.String) [31]\n" + 
+			"    121  iload_1 [a]\n" + 
+			"    122  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [34]\n" + 
+			"    125  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [38]\n" + 
+			"    128  invokevirtual java.io.PrintStream.println(java.lang.String) : void [46]\n" + 
+			"    131  aload 6\n" + 
+			"    133  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 6, pc: 13] -> 61 when : java.lang.NullPointerException\n" + 
+			"        [pc: 6, pc: 13] -> 73 when : any\n" + 
+			"        [pc: 61, pc: 73] -> 73 when : any\n" + 
+			"        [pc: 2, pc: 35] -> 100 when : java.lang.Exception\n" + 
+			"        [pc: 61, pc: 100] -> 100 when : java.lang.Exception\n" + 
+			"        [pc: 2, pc: 35] -> 104 when : any\n" + 
+			"        [pc: 61, pc: 104] -> 104 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 4, line: 6]\n" + 
+			"        [pc: 6, line: 8]\n" + 
+			"        [pc: 13, line: 14]\n" + 
+			"        [pc: 35, line: 19]\n" + 
+			"        [pc: 38, line: 20]\n" + 
+			"        [pc: 60, line: 9]\n" + 
+			"        [pc: 61, line: 10]\n" + 
+			"        [pc: 63, line: 11]\n" + 
+			"        [pc: 70, line: 12]\n" + 
+			"        [pc: 73, line: 13]\n" + 
+			"        [pc: 75, line: 14]\n" + 
+			"        [pc: 97, line: 15]\n" + 
+			"        [pc: 100, line: 16]\n" + 
+			"        [pc: 101, line: 17]\n" + 
+			"        [pc: 104, line: 18]\n" + 
+			"        [pc: 106, line: 19]\n" + 
+			"        [pc: 109, line: 20]\n" + 
+			"        [pc: 131, line: 21]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 134] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 134] local: a index: 1 type: int\n" + 
+			"        [pc: 4, pc: 100] local: warnings index: 2 type: java.lang.Object\n" + 
+			"        [pc: 6, pc: 100] local: contexts index: 3 type: java.lang.Object\n" + 
+			"        [pc: 63, pc: 73] local: npe index: 4 type: java.lang.NullPointerException\n" + 
+			"        [pc: 101, pc: 104] local: e index: 2 type: java.lang.Exception\n" + 
+			"        [pc: 38, pc: 60] local: var index: 7 type: int\n" + 
+			"        [pc: 109, pc: 131] local: var index: 7 type: int\n"
+	: 		"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 4, Locals: 10\n" + 
+			"  public void save();\n" + 
+			"      0  iconst_3\n" + 
+			"      1  istore_1 [a]\n" + 
+			"      2  aconst_null\n" + 
+			"      3  astore_2 [warnings]\n" + 
+			"      4  aconst_null\n" + 
+			"      5  astore_3 [contexts]\n" + 
+			"      6  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"      9  aload_2 [warnings]\n" + 
+			"     10  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [21]\n" + 
+			"     13  jsr 40\n" + 
+			"     16  jsr 78\n" + 
+			"     19  return\n" + 
+			"     20  astore 4 [npe]\n" + 
+			"     22  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     25  aload_3 [contexts]\n" + 
+			"     26  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [21]\n" + 
+			"     29  goto 13\n" + 
+			"     32  astore 6\n" + 
+			"     34  jsr 40\n" + 
+			"     37  aload 6\n" + 
+			"     39  athrow\n" + 
+			"     40  astore 5\n" + 
+			"     42  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     45  new java.lang.StringBuffer [27]\n" + 
+			"     48  dup\n" + 
+			"     49  ldc <String \"#inner -> \"> [29]\n" + 
+			"     51  invokespecial java.lang.StringBuffer(java.lang.String) [31]\n" + 
+			"     54  iload_1 [a]\n" + 
+			"     55  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer [34]\n" + 
+			"     58  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [38]\n" + 
+			"     61  invokevirtual java.io.PrintStream.print(java.lang.String) : void [42]\n" + 
+			"     64  ret 5\n" + 
+			"     66  astore_2 [e]\n" + 
+			"     67  goto 16\n" + 
+			"     70  astore 8\n" + 
+			"     72  jsr 78\n" + 
+			"     75  aload 8\n" + 
+			"     77  athrow\n" + 
+			"     78  astore 7\n" + 
+			"     80  iconst_0\n" + 
+			"     81  istore 9 [var]\n" + 
+			"     83  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     86  new java.lang.StringBuffer [27]\n" + 
+			"     89  dup\n" + 
+			"     90  ldc <String \"#save -> \"> [44]\n" + 
+			"     92  invokespecial java.lang.StringBuffer(java.lang.String) [31]\n" + 
+			"     95  iload_1 [a]\n" + 
+			"     96  invokevirtual java.lang.StringBuffer.append(int) : java.lang.StringBuffer [34]\n" + 
+			"     99  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [38]\n" + 
+			"    102  invokevirtual java.io.PrintStream.println(java.lang.String) : void [46]\n" + 
+			"    105  ret 7\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 6, pc: 16] -> 20 when : java.lang.NullPointerException\n" + 
+			"        [pc: 6, pc: 16] -> 32 when : any\n" + 
+			"        [pc: 20, pc: 32] -> 32 when : any\n" + 
+			"        [pc: 2, pc: 19] -> 66 when : java.lang.Exception\n" + 
+			"        [pc: 20, pc: 66] -> 66 when : java.lang.Exception\n" + 
+			"        [pc: 2, pc: 19] -> 70 when : any\n" + 
+			"        [pc: 20, pc: 70] -> 70 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 4, line: 6]\n" + 
+			"        [pc: 6, line: 8]\n" + 
+			"        [pc: 13, line: 9]\n" + 
+			"        [pc: 20, line: 10]\n" + 
+			"        [pc: 22, line: 11]\n" + 
+			"        [pc: 29, line: 12]\n" + 
+			"        [pc: 32, line: 13]\n" + 
+			"        [pc: 37, line: 15]\n" + 
+			"        [pc: 40, line: 13]\n" + 
+			"        [pc: 42, line: 14]\n" + 
+			"        [pc: 64, line: 15]\n" + 
+			"        [pc: 66, line: 16]\n" + 
+			"        [pc: 67, line: 17]\n" + 
+			"        [pc: 70, line: 18]\n" + 
+			"        [pc: 75, line: 21]\n" + 
+			"        [pc: 78, line: 18]\n" + 
+			"        [pc: 80, line: 19]\n" + 
+			"        [pc: 83, line: 20]\n" + 
+			"        [pc: 105, line: 21]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 107] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 107] local: a index: 1 type: int\n" + 
+			"        [pc: 4, pc: 66] local: warnings index: 2 type: java.lang.Object\n" + 
+			"        [pc: 6, pc: 66] local: contexts index: 3 type: java.lang.Object\n" + 
+			"        [pc: 22, pc: 32] local: npe index: 4 type: java.lang.NullPointerException\n" + 
+			"        [pc: 67, pc: 70] local: e index: 2 type: java.lang.Exception\n" + 
+			"        [pc: 83, pc: 105] local: var index: 9 type: int\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129305
+public void test044() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo();\n" + 
+				"	}  \n" + 
+				"	static Object foo() {\n" + 
+				"		try {\n" + 
+				"			return null;\n" + 
+				"		} catch(Exception e) {\n" +
+				"			return null;\n" +
+				"		} finally {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?	"  // Method descriptor #19 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  static java.lang.Object foo();\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"     3  ldc <String \"SUCCESS\"> [28]\n" + 
+			"     5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
+			"     8  aconst_null\n" + 
+			"     9  areturn\n" + 
+			"    10  astore_0 [e]\n" + 
+			"    11  goto 0\n" + 
+			"    14  astore_1\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"    18  ldc <String \"SUCCESS\"> [28]\n" + 
+			"    20  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
+			"    23  aload_1\n" + 
+			"    24  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 10, pc: 14] -> 14 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 11]\n" + 
+			"        [pc: 8, line: 7]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"        [pc: 11, line: 9]\n" + 
+			"        [pc: 14, line: 10]\n" + 
+			"        [pc: 15, line: 11]\n" + 
+			"        [pc: 23, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 11, pc: 14] local: e index: 0 type: java.lang.Exception\n"
+	: 		"  // Method descriptor #19 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  static java.lang.Object foo();\n" + 
+			"     0  jsr 15\n" + 
+			"     3  aconst_null\n" + 
+			"     4  areturn\n" + 
+			"     5  astore_0 [e]\n" + 
+			"     6  goto 0\n" + 
+			"     9  astore_2\n" + 
+			"    10  jsr 15\n" + 
+			"    13  aload_2\n" + 
+			"    14  athrow\n" + 
+			"    15  astore_1\n" + 
+			"    16  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"    19  ldc <String \"SUCCESS\"> [28]\n" + 
+			"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
+			"    24  ret 1\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 3] -> 5 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 3] -> 9 when : any\n" + 
+			"        [pc: 5, pc: 9] -> 9 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 5, line: 8]\n" + 
+			"        [pc: 6, line: 9]\n" + 
+			"        [pc: 9, line: 10]\n" + 
+			"        [pc: 13, line: 12]\n" + 
+			"        [pc: 15, line: 10]\n" + 
+			"        [pc: 16, line: 11]\n" + 
+			"        [pc: 24, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 6, pc: 9] local: e index: 0 type: java.lang.Exception\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129306
+public void test045() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void save() {\n" + 
+				"		try {\n" + 
+				"			Object warnings = null;\n" + 
+				"			Object contexts = null;\n" + 
+				"			try {\n" + 
+				"				System.out.print(\"[try]\");\n" + 
+				"				System.out.print(warnings); \n" + 
+				"				return;\n" + 
+				"			} catch (NullPointerException npe) {\n" + 
+				"				System.out.print(\"[npe]\");\n" + 
+				"				System.out.print(contexts); \n" + 
+				"				return;\n" + 
+				"			}\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			System.out.print(\"[e]\");\n" + 
+				"			return;\n" + 
+				"		} finally { \n" + 
+				"			int var = 0;\n" + 
+				"			System.out.print(\"[finally]\");\n" + 
+				"			Object o = null;\n" + 
+				"			o.toString();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" +
+				"			new X().save();\n" + 
+				"		} catch(NullPointerException e) {\n" +
+				"			System.out.println(\"[caught npe]\");\n" +
+				"		}\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"[try]null[finally][caught npe]");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).inlineJsrBytecode
+		?				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 2, Locals: 7\n" + 
+				"  public void save();\n" + 
+				"     0  aconst_null\n" + 
+				"     1  astore_1 [warnings]\n" + 
+				"     2  aconst_null\n" + 
+				"     3  astore_2 [contexts]\n" + 
+				"     4  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"     7  ldc <String \"[try]\"> [21]\n" + 
+				"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+				"    12  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    15  aload_1 [warnings]\n" + 
+				"    16  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [29]\n" + 
+				"    19  iconst_0\n" + 
+				"    20  istore 5 [var]\n" + 
+				"    22  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    25  ldc <String \"[finally]\"> [32]\n" + 
+				"    27  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+				"    30  aconst_null\n" + 
+				"    31  astore 6 [o]\n" + 
+				"    33  aload 6 [o]\n" + 
+				"    35  invokevirtual java.lang.Object.toString() : java.lang.String [34]\n" + 
+				"    38  pop\n" + 
+				"    39  return\n" + 
+				"    40  astore_3 [npe]\n" + 
+				"    41  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    44  ldc <String \"[npe]\"> [38]\n" + 
+				"    46  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+				"    49  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    52  aload_2 [contexts]\n" + 
+				"    53  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [29]\n" + 
+				"    56  goto 19\n" + 
+				"    59  astore_1 [e]\n" + 
+				"    60  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    63  ldc <String \"[e]\"> [40]\n" + 
+				"    65  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+				"    68  goto 19\n" + 
+				"    71  astore 4\n" + 
+				"    73  iconst_0\n" + 
+				"    74  istore 5 [var]\n" + 
+				"    76  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"    79  ldc <String \"[finally]\"> [32]\n" + 
+				"    81  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+				"    84  aconst_null\n" + 
+				"    85  astore 6\n" + 
+				"    87  aload 6\n" + 
+				"    89  invokevirtual java.lang.Object.toString() : java.lang.String [34]\n" + 
+				"    92  pop\n" + 
+				"    93  aload 4\n" + 
+				"    95  athrow\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 4, pc: 19] -> 40 when : java.lang.NullPointerException\n" + 
+				"        [pc: 0, pc: 19] -> 59 when : java.lang.Exception\n" + 
+				"        [pc: 40, pc: 59] -> 59 when : java.lang.Exception\n" + 
+				"        [pc: 0, pc: 19] -> 71 when : any\n" + 
+				"        [pc: 40, pc: 71] -> 71 when : any\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 2, line: 5]\n" + 
+				"        [pc: 4, line: 7]\n" + 
+				"        [pc: 12, line: 8]\n" + 
+				"        [pc: 19, line: 19]\n" + 
+				"        [pc: 22, line: 20]\n" + 
+				"        [pc: 30, line: 21]\n" + 
+				"        [pc: 33, line: 22]\n" + 
+				"        [pc: 39, line: 9]\n" + 
+				"        [pc: 40, line: 10]\n" + 
+				"        [pc: 41, line: 11]\n" + 
+				"        [pc: 49, line: 12]\n" + 
+				"        [pc: 56, line: 13]\n" + 
+				"        [pc: 59, line: 15]\n" + 
+				"        [pc: 60, line: 16]\n" + 
+				"        [pc: 68, line: 17]\n" + 
+				"        [pc: 71, line: 18]\n" + 
+				"        [pc: 73, line: 19]\n" + 
+				"        [pc: 76, line: 20]\n" + 
+				"        [pc: 84, line: 21]\n" + 
+				"        [pc: 87, line: 22]\n" + 
+				"        [pc: 93, line: 23]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 96] local: this index: 0 type: X\n" + 
+				"        [pc: 2, pc: 59] local: warnings index: 1 type: java.lang.Object\n" + 
+				"        [pc: 4, pc: 59] local: contexts index: 2 type: java.lang.Object\n" + 
+				"        [pc: 41, pc: 59] local: npe index: 3 type: java.lang.NullPointerException\n" + 
+				"        [pc: 60, pc: 71] local: e index: 1 type: java.lang.Exception\n" + 
+				"        [pc: 22, pc: 39] local: var index: 5 type: int\n" + 
+				"        [pc: 76, pc: 93] local: var index: 5 type: int\n" + 
+				"        [pc: 33, pc: 39] local: o index: 6 type: java.lang.Object\n"
+	: 		"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 2, Locals: 8\n" + 
+			"  public void save();\n" + 
+			"     0  aconst_null\n" + 
+			"     1  astore_1 [warnings]\n" + 
+			"     2  aconst_null\n" + 
+			"     3  astore_2 [contexts]\n" + 
+			"     4  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"     7  ldc <String \"[try]\"> [21]\n" + 
+			"     9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    15  aload_1 [warnings]\n" + 
+			"    16  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [29]\n" + 
+			"    19  jsr 62\n" + 
+			"    22  return\n" + 
+			"    23  astore_3 [npe]\n" + 
+			"    24  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    27  ldc <String \"[npe]\"> [32]\n" + 
+			"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+			"    32  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    35  aload_2 [contexts]\n" + 
+			"    36  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [29]\n" + 
+			"    39  goto 19\n" + 
+			"    42  astore_1 [e]\n" + 
+			"    43  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    46  ldc <String \"[e]\"> [34]\n" + 
+			"    48  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+			"    51  goto 19\n" + 
+			"    54  astore 5\n" + 
+			"    56  jsr 62\n" + 
+			"    59  aload 5\n" + 
+			"    61  athrow\n" + 
+			"    62  astore 4\n" + 
+			"    64  iconst_0\n" + 
+			"    65  istore 6 [var]\n" + 
+			"    67  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+			"    70  ldc <String \"[finally]\"> [36]\n" + 
+			"    72  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
+			"    75  aconst_null\n" + 
+			"    76  astore 7 [o]\n" + 
+			"    78  aload 7 [o]\n" + 
+			"    80  invokevirtual java.lang.Object.toString() : java.lang.String [38]\n" + 
+			"    83  pop\n" + 
+			"    84  ret 4\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 4, pc: 19] -> 23 when : java.lang.NullPointerException\n" + 
+			"        [pc: 0, pc: 22] -> 42 when : java.lang.Exception\n" + 
+			"        [pc: 23, pc: 42] -> 42 when : java.lang.Exception\n" + 
+			"        [pc: 0, pc: 22] -> 54 when : any\n" + 
+			"        [pc: 23, pc: 54] -> 54 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 4, line: 7]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"        [pc: 19, line: 9]\n" + 
+			"        [pc: 23, line: 10]\n" + 
+			"        [pc: 24, line: 11]\n" + 
+			"        [pc: 32, line: 12]\n" + 
+			"        [pc: 39, line: 13]\n" + 
+			"        [pc: 42, line: 15]\n" + 
+			"        [pc: 43, line: 16]\n" + 
+			"        [pc: 51, line: 17]\n" + 
+			"        [pc: 54, line: 18]\n" + 
+			"        [pc: 59, line: 23]\n" + 
+			"        [pc: 62, line: 18]\n" + 
+			"        [pc: 64, line: 19]\n" + 
+			"        [pc: 67, line: 20]\n" + 
+			"        [pc: 75, line: 21]\n" + 
+			"        [pc: 78, line: 22]\n" + 
+			"        [pc: 84, line: 23]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 86] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 42] local: warnings index: 1 type: java.lang.Object\n" + 
+			"        [pc: 4, pc: 42] local: contexts index: 2 type: java.lang.Object\n" + 
+			"        [pc: 24, pc: 42] local: npe index: 3 type: java.lang.NullPointerException\n" + 
+			"        [pc: 43, pc: 54] local: e index: 1 type: java.lang.Exception\n" + 
+			"        [pc: 67, pc: 84] local: var index: 6 type: int\n" + 
+			"        [pc: 78, pc: 84] local: o index: 7 type: java.lang.Object\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
 }
 public static Class testClass() {
 	return TryStatementTest.class;

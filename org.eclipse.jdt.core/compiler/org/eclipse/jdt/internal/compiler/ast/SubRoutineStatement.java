@@ -19,12 +19,18 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
  */
 public abstract class SubRoutineStatement extends Statement {
 	
-	ExceptionLabel anyExceptionLabel = null;
+	public static void reenterAllExceptionHandlers(SubRoutineStatement[] subroutines, int max, CodeStream codeStream) {
+		if (subroutines == null) return;
+		if (max < 0) max = subroutines.length;
+		for (int i = 0; i < max; i++) {
+			SubRoutineStatement sub = subroutines[i];
+			sub.enterAnyExceptionHandler(codeStream);
+			sub.enterDeclaredExceptionHandlers(codeStream);
+		}	
+	}
 	
-	public abstract boolean isSubRoutineEscaping();
+	ExceptionLabel anyExceptionLabel;
 
-	public abstract void generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream);
-	
 	public ExceptionLabel enterAnyExceptionHandler(CodeStream codeStream) {
 		
 		if (this.anyExceptionLabel == null) {
@@ -33,22 +39,27 @@ public abstract class SubRoutineStatement extends Statement {
 		this.anyExceptionLabel.placeStart();
 		return this.anyExceptionLabel;
 	}
+	
+	public void enterDeclaredExceptionHandlers(CodeStream codeStream) {
+		// do nothing by default		
+	}
 
 	public void exitAnyExceptionHandler() {
 		if (this.anyExceptionLabel != null) {
 			this.anyExceptionLabel.placeEnd();
 		}
+	}	
+
+	public void exitDeclaredExceptionHandlers(CodeStream codeStream) {
+		// do nothing by default		
 	}
+	
+
+	public abstract boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation);	
+	
+	public abstract boolean isSubRoutineEscaping();
 	
 	public void placeAllAnyExceptionHandler() {
 		this.anyExceptionLabel.place();
-	}
-	
-	public static void reenterAnyExceptionHandlers(SubRoutineStatement[] subroutines, int max, CodeStream codeStream) {
-		if (subroutines == null) return;
-		if (max < 0) max = subroutines.length;
-		for (int i = 0; i < max; i++) {
-			subroutines[i].enterAnyExceptionHandler(codeStream); 
-		}	
 	}
 }

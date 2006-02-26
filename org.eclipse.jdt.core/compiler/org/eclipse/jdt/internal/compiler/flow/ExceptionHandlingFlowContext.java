@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -29,9 +30,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  */
 public class ExceptionHandlingFlowContext extends FlowContext {
 	
-	public ReferenceBinding[] handledExceptions;
-	
 	public final static int BitCacheSize = 32; // 32 bits per int
+	
+	public ReferenceBinding[] handledExceptions;
 	int[] isReached;
 	int[] isNeeded;
 	UnconditionalFlowInfo[] initsOnExceptions;
@@ -43,176 +44,187 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	// for dealing with anonymous constructor thrown exceptions
 	public ArrayList extendedExceptions;
 	
-	public ExceptionHandlingFlowContext(
+public ExceptionHandlingFlowContext(
 		FlowContext parent,
 		ASTNode associatedNode,
 		ReferenceBinding[] handledExceptions,
 		BlockScope scope,
 		UnconditionalFlowInfo flowInfo) {
 
-		super(parent, associatedNode);
-		isMethodContext = scope == scope.methodScope();
-		this.handledExceptions = handledExceptions;
-		int count = handledExceptions.length, cacheSize = (count / BitCacheSize) + 1;
-		this.isReached = new int[cacheSize]; // none is reached by default
-		this.isNeeded = new int[cacheSize]; // none is needed by default
-		this.initsOnExceptions = new UnconditionalFlowInfo[count];
-		for (int i = 0; i < count; i++) {
-			this.indexes.put(handledExceptions[i], i); // key type  -> value index
-			int cacheIndex = i / BitCacheSize, bitMask = 1 << (i % BitCacheSize);
-			if (handledExceptions[i].isUncheckedException(true)) {
-				isReached[cacheIndex] |= bitMask;
-				this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
-			} else {
-				this.initsOnExceptions[i] = FlowInfo.DEAD_END;
-			}
+	super(parent, associatedNode);
+	this.isMethodContext = scope == scope.methodScope();
+	this.handledExceptions = handledExceptions;
+	int count = handledExceptions.length, cacheSize = (count / ExceptionHandlingFlowContext.BitCacheSize) + 1;
+	this.isReached = new int[cacheSize]; // none is reached by default
+	this.isNeeded = new int[cacheSize]; // none is needed by default
+	this.initsOnExceptions = new UnconditionalFlowInfo[count];
+	for (int i = 0; i < count; i++) {
+		this.indexes.put(handledExceptions[i], i); // key type  -> value index
+		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize, bitMask = 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
+		if (handledExceptions[i].isUncheckedException(true)) {
+			this.isReached[cacheIndex] |= bitMask;
+			this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
+		} else {
+			this.initsOnExceptions[i] = FlowInfo.DEAD_END;
 		}
-		System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
-		this.initsOnReturn = FlowInfo.DEAD_END;	
 	}
+	System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
+	this.initsOnReturn = FlowInfo.DEAD_END;	
+}
 
-	public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) {
-		MethodScope scope = method.scope;
-		// can optionally skip overriding methods
-		if ((method.binding.modifiers & (ExtraCompilerModifiers.AccOverriding | ExtraCompilerModifiers.AccImplementing)) != 0
-		        && !scope.compilerOptions().reportUnusedDeclaredThrownExceptionWhenOverriding) {
-		    return;
-		}
-		    
-		// report errors for unreachable exception handlers
-		for (int i = 0, count = handledExceptions.length; i < count; i++) {
-			int index = indexes.get(handledExceptions[i]);
-			int cacheIndex = index / BitCacheSize;
-			int bitMask = 1 << (index % BitCacheSize);
-			if ((isReached[cacheIndex] & bitMask) == 0) {
-				scope.problemReporter().unusedDeclaredThrownException(
-					handledExceptions[index],
-					method,
-					method.thrownExceptions[index]);
-			}
+public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) {
+	MethodScope scope = method.scope;
+	// can optionally skip overriding methods
+	if ((method.binding.modifiers & (ExtraCompilerModifiers.AccOverriding | ExtraCompilerModifiers.AccImplementing)) != 0
+	        && !scope.compilerOptions().reportUnusedDeclaredThrownExceptionWhenOverriding) {
+	    return;
+	}
+	    
+	// report errors for unreachable exception handlers
+	for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
+		int index = this.indexes.get(this.handledExceptions[i]);
+		int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
+		int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
+		if ((this.isReached[cacheIndex] & bitMask) == 0) {
+			scope.problemReporter().unusedDeclaredThrownException(
+				this.handledExceptions[index],
+				method,
+				method.thrownExceptions[index]);
 		}
 	}
-	
-	public void complainIfUnusedExceptionHandlers(
-		BlockScope scope,
-		TryStatement tryStatement) {
-		// report errors for unreachable exception handlers
-		for (int i = 0, count = handledExceptions.length; i < count; i++) {
-			int index = indexes.get(handledExceptions[i]);
-			int cacheIndex = index / BitCacheSize;
-			int bitMask = 1 << (index % BitCacheSize);
-			if ((isReached[cacheIndex] & bitMask) == 0) {
-				scope.problemReporter().unreachableCatchBlock(
-					handledExceptions[index],
+}
+
+public void complainIfUnusedExceptionHandlers(BlockScope scope,TryStatement tryStatement) {
+	// report errors for unreachable exception handlers
+	for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
+		int index = this.indexes.get(this.handledExceptions[i]);
+		int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
+		int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
+		if ((this.isReached[cacheIndex] & bitMask) == 0) {
+			scope.problemReporter().unreachableCatchBlock(
+				this.handledExceptions[index],
+				tryStatement.catchArguments[index].type);
+		} else {
+			if ((this.isNeeded[cacheIndex] & bitMask) == 0) {
+				scope.problemReporter().hiddenCatchBlock(
+					this.handledExceptions[index],
 					tryStatement.catchArguments[index].type);
-			} else {
-				if ((isNeeded[cacheIndex] & bitMask) == 0) {
-					scope.problemReporter().hiddenCatchBlock(
-						handledExceptions[index],
-						tryStatement.catchArguments[index].type);
-				}
 			}
 		}
 	}
+}
 
-	public String individualToString() {
-		
-		StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
-		int length = handledExceptions.length;
-		for (int i = 0; i < length; i++) {
-			int cacheIndex = i / BitCacheSize;
-			int bitMask = 1 << (i % BitCacheSize);
-			buffer.append('[').append(handledExceptions[i].readableName());
-			if ((isReached[cacheIndex] & bitMask) != 0) {
-				if ((isNeeded[cacheIndex] & bitMask) == 0) {
-					buffer.append("-masked"); //$NON-NLS-1$
-				} else {
-					buffer.append("-reached"); //$NON-NLS-1$
-				}
+public String individualToString() {
+	StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
+	int length = this.handledExceptions.length;
+	for (int i = 0; i < length; i++) {
+		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize;
+		int bitMask = 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
+		buffer.append('[').append(this.handledExceptions[i].readableName());
+		if ((this.isReached[cacheIndex] & bitMask) != 0) {
+			if ((this.isNeeded[cacheIndex] & bitMask) == 0) {
+				buffer.append("-masked"); //$NON-NLS-1$
 			} else {
-				buffer.append("-not reached"); //$NON-NLS-1$
+				buffer.append("-reached"); //$NON-NLS-1$
 			}
-			buffer.append('-').append(initsOnExceptions[i].toString()).append(']');
+		} else {
+			buffer.append("-not reached"); //$NON-NLS-1$
 		}
-		buffer.append("[initsOnReturn -").append(initsOnReturn.toString()).append(']'); //$NON-NLS-1$
-		return buffer.toString();
+		buffer.append('-').append(this.initsOnExceptions[i].toString()).append(']');
 	}
+	buffer.append("[initsOnReturn -").append(this.initsOnReturn.toString()).append(']'); //$NON-NLS-1$
+	return buffer.toString();
+}
 
-	public UnconditionalFlowInfo initsOnException(ReferenceBinding exceptionType) {
-		
-		int index;
-		if ((index = indexes.get(exceptionType)) < 0) {
-			return FlowInfo.DEAD_END;
-		}
-		return initsOnExceptions[index];
+public UnconditionalFlowInfo initsOnException(ReferenceBinding exceptionType) {
+	int index;
+	if ((index = this.indexes.get(exceptionType)) < 0) {
+		return FlowInfo.DEAD_END;
 	}
+	return this.initsOnExceptions[index];
+}
 
-	public UnconditionalFlowInfo initsOnReturn(){
-		return this.initsOnReturn;
-	}
+public UnconditionalFlowInfo initsOnReturn(){
+	return this.initsOnReturn;
+}
 	
-	public void recordHandlingException(
+/*
+ * Compute a merged list of unhandled exception types (keeping only the most generic ones).
+ * This is necessary to add synthetic thrown exceptions for anonymous type constructors (JLS 8.6).
+ */
+public void mergeUnhandledException(TypeBinding newException){
+	if (this.extendedExceptions == null){
+		this.extendedExceptions = new ArrayList(5);
+		for (int i = 0; i < this.handledExceptions.length; i++){
+			this.extendedExceptions.add(this.handledExceptions[i]);
+		}
+	}
+	boolean isRedundant = false;
+	
+	for(int i = this.extendedExceptions.size()-1; i >= 0; i--){
+		switch(Scope.compareTypes(newException, (TypeBinding)this.extendedExceptions.get(i))){
+			case Scope.MORE_GENERIC :
+				this.extendedExceptions.remove(i);
+				break;
+			case Scope.EQUAL_OR_MORE_SPECIFIC :
+				isRedundant = true;
+				break;
+			case Scope.NOT_RELATED :
+				break;
+		}
+	}
+	if (!isRedundant){
+		this.extendedExceptions.add(newException);
+	}
+}
+	
+public void recordHandlingException(
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
 		TypeBinding raisedException,
 		ASTNode invocationSite,
 		boolean wasAlreadyDefinitelyCaught) {
-			
-		int index = indexes.get(exceptionType);
-		// if already flagged as being reached (unchecked exception handler)
-		int cacheIndex = index / BitCacheSize;
-		int bitMask = 1 << (index % BitCacheSize);
-		if (!wasAlreadyDefinitelyCaught) {
-			this.isNeeded[cacheIndex] |= bitMask;
-		}
-		this.isReached[cacheIndex] |= bitMask;
 		
-		initsOnExceptions[index] =
-			(initsOnExceptions[index].tagBits & FlowInfo.UNREACHABLE) == 0 ?
-				initsOnExceptions[index].mergedWith(flowInfo):
-				flowInfo.unconditionalCopy();
+	int index = this.indexes.get(exceptionType);
+	// if already flagged as being reached (unchecked exception handler)
+	int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
+	int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
+	if (!wasAlreadyDefinitelyCaught) {
+		this.isNeeded[cacheIndex] |= bitMask;
 	}
+	this.isReached[cacheIndex] |= bitMask;
 	
+	this.initsOnExceptions[index] =
+		(this.initsOnExceptions[index].tagBits & FlowInfo.UNREACHABLE) == 0 ?
+			this.initsOnExceptions[index].mergedWith(flowInfo):
+			flowInfo.unconditionalCopy();
+}
+
 public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-		if ((initsOnReturn.tagBits & FlowInfo.UNREACHABLE) == 0) {
-			initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+		if ((this.initsOnReturn.tagBits & FlowInfo.UNREACHABLE) == 0) {
+			this.initsOnReturn = this.initsOnReturn.mergedWith(flowInfo);
 		} 
 		else {
-			initsOnReturn = (UnconditionalFlowInfo) flowInfo.copy();
+			this.initsOnReturn = (UnconditionalFlowInfo) flowInfo.copy();
 		}
 	}
 }
-	
-	/*
-	 * Compute a merged list of unhandled exception types (keeping only the most generic ones).
-	 * This is necessary to add synthetic thrown exceptions for anonymous type constructors (JLS 8.6).
-	 */
-	public void mergeUnhandledException(TypeBinding newException){
-		
-		if (this.extendedExceptions == null){
-			this.extendedExceptions = new ArrayList(5);
-			for (int i = 0; i < this.handledExceptions.length; i++){
-				this.extendedExceptions.add(this.handledExceptions[i]);
-			}
-		}
-		
-		boolean isRedundant = false;
-		
-		for(int i = this.extendedExceptions.size()-1; i >= 0; i--){
-			switch(Scope.compareTypes(newException, (TypeBinding)this.extendedExceptions.get(i))){
-				case Scope.MORE_GENERIC :
-					this.extendedExceptions.remove(i);
-					break;
-				case Scope.EQUAL_OR_MORE_SPECIFIC :
-					isRedundant = true;
-					break;
-				case Scope.NOT_RELATED :
-					break;
-			}
-		}
-		if (!isRedundant){
-			this.extendedExceptions.add(newException);
-		}
+/**
+ * Exception handlers (with no finally block) are also included with subroutine
+ * only once (in case parented with true InsideSubRoutineFlowContext).
+ * Standard management of subroutines need to also operate on intermediate
+ * exception handlers.
+ * @see org.eclipse.jdt.internal.compiler.flow.FlowContext#subroutine()
+ */
+public SubRoutineStatement subroutine() {
+	if (this.associatedNode instanceof SubRoutineStatement) {
+		// exception handler context may be child of InsideSubRoutineFlowContext, which maps to same handler
+		if (this.parent.subroutine() == this.associatedNode) 
+			return null;		
+		return (SubRoutineStatement) this.associatedNode;
 	}
+	return null;
+}
+
 }

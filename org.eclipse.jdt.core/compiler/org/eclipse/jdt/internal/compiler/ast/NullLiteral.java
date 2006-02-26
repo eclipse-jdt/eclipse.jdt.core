@@ -52,10 +52,11 @@ public class NullLiteral extends MagicLiteral {
 	public int nullStatus(FlowInfo flowInfo) {
 		return FlowInfo.NULL;
 	}
+
+	public Object reusableJSRTarget() {
+		return TypeBinding.NULL;
+	}
 	
-	/**
-	 * 
-	 */
 	public char[] source() {
 		return source;
 	}
