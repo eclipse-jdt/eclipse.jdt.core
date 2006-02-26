@@ -52,6 +52,10 @@ Eclipse SDK 3.2M6 - ?st February 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>For 1.5 targets (or when toggling preference for Inlining Finally Blocks), the compiler is inlining finally blocks
+at every exit point inside a try statement. With fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128705">128705</a>,
+the inlining got smarter, and identical exit point are now sharing the same inlined finally block (to be truly identical,
+exit points must denote the same break/continue label, or be return from void method, or return the same constant or null value.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
