@@ -2616,11 +2616,11 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"public abstract interface I {\n" + 
 			"  Constant pool:\n" + 
 			"    constant #1 class: #2 I\n" + 
-			"    constant #2 utf8: I\n" + 
+			"    constant #2 utf8: \"I\"\n" + 
 			"    constant #3 class: #4 java/lang/Object\n" + 
-			"    constant #4 utf8: java/lang/Object\n" + 
-			"    constant #5 utf8: SourceFile\n" + 
-			"    constant #6 utf8: I.java\n" + 
+			"    constant #4 utf8: \"java/lang/Object\"\n" + 
+			"    constant #5 utf8: \"SourceFile\"\n" + 
+			"    constant #6 utf8: \"I.java\"\n" + 
 			"}";
 		checkClassFile("I", source, expectedOutput);
 	}

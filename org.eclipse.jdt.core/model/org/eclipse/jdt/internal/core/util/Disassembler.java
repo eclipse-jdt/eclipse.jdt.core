@@ -27,6 +27,56 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	private static final String VERSION_UNKNOWN = Messages.classfileformat_versionUnknown;
 
+	public static String escapeString(String s) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, max = s.length(); i < max; i++) {
+			char c = s.charAt(i);
+			switch(c) {
+				case '\b' :
+					buffer.append("\\b"); //$NON-NLS-1$
+					break;
+				case '\t' :
+					buffer.append("\\t"); //$NON-NLS-1$
+					break;
+				case '\n' :
+					buffer.append("\\n"); //$NON-NLS-1$
+					break;
+				case '\f' :
+					buffer.append("\\f"); //$NON-NLS-1$
+					break;
+				case '\r' :
+					buffer.append("\\r"); //$NON-NLS-1$
+					break;
+				case '\0' :
+					buffer.append("\\0"); //$NON-NLS-1$
+					break;
+				case '\1' :
+					buffer.append("\\1"); //$NON-NLS-1$
+					break;
+				case '\2' :
+					buffer.append("\\2"); //$NON-NLS-1$
+					break;
+				case '\3' :
+					buffer.append("\\3"); //$NON-NLS-1$
+					break;
+				case '\4' :
+					buffer.append("\\4"); //$NON-NLS-1$
+					break;
+				case '\5' :
+					buffer.append("\\5"); //$NON-NLS-1$
+					break;
+				case '\6' :
+					buffer.append("\\6"); //$NON-NLS-1$
+					break;
+				case '\7' :
+					buffer.append("\\7"); //$NON-NLS-1$
+					break;			
+				default:
+					buffer.append(c);
+			}
+		}
+		return buffer.toString();
+	}
 	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
 		if ((accessFlags & modifierConstant) != 0) {		
 			if (!firstModifier) {
@@ -1303,14 +1353,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							new String[] {
 								Integer.toString(i),
 								Integer.toString(constantPoolEntry.getStringIndex()),
-								constantPoolEntry.getStringValue()}));
+								escapeString(constantPoolEntry.getStringValue())}));
 					break;
 				case IConstantPoolConstant.CONSTANT_Utf8 :
 					buffer.append(
 						Messages.bind(Messages.disassembler_constantpool_utf8,
 							new String[] {
 								Integer.toString(i),
-								new String(constantPoolEntry.getUtf8Value())}));
+								escapeString(new String(constantPoolEntry.getUtf8Value()))}));
 					break;
 			}
 			if (i < length - 1) {

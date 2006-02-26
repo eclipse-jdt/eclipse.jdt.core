@@ -1776,7 +1776,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W],
 					Integer.toString(index),
-					constantPoolEntry.getStringValue()
+					Disassembler.escapeString(constantPoolEntry.getStringValue())
 				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Class :
@@ -1813,7 +1813,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC],
 					Integer.toString(index),
-					constantPoolEntry.getStringValue()
+					Disassembler.escapeString(constantPoolEntry.getStringValue())
 				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Class :
