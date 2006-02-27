@@ -952,30 +952,7 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 		deleteProject("P2");
 	}
 }
-public void testDestroySharedWorkingCopy() throws CoreException {
-	ICompilationUnit copy = null;
-	try {
-		createJavaProject("P", new String[] {""}, "");
-		createFile("P/X.java",
-			"public class X {\n" +
-			"}");
-		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
-		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
-		startDeltas();
-		copy.discardWorkingCopy();
-		assertDeltas(
-			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[-]: {}"
-		);
-	} finally {
-		stopDeltas();
-		deleteProject("P");
-	}
-}
-public void testDestroyWorkingCopy() throws CoreException {
+public void testDiscardWorkingCopy1() throws CoreException { // renamed from testDestroyWorkingCopy
 	ICompilationUnit copy = null;
 	try {
 		createJavaProject("P", new String[] {""}, "");
@@ -995,6 +972,33 @@ public void testDestroyWorkingCopy() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
+		if (copy != null)
+			copy.discardWorkingCopy();
+		deleteProject("P");
+	}
+}
+public void testDiscardWorkingCopy2() throws CoreException { // renamed from testDestroySharedWorkingCopy
+	ICompilationUnit copy = null;
+	try {
+		createJavaProject("P", new String[] {""}, "");
+		createFile("P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
+		startDeltas();
+		copy.discardWorkingCopy();
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
+			"			[Working copy] X.java[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		if (copy != null)
+			copy.discardWorkingCopy();
 		deleteProject("P");
 	}
 }
