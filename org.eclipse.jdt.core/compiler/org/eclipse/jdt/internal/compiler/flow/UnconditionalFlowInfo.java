@@ -1335,6 +1335,12 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 						b1 & nb2 & (a3 | b3));
 		this.nullAssignmentValueBit2 =
 			a4 | b4;
+		
+		// WORK recode if tests succeed
+		this.nullAssignmentValueBit1 &= 
+			~(a1 & na2 & na3 & a4 & nb1 & b2 & nb3 & nb4
+					| ~a1 & a2 & na3 & na4 & b1 & nb2 & nb3 & b4);
+		
 		if (coverageTestFlag && coverageTestId == 37) {
 			this.nullAssignmentValueBit2 = ~0;
 		}
@@ -1438,6 +1444,12 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 								b1 & nb2 & (a3 | b3));
 				this.extra[5][i] =
 					a4 | b4;
+
+				// WORK recode if tests succeed
+				this.extra[4][i] &= 
+					~(a1 & na2 & na3 & a4 & nb1 & b2 & nb3 & nb4
+							| ~a1 & a2 & na3 & na4 & b1 & nb2 & nb3 & b4);
+		
 				thisHasNulls = thisHasNulls ||
 					this.extra[5][i] != 0 ||
 					this.extra[2][i] != 0 ||

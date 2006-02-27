@@ -2114,6 +2114,121 @@ public void test0332_if_else() {
 		"----------\n");
 }
 
+// null analysis - if/else
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
+// invalid analysis when redundant check is done
+public void test0333_if_else() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    o = new Object();\n" + 
+			"    if (o != null) {\n" + // complain
+			"      o.toString();\n" + 
+			"    }\n" + 
+			"    o.toString();\n" + // quiet asked
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
+// invalid analysis when redundant check is done - variant
+public void test0334_if_else() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    o = new Object();\n" + 
+			"    if (o != null) {\n" + // complain
+			"      o.toString();\n" + 
+			"    }\n" + 
+			"    else {\n" +
+			"      o.toString();\n" + // must complain anyway (could be quite distant from the if test)
+			"    }\n" + 
+			"    o.toString();\n" + // quiet
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
+// this is a limit of the fix for bug 128014 - calls for a nuance 
+// between potential null and tainted null
+public void _test0335_if_else() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    if (o != null) {\n" + 
+			"      if (o != null) {\n" + // complain
+			"        o.toString();\n" + 
+			"      }\n" + 
+			"      o.toString();\n" + // quiet
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
+// invalid analysis when redundant check is done - variant
+public void test0336_if_else() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    if (o != null) {\n" + 
+			"      if (o != null) {\n" + // complain
+			"        o.toString();\n" + 
+			"      }\n" + 
+			"      else {\n" +
+			"        o.toString();\n" + // must complain anyway (could be quite distant from the if test)
+			"      }\n" + 
+			"      o.toString();\n" + // quiet
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
 // null analysis -- while
 public void test0401_while() {
 	this.runNegativeTest(
@@ -2603,7 +2718,6 @@ public void test0422_while() {
 }
 
 // null analysis -- while
-// the second message looks a bit strange
 public void test0423_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -2624,11 +2738,6 @@ public void test0423_while() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	o = null;\n" + 
-		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }
 
@@ -8241,7 +8350,7 @@ public void test2057_mergedWith() {
 		{{0,1,0,0},{0,0,1,1},{0,0,1,1}},
 		{{0,1,0,0},{0,1,0,0},{0,1,0,0}},
 		{{0,1,0,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,0,1},{0,0,1,1}},
+		{{0,1,0,0},{1,0,0,1},{0,0,0,1}},
 		{{0,1,0,0},{1,0,1,0},{0,1,1,0}},
 		{{0,1,0,0},{1,0,1,1},{0,0,1,1}},
 		{{0,1,0,0},{1,1,0,0},{0,0,1,0}},
@@ -8261,7 +8370,7 @@ public void test2057_mergedWith() {
 		{{1,0,0,1},{0,0,0,1},{0,0,0,1}},
 		{{1,0,0,1},{0,0,1,0},{0,0,1,1}},
 		{{1,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,0,1},{0,1,0,0},{0,0,1,1}},
+		{{1,0,0,1},{0,1,0,0},{0,0,0,1}},
 		{{1,0,0,1},{0,1,1,0},{0,0,1,1}},
 		{{1,0,0,1},{1,0,0,1},{1,0,0,1}},
 		{{1,0,0,1},{1,0,1,0},{0,0,1,1}},
