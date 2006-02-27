@@ -1003,7 +1003,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				JavaModelManager manager = getJavaModelManager();
 				if (manager.variablesWithInitializer.contains(varName)) {
 					// revert preference value as we will not apply it to JavaCore classpath variable
-					manager.getInstancePreferences().put(varName, (String)event.getOldValue());
+					String oldValue = (String) event.getOldValue();
+					if (oldValue != null) {
+						manager.getInstancePreferences().put(varName, oldValue);
+					}
 				} else {
 					String newValue = (String)event.getNewValue();
 					if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
