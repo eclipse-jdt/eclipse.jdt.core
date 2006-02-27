@@ -98,7 +98,7 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 
-	int resultLength = typeNameLength + packageLength + enclosingNamesLength + 4;
+	int resultLength = typeNameLength + packageLength + enclosingNamesLength + 5;
 	if (secondary) resultLength += 2;
 	char[] result = new char[resultLength];
 	int pos = 0;
@@ -123,7 +123,8 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 	result[pos++] = SEPARATOR;
-	result[pos] = (char) modifiers;
+	result[pos++] = (char) modifiers;
+	result[pos] = (char) (modifiers>>16);
 	if (secondary) {
 		result[++pos] = SEPARATOR;
 		result[++pos] = 'S';
@@ -180,12 +181,15 @@ public void decodeIndexKey(char[] key) {
 	}
 
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	this.secondary = slash > 0;
-	int last = this.secondary ? slash : key.length;
-	decodeModifiers(key[last-1]);
+	int last = key.length;
+	if (slash > 0) { // secondary
+		this.secondary = key[slash+1] == 'S';
+		last = slash;
+	}
+	this.modifiers = key[last-2] + (key[last-1]<<16);
+	decodeModifiers();
 }
-protected void decodeModifiers(char value) {
-	this.modifiers = value; // implicit cast to int type
+protected void decodeModifiers() {
 
 	// Extract suffix from modifiers instead of index key
 	switch (this.modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation)) {

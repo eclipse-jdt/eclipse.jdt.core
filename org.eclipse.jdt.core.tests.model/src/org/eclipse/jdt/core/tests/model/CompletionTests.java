@@ -39,24 +39,10 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 static {
-//	TESTS_NAMES = new String[] { "testInconsistentHierarchy1"};
+//	TESTS_NAMES = new String[] { "testDeprecationCheck17"};
 }
 public static Test suite() {
 	return buildTestSuite(CompletionTests.class);
-//	TestSuite suite = new Suite(CompletionTests.class.getName());		
-//
-//	if (true) {
-//		Class c = CompletionTests.class;
-//		Method[] methods = c.getMethods();
-//		for (int i = 0, max = methods.length; i < max; i++) {
-//			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-//				suite.addTest(new CompletionTests(methods[i].getName()));
-//			}
-//		}
-//		return suite;
-//	}
-//	suite.addTest(new CompletionTests("testCompletionInsideExtends11"));			
-//	return suite;
 }
 
 /**
@@ -12351,11 +12337,11 @@ public void testDeprecationCheck16() throws JavaModelException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
-public void _testDeprecationCheck17() throws JavaModelException {
+public void testDeprecationCheck17() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 		COMPLETION_PROJECT.setOptions(options);
 		
 		this.workingCopies = new ICompilationUnit[1];
@@ -12373,8 +12359,9 @@ public void _testDeprecationCheck17() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
-				"Bug127628Ty[POTENTIAL_METHOD_DECLARATION]{Bug127628Ty, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Ty[POTENTIAL_METHOD_DECLARATION]{Bug127628Ty, Ldeprecation.Test;, ()V, Bug127628Ty, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
 				"Bug127628Type1.Bug127628TypeInner1[TYPE_REF]{deprecation.Bug127628Type1.Bug127628TypeInner1, deprecation, Ldeprecation.Bug127628Type1$Bug127628TypeInner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type2.Bug127628TypeInner2[TYPE_REF]{deprecation.Bug127628Type2.Bug127628TypeInner2, deprecation, Ldeprecation.Bug127628Type2$Bug127628TypeInner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {

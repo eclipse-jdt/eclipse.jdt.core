@@ -19,8 +19,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -47,7 +49,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110060";
 //	TESTS_NAMES = new String[] { "testBug126330" };
-//	TESTS_NUMBERS = new int[] { 128877 };
+//	TESTS_NUMBERS = new int[] { 127628 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -5803,6 +5805,40 @@ public void testBug126330() throws CoreException {
 	assertSearchResults(
 		"lib/b126330.jar B126330.a EXACT_MATCH"
 	);
+}
+
+/**
+ * Bug 127628: [index] CodeAssist doesn't filter deprecated types
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628"
+ */
+public void testBug127628() throws CoreException {
+	class DeprecatedTypesRequestor extends SearchTests.SearchTypeNameRequestor {
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+			if ((modifiers & ClassFileConstants.AccDeprecated) != 0) {
+				char[] typeName = 
+					CharOperation.concat(
+						CharOperation.concatWith(enclosingTypeNames, '$'), 
+						simpleTypeName,
+						'$');
+				results.addElement(new String(CharOperation.concat(packageName, typeName, '.')));
+			}
+		}
+	}
+	TypeNameRequestor requestor =  new DeprecatedTypesRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		null,
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"b127628.Test127628",
+		requestor);
 }
 
 /**

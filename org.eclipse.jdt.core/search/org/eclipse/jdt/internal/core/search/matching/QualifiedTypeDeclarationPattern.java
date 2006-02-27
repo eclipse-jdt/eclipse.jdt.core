@@ -51,8 +51,13 @@ public void decodeIndexKey(char[] key) {
 		this.packageIndex = slash - start;
 		this.qualification[this.packageIndex] = '.';
 	}
-
-	decodeModifiers(key[key.length - 1]);
+	int last = key.length;
+	if (slash > 0) { // secondary
+		this.secondary = key[slash+1] == 'S';
+		last = slash;
+	}
+	this.modifiers = key[last-2] + (key[last-1]<<16);
+	decodeModifiers();
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);

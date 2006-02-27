@@ -35,7 +35,7 @@ private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
 private char[] cachedCategoryName;
 
-public static final String SIGNATURE= "INDEX VERSION 1.110"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.111"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;
@@ -553,7 +553,25 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 	try {
 		stream.skip(offset);
 		int size = stream.readInt();
-		categoryTable = new HashtableOfObject(size);
+		try {
+			if (size < 0) { // DEBUG
+				System.err.println("-------------------- DEBUG --------------------"); //$NON-NLS-1$
+				System.err.println("file = "+getIndexFile()); //$NON-NLS-1$
+				System.err.println("offset = "+offset); //$NON-NLS-1$
+				System.err.println("size = "+size); //$NON-NLS-1$
+				System.err.println("--------------------   END   --------------------"); //$NON-NLS-1$
+			}
+			categoryTable = new HashtableOfObject(size);
+		} catch (OutOfMemoryError oom) {
+			// DEBUG
+			oom.printStackTrace();
+			System.err.println("-------------------- DEBUG --------------------"); //$NON-NLS-1$
+			System.err.println("file = "+getIndexFile()); //$NON-NLS-1$
+			System.err.println("offset = "+offset); //$NON-NLS-1$
+			System.err.println("size = "+size); //$NON-NLS-1$
+			System.err.println("--------------------   END   --------------------"); //$NON-NLS-1$
+			throw oom;
+		}
 		int largeArraySize = 256;
 		for (int i = 0; i < size; i++) {
 			char[] word = Util.readUTF(stream);
