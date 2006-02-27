@@ -19,7 +19,10 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class ExternalJavaProject extends JavaProject {
 	
-	public static final String EXTERNAL_PROJECT_NAME = "_E_X_T_E_R_N_A_L_P_R_O_J_E_C_T_"; //$NON-NLS-1$
+	/*
+	 * Note this name can be surfaced in the UI (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=128258)
+	 */
+	public static final String EXTERNAL_PROJECT_NAME = " "; //$NON-NLS-1$
 
 	public ExternalJavaProject(IClasspathEntry[] rawClasspath) {
 		super(ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME), JavaModelManager.getJavaModelManager().getJavaModel());
