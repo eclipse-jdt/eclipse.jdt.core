@@ -43,7 +43,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !binding.isStatic();
 	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 	if (nonStatic) {
-		receiver.checkNPE(currentScope, flowContext, flowInfo, true);
+		receiver.checkNPE(currentScope, flowContext, flowInfo);
 	}
 
 	if (arguments != null) {

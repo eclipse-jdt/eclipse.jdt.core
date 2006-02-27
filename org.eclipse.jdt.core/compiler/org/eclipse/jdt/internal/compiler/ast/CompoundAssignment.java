@@ -39,7 +39,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	// record setting a variable: various scenarii are possible, setting an array reference, 
 	// a field reference, a blank final field reference, a field of an enclosing instance or 
 	// just a local variable.
-	lhs.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
+	if (this.resolvedType.id != T_JavaLangString) {
+		lhs.checkNPE(currentScope, flowContext, flowInfo);
+	}
 	return  ((Reference) lhs).analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
 }
 	

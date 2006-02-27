@@ -853,58 +853,6 @@ public void test0044_autoboxing() {
 		"");
 }
 
-// null analysis -- strings concatenation
-// JLS 15.18.1: if one of the operands is null, it is replaced by "null"
-// Note: having the diagnostic could come handing when the initialization path
-//       is non trivial; to get the diagnostic, simply put in place an
-//       extraneous call to toString() -- and remove it before releasing.
-public void test0045_strings_concatenation() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  String foo(String s1, String s2) {\n" + 
-			"    if (s1 == null) { /* */ };\n" +
-			"    return s1 + s2;\n" + 
-			"  }\n" + 
-			"}\n"},
-		"");
-}
-
-// null analysis -- strings concatenation
-public void test0046_strings_concatenation() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  String foo(String s1, String s2) {\n" + 
-			"    if (s1 == null) { /* */ };\n" +
-			"    s1 += s2;\n" + 
-			"    return s1;\n" + 
-			"  }\n" + 
-			"}\n"},
-		"");
-}
-
-// null analysis -- strings concatenation
-public void test0047_strings_concatenation() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  String foo(String s1) {\n" + 
-			"    if (s1 == null) { /* */ };\n" +
-			"    return s1.toString();\n" + 
-			"  }\n" + 
-			"}\n"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	return s1.toString();\n" + 
-		"	       ^^\n" + 
-		"The variable s1 may be null\n" + 
-		"----------\n");
-}
-
 // null analysis -- array
 public void test0050_array() {
 	this.runConformTest(
@@ -1318,6 +1266,115 @@ public void test0094_instanceof() {
 			// cannot decide: could be null of new Object() for example  
 			"  }\n" + 
 			"}"},
+		"");
+}
+
+// null analysis -- strings concatenation
+// JLS 15.18.1: if one of the operands is null, it is replaced by "null"
+// Note: having the diagnostic could come handing when the initialization path
+//       is non trivial; to get the diagnostic, simply put in place an
+//       extraneous call to toString() -- and remove it before releasing.
+public void test0120_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  String foo(String s1, String s2) {\n" + 
+			"    if (s1 == null) { /* */ };\n" +
+			"    return s1 + s2;\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+public void test0121_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  String foo(String s1, String s2) {\n" + 
+			"    if (s1 == null) { /* */ };\n" +
+			"    s1 += s2;\n" + 
+			"    return s1;\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+public void test0122_strings_concatenation() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  String foo(String s1) {\n" + 
+			"    if (s1 == null) { /* */ };\n" +
+			"    return s1.toString();\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	return s1.toString();\n" + 
+		"	       ^^\n" + 
+		"The variable s1 may be null\n" + 
+		"----------\n");
+}
+
+// null analysis -- strings concatenation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
+// it should suffice that the return type is String to avoid
+// errors
+public void test0123_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  String foo(String s, Object o, Integer i) {\n" + 
+			"    if (s == null || o == null || i == null) { /* */ };\n" +
+			"    if (bar()) {\n" +
+			"      return s + i;\n" + // quiet: i replaced by "null" if null
+			"    }\n" +
+			"    return o + s;\n" + // quiet: o replaced by "null" if null
+			"  }\n" + 
+			"  boolean bar() {\n" +
+			"    return false;\n" +
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
+// variant
+public void test0124_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  String foo(String s, Object o, Integer i) {\n" + 
+			"    if (s == null || o == null || i == null) { /* */ };\n" +
+			"    s += o;\n" + // quiet: o replaced by "null" if null
+			"    s += i;\n" + // quiet: i replaced by "null" if null
+			"    return s;\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
+// variant
+public void test0125_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, Integer i) {\n" + 
+			"    System.out.println(o + (o == null ? \"\" : o.toString()));\n" + // quiet: o replaced by "null" if null
+			"    System.out.println(i + (i == null ? \"\" : i.toString()));\n" + // quiet: o replaced by "null" if null
+			"  }\n" + 
+			"}\n"},
 		"");
 }
 

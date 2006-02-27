@@ -99,7 +99,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !binding.isStatic();
 	receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 	if (nonStatic) {
-		receiver.checkNPE(currentScope, flowContext, flowInfo, true);
+		receiver.checkNPE(currentScope, flowContext, flowInfo);
 	}
 	
 	if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {

@@ -49,7 +49,7 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-	receiver.checkNPE(currentScope, flowContext, flowInfo, true);
+	receiver.checkNPE(currentScope, flowContext, flowInfo);
 	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo);
 	return position.analyseCode(currentScope, flowContext, flowInfo);
 }

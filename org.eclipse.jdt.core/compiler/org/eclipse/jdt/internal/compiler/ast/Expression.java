@@ -480,15 +480,12 @@ public abstract class Expression extends Statement {
  * @param scope the scope of the analysis
  * @param flowContext the current flow context
  * @param flowInfo the upstream flow info; caveat: may get modified
- * @param checkString if true, a local variable of type String is checked; else
- *        it is skipped
  */
 public void checkNPE(BlockScope scope, FlowContext flowContext, 
-		FlowInfo flowInfo, boolean checkString) {
+		FlowInfo flowInfo) {
 	LocalVariableBinding local = this.localVariableBinding();
 	if (local != null && 
-			(local.type.tagBits & TagBits.IsBaseType) == 0 &&
-			(checkString || local.type.id != T_JavaLangString)) {
+			(local.type.tagBits & TagBits.IsBaseType) == 0) {
 		if ((this.bits & IsNonNull) == 0) {
 			flowContext.recordUsingNullReference(scope, local, this, 
 					FlowContext.MAY_NULL, flowInfo);

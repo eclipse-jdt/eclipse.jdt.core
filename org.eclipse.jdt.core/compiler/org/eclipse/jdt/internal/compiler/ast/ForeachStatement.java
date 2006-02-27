@@ -81,7 +81,7 @@ public class ForeachStatement extends Statement {
 		continueLabel = new BranchLabel();
 
 		// process the element variable and collection
-		this.collection.checkNPE(currentScope, flowContext, flowInfo, true);
+		this.collection.checkNPE(currentScope, flowContext, flowInfo);
 		flowInfo = this.elementVariable.analyseCode(scope, flowContext, flowInfo);
 		FlowInfo condInfo = this.collection.analyseCode(scope, flowContext, flowInfo.copy());
 

@@ -35,12 +35,19 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-	left.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
-	flowInfo = left.analyseCode(currentScope, flowContext, flowInfo).
-		unconditionalInits();
-	right.checkNPE(currentScope, flowContext, flowInfo, false /* skip String */);
-	return right.analyseCode(currentScope, flowContext, flowInfo).
-		unconditionalInits();
+	if (this.resolvedType.id == T_JavaLangString) {
+		return right.analyseCode(currentScope, flowContext, 
+				left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits()).
+			unconditionalInits();
+	}
+	else {
+		left.checkNPE(currentScope, flowContext, flowInfo);
+		flowInfo = left.analyseCode(currentScope, flowContext, flowInfo).
+			unconditionalInits();
+		right.checkNPE(currentScope, flowContext, flowInfo);
+		return right.analyseCode(currentScope, flowContext, flowInfo).
+			unconditionalInits();
+	}
 }
 
 	public void computeConstant(BlockScope scope, int leftId, int rightId) {

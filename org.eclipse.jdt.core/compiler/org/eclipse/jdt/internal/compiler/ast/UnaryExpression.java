@@ -31,7 +31,7 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-	this.expression.checkNPE(currentScope, flowContext, flowInfo, true);	
+	this.expression.checkNPE(currentScope, flowContext, flowInfo);	
 	if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 		return this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
