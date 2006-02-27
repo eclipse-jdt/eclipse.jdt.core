@@ -3573,7 +3573,7 @@ public void test104() {
 		"class X$1$1$1Y Y");
 }
 
-// enclosing instance - note that the behavior is different in 1.4
+// enclosing instance - note that the behavior is different in 1.3 and 1.4
 public void test105() {
 	this.runConformTest(
 		new String[] {

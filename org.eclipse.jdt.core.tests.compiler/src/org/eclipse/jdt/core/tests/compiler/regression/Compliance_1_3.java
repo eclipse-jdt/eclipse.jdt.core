@@ -3601,4 +3601,37 @@ public void test104() {
 		},
 		"class X$1$Y X$1$Y");
 }
+
+// enclosing instance - note that the behavior is different in 1.5
+public void test105() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static class Y { }\n" + 
+			"    static class Z1 {\n" + 
+			"        Runnable m;\n" + 
+			"        Z1(Runnable p) {\n" + 
+			"            this.m = p;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    class Z2 extends Z1 {\n" + 
+			"        Z2(final Y p) {\n" + 
+			"            super(new Runnable() {\n" + 
+			"                public void run() {\n" + 
+			"                    foo(p);\n" + 
+			"                }\n" + 
+			"            });\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    void foo(Y p) { }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	foo(p);\n" + 
+		"	^^^^^^\n" + 
+		"No enclosing instance of the type X is accessible in scope\n" + 
+		"----------\n");
+}
 }
