@@ -1143,7 +1143,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// create the delta builder (this remembers the current content of the working copy)
 		// outside the perWorkingCopyInfos lock (see bug 50667)
 		JavaElementDeltaBuilder deltaBuilder = null;
-		if (workingCopy.isPrimary()) {
+		if (workingCopy.isPrimary() && workingCopy.hasUnsavedChanges()) {
 			deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 		}
 		PerWorkingCopyInfo info = null;
