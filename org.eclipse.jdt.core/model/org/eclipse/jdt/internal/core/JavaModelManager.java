@@ -1004,7 +1004,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				if (manager.variablesWithInitializer.contains(varName)) {
 					// revert preference value as we will not apply it to JavaCore classpath variable
 					String oldValue = (String) event.getOldValue();
-					if (oldValue != null) {
+					if (oldValue == null) {
+						// unexpected old value => remove variable from set
+						manager.variablesWithInitializer.remove(varName);
+					} else {
 						manager.getInstancePreferences().put(varName, oldValue);
 					}
 				} else {
@@ -3915,10 +3918,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
-		if (variablePath == null)
+		if (variablePath == null) {
+			this.variablesWithInitializer.remove(variableName);
 			getInstancePreferences().remove(variableKey);
-		else
+		} else {
 			getInstancePreferences().put(variableKey, variablePath.toString());
+		}
 		try {
 			getInstancePreferences().flush();
 		} catch (BackingStoreException e) {
