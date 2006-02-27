@@ -3110,8 +3110,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			
 		if (constructorDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
+			this.scribe.printIndentationIfNecessary();
 			this.scribe.scanner.resetTo(constructorDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
 			this.scribe.printTrailingComment();
+			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
+				case '\n' :
+					this.scribe.scanner.currentPosition++;
+					this.scribe.lastNumberOfNewLines = 1;
+					break;
+				case '\r' :
+					this.scribe.scanner.currentPosition++;
+					if (this.scribe.scanner.source[this.scribe.scanner.currentPosition] == '\n') {
+						this.scribe.scanner.currentPosition++;
+					}
+					this.scribe.lastNumberOfNewLines = 1;
+			}
 			return false;
 		}
         /*
@@ -4022,8 +4035,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (methodDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
+			this.scribe.printIndentationIfNecessary();
 			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
 			this.scribe.printTrailingComment();
+			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
+				case '\n' :
+					this.scribe.scanner.currentPosition++;
+					this.scribe.lastNumberOfNewLines = 1;
+					break;
+				case '\r' :
+					this.scribe.scanner.currentPosition++;
+					if (this.scribe.scanner.source[this.scribe.scanner.currentPosition] == '\n') {
+						this.scribe.scanner.currentPosition++;
+					}
+					this.scribe.lastNumberOfNewLines = 1;
+			}
 			return false;
 		}
         

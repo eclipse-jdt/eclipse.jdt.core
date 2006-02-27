@@ -2247,8 +2247,22 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	public boolean visit(MethodDeclaration node) {
 		if ((node.getFlags() & ASTNode.MALFORMED) != 0) {
 			this.scribe.printComment();
+			this.scribe.printIndentationIfNecessary();
 			this.scribe.scanner.resetTo(node.getStartPosition() + node.getLength(), this.scribe.scannerEndPosition);
+			this.scribe.needSpace = true;
 			this.scribe.printTrailingComment();
+			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
+				case '\n' :
+					this.scribe.scanner.currentPosition++;
+					this.scribe.lastNumberOfNewLines = 1;
+					break;
+				case '\r' :
+					this.scribe.scanner.currentPosition++;
+					if (this.scribe.scanner.source[this.scribe.scanner.currentPosition] == '\n') {
+						this.scribe.scanner.currentPosition++;
+					}
+					this.scribe.lastNumberOfNewLines = 1;
+			}
 			return false;
 		}
         /*

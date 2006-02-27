@@ -124,7 +124,7 @@ public class ConfigurationActivator implements BundleActivator {
 		}
 		return result;
 	}
-private void installBundles() {
+	private void installBundles() {
 		IPlatform platform = acquirePlatform();
 
 		String metaPath = platform.getLocation().append(".metadata").toOSString();
@@ -172,7 +172,8 @@ private void installBundles() {
 		} finally {
 			releasePlatform();
 		}
-	}	private BundleListener reconcilerListener() {
+	}
+	private BundleListener reconcilerListener() {
 		return new BundleListener() {
 			public void bundleChanged(BundleEvent event) {
 				String buid = event.getBundle().getUniqueId();

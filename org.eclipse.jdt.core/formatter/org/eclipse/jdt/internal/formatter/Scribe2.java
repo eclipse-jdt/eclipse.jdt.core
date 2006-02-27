@@ -995,7 +995,7 @@ public class Scribe2 {
 		addInsertEdit(insertPosition, buffer);
 	}
 
-	private void printIndentationIfNecessary() {
+	void printIndentationIfNecessary() {
 		StringBuffer buffer = new StringBuffer();
 		printIndentationIfNecessary(buffer);
 		if (buffer.length() > 0) {
