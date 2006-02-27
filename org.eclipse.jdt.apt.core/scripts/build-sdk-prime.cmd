@@ -43,7 +43,7 @@ if NOT EXIST "%2" (
 @set ROOT=%1
 @set FULL_SDK_ZIP=%2
 
-@set APT_VERSION=3.1.2.apt03
+@set APT_VERSION=3.1.2.apt04
 @set JDT_VERSION=3.1.2
 
 @set TEMPDIR=\temp\eclipse_sdk_mod
@@ -114,6 +114,11 @@ copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.core_%APT_VERSION%\org.eclipse.j
 mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.core_%APT_VERSION%\
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.core_%APT_VERSION%\src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.core_%APT_VERSION%\
 @echo ...Done
+
+REM Remove original jdt core
+REM
+
+del %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.core_%JDT_VERSION%.jar
 
 REM
 REM copy apt-core src.zip to SDK's directory
