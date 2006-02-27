@@ -545,6 +545,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return (node.getFlags() & ASTNode.MALFORMED) != 0;
 	}
 	
+	protected boolean isRecovered(ASTNode node) {
+		return (node.getFlags() & ASTNode.RECOVERED) != 0;
+	}
+
 	protected boolean isOriginal(ASTNode node) {
 		return (node.getFlags() & ASTNode.ORIGINAL) != 0;
 	}

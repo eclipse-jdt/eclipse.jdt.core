@@ -259,11 +259,14 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * by "*start*" and "*end*".
 	 */
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors);
-		if (nodes.length == 0) return null;
-		return nodes[0];
+		return buildAST(newContents, cu, reportErrors, false);
 	}
 
+	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery);
+		if (nodes.length == 0) return null;
+		return nodes[0];		
+	}	
 	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu) throws JavaModelException {
 		return buildASTs(contents, cu, true);
 	}
@@ -275,6 +278,10 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * For each of the pairs, returns the AST node that was delimited by "*start?*" and "*end?*".
 	 */
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
+		return buildASTs(newContents, cu, reportErrors, false);
+	}
+	
+	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
 		MarkerInfo markerInfo;
 		if (newContents == null) {
 			markerInfo = new MarkerInfo(cu.getSource());
@@ -288,11 +295,12 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) 
-			unit = cu.reconcile(AST.JLS3, reportErrors, null, null);
+			unit = cu.reconcile(AST.JLS3, reportErrors, enableStatementRecovery, null, null);
 		else {
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(enableStatementRecovery);
 			unit = (CompilationUnit) parser.createAST(null);
 		}
 		
@@ -310,6 +318,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			return new ASTNode[] {unit};
 		return nodes;
 	}
+	
 
 	protected MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
 		MarkerInfo[] markerInfos = new MarkerInfo[pathAndSources.length / 2];

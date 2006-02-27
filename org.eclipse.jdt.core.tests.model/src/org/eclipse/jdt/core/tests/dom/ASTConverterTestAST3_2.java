@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 636 };
+//		TESTS_NUMBERS =  new int[] { 640 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -7506,5 +7506,48 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129589
+	 * TODO (david) enable once fixed
+	 */
+	public void _test0640() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"    protected void primExecute() {\n" + 
+				"        String temp= this.toString();\n" + 
+				"    }\n" + 
+				"        if (image != null) {\n" + 
+				"            Object loc = null;\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 2, "Syntax error on token \"}\", { expected after this token\n" + 
+					"Syntax error, insert \"}\" to complete ClassBody");
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertFalse("A recovered node", isRecovered(methodDeclaration));
+			assertFalse("A malformed node", isMalformed(methodDeclaration));
+			assertFalse("A recovered node", isRecovered(methodDeclaration.getBody()));
+			assertFalse("A malformed node", isMalformed(methodDeclaration.getBody()));
+			node = getASTNode(unit, 0, 1);
+			assertEquals("Not an initializer", ASTNode.INITIALIZER, node.getNodeType());
+			Initializer initializer = (Initializer) node;
+			assertTrue("Not a recovered node", isRecovered(initializer));
+			assertTrue("Not a malformed node", isMalformed(initializer));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
