@@ -28828,4 +28828,44 @@ public void test925() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
+public void _test926() {
+	this.runConformTest(
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"\n" + 
+		"	public void foo() {\n" + 
+		"		NonTerminalSourcePart<? extends Tuple<Boolean, Term>> RESULT = null;\n" + 
+		"		NonTerminalSourcePart<? extends Tuple<? extends Term, ? extends Formula>> t = null;\n" + 
+		"		RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Term {\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Formula {\n" + 
+		"}\n" + 
+		"\n" + 
+		"final class NonTerminalSourcePart<V> {\n" + 
+		"	static <V> NonTerminalSourcePart<V> create(final V _value) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	final V value() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Tuple<A, B> {\n" + 
+		"	public static <A, B> Tuple<A, B> create(final A a, final B b) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	public A fst() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+		},
+		"");
+}
 }
