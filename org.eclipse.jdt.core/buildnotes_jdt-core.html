@@ -56,10 +56,17 @@ What's new in this drop</h2>
 at every exit point inside a try statement. With fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128705">128705</a>,
 the inlining got smarter, and identical exit point are now sharing the same inlined finally block (to be truly identical,
 exit points must denote the same break/continue label, or be return from void method, or return the same constant or null value.</li>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127628">bug 127628</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128848">128848</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128814">128814</a>
+[prefs] NPEs in log during tests
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=127628">127628</a>
+[index] CodeAssist doesn't filter deprecated types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128848">128848</a>
 closing bracket added into comment upon format
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128258">128258</a>
 Project name of java elements from external file is _E_X_T_E_R_N_A_L_P_R_O_J_E_C_T_
