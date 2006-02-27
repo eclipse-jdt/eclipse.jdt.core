@@ -86,7 +86,7 @@ public class AssertStatement extends Statement {
 			// expression downstream
 		} else {
 			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
-				addInitializationsFrom(assertWhenTrueInfo.nullInfo());
+				addInitializationsFrom(assertWhenTrueInfo.discardInitializationInfo());
 			// keep the merge from the initial code for the definite assignment 
 			// analysis, tweak the null part to influence nulls downstream
 		}
