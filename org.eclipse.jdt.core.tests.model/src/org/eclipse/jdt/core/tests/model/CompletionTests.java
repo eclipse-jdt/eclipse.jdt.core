@@ -12349,4 +12349,37 @@ public void testDeprecationCheck16() throws JavaModelException {
 		COMPLETION_PROJECT.setOptions(options);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
+public void _testDeprecationCheck17() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  Bug127628Ty\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Bug127628Ty";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"Bug127628Ty[POTENTIAL_METHOD_DECLARATION]{Bug127628Ty, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type1.Bug127628TypeInner1[TYPE_REF]{deprecation.Bug127628Type1.Bug127628TypeInner1, deprecation, Ldeprecation.Bug127628Type1$Bug127628TypeInner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
 }
