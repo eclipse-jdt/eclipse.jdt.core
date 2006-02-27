@@ -3070,7 +3070,7 @@ public void test0037() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    if ()\n" + 
+		"    if ($missing$)\n" + 
 		"        {\n" + 
 		"          foo();\n" + 
 		"        }\n" + 

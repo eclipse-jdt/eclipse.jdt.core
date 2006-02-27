@@ -15,6 +15,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 
 public class RecoveryScanner extends Scanner {
+	public static final char[] FAKE_IDENTIFIER = "$missing$".toCharArray(); //$NON-NLS-1$
+	
 	private RecoveryScannerData data;
 	
 	private int[] pendingTokens;
@@ -117,7 +119,13 @@ public class RecoveryScanner extends Scanner {
 	
 	public int getNextToken() throws InvalidInputException {
 		if(this.pendingTokensPtr > -1) {
-			return this.pendingTokens[this.pendingTokensPtr--];
+			int nextToken = this.pendingTokens[this.pendingTokensPtr--];
+			if(nextToken == TerminalTokens.TokenNameIdentifier){
+				this.fakeTokenSource = FAKE_IDENTIFIER;
+			} else {
+				this.fakeTokenSource = CharOperation.NO_CHAR;
+			}
+			return nextToken;
 		}
 		
 		this.fakeTokenSource = null;
@@ -129,11 +137,16 @@ public class RecoveryScanner extends Scanner {
 					this.data.insertedTokenUsed[i] = true;
 					this.pendingTokens = this.data.insertedTokens[i];
 					this.pendingTokensPtr = this.data.insertedTokens[i].length - 1;
-					this.fakeTokenSource = CharOperation.NO_CHAR;
 					this.isInserted = true;
 					this.startPosition = this.currentPosition;
 					this.skipNextInsertedTokens = i;
-					return this.pendingTokens[this.pendingTokensPtr--];
+					int nextToken = this.pendingTokens[this.pendingTokensPtr--];
+					if(nextToken == TerminalTokens.TokenNameIdentifier){
+						this.fakeTokenSource = FAKE_IDENTIFIER;
+					} else {
+						this.fakeTokenSource = CharOperation.NO_CHAR;
+					}
+					return nextToken;
 				}
 			}
 			this.skipNextInsertedTokens = -1;
@@ -150,10 +163,16 @@ public class RecoveryScanner extends Scanner {
 					this.data.replacedTokenUsed[i] = true;
 					this.pendingTokens = this.data.replacedTokens[i];
 					this.pendingTokensPtr = this.data.replacedTokens[i].length - 1;
-					this.fakeTokenSource = CharOperation.NO_CHAR;
+					this.fakeTokenSource = FAKE_IDENTIFIER;
 					this.isInserted = false;
 					this.currentPosition = this.data.replacedTokensEnd[i] + 1;
-					return this.pendingTokens[this.pendingTokensPtr--];
+					int nextToken = this.pendingTokens[this.pendingTokensPtr--];
+					if(nextToken == TerminalTokens.TokenNameIdentifier){
+						this.fakeTokenSource = FAKE_IDENTIFIER;
+					} else {
+						this.fakeTokenSource = CharOperation.NO_CHAR;
+					}
+					return nextToken;
 				}
 			}
 		}

@@ -320,7 +320,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"package test;\n" + 
 			"public class X {\n" + 
 			"  void foo(){\n" + 
-			"    String[] s={\"\",};\n" + 
+			"    String[] s={\"\",$missing$};\n" + 
 			"  }\n" + 
 			"}\n",
 			result);
@@ -742,7 +742,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"package test;\n" + 
 			"public class X {\n" + 
 			"  void foo(){\n" + 
-			"    a[0]=;\n" + 
+			"    a[0]=$missing$;\n" + 
 			"  }\n" + 
 			"}\n",
 			result);

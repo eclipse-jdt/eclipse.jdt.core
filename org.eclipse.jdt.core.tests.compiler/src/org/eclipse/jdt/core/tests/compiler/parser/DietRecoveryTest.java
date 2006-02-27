@@ -4633,7 +4633,7 @@ public void test75() {
 		"        super();\n" + 
 		"      }\n" + 
 		"      int hello() {\n" + 
-		"        fo = ;\n" + 
+		"        fo = $missing$;\n" + 
 		"      }\n" + 
 		"      int world() {\n" + 
 		"      }\n" + 
@@ -4736,7 +4736,7 @@ public void test76() {
 		"    super();\n" + 		
 		"  }\n" + 
 		"  public static void main(String[] argv) {\n" + 
-		"    new Member().f = ;\n" + 
+		"    new Member().f = $missing$;\n" + 
 		"  }\n" + 
 		"}\n";	
 		
@@ -4829,7 +4829,7 @@ public void test77() {
 		"    else\n" + 
 		"        if ((depth > 1))\n" + 
 		"            {\n" + 
-		"              sol = ;\n" + 
+		"              sol = $missing$;\n" + 
 		"            }\n" + 
 		"        else\n" + 
 		"            ;\n" + 
@@ -5984,7 +5984,7 @@ public void test99() {
 		"    restricts breakpoint;\n" + 
 		"    given thread;\n" + 
 		"    any other;\n" + 
-		"    specified = ;\n" + 
+		"    specified = $missing$;\n" + 
 		"  }\n" + 
 		"  public void removeThreadFilter(IJavaThread thread) {\n" + 
 		"    removes the;\n" + 
@@ -5993,7 +5993,7 @@ public void test99() {
 		"    request as;\n" + 
 		"    does not;\n" + 
 		"    the removal;\n" + 
-		"    thread = ;\n" + 
+		"    thread = $missing$;\n" + 
 		"  }\n" + 
 		"  public IJavaThread[] getThreadFilters() {\n" + 
 		"    return the;\n" + 
@@ -6832,7 +6832,7 @@ public void test114() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    int ;\n" + 
+		"    int $missing$;\n" + 
 		"  }\n" + 
 		"}\n";
 	

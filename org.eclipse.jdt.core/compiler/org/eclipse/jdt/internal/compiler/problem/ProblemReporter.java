@@ -705,12 +705,14 @@ public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 		literal.sourceStart,
 		literal.sourceEnd);
 }
-private boolean containEmptyName(char[][] qualifiedName) {
-	// recovered name aren't null but can contain empty name
+private boolean isRecoveredName(char[] simpleName) {
+	return simpleName == RecoveryScanner.FAKE_IDENTIFIER;
+}
+private boolean isRecoveredName(char[][] qualifiedName) {
 	if(qualifiedName == null) return false;
 	
 	for (int i = 0; i < qualifiedName.length; i++) {
-		if(qualifiedName[i] != null && qualifiedName.length == 0) return true;
+		if(qualifiedName[i] == RecoveryScanner.FAKE_IDENTIFIER) return true;
 	}
 	
 	return false;
@@ -2755,7 +2757,7 @@ public void invalidExpressionAsStatement(Expression expression){
 		expression.sourceEnd);
 }
 public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
-	if(fieldRef.token != null && fieldRef.token.length == 0) return;
+	if(isRecoveredName(fieldRef.token)) return;
 	
 	int id = IProblem.UndefinedField;
 	FieldBinding field = fieldRef.binding;
@@ -2813,10 +2815,10 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 public void invalidField(NameReference nameRef, FieldBinding field) {
 	if (nameRef instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
-		if (containEmptyName(ref.tokens)) return;
+		if (isRecoveredName(ref.tokens)) return;
 	} else {
 		SingleNameReference ref = (SingleNameReference) nameRef;
-		if (ref.token != null && ref.token.length == 0) return;
+		if (isRecoveredName(ref.token)) return;
 	}
 	int id = IProblem.UndefinedField;
 	switch (field.problemId()) {
@@ -2875,7 +2877,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 	//NotVisibleField
 	//AmbiguousField
 	
-	if (containEmptyName(nameRef.tokens)) return;
+	if (isRecoveredName(nameRef.tokens)) return;
 	
 	if (searchedType.isBaseType()) {
 		this.handle(
@@ -2953,7 +2955,7 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			annotation.sourceEnd);	
 }
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
-	if(messageSend.selector != null && messageSend.selector.length == 0) return;
+	if (isRecoveredName(messageSend.selector)) return;
 	
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;
@@ -3240,31 +3242,31 @@ public void invalidType(ASTNode location, TypeBinding type) {
 	int end = location.sourceEnd;
 	if (location instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) location;
-		if (containEmptyName(ref.tokens)) return;
+		if (isRecoveredName(ref.tokens)) return;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	} else if (location instanceof ArrayQualifiedTypeReference) {
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) location;
-		if (containEmptyName(arrayQualifiedTypeReference.tokens)) return;
+		if (isRecoveredName(arrayQualifiedTypeReference.tokens)) return;
 		long[] positions = arrayQualifiedTypeReference.sourcePositions;
 		end = (int) positions[positions.length - 1];
 	} else if (location instanceof QualifiedTypeReference) {
 		QualifiedTypeReference ref = (QualifiedTypeReference) location;
-		if (containEmptyName(ref.tokens)) return;
+		if (isRecoveredName(ref.tokens)) return;
 		if (type instanceof ReferenceBinding) {
 			char[][] name = ((ReferenceBinding) type).compoundName;
 			end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ImportReference) {
 		ImportReference ref = (ImportReference) location;
-		if (containEmptyName(ref.tokens)) return;
+		if (isRecoveredName(ref.tokens)) return;
 		if (type instanceof ReferenceBinding) {
 			char[][] name = ((ReferenceBinding) type).compoundName;
 			end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ArrayTypeReference) {
 		ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
-		if (arrayTypeReference.token != null && arrayTypeReference.token.length == 0) return;
+		if (isRecoveredName(arrayTypeReference.token)) return;
 		end = arrayTypeReference.originalSourceEnd;
 	}
 	this.handle(
@@ -5394,8 +5396,8 @@ private String typesAsString(boolean isVarargs, TypeBinding[] types, boolean mak
 	return buffer.toString();
 }
 public void undefinedAnnotationValue(TypeBinding annotationType, MemberValuePair memberValuePair) {
+	if (isRecoveredName(memberValuePair.name)) return;
 	String name = 	new String(memberValuePair.name);
-	if(name != null && name.length() == 0) return;
 	this.handle(
 		IProblem.UndefinedAnnotationMember,
 		new String[] { name, new String(annotationType.readableName())},
@@ -5404,8 +5406,8 @@ public void undefinedAnnotationValue(TypeBinding annotationType, MemberValuePair
 		memberValuePair.sourceEnd);
 }
 public void undefinedLabel(BranchStatement statement) {
+	if (isRecoveredName(statement.label)) return;
 	String[] arguments = new String[] {new String(statement.label)};
-	if (statement.label != null && statement.label.length == 0) return;
 	this.handle(
 		IProblem.UndefinedLabel,
 		arguments,
@@ -5588,12 +5590,12 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 	int end = nameRef.sourceEnd;
 	if (nameRef instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
-		if (containEmptyName(ref.tokens)) return;
+		if (isRecoveredName(ref.tokens)) return;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	} else {
 		SingleNameReference ref = (SingleNameReference) nameRef;
-		if (ref.token != null && ref.token.length == 0) return;
+		if (isRecoveredName(ref.token)) return;
 	}
 	this.handle(
 		IProblem.UndefinedName,
