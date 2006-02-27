@@ -471,39 +471,32 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		if (reader != null) {
 			IBinaryMethod[] methods = reader.getMethods();
 			if (methods != null) {
+				// build arguments names
 				boolean firstIsSynthetic = false;
 				if (reader.isMember() && method.isConstructor() && !Flags.isStatic(reader.getModifiers())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
 					firstIsSynthetic = true;
 					argCount++;
 				}
-				nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
-					IBinaryMethod binaryMethod = methods[i];
-					char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
-					if (CharOperation.equals(selector, method.selector)) {
-						char[] signature = binaryMethod.getGenericSignature();
-						if (signature == null) signature = binaryMethod.getMethodDescriptor();
-						char[][] parameterTypes = Signature.getParameterTypes(signature);
-						if (argCount != parameterTypes.length) continue nextMethod;
-						if (arguments != null) {
-							for (int j = 0; j < argCount; j++) {
-								char[] typeName;
-								if (j == 0 && firstIsSynthetic) {
-									typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
-								} else {
-									TypeReference typeRef = arguments[firstIsSynthetic ? j - 1 : j].type;
-									typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-									for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
-										typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
-								}
-								char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-								if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), typeName))
-									continue nextMethod;
-								parameterTypes[j] = parameterTypeName;
-							}
-						}
-						return createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
+				char[][] argumentTypeNames = new char[argCount][];
+				for (int i = 0; i < argCount; i++) {
+					char[] typeName = null;
+					if (i == 0 && firstIsSynthetic) {
+						typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
+					} else if (arguments != null) {
+						TypeReference typeRef = arguments[firstIsSynthetic ? i - 1 : i].type;
+						typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+						for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+							typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 					}
+					if (typeName == null) {
+						// invalid type name
+						return null;
+					}
+					argumentTypeNames[i] = typeName;
 				}
+				
+				// return binary method
+				return createBinaryMethodHandle(type, method.selector, argumentTypeNames);
 			}
 		}
 		return null;
@@ -514,8 +507,6 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		for (int i = 0; i < argCount; i++) {
 			TypeReference typeRef = arguments[i].type;
 			char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
-//			for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
-//				typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 			parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 		}
 	}
@@ -525,7 +516,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 /*
  * Create binary method handle
  */
-IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] argumentTypeNames, MatchLocator locator) {
+IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] argumentTypeNames) {
 	ClassFileReader reader = MatchLocator.classFileReader(type);
 	if (reader != null) {
 		IBinaryMethod[] methods = reader.getMethods();
@@ -533,7 +524,7 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 			int argCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
 			nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
 				IBinaryMethod binaryMethod = methods[i];
-				char[] selector = binaryMethod.getSelector();
+				char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
 				if (CharOperation.equals(selector, methodSelector)) {
 					char[] signature = binaryMethod.getGenericSignature();
 					if (signature == null) signature = binaryMethod.getMethodDescriptor();
@@ -547,7 +538,7 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 							parameterTypes[j] = parameterTypeName;
 						}
 					}
-					return (IMethod) locator.createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
+					return (IMethod) createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
 				}
 			}
 		}

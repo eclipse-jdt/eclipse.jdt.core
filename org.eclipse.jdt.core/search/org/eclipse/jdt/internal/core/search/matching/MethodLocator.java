@@ -496,7 +496,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 			}
 			parameterTypes[i] = typeName;
 		}
-		method = locator.createBinaryMethodHandle(type, methodBinding.selector, parameterTypes, locator);
+		method = locator.createBinaryMethodHandle(type, methodBinding.selector, parameterTypes);
 	} else {
 		String[] parameterTypes = new String[parameterLength];
 		for (int i = 0; i  < parameterLength; i++) {

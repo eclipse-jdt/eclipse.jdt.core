@@ -47,7 +47,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110060";
 //	TESTS_NAMES = new String[] { "testBug126330" };
-//	TESTS_NUMBERS = new int[] { 124469 };
+//	TESTS_NUMBERS = new int[] { 128877 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -5162,15 +5162,15 @@ public void testBug110060_FieldPattern05() throws CoreException {
  */
 public void testBug110291() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110291/TestXX.java",
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110291/Test110291XX.java",
 		"package b110291;\n" + 
-		"public class TestXX {\n" + 
-		"	class TestYY {}" +
+		"public class Test110291XX {\n" + 
+		"	class Test110291YY {}" +
 		"}\n"
 	);
-	search("Test", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	search("Test110291", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
 	assertSearchResults(
-		"src/b110291/TestXX.java b110291.TestXX$TestYY [TestYY] EXACT_MATCH"
+		"src/b110291/Test110291XX.java b110291.Test110291XX$Test110291YY [Test110291YY] EXACT_MATCH"
 	);
 }
 
@@ -5802,6 +5802,35 @@ public void testBug126330() throws CoreException {
 	search(type, REFERENCES);
 	assertSearchResults(
 		"lib/b126330.jar B126330.a EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 128877: [search] reports inexistent IMethod for binary constructor of inner class
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=128877"
+ */
+public void testBug128877a() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IMethod method = type.getMethod("Test", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"lib/b128877.jar pack.X$Sub(pack.X) EXACT_MATCH"
+	);
+}
+public void testBug128877b() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IMethod method = type.getMethod("Test", new String[] { "Ljava.lang.String;" });
+	search(method, REFERENCES);
+	assertSearchResults(
+		"lib/b128877.jar pack.X$Sub(pack.X, java.lang.String) EXACT_MATCH"
+	);
+}
+public void testBug128877c() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IMethod method = type.getMethod("foo128877", new String[] { "I" });
+	search(method, REFERENCES);
+	assertSearchResults(
+		"lib/b128877.jar pack.X$Sub(pack.X) EXACT_MATCH"
 	);
 }
 
