@@ -23,6 +23,7 @@ public class JavadocBugsTest extends JavadocTest {
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 	String reportDeprecation = CompilerOptions.ERROR;
+	String reportJavadocDeprecation = null;
 
 	public JavadocBugsTest(String name) {
 		super(name);
@@ -37,7 +38,7 @@ public class JavadocBugsTest extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
-//		TESTS_NUMBERS = new int[] { 125903 };
+		TESTS_NUMBERS = new int[] { 129241 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -48,6 +49,9 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
+		if (this.reportJavadocDeprecation != null) {
+			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, reportJavadocDeprecation);
+		}
 		if (reportMissingJavadocComments != null) {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.ENABLED);
@@ -4023,7 +4027,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	* @see p.A#bar()\n" + 
 			"	           ^^^^^\n" + 
-			"[@cat:javadoc] [@sup:deprecation] Javadoc: The method bar() from the type A is deprecated\n" + 
+			"[@cat:javadoc] Javadoc: The method bar() from the type A is deprecated\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	Zork z;\n" + 
@@ -4075,4 +4079,101 @@ public class JavadocBugsTest extends JavadocTest {
 			true,
 			true);
 	}	
+
+	/**
+	 * Bug 129241: [Javadoc] deprecation warning wrongly reported when ignoring Malformed Javadoc comments
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=129241"
+	 */
+	public void testBug129241a() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" +
+				"/** @deprecated */\n" +
+				"public class A {\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	* @see p.A#bar\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: The type A is deprecated\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug129241b() {
+		this.reportDeprecation = CompilerOptions.IGNORE;
+//		this.reportJavadocDeprecation = CompilerOptions.ENABLED;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" +
+				"/** @deprecated */\n" +
+				"public class A {\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	* @see p.A#bar\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: The type A is deprecated\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug129241c() {
+		this.reportJavadocDeprecation = CompilerOptions.DISABLED;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" +
+				"/** @deprecated */\n" +
+				"public class A {\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug129241d() {
+		this.reportInvalidJavadoc = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see p.A#bar\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" +
+				"/** @deprecated */\n" +
+				"public class A {\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			}
+		);
+	}
 }

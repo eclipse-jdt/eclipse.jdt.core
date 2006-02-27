@@ -1530,13 +1530,11 @@ public static long getIrritant(int problemID) {
 		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocNotVisibleType:
-			return CompilerOptions.InvalidJavadoc;
-			
 		case IProblem.JavadocUsingDeprecatedField:
 		case IProblem.JavadocUsingDeprecatedConstructor:
 		case IProblem.JavadocUsingDeprecatedMethod:
 		case IProblem.JavadocUsingDeprecatedType:
-			return CompilerOptions.InvalidJavadoc | CompilerOptions.UsingDeprecatedAPI;
+			return CompilerOptions.InvalidJavadoc;
 
 		case IProblem.JavadocMissingParamTag:
 		case IProblem.JavadocMissingReturnTag:
