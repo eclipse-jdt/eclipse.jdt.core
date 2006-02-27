@@ -115,11 +115,7 @@ class ASTConverter {
 						}
 				}
 			}
-			if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
-				expression.sourceEnd =  this.scanner.startPosition;
-			} else {
-				expression.sourceEnd = this.scanner.startPosition - 1;
-			}
+			expression.sourceEnd = this.scanner.startPosition - 1;
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -4134,15 +4130,9 @@ class ASTConverter {
 						balance --;
 						break;
 					case TerminalTokens.TokenNameCOMMA :
-						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
-							return this.scanner.startPosition;
-						}
 						if (balance == 0) return this.scanner.startPosition - 1;
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
-						if(this.scanner instanceof RecoveryScanner && ((RecoveryScanner)this.scanner).isInsertedToken()) {
-							return this.scanner.startPosition;
-						}
 						return this.scanner.startPosition - 1;
 				}
 			}

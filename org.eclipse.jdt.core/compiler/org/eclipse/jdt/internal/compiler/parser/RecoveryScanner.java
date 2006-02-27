@@ -131,7 +131,7 @@ public class RecoveryScanner extends Scanner {
 					this.pendingTokensPtr = this.data.insertedTokens[i].length - 1;
 					this.fakeTokenSource = CharOperation.NO_CHAR;
 					this.isInserted = true;
-					this.startPosition = this.currentPosition - 1;
+					this.startPosition = this.currentPosition;
 					this.skipNextInsertedTokens = i;
 					return this.pendingTokens[this.pendingTokensPtr--];
 				}
