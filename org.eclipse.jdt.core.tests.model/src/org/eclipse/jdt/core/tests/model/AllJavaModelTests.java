@@ -214,7 +214,7 @@ public static Test suite() {
 	TestCase.TESTS_NAMES = null;
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
-	TestCase.ONLY_SUFFIX = null;
+	TestCase.RUN_ONLY_ID = null;
 	
 	for (int i = 0, length = classes.length; i < length; i++) {
 		Class clazz = classes[i];
