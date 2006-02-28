@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 922 };
+//		TESTS_NUMBERS = new int[] { 928 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -28932,6 +28932,27 @@ public void test927() {
 		"	RESULT = Collections.singletonList(lst.get(0));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Object> to List<Object>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test928() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"    public static void main(String[] args) throws Throwable {\n" + 
+		"	List<?> x1 = new ArrayList<Integer>();\n" + 
+		"	List<?> x2 = new ArrayList<Integer>();\n" + 
+		"	x1.addAll(x2);\n" + 
+		"    }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	x1.addAll(x2);\n" + 
+		"	   ^^^^^^\n" + 
+		"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
 		"----------\n");
 }
 }
