@@ -28829,8 +28829,8 @@ public void test925() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
-public void _test926() {
-	this.runConformTest(
+public void test926() {
+	this.runNegativeTest(
 		new String[] {
 		"X.java",
 		"public class X {\n" + 
@@ -28866,6 +28866,72 @@ public void _test926() {
 		"	}\n" + 
 		"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from NonTerminalSourcePart<Tuple<Boolean,capture-of ? extends Term>> to NonTerminalSourcePart<? extends Tuple<Boolean,Term>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test927() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"	public void foo() {\n" + 
+		"		List<? extends List<Object>> RESULT = null;\n" + 
+		"		List<? extends Object> lst = null;\n" + 
+		"		RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	}\n" + 
+		"	public void bar() {\n" + 
+		"		List<List<Object>> RESULT = null;\n" + 
+		"		List<? extends Object> lst = null;\n" + 
+		"		RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	}\n" + 
+		"	public void baz() {\n" + 
+		"		List<List<Object>> RESULT = null;\n" + 
+		"		List<?> lst = null;\n" + 
+		"		RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	}\n" + 
+		"	public void bar2(List<? extends Object> lst) {\n" + 
+		"		List<Object> RESULT = null;\n" + 
+		"		RESULT = lst;\n" + 
+		"		RESULT = Collections.singletonList(lst.get(0));\n" + 
+		"	}	\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		List<String> ls = new ArrayList<String>();\n" + 
+		"		ls.add(\"str\");\n" + 
+		"		new X().bar2(ls);\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<List<capture-of ? extends Object>> to List<? extends List<Object>>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<List<capture-of ? extends Object>> to List<List<Object>>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<List<capture-of ?>> to List<List<Object>>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 20)\n" + 
+		"	RESULT = lst;\n" + 
+		"	         ^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Object> to List<Object>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 21)\n" + 
+		"	RESULT = Collections.singletonList(lst.get(0));\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ? extends Object> to List<Object>\n" + 
+		"----------\n");
 }
 }
