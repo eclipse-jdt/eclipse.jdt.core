@@ -40,6 +40,8 @@ abstract public class ReferenceBinding extends TypeBinding implements IDependent
 	char[] constantPoolName;
 	char[] signature;
 
+	private SimpleLookupTable compatibleCache;
+	
 public FieldBinding[] availableFields() {
 	return fields();
 }
@@ -705,19 +707,48 @@ public boolean isHierarchyBeingConnected() {
 
 /**
  * Answer true if the receiver type can be assigned to the argument type (right)
+ * In addition to improving performance, caching also ensures there is no infinite regression
+ * since per nature, the compatibility check is recursive through parameterized type arguments (122775)
  */
 public boolean isCompatibleWith(TypeBinding otherType) {
-    
+	if (otherType == this)
+		return true;
+	if (otherType.id == TypeIds.T_JavaLangObject)
+		return true;
+	Object result;
+	if (this.compatibleCache == null) {
+		this.compatibleCache = new SimpleLookupTable(3);
+		result = null;
+	} else {
+		result = this.compatibleCache.get(otherType);
+		if (result != null) {
+			return result == Boolean.TRUE;
+		}
+	}
+	this.compatibleCache.put(otherType, Boolean.FALSE); // protect from recursive call
+	if (isCompatibleWith0(otherType)) {
+		this.compatibleCache.put(otherType, Boolean.TRUE);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Answer true if the receiver type can be assigned to the argument type (right)
+ */
+public boolean isCompatibleWith0(TypeBinding otherType) {
 	if (otherType == this) 
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject) 
 		return true;
-	// equivalence may allow compatibility with array type through wildcard bound
+	// equivalence may allow compatibility with array type through wildcard
+	// bound
 	if (this.isEquivalentTo(otherType)) 
 		return true;
 	switch (otherType.kind()) {
 		case Binding.WILDCARD_TYPE :
-			return false; // should have passed equivalence check above if wildcard
+			return false; // should have passed equivalence check above if
+							// wildcard
 		case Binding.TYPE_PARAMETER :
 			// check compatibility with capture of ? super X
 			if (otherType.isCapture()) {
@@ -737,12 +768,14 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 				case Binding.PARAMETERIZED_TYPE :
 				case Binding.RAW_TYPE :
 					if (this.erasure() == otherType.erasure())
-						return false; // should have passed equivalence check above if same erasure
+						return false; // should have passed equivalence check
+										// above if same erasure
 			}
 			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 			if (otherReferenceType.isInterface()) // could be annotation type
 				return implementsInterface(otherReferenceType, true);
-			if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
+			if (this.isInterface())  // Explicit conversion from an interface
+										// to a class is not allowed
 				return false;
 			return otherReferenceType.isSuperclassOf(this);
 		default :

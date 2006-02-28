@@ -27440,7 +27440,7 @@ public void test886() {
 		null/*no custom requestor*/);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
-public void _test887() {
+public void test887() {
 	this.runNegativeTest(
 		new String[] {
 			"Bar.java", // =================
@@ -27451,7 +27451,12 @@ public void _test887() {
 			"    }\n" + 
 			"}\n",
 		},
-		"unspecified");
+		"----------\n" + 
+		"1. ERROR in Bar.java (at line 4)\n" + 
+		"	Foo<? super X> f = x;\n" + 
+		"	                   ^\n" + 
+		"Type mismatch: cannot convert from X to Foo<? super X>\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test888() {
