@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-		TESTS_NUMBERS = new int[] { 932 };
+//		TESTS_NUMBERS = new int[] { 933 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29142,6 +29142,91 @@ public void test932() {
 		"        public void bar() {\n" + 
 		"                X<String>.Method();\n" + 
 		"        }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X<String>.Method();\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063
+public void _test933() {
+	this.runNegativeTest(
+		new String[] {
+		"a/AbstractFoo.java", //================================
+		"package a;\n" + 
+		"public abstract class AbstractFoo<T extends AbstractFoo<T>> {\n" + 
+		"	protected static class Inner<T extends AbstractFoo<T>> {\n" + 
+		"		public Inner() {\n" + 
+		"		}\n" + 
+		"\n" + 
+		"		public final void doSmth() {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+		"b/CustomFoo.java", //================================
+		"package b;\n" + 
+		"import a.AbstractFoo;\n" + 
+		"public final class CustomFoo extends AbstractFoo<CustomFoo> {\n" + 
+		"	private Inner<DefaultFoo> defaultInner;\n" + 
+		"\n" + 
+		"	Inner<DefaultFoo> getDefaultInner() {\n" + 
+		"		return (this.defaultInner == null)\n" + 
+		"				? this.defaultInner = new Inner<DefaultFoo>()\n" + 
+		"				: this.defaultInner;\n" + 
+		"	}	\n" + 
+		"\n" + 
+		"	private Inner<CustomFoo> customInner;\n" + 
+		"\n" + 
+		"	Inner<CustomFoo> getCustomInner() {\n" + 
+		"		return (this.customInner == null)\n" + 
+		"				? this.customInner = new Inner<CustomFoo>()\n" + 
+		"				: this.customInner;\n" + 
+		"	}	\n" + 
+		"}\n",
+		"b/DefaultFoo.java", //================================
+		"package b;\n" + 
+		"import a.AbstractFoo;\n" + 
+		"import a.AbstractFoo;\n" + 
+		"public final class DefaultFoo extends AbstractFoo<DefaultFoo> {\n" + 
+		"	private Inner<DefaultFoo> defaultInner;\n" + 
+		"\n" + 
+		"	Inner<DefaultFoo> getDefaultInner() {\n" + 
+		"		return (this.defaultInner == null)\n" + 
+		"				? this.defaultInner = new Inner<DefaultFoo>()\n" + 
+		"				: this.defaultInner;\n" + 
+		"	}	\n" + 
+		"\n" + 
+		"	private Inner<CustomFoo> customInner;\n" + 
+		"\n" + 
+		"	Inner<CustomFoo> getCustomInner() {\n" + 
+		"		return (this.customInner == null)\n" + 
+		"				? this.customInner = new Inner<CustomFoo>()\n" + 
+		"				: this.customInner;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	///////////////////////////////////////////////////////////////////////\n" + 
+		"	public void testCompilationFailure(final CustomFoo foo) {\n" + 
+		"		final DefaultFoo foo1 = this;\n" + 
+		"		final CustomFoo foo2 = foo;\n" + 
+		"\n" + 
+		"		// These get compiled w/o error:\n" + 
+		"		foo1.getCustomInner().doSmth();\n" + 
+		"		foo1.getDefaultInner().doSmth();\n" + 
+		"\n" + 
+		"		// These do not (Eclipse 3.2.0 M4):\n" + 
+		"		foo2.getCustomInner().doSmth();\n" + 
+		"		foo2.getDefaultInner().doSmth();\n" + 
+		"\n" + 
+		"		// However, if we split statements, everything\'s ok: \n" + 
+		"		final Inner<CustomFoo> customInner2 = foo2.getCustomInner();\n" + 
+		"		customInner2.doSmth();\n" + 
+		"\n" + 
+		"		final Inner<DefaultFoo> defaultInner2 = foo2.getDefaultInner();\n" + 
+		"		defaultInner2.doSmth();\n" + 
+		"	}\n" + 
 		"}\n",
 		},
 		"----------\n" + 
