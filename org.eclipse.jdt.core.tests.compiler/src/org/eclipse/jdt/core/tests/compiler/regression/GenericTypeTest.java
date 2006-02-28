@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 930 };
+//		TESTS_NUMBERS = new int[] { 931 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29108,6 +29108,25 @@ public void test930() {
 		"	{  Zork z; }\n" + 
 		"	   ^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238 - variation
+public void test931() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"public class X<T> {\n" + 
+		"        public static int I;\n" + 
+		"        public void foo() {\n" + 
+		"                X<T>.I= 10;\n" + 
+		"        }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<T>.I= 10;\n" + 
+		"	     ^\n" + 
+		"Syntax error on token \"I\", VariableDeclaratorId expected after this token\n" + 
 		"----------\n");
 }
 }
