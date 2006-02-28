@@ -41,10 +41,11 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		ALL_CLASSES.add(JavadocTestForInterface.class);
 		ALL_CLASSES.add(JavadocTestOptions.class);
 		// Reset forgotten subsets tests
-		TESTS_PREFIX = null;
-		TESTS_NAMES = null;
-		TESTS_NUMBERS= null;
-		TESTS_RANGE = null;
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 	}
 	
 	
@@ -61,6 +62,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS = null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 	
 		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
 			Class testClass = (Class) ALL_CLASSES.get(i);

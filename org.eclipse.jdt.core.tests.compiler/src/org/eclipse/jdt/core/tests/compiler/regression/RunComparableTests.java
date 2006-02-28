@@ -43,6 +43,7 @@ public class RunComparableTests extends junit.framework.TestCase {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 	}
 	
 	public RunComparableTests(String testName) {

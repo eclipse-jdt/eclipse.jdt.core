@@ -21,6 +21,9 @@ import junit.framework.ComparisonFailure;
 
 public class TestCase extends PerformanceTestCase {
 
+	public static final String METHOD_PREFIX = "test";
+	public  static String ONLY_SUFFIX = "_ONLY";
+
 	// static variables for subsets tests
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
 	public static String[] TESTS_NAMES = null; // list of test names to perform
@@ -109,7 +112,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 
 public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
 	List tests = new ArrayList();
-	Set testNames = new HashSet();
+	List testNames = new ArrayList();
+	List onlyNames = new ArrayList();
 	Constructor constructor = null;
 	try {
 		// Get class constructor
@@ -132,29 +136,36 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 		methods = mergedMethods;
 		evaluationTestSuperclass = evaluationTestSuperclass.getSuperclass();
 	}
+
+	// Build test names list
+	final int methodPrefixLength = METHOD_PREFIX.length();
 	nextMethod: for (int m = 0, max = methods.length; m < max; m++) {
-		try {
-			int modifiers = methods[m].getModifiers();
-			if (Flags.isPublic(modifiers) && !Flags.isStatic(modifiers) &&
-				methods[m].getName().startsWith("test")) {
-				String methName = methods[m].getName();
-				Object[] params = {methName};
+		int modifiers = methods[m].getModifiers();
+		if (Flags.isPublic(modifiers) && !Flags.isStatic(modifiers)) {
+			String methName = methods[m].getName();
+			if (ONLY_SUFFIX != null && methName.endsWith(ONLY_SUFFIX)) {
+				if (!onlyNames.contains(methName)) {
+					onlyNames.add(methName);
+				}
+			}
+			else if (methName.startsWith(METHOD_PREFIX)) {
 				// no prefix, no subsets => add method
 				if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
-					if (testNames.add(methName))
-						tests.add(constructor.newInstance(params));
+					if (!testNames.contains(methName)) {
+						testNames.add(methName);
+					}
 					continue nextMethod;
 				}
 				// no prefix or method matches prefix
 				if (TESTS_PREFIX == null || methName.startsWith(TESTS_PREFIX)) {
-					int numStart = TESTS_PREFIX==null ? 4 /* test */ : TESTS_PREFIX.length();
+					int numStart = TESTS_PREFIX==null ? methodPrefixLength : TESTS_PREFIX.length();
 					// tests names subset
 					if (TESTS_NAMES != null) {
 						for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
-//							if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
 							if (methName.indexOf(TESTS_NAMES[i]) >= 0) {
-								if (testNames.add(methName))
-									tests.add(constructor.newInstance(params));
+								if (!testNames.contains(methName)) {
+									testNames.add(methName);
+								}
 								continue nextMethod;
 							}
 						}
@@ -175,7 +186,6 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 									for (int i = 0; i < TESTS_NUMBERS.length; i++) {
 										if (TESTS_NUMBERS[i] == num) {
 											testNames.add(methName);
-											tests.add(constructor.newInstance(params));
 											continue nextMethod;
 										}
 									}
@@ -184,7 +194,6 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 								if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !tests.contains(methName)) {
 									if ((TESTS_RANGE[0]==-1 || num>=TESTS_RANGE[0]) && (TESTS_RANGE[1]==-1 || num<=TESTS_RANGE[1])) {
 										testNames.add(methName);
-										tests.add(constructor.newInstance(params));
 										continue nextMethod;
 									}
 								}
@@ -196,14 +205,25 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 
 					// no subset, add all tests
 					if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_RANGE==null) {
-						if (testNames.add(methName))
-							tests.add(constructor.newInstance(params));
+						if (!testNames.contains(methName)) {
+							testNames.add(methName);
+						}
 					}
 				}
 			}
 		}
+	}
+
+	// Add corresponding tests
+	List names = onlyNames.size() > 0 ? onlyNames : testNames;
+	Iterator iterator = names.iterator();
+	while (iterator.hasNext()) {
+		String testName = (String) iterator.next();
+		try {
+			tests.add(constructor.newInstance(new Object[] { testName } ));
+		}
 		catch (Exception e) {
-			System.out.println("Method "+methods[m]+" removed from suite due to exception: "+e.getMessage());
+			System.err.println("Method "+testName+" removed from suite due to exception: "+e.getMessage());
 		}
 	}
 	return tests;

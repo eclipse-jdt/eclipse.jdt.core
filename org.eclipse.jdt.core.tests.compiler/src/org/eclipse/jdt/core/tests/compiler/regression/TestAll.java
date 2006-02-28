@@ -73,6 +73,7 @@ public static Test suite() {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
@@ -86,6 +87,7 @@ public static Test suite() {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
@@ -103,6 +105,7 @@ public static Test suite() {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
@@ -121,6 +124,7 @@ public static Test suite() {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
+		TestCase.ONLY_SUFFIX = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_6, RegressionTestSetup.class, tests_1_6));
 	}
 	return all;

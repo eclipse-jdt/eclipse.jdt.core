@@ -44,6 +44,7 @@ public static Test suite() {
 	TestCase.TESTS_NAMES = null;
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
+	TestCase.ONLY_SUFFIX = null;
 
 	for (int i = 0, l=ConverterTestSetup.TEST_SUITES.size(); i < l; i++) {
 		Class testClass = (Class) ConverterTestSetup.TEST_SUITES.get(i);

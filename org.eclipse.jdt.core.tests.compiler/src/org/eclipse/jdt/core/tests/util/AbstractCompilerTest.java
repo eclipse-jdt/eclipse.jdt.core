@@ -166,7 +166,7 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null || ONLY_SUFFIX != null) {
 			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
 		}
 		return setupSuite(evaluationTestClass);
