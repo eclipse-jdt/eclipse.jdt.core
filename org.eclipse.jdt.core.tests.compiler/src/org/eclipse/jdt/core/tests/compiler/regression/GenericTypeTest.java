@@ -13362,7 +13362,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78027 - variation (check unchecked warnings)
-	public void _test459() {
+	public void test459() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13393,8 +13393,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n"
 			},
-			"should be 2 unchecked warnings?"
-		);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 16)\n" + 
+			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation getById(Class<capture-of ? extends Test>, Integer) of the generic method getById(Class<T>, Integer) of type Test.Manager<C>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
+			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type capture-of ? extends Test needs unchecked conversion to conform to ITest<C>\n" + 
+			"----------\n"	);
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82439
@@ -19349,7 +19363,7 @@ public void test617() {
 			"Type mismatch: cannot convert from Object to String\n" + 
 			"----------\n");
 	}			
-	public void _test645() {
+	public void test645() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19376,7 +19390,27 @@ public void test617() {
 				"	}\n" + 
 				"}\n",
 	        },
-			"should complain about bound check failure on #getAnnotation(XClass<String>)");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	XClass xc = new XClass();\n" + 
+			"	^^^^^^\n" + 
+			"XClass is a raw type. References to generic type XClass<U> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	XClass xc = new XClass();\n" + 
+			"	                ^^^^^^\n" + 
+			"XClass is a raw type. References to generic type XClass<U> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	String str = xc.getConstructor().getAnnotation(arg);\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getAnnotation(XClass) belongs to the raw type XConstructor. References to generic type XConstructor<V> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	String str = xc.getConstructor().getAnnotation(arg);\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to String\n" + 
+			"----------\n");
 	}			
 	public void test646() {
 	    this.runNegativeTest(
@@ -20604,7 +20638,7 @@ public void _test667() {
 		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
 		"----------\n");
 }	
-public void _test668() {
+public void test668() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -27088,7 +27122,7 @@ public void test874() {
 	}		
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395
-public void _test875() {
+public void test875() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27107,10 +27141,32 @@ public void _test875() {
 			"	}\n" + 
 			"}\n",
 		},
-		"should be: 1-type mismatch 2-unchecked cast");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+		"	                                                                          ^^^^^^^^^^^^\n" + 
+		"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+		"	                                                                                                                                                              ^^^^^^^^^^^^\n" + 
+		"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	return null != null \n" + 
+		"			? uiMap.get(persistentClass)\n" + 
+		"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Class<capture-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>> is actually checking against the erased type Class\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
-public void _test876() {
+public void test876() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27127,7 +27183,32 @@ public void _test876() {
 			"	}\n" + 
 			"}\n",
 		},
-		"should be 3 errors");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	Class<Class> cc = cco; // ko\n" + 
+		"	      ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Class<Class> cc = cco; // ko\n" + 
+		"	                  ^^^\n" + 
+		"Type mismatch: cannot convert from Class<Class<Object>> to Class<Class>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	Class<Class<Object>> cco2 = cc; // ko\n" + 
+		"	                            ^^\n" + 
+		"Type mismatch: cannot convert from Class<Class> to Class<Class<Object>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	Class<? extends Class> cec = ceco; // ok\n" + 
+		"	                ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	Class<? extends Class<Object>> ceco2 = cec; // ko\n" + 
+		"	                                       ^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture-of ? extends Class> to Class<? extends Class<Object>>\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
 public void test877() {
