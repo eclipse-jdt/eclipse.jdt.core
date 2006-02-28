@@ -1361,7 +1361,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	    statePool[old_state_pool_top] = new StateInfo(act, stateSeen[stack_top]);
 	    stateSeen[stack_top] = old_state_pool_top;
 	
-	    for (int i = 0; i < SCOPE_SIZE; i++) {
+	    next : for (int i = 0; i < SCOPE_SIZE; i++) {
 	        //
 	        // Use the scope lookahead symbol to force all reductions
 	        // inducible by that symbol.
@@ -1461,6 +1461,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	                        int top = stack_position;
 	                        act = Parser.ntAction(stck[top], Parser.scope_lhs[i]);
 	                        while(act <= NUM_RULES) {
+	                        	if(Parser.rules_compliance[act] > this.options.sourceLevel) {
+								 	continue next;
+								}
 	                            top -= (Parser.rhs[act]-1);
 	                            act = Parser.ntAction(stck[top], Parser.lhs[act]);
 	                        }

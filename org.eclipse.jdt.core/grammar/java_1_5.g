@@ -1427,6 +1427,7 @@ ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' Conditional
 AssignmentExpression -> ConditionalExpression
 AssignmentExpression -> Assignment
 /:$readableName Expression:/
+/:$recovery_template Identifier:/
 
 Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
 /.$putCase consumeAssignment(); $break ./
@@ -1434,9 +1435,11 @@ Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
 
 -- this rule is added to parse an array initializer in a assigment and then report a syntax error knowing the exact senario
 InvalidArrayInitializerAssignement ::= PostfixExpression AssignmentOperator ArrayInitializer
-/:$readableName ArrayInitializerAssignement:/
+/:$readableName ArrayInitializerAssignment:/
+/:$recovery:/
 Assignment ::= InvalidArrayInitializerAssignement
 /.$putcase ignoreExpressionAssignment();$break ./
+/:$recovery:/
 
 AssignmentOperator ::= '='
 /.$putCase consumeAssignmentOperator(EQUAL); $break ./

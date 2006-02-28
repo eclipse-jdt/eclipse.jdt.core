@@ -425,7 +425,7 @@ public void test019() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	foo[0] = \n" + 
 		"	     ^\n" + 
-		"Syntax error, insert \"AssignmentOperator ArrayInitializer\" to complete ArrayInitializerAssignement\n" + 
+		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	foo[0] = \n" + 

@@ -1102,7 +1102,7 @@ public void test0026() {
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o ? c){\n" + 
 		"	                ^\n" + 
-		"Syntax error, insert \"AssignmentOperator ArrayInitializer\" to complete ArrayInitializerAssignement\n" + 
+		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 3)\n" + 
 		"	for(Object o ? c){\n" + 
@@ -1748,20 +1748,10 @@ public void test0040() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
-		"	       ^^\n" + 
-		"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+		"	  ^^^^^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
-		"	Z <Y1, Y2 var;\n" + 
-		"	       ^^\n" + 
-		"Syntax error, insert \". Name\" to complete ArrayTypeWithTypeArgumentsName\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	Z <Y1, Y2 var;\n" + 
-		"	       ^^\n" + 
-		"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
 		"	       ^^\n" + 
 		"Y2 cannot be resolved to a type\n" + 
