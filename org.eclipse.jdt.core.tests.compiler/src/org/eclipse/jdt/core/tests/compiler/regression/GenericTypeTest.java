@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 928 };
+//		TESTS_NUMBERS = new int[] { 929 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29039,6 +29039,55 @@ public void test928() {
 		"	x1.addAll(x2);\n" + 
 		"	   ^^^^^^\n" + 
 		"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=117119
+public void test929() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"import java.util.Collection;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"  \n" + 
+		"  public static <E extends Enum<E>> void fails () {\n" + 
+		"    Class<? extends Enum> enumType = null;\n" + 
+		"    final Collection<E> test = allOf(enumType);\n" + 
+		"\n" + 
+		"    Collection<? extends Enum> colType = null;\n" + 
+		"    final Collection<E> test2 = colType;\n" + 
+		"  }\n" + 
+		"  \n" + 
+		"  public static <E extends Enum<E>> Collection<E> allOf(final Class<E> enumType) {\n" + 
+		"    return null;\n" + 
+		"  }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Class<? extends Enum> enumType = null;\n" + 
+		"	                ^^^^\n" + 
+		"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	final Collection<E> test = allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation allOf(Class<capture-of ? extends Enum>) of the generic method allOf(Class<E>) of type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	final Collection<E> test = allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<capture-of ? extends Enum> to Collection<E>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	Collection<? extends Enum> colType = null;\n" + 
+		"	                     ^^^^\n" + 
+		"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	final Collection<E> test2 = colType;\n" + 
+		"	                            ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<capture-of ? extends Enum> to Collection<E>\n" + 
 		"----------\n");
 }
 }
