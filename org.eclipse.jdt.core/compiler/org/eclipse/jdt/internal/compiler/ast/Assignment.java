@@ -67,7 +67,7 @@ void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType)
 	FieldBinding leftField = getLastField(this.lhs);
 	if (leftField != null &&  rhsType != TypeBinding.NULL && lhsType.isWildcard() && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
 	    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
-	} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
+	} else if (leftField != null && !leftField.isStatic() && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
 	    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
 	} else if (rhsType.needsUncheckedConversion(lhsType)) {
 	    scope.problemReporter().unsafeTypeConversion(this.expression, rhsType, lhsType);

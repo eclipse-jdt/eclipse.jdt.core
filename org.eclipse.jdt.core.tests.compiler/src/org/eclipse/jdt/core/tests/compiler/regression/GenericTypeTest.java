@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 929 };
+//		TESTS_NUMBERS = new int[] { 930 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29088,6 +29088,26 @@ public void test929() {
 		"	final Collection<E> test2 = colType;\n" + 
 		"	                            ^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Collection<capture-of ? extends Enum> to Collection<E>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238
+public void test930() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"public class X<T> {\n" + 
+		"        public static int I;\n" + 
+		"        public void foo() {\n" + 
+		"                X.I= 10;\n" + 
+		"        }\n" + 
+		"		 {  Zork z; }\n" +
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	{  Zork z; }\n" + 
+		"	   ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }
