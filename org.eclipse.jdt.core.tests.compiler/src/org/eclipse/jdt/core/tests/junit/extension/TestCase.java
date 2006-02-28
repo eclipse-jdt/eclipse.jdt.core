@@ -22,7 +22,7 @@ import junit.framework.ComparisonFailure;
 public class TestCase extends PerformanceTestCase {
 
 	public static final String METHOD_PREFIX = "test";
-	public  static String ONLY_SUFFIX = "_ONLY";
+	public  static String RUN_ONLY_ID = "ONLY_";
 
 	// static variables for subsets tests
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
@@ -143,12 +143,17 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 		int modifiers = methods[m].getModifiers();
 		if (Flags.isPublic(modifiers) && !Flags.isStatic(modifiers)) {
 			String methName = methods[m].getName();
-			if (ONLY_SUFFIX != null && methName.endsWith(ONLY_SUFFIX)) {
-				if (!onlyNames.contains(methName)) {
-					onlyNames.add(methName);
+			if (methName.startsWith(METHOD_PREFIX)) {
+
+				// look if this is a run only method
+				boolean isOnly = RUN_ONLY_ID != null && methName.substring(methodPrefixLength).startsWith(RUN_ONLY_ID);
+				if (isOnly) {
+					if (!onlyNames.contains(methName)) {
+						onlyNames.add(methName);
+					}
+					continue;
 				}
-			}
-			else if (methName.startsWith(METHOD_PREFIX)) {
+
 				// no prefix, no subsets => add method
 				if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
 					if (!testNames.contains(methName)) {
@@ -156,6 +161,7 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 					}
 					continue nextMethod;
 				}
+
 				// no prefix or method matches prefix
 				if (TESTS_PREFIX == null || methName.startsWith(TESTS_PREFIX)) {
 					int numStart = TESTS_PREFIX==null ? methodPrefixLength : TESTS_PREFIX.length();

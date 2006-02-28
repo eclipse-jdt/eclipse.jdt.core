@@ -45,7 +45,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
-		TestCase.ONLY_SUFFIX = null;
+		TestCase.RUN_ONLY_ID = null;
 	}
 	
 	
@@ -62,7 +62,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS = null;
 		TestCase.TESTS_RANGE = null;
-		TestCase.ONLY_SUFFIX = null;
+		TestCase.RUN_ONLY_ID = null;
 	
 		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
 			Class testClass = (Class) ALL_CLASSES.get(i);

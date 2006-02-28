@@ -65,7 +65,7 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		TestCase.TESTS_NAMES = null;
 		TestCase.TESTS_NUMBERS = null;
 		TestCase.TESTS_RANGE = null;
-		TestCase.ONLY_SUFFIX = null;
+		TestCase.RUN_ONLY_ID = null;
 
 		// Add all tests suite of tests
 		for (int i = 0, length = allClasses.length; i < length; i++) {
