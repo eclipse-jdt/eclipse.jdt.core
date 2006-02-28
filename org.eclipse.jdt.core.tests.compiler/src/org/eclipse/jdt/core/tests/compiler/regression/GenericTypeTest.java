@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 931 };
+		TESTS_NUMBERS = new int[] { 932 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29127,6 +29127,28 @@ public void test931() {
 		"	X<T>.I= 10;\n" + 
 		"	     ^\n" + 
 		"Syntax error on token \"I\", VariableDeclaratorId expected after this token\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238 - variation
+public void test932() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"public class X<T> {\n" + 
+		"        public static int Method() { return 0; }\n" + 
+		"        public void foo() {\n" + 
+		"                X.Method();\n" + 
+		"        }\n" + 
+		"        public void bar() {\n" + 
+		"                X<String>.Method();\n" + 
+		"        }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X<String>.Method();\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
 		"----------\n");
 }
 }
