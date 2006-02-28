@@ -51,6 +51,7 @@ public void decodeIndexKey(char[] key) {
 		this.packageIndex = slash - start;
 		this.qualification[this.packageIndex] = '.';
 	}
+	slash = CharOperation.indexOf(SEPARATOR, key, secondSlash + 1);
 	int last = key.length;
 	if (slash > 0) { // secondary
 		this.secondary = key[slash+1] == 'S';
