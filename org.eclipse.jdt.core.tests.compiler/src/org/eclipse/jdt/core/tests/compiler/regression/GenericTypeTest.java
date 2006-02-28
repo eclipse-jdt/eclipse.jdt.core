@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 933 };
+//		TESTS_NUMBERS = new int[] { 936 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -29152,7 +29152,7 @@ public void test932() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063
-public void _test933() {
+public void test933() {
 	this.runNegativeTest(
 		new String[] {
 		"a/AbstractFoo.java", //================================
@@ -29189,7 +29189,6 @@ public void _test933() {
 		"b/DefaultFoo.java", //================================
 		"package b;\n" + 
 		"import a.AbstractFoo;\n" + 
-		"import a.AbstractFoo;\n" + 
 		"public final class DefaultFoo extends AbstractFoo<DefaultFoo> {\n" + 
 		"	private Inner<DefaultFoo> defaultInner;\n" + 
 		"\n" + 
@@ -29220,6 +29219,12 @@ public void _test933() {
 		"		foo2.getCustomInner().doSmth();\n" + 
 		"		foo2.getDefaultInner().doSmth();\n" + 
 		"\n" + 
+		"		// Expect error\n" + 
+		"		String s11 = foo1.getCustomInner();\n" + 
+		"		String s12 = foo2.getDefaultInner();\n" + 
+		"		String s21 = foo2.getCustomInner();\n" + 
+		"		String s22 = foo2.getDefaultInner();\n" + 		
+		"\n" + 
 		"		// However, if we split statements, everything\'s ok: \n" + 
 		"		final Inner<CustomFoo> customInner2 = foo2.getCustomInner();\n" + 
 		"		customInner2.doSmth();\n" + 
@@ -29230,10 +29235,109 @@ public void _test933() {
 		"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	X<String>.Method();\n" + 
-		"	^^^^^^^^^^\n" + 
-		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"1. ERROR in b\\DefaultFoo.java (at line 34)\n" + 
+		"	String s11 = foo1.getCustomInner();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from AbstractFoo.Inner<CustomFoo> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in b\\DefaultFoo.java (at line 35)\n" + 
+		"	String s12 = foo2.getDefaultInner();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from AbstractFoo.Inner<DefaultFoo> to String\n" + 
+		"----------\n" + 
+		"3. ERROR in b\\DefaultFoo.java (at line 36)\n" + 
+		"	String s21 = foo2.getCustomInner();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from AbstractFoo.Inner<CustomFoo> to String\n" + 
+		"----------\n" + 
+		"4. ERROR in b\\DefaultFoo.java (at line 37)\n" + 
+		"	String s22 = foo2.getDefaultInner();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from AbstractFoo.Inner<DefaultFoo> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
+public void test934() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"public class X<T> {\n" + 
+		"	static class Inner<U> {\n" + 
+		"		static class InInner <V> {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class Y<W> extends X<W> {\n" + 
+		"	void foo() {\n" + 
+		"		Inner<W> inner = null;\n" + 
+		"		String s = inner;\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	String s = inner;\n" + 
+		"	           ^^^^^\n" + 
+		"Type mismatch: cannot convert from X.Inner<W> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
+public void test935() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"public class X<T> {\n" + 
+		"	static class Inner<U> {\n" + 
+		"		class InInner <V> {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class Y<W> extends X<W> {\n" + 
+		"	void foo() {\n" + 
+		"		Inner<W>.InInner<W> inner = null;\n" + 
+		"		String s = inner;\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	String s = inner;\n" + 
+		"	           ^^^^^\n" + 
+		"Type mismatch: cannot convert from X.Inner<W>.InInner<W> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
+public void test936() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"public class X<T> {\n" + 
+		"	class Inner<U> {\n" + 
+		"		class InInner <V> {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class Y<W> extends X<W> {\n" + 
+		"	void foo() {\n" + 
+		"		Inner<W> inner = null;\n" + 
+		"		String s = inner;\n" + 
+		"		\n" + 
+		"		Inner<W>.InInner<W> inner2 = null;\n" + 
+		"		s = inner2;\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	String s = inner;\n" + 
+		"	           ^^^^^\n" + 
+		"Type mismatch: cannot convert from X<W>.Inner<W> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	s = inner2;\n" + 
+		"	    ^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<W>.Inner<W>.InInner<W> to String\n" + 
 		"----------\n");
 }
 }
