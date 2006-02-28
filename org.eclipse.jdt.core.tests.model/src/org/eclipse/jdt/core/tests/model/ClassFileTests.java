@@ -129,6 +129,15 @@ private IClassFile createClassFile(String contents) throws CoreException, IOExce
 }
 
 /*
+ * Ensures that no exception is thrown for a .class file name with a dot
+ * (regression test for bug 114140 assertion failed when opening a class file not not the classpath)
+ */
+public void testDotName() throws JavaModelException {
+	IType type = getClassFile("/P/X.Y.class").getType();
+	assertEquals("X.Y", type.getElementName());
+}
+
+/*
  * Ensure that the exception types of a binary method are correct.
  */
 public void testExceptionTypes1() throws JavaModelException {

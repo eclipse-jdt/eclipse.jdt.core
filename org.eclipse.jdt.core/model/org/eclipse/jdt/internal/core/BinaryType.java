@@ -48,7 +48,6 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1);
 }
 /*
  * Remove my cached children from the Java Model
