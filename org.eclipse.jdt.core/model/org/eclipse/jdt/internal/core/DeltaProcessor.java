@@ -409,6 +409,7 @@ public class DeltaProcessor {
 									}
 									this.removeFromParentInfo(javaProject);
 									this.manager.removePerProjectInfo(javaProject);
+									this.manager.containerRemove(javaProject);
 								}
 								this.state.rootsAreStale = true;
 							} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
@@ -425,7 +426,9 @@ public class DeltaProcessor {
 										this.addToParentInfo(javaProject);
 									} else {
 										// remove classpath cache so that initializeRoots() will not consider the project has a classpath
-										this.manager.removePerProjectInfo((JavaProject)JavaCore.create(project));
+										this.manager.removePerProjectInfo(javaProject);
+										// remove container cache for this project
+										this.manager.containerRemove(javaProject);
 										// close project
 										try {
 											javaProject.close();
@@ -456,7 +459,10 @@ public class DeltaProcessor {
 						this.manager.batchContainerInitializations = true;
 
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
-						this.manager.removePerProjectInfo((JavaProject)JavaCore.create(resource));
+						this.manager.removePerProjectInfo(javaProject);
+						// remove container cache for this project
+						this.manager.containerRemove(javaProject);
+						
 						this.state.rootsAreStale = true;
 						break;
 				}

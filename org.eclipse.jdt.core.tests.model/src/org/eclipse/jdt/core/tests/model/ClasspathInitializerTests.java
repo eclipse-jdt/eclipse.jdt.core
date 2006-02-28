@@ -137,7 +137,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testVariableInitializer11" };
+//		TESTS_NAMES = new String[] { "testContainerInitializer12" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -634,6 +634,50 @@ public void testContainerInitializer11() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/*
+ * Ensure that the initializer is removed from the cache when the project is deleted
+ * (regression test for bug 116072 cached classpath containers not removed when project deleted)
+ */
+public void testContainerInitializer12() throws CoreException {
+	try {
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
+		IJavaProject project =  createJavaProject(
+			"P1", 
+			new String[] {}, 
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"");
+		createFile("/P1/lib.jar", "");
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P1/lib.jar"));
+		assertTrue("/P1/lib.jar should exist", root.exists());
+		deleteProject("P1");
+		
+		class Initializer extends DefaultContainerInitializer {
+			boolean initialized;
+			public Initializer(String[] args) {
+				super(args);
+			}
+			public void initialize(IPath containerPath, IJavaProject p) throws CoreException {
+				super.initialize(containerPath, p);
+				this.initialized = true;
+			}
+		}
+		Initializer initializer = new Initializer(new String[] {"P1", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(initializer);
+		createJavaProject(
+			"P1", 
+			new String[] {}, 
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"");
+		createFile("/P1/lib.jar", "");
+		assertTrue("/P1/lib.jar should exist", root.exists());
+		assertTrue("Should have been initialized", initializer.initialized);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
+
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");

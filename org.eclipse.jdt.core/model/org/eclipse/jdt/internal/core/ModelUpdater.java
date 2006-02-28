@@ -128,8 +128,10 @@ public class ModelUpdater {
 				JavaModelManager.getJavaModelManager().getIndexManager().reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
-				JavaModelManager.getJavaModelManager().removePerProjectInfo(
-					(JavaProject) element);
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				JavaProject javaProject = (JavaProject) element;
+				manager.removePerProjectInfo(javaProject);
+				manager.containerRemove(javaProject);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				this.projectsToUpdate.add(element.getJavaProject());

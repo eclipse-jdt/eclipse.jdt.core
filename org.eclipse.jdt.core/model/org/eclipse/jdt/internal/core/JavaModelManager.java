@@ -426,8 +426,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} else {
 			containerRemoveInitializationInProgress(project, containerPath);
 
-			Map projectContainers = (Map)this.containers.get(project);
-			if (projectContainers == null){
+			Map projectContainers = (Map)this.containers.get(project);	
+ 			if (projectContainers == null){
 				projectContainers = new HashMap(1);
 				this.containers.put(project, projectContainers);
 			}
@@ -435,7 +435,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (container == null) {
 				projectContainers.remove(containerPath);
 			} else {
-   				projectContainers.put(containerPath, container);
+  				projectContainers.put(containerPath, container);
 			}
 			// discard obsoleted information about previous session
 			Map previousContainers = (Map)this.previousSessionContainers.get(project);
@@ -444,6 +444,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
+	}
+	
+	/*
+	 * The given project is being removed. Remove all containers for this project from the cache.
+	 */
+	public synchronized void containerRemove(IJavaProject project) {
+		Map initializations = (Map) this.containerInitializationInProgress.get();
+		if (initializations != null) {
+			initializations.remove(project);
+		}
+		this.containers.remove(project);
 	}
 	
 	/*

@@ -31,8 +31,10 @@ public class DiscardWorkingCopyOperation extends JavaModelOperation {
 		int useCount = manager.discardPerWorkingCopyInfo(workingCopy);
 		if (useCount == 0) {
 			IJavaProject javaProject = workingCopy.getJavaProject();
-			if (ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(javaProject.getElementName()))
+			if (ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(javaProject.getElementName())) {
 				manager.removePerProjectInfo((JavaProject) javaProject);
+				manager.containerRemove(javaProject);
+			}
 			if (!workingCopy.isPrimary()) {
 				// report removed java delta for a non-primary working copy
 				JavaElementDelta delta = new JavaElementDelta(getJavaModel());
