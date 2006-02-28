@@ -219,6 +219,14 @@ public class AbstractCompilerTest extends TestCase {
 		return options;
 	}
 
+	public String getName() {
+		String name = super.getName();
+		if (this.complianceLevel != null) {
+			name = name + " - " + this.complianceLevel;
+		}
+		return name;
+	}
+
 	public void initialize(CompilerTestSetup setUp) {
 		this.complianceLevel = setUp.complianceLevel;
 	}
