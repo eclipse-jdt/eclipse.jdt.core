@@ -50,7 +50,6 @@ import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
-import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -130,7 +129,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	private IFile[] _additionFiles = null;
 	/** 
 	 * This is intialized when <code>_batchMode</code> is set to be <code>true</code> or
-	 * when batch processing is expected. @see #getAllAnnotationTypes(Map)
+	 * when batch processing is expected. <p>
+	 * It is also set in build mode for perf reason rather than parsing and resolving
+	 * each file individually.
+	 * @see #getAllAnnotationTypes(Map)
 	 */
 	private CompilationUnit[] _astUnits = null;
 	/**
@@ -146,21 +148,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
        	return new ProcessorEnvImpl( domUnit, compilationUnit, javaProj);
     }
 	
-	/**
-	 * @param filesWithAnnotation files that have annotation.
-	 * @param units compilation unit associated with <code>filesWithAnnotation</code>
-	 * @param javaProj
-	 * @return a new processor environment.
-	 */
-	public static ProcessorEnvImpl newBuildEnvInternalRounding(
-			IFile[] filesWithAnnotation,			
-			ICompilationUnit[] units, 
-			IJavaProject javaProj)
-	{
-		assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$
-		return new ProcessorEnvImpl(filesWithAnnotation, null, units, javaProj, Phase.BUILD);
-	}
-    
     public static ProcessorEnvImpl newBuildEnv(
     		IFile[] filesWithAnnotation,
     		IFile[] additionalFiles,
@@ -218,6 +205,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		_allProblems = new HashMap<IFile, List<IProblem>>();
 		_markerInfos = new ArrayList<MarkerInfo>();
 		initOptions(javaProj);
+		
+		// Aggressively cache all ASTs
+		createDomASTs();
 	}
     
     
@@ -338,59 +328,20 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     public TypeDeclaration getTypeDeclaration(String name)
     {
 		checkValid();		
-		TypeDeclaration decl = null;
-		if( !_batchMode ){
-			// we are not keeping dependencies unless we are processing on a
-			// per file basis.
-			decl = super.getTypeDeclaration(name);			
-			addTypeDependency( name );
-		}
-		else
-			decl = getTypeDeclarationInBatch(name);
+		TypeDeclaration decl = super.getTypeDeclaration(name);
+		
+		if (!_batchMode) 
+			addTypeDependency(name);
 			
 		return decl;
     }
 
-    private TypeDeclaration getTypeDeclarationInBatch(String name)
-    {	
-    	if( name == null || _astUnits == null ) return null;
-		// get rid of the generics parts.
-		final int index = name.indexOf('<');
-		if( index != -1 )
-			name = name.substring(0, index);
-		
-		// first see if it is one of the well known types.
-		// any AST is as good as the other.
-		ITypeBinding typeBinding = null;
-		String typeKey = BindingKey.createTypeBindingKey(name);
-		if( _astUnits.length > 0 ){
-			_astUnits[0].getAST().resolveWellKnownType(name);
-			
-			if(typeBinding == null){
-				// then look into the current compilation units			
-				ASTNode node = null;
-				for( int i=0, len=_astUnits.length; i<len; i++ )
-					node = _astUnits[i].findDeclaringNode(typeKey);			
-				if( node != null ){
-					final int nodeType = node.getNodeType();
-					if( nodeType == ASTNode.TYPE_DECLARATION ||
-						nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-						nodeType == ASTNode.ENUM_DECLARATION )
-					typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
-				}
-			}
-			if( typeBinding != null )
-				return Factory.createReferenceType(typeBinding, this);
-		}
-
-		// finally go search for it in the universe.
-		typeBinding = getTypeDefinitionBindingFromName(name);
-		if( typeBinding != null ){			
-			return Factory.createReferenceType(typeBinding, this);
-		}
-
-		return null;
+    // Called by getTypeDeclaration(). allows the searching of all asts, not just the current one.
+    protected CompilationUnit[] getAsts() {
+    	if (_astUnits != null) return _astUnits;
+    	return super.getAsts();
     }
+    
   
     public void addListener(AnnotationProcessorListener listener)
     {
@@ -972,8 +923,15 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	private void createDomASTs()
 	{
 		if( _astUnits != null || _filesWithAnnotation == null) return;
+		
+		if (AptPlugin.DEBUG) 
+			System.out.println("Preparsing " + _filesWithAnnotation.length + " files.");  //$NON-NLS-1$//$NON-NLS-2$
+		
 		createICompilationUnits();		
 		_astUnits = createDietASTs(_javaProject, _units);
+		
+		if (AptPlugin.DEBUG) 
+			System.out.println("Finished with Preparsing");  //$NON-NLS-1$
 	}
 	
 	public void setFileProcessing(IFile file){		

@@ -286,8 +286,11 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			final List<ICompilationUnit> unitsForFilesWithMissingType)
 	{
 		final IFile[] files = processorEnv.getFiles();
-		for (IFile curFile : files ) {
+		for (int i = 0 ; i < files.length ; i++) {
+			final IFile curFile = files[i];
 			processorEnv.setFileProcessing(curFile);
+			if (AptPlugin.DEBUG)
+				trace("(" + (i+1) + "/" + files.length +") file: " + curFile);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypesInFile();
 			for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : factories.entrySet() ){
 				if( entry.getValue().runInBatchMode() ) continue;
@@ -300,14 +303,11 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					}
 				}
 				if (factoryDecls != null && factoryDecls.size() > 0) {
-					final AnnotationProcessor processor = factory
-							.getProcessorFor(factoryDecls, processorEnv);
-					if (processor != null)
-					{
-						if ( AptPlugin.DEBUG ) {
-							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile, //$NON-NLS-1$ //$NON-NLS-2$ 
-									processorEnv); 
-						}
+					final AnnotationProcessor processor = factory.getProcessorFor(factoryDecls, processorEnv);
+					
+					if (processor != null) {
+						if ( AptPlugin.DEBUG ) 
+							trace( "\tinvoking file-based processor " + processor.getClass().getName()); //$NON-NLS-1$
 						processor.process();						
 					}
 				}
@@ -736,6 +736,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				s = "[ phase = " + processorEnv.getPhase() + ", file = " + getFileNamesForPrinting(processorEnv) +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+	}
+	
+	private static void trace(String s) {
+		if (AptPlugin.DEBUG) {
+			System.out.println("[" + Thread.currentThread().getName() + "]" + s);  //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 	
