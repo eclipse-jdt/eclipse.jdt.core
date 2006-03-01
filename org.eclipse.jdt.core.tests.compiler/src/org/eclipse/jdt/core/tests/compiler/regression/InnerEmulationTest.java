@@ -36,7 +36,7 @@ public static Test suite() {
 		ts.addTest(new InnerEmulationTest("test115"));
 		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 	}
-	return setupSuite(testClass());
+	return buildTestSuite(testClass());
 }
 /**
  * Protected access emulation : should be performed onto implicit field and method accesses
@@ -4660,6 +4660,62 @@ public void test123() {
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X$Z.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473
+public void test124() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) throws Exception {\n" + 
+			"        Foo foo = new Foo();\n" + 
+			"        try {\n" + 
+			"	        foo.frob(Baz.class);\n" + 
+			"        	System.out.println(\"FAILED\");\n" + 
+			"        } catch(IllegalAccessException e){\n" + 
+			"        	System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    private static class Baz {\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class Foo {\n" + 
+			"    public void frob(Class cls) throws Exception {\n" + 
+			"        Object o = cls.newInstance();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	// ensure synthetic access method got generated for enclosing field
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  private X$Baz();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [8]\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 11]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X.Baz\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X$Baz.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);

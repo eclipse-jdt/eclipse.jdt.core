@@ -206,7 +206,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			if ((declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) != 0
 					&& currentScope.compilerOptions().isPrivateConstructorAccessChangingVisibility) {
 				// constructor will not be dumped as private, no emulation required thus
-				this.codegenBinding.modifiers |= ExtraCompilerModifiers.AccClearPrivateModifier;
+				this.codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 			} else {
 				syntheticAccessor = ((SourceTypeBinding) declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);

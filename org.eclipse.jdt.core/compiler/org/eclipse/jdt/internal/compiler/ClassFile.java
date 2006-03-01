@@ -47,7 +47,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -5434,7 +5433,7 @@ public class ClassFile
 		    // pre 1.5, synthetic was an attribute, not a modifier
 		    accessFlags &= ~ClassFileConstants.AccSynthetic;
 		}
-		if ((methodBinding.modifiers & ExtraCompilerModifiers.AccClearPrivateModifier) != 0) {
+		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;
 		}
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);

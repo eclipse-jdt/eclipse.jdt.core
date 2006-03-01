@@ -29,7 +29,6 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccModifierProblem = ASTNode.Bit24; 
 	final int AccSemicolonBody = ASTNode.Bit25; 
 	final int AccUnresolved = ASTNode.Bit26; 
-	final int AccClearPrivateModifier = ASTNode.Bit27; // might be requested during private access emulation
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor
 	final int AccLocallyUsed = ASTNode.Bit28; // used to diagnose unused private/local members

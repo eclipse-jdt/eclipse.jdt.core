@@ -37,6 +37,7 @@ public interface TagBits {
 	long KnowsDefaultAbstractMethods = ASTNode.Bit11; // type
 
 	long IsArgument = ASTNode.Bit11; // local
+	long ClearPrivateModifier = ASTNode.Bit11; // constructor binding
 	
 	// Reusable bit currently used by Scopes
 	long InterfaceVisited = ASTNode.Bit12;
