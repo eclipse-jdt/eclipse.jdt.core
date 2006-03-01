@@ -572,13 +572,6 @@ public final boolean isPublic() {
 	return (modifiers & ClassFileConstants.AccPublic) != 0;
 }
 
-/* Answer true if the receiver got requested to clear the private modifier
- * during private access emulation.
- */
-public final boolean isRequiredToClearPrivateModifier() {
-	return (modifiers & ExtraCompilerModifiers.AccClearPrivateModifier) != 0;
-}
-
 /* Answer true if the receiver is a static method
 */
 public final boolean isStatic() {
@@ -783,13 +776,6 @@ public final int sourceStart() {
 	return method.sourceStart;
 }
 
-/* During private access emulation, the binding can be requested to loose its
- * private visibility when the class file is dumped.
- */
-
-public final void tagForClearingPrivateModifier() {
-	modifiers |= ExtraCompilerModifiers.AccClearPrivateModifier;
-}
 public String toString() {
 	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"; //$NON-NLS-1$
 	s += " "; //$NON-NLS-1$

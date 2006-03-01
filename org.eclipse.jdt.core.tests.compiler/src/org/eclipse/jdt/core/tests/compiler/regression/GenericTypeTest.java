@@ -18779,17 +18779,27 @@ public void test617() {
 				"	}\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	private static class B<A> {\n" + 
-			"	                       ^\n" + 
-			"The type parameter A is hiding the type X.A\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 21)\n" + 
-			"	System.out.println(b instanceof C);\n" + 
-			"	                   ^^^^^^^^^^^^^^\n" + 
-			"Incompatible conditional operand types X.B<X.A> and X.C\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 7)\n" + 
+    		"	private static class B<A> {\n" + 
+    		"	                       ^\n" + 
+    		"The type parameter A is hiding the type X.A\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 11)\n" + 
+    		"	private static class AA extends A {\n" + 
+    		"	                     ^^\n" + 
+    		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 15)\n" + 
+    		"	private static class C extends B<AA> {\n" + 
+    		"	                     ^\n" + 
+    		"Access to enclosing constructor X.B<A>() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+    		"----------\n" + 
+    		"4. ERROR in X.java (at line 21)\n" + 
+    		"	System.out.println(b instanceof C);\n" + 
+    		"	                   ^^^^^^^^^^^^^^\n" + 
+    		"Incompatible conditional operand types X.B<X.A> and X.C\n" + 
+    		"----------\n");
 	}		
 	public void test627() {
 	    this.runNegativeTest(

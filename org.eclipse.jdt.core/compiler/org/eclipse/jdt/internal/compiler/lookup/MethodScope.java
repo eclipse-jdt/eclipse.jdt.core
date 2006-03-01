@@ -115,9 +115,9 @@ public class MethodScope extends BlockScope {
 			}
 		}
 
-		// if the receiver's declaring class is a private nested type, then make sure the receiver is not private (causes problems for inner type emulation)
-		if (declaringClass.isPrivate() && (modifiers & ClassFileConstants.AccPrivate) != 0)
-			modifiers &= ~ClassFileConstants.AccPrivate;
+//		// if the receiver's declaring class is a private nested type, then make sure the receiver is not private (causes problems for inner type emulation)
+//		if (declaringClass.isPrivate() && (modifiers & ClassFileConstants.AccPrivate) != 0)
+//			modifiers &= ~ClassFileConstants.AccPrivate;
 
 		methodBinding.modifiers = modifiers;
 	}
