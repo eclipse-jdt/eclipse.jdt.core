@@ -177,6 +177,11 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						}
 						if (this.progressMonitor != null) this.progressMonitor.worked(1);
 					}
+			    } catch (JavaModelException e) {
+			    	if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
+			    		throw e;
+			    	// else JavaProject has lost its nature (or most likely was closed/deleted) while reconciling -> ignore
+			    	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=100919)
 			    } finally {
 			        if (unit != null) {
 			            unit.cleanUp();
