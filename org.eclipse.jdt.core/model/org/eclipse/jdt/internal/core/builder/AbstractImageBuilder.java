@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -554,6 +555,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 
 	String missingClassFile = null;
 	IResource resource = sourceFile.resource;
+	HashSet managedMarkerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 	for (int i = 0, l = problems.length; i < l; i++) {
 		CategorizedProblem problem = problems[i];
 		int id = problem.getID();
@@ -562,11 +564,10 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			String[] args = problem.getArguments();
 			missingClassFile = args[0];
 		}
-
-		if (id != IProblem.Task) {
-//			TODO need to ask problem for its marker type, once they are fully managed (clean/flush) 
-			IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-			//IMarker marker = resource.createMarker(problem.getMarkerType());
+		
+		String markerType;
+		if (id != IProblem.Task && managedMarkerTypes.contains(markerType = problem.getMarkerType())) {			
+			IMarker marker = resource.createMarker(markerType);
 			
 			// standard attributes
 			marker.setAttributes(

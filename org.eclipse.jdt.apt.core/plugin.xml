@@ -20,9 +20,11 @@
       name="%annotationProcessingName"
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
-   		 id="APT"
          class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipant"
-         requiredSourceLevel="1.5"/>
+         id="APT"
+         requiredSourceLevel="1.5">
+      <managedMarker markerType="org.eclipse.jdt.apt.core.compile.problem"/>
+   </compilationParticipant>
 </extension>
 
 <!-- =================================================================================== -->

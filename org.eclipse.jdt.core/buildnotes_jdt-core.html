@@ -52,10 +52,15 @@ Eclipse SDK 3.2M6 - ?th March 2006
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compilation participant reporting problems using <code>BuildContext#recordNewProblems(...)</code> now need to declare the problems
+     marker type as being managed for this problems to be persisted as markers by the Java builder. Declaring a managed marker type is
+     done using the 'managedMarker' sequence in the 'compilationParticipant' extension point.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61189">61189</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128219">128219</a>
+Builder participants should create their own marker types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61189">61189</a>
 Error messages with "AssignmentOperator ArrayInitializer" could be improved
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128063">128063</a>
 [1.5][compiler] Compiler reports errors against compilabale code

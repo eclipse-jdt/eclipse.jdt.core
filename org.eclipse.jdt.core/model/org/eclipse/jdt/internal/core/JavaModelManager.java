@@ -206,6 +206,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 * it contains CompilationParticipants.
 		 */
 		private Object[][] registeredParticipants = null;
+		private HashSet managedMarkerTypes;
 				
 		public CompilationParticipant[] getCompilationParticipants(IJavaProject project) {
 			final Object[][] participantsPerSource = getRegisteredParticipants();
@@ -243,10 +244,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return result;
 		}
 		
-		private Object[][] getRegisteredParticipants() {
+		public HashSet managedMarkerTypes() {
+			if (this.managedMarkerTypes == null) {
+				// force extension points to be read
+				getRegisteredParticipants();
+			}
+			return this.managedMarkerTypes;
+		}
+		
+		private synchronized Object[][] getRegisteredParticipants() {
 			if (this.registeredParticipants != null) {
 				return this.registeredParticipants;
 			}
+			
+			this.managedMarkerTypes = new HashSet();
+			this.managedMarkerTypes.add(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER); // Java model problem markers are always managed
+			
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
 			if (extension == null)
 				return this.registeredParticipants = NO_PARTICIPANTS;
@@ -271,6 +284,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						creatingProblems.add(configElement);
 					else
 						others.add(configElement);
+					// add managed marker types
+					IConfigurationElement[] managedMarkers = configElement.getChildren("managedMarker"); //$NON-NLS-1$
+					for (int k = 0, length = managedMarkers.length; k < length; k++) {
+						IConfigurationElement element = managedMarkers[k];
+						String markerType = element.getAttribute("markerType"); //$NON-NLS-1$
+						if (markerType != null)
+							this.managedMarkerTypes.add(markerType);
+					}
 				}
 			}
 			int size = modifyingEnv.size() + creatingProblems.size() + others.size();

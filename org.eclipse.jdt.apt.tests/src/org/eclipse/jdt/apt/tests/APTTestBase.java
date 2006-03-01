@@ -251,7 +251,7 @@ public abstract class APTTestBase extends Tests{
 		if (DEBUG)
 			printProblemsFor(root);
 	
-		Problem[] rootProblems = env.getProblemsFor(root);
+		Problem[] rootProblems = env.getProblemsFor(root, AptPlugin.APT_COMPILATION_PROBLEM_MARKER);
 	
 		for (int i = 0; i < expectedProblems.length; i++) {
 			ExpectedProblem expectedProblem = expectedProblems[i];
@@ -282,7 +282,7 @@ public abstract class APTTestBase extends Tests{
 		if (DEBUG)
 			printProblemsFor(root);
 
-		Problem[] rootProblems = env.getProblemsFor(root);
+		Problem[] rootProblems = env.getProblemsFor(root, AptPlugin.APT_COMPILATION_PROBLEM_MARKER);
 		next : for (int i = 0; i < problems.length; i++) {
 			ExpectedProblem problem = problems[i];
 			for (int j = 0; j < rootProblems.length; j++) {
