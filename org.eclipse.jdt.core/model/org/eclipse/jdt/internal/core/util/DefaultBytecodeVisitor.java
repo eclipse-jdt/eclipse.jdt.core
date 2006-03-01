@@ -2118,8 +2118,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Messages.bind(Messages.classformat_multianewarray, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.MULTIANEWARRAY],
 			Integer.toString(index),
-			returnConstantClassName(constantClass),
-			appendDimensions(dimensions)
+			returnConstantClassName(constantClass)
 		}));
 		writeNewLine();
 	}
@@ -2415,21 +2414,23 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeNewLine();
 	}
 
-	private String appendDimensions(int dimensions) {
-		StringBuffer stringBuffer = new StringBuffer();
-		for (int i = 0; i < dimensions; i++) {
-			stringBuffer.append(Messages.disassembler_arraydimensions); 
-		}
-		return String.valueOf(stringBuffer);
-	}
-
 	private boolean isCompact() {
 		return (this.mode & ClassFileBytesDisassembler.COMPACT) != 0;
 	}
 
 	private String returnConstantClassName(IConstantPoolEntry constantClass) {
-		char[] classInfoName = constantClass.getClassInfoName();
-		return returnClassName(classInfoName);
+		char[] className = constantClass.getClassInfoName();
+		if (className.length == 0) {
+			return EMPTY_CLASS_NAME;
+		}
+		switch(className[0]) {
+			case '[' :
+				StringBuffer classNameBuffer = new StringBuffer();
+				Util.appendTypeSignature(className, 0, classNameBuffer, isCompact());
+				return classNameBuffer.toString();
+			default:
+				return returnClassName(className);	
+		}
 	}
 	private String returnClassName(char[] classInfoName) {
 		if (classInfoName.length == 0) {
