@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import java.io.*;
 import java.util.*;
@@ -334,9 +335,10 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 		int problemId = in.readInt();
 		accessRules[i] = new ClasspathAccessRule(pattern, problemId);
 	}
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	String[] messageTemplates = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
 	for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++) {
-		messageTemplates[i] = in.readUTF();
+		messageTemplates[i] = manager.intern(in.readUTF());
 	}
 	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, messageTemplates);
 	return accessRuleSet;
