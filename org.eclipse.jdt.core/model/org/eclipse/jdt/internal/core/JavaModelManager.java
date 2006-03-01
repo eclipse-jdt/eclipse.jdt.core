@@ -256,10 +256,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.registeredParticipants != null) {
 				return this.registeredParticipants;
 			}
-			
 			this.managedMarkerTypes = new HashSet();
-			this.managedMarkerTypes.add(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER); // Java model problem markers are always managed
-			
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
 			if (extension == null)
 				return this.registeredParticipants = NO_PARTICIPANTS;
