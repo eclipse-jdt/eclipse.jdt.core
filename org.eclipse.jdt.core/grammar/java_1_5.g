@@ -578,6 +578,7 @@ RestoreDiet ::= $empty
 
 VariableDeclaratorId ::= 'Identifier' Dimsopt
 /:$readableName VariableDeclaratorId:/
+/:$recovery_template Identifier:/
 
 VariableInitializer -> Expression
 VariableInitializer -> ArrayInitializer

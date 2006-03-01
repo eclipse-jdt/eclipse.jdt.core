@@ -2526,6 +2526,23 @@ public void test32() {
 		"  }\n" + 
 		"}\n";
 	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString;
+	if(COMPLIANCE_1_3.equals(this.complianceLevel) ||
+			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"public class WB2 {\n" + 
+			"  public WB2() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    java.util.Locale.java.util.Vector $missing$;\n" + 
+			"  }\n" + 
+			"}\n";
+	} else {
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			expectedDietPlusBodyUnitToString;
+	}
+		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -2535,7 +2552,7 @@ public void test32() {
 		s.toCharArray(),
 		expectedDietUnitToString,
 		expectedDietPlusBodyUnitToString,
-		expectedDietPlusBodyUnitToString,		
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
