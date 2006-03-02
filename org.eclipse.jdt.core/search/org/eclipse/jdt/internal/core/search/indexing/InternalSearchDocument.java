@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 public class InternalSearchDocument {
 	Index index;
 	private String containerRelativePath;
-	public SourceElementParser parser;
+	SourceElementParser parser;
 	/*
 	 * Hidden by API SearchDocument subclass
 	 */

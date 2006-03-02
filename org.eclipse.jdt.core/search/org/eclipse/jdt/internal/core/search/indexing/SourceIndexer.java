@@ -45,7 +45,7 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 		SourceIndexerRequestor requestor = new SourceIndexerRequestor(this);
 		String documentPath = this.document.getPath();
 		IPath path = new Path(documentPath);
-		SourceElementParser parser = this.document.parser;
+		SourceElementParser parser = ((InternalSearchDocument) this.document).parser;
 		if (parser == null) {
 			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
 			parser = JavaModelManager.getJavaModelManager().indexManager.getSourceElementParser(JavaCore.create(project), requestor);

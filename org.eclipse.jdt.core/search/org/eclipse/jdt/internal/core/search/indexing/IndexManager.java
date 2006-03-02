@@ -93,7 +93,7 @@ public void addSource(IFile resource, IPath containerPath, SourceElementParser p
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-	document.parser = parser;
+	((InternalSearchDocument) document).parser = parser;
 	String indexLocation = computeIndexLocation(containerPath);
 	scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
 }
