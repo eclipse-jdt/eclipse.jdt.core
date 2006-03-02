@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -329,6 +330,16 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			markerInfos[index++] = new MarkerInfo(path, source);
 		}
 		return markerInfos;
+	}
+
+	protected IVariableBinding[] createVariableBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopies = createWorkingCopies(pathAndSources, owner);
+		IBinding[] bindings = resolveBindings(bindingKeys, getJavaProject("P"), owner);
+		int length = bindings.length;
+		IVariableBinding[] result = new IVariableBinding[length];
+		System.arraycopy(bindings, 0, result, 0, length);
+		return result;
 	}
 
 	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {

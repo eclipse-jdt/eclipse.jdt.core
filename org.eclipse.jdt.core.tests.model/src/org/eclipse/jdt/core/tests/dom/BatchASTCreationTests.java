@@ -1628,4 +1628,28 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		
 		assertEquals("Unexpected constant value", new Integer(5), requestor.constantValue);
 	}
+	
+	/*
+	 * Ensures that the declaring method of a local variable binding retrieved using its key 
+	 * is not null
+	 * (regression test for bug 129804 Local variable bindings from ASTParser#createASTs(.., String[], .., ..) have no declaring method)
+	 */
+	public void _test072() throws CoreException {
+		IVariableBinding[] bindings = createVariableBindings(
+			new String[] {
+				"/P/X.java",
+				"public class X {\n" + 
+				"    void m() {\n" + 
+				"        Object o;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			new String[] {
+				"LX;.m()V#o"
+			}
+		);
+		assertBindingEquals(
+			"LX;.m()V",
+			bindings[0].getDeclaringMethod());
+	}
 }
