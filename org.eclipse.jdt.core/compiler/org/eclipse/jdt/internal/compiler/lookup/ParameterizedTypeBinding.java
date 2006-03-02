@@ -125,7 +125,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
 		if (actualType == TypeBinding.NULL) return;
 	
-		if (this.arguments == null) return;
 		if (!(actualType instanceof ReferenceBinding)) return;
 		TypeBinding formalEquivalent, actualEquivalent;
 		switch (constraint) {
@@ -142,6 +141,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        actualEquivalent = actualType;
 		        break;
 		}
+		// collect through enclosing type
+		ReferenceBinding formalEnclosingType = formalEquivalent.enclosingType();
+		if (formalEnclosingType != null) {
+			formalEnclosingType.collectSubstitutes(scope, actualEquivalent.enclosingType(), substitutes, constraint);
+		}
+		// collect through type arguments
+		if (this.arguments == null) return;
         TypeBinding[] formalArguments;
         switch (formalEquivalent.kind()) {
         	case Binding.GENERIC_TYPE :
@@ -570,10 +576,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		// this.methods = null;		
 		this.modifiers = someType.modifiers;
 		// only set AccGenericSignature if parameterized or have enclosing type required signature
-		if (someArguments != null)
+		if (someArguments != null) {
 			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-		else if (this.enclosingType != null) 
+		} else if (this.enclosingType != null) {
 			this.modifiers |= (this.enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
+			this.tagBits |= this.enclosingType.tagBits & TagBits.HasTypeVariable;
+		}
 		if (someArguments != null) {
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {

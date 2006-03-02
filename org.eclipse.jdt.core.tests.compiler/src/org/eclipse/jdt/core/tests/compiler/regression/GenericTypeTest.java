@@ -29350,4 +29350,96 @@ public void test936() {
 		"Type mismatch: cannot convert from X<W>.Inner<W>.InInner<W> to String\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
+public void test937() {
+	this.runNegativeTest(
+		new String[] {
+		"ExtendedOuter.java", //================================
+		"class Outer<O> {\n" + 
+		"  class Inner {}\n" + 
+		"\n" + 
+		"  static void method(Outer.Inner x) {}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+		"  class ExtendedInner extends Inner {\n" + 
+		"    {\n" + 
+		"      Outer.method(this);\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  void foo() {\n" +
+		"    Zork zk;\n" + 
+		"  }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in ExtendedOuter.java (at line 4)\n" + 
+		"	static void method(Outer.Inner x) {}\n" + 
+		"	                   ^^^^^^^^^^^\n" + 
+		"Outer.Inner is a raw type. References to generic type Outer<O>.Inner should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in ExtendedOuter.java (at line 14)\n" + 
+		"	Zork zk;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
+public void test938() {
+	this.runNegativeTest(
+		new String[] {
+		"ExtendedOuter.java", //================================
+		"class Outer<O> {\n" + 
+		"  class Inner {}\n" + 
+		"\n" + 
+		"  static void method(Outer<?>.Inner x) {}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+		"  class ExtendedInner extends Inner {\n" + 
+		"    {\n" + 
+		"      Outer.method(this);\n" + 
+		"    }\n" + 
+		"  }\n" +
+		"  void foo() {\n" +
+		"    Zork zk;\n" + 
+		"  }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in ExtendedOuter.java (at line 14)\n" + 
+		"	Zork zk;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
+public void test939() {
+	this.runNegativeTest(
+		new String[] {
+		"ExtendedOuter.java", //================================
+		"class Outer<O> {\n" + 
+		"  class Inner {}\n" + 
+		"\n" + 
+		"  static <I> void method(Outer<I>.Inner x) {}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+		"  class ExtendedInner extends Inner {\n" + 
+		"    {\n" + 
+		"      Outer.method(this);\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  void foo() {\n" +
+		"    Zork zk;\n" + 
+		"  }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in ExtendedOuter.java (at line 14)\n" + 
+		"	Zork zk;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
