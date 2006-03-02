@@ -68,32 +68,39 @@ public class MethodScope extends BlockScope {
 			problemReporter().duplicateModifierForMethod(declaringClass, (AbstractMethodDeclaration) referenceContext);
 
 		if (((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
-			if (declaringClass.isEnum())
-				modifiers = ClassFileConstants.AccPrivate;
-			else if (declaringClass.isPublic())
-				modifiers |= ClassFileConstants.AccPublic;
-			else if (declaringClass.isProtected())
-				modifiers |= ClassFileConstants.AccProtected;
+			// certain flags are propagated from declaring class onto constructor
+			final int DECLARING_FLAGS = ClassFileConstants.AccEnum|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
+			final int VISIBILITY_FLAGS = ClassFileConstants.AccPrivate|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
+			int flags;
+			if ((flags = declaringClass.modifiers & DECLARING_FLAGS) != 0) {
+				if ((flags & ClassFileConstants.AccEnum) != 0) {
+					modifiers &= ~VISIBILITY_FLAGS;
+					modifiers |= ClassFileConstants.AccPrivate; // default constructor is implicitly private in enum
+				} else {
+					modifiers &= ~VISIBILITY_FLAGS;
+					modifiers |= flags; // propagate public/protected
+				}
+			}
 		}
 
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 
 		// check for abnormal modifiers
-		int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStrictfp);
+		final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStrictfp);
 		if (declaringClass.isEnum() && !((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
-			unexpectedModifiers = ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccStrictfp);
-			if ((realModifiers & unexpectedModifiers) != 0) {
+			final int UNEXPECTED_ENUM_CONSTR_MODIFIERS = ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccStrictfp);
+			if ((realModifiers & UNEXPECTED_ENUM_CONSTR_MODIFIERS) != 0) {
 				problemReporter().illegalModifierForEnumConstructor((AbstractMethodDeclaration) referenceContext);
-				modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~unexpectedModifiers;
+				modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~UNEXPECTED_ENUM_CONSTR_MODIFIERS;
 			} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & ClassFileConstants.AccStrictfp) != 0) {
 				// must check the parse node explicitly
 				problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 			}
 			modifiers |= ClassFileConstants.AccPrivate; // enum constructor is implicitly private
-		} else if ((realModifiers & unexpectedModifiers) != 0) {
+		} else if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
-			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~unexpectedModifiers;
+			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~UNEXPECTED_MODIFIERS;
 		} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & ClassFileConstants.AccStrictfp) != 0) {
 			// must check the parse node explicitly
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
@@ -146,11 +153,11 @@ public class MethodScope extends BlockScope {
 		}
 
 		// check for abnormal modifiers
-		int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected
+		final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected
 			| ClassFileConstants.AccAbstract | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccSynchronized | ClassFileConstants.AccNative | ClassFileConstants.AccStrictfp);
-		if ((realModifiers & unexpectedModifiers) != 0) {
+		if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
-			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~unexpectedModifiers;
+			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~UNEXPECTED_MODIFIERS;
 		}
 
 		// check for incompatible modifiers in the visibility bits, isolate the visibility bits

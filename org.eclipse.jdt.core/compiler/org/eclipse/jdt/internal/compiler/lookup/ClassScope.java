@@ -420,9 +420,9 @@ public class ClassScope extends Scope {
 		if ((realModifiers & ClassFileConstants.AccInterface) != 0) { // interface and annotation type
 			// detect abnormal cases for interfaces
 			if (isMemberType) {
-				int unexpectedModifiers =
+				final int UNEXPECTED_MODIFIERS =
 					~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
-				if ((realModifiers & unexpectedModifiers) != 0) {
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationMemberType(sourceType);
 					else
@@ -435,8 +435,8 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
 			} else {
-				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
-				if ((realModifiers & unexpectedModifiers) != 0) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationType(sourceType);
 					else
@@ -447,16 +447,16 @@ public class ClassScope extends Scope {
 		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 			} else if (sourceType.isLocalType()) { // each enum constant is an anonymous local type
-				int unexpectedModifiers = ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum); // add final since implicitly set for anonymous type
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum); // add final since implicitly set for anonymous type
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForLocalEnum(sourceType);
 			} else {
-				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 
@@ -493,16 +493,16 @@ public class ClassScope extends Scope {
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				int unexpectedModifiers = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
-				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & unexpectedModifiers) != 0)
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForClass(sourceType);
 			}
 
@@ -567,12 +567,12 @@ public class ClassScope extends Scope {
 			problemReporter().duplicateModifierForField(declaringClass, fieldDecl);
 
 		if (declaringClass.isInterface()) {
-			int expectedValue = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
+			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
 			// set the modifiers
-			modifiers |= expectedValue;
+			modifiers |= IMPLICIT_MODIFIERS;
 
 			// and then check that they are the only ones
-			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != expectedValue) {
+			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != IMPLICIT_MODIFIERS) {
 				if ((declaringClass.modifiers  & ClassFileConstants.AccAnnotation) != 0)
 					problemReporter().illegalModifierForAnnotationField(fieldDecl);
 				else
@@ -586,19 +586,19 @@ public class ClassScope extends Scope {
 				problemReporter().illegalModifierForEnumConstant(declaringClass, fieldDecl);
 		
 			// set the modifiers
-			int implicitValue = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
+			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
 			if (fieldDecl.initialization instanceof QualifiedAllocationExpression)
 				declaringClass.modifiers &= ~ClassFileConstants.AccFinal;
-			fieldBinding.modifiers|= implicitValue;
+			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
 			return;
 		}
 
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
-		int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccFinal | ClassFileConstants.AccStatic | ClassFileConstants.AccTransient | ClassFileConstants.AccVolatile);
-		if ((realModifiers & unexpectedModifiers) != 0) {
+		final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccFinal | ClassFileConstants.AccStatic | ClassFileConstants.AccTransient | ClassFileConstants.AccVolatile);
+		if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 			problemReporter().illegalModifierForField(declaringClass, fieldDecl);
-			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~unexpectedModifiers;
+			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~UNEXPECTED_MODIFIERS;
 		}
 
 		int accessorBits = realModifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate);

@@ -29442,4 +29442,102 @@ public void test939() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test940() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"        <U extends Object> void bar3(List<U> lst) {\n" + 
+		"            List<Object> RESULT = null;\n" + 
+		"            RESULT = lst; // 1\n" + 
+		"            RESULT = Collections.singletonList(lst.get(0)); // 2\n" + 
+		"    }              \n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	RESULT = lst; // 1\n" + 
+		"	         ^^^\n" + 
+		"Type mismatch: cannot convert from List<U> to List<Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	RESULT = Collections.singletonList(lst.get(0)); // 2\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<U> to List<Object>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test941() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	<T> Map<T,T> foo(T t1, T t2) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	<U extends Object, V extends U> void bar(U u, V v) {\n" + 
+		"		Map<Object,Object> map1 = foo(u, v);\n" + 
+		"		Map<U,U> map2 = foo(u, v);\n" + 
+		"	}	\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	Map<Object,Object> map1 = foo(u, v);\n" + 
+		"	                          ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Map<U,U> to Map<Object,Object>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test942() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	<T> Map<T,T> foo(T t1, T t2, T t3) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	<U extends Object, V extends U> void bar(U u, V v) {\n" + 
+		"		Map<Object,Object> map1 = foo(u, v, null);\n" + 
+		"		Map<U,U> map2 = foo(u, v, null);\n" + 
+		"	}	\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	Map<Object,Object> map1 = foo(u, v, null);\n" + 
+		"	                          ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Map<U,U> to Map<Object,Object>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test943() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	<T> Map<T,T> foo(T t1, T t2, T t3) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	<U extends Object, V extends U> void bar(U u, V v, List<? extends V> lv) {\n" + 
+		"		Map<Object,Object> map1 = foo(u, v, lv.get(0));\n" + 
+		"		Map<U,U> map2 = foo(u, v, lv.get(0));\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	Map<Object,Object> map1 = foo(u, v, lv.get(0));\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Map<U,U> to Map<Object,Object>\n" + 
+		"----------\n");
+}
 }

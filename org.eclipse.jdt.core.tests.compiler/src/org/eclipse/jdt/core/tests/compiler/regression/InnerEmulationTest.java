@@ -4974,6 +4974,63 @@ public void test125() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130117
+public void test126() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public interface X {\n" + 
+				"        private class Inner {}\n" + 
+				"        private interface IInner {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	private class Inner {}\n" + 
+			"	              ^^^^^\n" + 
+			"The interface member type Inner can only be public\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	private interface IInner {}\n" + 
+			"	                  ^^^^^^\n" + 
+			"The interface member type IInner can only be public\n" + 
+			"----------\n");
+		return;
+	}
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public interface X {\n" + 
+			"        private class Inner {}\n" + 
+			"        private interface IInner {}\n" + 
+			"        private enum EInner {}\n" + 
+			"        private @interface AInner {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private class Inner {}\n" + 
+		"	              ^^^^^\n" + 
+		"The interface member type Inner can only be public\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	private interface IInner {}\n" + 
+		"	                  ^^^^^^\n" + 
+		"The interface member type IInner can only be public\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	private enum EInner {}\n" + 
+		"	             ^^^^^^\n" + 
+		"The interface member type EInner can only be public\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	private @interface AInner {}\n" + 
+		"	                   ^^^^^^\n" + 
+		"The interface member type AInner can only be public\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
