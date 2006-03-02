@@ -1801,6 +1801,7 @@ public class DeltaProcessor {
 									registerJavaModelDelta(translatedDelta);
 								}
 							} finally {
+								this.sourceElementParserCache = null; // don't hold onto parser longer than necessary
 								startDeltas();
 							}
 							notifyTypeHierarchies(this.state.elementChangedListeners, this.state.elementChangedListenerCount);
