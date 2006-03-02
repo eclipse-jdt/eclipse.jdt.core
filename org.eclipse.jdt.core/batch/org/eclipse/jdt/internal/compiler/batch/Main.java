@@ -253,7 +253,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		public void endTag(String name) {
-			tab--;
+			this.tab--;
 			this.printTag('/' + name, null, true, false);
 			this.tab--;
 		}
@@ -334,7 +334,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					for (int i = 0; i < length; i++) {
 						this.parameters.clear();
 						String classpath = classpaths[i].getPath();
-						parameters.put(PATH, classpath);
+						this.parameters.put(PATH, classpath);
 						File f = new File(classpath);
 						String id = null;
 						if (f.isFile()) {
@@ -348,7 +348,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						}
 						if (id != null) {
 							this.parameters.put(CLASSPATH_ID, id);
-							this.printTag(CLASSPATH, parameters, true, true);
+							this.printTag(CLASSPATH, this.parameters, true, true);
 						}
 					}
 					this.endTag(CLASSPATHS);
@@ -402,10 +402,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (length != 0) {
 					// generate xml output
 					this.printTag(COMMAND_LINE_ARGUMENTS, null, true, false);
-					parameters.clear();
+					this.parameters.clear();
 					for (int i = 0; i < length; i++) {
-						parameters.put(VALUE, commandLineArguments[i]);
-						this.printTag(COMMAND_LINE_ARGUMENT, parameters, true, true);
+						this.parameters.put(VALUE, commandLineArguments[i]);
+						this.printTag(COMMAND_LINE_ARGUMENT, this.parameters, true, true);
 					}
 					this.endTag(COMMAND_LINE_ARGUMENTS);
 				}
@@ -418,10 +418,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logException(Exception e) {
 			final String message = e.getMessage();
 			if ((this.tagBits & XML) != 0) {
-				parameters.clear();
-				parameters.put(MESSAGE, message);
-				parameters.put(CLASS, e.getClass());
-				this.printTag(EXCEPTION, parameters, true, true);
+				this.parameters.clear();
+				this.parameters.put(MESSAGE, message);
+				this.parameters.put(CLASS, e.getClass());
+				this.printTag(EXCEPTION, this.parameters, true, true);
 			}
 			this.printlnErr(message);
 		}
@@ -543,12 +543,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			int globalErrorsCount, int globalWarningsCount, int globalTasksCount) {
 			if ((this.tagBits & XML) != 0) {
 				// generate xml
-				parameters.clear();
-				parameters.put(NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
-				parameters.put(NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
-				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
-				parameters.put(NUMBER_OF_TASKS, new Integer(globalTasksCount));
-				this.printTag(PROBLEM_SUMMARY, parameters, true, true);
+				this.parameters.clear();
+				this.parameters.put(NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
+				this.parameters.put(NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
+				this.parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
+				this.parameters.put(NUMBER_OF_TASKS, new Integer(globalTasksCount));
+				this.printTag(PROBLEM_SUMMARY, this.parameters, true, true);
 			}
 			if (globalProblemsCount == 1) {
 				String message = null;
@@ -783,9 +783,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logWrongJDK() {
 			if ((this.tagBits & XML) != 0) {
-				parameters.clear();
-				parameters.put(MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
-				this.printTag(ERROR, parameters, true, true);				
+				this.parameters.clear();
+				this.parameters.put(MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				this.printTag(ERROR, this.parameters, true, true);				
 			}
 			this.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 		}
@@ -805,10 +805,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(PROBLEM_SOURCE_START, new Integer(sourceStart));
 			this.parameters.put(PROBLEM_SOURCE_END, new Integer(sourceEnd));
-			this.printTag(PROBLEM_TAG, parameters, true, false);
+			this.printTag(PROBLEM_TAG, this.parameters, true, false);
 			this.parameters.clear();
 			this.parameters.put(VALUE, problem.getMessage());
-			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
+			this.printTag(PROBLEM_MESSAGE, this.parameters, true, true);
 			this.parameters.clear();
 			extractContext(problem, unitSource);
 			this.printTag(SOURCE_CONTEXT, this.parameters, true, true);
@@ -929,11 +929,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						}
 						this.log.println(XML_DTD_DECLARATION);
 						this.tab = 0;
-						parameters.clear();
-						parameters.put(COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$
-						parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$
-						parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$
-						this.printTag(COMPILER, parameters, true, false);
+						this.parameters.clear();
+						this.parameters.put(COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$
+						this.parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$
+						this.parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$
+						this.printTag(COMPILER, this.parameters, true, false);
 					} else {
 						this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 					}
@@ -950,10 +950,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * Only use in xml mode.
 		 */
 		private void startLoggingProblems(int errors, int warnings) {
-			parameters.clear();
-			parameters.put(NUMBER_OF_PROBLEMS, new Integer(errors + warnings));
-			parameters.put(NUMBER_OF_ERRORS, new Integer(errors));
-			parameters.put(NUMBER_OF_WARNINGS, new Integer(warnings));
+			this.parameters.clear();
+			this.parameters.put(NUMBER_OF_PROBLEMS, new Integer(errors + warnings));
+			this.parameters.put(NUMBER_OF_ERRORS, new Integer(errors));
+			this.parameters.put(NUMBER_OF_WARNINGS, new Integer(warnings));
 			this.printTag(PROBLEMS, this.parameters, true, false);
 		}
 		public void startLoggingSource(CompilationResult compilationResult) {
@@ -977,8 +977,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		public void startLoggingTasks(int tasks) {
 			if ((this.tagBits & XML) != 0) {
-				parameters.clear();
-				parameters.put(NUMBER_OF_TASKS, new Integer(tasks));
+				this.parameters.clear();
+				this.parameters.put(NUMBER_OF_TASKS, new Integer(tasks));
 				this.printTag(TASKS, this.parameters, true, false);
 			}
 		}
@@ -1027,6 +1027,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public long[] times;
 	public int timesCounter;
 	public boolean verbose = false;
+	private File javaHomeCache;
+	private boolean javaHomeChecked;
+	private boolean didSpecifyTarget;
+	private boolean didSpecifySource;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 		this(outWriter, errWriter, systemExitWhenFinished, null);
@@ -1038,10 +1042,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		this.options = new CompilerOptions().getMap();
 		if (customDefaultOptions != null) {
+			this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
+			this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
 			for (Iterator iter = customDefaultOptions.keySet().iterator(); iter.hasNext();) {
 				Object key = iter.next();
 				this.options.put(key, customDefaultOptions.get(key));
 			}
+		} else {
+			this.didSpecifySource = false;
+			this.didSpecifyTarget = false;
 		}
 	}
 	
@@ -1247,19 +1256,19 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			printUsage();
 			return;
 		}
-		final int InsideClasspath = 1;
-		final int InsideDestinationPath = 2;
-		final int TargetSetting = 4;
-		final int InsideLog = 8;
-		final int InsideRepetition = 16;
-		final int InsideSource = 32;
-		final int InsideDefaultEncoding = 64;
-		final int InsideBootClasspath = 128;
-		final int InsideMaxProblems = 256;
-		final int InsideExtdirs = 512;
-		final int InsideSourcepath = 1024;
+		final int INSIDE_CLASSPATH = 1;
+		final int INSIDE_DESTINATION_PATH = 2;
+		final int INSIDE_TARGET = 3;
+		final int INSIDE_LOG = 4;
+		final int INSIDE_REPETITION = 5;
+		final int INSIDE_SOURCE = 6;
+		final int INSIDE_DEFAULT_ENCODING = 7;
+		final int INSIDE_BOOTCLASSPATH = 8;
+		final int INSIDE_MAX_PROBLEMS = 9;
+		final int INSIDE_EXT_DIRS = 10;
+		final int INSIDE_SOURCE_PATH = 11;
 
-		final int Default = 0;
+		final int DEFAULT = 0;
 		int DEFAULT_SIZE_CLASSPATH = 4;
 		ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
 			extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
@@ -1269,18 +1278,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		String currentClasspathName = null;
 		ArrayList currentRuleSpecs = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		int index = -1, filesCount = 0, argCount = argv.length;
-		int mode = Default;
+		int mode = DEFAULT;
 		this.repetitions = 0;
 		boolean printUsageRequired = false;
 		boolean printVersionRequired = false;
 		
-		boolean didSpecifySource = false;
-		boolean didSpecifyCompliance = false;
 		boolean didSpecifyDefaultEncoding = false;
-		boolean didSpecifyTarget = false;
 		boolean didSpecifyDeprecation = false;
 		boolean didSpecifyWarnings = false;
 		boolean useEnableJavadoc = false;
+		boolean didSpecifyCompliance = false;	
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -1345,900 +1352,880 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 			currentArg = newCommandLineArgs[index];
 
-			customEncoding = null;
-			if (currentArg.endsWith("]") && !(mode == InsideBootClasspath || mode == InsideClasspath || //$NON-NLS-1$ 
-					mode == InsideSourcepath) ) {
-				// look for encoding specification
-				int encodingStart = currentArg.indexOf('[') + 1;
-				int encodingEnd = currentArg.length() - 1;
-				if (encodingStart >= 1) {
-					if (encodingStart < encodingEnd) {
-						customEncoding = currentArg.substring(encodingStart, encodingEnd);
-						try { // ensure encoding is supported
-							new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
-						} catch (UnsupportedEncodingException e) {
-							throw new InvalidInputException(
-								Main.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+			switch(mode) {
+				case DEFAULT :
+					customEncoding = null;
+					if (currentArg.endsWith("]") && !(mode == INSIDE_BOOTCLASSPATH || mode == INSIDE_CLASSPATH || //$NON-NLS-1$ 
+							mode == INSIDE_SOURCE_PATH) ) {
+						// look for encoding specification
+						int encodingStart = currentArg.indexOf('[') + 1;
+						int encodingEnd = currentArg.length() - 1;
+						if (encodingStart >= 1) {
+							if (encodingStart < encodingEnd) {
+								customEncoding = currentArg.substring(encodingStart, encodingEnd);
+								try { // ensure encoding is supported
+									new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
+								} catch (UnsupportedEncodingException e) {
+									throw new InvalidInputException(
+										Main.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+								}
+							}
+							currentArg = currentArg.substring(0, encodingStart - 1);
 						}
 					}
-					currentArg = currentArg.substring(0, encodingStart - 1);
-				}
-			}
-
-			if (currentArg.endsWith(SUFFIX_STRING_java)) {
-				if (this.filenames == null) {
-					this.filenames = new String[argCount - index];
-					this.encodings = new String[argCount - index];
-				} else if (filesCount == this.filenames.length) {
-					int length = this.filenames.length;
-					System.arraycopy(
-						this.filenames,
-						0,
-						(this.filenames = new String[length + argCount - index]),
-						0,
-						length);
-					System.arraycopy(
-						this.encodings,
-						0,
-						(this.encodings = new String[length + argCount - index]),
-						0,
-						length);
-				}
-				this.filenames[filesCount] = currentArg;
-				this.encodings[filesCount++] = customEncoding;
-				customEncoding = null;
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-log")) { //$NON-NLS-1$
-				if (this.log != null)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
-				mode = InsideLog;
-				continue;
-			}
-			if (currentArg.equals("-repeat")) { //$NON-NLS-1$
-				if (this.repetitions > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
-				mode = InsideRepetition;
-				continue;
-			}
-			if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
-				if (this.maxProblems > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
-				mode = InsideMaxProblems;
-				continue;
-			}
-			if (currentArg.equals("-source")) { //$NON-NLS-1$
-				mode = InsideSource;
-				continue;
-			}
-			if (currentArg.equals("-encoding")) { //$NON-NLS-1$
-				mode = InsideDefaultEncoding;
-				continue;
-			}
-			if (currentArg.equals("-1.3")) { //$NON-NLS-1$
-				if (didSpecifyCompliance) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
-				}
-				didSpecifyCompliance = true;
-				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-1.4")) { //$NON-NLS-1$
-				if (didSpecifyCompliance) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-				}
-				didSpecifyCompliance = true;
-				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (didSpecifyCompliance) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-				}
-				didSpecifyCompliance = true;
-				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (didSpecifyCompliance) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-				}
-				didSpecifyCompliance = true;
-				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-d")) { //$NON-NLS-1$
-				if (this.destinationPath != null)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateOutputPath", currentArg)); //$NON-NLS-1$
-				mode = InsideDestinationPath;
-				this.generatePackagesStructure = true;
-				continue;
-			}
-			if (currentArg.equals("-classpath") //$NON-NLS-1$
-				|| currentArg.equals("-cp")) { //$NON-NLS-1$
-				mode = InsideClasspath;
-				continue;
-			}
-			if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
-				if (bootclasspaths.size() > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
-				mode = InsideBootClasspath;
-				continue;
-			}
-			if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-				if (sourcepathClasspaths.size() > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
-				mode = InsideSourcepath;
-				continue;
-			}
-			if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-				if (extdirsNames.size() > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
-				mode = InsideExtdirs;
-				continue;
-			}
-			if (currentArg.equals("-progress")) { //$NON-NLS-1$
-				mode = Default;
-				this.showProgress = true;
-				continue;
-			}
-			if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
-				mode = Default;
-				this.proceedOnError = true;
-				continue;
-			}
-			if (currentArg.equals("-time")) { //$NON-NLS-1$
-				mode = Default;
-				this.timing = true;
-				continue;
-			}
-			if (currentArg.equals("-version") //$NON-NLS-1$
-					|| currentArg.equals("-v")) { //$NON-NLS-1$
-				this.logger.logVersion(true);
-				this.proceed = false;
-				return;
-			}
-			if (currentArg.equals("-showversion")) { //$NON-NLS-1$
-				printVersionRequired = true;
-				continue;
-			}			
-			if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
-				didSpecifyDeprecation = true;
-				this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-				continue;
-			}
-			if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
-				printUsageRequired = true;
-				continue;
-			}
-			if (currentArg.equals("-noExit")) { //$NON-NLS-1$
-				mode = Default;
-				this.systemExitWhenFinished = false;
-				continue;
-			}
-			if (currentArg.equals("-verbose")) { //$NON-NLS-1$
-				mode = Default;
-				this.verbose = true;
-				continue;
-			}
-			if (currentArg.equals("-referenceInfo")) { //$NON-NLS-1$
-				mode = Default;
-				this.produceRefInfo = true;
-				continue;
-			}
-			if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
-			    mode = Default;
-				this.options.put(
-						CompilerOptions.OPTION_InlineJsr,
-						CompilerOptions.ENABLED);
-			    continue;
-			}
-			if (currentArg.startsWith("-g")) { //$NON-NLS-1$
-				mode = Default;
-				String debugOption = currentArg;
-				int length = currentArg.length();
-				if (length == 2) {
-					this.options.put(
-						CompilerOptions.OPTION_LocalVariableAttribute,
-						CompilerOptions.GENERATE);
-					this.options.put(
-						CompilerOptions.OPTION_LineNumberAttribute,
-						CompilerOptions.GENERATE);
-					this.options.put(
-						CompilerOptions.OPTION_SourceFileAttribute,
-						CompilerOptions.GENERATE);
-					continue;
-				}
-				if (length > 3) {
-					this.options.put(
-						CompilerOptions.OPTION_LocalVariableAttribute,
-						CompilerOptions.DO_NOT_GENERATE);
-					this.options.put(
-						CompilerOptions.OPTION_LineNumberAttribute,
-						CompilerOptions.DO_NOT_GENERATE);
-					this.options.put(
-						CompilerOptions.OPTION_SourceFileAttribute,
-						CompilerOptions.DO_NOT_GENERATE);
-					if (length == 7 && debugOption.equals("-g:none")) //$NON-NLS-1$
+		
+					if (currentArg.endsWith(SUFFIX_STRING_java)) {
+						if (this.filenames == null) {
+							this.filenames = new String[argCount - index];
+							this.encodings = new String[argCount - index];
+						} else if (filesCount == this.filenames.length) {
+							int length = this.filenames.length;
+							System.arraycopy(
+								this.filenames,
+								0,
+								(this.filenames = new String[length + argCount - index]),
+								0,
+								length);
+							System.arraycopy(
+								this.encodings,
+								0,
+								(this.encodings = new String[length + argCount - index]),
+								0,
+								length);
+						}
+						this.filenames[filesCount] = currentArg;
+						this.encodings[filesCount++] = customEncoding;
+						customEncoding = null;
+						mode = DEFAULT;
 						continue;
-					StringTokenizer tokenizer =
-						new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
-					while (tokenizer.hasMoreTokens()) {
-						String token = tokenizer.nextToken();
-						if (token.equals("vars")) { //$NON-NLS-1$
+					}
+					if (currentArg.equals("-log")) { //$NON-NLS-1$
+						if (this.log != null)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_LOG;
+						continue;
+					}
+					if (currentArg.equals("-repeat")) { //$NON-NLS-1$
+						if (this.repetitions > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_REPETITION;
+						continue;
+					}
+					if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
+						if (this.maxProblems > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_MAX_PROBLEMS;
+						continue;
+					}
+					if (currentArg.equals("-source")) { //$NON-NLS-1$
+						mode = INSIDE_SOURCE;
+						continue;
+					}
+					if (currentArg.equals("-encoding")) { //$NON-NLS-1$
+						mode = INSIDE_DEFAULT_ENCODING;
+						continue;
+					}
+					if (currentArg.equals("-1.3")) { //$NON-NLS-1$
+						if (didSpecifyCompliance) {
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
+						}
+						didSpecifyCompliance = true;
+						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-1.4")) { //$NON-NLS-1$
+						if (didSpecifyCompliance) {
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+						}
+						didSpecifyCompliance = true;
+						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (didSpecifyCompliance) {
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+						}
+						didSpecifyCompliance = true;
+						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (didSpecifyCompliance) {
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+						}
+						didSpecifyCompliance = true;
+						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-d")) { //$NON-NLS-1$
+						if (this.destinationPath != null)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateOutputPath", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_DESTINATION_PATH;
+						this.generatePackagesStructure = true;
+						continue;
+					}
+					if (currentArg.equals("-classpath") //$NON-NLS-1$
+						|| currentArg.equals("-cp")) { //$NON-NLS-1$
+						mode = INSIDE_CLASSPATH;
+						continue;
+					}
+					if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
+						if (bootclasspaths.size() > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_BOOTCLASSPATH;
+						continue;
+					}
+					if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
+						if (sourcepathClasspaths.size() > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_SOURCE_PATH;
+						continue;
+					}
+					if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
+						if (extdirsNames.size() > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_EXT_DIRS;
+						continue;
+					}
+					if (currentArg.equals("-progress")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						this.showProgress = true;
+						continue;
+					}
+					if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						this.proceedOnError = true;
+						continue;
+					}
+					if (currentArg.equals("-time")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						this.timing = true;
+						continue;
+					}
+					if (currentArg.equals("-version") //$NON-NLS-1$
+							|| currentArg.equals("-v")) { //$NON-NLS-1$
+						this.logger.logVersion(true);
+						this.proceed = false;
+						return;
+					}
+					if (currentArg.equals("-showversion")) { //$NON-NLS-1$
+						printVersionRequired = true;
+						mode = DEFAULT;
+						continue;
+					}			
+					if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
+						didSpecifyDeprecation = true;
+						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
+						printUsageRequired = true;
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-noExit")) { //$NON-NLS-1$
+						this.systemExitWhenFinished = false;
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-verbose")) { //$NON-NLS-1$
+						this.verbose = true;
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-referenceInfo")) { //$NON-NLS-1$
+						this.produceRefInfo = true;
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
+					    mode = DEFAULT;
+						this.options.put(
+								CompilerOptions.OPTION_InlineJsr,
+								CompilerOptions.ENABLED);
+					    continue;
+					}
+					if (currentArg.startsWith("-g")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						String debugOption = currentArg;
+						int length = currentArg.length();
+						if (length == 2) {
 							this.options.put(
 								CompilerOptions.OPTION_LocalVariableAttribute,
 								CompilerOptions.GENERATE);
-						} else if (token.equals("lines")) { //$NON-NLS-1$
 							this.options.put(
 								CompilerOptions.OPTION_LineNumberAttribute,
 								CompilerOptions.GENERATE);
-						} else if (token.equals("source")) { //$NON-NLS-1$
 							this.options.put(
 								CompilerOptions.OPTION_SourceFileAttribute,
 								CompilerOptions.GENERATE);
-						} else {
+							continue;
+						}
+						if (length > 3) {
+							this.options.put(
+								CompilerOptions.OPTION_LocalVariableAttribute,
+								CompilerOptions.DO_NOT_GENERATE);
+							this.options.put(
+								CompilerOptions.OPTION_LineNumberAttribute,
+								CompilerOptions.DO_NOT_GENERATE);
+							this.options.put(
+								CompilerOptions.OPTION_SourceFileAttribute,
+								CompilerOptions.DO_NOT_GENERATE);
+							if (length == 7 && debugOption.equals("-g:none")) //$NON-NLS-1$
+								continue;
+							StringTokenizer tokenizer =
+								new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
+							while (tokenizer.hasMoreTokens()) {
+								String token = tokenizer.nextToken();
+								if (token.equals("vars")) { //$NON-NLS-1$
+									this.options.put(
+										CompilerOptions.OPTION_LocalVariableAttribute,
+										CompilerOptions.GENERATE);
+								} else if (token.equals("lines")) { //$NON-NLS-1$
+									this.options.put(
+										CompilerOptions.OPTION_LineNumberAttribute,
+										CompilerOptions.GENERATE);
+								} else if (token.equals("source")) { //$NON-NLS-1$
+									this.options.put(
+										CompilerOptions.OPTION_SourceFileAttribute,
+										CompilerOptions.GENERATE);
+								} else {
+									throw new InvalidInputException(
+										Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+								}
+							}
+							continue;
+						}
+						throw new InvalidInputException(
+							Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+					}
+					if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
+						disableWarnings();
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						String warningOption = currentArg;
+						int length = currentArg.length();
+						if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
+							disableWarnings();
+							continue;
+						}
+						if (length <= 6) {
 							throw new InvalidInputException(
-								Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+								Main.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
 						}
+						int warnTokenStart;
+						boolean isEnabling;
+						switch (warningOption.charAt(6)) {
+							case '+' : 
+								warnTokenStart = 7;
+								isEnabling = true;
+								break;
+							case '-' :
+								warnTokenStart = 7;
+								isEnabling = false; // mentionned warnings are disabled
+								break;
+							default:
+								warnTokenStart = 6;
+								// clear default warning level
+								// but allow multiple warning option on the command line
+								if (!didSpecifyWarnings) disableWarnings();
+								isEnabling = true;
+						}
+					
+						StringTokenizer tokenizer =
+							new StringTokenizer(warningOption.substring(warnTokenStart, warningOption.length()), ","); //$NON-NLS-1$
+						int tokenCounter = 0;
+		
+						if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
+							this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+						}
+						
+						while (tokenizer.hasMoreTokens()) {
+							String token = tokenizer.nextToken();
+							tokenCounter++;
+							if (token.equals("constructorName")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportMethodWithConstructorName,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportHiddenCatchBlock,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("deprecation")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecation, 
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+									CompilerOptions.DISABLED);
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+									CompilerOptions.DISABLED);						
+							} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecation, 
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+									isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+								this.options.put(
+									CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+									isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+							} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedLocal, 
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedParameter,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedImport,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedPrivateMember,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedLabel,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("localHiding")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportLocalVariableHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportFieldHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("specialParamHiding")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportSpecialParameterHidingField,
+									isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+							} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		   					} else if (token.equals("syntheticAccess") //$NON-NLS-1$
+		   							|| token.equals("synthetic-access")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("nls")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportIndirectStaticAccess,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNoEffectAssignment,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportEmptyStatement,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("serial")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportMissingSerialVersion,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("raw")) {//$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportRawTypeReference,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportFinalParameterBound,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("suppress")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_SuppressWarnings,
+									isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+							} else if (token.equals("warningToken")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnhandledWarningToken,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$ 
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnnecessaryElse,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
+								if (!useEnableJavadoc) {
+									this.options.put(
+										CompilerOptions.OPTION_DocCommentSupport,
+										isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+								}
+								// if disabling then it's not necessary to set other javadoc options
+								if (isEnabling) {
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadoc,
+										CompilerOptions.WARNING);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTags,
+										CompilerOptions.ENABLED);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+										CompilerOptions.DISABLED);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+										CompilerOptions.DISABLED);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+										CompilerOptions.PRIVATE);
+									this.options.put(
+										CompilerOptions.OPTION_ReportMissingJavadocTags,
+										CompilerOptions.WARNING);
+									this.options.put(
+										CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+										CompilerOptions.PRIVATE);
+								}
+							} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
+								if (!useEnableJavadoc) {
+									this.options.put(
+										CompilerOptions.OPTION_DocCommentSupport,
+										isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+								}
+								// if disabling then it's not necessary to set other javadoc options
+								if (isEnabling) {
+									this.options.put(
+									CompilerOptions.OPTION_ReportInvalidJavadoc,
+									CompilerOptions.WARNING);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTags,
+										CompilerOptions.ENABLED);
+									this.options.put(
+										CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+										CompilerOptions.PRIVATE);
+									this.options.put(
+										CompilerOptions.OPTION_ReportMissingJavadocTags,
+										CompilerOptions.WARNING);
+									this.options.put(
+										CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+										CompilerOptions.PRIVATE);
+									this.options.put(
+										CompilerOptions.OPTION_ReportMissingJavadocComments,
+										CompilerOptions.WARNING);
+								}
+							} else if (token.startsWith("tasks")) { //$NON-NLS-1$
+								String taskTags = ""; //$NON-NLS-1$
+								int start = token.indexOf('(');
+								int end = token.indexOf(')');
+								if (start >= 0 && end >= 0 && start < end){
+									taskTags = token.substring(start+1, end).trim();
+									taskTags = taskTags.replace('|',',');
+								}
+								if (taskTags.length() == 0){
+									throw new InvalidInputException(Main.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
+								}
+								this.options.put(
+									CompilerOptions.OPTION_TaskTags,
+									isEnabling ? taskTags : "");  //$NON-NLS-1$
+							} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportAssertIdentifier,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
+								this.options.put(
+										CompilerOptions.OPTION_ReportEnumIdentifier,
+										isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("finally")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unqualifiedField") //$NON-NLS-1$
+									|| token.equals("unqualified-field-access")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("typeHiding")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportTypeParameterHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("varargsCast")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("null")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNullReference,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("boxing")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportAutoboxing,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("over-ann")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("dep-ann")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportAnnotationSuperInterface,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("enumSwitch") //$NON-NLS-1$
+									|| token.equals("incomplete-switch")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+							} else if (token.equals("hiding")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportHiddenCatchBlock,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportLocalVariableHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportFieldHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportTypeParameterHiding,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("static-access")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportIndirectStaticAccess,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("unused")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedLocal, 
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedParameter,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedImport,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedPrivateMember,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+									CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+								this.options.put(
+										CompilerOptions.OPTION_ReportUnusedLabel,
+										isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("paramAssign")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportParameterAssignment,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("discouraged")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportDiscouragedReference,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("forbidden")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportForbiddenReference,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else if (token.equals("fallthrough")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_ReportFallthroughCase,
+									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							} else {
+								throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
+							}
+						}
+						if (tokenCounter == 0)
+							throw new InvalidInputException(
+								Main.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+						didSpecifyWarnings = true;
+						continue;
 					}
+					if (currentArg.equals("-target")) { //$NON-NLS-1$
+						mode = INSIDE_TARGET;
+						continue;
+					}
+					if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_PreserveUnusedLocal,
+							CompilerOptions.PRESERVE);
+					    mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
+					    mode = DEFAULT;
+						this.options.put(
+							CompilerOptions.OPTION_DocCommentSupport,
+							CompilerOptions.ENABLED);
+						useEnableJavadoc = true;
+						continue;
+					}
+					if (currentArg.equals("-Xemacs")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						this.logger.setEmacs();
+						continue;
+					}
+					// tolerated javac options - quietly filtered out
+					if (currentArg.startsWith("-X")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.startsWith("-J")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						continue;
+					}
+					if (currentArg.equals("-O")) { //$NON-NLS-1$
+						mode = DEFAULT;
+						continue;
+					}
+					
+					if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
+						if (sourcepathClasspaths.size() > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_SOURCE_PATH;
+						continue;
+					}
+					if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
+						if (extdirsNames.size() > 0)
+							throw new InvalidInputException(
+								Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
+						mode = INSIDE_EXT_DIRS;
+						continue;
+					}
+					break;
+				case INSIDE_TARGET :
+					if (this.didSpecifyTarget) {
+						throw new InvalidInputException(
+							Main.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
+					}				
+					this.didSpecifyTarget = true;
+					if (currentArg.equals("1.1")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+					} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+					} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+					} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+					} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+					} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+					} else {
+						throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
+					}
+					mode = DEFAULT;
 					continue;
-				}
-				throw new InvalidInputException(
-					Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
-			}
-			if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
-				disableWarnings();
-				mode = Default;
-				continue;
-			}
-			if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
-				mode = Default;
-				String warningOption = currentArg;
-				int length = currentArg.length();
-				if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
-					disableWarnings();
+				case INSIDE_LOG :
+					this.log = currentArg;
+					mode = DEFAULT;
 					continue;
-				}
-				if (length <= 6) {
-					throw new InvalidInputException(
-						Main.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
-				}
-				int warnTokenStart;
-				boolean isEnabling;
-				switch (warningOption.charAt(6)) {
-					case '+' : 
-						warnTokenStart = 7;
-						isEnabling = true;
-						break;
-					case '-' :
-						warnTokenStart = 7;
-						isEnabling = false; // mentionned warnings are disabled
-						break;
-					default:
-						warnTokenStart = 6;
-						// clear default warning level
-						// but allow multiple warning option on the command line
-						if (!didSpecifyWarnings) disableWarnings();
-						isEnabling = true;
-				}
-			
-				StringTokenizer tokenizer =
-					new StringTokenizer(warningOption.substring(warnTokenStart, warningOption.length()), ","); //$NON-NLS-1$
-				int tokenCounter = 0;
-
-				if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
-					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-				}
-				
-				while (tokenizer.hasMoreTokens()) {
-					String token = tokenizer.nextToken();
-					tokenCounter++;
-					if (token.equals("constructorName")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportMethodWithConstructorName,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportHiddenCatchBlock,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("deprecation")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecation, 
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
-							CompilerOptions.DISABLED);
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
-							CompilerOptions.DISABLED);						
-					} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecation, 
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						this.options.put(
-							CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-					} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedLocal, 
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedParameter,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedImport,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedPrivateMember,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedLabel,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("localHiding")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportLocalVariableHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportFieldHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("specialParamHiding")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportSpecialParameterHidingField,
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-					} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-   					} else if (token.equals("syntheticAccess") //$NON-NLS-1$
-   							|| token.equals("synthetic-access")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("nls")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportIndirectStaticAccess,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNoEffectAssignment,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportEmptyStatement,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("serial")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingSerialVersion,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("raw")) {//$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportRawTypeReference,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportFinalParameterBound,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("suppress")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_SuppressWarnings,
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-					} else if (token.equals("warningToken")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnhandledWarningToken,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$ 
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnnecessaryElse,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
-						if (!useEnableJavadoc) {
-							this.options.put(
-								CompilerOptions.OPTION_DocCommentSupport,
-								isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+				case INSIDE_REPETITION :
+					try {
+						this.repetitions = Integer.parseInt(currentArg);
+						if (this.repetitions <= 0) {
+							throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 						}
-						// if disabling then it's not necessary to set other javadoc options
-						if (isEnabling) {
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadoc,
-								CompilerOptions.WARNING);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTags,
-								CompilerOptions.ENABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
-								CompilerOptions.DISABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
-								CompilerOptions.DISABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-								CompilerOptions.PRIVATE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingJavadocTags,
-								CompilerOptions.WARNING);
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-								CompilerOptions.PRIVATE);
-						}
-					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
-						if (!useEnableJavadoc) {
-							this.options.put(
-								CompilerOptions.OPTION_DocCommentSupport,
-								isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
-						}
-						// if disabling then it's not necessary to set other javadoc options
-						if (isEnabling) {
-							this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadoc,
-							CompilerOptions.WARNING);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTags,
-								CompilerOptions.ENABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-								CompilerOptions.PRIVATE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingJavadocTags,
-								CompilerOptions.WARNING);
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-								CompilerOptions.PRIVATE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingJavadocComments,
-								CompilerOptions.WARNING);
-						}
-					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
-						String taskTags = ""; //$NON-NLS-1$
-						int start = token.indexOf('(');
-						int end = token.indexOf(')');
-						if (start >= 0 && end >= 0 && start < end){
-							taskTags = token.substring(start+1, end).trim();
-							taskTags = taskTags.replace('|',',');
-						}
-						if (taskTags.length() == 0){
-							throw new InvalidInputException(Main.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
-						}
-						this.options.put(
-							CompilerOptions.OPTION_TaskTags,
-							isEnabling ? taskTags : "");  //$NON-NLS-1$
-					} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportAssertIdentifier,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
-						this.options.put(
-								CompilerOptions.OPTION_ReportEnumIdentifier,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("finally")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unqualifiedField") //$NON-NLS-1$
-							|| token.equals("unqualified-field-access")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("typeHiding")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportTypeParameterHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("varargsCast")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("null")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNullReference,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("boxing")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportAutoboxing,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("over-ann")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("dep-ann")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportAnnotationSuperInterface,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("enumSwitch") //$NON-NLS-1$
-							|| token.equals("incomplete-switch")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("hiding")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportHiddenCatchBlock,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportLocalVariableHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportFieldHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportTypeParameterHiding,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("static-access")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportIndirectStaticAccess,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unused")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedLocal, 
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedParameter,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedImport,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedPrivateMember,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-								CompilerOptions.OPTION_ReportUnusedLabel,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("paramAssign")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportParameterAssignment,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("discouraged")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportDiscouragedReference,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("forbidden")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportForbiddenReference,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("fallthrough")) { //$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportFallthroughCase,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else {
-						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
-					}
-				}
-				if (tokenCounter == 0)
-					throw new InvalidInputException(
-						Main.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
-				didSpecifyWarnings = true;
-				continue;
-			}
-			if (currentArg.equals("-target")) { //$NON-NLS-1$
-				mode = TargetSetting;
-				continue;
-			}
-			if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_PreserveUnusedLocal,
-					CompilerOptions.PRESERVE);
-				continue;
-			}
-			if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_DocCommentSupport,
-					CompilerOptions.ENABLED);
-				useEnableJavadoc = true;
-				continue;
-			}
-			if (currentArg.equals("-Xemacs")) { //$NON-NLS-1$
-				mode = Default;
-				this.logger.setEmacs();
-				continue;
-			}
-			// tolerated javac options - quietly filtered out
-			if (currentArg.startsWith("-X")) { //$NON-NLS-1$
-				mode = Default;
-				continue;
-			}
-			if (currentArg.startsWith("-J")) { //$NON-NLS-1$
-				mode = Default;
-				continue;
-			}
-			if (currentArg.equals("-O")) { //$NON-NLS-1$
-				mode = Default;
-				continue;
-			}
-			
-			if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-				if (sourcepathClasspaths.size() > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
-				mode = InsideSourcepath;
-				continue;
-			}
-			if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-				if (extdirsNames.size() > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
-				mode = InsideExtdirs;
-				continue;
-			}
-
-			if (mode == TargetSetting) {
-				if (didSpecifyTarget) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
-				}				
-				didSpecifyTarget = true;
-				if (currentArg.equals("1.1")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					if (didSpecifyCompliance) {
-						if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4) {
-							throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-						}
-					} else {
-						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					}
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-					if (didSpecifyCompliance) {
-						if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_5) {
-							throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-						}
-					} else {
-						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					}
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-					if (didSpecifyCompliance) {
-						if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_6) {
-							throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-						}
-					} else {
-						this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-					}
-				} else {
-					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
-				}
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideLog) {
-				this.log = currentArg;
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideRepetition) {
-				try {
-					this.repetitions = Integer.parseInt(currentArg);
-					if (this.repetitions <= 0) {
+					} catch (NumberFormatException e) {
 						throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 					}
-				} catch (NumberFormatException e) {
-					throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
-				}
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideMaxProblems) {
-				try {
-					this.maxProblems = Integer.parseInt(currentArg);
-					if (this.maxProblems <= 0) {
+					mode = DEFAULT;
+					continue;
+				case INSIDE_MAX_PROBLEMS :
+					try {
+						this.maxProblems = Integer.parseInt(currentArg);
+						if (this.maxProblems <= 0) {
+							throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+						}
+						this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
+					} catch (NumberFormatException e) {
 						throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
 					}
-					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
-				} catch (NumberFormatException e) {
-					throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
-				}
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideSource) {
-				if (didSpecifySource) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
-				}				
-				didSpecifySource = true;
-				if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-				} else {
-					throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
-				}
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideDefaultEncoding) {
-				if (didSpecifyDefaultEncoding) {
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
-				}
-				try { // ensure encoding is supported
-					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
-				} catch (UnsupportedEncodingException e) {
-					throw new InvalidInputException(
-						Main.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
-				}
-				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
-				didSpecifyDefaultEncoding = true;
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideDestinationPath) {
-				this.destinationPath = currentArg;
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideClasspath || mode == InsideBootClasspath || mode == InsideSourcepath) {
-				StringTokenizer tokenizer = new StringTokenizer(currentArg,
-						File.pathSeparator + "[]", true); //$NON-NLS-1$
-				// state machine
-				final int start = 0; 
-				final int readyToClose = 1;
-				// 'path' 'path1[rule];path2'
-				final int readyToCloseEndingWithRules = 2;
-				// 'path[rule]' 'path1;path2[rule]'
-				final int readyToCloseOrOtherEntry = 3;
-				// 'path[rule];' 'path;' 'path1;path2;'
-				final int rulesNeedAnotherRule = 4;
-				// 'path[rule1;'
-				final int rulesStart = 5;
-				// 'path[' 'path1;path2['
-				final int rulesReadyToClose = 6;
-				// 'path[rule' 'path[rule1;rule2'
-				final int error = 99;
-				int state = start;
-				String token = null;
-				while (tokenizer.hasMoreTokens()) {
-					token = tokenizer.nextToken();
-					if (token.equals(File.pathSeparator)) {
-						switch (state) {
-						case start:
-							break;
-						case readyToClose:
-						case readyToCloseEndingWithRules:
-						case readyToCloseOrOtherEntry:
-							state = readyToCloseOrOtherEntry;
-							addNewEntry(InsideClasspath, InsideSourcepath, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
-							currentRuleSpecs.clear();
-							break;
-						case rulesReadyToClose:
-							state = rulesNeedAnotherRule;
-							break;
-						default:
-							state = error;
-						}
-					} else if (token.equals("[")) { //$NON-NLS-1$
-						switch (state) {
-						case readyToClose:
-							state = rulesStart;
-							break;
-						default:
-							state = error;
-						}
-					} else if (token.equals("]")) { //$NON-NLS-1$
-						switch (state) {
-						case rulesReadyToClose:
-							state = readyToCloseEndingWithRules;
-							break;
-						default:
-							state = error;
-						}
-
+					mode = DEFAULT;
+					continue;
+				case INSIDE_SOURCE :
+					if (this.didSpecifySource) {
+						throw new InvalidInputException(
+							Main.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
+					}				
+					this.didSpecifySource = true;
+					if (currentArg.equals("1.3")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+					} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+						this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+					} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+					} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 					} else {
-						// regular word
-						switch (state) {
-						case start:
-						case readyToCloseOrOtherEntry:
-							state = readyToClose;
-							currentClasspathName = token;
-							break;
-						case rulesNeedAnotherRule:
-						case rulesStart:
-							state = rulesReadyToClose;
-							currentRuleSpecs.add(token);
-							break;
-						default:
-							state = error;
+						throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
+					}
+					mode = DEFAULT;
+					continue;
+				case INSIDE_DEFAULT_ENCODING :
+					if (didSpecifyDefaultEncoding) {
+						throw new InvalidInputException(
+							Main.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
+					}
+					try { // ensure encoding is supported
+						new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
+					} catch (UnsupportedEncodingException e) {
+						throw new InvalidInputException(
+							Main.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
+					}
+					this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
+					didSpecifyDefaultEncoding = true;
+					mode = DEFAULT;
+					continue;
+				case INSIDE_DESTINATION_PATH :
+					this.destinationPath = currentArg;
+					mode = DEFAULT;
+					continue;
+				case INSIDE_CLASSPATH:
+				case INSIDE_BOOTCLASSPATH:
+				case INSIDE_SOURCE_PATH :
+					StringTokenizer tokenizer = new StringTokenizer(currentArg,
+							File.pathSeparator + "[]", true); //$NON-NLS-1$
+					// state machine
+					final int start = 0; 
+					final int readyToClose = 1;
+					// 'path' 'path1[rule];path2'
+					final int readyToCloseEndingWithRules = 2;
+					// 'path[rule]' 'path1;path2[rule]'
+					final int readyToCloseOrOtherEntry = 3;
+					// 'path[rule];' 'path;' 'path1;path2;'
+					final int rulesNeedAnotherRule = 4;
+					// 'path[rule1;'
+					final int rulesStart = 5;
+					// 'path[' 'path1;path2['
+					final int rulesReadyToClose = 6;
+					// 'path[rule' 'path[rule1;rule2'
+					final int error = 99;
+					int state = start;
+					String token = null;
+					while (tokenizer.hasMoreTokens()) {
+						token = tokenizer.nextToken();
+						if (token.equals(File.pathSeparator)) {
+							switch (state) {
+							case start:
+								break;
+							case readyToClose:
+							case readyToCloseEndingWithRules:
+							case readyToCloseOrOtherEntry:
+								state = readyToCloseOrOtherEntry;
+								addNewEntry(INSIDE_CLASSPATH, INSIDE_SOURCE_PATH, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
+								currentRuleSpecs.clear();
+								break;
+							case rulesReadyToClose:
+								state = rulesNeedAnotherRule;
+								break;
+							default:
+								state = error;
+							}
+						} else if (token.equals("[")) { //$NON-NLS-1$
+							switch (state) {
+							case readyToClose:
+								state = rulesStart;
+								break;
+							default:
+								state = error;
+							}
+						} else if (token.equals("]")) { //$NON-NLS-1$
+							switch (state) {
+							case rulesReadyToClose:
+								state = readyToCloseEndingWithRules;
+								break;
+							default:
+								state = error;
+							}
+	
+						} else {
+							// regular word
+							switch (state) {
+							case start:
+							case readyToCloseOrOtherEntry:
+								state = readyToClose;
+								currentClasspathName = token;
+								break;
+							case rulesNeedAnotherRule:
+							case rulesStart:
+								state = rulesReadyToClose;
+								currentRuleSpecs.add(token);
+								break;
+							default:
+								state = error;
+							}
 						}
 					}
-				}
-				switch(state) {
-					case readyToClose :
-					case readyToCloseEndingWithRules :
-					case readyToCloseOrOtherEntry :
-						addNewEntry(InsideClasspath, InsideSourcepath, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
-						break;
-					default :
-						// we go on anyway
-						this.logger.logIncorrectClasspath(currentArg);
-				}
-				mode = Default;
-				continue;
-			}
-			if (mode == InsideExtdirs) {
-				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
-				while (tokenizer.hasMoreTokens())
-					extdirsNames.add(tokenizer.nextToken());
-				if (extdirsNames.size() == 0) // empty entry
-					extdirsNames.add(""); //$NON-NLS-1$
-				mode = Default;
-				continue;
+					switch(state) {
+						case readyToClose :
+						case readyToCloseEndingWithRules :
+						case readyToCloseOrOtherEntry :
+							addNewEntry(INSIDE_CLASSPATH, INSIDE_SOURCE_PATH, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
+							break;
+						default :
+							// we go on anyway
+							this.logger.logIncorrectClasspath(currentArg);
+					}
+					mode = DEFAULT;
+					continue;
+				case INSIDE_EXT_DIRS :
+					tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+					while (tokenizer.hasMoreTokens())
+						extdirsNames.add(tokenizer.nextToken());
+					if (extdirsNames.size() == 0) // empty entry
+						extdirsNames.add(""); //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
 			}
 
 			//default is input directory
@@ -2287,7 +2274,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 				customEncoding = null;
 			}
-			mode = Default;
+			mode = DEFAULT;
 			continue;
 		}
 		
@@ -2450,38 +2437,52 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		if (didSpecifyCompliance) {
 			Object version = this.options.get(CompilerOptions.OPTION_Compliance);
 			if (CompilerOptions.VERSION_1_3.equals(version)) {
-				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+				if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 			} else if (CompilerOptions.VERSION_1_4.equals(version)) {
-				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 			} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 			} else if (CompilerOptions.VERSION_1_6.equals(version)) {
-				if (!didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 			}
 		}
-		if (didSpecifySource) {
+		if (this.didSpecifySource) {
 			Object version = this.options.get(CompilerOptions.OPTION_Source);
 			// default is source 1.3 target 1.2 and compliance 1.4
 			if (CompilerOptions.VERSION_1_4.equals(version)) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 			} else if (CompilerOptions.VERSION_1_5.equals(version)) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 			} else if (CompilerOptions.VERSION_1_6.equals(version)) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 			}
 		}
 
-		// check and set compliance/source/target compatibilities
 		final Object sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
 		final Object compliance = this.options.get(CompilerOptions.OPTION_Compliance);
-		if (didSpecifyTarget) {
+		if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
+			// compliance must be 1.6 if source is 1.6
+			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
+		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
+			// compliance must be 1.5 if source is 1.5
+			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
+			// compliance must be 1.4 if source is 1.4
+			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
+		}
+
+		// check and set compliance/source/target compatibilities
+		if (this.didSpecifyTarget) {
 			// target must be 1.6 if source is 1.6
 			final Object targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform); 
 			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
@@ -2502,48 +2503,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 			}
-		}
-
-		if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
-				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
-			// compliance must be 1.6 if source is 1.6
-			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
-				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
-			// compliance must be 1.5 if source is 1.5
-			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
-				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
-			// compliance must be 1.4 if source is 1.4
-			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-		}
-		// set default target according to compliance & sourcelevel.
-		if (!didSpecifyTarget) {
+		} else {
 			if (compliance.equals(CompilerOptions.VERSION_1_3)) {
 				this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-			} else if (compliance.equals(CompilerOptions.VERSION_1_4)) {
+			} else if (compliance.equals(CompilerOptions.VERSION_1_4)
+					|| compliance.equals(CompilerOptions.VERSION_1_5)
+					|| compliance.equals(CompilerOptions.VERSION_1_6)) {
 				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				}
-			} else if (compliance.equals(CompilerOptions.VERSION_1_5)) {
-				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				}
-			} else if (compliance.equals(CompilerOptions.VERSION_1_6)) {
-				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_6)) {
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else {
+					// for JDK >= 1.4, target == source
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, sourceVersion);
 				}
 			}
 		}
@@ -2638,19 +2608,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 	}
 
-	private File javaHomeCache;
-	private boolean javaHomeChecked;
 	private File getJavaHome() {
-		if (!javaHomeChecked) {
-			javaHomeChecked = true;
+		if (!this.javaHomeChecked) {
+			this.javaHomeChecked = true;
 			String javaHome = System.getProperty("java.home");//$NON-NLS-1$
 			if (javaHome != null) {
-				javaHomeCache = new File(javaHome);
-				if (!javaHomeCache.exists())
-					javaHomeCache = null;
+				this.javaHomeCache = new File(javaHome);
+				if (!this.javaHomeCache.exists())
+					this.javaHomeCache = null;
 			}
 		}
-		return javaHomeCache;
+		return this.javaHomeCache;
 	}
 	
 	private void disableWarnings() {

@@ -34,7 +34,6 @@ import org.apache.tools.ant.types.Commandline.Argument;
 import org.apache.tools.ant.util.JavaEnvUtils;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -287,7 +286,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97744
 			 */
 			// Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=96605
-			// cmd.createArgument().setValue("-verbose");
+			// cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
 			/*
 			 * extra option allowed by the Eclipse compiler
 			 */
@@ -306,86 +305,18 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		/*
 		 * target option.
 		 */
-		boolean didSpecifyTarget = false;
 		if (this.target != null) {
-			didSpecifyTarget = true;
-			if (this.target.equals(CompilerOptions.VERSION_1_1)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-			} else if (this.target.equals(CompilerOptions.VERSION_1_2)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			} else if (this.target.equals(CompilerOptions.VERSION_1_3)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
-			} else if (this.target.equals(CompilerOptions.VERSION_1_4)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-			} else if (this.target.equals(CompilerOptions.VERSION_1_5)
-					|| this.target.equals("5.0") //$NON-NLS-1$
-					|| this.target.equals("5")) { //$NON-NLS-1$
-				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				this.target = CompilerOptions.VERSION_1_5;
-			} else {
-	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownTarget", this.target), Project.MSG_WARN); //$NON-NLS-1$
-			}
+			this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, this.target);
 		}
 
 		/*
 		 * source option
 		 */
-		boolean didSpecifySource = false;
 		String source = this.attributes.getSource();
         if (source != null) {
-        	didSpecifySource = true;
-        	if (source.equals(CompilerOptions.VERSION_1_3)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			} else if (source.equals(CompilerOptions.VERSION_1_4)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-			} else if (source.equals(CompilerOptions.VERSION_1_5)
-					|| source.equals("5.0") //$NON-NLS-1$
-					|| source.equals("5")) { //$NON-NLS-1$
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				source = CompilerOptions.VERSION_1_5;
-			} else {
-	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownSource", source), Project.MSG_WARN); //$NON-NLS-1$
-			}
+			this.customDefaultOptions.put(CompilerOptions.OPTION_Source, source);
         }
-        
-        if (!didSpecifySource && !didSpecifyTarget) {
-			if (javaVersion.equals(JavaEnvUtils.JAVA_1_0)
-					|| javaVersion.equals(JavaEnvUtils.JAVA_1_1)
-					|| javaVersion.equals(JavaEnvUtils.JAVA_1_2)
-					|| javaVersion.equals(JavaEnvUtils.JAVA_1_3)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-			} else if (javaVersion.equals(JavaEnvUtils.JAVA_1_4)) {
-				if (this.target != null) {
-					if (this.target.equals(CompilerOptions.VERSION_1_1)) {
-						this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-					} else if (this.target.equals(CompilerOptions.VERSION_1_5)) {
-						this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					} else {
-						this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					}
-				} else {
-					this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				}
-			} else if (javaVersion.equals(JavaEnvUtils.JAVA_1_5)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			} else {
-	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownVmVersion", javaVersion), Project.MSG_WARN); //$NON-NLS-1$
-			}
-        } else {
-        	// set the compliance according to the target and source
-        	if (CompilerOptions.VERSION_1_3.equals(source)) {
-        		if (CompilerOptions.versionToJdkLevel(javaVersion) <= ClassFileConstants.JDK1_3) {
-    				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-        		} else {
-        			this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-        		}
-        	} else if (CompilerOptions.VERSION_1_4.equals(source)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			} else if (CompilerOptions.VERSION_1_5.equals(source)) {
-				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			}
-        }
-		
+
 		/*
 		 * encoding option
 		 */
