@@ -14,6 +14,8 @@ import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+
 public class ScannerHelper {
 	public final static int Bit1 = 0x1;
 	public final static int Bit2 = 0x2;
@@ -256,5 +258,18 @@ public static boolean isJavaIdentifierStart(char high, char low) {
 
 private static int toCodePoint(char high, char low) {	
 	return (high - Scanner.HIGH_SURROGATE_MIN_VALUE) * 0x400 + (low - Scanner.LOW_SURROGATE_MIN_VALUE) + 0x10000;
+}
+public static boolean isDigit(char c) throws InvalidInputException {
+	if(c < ScannerHelper.MAX_OBVIOUS) {
+		return ScannerHelper.C_DIGIT == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
+	}
+	if (Character.isDigit(c)) {
+		throw new InvalidInputException(Scanner.INVALID_DIGIT);
+	} else {
+		return false;
+	}
+}
+public static boolean isWhitespace(char c) {
+	return 	c < ScannerHelper.MAX_OBVIOUS && C_SPACE == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
 }
 }

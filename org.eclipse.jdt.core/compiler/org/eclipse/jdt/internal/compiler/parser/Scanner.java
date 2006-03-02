@@ -278,7 +278,7 @@ private final void checkNonNullTag(int commentStart, int commentEnd) {
 				if (currentChar == 'N') {
 					state++;
 				}
-				else if (!CharOperation.isWhitespace(currentChar)) {
+				else if (!ScannerHelper.isWhitespace(currentChar)) {
 					return;
 				}
 				continue;
@@ -321,7 +321,7 @@ private final void checkNonNullTag(int commentStart, int commentEnd) {
 				}
 				return;
 			case 8:	// got NON-NULL or NN
-				if (currentChar != '*' && !CharOperation.isWhitespace(currentChar)) {
+				if (currentChar != '*' && !ScannerHelper.isWhitespace(currentChar)) {
 					return;
 				}
 				state = 9; // got a marker
@@ -439,9 +439,9 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 			continue;
 		}
 		// trim the message
-		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
+		while (ScannerHelper.isWhitespace(src[end]) && msgStart <= end)
 			end--;
-		while (CharOperation.isWhitespace(src[msgStart]) && msgStart <= end)
+		while (ScannerHelper.isWhitespace(src[msgStart]) && msgStart <= end)
 			msgStart++;
 		// update the end position of the task
 		this.foundTaskPositions[i][1] = end;
@@ -785,14 +785,14 @@ public final boolean getNextCharAsDigit() throws InvalidInputException {
 		if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 			&& (this.source[this.currentPosition] == 'u')) {
 			getNextUnicodeChar();
-			if (!isDigit(this.currentCharacter)) {
+			if (!ScannerHelper.isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				this.withoutUnicodePtr--;
 				return false;
 			}
 			return true;
 		} else {
-			if (!isDigit(this.currentCharacter)) {
+			if (!ScannerHelper.isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -973,7 +973,7 @@ public int getNextToken() throws InvalidInputException {
 					}
 					// inline version of:
 					//isWhiteSpace = 
-					//	(this.currentCharacter == ' ') || CharOperation.isWhitespace(this.currentCharacter); 
+					//	(this.currentCharacter == ' ') || ScannerHelper.isWhitespace(this.currentCharacter); 
 					switch (this.currentCharacter) {
 						case 10 : /* \ u000a: LINE FEED               */
 						case 12 : /* \ u000c: FORM FEED               */
@@ -1570,7 +1570,7 @@ public int getNextToken() throws InvalidInputException {
 					}
 					if (isJavaIdStart)
 						return scanIdentifierOrKeyword();
-					if (isDigit(this.currentCharacter)) {
+					if (ScannerHelper.isDigit(this.currentCharacter)) {
 						return scanNumber(false);
 					}						
 					return TokenNameERROR;
@@ -1642,27 +1642,6 @@ public NLSTag[] getNLSTags() {
 public char[] getSource(){
 	return this.source;
 }
-// TODO (philippe) should simply switch on character
-protected boolean isDigit(char c) throws InvalidInputException {
-	if (Character.isDigit(c)) {
-		switch(c) {
-			case '0' :
-			case '1' :
-			case '2' :
-			case '3' :
-			case '4' :
-			case '5' :
-			case '6' :
-			case '7' :
-			case '8' :
-			case '9' :
-				return true;
-		}
-		throw new InvalidInputException(Scanner.INVALID_DIGIT);
-	} else {
-		return false;
-	}
-}
 public final void jumpOverMethodBody() {
 
 	this.wasAcr = false;
@@ -1682,7 +1661,7 @@ public final void jumpOverMethodBody() {
 							&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 						pushLineSeparator();
 					}
-					isWhiteSpace = CharOperation.isWhitespace(this.currentCharacter);
+					isWhiteSpace = ScannerHelper.isWhitespace(this.currentCharacter);
 				}
 			} while (isWhiteSpace);
 
@@ -2010,7 +1989,7 @@ public final void jumpOverMethodBody() {
 							scanIdentifierOrKeyword();
 							break NextToken;
 						}
-						if (isDigit(this.currentCharacter)) {
+						if (ScannerHelper.isDigit(this.currentCharacter)) {
 							scanNumber(false);
 							break NextToken;
 						}						
@@ -2037,7 +2016,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 	try {
 		this.wasAcr = false;
 		getNextUnicodeChar();
-		return CharOperation.isWhitespace(this.currentCharacter);
+		return ScannerHelper.isWhitespace(this.currentCharacter);
 	} catch (IndexOutOfBoundsException e){
 		this.currentPosition--;
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
@@ -2527,11 +2506,11 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 			int number = Character.getNumericValue(this.currentCharacter);
 			if (number >= 0 && number <= 7) {
 				boolean zeroToThreeNot = number > 3;
-				if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+				if (ScannerHelper.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 					int digit = Character.getNumericValue(this.currentCharacter);
 					if (digit >= 0 && digit <= 7) {
 						number = (number * 8) + digit;
-						if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+						if (ScannerHelper.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 							if (zeroToThreeNot) {// has read \NotZeroToThree OctalDigit Digit --> ignore last character
 								this.currentPosition--;
 							} else {
@@ -3236,7 +3215,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 							}
 						}
 					}
-					if (!isDigit(this.currentCharacter)) {
+					if (!ScannerHelper.isDigit(this.currentCharacter)) {
 						throw new InvalidInputException(INVALID_HEXA);
 					}
 					while (getNextCharAsDigit()){/*empty*/}
@@ -3281,7 +3260,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 						}
 					}
 				}
-				if (!isDigit(this.currentCharacter))
+				if (!ScannerHelper.isDigit(this.currentCharacter))
 					throw new InvalidInputException(INVALID_FLOAT);
 				while (getNextCharAsDigit()){/*empty*/}
 				if (getNextChar('f', 'F') >= 0)
@@ -3344,7 +3323,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 							}
 						}
 					}
-					if (!isDigit(this.currentCharacter))
+					if (!ScannerHelper.isDigit(this.currentCharacter))
 						throw new InvalidInputException(INVALID_FLOAT);
 					while (getNextCharAsDigit()){/*empty*/}
 				}
@@ -3396,7 +3375,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				}
 			}
 		}
-		if (!isDigit(this.currentCharacter))
+		if (!ScannerHelper.isDigit(this.currentCharacter))
 			throw new InvalidInputException(INVALID_FLOAT);
 		while (getNextCharAsDigit()){/*empty*/}
 	}

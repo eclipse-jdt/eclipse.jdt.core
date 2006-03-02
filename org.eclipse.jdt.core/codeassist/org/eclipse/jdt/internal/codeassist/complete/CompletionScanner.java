@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  */
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class CompletionScanner extends Scanner {
 
@@ -773,7 +774,7 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					if (Character.isJavaIdentifierStart(this.currentCharacter))
 						return scanIdentifierOrKeyword();
-					if (isDigit(this.currentCharacter)) {
+					if (ScannerHelper.isDigit(this.currentCharacter)) {
 						return scanNumber(false);
 					}
 					return TokenNameERROR;
