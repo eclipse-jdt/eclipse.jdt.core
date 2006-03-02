@@ -4433,7 +4433,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }          
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation
     public void test140() {
-        this.runConformTest(
+        this.runNegativeTest(
             new String[] {
                 "X.java",
 				"public class X {\n" + 
@@ -4445,7 +4445,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n" + 
 				"\n"
             },
-			"");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 6)\r\n" + 
+    		"	static void foo(){}	\r\n" + 
+    		"	            ^^^^^\n" + 
+    		"The method foo() of type Bar must override a superclass method\n" + 
+    		"----------\n");
     }              
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94867
     public void test141() {
@@ -6351,5 +6356,33 @@ public void test193() {
 		"Cycle detected: a cycle exists between annotation attributes of B and A\n" + 
 		"----------\n"
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130017
+public void test194() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Base {\n" + 
+			"    public static void foo() {}\n" + 
+			"}\n" + 
+			"public class X extends Base {\n" + 
+			"	@Override\n" + 
+			"	X(){}\n" + 
+			"	\n" + 
+			"    @Override\n" + 
+			"    public static void foo() {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	@Override\n" + 
+		"	^^^^^^^^^\n" + 
+		"The annotation @Override is disallowed for this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	public static void foo() {}\n" + 
+		"	                   ^^^^^\n" + 
+		"The method foo() of type X must override a superclass method\n" + 
+		"----------\n");
 }
 }

@@ -149,7 +149,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
 			if (hasOverrideAnnotation) {
-				if ((bindingModifiers & ExtraCompilerModifiers.AccOverriding) == 0 || isInterfaceMethod)
+				if ((bindingModifiers & ExtraCompilerModifiers.AccOverriding) == 0 || isInterfaceMethod || this.binding.isStatic())
 					// claims to override, and doesn't actually do so
 					this.scope.problemReporter().methodMustOverride(this);					
 			} else if (!isInterfaceMethod 	&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
