@@ -29540,4 +29540,28 @@ public void test943() {
 		"Type mismatch: cannot convert from Map<U,U> to Map<Object,Object>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129996
+public void test944() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"	public static <A> Set<A> method(List<? super A> list) {\n" + 
+		"		return new HashSet<A>();\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		ArrayList<Number> l = new ArrayList<Number>();\n" + 
+		"		Set<Integer> s1 = method(l);\n" + 
+		"		Set<Integer> s2 = (Set<Integer>) method(l);\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Set<Integer> s2 = (Set<Integer>) method(l);\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Set<Number> to Set<Integer>\n" + 
+		"----------\n");
+}
 }
