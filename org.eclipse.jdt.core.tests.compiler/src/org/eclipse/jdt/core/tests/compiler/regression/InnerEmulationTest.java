@@ -2984,7 +2984,7 @@ public void test075() {
  */
 public void test076() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3014,6 +3014,34 @@ public void test076() {
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+			"----------\n");
+		return;
+	}
+	if (options.sourceLevel <= ClassFileConstants.JDK1_4) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n"+
+				"	X(Object o){	\n"+
+				"		class A { 	\n"+
+				"			private A() {	\n"+ // implicit enclosing instance in non-static context
+				"			}	\n"+
+				"		}	\n"+
+				"		class B extends X {	\n"+
+				"			B() {	\n"+
+				"				super(new A(){	\n"+
+				"				});	\n"+
+				"			}	\n"+
+				"		}	\n"+
+				"	}	\n"+
+				"} 	\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	super(new A(){	\n" + 
+			"				});	\n" + 
+			"	      ^^^^^^^^^^^^^^^\n" + 
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n");
 		return;
 	}
@@ -3075,7 +3103,7 @@ public void test077() {
  */
 public void test078() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3114,6 +3142,46 @@ public void test078() {
 			"The method foo() from the type new A(){} is never used locally\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
+			"	void foo() { System.out.println(X.this);	} \n" + 
+			"	                                ^^^^^^\n" + 
+			"No enclosing instance of the type X is accessible in scope\n" + 
+			"----------\n");
+		return;
+	}
+	if (options.sourceLevel <= ClassFileConstants.JDK1_4) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n"+
+				"	X(Object o){	\n"+
+				"		class A { 	\n"+
+				"			private A() {	\n"+ // implicit enclosing instance in non-static context
+				"			}	\n"+
+				"		}	\n"+
+				"		class B extends X {	\n"+
+				"			B() {	\n"+
+				"				super(new A(){	\n"+
+				"					void foo() { System.out.println(X.this);	} \n"+
+				"				});	\n"+
+				"			}	\n"+
+				"		}	\n"+
+				"	}	\n"+
+				"} 	\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	super(new A(){	\n" + 
+			"					void foo() { System.out.println(X.this);	} \n" + 
+			"				});	\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	void foo() { System.out.println(X.this);	} \n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() from the type new A(){} is never used locally\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	                                ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
@@ -4716,6 +4784,189 @@ public void test124() {
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X$Baz.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473 - variation
+public void test125() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo(final String s) {\n" + 
+			"		class Local {\n" + 
+			"			private Local() {}\n" + 
+			"				void bar() {\n" + 
+			"					System.out.println(s);\n" + 
+			"				}\n" + 
+			"		}\n" + 
+			"		new Local().bar();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().foo(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	// check private constructor outcome (if >= 1.4 modifier change, if 1.3 synthetic emulation)
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String expectedOutput = options.complianceLevel <= ClassFileConstants.JDK1_3
+		? 	"private class X$1$Local {\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 LX;\n" + 
+			"  final synthetic X this$0;\n" + 
+			"  \n" + 
+			"  // Field descriptor #9 Ljava/lang/String;\n" + 
+			"  private final synthetic java.lang.String val$s;\n" + 
+			"  \n" + 
+			"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  private X$1$Local(X arg0, java.lang.String arg1);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokespecial java.lang.Object() [13]\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  aload_1\n" + 
+			"     6  putfield X$1$Local.this$0 : X [16]\n" + 
+			"     9  aload_0 [this]\n" + 
+			"    10  aload_2\n" + 
+			"    11  putfield X$1$Local.val$s : java.lang.String [18]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: X.1.Local\n" + 
+			"  \n" + 
+			"  // Method descriptor #15 ()V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  void bar();\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  getfield X$1$Local.val$s : java.lang.String [18]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" + 
+			"    10  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 11] local: this index: 0 type: X.1.Local\n" + 
+			"  \n" + 
+			"  // Method descriptor #37 (LX;Ljava/lang/String;LX$1$Local;)V\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  synthetic X$1$Local(X arg0, java.lang.String arg1, X.1.Local arg2);\n" + 
+			"    0  aload_0\n" + 
+			"    1  aload_1\n" + 
+			"    2  aload_2\n" + 
+			"    3  invokespecial X$1$Local(X, java.lang.String) [38]\n" + 
+			"    6  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"\n" + 
+			"  Inner classes:\n" + 
+			"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
+			"     inner name: #43 Local, accessflags: 2 private ]\n"
+		: options.complianceLevel == ClassFileConstants.JDK1_4
+			?  	"private class X$1$Local {\n" + 
+				"  \n" + 
+				"  // Field descriptor #6 LX;\n" + 
+				"  final synthetic X this$0;\n" + 
+				"  \n" + 
+				"  // Field descriptor #9 Ljava/lang/String;\n" + 
+				"  private final synthetic java.lang.String val$s;\n" + 
+				"  \n" + 
+				"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  X$1$Local(X arg0, java.lang.String arg1);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  aload_1\n" + 
+				"     2  putfield X$1$Local.this$0 : X [13]\n" + 
+				"     5  aload_0 [this]\n" + 
+				"     6  aload_2\n" + 
+				"     7  putfield X$1$Local.val$s : java.lang.String [15]\n" + 
+				"    10  aload_0 [this]\n" + 
+				"    11  invokespecial java.lang.Object() [17]\n" + 
+				"    14  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 15] local: this index: 0 type: X.1.Local\n" + 
+				"  \n" + 
+				"  // Method descriptor #19 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  void bar();\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+				"     3  aload_0 [this]\n" + 
+				"     4  getfield X$1$Local.val$s : java.lang.String [15]\n" + 
+				"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" + 
+				"    10  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 10, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 11] local: this index: 0 type: X.1.Local\n" + 
+				"\n" + 
+				"  Inner classes:\n" + 
+				"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
+				"     inner name: #40 Local, accessflags: 2 private ]\n"
+			:	"private class X$1Local {\n" + 
+				"  \n" + 
+				"  // Field descriptor #6 LX;\n" + 
+				"  final synthetic X this$0;\n" + 
+				"  \n" + 
+				"  // Field descriptor #8 Ljava/lang/String;\n" + 
+				"  private final synthetic java.lang.String val$s;\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 (LX;Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  X$1Local(X arg0, java.lang.String arg1);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  aload_1\n" + 
+				"     2  putfield X$1Local.this$0 : X [12]\n" + 
+				"     5  aload_0 [this]\n" + 
+				"     6  aload_2\n" + 
+				"     7  putfield X$1Local.val$s : java.lang.String [14]\n" + 
+				"    10  aload_0 [this]\n" + 
+				"    11  invokespecial java.lang.Object() [16]\n" + 
+				"    14  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 15] local: this index: 0 type: X.1Local\n" + 
+				"  \n" + 
+				"  // Method descriptor #18 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  void bar();\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [24]\n" + 
+				"     3  aload_0 [this]\n" + 
+				"     4  getfield X$1Local.val$s : java.lang.String [14]\n" + 
+				"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
+				"    10  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 10, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 11] local: this index: 0 type: X.1Local\n" + 
+				"\n" + 
+				"  Inner classes:\n" + 
+				"    [inner class info: #1 X$1Local, outer class info: #0\n" + 
+				"     inner name: #39 Local, accessflags: 2 private ]\n" + 
+				"  Enclosing Method: #41  #43 X.foo(Ljava/lang/String;)V\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);

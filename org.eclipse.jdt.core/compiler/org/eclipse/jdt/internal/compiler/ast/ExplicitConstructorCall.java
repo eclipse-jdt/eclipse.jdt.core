@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -202,9 +203,8 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (binding.isPrivate() && accessMode != This) {
 			ReferenceBinding declaringClass = this.codegenBinding.declaringClass;
-			// optionally, local type constructor can lose their private flag to ease emulation
-			if ((declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) != 0
-					&& currentScope.compilerOptions().isPrivateConstructorAccessChangingVisibility) {
+			// from 1.4 on, local type constructor can lose their private flag to ease emulation
+			if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 	&& currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 				// constructor will not be dumped as private, no emulation required thus
 				this.codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 			} else {

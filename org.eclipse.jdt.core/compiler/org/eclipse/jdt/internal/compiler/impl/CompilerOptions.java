@@ -111,9 +111,6 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadoc = "org.eclipse.jdt.core.compiler.problem.missingJavadoc"; //$NON-NLS-1$
 
-	/* should surface ??? */
-	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
-
 	/**
 	 * Possible values for configurable options
 	 */
@@ -227,9 +224,6 @@ public class CompilerOptions {
 	public long sourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
 	public long targetJDK = ClassFileConstants.JDK1_2; // default generates for JVM1.2
 
-	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
-	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
-	
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding
 	
@@ -513,10 +507,6 @@ public class CompilerOptions {
 				}
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_PrivateConstructorAccess)) != null) {
-			long level = versionToJdkLevel(optionValue);
-			if (level >= ClassFileConstants.JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
-		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterWhenImplementingAbstract)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.reportUnusedParameterWhenImplementingAbstract = true;
@@ -779,7 +769,6 @@ public class CompilerOptions {
 		buf.append("\n\t- JDK compliance level: "+ versionFromJdkLevel(this.complianceLevel)); //$NON-NLS-1$
 		buf.append("\n\t- JDK source level: "+ versionFromJdkLevel(this.sourceLevel)); //$NON-NLS-1$
 		buf.append("\n\t- JDK target level: "+ versionFromJdkLevel(this.targetJDK)); //$NON-NLS-1$
-		buf.append("\n\t- private constructor access: ").append(this.isPrivateConstructorAccessChangingVisibility ? "extra argument" : "make default access"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- verbose : ").append(this.verbose ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- produce reference info : ").append(this.produceReferenceInfo ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- parse literal expressions as constants : ").append(this.parseLiteralExpressionsAsConstants ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
