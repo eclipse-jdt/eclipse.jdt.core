@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
 
@@ -19,6 +20,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 public class InternalSearchDocument {
 	Index index;
 	private String containerRelativePath;
+	public SourceElementParser parser;
 	/*
 	 * Hidden by API SearchDocument subclass
 	 */

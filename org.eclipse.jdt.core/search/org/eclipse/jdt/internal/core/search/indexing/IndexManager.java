@@ -21,6 +21,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -85,10 +89,11 @@ public void addBinary(IFile resource, IPath containerPath) {
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void addSource(IFile resource, IPath containerPath) {
+public void addSource(IFile resource, IPath containerPath, SourceElementParser parser) {
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
+	document.parser = parser;
 	String indexLocation = computeIndexLocation(containerPath);
 	scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
 }
@@ -161,6 +166,26 @@ public void ensureIndexExists(String indexLocation, IPath containerPath) {
 		updateIndexState(indexLocation, REBUILDING_STATE);
 		getIndex(containerPath, indexLocation, true, true);
 	}
+}
+public SourceElementParser getSourceElementParser(IJavaProject project, ISourceElementRequestor requestor) {
+	// disable task tags to speed up parsing
+	Map options = project.getOptions(true);
+	options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
+	
+	SourceElementParser parser = new SourceElementParser(
+		requestor, 
+		new DefaultProblemFactory(Locale.getDefault()),
+		new CompilerOptions(options), 
+		true, // index local declarations
+		true, // optimize string literals
+		false); // do not use source javadoc parser to speed up parsing
+	parser.reportOnlyOneSyntaxError = true;
+
+	// Always check javadoc while indexing
+	parser.javadocParser.checkDocComment = true;
+	parser.javadocParser.reportProblems = false;
+		
+	return parser;
 }
 /**
  * Returns the index for a given project, according to the following algorithm:

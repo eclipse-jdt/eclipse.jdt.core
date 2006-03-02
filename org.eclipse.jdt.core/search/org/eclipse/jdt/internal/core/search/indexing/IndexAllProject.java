@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -198,7 +199,8 @@ public class IndexAllProject extends IndexRequest {
 					}
 				}
 			}
-
+			
+			SourceElementParser parser = this.manager.getSourceElementParser(javaProject, null/*requestor will be set by indexer*/);
 			Object[] names = indexedFileNames.keyTable;
 			Object[] values = indexedFileNames.valueTable;
 			for (int i = 0, namesLength = names.length; i < namesLength; i++) {
@@ -211,7 +213,7 @@ public class IndexAllProject extends IndexRequest {
 						if (value == DELETED)
 							this.manager.remove(name, this.containerPath);
 						else
-							this.manager.addSource((IFile) value, this.containerPath);
+							this.manager.addSource((IFile) value, this.containerPath, parser);
 					}
 				}
 			}

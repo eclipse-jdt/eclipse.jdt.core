@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
  */
 public class SourceElementParser extends CommentRecorderParser {
 	
-	ISourceElementRequestor requestor;
+	public ISourceElementRequestor requestor;
 	int fieldCount;
 	ISourceType sourceType;
 	boolean reportReferenceInfo;
@@ -99,24 +99,31 @@ public SourceElementParser(
 }
 
 public SourceElementParser(
-		final ISourceElementRequestor requestor, 
+		ISourceElementRequestor requestor, 
 		IProblemFactory problemFactory,
 		CompilerOptions options,
 		boolean reportLocalDeclarations,
 		boolean optimizeStringLiterals,
 		boolean useSourceJavadocParser) {
+	
+	super(
+		new ProblemReporter(
+			DefaultErrorHandlingPolicies.exitAfterAllProblems(),
+			options, 
+			problemFactory),
+		optimizeStringLiterals);
+	
 	// we want to notify all syntax error with the acceptProblem API
 	// To do so, we define the record method of the ProblemReporter
-	super(new ProblemReporter(
+	this.problemReporter = new ProblemReporter(
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
 		options, 
 		problemFactory) {
 		public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext context) {
 			unitResult.record(problem, context); // TODO (jerome) clients are trapping problems either through factory or requestor... is result storing needed?
-			requestor.acceptProblem(problem);
+			SourceElementParser.this.requestor.acceptProblem(problem);
 		}
-	},
-	optimizeStringLiterals);
+	};
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];

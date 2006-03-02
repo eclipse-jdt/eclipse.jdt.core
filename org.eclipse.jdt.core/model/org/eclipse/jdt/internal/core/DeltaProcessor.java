@@ -27,6 +27,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -238,6 +239,11 @@ public class DeltaProcessor {
 	 * Type of event that should be processed no matter what the real event type is.
 	 */
 	public int overridenEventType = -1;
+	
+	/*
+	 * Cache SourceElementParser for the project being visited
+	 */
+	private SourceElementParser sourceElementParserCache;
 		
 	public DeltaProcessor(DeltaProcessingState state, JavaModelManager manager) {
 		this.state = state;
@@ -1185,6 +1191,11 @@ public class DeltaProcessor {
 	public void flush() {
 		this.javaModelDeltas = new ArrayList();
 	}
+	private SourceElementParser getSourceElementParser(Openable element) {
+		if (this.sourceElementParserCache == null)
+			this.sourceElementParserCache = this.manager.indexManager.getSourceElementParser(element.getJavaProject(), null/*requestor will be set by indexer*/);
+		return this.sourceElementParserCache;
+	}
 	/*
 	 * Finds the root info this path is included in.
 	 * Returns null if not found.
@@ -1870,6 +1881,9 @@ public class DeltaProcessor {
 		// process current delta
 		boolean processChildren = true;
 		if (res instanceof IProject) {
+			// reset source element parser cache
+			this.sourceElementParserCache = null;
+			
 			processChildren = 
 				this.updateCurrentDeltaAndIndex(
 					delta, 
@@ -2403,7 +2417,7 @@ public class DeltaProcessor {
 						if ((flags & IResourceDelta.CONTENT) == 0 && (flags & IResourceDelta.ENCODING) == 0)
 							break;
 					case IResourceDelta.ADDED :
-						indexManager.addSource(file, file.getProject().getFullPath());
+						indexManager.addSource(file, file.getProject().getFullPath(), getSourceElementParser(element));
 						// Clean file from secondary types cache but do not update indexing secondary type cache as it will be updated through indexing itself
 						this.manager.secondaryTypesRemoving(file, false);
 						break;
