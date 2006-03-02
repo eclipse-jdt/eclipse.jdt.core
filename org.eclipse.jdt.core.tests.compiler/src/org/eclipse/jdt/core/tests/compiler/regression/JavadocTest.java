@@ -55,7 +55,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(JavadocTest.class.getName());
+		TestSuite testSuite = new TestSuite(JavadocTest.class.getName());
 	
 		// Reset forgotten subsets of tests
 		TestCase.TESTS_PREFIX = null;
@@ -67,19 +67,19 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
 			Class testClass = (Class) ALL_CLASSES.get(i);
 			Test suite = buildTestSuite(testClass);
-			ts.addTest(suite);
+			testSuite.addTest(suite);
 		}
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			ts.addTest(buildTestSuite(JavadocTest_1_3.class, COMPLIANCE_1_3));
+			testSuite.addTest(buildTestSuiteUniqueCompliance(JavadocTest_1_3.class, COMPLIANCE_1_3));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			ts.addTest(buildTestSuite(JavadocTest_1_4.class, COMPLIANCE_1_4));
+			testSuite.addTest(buildTestSuiteUniqueCompliance(JavadocTest_1_4.class, COMPLIANCE_1_4));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			ts.addTest(buildTestSuite(JavadocTest_1_5.class, COMPLIANCE_1_5));
+			testSuite.addTest(buildTestSuiteUniqueCompliance(JavadocTest_1_5.class, COMPLIANCE_1_5));
 		}
-		return ts;
+		return testSuite;
 	}
 	
 	public static Test suiteForComplianceLevel(String level, Class testClass) {

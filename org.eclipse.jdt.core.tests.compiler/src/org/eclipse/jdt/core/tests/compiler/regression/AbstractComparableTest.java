@@ -59,8 +59,8 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	static String CURRENT_CLASS_NAME;
 	static Map TESTS_COUNTERS = new HashMap();
 
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		Test suite = buildTestSuiteUniqueCompliance(evaluationTestClass, COMPLIANCE_1_5);
+	public static Test buildComparableTestSuite(Class evaluationTestClass) {
+		Test suite = buildTestSuiteWithMinimalCompliance(evaluationTestClass, F_1_5);
 		TESTS_COUNTERS.put(evaluationTestClass.getName(), new Integer(suite.countTestCases()));
 		return suite;
 	}

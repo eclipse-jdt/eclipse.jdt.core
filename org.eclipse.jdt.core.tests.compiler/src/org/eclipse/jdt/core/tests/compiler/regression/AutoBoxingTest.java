@@ -41,7 +41,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		return buildComparableTestSuite(testClass());
 	}
 	
 	public static Class testClass() {

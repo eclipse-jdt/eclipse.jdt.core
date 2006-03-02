@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -28,14 +27,6 @@ public InnerEmulationTest(String name) {
 	super(name);
 }
 public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new InnerEmulationTest("test115"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
 	return buildTestSuite(testClass());
 }
 /**

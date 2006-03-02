@@ -43,7 +43,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		return buildComparableTestSuite(testClass());
 	}
 
 	public static Class testClass() {  

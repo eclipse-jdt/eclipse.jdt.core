@@ -29,12 +29,12 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 1 };
 //	TESTS_RANGE = new int[] { 1, -1 };
-}	
+}
 public BatchCompilerTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_5);
+	return buildTestSuiteWithMinimalCompliance(testClass(), F_1_5);
 }
 
 	private String getLibraryClasses() {

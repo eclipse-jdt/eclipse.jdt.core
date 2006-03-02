@@ -37,7 +37,7 @@ public class EnumTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		return buildComparableTestSuite(testClass());
 	}
 
 	public static Class testClass() {  

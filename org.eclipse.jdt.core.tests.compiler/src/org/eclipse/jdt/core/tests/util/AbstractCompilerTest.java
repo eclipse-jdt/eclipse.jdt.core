@@ -166,36 +166,30 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null || RUN_ONLY_ID != null) {
-				TestSuite all = new TestSuite(evaluationTestClass.getName());
-				int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-				if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_3));
-				}
-				if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_4));
-				}
-				if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_5));
-				}
-				if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
-					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
-				}
-				return all;
-//			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
+		TestSuite suite = new TestSuite(evaluationTestClass.getName());
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_3));
 		}
-		return setupSuite(evaluationTestClass);
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_4));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_5));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+			suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
+		}
+		return suite;
 	}
 
-	public static Test buildTestSuite(Class evaluationTestClass, String complianceLevel) {
+	private static Test buildTestSuite(Class evaluationTestClass, String complianceLevel) {
 		TestSuite suite = new TestSuite(complianceLevel);
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
-		TestSuite test = new TestSuite(evaluationTestClass.getName());
-		test.addTest(new RegressionTestSetup(suite, complianceLevel));
-		return test;
+		return new RegressionTestSetup(suite, complianceLevel);
 	}
 
 	public static Test buildTestSuiteUniqueCompliance(Class evaluationTestClass, String uniqueCompliance) {
@@ -204,7 +198,47 @@ public class AbstractCompilerTest extends TestCase {
 				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+highestLevel+"!");
 				return new TestSuite();
 			}
-			return buildTestSuite(evaluationTestClass, uniqueCompliance);
+			TestSuite suite = new TestSuite(evaluationTestClass.getName());
+			suite.addTest(buildTestSuite(evaluationTestClass, uniqueCompliance));
+			return suite;
+	}
+
+	public static Test buildTestSuiteWithMinimalCompliance(Class evaluationTestClass, int minimalCompliance) {
+			TestSuite suite = new TestSuite(evaluationTestClass.getName());
+			int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+			int level13 = complianceLevels & AbstractCompilerTest.F_1_3;
+			if (level13 != 0) {
+				if (level13 < minimalCompliance) {
+					System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+COMPLIANCE_1_3+"!");
+				} else {
+					suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_3));
+				}
+			}
+			int level14 = complianceLevels & AbstractCompilerTest.F_1_4;
+			if (level14 != 0) {
+				if (level14 < minimalCompliance) {
+					System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+COMPLIANCE_1_4+"!");
+				} else {
+					suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_4));
+				}
+			}
+			int level15 = complianceLevels & AbstractCompilerTest.F_1_5;
+			if (level15 != 0) {
+				if (level15 < minimalCompliance) {
+					System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+COMPLIANCE_1_5+"!");
+				} else {
+					suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_5));
+				}
+			}
+			int level16 = complianceLevels & AbstractCompilerTest.F_1_6;
+			if (level16 != 0) {
+				if (level16 < minimalCompliance) {
+					System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+COMPLIANCE_1_6+"!");
+				} else {
+					suite.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
+				}
+			}
+			return suite;
 	}
 
 	public AbstractCompilerTest(String name) {
