@@ -1962,6 +1962,8 @@ public final void jumpOverMethodBody() {
 								case ScannerHelper.C_DIGIT :
 									scanNumber(false);
 									break NextToken;
+								default:
+									break NextToken;
 							}
 						}
 						boolean isJavaIdStart;
@@ -1973,15 +1975,11 @@ public final void jumpOverMethodBody() {
 							char low = (char) getNextChar();
 							if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 								// illegal low surrogate
-								throw new InvalidInputException(INVALID_LOW_SURROGATE);
+								break NextToken;
 							}
 							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
-						}
-						else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-							if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-								throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-							}
-							throw new InvalidInputException(INVALID_HIGH_SURROGATE);
+						} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+							break NextToken;
 						} else {
 							isJavaIdStart = Character.isJavaIdentifierStart(c);
 						}
@@ -1989,10 +1987,10 @@ public final void jumpOverMethodBody() {
 							scanIdentifierOrKeyword();
 							break NextToken;
 						}
-						if (ScannerHelper.isDigit(this.currentCharacter)) {
-							scanNumber(false);
-							break NextToken;
-						}						
+//						if (ScannerHelper.isDigit(this.currentCharacter)) {
+//							scanNumber(false);
+//							break NextToken;
+//						}						
 					} catch (InvalidInputException ex) {
 						// ignore
 					}
