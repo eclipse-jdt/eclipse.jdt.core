@@ -299,7 +299,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildNoWarning() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		startBuild(warningOptions(-1/*no warning*/), false);
 	}
 
@@ -311,7 +310,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
 		tagAsGlobalSummary("Compile>Build>Clean>Full>Default warnings", true); // put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support + additional warnings (e.g. validate unused local and private members)");
 		startBuild(warningOptions(0/*default warnings*/), false);
 	}
 
@@ -327,7 +325,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildAllWarnings() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		startBuild(warningOptions(1/*all warnings*/), false);
 	}
 
@@ -341,7 +338,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBatchCompilerNoWarning() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>No warning", true); // put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler("-nowarn");
 	}
 
@@ -355,7 +351,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBatchCompilerDefault() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler("");
 	}
 
@@ -369,7 +364,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBatchCompilerJavadoc() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler("-warn:javadoc");
 	}
 
@@ -384,7 +378,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	// TODO (frederic) put back after having understood why this test result can have variation over 20%
 	public void _testBatchCompilerAllJavadoc() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler("-warn:allJavadoc");
 	}
 
@@ -430,7 +423,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			"staticReceiver," +
 			"syntheticAccess," +
 			"tasks(TODO|FIX|XXX)";
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler(allOptions);
 	}
 
