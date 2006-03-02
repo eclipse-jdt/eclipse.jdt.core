@@ -167,7 +167,22 @@ public class AbstractCompilerTest extends TestCase {
 
 	public static Test buildTestSuite(Class evaluationTestClass) {
 		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null || RUN_ONLY_ID != null) {
-			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
+				TestSuite all = new TestSuite(evaluationTestClass.getName());
+				int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+				if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_3));
+				}
+				if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_4));
+				}
+				if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_5));
+				}
+				if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+					all.addTest(buildTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
+				}
+				return all;
+//			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
 		}
 		return setupSuite(evaluationTestClass);
 	}
