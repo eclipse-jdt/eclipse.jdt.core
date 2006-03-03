@@ -29589,4 +29589,43 @@ public void test945() {
 		"The method transferBug(Var[], Collection<Var>) in the type X is not applicable for the arguments (Object[], ArrayList<String>)\n" + 
 		"----------\n");
 }
+public void test946() {
+	this.runConformTest(
+		new String[] {
+		"X.java", //================================
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		operate(Operations.create());\n" + 
+		"	}\n" + 
+		"	static <O extends Num<O>> void operate(Operators<O> operators) {\n" + 
+		"		System.out.println(operators.spawn());\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class Operations {\n" + 
+		"	static Operators<?> create() {\n" + 
+		"		return new IntOperators();\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"interface Num<O> {\n" + 
+		"	public O spawn();\n" + 
+		"}\n" + 
+		"class Int implements Num<Int> {\n" + 
+		"	public Int spawn() {\n" + 
+		"		return new Int();\n" + 
+		"	}\n" + 
+		"  public String toString() {\n" +
+		"    return \"Int\";\n" +
+		"  }\n" +
+		"}\n" + 
+		"interface Operators<O extends Num<O>> {\n" + 
+		"	O spawn();\n" + 
+		"}\n" + 
+		"class IntOperators implements Operators<Int> {\n" + 
+		"	public Int spawn() {\n" + 
+		"		return new Int();\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"Int");
+}
 }
