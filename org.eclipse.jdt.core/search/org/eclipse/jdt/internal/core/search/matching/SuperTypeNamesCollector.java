@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -111,23 +110,8 @@ protected void addToResult(char[][] compoundName) {
  * Parse the given compiation unit and build its type bindings.
  */
 protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit, boolean isTopLevelOrMember) throws JavaModelException {
-	final IFile file = (IFile) compilationUnit.getResource();
-	final String fileName = file.getFullPath().lastSegment();
-	final char[] mainTypeName = Util.getNameWithoutJavaLikeExtension(fileName).toCharArray();
-
 	// source unit
-	IBuffer buffer = compilationUnit.getBuffer();
-	final char[] source = 
-		compilationUnit.isWorkingCopy()
-			? (buffer == null ? null : buffer.getCharacters())
-			: Util.getResourceContentsAsCharArray(file);
-	org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-		new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
-			public char[] getContents() { return source; }
-			public char[] getFileName() { return fileName.toCharArray(); }
-			public char[] getMainTypeName() { return mainTypeName; }
-			public char[][] getPackageName() { return null; }
-		};
+	org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) compilationUnit;
 
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 1, 1, 0);
 	CompilationUnitDeclaration unit = 

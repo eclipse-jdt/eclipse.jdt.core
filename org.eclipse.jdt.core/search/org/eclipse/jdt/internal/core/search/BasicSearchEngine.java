@@ -662,21 +662,7 @@ public class BasicSearchEngine {
 						}
 					} else {
 						Parser basicParser = getParser();
-						final char[] contents = workingCopy.getBuffer().getCharacters();
-						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
-							public char[] getContents() {
-								return contents;
-							}
-							public char[] getMainTypeName() {
-								return null;
-							}
-							public char[][] getPackageName() {
-								return null;
-							}
-							public char[] getFileName() {
-								return null;
-							}
-						};
+						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy;
 						CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
 						CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
 						if (parsedUnit != null) {
@@ -965,21 +951,7 @@ public class BasicSearchEngine {
 						}
 					} else {
 						Parser basicParser = getParser();
-						final char[] contents = workingCopy.getBuffer().getCharacters();
-						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
-							public char[] getContents() {
-								return contents;
-							}
-							public char[] getMainTypeName() {
-								return null;
-							}
-							public char[][] getPackageName() {
-								return null;
-							}
-							public char[] getFileName() {
-								return null;
-							}
-						};
+						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy;
 						CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
 						CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
 						if (parsedUnit != null) {
