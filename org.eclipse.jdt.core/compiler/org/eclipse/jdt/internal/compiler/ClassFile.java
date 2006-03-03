@@ -253,9 +253,7 @@ public class ClassFile
 	 * INTERNAL USE-ONLY
 	 * Search the line number corresponding to a specific position
 	 */
-	public static final int searchLineNumber(
-		int[] startLineIndexes,
-		int position) {
+	public static final int searchLineNumber(int[] startLineIndexes, int position) {
 		// this code is completely useless, but it is the same implementation than
 		// org.eclipse.jdt.internal.compiler.problem.ProblemHandler.searchLineNumber(int[], int)
 		// if (startLineIndexes == null)
@@ -264,17 +262,16 @@ public class ClassFile
 		if (length == 0)
 			return 1;
 		int g = 0, d = length - 1;
-		int m = 0;
+		int m = 0, start;
 		while (g <= d) {
 			m = (g + d) / 2;
-			if (position < startLineIndexes[m]) {
+			if (position < (start = startLineIndexes[m])) {
 				d = m - 1;
-			} else
-				if (position > startLineIndexes[m]) {
-					g = m + 1;
-				} else {
-					return m + 1;
-				}
+			} else if (position > start) {
+				g = m + 1;
+			} else {
+				return m + 1;
+			}
 		}
 		if (position < startLineIndexes[m]) {
 			return m + 1;

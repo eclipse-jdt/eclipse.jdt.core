@@ -163,12 +163,12 @@ public static final int searchLineNumber(int[] startLineIndexes, int position) {
 	if (length == 0)
 		return 1;
 	int g = 0, d = length - 1;
-	int m = 0;
+	int m = 0, start;
 	while (g <= d) {
 		m = (g + d) /2;
-		if (position < startLineIndexes[m]) {
+		if (position < (start = startLineIndexes[m])) {
 			d = m-1;
-		} else if (position > startLineIndexes[m]) {
+		} else if (position > start) {
 			g = m+1;
 		} else {
 			return m + 1;
