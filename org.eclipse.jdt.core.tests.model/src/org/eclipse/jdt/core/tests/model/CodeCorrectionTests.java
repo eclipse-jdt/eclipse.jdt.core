@@ -94,6 +94,8 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 public static Test suite() {
+	return buildModelTestSuite(CodeCorrectionTests.class);
+	/*
 	Suite suite = new Suite(CodeCorrectionTests.class.getName());
 	if (fgSpecific) {
 		suite.addTest(new CodeCorrectionTests("testCorrectMethod1"));
@@ -125,6 +127,7 @@ public static Test suite() {
 	suite.addTest(new CodeCorrectionTests("testWarningTokens"));
 
 	return suite;
+	*/
 }
 public void testCorrectFieldType1() throws JavaModelException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());

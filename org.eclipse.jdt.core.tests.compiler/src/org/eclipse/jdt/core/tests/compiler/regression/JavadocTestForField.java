@@ -24,7 +24,7 @@ public class JavadocTestForField extends JavadocTest {
 		return JavadocTestForField.class;
 	}
 	public static Test suite() {
-		return buildAllCompliancesRegressionTestSetupSuite(javadocTestClass());
+		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}

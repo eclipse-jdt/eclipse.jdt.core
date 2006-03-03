@@ -36,7 +36,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	
 	public static Test suite() {
-		return buildAllCompliancesRegressionTestSetupSuite(testClass());
+		return buildAllCompliancesTestSuite(testClass());
 	}
 
 	public static Class testClass() {

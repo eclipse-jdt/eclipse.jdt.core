@@ -66,24 +66,24 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	
 		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
 			Class testClass = (Class) ALL_CLASSES.get(i);
-			Test suite = buildAllCompliancesRegressionTestSetupSuite(testClass);
+			Test suite = buildAllCompliancesTestSuite(testClass);
 			testSuite.addTest(suite);
 		}
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			testSuite.addTest(buildComplianceRegressionSetupSuite(JavadocTest_1_3.class, COMPLIANCE_1_3));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, COMPLIANCE_1_3));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			testSuite.addTest(buildComplianceRegressionSetupSuite(JavadocTest_1_4.class, COMPLIANCE_1_4));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, COMPLIANCE_1_4));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			testSuite.addTest(buildComplianceRegressionSetupSuite(JavadocTest_1_5.class, COMPLIANCE_1_5));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, COMPLIANCE_1_5));
 		}
 		return testSuite;
 	}
 	
 	public static Test suiteForComplianceLevel(String level, Class testClass) {
-		Test suite = buildAllCompliancesRegressionTestSetupSuite(testClass);
+		Test suite = buildAllCompliancesTestSuite(testClass);
 		return new RegressionTestSetup(suite, level);
 	}
 	

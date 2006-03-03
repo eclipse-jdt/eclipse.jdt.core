@@ -26,7 +26,7 @@ public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 //	TESTS_RANGE = new int[] { 21, 50 };
 //}
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 public static Class testClass() {
 	return ComplianceDiagnoseTest.class;

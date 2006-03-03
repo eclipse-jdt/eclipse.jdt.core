@@ -27,7 +27,7 @@ public ExternalizeStringLiterals15Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildComplianceRegressionSetupSuite(testClass(), COMPLIANCE_1_5);
+	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
 }
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();

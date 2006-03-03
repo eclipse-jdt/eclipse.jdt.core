@@ -33,7 +33,7 @@ static {
 //	TESTS_RANGE = new int[] { 23, -1 };
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 public void test001() {
 	this.runConformTest(new String[] {

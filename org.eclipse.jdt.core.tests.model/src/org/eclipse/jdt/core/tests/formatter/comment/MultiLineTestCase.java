@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
@@ -27,7 +26,7 @@ public class MultiLineTestCase extends CommentTestCase {
 	protected static final String PREFIX= MultiCommentLine.MULTI_COMMENT_START_PREFIX;
 
 	public static Test suite() {
-		return new TestSuite(MultiLineTestCase.class);
+		return buildTestSuite(MultiLineTestCase.class);
 	}
 
 	public MultiLineTestCase(String name) {

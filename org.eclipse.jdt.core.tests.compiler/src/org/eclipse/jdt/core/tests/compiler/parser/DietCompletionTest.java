@@ -19,7 +19,7 @@ public DietCompletionTest(String testName){
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(DietCompletionTest.class);
+	return buildAllCompliancesTestSuite(DietCompletionTest.class);
 }
 /*
  * Complete on superclass

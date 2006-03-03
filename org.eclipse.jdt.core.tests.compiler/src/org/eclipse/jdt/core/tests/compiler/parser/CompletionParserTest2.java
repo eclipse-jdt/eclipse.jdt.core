@@ -17,7 +17,7 @@ public CompletionParserTest2(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(CompletionParserTest2.class);
+	return buildAllCompliancesTestSuite(CompletionParserTest2.class);
 }
 public void test0001(){
 	String str = 

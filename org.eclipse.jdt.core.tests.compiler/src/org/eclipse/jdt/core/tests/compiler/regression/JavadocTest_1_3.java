@@ -42,7 +42,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildComplianceRegressionTestSetupSuite(testClass(), F_1_3);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_3);
 	}
 
 	protected Map getCompilerOptions() {

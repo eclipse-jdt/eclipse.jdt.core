@@ -25,6 +25,7 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 
 	/** @deprecated using deprecated code */
 	public static Test suite() {
+		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTParserTest.class.getName());
 		
 		Class c = ASTParserTest.class;

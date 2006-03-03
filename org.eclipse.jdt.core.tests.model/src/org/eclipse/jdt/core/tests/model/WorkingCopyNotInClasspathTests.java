@@ -33,12 +33,7 @@ public WorkingCopyNotInClasspathTests(String name) {
 }
 
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(WorkingCopyNotInClasspathTests.class.getName());
-		suite.addTest(new WorkingCopyNotInClasspathTests("testReconcileAndCommit1"));
-		return suite;
-	}
-	return new Suite(WorkingCopyNotInClasspathTests.class);
+	return buildModelTestSuite(WorkingCopyNotInClasspathTests.class);
 }
 
 public void setUp() throws Exception {

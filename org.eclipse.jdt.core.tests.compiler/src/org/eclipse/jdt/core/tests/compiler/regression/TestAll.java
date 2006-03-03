@@ -75,7 +75,7 @@ public static Test suite() {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceRegressionTestSetupSuite(AbstractCompilerTest.COMPLIANCE_1_3, tests_1_3));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_3, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
 		ArrayList tests_1_4 = (ArrayList)standardTests.clone();
@@ -89,7 +89,7 @@ public static Test suite() {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceRegressionTestSetupSuite(AbstractCompilerTest.COMPLIANCE_1_4, tests_1_4));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_4, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 		ArrayList tests_1_5 = (ArrayList)standardTests.clone();
@@ -107,7 +107,7 @@ public static Test suite() {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceRegressionTestSetupSuite(AbstractCompilerTest.COMPLIANCE_1_5, tests_1_5));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_5, tests_1_5));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
 		ArrayList tests_1_6 = (ArrayList)standardTests.clone();
@@ -126,7 +126,7 @@ public static Test suite() {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceRegressionTestSetupSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
 	}
 	return all;
 }

@@ -85,7 +85,6 @@ static {
 }
 public static Test suite() {
 	return buildModelTestSuite(ClasspathTests.class);
-	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();

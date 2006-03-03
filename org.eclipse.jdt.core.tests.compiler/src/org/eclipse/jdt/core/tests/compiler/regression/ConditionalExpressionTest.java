@@ -26,7 +26,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
-		return buildAllCompliancesRegressionTestSetupSuite(testClass());
+		return buildAllCompliancesTestSuite(testClass());
 	}
 	
 	public static Class testClass() {

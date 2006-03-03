@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.formatter.comment;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -29,13 +28,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	protected static final String PREFIX= JavaDocLine.JAVADOC_START_PREFIX;
 	
 	public static Test suite() {
-		if (true) {
-			return new TestSuite(JavaDocTestCase.class);
-		}
-		TestSuite suite = new TestSuite(JavaDocTestCase.class.getName());
-		suite.addTest(new JavaDocTestCase("testMultiLineComment"));
-		suite.addTest(new JavaDocTestCase("testMultiLineComment2"));
-		return suite;
+		return buildTestSuite(JavaDocTestCase.class);
 	}
 
 	public JavaDocTestCase(String name) {

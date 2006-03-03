@@ -1228,7 +1228,7 @@ public class JavadocTestOptions extends JavadocTest {
 		return JavadocTestOptions.class;
 	}
 	public static Test suite() {
-		return buildAllCompliancesRegressionTestSetupSuite(javadocTestClass());
+		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}

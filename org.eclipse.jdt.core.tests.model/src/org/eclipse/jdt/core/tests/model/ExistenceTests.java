@@ -27,7 +27,7 @@ public ExistenceTests(String name) {
 }
 
 public static Test suite() {
-	return new Suite(ExistenceTests.class);
+	return buildModelTestSuite(ExistenceTests.class);
 }
 protected void assertCorrespondingResourceFails(IJavaElement element) {
 	boolean gotException = false;

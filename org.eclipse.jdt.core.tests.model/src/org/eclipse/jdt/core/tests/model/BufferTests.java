@@ -69,7 +69,7 @@ public void tearDownSuite() throws Exception {
 
 
 public static Test suite() {
-	return new Suite(BufferTests.class);
+	return buildModelTestSuite(BufferTests.class);
 }
 /**
  * Tests appending to a buffer.

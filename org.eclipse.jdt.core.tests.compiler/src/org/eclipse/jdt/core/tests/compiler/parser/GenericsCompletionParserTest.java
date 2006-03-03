@@ -21,7 +21,7 @@ public GenericsCompletionParserTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(GenericsCompletionParserTest.class);
+	return buildAllCompliancesTestSuite(GenericsCompletionParserTest.class);
 }
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();

@@ -23,7 +23,7 @@ public CreateCompilationUnitTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return new Suite(CreateCompilationUnitTests.class);
+	return buildModelTestSuite(CreateCompilationUnitTests.class);
 }
 public void setUp() throws Exception {
 	super.setUp();

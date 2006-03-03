@@ -22,7 +22,7 @@ public XLargeTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 
 public void test001() {

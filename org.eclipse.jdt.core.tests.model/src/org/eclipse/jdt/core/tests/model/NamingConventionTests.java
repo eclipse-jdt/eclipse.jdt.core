@@ -29,7 +29,7 @@ public NamingConventionTests(String name) {
 }
 
 public static Test suite() {
-	return new Suite(NamingConventionTests.class);
+	return buildModelTestSuite(NamingConventionTests.class);
 }
 /**
  * Setup for the next test.

@@ -24,7 +24,7 @@ public EnumCompletionParserTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(EnumCompletionParserTest.class);
+	return buildAllCompliancesTestSuite(EnumCompletionParserTest.class);
 }
 
 protected Map getCompilerOptions() {

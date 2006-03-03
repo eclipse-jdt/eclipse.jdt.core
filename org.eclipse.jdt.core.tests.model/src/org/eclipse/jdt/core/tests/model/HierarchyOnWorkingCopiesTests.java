@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class HierarchyOnWorkingCopiesTests extends WorkingCopyTests {
 
@@ -25,13 +24,15 @@ public HierarchyOnWorkingCopiesTests(String name) {
 }
 
 public static Test suite() {
-	// NOTE: cannot use 'new Suite(HierarchyOnWorkingCopiesTests.class)' as this would include tests from super class
+	return buildModelTestSuite(HierarchyOnWorkingCopiesTests.class);
+	/* NOTE: cannot use 'new Suite(HierarchyOnWorkingCopiesTests.class)' as this would include tests from super class
 	TestSuite suite = new Suite(HierarchyOnWorkingCopiesTests.class.getName());
 
 	suite.addTest(new HierarchyOnWorkingCopiesTests("testSimpleSuperTypeHierarchy"));
 	suite.addTest(new HierarchyOnWorkingCopiesTests("testSimpleSubTypeHierarchy"));
 
 	return suite;
+	*/
 }
 /**
  */

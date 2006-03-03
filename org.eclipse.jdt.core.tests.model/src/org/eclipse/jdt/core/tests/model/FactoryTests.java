@@ -22,7 +22,7 @@ public FactoryTests(String name) {
 }
 
 public static Test suite() {
-	return new Suite(FactoryTests.class);
+	return buildModelTestSuite(FactoryTests.class);
 }
 /**
  * Ensures that a Java model element can be created from a IFile that

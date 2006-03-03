@@ -728,6 +728,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	/** @deprecated using deprecated code */
 	public static Test suite() {
+		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTTest.class.getName());
 		
 		Class c = ASTTest.class;

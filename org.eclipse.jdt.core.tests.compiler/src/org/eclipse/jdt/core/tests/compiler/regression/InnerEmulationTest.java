@@ -27,7 +27,7 @@ public InnerEmulationTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 /**
  * Protected access emulation : should be performed onto implicit field and method accesses

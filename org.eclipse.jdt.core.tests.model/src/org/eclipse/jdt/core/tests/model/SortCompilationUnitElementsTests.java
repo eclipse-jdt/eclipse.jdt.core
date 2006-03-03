@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -149,12 +147,7 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 }
 
 public static Test suite() {
-	if (true) {
-		return new Suite(SortCompilationUnitElementsTests.class);
-	}
-	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test031")); //$NON-NLS-1$
-	return suite;
+	return buildModelTestSuite(SortCompilationUnitElementsTests.class);
 }
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P"); //$NON-NLS-1$

@@ -20,7 +20,7 @@ public FieldAccessCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(FieldAccessCompletionTest.class);
+	return buildAllCompliancesTestSuite(FieldAccessCompletionTest.class);
 }
 /*
  * AdditiveExpression ::= AdditiveExpression '-' <MultiplicativeExpression>  

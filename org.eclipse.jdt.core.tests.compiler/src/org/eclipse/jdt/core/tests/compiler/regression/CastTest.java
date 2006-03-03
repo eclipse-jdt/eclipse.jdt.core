@@ -33,7 +33,7 @@ protected Map getCompilerOptions() {
 	return defaultOptions;
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 
 /*

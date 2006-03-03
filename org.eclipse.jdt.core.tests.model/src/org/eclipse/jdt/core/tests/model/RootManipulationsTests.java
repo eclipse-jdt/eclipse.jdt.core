@@ -123,7 +123,7 @@ protected void populate(StringBuffer buffer, Object nonJavaResource, int indent)
 	}*/
 }
 public static Test suite() {
-	return new Suite(RootManipulationsTests.class);
+	return buildModelTestSuite(RootManipulationsTests.class);
 }
 /*
  * Ensure that a simple copy of a source root to another project triggers the right delta

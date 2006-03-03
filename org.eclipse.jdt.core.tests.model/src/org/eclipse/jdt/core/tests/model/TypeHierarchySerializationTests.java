@@ -28,7 +28,7 @@ public TypeHierarchySerializationTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return new Suite(TypeHierarchySerializationTests.class);
+	return buildModelTestSuite(TypeHierarchySerializationTests.class);
 }
 private static void compare(String focus, ITypeHierarchy stored, ITypeHierarchy loaded){
 	if(stored instanceof RegionBasedTypeHierarchy) {

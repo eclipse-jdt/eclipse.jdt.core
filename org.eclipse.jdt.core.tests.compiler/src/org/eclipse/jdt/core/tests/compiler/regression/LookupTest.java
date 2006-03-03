@@ -31,7 +31,7 @@ public LookupTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 /**
  * Non-static member class

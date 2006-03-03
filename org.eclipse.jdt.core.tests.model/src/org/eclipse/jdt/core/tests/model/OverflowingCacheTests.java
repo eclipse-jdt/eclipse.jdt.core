@@ -268,7 +268,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
-		return new Suite(OverflowingCacheTests.class);
+		return buildModelTestSuite(OverflowingCacheTests.class);
 	}
 
 	public OverflowingCacheTests(String name) {

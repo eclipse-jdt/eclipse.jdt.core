@@ -26,6 +26,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 
 	/** @deprecated using deprecated code */
 	public static Test suite() {
+		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTStructuralPropertyTest.class.getName());
 		
 		Class c = ASTStructuralPropertyTest.class;

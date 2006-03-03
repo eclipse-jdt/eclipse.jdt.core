@@ -25,7 +25,7 @@ public CreateTypeSourceExamplesTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return new Suite(CreateTypeSourceExamplesTests.class);
+	return buildModelTestSuite(CreateTypeSourceExamplesTests.class);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();

@@ -61,6 +61,6 @@ public class TestAll extends TestCase {
 		testClasses.add(ParserTest.class);
 		testClasses.add(ComplianceDiagnoseTest.class);
 
-		return AbstractCompilerTest.buildAllCompliancesSetupSuite(TestAll.class, CompilerTestSetup.class, testClasses);
+		return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, CompilerTestSetup.class, testClasses);
 	}
 }

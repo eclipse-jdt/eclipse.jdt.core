@@ -35,7 +35,7 @@ static {
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
-	Test suite = buildAllCompliancesRegressionTestSetupSuite(testClass());
+	Test suite = buildAllCompliancesTestSuite(testClass());
 	return suite;
 }
 /*

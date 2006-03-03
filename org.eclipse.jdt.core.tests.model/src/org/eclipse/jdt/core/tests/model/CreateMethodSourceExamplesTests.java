@@ -31,7 +31,7 @@ public void setUpSuite() throws Exception {
 }
 
 public static Test suite() {
-	return new Suite(CreateMethodSourceExamplesTests.class);
+	return buildModelTestSuite(CreateMethodSourceExamplesTests.class);
 }
 /**
  * Example of creating source for a method in an interface.

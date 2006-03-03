@@ -19,7 +19,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -65,12 +64,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	private static boolean RESOLVE_BINDINGS = false;
 
 	public static Test suite() {
-		if (true) {
-			return new Suite(ProfilingASTConvertionTest.class);		
-		}
-		TestSuite suite = new Suite(ProfilingASTConvertionTest.class.getName());
-		suite.addTest(new ProfilingASTConvertionTest("test0001"));
-		return suite;
+		return buildModelTestSuite(ProfilingASTConvertionTest.class);
 	}
 
 	ICompilationUnit[] compilationUnits;

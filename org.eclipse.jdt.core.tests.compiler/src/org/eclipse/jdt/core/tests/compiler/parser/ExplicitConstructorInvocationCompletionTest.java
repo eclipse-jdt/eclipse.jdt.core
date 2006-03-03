@@ -21,7 +21,7 @@ public ExplicitConstructorInvocationCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(ExplicitConstructorInvocationCompletionTest.class);
+	return buildAllCompliancesTestSuite(ExplicitConstructorInvocationCompletionTest.class);
 }
 /*
  * Completion on a qualified 'super' constructor invocation.

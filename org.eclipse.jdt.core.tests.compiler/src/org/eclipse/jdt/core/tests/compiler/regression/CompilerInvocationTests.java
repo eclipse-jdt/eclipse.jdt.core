@@ -46,7 +46,7 @@ public CompilerInvocationTests(String name) {
   	}
 
 public static Test suite() {
-    return buildAllCompliancesRegressionTestSetupSuite(testClass());
+    return buildAllCompliancesTestSuite(testClass());
 }
   
 public static Class testClass() {

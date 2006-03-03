@@ -31,13 +31,7 @@ public ThreadSafetyTests(String name) {
 }
 
 public static Test suite() {
-
-	if (false){
-		TestSuite suite = new Suite(ThreadSafetyTests.class.getName());
-		suite.addTest(new ThreadSafetyTests("testDeadlock01"));
-		return suite;
-	}
-	return new Suite(ThreadSafetyTests.class);	
+	return buildModelTestSuite(ThreadSafetyTests.class);	
 }
 /**
  * 33231 - deadlocked if activating initializer while some concurrent action is populating the JavaModel

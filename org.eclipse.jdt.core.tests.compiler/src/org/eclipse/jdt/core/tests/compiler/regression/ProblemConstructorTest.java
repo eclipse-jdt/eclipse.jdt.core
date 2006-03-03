@@ -18,7 +18,7 @@ public ProblemConstructorTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 public static Class testClass() {
 	return ProblemConstructorTest.class;

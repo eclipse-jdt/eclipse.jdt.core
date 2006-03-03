@@ -44,7 +44,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-		return buildComplianceRegressionSetupSuite(testClass(), COMPLIANCE_1_4);
+		return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_4);
 }
 public static Class testClass() {
 	return Compliance_1_4.class;

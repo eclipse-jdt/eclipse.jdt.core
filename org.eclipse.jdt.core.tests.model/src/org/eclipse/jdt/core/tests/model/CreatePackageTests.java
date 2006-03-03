@@ -20,7 +20,7 @@ public CreatePackageTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return new Suite(CreatePackageTests.class);
+	return buildModelTestSuite(CreatePackageTests.class);
 }
 public void setUp() throws Exception {
 	super.setUp();

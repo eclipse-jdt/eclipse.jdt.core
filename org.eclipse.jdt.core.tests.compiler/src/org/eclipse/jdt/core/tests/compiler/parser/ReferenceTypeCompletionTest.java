@@ -20,7 +20,7 @@ public ReferenceTypeCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(ReferenceTypeCompletionTest.class);
+	return buildAllCompliancesTestSuite(ReferenceTypeCompletionTest.class);
 }
 /*
  * Regression test for 1FTZCIG. 

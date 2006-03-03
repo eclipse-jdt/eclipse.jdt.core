@@ -20,7 +20,7 @@ public LabelStatementCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(LabelStatementCompletionTest.class);
+	return buildAllCompliancesTestSuite(LabelStatementCompletionTest.class);
 }
 /*
  * Completion inside an inner class defined inside a labeled statement.

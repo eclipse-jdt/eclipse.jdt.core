@@ -36,6 +36,8 @@ public void tearDownSuite() throws Exception {
 }
 
 public static Test suite() {
+	return buildModelTestSuite(SnippetCompletionTests.class);
+	/*
 	TestSuite suite = new Suite(SnippetCompletionTests.class.getName());
 	
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFile"));
@@ -49,6 +51,7 @@ public static Test suite() {
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistInsideNumber"));
 	
 	return suite;
+	*/
 }
 
 public void testCodeSnippetAssistForClassFile() throws JavaModelException {

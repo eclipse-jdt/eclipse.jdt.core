@@ -44,7 +44,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 99662 };	
 }
 public static Test suite() {
-	return buildAllCompliancesRegressionTestSetupSuite(SourceElementParserTest.class);
+	return buildAllCompliancesTestSuite(SourceElementParserTest.class);
 }
 /**
  * acceptConstructorReference method comment.

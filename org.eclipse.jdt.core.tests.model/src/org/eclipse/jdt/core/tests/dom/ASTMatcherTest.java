@@ -24,6 +24,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	/** @deprecated using deprecated code */
 	public static Test suite() {
+		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTMatcherTest.class.getName());
 		
 		Class c = ASTMatcherTest.class;

@@ -31,7 +31,6 @@ public JavaSearchMultipleProjectsTests(String name) {
 }
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchMultipleProjectsTests.class);
-//	return buildTestSuite(JavaSearchMultipleProjectsTests.class, "testJavaSearchScope", null);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

@@ -37,7 +37,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
-		return buildComplianceRegressionTestSetupSuite(testClass(), F_1_6);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_6);
 	}
 	public void test001() {
 		this.runConformTest(
