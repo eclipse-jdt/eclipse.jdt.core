@@ -195,15 +195,15 @@ public Scanner() {
 }
 
 public Scanner(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	long sourceLevel,
-	long complianceLevel,
-	char[][] taskTags,
-	char[][] taskPriorities,
-	boolean isTaskCaseSensitive,
-	boolean checkNullReferences) {
+		boolean tokenizeComments, 
+		boolean tokenizeWhiteSpace, 
+		boolean checkNonExternalizedStringLiterals, 
+		long sourceLevel,
+		long complianceLevel,
+		char[][] taskTags,
+		char[][] taskPriorities,
+		boolean isTaskCaseSensitive,
+		boolean checkNullReferences) {
 
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
@@ -218,14 +218,14 @@ public Scanner(
 }
 
 public Scanner(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	long sourceLevel,
-	long complianceLevel,
-	char[][] taskTags,
-	char[][] taskPriorities,
-	boolean isTaskCaseSensitive) {
+		boolean tokenizeComments, 
+		boolean tokenizeWhiteSpace, 
+		boolean checkNonExternalizedStringLiterals, 
+		long sourceLevel,
+		long complianceLevel,
+		char[][] taskTags,
+		char[][] taskPriorities,
+		boolean isTaskCaseSensitive) {
 	this(
 		tokenizeComments,
 		tokenizeWhiteSpace,
@@ -239,13 +239,13 @@ public Scanner(
 }
 
 public Scanner(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	long sourceLevel,
-	char[][] taskTags,
-	char[][] taskPriorities,
-	boolean isTaskCaseSensitive) {
+		boolean tokenizeComments, 
+		boolean tokenizeWhiteSpace, 
+		boolean checkNonExternalizedStringLiterals, 
+		long sourceLevel,
+		char[][] taskTags,
+		char[][] taskPriorities,
+		boolean isTaskCaseSensitive) {
 
 	this(
 		tokenizeComments,
@@ -1545,6 +1545,8 @@ public int getNextToken() throws InvalidInputException {
 								return scanIdentifierOrKeyword();
 							case ScannerHelper.C_DIGIT :
 								return scanNumber(false);
+							default :
+								return TokenNameERROR;
 						}
 					}
 					boolean isJavaIdStart;
