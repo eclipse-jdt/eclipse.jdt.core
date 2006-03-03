@@ -587,12 +587,17 @@ public ICompilationUnit getCompilationUnit() {
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getContents()
  */
 public char[] getContents() {
-	try {
-		IBuffer buffer = this.getBuffer();
-		return buffer == null ? CharOperation.NO_CHAR : buffer.getCharacters();
-	} catch (JavaModelException e) {
-		return CharOperation.NO_CHAR;
+	IBuffer buffer = getBufferManager().getBuffer(this);
+	if (buffer == null) {
+		// no need to force opening of CU to get the content
+		// also this cannot be a working copy, as its buffer is never closed while the working copy is alive
+		try {
+			return Util.getResourceContentsAsCharArray((IFile) getResource());
+		} catch (JavaModelException e) {
+			return CharOperation.NO_CHAR;
+		}
 	}
+	return buffer.getCharacters();
 }
 /**
  * A compilation unit has a corresponding resource unless it is contained

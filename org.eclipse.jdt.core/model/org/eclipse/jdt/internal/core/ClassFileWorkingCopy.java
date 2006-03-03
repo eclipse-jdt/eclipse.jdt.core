@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
@@ -46,6 +47,14 @@ public IBuffer getBuffer() throws JavaModelException {
 		return super.getBuffer();
 	else
 		return this.classFile.getBuffer();
+}
+
+public char[] getContents() {
+	try {
+		return getBuffer().getCharacters();
+	} catch (JavaModelException e) {
+		return CharOperation.NO_CHAR;
+	}
 }
 
 public IPath getPath() {
