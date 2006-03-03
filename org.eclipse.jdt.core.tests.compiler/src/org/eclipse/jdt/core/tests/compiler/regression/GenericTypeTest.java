@@ -29564,4 +29564,29 @@ public void test944() {
 		"Cannot cast from Set<Number> to Set<Integer>\n" + 
 		"----------\n");
 }
+public void test945() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"    public static void main(String[] args){\n" + 
+		"        Object[] objArray = {new Object()};\n" + 
+		"        ArrayList<String> strList = new ArrayList<String>();\n" + 
+		"        transferBug(objArray, strList);\n" + 
+		"        String str = strList.get(0);\n" + 
+		"}\n" + 
+		"public static <Var> void  transferBug(Var[] from, Collection<Var> to){\n" + 
+		"    to.add(from[0]);\n" + 
+		"}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	transferBug(objArray, strList);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"The method transferBug(Var[], Collection<Var>) in the type X is not applicable for the arguments (Object[], ArrayList<String>)\n" + 
+		"----------\n");
+}
 }
