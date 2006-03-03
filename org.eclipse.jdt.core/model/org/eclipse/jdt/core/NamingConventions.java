@@ -51,7 +51,7 @@ public final class NamingConventions {
 	private static final char[] GETTER_NAME = "get".toCharArray(); //$NON-NLS-1$
 	private static final char[] SETTER_NAME = "set".toCharArray(); //$NON-NLS-1$
 	
-	private static class NamingRequestor implements INamingRequestor {
+	static class NamingRequestor implements INamingRequestor {
 		private final static int SIZE = 10;
 		
 		// for acceptNameWithPrefixAndSuffix

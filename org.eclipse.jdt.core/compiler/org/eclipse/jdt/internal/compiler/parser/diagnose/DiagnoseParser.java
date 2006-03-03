@@ -121,7 +121,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		}
 	}
 	
-	private class SecondaryRepairInfo {
+	class SecondaryRepairInfo {
 		public int code;
 		public int distance;
 		public int bufferPosition;

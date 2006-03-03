@@ -135,7 +135,7 @@ public final class NodeInfoStore {
 		this.placeholderNodes.put(node, data);		
 	}
 	
-	private static class PlaceholderData {
+	static class PlaceholderData {
 		// base class
 	}
 			

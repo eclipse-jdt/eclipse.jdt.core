@@ -60,7 +60,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 	/**
 	 * Collection used to queue subtype index queries
 	 */
-	private static class Queue {
+	static class Queue {
 		public char[][] names = new char[10][];
 		public int start = 0;
 		public int end = -1;

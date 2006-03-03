@@ -357,7 +357,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 	
 	
-	private class ListRewriter {
+	class ListRewriter {
 		protected String contantSeparator;
 		protected int startPos;
 		
@@ -735,7 +735,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return pos;
 	}	
 	
-	private class ParagraphListRewriter extends ListRewriter {
+	class ParagraphListRewriter extends ListRewriter {
 		
 		public final static int DEFAULT_SPACING= 1;
 		
@@ -1127,7 +1127,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 	
-	private class ModifierRewriter extends ListRewriter {
+	class ModifierRewriter extends ListRewriter {
 		
 		private final Prefix annotationSeparation;
 
@@ -2552,7 +2552,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
-	private class SwitchListRewriter extends ParagraphListRewriter {
+	class SwitchListRewriter extends ParagraphListRewriter {
 
 		public SwitchListRewriter(int initialIndent) {
 			super(initialIndent, 0);
