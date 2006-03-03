@@ -25,13 +25,13 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
-import org.eclipse.jdt.core.tests.builder.Tests;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /** 
  * Setup a project for common APT testing.
  */
-public abstract class APTTestBase extends Tests{
+public abstract class APTTestBase extends BuilderTests{
 	
 	public APTTestBase(final String name)
 	{

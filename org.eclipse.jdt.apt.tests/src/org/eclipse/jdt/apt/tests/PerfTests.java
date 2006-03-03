@@ -33,9 +33,9 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.Problem;
-import org.eclipse.jdt.core.tests.builder.Tests;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 
-public class PerfTests extends Tests
+public class PerfTests extends BuilderTests
 {
 	
 	private IPath projectPath;

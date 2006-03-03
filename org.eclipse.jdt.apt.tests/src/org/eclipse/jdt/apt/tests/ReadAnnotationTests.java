@@ -22,10 +22,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
-import org.eclipse.jdt.core.tests.builder.Tests;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class ReadAnnotationTests extends Tests 
+public class ReadAnnotationTests extends BuilderTests 
 {
 	private int counter = 0;
 	private String projectName = null;

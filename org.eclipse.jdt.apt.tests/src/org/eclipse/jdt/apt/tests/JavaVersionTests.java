@@ -20,13 +20,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.CodeExample;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessor;
-import org.eclipse.jdt.core.tests.builder.Tests;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Test that processors do not get invoked on pre-1.5 projects
  */
-public class JavaVersionTests extends Tests {
+public class JavaVersionTests extends BuilderTests {
 	
 	public JavaVersionTests(final String name) {
 		super( name );

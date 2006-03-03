@@ -24,14 +24,14 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.tests.builder.Tests;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * This test the dom layer of annotation support. No APT involved.
  * @author tyeung
  */
-public class ReadAnnotationTests2 extends Tests {
+public class ReadAnnotationTests2 extends BuilderTests {
 	
 	private String[] NO_ANNOTATIONS = new String[0];
 	private ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
