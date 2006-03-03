@@ -38,7 +38,7 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 }
 
 public static Test suite() {
-	return buildTestSuite(WorkingCopyTests.class);
+	return buildModelTestSuite(WorkingCopyTests.class);
 }
 protected void setUp() throws Exception {
 	super.setUp();
