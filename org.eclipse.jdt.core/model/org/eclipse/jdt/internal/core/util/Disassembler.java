@@ -764,6 +764,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		
 		final boolean isAnnotation = (accessFlags & IModifierConstants.ACC_ANNOTATION) != 0;
+		boolean isInterface = false;
 		if (isEnum) {
 			buffer.append("enum "); //$NON-NLS-1$
 		} else if (classFileReader.isClass()) {
@@ -773,6 +774,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append("@"); //$NON-NLS-1$
 			}
 			buffer.append("interface "); //$NON-NLS-1$
+			isInterface = true;
 		}
 		
 		if (checkMode(mode, WORKING_COPY)) {
@@ -799,7 +801,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			char[][] superclassInterfaces = classFileReader.getInterfaceNames();
 			int length = superclassInterfaces.length;
 			if (length != 0) {
-				buffer.append(" implements "); //$NON-NLS-1$
+				if (isInterface) {
+					buffer.append(" extends "); //$NON-NLS-1$
+				} else {
+					buffer.append(" implements "); //$NON-NLS-1$
+				}
 				for (int i = 0; i < length - 1; i++) {
 					char[] superinterface = superclassInterfaces[i];
 					CharOperation.replace(superinterface, '/', '.');

@@ -2206,7 +2206,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
-			"abstract @interface I implements java.lang.annotation.Annotation {\n" + 
+			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
 			"  // Method descriptor #8 ()[LColor;\n" + 
 			"  public abstract Color[] enums() default {Color.GREEN};\n" + 
@@ -2308,7 +2308,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
-			"abstract @interface I implements java.lang.annotation.Annotation {\n" + 
+			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
 			"  // Method descriptor #8 ()LColor;\n" + 
 			"  public abstract Color _enum() default Color.GREEN;\n" + 
