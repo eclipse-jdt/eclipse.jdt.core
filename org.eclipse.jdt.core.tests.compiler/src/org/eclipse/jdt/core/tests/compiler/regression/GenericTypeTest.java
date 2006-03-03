@@ -29628,4 +29628,33 @@ public void test946() {
 		},
 		"Int");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test947() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"        public void bar2(Box<?> b) {\n" + 
+		"        	Box<Runnable> bx = box(b.element);\n" + 
+		"        	box(b.element).element.run();\n" + 
+		"        }\n" + 
+		"        static <U extends Runnable> Box<U> box(U u) {\n" + 
+		"        	return new Box<U>(u);\n" + 
+		"        }\n" + 
+		"}\n" + 
+		"class Box<E extends Runnable> {\n" + 
+		"	E element;\n" + 
+		"	Box(E element) {\n" + 
+		"		this.element = element;\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Box<Runnable> bx = box(b.element);\n" + 
+		"	                   ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Box<capture-of ?> to Box<Runnable>\n" + 
+		"----------\n");
+}
 }
