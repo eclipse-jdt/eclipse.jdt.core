@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.model.SuiteOfTestCases.Suite;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
