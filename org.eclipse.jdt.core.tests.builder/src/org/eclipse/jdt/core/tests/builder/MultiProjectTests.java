@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.builder;
 import java.util.Hashtable;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -24,19 +23,14 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 
-public class MultiProjectTests extends Tests {
+public class MultiProjectTests extends BuilderTests {
 	
 	public MultiProjectTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		if (false) {
-			TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
-			suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule1"));
-			return suite;
-		}
-		return new TestSuite(MultiProjectTests.class);
+		return buildTestSuite(MultiProjectTests.class);
 	}
 	
 	public void testCompileOnlyDependent() throws JavaModelException {

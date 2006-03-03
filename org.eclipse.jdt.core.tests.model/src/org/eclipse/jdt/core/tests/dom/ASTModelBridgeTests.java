@@ -29,7 +29,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(ASTModelBridgeTests.class);
+		return buildModelTestSuite(ASTModelBridgeTests.class);
 	}
 	
 	// Use this static initializer to specify subset for tests

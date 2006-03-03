@@ -24,7 +24,7 @@ public UtilTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return setupSuite(testClass());
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
 public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {
 	

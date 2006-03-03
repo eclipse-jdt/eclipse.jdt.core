@@ -39,7 +39,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	public static Test suite() {
-		return buildTestSuite(WorkingCopyOwnerTests.class);
+		return buildModelTestSuite(WorkingCopyOwnerTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

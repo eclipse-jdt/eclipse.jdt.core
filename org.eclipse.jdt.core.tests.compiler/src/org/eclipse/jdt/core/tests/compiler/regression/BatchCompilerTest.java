@@ -34,7 +34,7 @@ public BatchCompilerTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuiteWithMinimalCompliance(testClass(), F_1_5);
+	return buildComplianceRegressionTestSetupSuite(testClass(), F_1_5);
 }
 
 	private String getLibraryClasses() {

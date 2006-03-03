@@ -37,7 +37,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTPositionsTest.class);
+		return buildModelTestSuite(ASTPositionsTest.class);
 	}
 	
 	private void sanityCheck(final String contents, CompilationUnit compilationUnit) {

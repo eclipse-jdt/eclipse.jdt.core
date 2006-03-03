@@ -41,7 +41,7 @@ public NameLookupTests2(String name) {
 	}
 
 public static Test suite() {
-	return buildTestSuite(NameLookupTests2.class);
+	return buildModelTestSuite(NameLookupTests2.class);
 }
 
 private NameLookup getNameLookup(JavaProject project) throws JavaModelException {

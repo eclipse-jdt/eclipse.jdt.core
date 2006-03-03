@@ -35,7 +35,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 //		TESTS_RANGE = new int[] { 21, 38 };
 	}
 	public static Test suite() {
-		return buildTestSuite(CreateMembersTests.class);
+		return buildModelTestSuite(CreateMembersTests.class);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();

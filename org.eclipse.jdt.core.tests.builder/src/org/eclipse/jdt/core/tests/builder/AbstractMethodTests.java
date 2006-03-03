@@ -17,14 +17,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class AbstractMethodTests extends Tests {
+public class AbstractMethodTests extends BuilderTests {
 	
 	public AbstractMethodTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(AbstractMethodTests.class);
+		return buildTestSuite(AbstractMethodTests.class);
 	}
 
 	/**

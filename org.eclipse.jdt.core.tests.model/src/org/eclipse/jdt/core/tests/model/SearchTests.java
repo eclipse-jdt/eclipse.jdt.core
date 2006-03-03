@@ -130,7 +130,7 @@ static {
 //	TESTS_NAMES = new String[] { "testSearchPatternCreation25" };
 }
 public static Test suite() {
-	return buildTestSuite(SearchTests.class);
+	return buildModelTestSuite(SearchTests.class);
 }
 
 

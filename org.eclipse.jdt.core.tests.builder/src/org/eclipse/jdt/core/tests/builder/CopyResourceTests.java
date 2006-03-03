@@ -18,14 +18,14 @@ import org.eclipse.jdt.core.tests.util.Util;
 /**
  * Basic tests of the image builder.
  */
-public class CopyResourceTests extends Tests {
+public class CopyResourceTests extends BuilderTests {
 	
 	public CopyResourceTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(CopyResourceTests.class);
+		return buildTestSuite(CopyResourceTests.class);
 	}
 
 	public void testSimpleProject() throws JavaModelException {

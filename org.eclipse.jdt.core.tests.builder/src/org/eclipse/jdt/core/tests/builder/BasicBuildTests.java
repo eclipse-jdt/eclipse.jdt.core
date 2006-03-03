@@ -26,18 +26,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 /**
  * Basic tests of the image builder.
  */
-public class BasicBuildTests extends Tests {
+public class BasicBuildTests extends BuilderTests {
 	public BasicBuildTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		if (false) {
-			TestSuite suite = new TestSuite(BasicBuildTests.class.getName());
-			suite.addTest(new BasicBuildTests("testTags3"));
-			return suite;
-		}
-		return new TestSuite(BasicBuildTests.class);
+		return buildTestSuite(BasicBuildTests.class);
 	}
 	
 	public void testBuild() throws JavaModelException {

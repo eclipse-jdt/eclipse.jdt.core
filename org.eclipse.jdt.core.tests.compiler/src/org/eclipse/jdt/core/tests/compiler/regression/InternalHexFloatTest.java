@@ -41,7 +41,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildTestSuiteWithMinimalCompliance(testClass(), F_1_5);
+		return buildComplianceRegressionTestSetupSuite(testClass(), F_1_5);
 	}
 
 	public static Class testClass() {

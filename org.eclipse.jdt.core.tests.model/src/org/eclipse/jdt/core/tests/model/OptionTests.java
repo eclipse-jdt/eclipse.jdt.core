@@ -43,7 +43,7 @@ public class OptionTests extends ModifyingResourceTests {
 //		TESTS_RANGE = new int[] { 4, -1 };
 	}
 	public static Test suite() {
-		return buildTestSuite(OptionTests.class);	
+		return buildModelTestSuite(OptionTests.class);	
 	}
 	
 	protected void tearDown() throws Exception {

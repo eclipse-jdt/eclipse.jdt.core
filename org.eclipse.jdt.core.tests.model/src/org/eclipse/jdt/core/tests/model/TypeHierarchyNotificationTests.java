@@ -106,7 +106,7 @@ static {
 //	TESTS_NAMES= new String[] { "testAddExtendsSourceType3" };
 }
 public static Test suite() {
-	return buildTestSuite(TypeHierarchyNotificationTests.class);
+	return buildModelTestSuite(TypeHierarchyNotificationTests.class);
 }
 protected void tearDown() throws Exception {
 	this.deleteProject("TypeHierarchyNotification");

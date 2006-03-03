@@ -20,7 +20,7 @@ public InnerTypeCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(InnerTypeCompletionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(InnerTypeCompletionTest.class);
 }
 /*
  * Test completion in the first method of an anonymous inner class

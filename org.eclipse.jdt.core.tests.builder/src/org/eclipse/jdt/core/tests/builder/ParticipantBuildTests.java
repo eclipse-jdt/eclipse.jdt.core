@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class ParticipantBuildTests extends Tests {
+public class ParticipantBuildTests extends BuilderTests {
 	public ParticipantBuildTests(String name) {
 		super(name);
 	}
@@ -33,12 +33,7 @@ public class ParticipantBuildTests extends Tests {
 	}
 
 	public static Test suite() {
-		if (false) {
-			TestSuite suite = new TestSuite(ParticipantBuildTests.class.getName());
-			suite.addTest(new ParticipantBuildTests("testDefaultValue"));
-			return suite;
-		}
-		return new TestSuite(ParticipantBuildTests.class);
+		return buildTestSuite(ParticipantBuildTests.class);
 	}
 
 	static class BuildTestParticipant extends CompilationParticipant {

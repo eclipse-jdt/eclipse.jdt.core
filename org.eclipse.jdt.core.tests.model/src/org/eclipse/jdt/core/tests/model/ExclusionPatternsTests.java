@@ -45,7 +45,7 @@ static {
 //		TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildTestSuite(ExclusionPatternsTests.class);
+	return buildModelTestSuite(ExclusionPatternsTests.class);
 }
 
 protected void tearDown() throws Exception {

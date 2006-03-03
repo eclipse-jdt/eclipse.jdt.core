@@ -87,7 +87,7 @@ public class JavaElementDeltaTests extends ModifyingResourceTests {
 
 
 public static Test suite() {
-	return buildTestSuite(JavaElementDeltaTests.class);
+	return buildModelTestSuite(JavaElementDeltaTests.class);
 }
 
 // Use this static initializer to specify subset for tests

@@ -35,7 +35,7 @@ public ExternalJarDeltaTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(ExternalJarDeltaTests.class);
+	return buildModelTestSuite(ExternalJarDeltaTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

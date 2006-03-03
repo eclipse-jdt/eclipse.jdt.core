@@ -20,7 +20,7 @@ public ClassLiteralAccessCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(ClassLiteralAccessCompletionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(ClassLiteralAccessCompletionTest.class);
 }
 /*
  * Completion on the keyword 'class' on an array type

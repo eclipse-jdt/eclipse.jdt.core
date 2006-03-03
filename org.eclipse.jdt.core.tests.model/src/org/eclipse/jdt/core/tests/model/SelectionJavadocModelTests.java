@@ -35,7 +35,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(SelectionJavadocModelTests.class);
+		return buildModelTestSuite(SelectionJavadocModelTests.class);
 	}
 
 	public void setUpSuite() throws Exception {

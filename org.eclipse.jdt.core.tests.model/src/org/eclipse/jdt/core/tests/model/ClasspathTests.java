@@ -84,7 +84,7 @@ static {
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
 public static Test suite() {
-	return buildTestSuite(ClasspathTests.class);
+	return buildModelTestSuite(ClasspathTests.class);
 	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
 public void setUpSuite() throws Exception {

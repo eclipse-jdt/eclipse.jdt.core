@@ -189,7 +189,7 @@ static {
 //		TESTS_RANGE = new int[] { 21, 38 };
 }
 public static Test suite() {
-	return buildTestSuite(RenameTests.class);
+	return buildModelTestSuite(RenameTests.class);
 }
 /**
  * Cleanup after the previous test.

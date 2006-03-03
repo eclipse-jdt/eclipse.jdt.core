@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class JavadocTestForClass extends JavadocTest {
 
 	public static Test suite() {
-		return buildTestSuite(javadocTestClass());
+		return buildAllCompliancesRegressionTestSetupSuite(javadocTestClass());
 	}
 	public JavadocTestForClass(String name) {
 		super(name);

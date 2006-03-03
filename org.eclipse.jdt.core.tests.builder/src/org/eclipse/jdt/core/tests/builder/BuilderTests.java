@@ -26,12 +26,12 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 /**
  * Base class for Java image builder tests
  */
-public class Tests extends TestCase {
+public class BuilderTests extends TestCase {
 	protected static boolean DEBUG = false;
 	protected static TestingEnvironment env = null;
 	protected EfficiencyCompilerRequestor debugRequestor = null;
 
-	public Tests(String name) {
+	public BuilderTests(String name) {
 		super(name);
 	}
 

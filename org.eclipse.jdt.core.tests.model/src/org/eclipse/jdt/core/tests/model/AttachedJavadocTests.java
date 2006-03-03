@@ -39,7 +39,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(AttachedJavadocTests.class);
+		return buildModelTestSuite(AttachedJavadocTests.class);
 	}
 
 	private IJavaProject project;

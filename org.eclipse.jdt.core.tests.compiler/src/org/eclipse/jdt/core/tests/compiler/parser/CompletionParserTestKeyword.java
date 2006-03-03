@@ -17,7 +17,7 @@ public CompletionParserTestKeyword(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(CompletionParserTestKeyword.class);
+	return buildAllCompliancesRegressionTestSetupSuite(CompletionParserTestKeyword.class);
 }
 /*
  * Test for 'abstract' keyword.

@@ -29,7 +29,7 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		super(name, matchRule);
 	}
 	public static Test suite() {
-		return buildTestSuite(JavaSearchGenericConstructorTests.class);
+		return buildModelTestSuite(JavaSearchGenericConstructorTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

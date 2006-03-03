@@ -18,13 +18,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 /**
  * Basic execution tests of the image builder.
  */
-public class ExecutionTests extends Tests {
+public class ExecutionTests extends BuilderTests {
 	public ExecutionTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(ExecutionTests.class);
+		return buildTestSuite(ExecutionTests.class);
 	}
 	
 	public void testSuccess() throws JavaModelException {

@@ -25,7 +25,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		super(name);
 	}
 	public static Test suite() {
-		return buildTestSuite(JavaSearchGenericFieldTests.class);
+		return buildModelTestSuite(JavaSearchGenericFieldTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

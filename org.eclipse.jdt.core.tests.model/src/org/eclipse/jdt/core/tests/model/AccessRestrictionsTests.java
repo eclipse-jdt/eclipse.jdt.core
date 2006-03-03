@@ -48,7 +48,7 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(AccessRestrictionsTests.class);
+		return buildModelTestSuite(AccessRestrictionsTests.class);
 	}
 
 	protected void assertProblems(String message, String expected) {

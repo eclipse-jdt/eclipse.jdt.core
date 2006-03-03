@@ -34,7 +34,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
 	public static Test suite() {
-		return buildTestSuite(LocalElementTests.class);
+		return buildModelTestSuite(LocalElementTests.class);
 	}
 
 	public void setUpSuite() throws Exception {

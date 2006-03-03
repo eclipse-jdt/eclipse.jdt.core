@@ -32,7 +32,7 @@ static {
 //	TESTS_RANGE = new int[] { 58, 69 };
 }
 public static Test suite() {
-	return buildTestSuite(JavadocMethodCompletionModelTest.class);
+	return buildModelTestSuite(JavadocMethodCompletionModelTest.class);
 }
 
 /* (non-Javadoc)

@@ -33,7 +33,7 @@ public JavaSearchTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(JavaSearchTests.class);
+	return buildModelTestSuite(JavaSearchTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

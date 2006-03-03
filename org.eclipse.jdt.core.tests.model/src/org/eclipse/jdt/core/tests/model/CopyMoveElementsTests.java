@@ -54,7 +54,7 @@ static {
 //		TESTS_RANGE = new int[] { 21, 38 };
 }
 public static Test suite() {
-	return buildTestSuite(CopyMoveElementsTests.class);
+	return buildModelTestSuite(CopyMoveElementsTests.class);
 }
 /**
  * Cleanup after the previous test.

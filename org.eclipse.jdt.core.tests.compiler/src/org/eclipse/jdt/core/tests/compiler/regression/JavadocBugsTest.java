@@ -42,7 +42,7 @@ public class JavadocBugsTest extends JavadocTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildTestSuite(javadocTestClass());
+		return buildAllCompliancesRegressionTestSetupSuite(javadocTestClass());
 	}
 
 	protected Map getCompilerOptions() {

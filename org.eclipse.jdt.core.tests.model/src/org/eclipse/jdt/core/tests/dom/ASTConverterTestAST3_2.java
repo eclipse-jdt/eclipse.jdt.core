@@ -110,7 +110,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 //		TESTS_NUMBERS =  new int[] { 640 };
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTConverterTestAST3_2.class);
+		return buildModelTestSuite(ASTConverterTestAST3_2.class);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560

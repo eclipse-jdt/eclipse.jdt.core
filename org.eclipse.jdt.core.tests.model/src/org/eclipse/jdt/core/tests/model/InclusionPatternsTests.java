@@ -31,7 +31,7 @@ static {
 //	TESTS_NAMES = new String[] { "testIncludeCUOnly02" };
 }
 public static Test suite() {
-	return buildTestSuite(InclusionPatternsTests.class);
+	return buildModelTestSuite(InclusionPatternsTests.class);
 }
 protected void setClasspath(String[] sourceFoldersAndInclusionPatterns) throws JavaModelException {
 	this.project.setRawClasspath(createClasspath(sourceFoldersAndInclusionPatterns, true/*inclusion*/, false/*no exclusion*/), null);

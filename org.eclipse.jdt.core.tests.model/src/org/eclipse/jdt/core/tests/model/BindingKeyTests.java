@@ -27,7 +27,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(BindingKeyTests.class);
+		return buildModelTestSuite(BindingKeyTests.class);
 	}
 	
 	protected void assertBindingKeyEquals(String expected, String key) {

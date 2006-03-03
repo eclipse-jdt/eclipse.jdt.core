@@ -26,7 +26,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 //		TESTS_NAMES = new String[] { "testValidCompilerOptions", "testInvalidCompilerOptions" };
 	}
 	public static Test suite() {
-		return buildTestSuite(JavaConventionTests.class);
+		return buildModelTestSuite(JavaConventionTests.class);
 	}
 
 	/*

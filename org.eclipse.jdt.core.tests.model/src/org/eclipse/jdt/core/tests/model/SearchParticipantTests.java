@@ -134,7 +134,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	}
 
 	public static Test suite() {
-		return buildTestSuite(SearchParticipantTests.class);
+		return buildModelTestSuite(SearchParticipantTests.class);
 	}
 
 	public void setUpSuite() throws Exception {

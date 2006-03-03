@@ -31,7 +31,7 @@ protected void assertInvalidTypeSignature(String typeName, boolean isResolved, S
 	assertEquals(expected, actual);
 }
 public static Test suite() {
-	return buildTestSuite(SignatureTests.class);
+	return buildModelTestSuite(SignatureTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

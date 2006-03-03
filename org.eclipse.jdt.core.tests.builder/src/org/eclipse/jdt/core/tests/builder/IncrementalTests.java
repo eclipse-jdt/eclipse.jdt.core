@@ -11,21 +11,20 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class IncrementalTests extends Tests {
+public class IncrementalTests extends BuilderTests {
 
 	public IncrementalTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return new TestSuite(IncrementalTests.class);
+		return buildTestSuite(IncrementalTests.class);
 	}
 	
 	/*

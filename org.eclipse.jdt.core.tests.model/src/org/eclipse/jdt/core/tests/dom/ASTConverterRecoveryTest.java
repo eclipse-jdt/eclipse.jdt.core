@@ -47,7 +47,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 //		TESTS_NUMBERS =  new int[] { 624 };
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTConverterRecoveryTest.class);
+		return buildModelTestSuite(ASTConverterRecoveryTest.class);
 	}
 	
 	public void setUpSuite() throws Exception {

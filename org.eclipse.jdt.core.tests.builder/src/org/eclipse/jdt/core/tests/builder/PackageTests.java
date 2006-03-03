@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class PackageTests extends Tests {
+public class PackageTests extends BuilderTests {
 	
 	public PackageTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(PackageTests.class);
+		return buildTestSuite(PackageTests.class);
 	}
 	
 	/**

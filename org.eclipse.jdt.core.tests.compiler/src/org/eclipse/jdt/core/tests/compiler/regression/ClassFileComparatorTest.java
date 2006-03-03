@@ -24,7 +24,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return setupSuite(testClass());
+		return buildAllCompliancesRegressionTestSetupSuite(testClass());
 	}
 
 	public static Class testClass() {

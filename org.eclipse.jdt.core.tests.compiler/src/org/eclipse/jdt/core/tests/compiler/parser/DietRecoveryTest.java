@@ -36,7 +36,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 113 };	
 }
 public static Test suite() {
-	return buildTestSuite(DietRecoveryTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(DietRecoveryTest.class);
 }
 	
 public DietRecoveryTest(String testName){

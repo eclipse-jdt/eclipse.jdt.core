@@ -18,16 +18,16 @@ public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 	public ComplianceDiagnoseTest(String name) {
 		super(name);
 	}
-	// Static initializer to specify tests subset using TESTS_* static variables
-	// All specified tests which does not belong to the class are skipped...
-//	static {
-//		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 50 };
-//		TESTS_RANGE = new int[] { 21, 50 };
-//	}
-	public static Test suite() {
-		return buildTestSuite(testClass());
-	}
+// Static initializer to specify tests subset using TESTS_* static variables
+// All specified tests which does not belong to the class are skipped...
+//static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 50 };
+//	TESTS_RANGE = new int[] { 21, 50 };
+//}
+public static Test suite() {
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
+}
 public static Class testClass() {
 	return ComplianceDiagnoseTest.class;
 }

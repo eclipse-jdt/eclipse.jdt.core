@@ -152,7 +152,7 @@ static {
 //	TESTS_NAMES = new String[] { "testBug96950" };
 }
 public static Test suite() {
-	return buildTestSuite(CompletionTests2.class);
+	return buildModelTestSuite(CompletionTests2.class);
 }
 
 File createFile(File parent, String name, String content) throws IOException {

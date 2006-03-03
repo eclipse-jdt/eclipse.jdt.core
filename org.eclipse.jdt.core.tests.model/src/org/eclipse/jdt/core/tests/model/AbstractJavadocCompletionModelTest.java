@@ -192,7 +192,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	}
 
 	public static Test suite() {
-		return buildTestSuite(AbstractJavadocCompletionModelTest.class);
+		return buildModelTestSuite(AbstractJavadocCompletionModelTest.class);
 	}
 	protected void assertResults(String expected) throws JavaModelException {
 		int length = this.workingCopies.length;

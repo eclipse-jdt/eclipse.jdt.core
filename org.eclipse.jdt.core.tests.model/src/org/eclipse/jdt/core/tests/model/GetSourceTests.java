@@ -78,7 +78,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
 	public static Test suite() {
-		return buildTestSuite(GetSourceTests.class);
+		return buildModelTestSuite(GetSourceTests.class);
 	}
 	
 	public void tearDownSuite() throws Exception {

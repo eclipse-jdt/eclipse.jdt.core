@@ -11,19 +11,18 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class Java50Tests extends Tests {
+public class Java50Tests extends BuilderTests {
 
 	public Java50Tests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return new TestSuite(Java50Tests.class);
+		return buildTestSuite(Java50Tests.class);
 	}
 
 	public void testAnnotation() throws JavaModelException {

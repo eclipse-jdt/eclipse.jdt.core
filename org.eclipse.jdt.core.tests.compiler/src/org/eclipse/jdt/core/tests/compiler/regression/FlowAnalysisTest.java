@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class FlowAnalysisTest extends AbstractRegressionTest {
 	
@@ -27,15 +26,7 @@ public FlowAnalysisTest(String name) {
 	super(name);
 }
 public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new FlowAnalysisTest("test221"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
-	return setupSuite(testClass());
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
 
 public void test001() {

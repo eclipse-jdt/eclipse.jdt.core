@@ -21,14 +21,14 @@ import org.eclipse.jdt.internal.core.JavaProject;
 /**
  * Basic tests of the image builder.
  */
-public class OutputFolderTests extends Tests {
+public class OutputFolderTests extends BuilderTests {
 
 	public OutputFolderTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return new TestSuite(OutputFolderTests.class);
+		return buildTestSuite(OutputFolderTests.class);
 	}
 
 	public void testChangeOutputFolder() throws JavaModelException {

@@ -35,7 +35,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
 	public static Test suite() {
-		return buildTestSuite(JavaLikeExtensionsTests.class);
+		return buildModelTestSuite(JavaLikeExtensionsTests.class);
 	}
 	
 	public void setUpSuite() throws Exception {

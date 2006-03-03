@@ -62,7 +62,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public static Test suite() {
 //		return buildTestSuite(JavaSearchJavadocTests.class, "testJavadocMethod", null);
-		return buildTestSuite(JavaSearchJavadocTests.class);
+		return buildModelTestSuite(JavaSearchJavadocTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

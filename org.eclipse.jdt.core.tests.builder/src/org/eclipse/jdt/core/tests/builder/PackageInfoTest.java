@@ -15,27 +15,26 @@ import java.io.StringWriter;
 import java.util.Arrays;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class PackageInfoTest extends Tests {
+public class PackageInfoTest extends BuilderTests {
 	
 public PackageInfoTest(String name) {
 	super(name);
 }
-	// Static initializer to specify tests subset using TESTS_* static variables
-	// All specified tests which does not belong to the class are skipped...
-//	static {
-//		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 31 };
-//		TESTS_RANGE = new int[] { 21, 50 };
-//	}
-	public static Test suite() {
-        return new TestSuite(PackageInfoTest.class);
-	}
+// Static initializer to specify tests subset using TESTS_* static variables
+// All specified tests which does not belong to the class are skipped...
+//static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_RANGE = new int[] { 21, 50 };
+//}
+public static Test suite() {
+    return buildTestSuite(PackageInfoTest.class);
+}
 public void test001() throws JavaModelException {
     IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
     env.addExternalJars(projectPath, Util.getJavaClassLibs());

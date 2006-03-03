@@ -20,7 +20,7 @@ public MethodInvocationCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(MethodInvocationCompletionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(MethodInvocationCompletionTest.class);
 }
 /*
  * Completion with no receiver inside a for statement.

@@ -28,7 +28,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		super(name);
 	}
 	public static Test suite() {
-		return buildTestSuite(WorkingCopySearchTests.class);
+		return buildModelTestSuite(WorkingCopySearchTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

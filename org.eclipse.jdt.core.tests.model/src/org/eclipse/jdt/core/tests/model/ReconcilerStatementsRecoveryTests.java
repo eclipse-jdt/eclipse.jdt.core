@@ -67,7 +67,7 @@ static {
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildTestSuite(ReconcilerStatementsRecoveryTests.class);
+	return buildModelTestSuite(ReconcilerStatementsRecoveryTests.class);
 }
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);

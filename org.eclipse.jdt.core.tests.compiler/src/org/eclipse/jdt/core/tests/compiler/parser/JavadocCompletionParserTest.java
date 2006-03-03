@@ -55,7 +55,7 @@ static {
 }
 
 public static Test suite() {
-	return buildTestSuite(JavadocCompletionParserTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(JavadocCompletionParserTest.class);
 }
 
 /* (non-Javadoc)

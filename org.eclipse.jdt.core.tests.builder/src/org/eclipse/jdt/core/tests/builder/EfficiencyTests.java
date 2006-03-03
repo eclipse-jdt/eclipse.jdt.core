@@ -18,13 +18,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 /**
  * Basic efficiency tests of the image builder.
  */
-public class EfficiencyTests extends Tests {
+public class EfficiencyTests extends BuilderTests {
 	public EfficiencyTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(EfficiencyTests.class);
+		return buildTestSuite(EfficiencyTests.class);
 	}
 	
 	public void testEfficiency() throws JavaModelException {

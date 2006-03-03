@@ -84,7 +84,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(BatchASTCreationTests.class);
+		return buildModelTestSuite(BatchASTCreationTests.class);
 	}
 	
 	// Use this static initializer to specify subset for tests

@@ -31,7 +31,7 @@ public TryStatementTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(testClass());
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
 public void test001() {
 	this.runConformTest(new String[] {

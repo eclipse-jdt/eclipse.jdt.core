@@ -21,7 +21,7 @@ public DeprecatedTest(String name) {
 	super(name);
 }
 public static Test suite() {
-	return setupSuite(testClass());
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
 public void test001() {
 	this.runNegativeTest(new String[] {

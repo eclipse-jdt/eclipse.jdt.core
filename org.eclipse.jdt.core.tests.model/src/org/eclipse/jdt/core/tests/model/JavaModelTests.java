@@ -22,7 +22,7 @@ import junit.framework.Test;
 public class JavaModelTests extends ModifyingResourceTests {
 
 public static Test suite() {
-	return buildTestSuite(JavaModelTests.class);
+	return buildModelTestSuite(JavaModelTests.class);
 }
 
 // Use this static initializer to specify subset for tests

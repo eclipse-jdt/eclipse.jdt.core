@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.test.performance.PerformanceTestCase;
 
 import junit.framework.ComparisonFailure;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class TestCase extends PerformanceTestCase {
 
@@ -106,10 +108,129 @@ protected static String showLineSeparators(String string) {
 	return buffer.toString();
 }
 
+/**
+ * Build a list of methods to run for a test suite.
+ * There's no recursion in given class hierarchy, methods are only
+ * public method starting with "test" of it.
+ * <p></p>
+ *  Note that this list may be reduced using 2 different mechanism:
+ * <p></p>
+ * 1) TESTS* static variables:
+ * <ul>
+ * <li>{@link #TESTS_PREFIX}: only methods starting with this prefix (after "test" of course)
+ * 		will be put in test suite.
+ * </li>
+ * <li>{@link #TESTS_NAMES}: only methods with these names will be put in test suite.
+ * </li>
+ * <li>{@link #TESTS_NUMBERS}: only methods including these numbers will be put in test suite.<br>
+ * 	For example, <code>TESTS_NUMBERS = new int[] { 10, 100, 125678 };</code> will put
+ * 	<code>test010()</code>, <code>test100()</code> and <code>testBug125678()</code>
+ * 	methods in test suite.
+ * </li>
+ * <li>{@link #TESTS_RANGE}: only methods which numbers are between first and second value
+ * 	of this int array will be put in the suite.
+ * 	For example: <code>TESTS_RANGE = new int[] { 10, 12 };</code> will put
+ * 	<code>test010()</code>, <code>test011()</code> and <code>test012()</code>
+ * 	methods in test suite.<br>
+ * 	Note that -1 will clean min or max value, for example <code>TESTS_RANGE = new int[] { 10, -1 };</code>
+ * 	will put all methods after <code>test010()</code> in the test suite.
+ * </li>
+ * </ul>
+ * <p></p>
+ * 2) testONLY_ methods<br>
+ * As static variables needs a static initializer usually put at the beginning of the test suite,
+ * it could be a little be boring while adding tests at the end of the file to modify this static initializer.
+ * One solution to avoid this was to introduced specific methods name which will be only executed
+ * when test suite is run alone.
+ * For example:
+ * <pre>
+ * 	public class MyTest extends TestCase {
+ * 		public MyTest(String name) {
+ * 			super(name);
+ * 		}
+ * 		public test001() {
+ * 			...
+ * 		}
+ * 		public test002() {
+ * 			...
+ * 		}
+ * 		...
+ * 		public testONLY_100() {
+ * 			...
+ * 		}
+ * 	}
+ * </pre>
+ * This test suite will have only test "testONLY_100" put in test suite while running it.
+ * 
+ * Note that these 2 mechanisms should be reset while executing "global" test suites.
+ * For example:
+ * <pre>
+ * 	public class TestAll extends junit.framework.TestCase {
+ * 		public TestAll(String testName) {
+ * 			super(testName);
+ * 		}
+ * 		public static Test suite() {
+ * 			TestCase.TESTS_PREFIX = null;
+ * 			TestCase.TESTS_NAMES = null;
+ * 			TestCase.TESTS_NUMBERS= null;
+ * 			TestCase.TESTS_RANGE = null;
+ * 			TestCase.RUN_ONLY_ID = null;
+ * 			return buildTestSuite(MyTest.class);
+ * 		}
+ * 	}
+ * </pre>
+ * This will insure you that all tests will be put in TestAll test suite, whatever were static
+ * variables values or test only methods...
+ * 
+ * @param evaluationTestClass the test suite class
+ * @return a list ({@link List}) of tests ({@link Test}).
+ */
 public static List buildTestsList(Class evaluationTestClass) {
 	return buildTestsList(evaluationTestClass, 0);
 }
 
+/**
+ * Build a list of method to run for a test suite.
+ * Differ from {@link #buildTestsList(Class)} in the fact that one
+ * can specify level of recursion in hierarchy to find additional tests.
+ * For example
+ * <pre>
+ * 	public class AbstractTest extends TestCase {
+ * 		public MyTest(String name) {
+ * 			super(name);
+ * 		}
+ * 		public testOne() {
+ * 			...
+ * 		}
+ * 		public testTwo() {
+ * 			...
+ * 		}
+ * 	}
+ * 	public class MyTest extends AbstractTest {
+ * 		public MyTest(String name) {
+ * 			super(name);
+ * 		}
+ * 		public test001() {
+ * 			...
+ * 		}
+ * 		public test002() {
+ * 			...
+ * 		}
+ * 		...
+ * 		public testONLY_100() {
+ * 			...
+ * 		}
+ * 	}
+ * </pre>
+ * Returned list will have 5 tests if inheritedDepth is equals to 1 instead of
+ * 3 if it was 0 as while calling by {@link #buildTestsList(Class)}.
+ * 
+ * @see #buildTestsList(Class) for complete explanation of subsets mechanisms.
+ * 
+ * @param evaluationTestClass the test suite class
+ * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
+ * @return a {@link List} a {@link Test}
+ */
 public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
 	List tests = new ArrayList();
 	List testNames = new ArrayList();
@@ -234,6 +355,41 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 	}
 	return tests;
 }
+
+/**
+ * Build a test suite with all tests computed from public methods starting with "test"
+ * found in the given test class.
+ * Test suite name is the name of the given test class.
+ * 
+ * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
+ * 
+ * @param evaluationTestClass
+ * @return a test suite ({@link Test}) 
+ */
+public static Test buildTestSuite(Class evaluationTestClass) {
+	return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
+}
+
+/**
+ * Build a test suite with all tests computed from public methods starting with "test"
+ * found in the given test class.
+ * Test suite name is the given name.
+ * 
+ * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
+ * 
+ * @param evaluationTestClass
+ * @param suiteName
+ * @return a test suite ({@link Test}) 
+ */
+public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
+	TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
+	List tests = buildTestsList(evaluationTestClass);
+	for (int index=0, size=tests.size(); index<size; index++) {
+		suite.addTest((Test)tests.get(index));
+	}
+	return suite;
+}
+
 public void startMeasuring() {
 	// make it public to avoid compiler warning about synthetic access
 	super.startMeasuring();

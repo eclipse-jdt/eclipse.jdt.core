@@ -55,7 +55,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(SelectionJavadocTest.class);
+		return buildAllCompliancesRegressionTestSetupSuite(SelectionJavadocTest.class);
 	}
 
 	class SelectionVisitor extends ASTVisitor {

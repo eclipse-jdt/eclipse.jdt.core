@@ -36,7 +36,7 @@ static {
 }
 
 public static Test suite() {
-	return buildTestSuite(MementoTests.class);
+	return buildModelTestSuite(MementoTests.class);
 }
 protected void assertMemento(String expected, IJavaElement element) {
 	String actual = element.getHandleIdentifier();

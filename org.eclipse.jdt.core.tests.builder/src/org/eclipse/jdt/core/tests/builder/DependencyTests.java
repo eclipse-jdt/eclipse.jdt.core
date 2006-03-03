@@ -18,13 +18,13 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class DependencyTests extends Tests {
+public class DependencyTests extends BuilderTests {
 	public DependencyTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return new TestSuite(DependencyTests.class);
+		return buildTestSuite(DependencyTests.class);
 	}
 
 	public void testAbstractMethod() throws JavaModelException {

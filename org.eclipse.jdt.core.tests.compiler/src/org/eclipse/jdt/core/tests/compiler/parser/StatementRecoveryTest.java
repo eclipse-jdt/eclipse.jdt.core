@@ -38,7 +38,7 @@ static {
 //	TESTS_RANGE = new int[] {10, 20};
 }
 public static Test suite() {
-	return buildTestSuite(StatementRecoveryTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(StatementRecoveryTest.class);
 }
 public StatementRecoveryTest(String testName){
 	super(testName);

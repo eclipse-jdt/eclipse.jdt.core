@@ -116,7 +116,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	public static Test setupSuite(Class clazz) {
 		ArrayList testClasses = new ArrayList();
 		testClasses.add(clazz);
-		return suite(clazz.getName(), EvaluationSetup.class, testClasses);
+		return buildAllCompliancesSetupSuite(clazz, EvaluationSetup.class, testClasses);
 	}
 	
 	public static Test suite(Class evaluationTestClass) {

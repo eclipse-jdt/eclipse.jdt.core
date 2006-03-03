@@ -30,7 +30,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 118092 };
 }
 public static Test suite() {
-	return buildTestSuite(JavadocBugsCompletionModelTest.class);
+	return buildModelTestSuite(JavadocBugsCompletionModelTest.class);
 }
 
 /* (non-Javadoc)

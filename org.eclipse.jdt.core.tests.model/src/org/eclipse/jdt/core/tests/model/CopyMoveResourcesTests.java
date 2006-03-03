@@ -200,7 +200,7 @@ static {
 //	TESTS_NAMES = new String[] { "testCopyWorkingCopyDestination"};
 }
 public static Test suite() {
-	return buildTestSuite(CopyMoveResourcesTests.class);
+	return buildModelTestSuite(CopyMoveResourcesTests.class);
 }
 /**
  * Cleanup after the previous test.

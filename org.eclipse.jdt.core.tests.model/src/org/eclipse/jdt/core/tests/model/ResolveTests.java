@@ -23,7 +23,7 @@ static {
 //	TESTS_NAMES = new String[] { "testSecondaryTypes" };
 }
 public static Test suite() {
-	return buildTestSuite(ResolveTests.class);
+	return buildModelTestSuite(ResolveTests.class);
 }
 
 public ResolveTests(String name) {

@@ -42,7 +42,7 @@ public NullReferenceTest(String name) {
   	}
 
 public static Test suite() {
-    return buildTestSuite(testClass());
+    return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
   
 public static Class testClass() {

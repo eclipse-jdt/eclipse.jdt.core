@@ -43,7 +43,7 @@ public void setUpSuite() throws Exception {
 	createJavaProject("P");
 }
 public static Test suite() {
-	return buildTestSuite(DeleteTests.class);
+	return buildModelTestSuite(DeleteTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

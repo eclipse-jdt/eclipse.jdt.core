@@ -70,7 +70,7 @@ public void setUpSuite() throws Exception {
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
-		return buildTestSuite(TypeResolveTests.class);
+		return buildModelTestSuite(TypeResolveTests.class);
 	}
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()

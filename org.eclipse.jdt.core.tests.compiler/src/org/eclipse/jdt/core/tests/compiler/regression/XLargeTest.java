@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class XLargeTest extends AbstractRegressionTest {
 	
@@ -23,15 +22,7 @@ public XLargeTest(String name) {
 	super(name);
 }
 public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new XLargeTest("test221"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
-	return setupSuite(testClass());
+	return buildAllCompliancesRegressionTestSetupSuite(testClass());
 }
 
 public void test001() {

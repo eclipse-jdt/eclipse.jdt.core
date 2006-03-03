@@ -67,7 +67,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 	public static Test setupSuite(Class clazz) {
 		ArrayList testClasses = new ArrayList();
 		testClasses.add(clazz);
-		return suite(clazz.getName(), DebugEvaluationSetup.class, testClasses);
+		return buildAllCompliancesSetupSuite(clazz, DebugEvaluationSetup.class, testClasses);
 	}
 	public static Test suite() {
 		return setupSuite(testClass());

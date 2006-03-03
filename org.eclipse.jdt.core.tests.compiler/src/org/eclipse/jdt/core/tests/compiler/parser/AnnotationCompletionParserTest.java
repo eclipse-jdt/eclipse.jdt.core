@@ -24,7 +24,7 @@ public AnnotationCompletionParserTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(AnnotationCompletionParserTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(AnnotationCompletionParserTest.class);
 }
 
 protected Map getCompilerOptions() {

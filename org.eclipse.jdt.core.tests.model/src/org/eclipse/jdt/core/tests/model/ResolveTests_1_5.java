@@ -28,7 +28,7 @@ static {
 	//TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildTestSuite(ResolveTests_1_5.class);
+	return buildModelTestSuite(ResolveTests_1_5.class);
 }
 public ResolveTests_1_5(String name) {
 	super(name);

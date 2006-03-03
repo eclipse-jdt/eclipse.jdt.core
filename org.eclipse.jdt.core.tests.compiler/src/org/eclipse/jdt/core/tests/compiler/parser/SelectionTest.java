@@ -17,7 +17,7 @@ static {
 //		TESTS_NUMBERS = new int[] { 53 };	
 }
 public static Test suite() {
-	return buildTestSuite(SelectionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(SelectionTest.class);
 }
 	
 public SelectionTest(String testName) {

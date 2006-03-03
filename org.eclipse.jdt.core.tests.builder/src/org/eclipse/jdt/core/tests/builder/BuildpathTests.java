@@ -23,19 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class BuildpathTests extends Tests {
+public class BuildpathTests extends BuilderTests {
 
 	public BuildpathTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		if (false) {
-			TestSuite suite = new TestSuite(BuildpathTests.class.getName());
-			suite.addTest(new BuildpathTests("testExternalJarChange")); //$NON-NLS-1$
-			return suite;
-		}
-		return new TestSuite(BuildpathTests.class);
+		return buildTestSuite(BuildpathTests.class);
 	}
 	public void testClasspathFileChange() throws JavaModelException {
 		// create project with src folder, and alternate unused src2 folder

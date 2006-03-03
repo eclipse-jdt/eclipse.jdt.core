@@ -40,7 +40,7 @@ public JavaSearchBugsTests(String name) {
 	this.endChar = "";
 }
 public static Test suite() {
-	return buildTestSuite(JavaSearchBugsTests.class);
+	return buildModelTestSuite(JavaSearchBugsTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

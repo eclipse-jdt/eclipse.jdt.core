@@ -25,7 +25,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(javadocTestClass());
+		return buildAllCompliancesRegressionTestSetupSuite(javadocTestClass());
 	}
 	static { // Use this static to initialize TESTS_NAMES (String[]) , TESTS_RANGE (int[2]), TESTS_NUMBERS (int[])
 	}

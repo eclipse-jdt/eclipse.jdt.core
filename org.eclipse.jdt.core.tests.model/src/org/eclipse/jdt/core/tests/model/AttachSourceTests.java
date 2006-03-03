@@ -39,7 +39,7 @@ public class AttachSourceTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(AttachSourceTests.class);
+		return buildModelTestSuite(AttachSourceTests.class);
 	}
 
 	/** @deprecated using deprecated code */

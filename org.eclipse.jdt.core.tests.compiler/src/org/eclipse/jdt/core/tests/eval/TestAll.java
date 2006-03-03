@@ -34,7 +34,7 @@ public static Test suite() {
 		testClasses.add(NegativeVariableTest.class);
 		testClasses.add(DebugEvaluationTest.class);
 		
-		return AbstractCompilerTest.suite(TestAll.class.getName(), DebugEvaluationSetup.class, testClasses);
+		return AbstractCompilerTest.buildAllCompliancesSetupSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
 	}
 	// Disable evaluation tests on Linux
 	return new TestSuite(TestAll.class.getName());

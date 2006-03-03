@@ -20,13 +20,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 /**
  * Basic errors tests of the image builder.
  */
-public class ErrorsTests extends Tests {
+public class ErrorsTests extends BuilderTests {
 	public ErrorsTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(ErrorsTests.class);
+		return buildTestSuite(ErrorsTests.class);
 	}
 	
 	public void testErrors() throws JavaModelException {

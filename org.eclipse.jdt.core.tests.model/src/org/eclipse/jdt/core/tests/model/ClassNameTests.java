@@ -37,7 +37,7 @@ static {
 //	TESTS_PREFIX = "testReconcile";
 }
 public static Test suite() {
-	Test suite = buildTestSuite(ClassNameTests.class);
+	Test suite = buildModelTestSuite(ClassNameTests.class);
 	TESTS_COUNT = suite.countTestCases();
 	return suite;
 }

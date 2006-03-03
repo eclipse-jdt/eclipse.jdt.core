@@ -20,7 +20,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 22 };	
 }
 public static Test suite() {
-	return buildTestSuite(CompletionRecoveryTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(CompletionRecoveryTest.class);
 }
 /*
  * Complete on variable behind ill-formed declaration

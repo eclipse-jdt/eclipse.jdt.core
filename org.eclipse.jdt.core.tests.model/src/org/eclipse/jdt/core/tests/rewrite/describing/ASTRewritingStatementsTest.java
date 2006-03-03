@@ -39,7 +39,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(THIS);
+		return buildModelTestSuite(THIS);
 	}
 
 	public void testInsert1() throws Exception {

@@ -42,7 +42,7 @@ static {
 //	TESTS_NAMES = new String[] { "testDeprecationCheck17"};
 }
 public static Test suite() {
-	return buildTestSuite(CompletionTests.class);
+	return buildModelTestSuite(CompletionTests.class);
 }
 
 /**

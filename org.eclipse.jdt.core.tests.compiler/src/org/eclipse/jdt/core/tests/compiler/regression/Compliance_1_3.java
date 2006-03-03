@@ -43,7 +43,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-		return buildTestSuiteUniqueCompliance(testClass(), COMPLIANCE_1_3);
+		return buildComplianceRegressionSetupSuite(testClass(), COMPLIANCE_1_3);
 }
 public static Class testClass() {
 	return Compliance_1_3.class;

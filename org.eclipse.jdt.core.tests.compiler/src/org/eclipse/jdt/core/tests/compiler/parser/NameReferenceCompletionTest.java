@@ -20,7 +20,7 @@ public NameReferenceCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(NameReferenceCompletionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(NameReferenceCompletionTest.class);
 }
 /*
  * Regression test for 1FTZ849.

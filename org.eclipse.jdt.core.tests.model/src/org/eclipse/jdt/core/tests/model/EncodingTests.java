@@ -52,7 +52,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	}
 	
 	public static Test suite() {
-		return buildTestSuite(EncodingTests.class);
+		return buildModelTestSuite(EncodingTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...

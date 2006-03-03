@@ -37,7 +37,7 @@ static {
 //	TESTS_NAMES= new String[] { "testGeneric7" };
 }
 public static Test suite() {
-	return buildTestSuite(TypeHierarchyTests.class);
+	return buildModelTestSuite(TypeHierarchyTests.class);
 }
 
 /* (non-Javadoc)

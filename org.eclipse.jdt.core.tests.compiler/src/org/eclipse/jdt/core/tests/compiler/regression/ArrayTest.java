@@ -25,7 +25,7 @@ public class ArrayTest extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return setupSuite(testClass());
+		return buildAllCompliancesRegressionTestSetupSuite(testClass());
 	}
 	
 	public static Class testClass() {

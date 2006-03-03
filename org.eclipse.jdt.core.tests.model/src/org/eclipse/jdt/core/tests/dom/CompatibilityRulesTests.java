@@ -28,7 +28,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(CompatibilityRulesTests.class);
+		return buildModelTestSuite(CompatibilityRulesTests.class);
 	}
 	
 	// Use this static initializer to specify subset for tests

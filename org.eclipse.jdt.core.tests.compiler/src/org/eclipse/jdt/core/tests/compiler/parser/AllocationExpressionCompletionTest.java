@@ -20,7 +20,7 @@ public AllocationExpressionCompletionTest(String testName) {
 	super(testName);
 }
 public static Test suite() {
-	return buildTestSuite(AllocationExpressionCompletionTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(AllocationExpressionCompletionTest.class);
 }
 /*
  * Completion inside an if statement.

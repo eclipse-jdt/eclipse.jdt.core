@@ -25,6 +25,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.model.SuiteOfTestCases.Suite;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
@@ -172,18 +174,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		this.tabs = tabs;
 	}
 
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		TestSuite suite = new Suite(suiteName==null?evaluationTestClass.getName():suiteName);
+	/**
+	 * Build a test suite with all tests computed from public methods starting with "test"
+	 * found in the given test class.
+	 * Test suite name is the name of the given test class.
+	 * 
+	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
+	 * 
+	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
+	 * a {@link Suite} instead of a simple framework {@link TestSuite}.
+	 * 
+	 * @param evaluationTestClass
+	 * @return a test suite ({@link Test}) 
+	 */
+	public static Test buildModelTestSuite(Class evaluationTestClass) {
+		TestSuite suite = new Suite(evaluationTestClass.getName());
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
 		return suite;
 	}
+
 	protected void addJavaNature(String projectName) throws CoreException {
 		IProject project = getWorkspaceRoot().getProject(projectName);
 		IProjectDescription description = project.getDescription();

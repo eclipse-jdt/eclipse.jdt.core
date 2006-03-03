@@ -28,7 +28,7 @@ public JavaSearchScopeTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(JavaSearchScopeTests.class);
+	return buildModelTestSuite(JavaSearchScopeTests.class);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

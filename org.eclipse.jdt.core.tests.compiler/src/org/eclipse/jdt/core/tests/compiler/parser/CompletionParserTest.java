@@ -22,7 +22,7 @@ static {
 //	TESTS_NAMES = new String[] { "testXA_1FGGUQF_1FHSL8H_1" };
 }
 public static Test suite() {
-	return buildTestSuite(CompletionParserTest.class);
+	return buildAllCompliancesRegressionTestSetupSuite(CompletionParserTest.class);
 }
 public void testA() {
 	String str =

@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class StaticFinalTests extends Tests {
+public class StaticFinalTests extends BuilderTests {
 	
 	public StaticFinalTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		return new TestSuite(StaticFinalTests.class);
+		return buildTestSuite(StaticFinalTests.class);
 	}
 
 	public void testBoolean() throws JavaModelException {

@@ -37,7 +37,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 //		TESTS_NUMBERS = new int[] { 305 };
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTConverterTest.class);
+		return buildModelTestSuite(ASTConverterTest.class);
 	}
 		
 	/** @deprecated using deprecated code */

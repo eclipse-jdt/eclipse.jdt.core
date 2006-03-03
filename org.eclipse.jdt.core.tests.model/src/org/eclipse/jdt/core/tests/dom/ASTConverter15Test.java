@@ -50,7 +50,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTConverter15Test.class);
+		return buildModelTestSuite(ASTConverter15Test.class);
 	}
 	
 	protected void tearDown() throws Exception {

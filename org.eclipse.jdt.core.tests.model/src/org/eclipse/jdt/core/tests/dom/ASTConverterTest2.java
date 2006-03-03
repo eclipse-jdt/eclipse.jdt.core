@@ -46,7 +46,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
-		return buildTestSuite(ASTConverterTest2.class);
+		return buildModelTestSuite(ASTConverterTest2.class);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560

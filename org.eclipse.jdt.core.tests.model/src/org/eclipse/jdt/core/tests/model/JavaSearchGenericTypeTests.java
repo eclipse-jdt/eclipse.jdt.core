@@ -42,7 +42,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
 	public static Test suite() {
-		return buildTestSuite(JavaSearchGenericTypeTests.class);
+		return buildModelTestSuite(JavaSearchGenericTypeTests.class);
 	}
 	
 	protected void setUp () throws Exception {

@@ -30,7 +30,7 @@ public JavaSearchMultipleProjectsTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildTestSuite(JavaSearchMultipleProjectsTests.class);
+	return buildModelTestSuite(JavaSearchMultipleProjectsTests.class);
 //	return buildTestSuite(JavaSearchMultipleProjectsTests.class, "testJavaSearchScope", null);
 }
 // Use this static initializer to specify subset for tests
