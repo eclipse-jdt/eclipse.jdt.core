@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -54,7 +53,6 @@ public class AdvancedFactoryPathOptionsDialog extends Dialog {
 	
 	// Dialog controls
 	private SelectionButtonDialogField _batchModeField;
-	private Text _contentsLabelField;
 	private ListViewer _contentsField;
 	
 	public AdvancedFactoryPathOptionsDialog(
