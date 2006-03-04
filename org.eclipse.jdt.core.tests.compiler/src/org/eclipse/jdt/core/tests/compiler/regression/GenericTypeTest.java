@@ -29657,4 +29657,30 @@ public void test947() {
 		"Type mismatch: cannot convert from Box<capture-of ?> to Box<Runnable>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
+public void test948() {
+	this.runConformTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"public class X {\n" + 
+		"        public void bar2(Box<?> b1, Box<Runnable> b2) {\n" + 
+		"        	Pair<Runnable,Runnable> blist = pair(b1.element, b2.element);\n" + 
+		"        }\n" + 
+		"        static <U> Pair<U,U> pair(U u1, U u2) {\n" + 
+		"        	return new Pair<U,U>(u1,u2);\n" + 
+		"        }\n" + 
+		"}\n" + 
+		"class Pair<E,F> {\n" + 
+		"	Pair(E e, F f){}\n" + 
+		"}\n" + 
+		"class Box<E extends Runnable> {\n" + 
+		"	E element;\n" + 
+		"	Box(E element) {\n" + 
+		"		this.element = element;\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"");
+}
 }
