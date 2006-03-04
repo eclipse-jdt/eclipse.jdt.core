@@ -29,7 +29,7 @@
       <property name="data-dir" value="${jdt-builder-folder}"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
-                value="org.eclipse.jdt.core.tests.builder.Tests"/>
+                value="org.eclipse.jdt.core.tests.builder.BuilderTests"/>
     </ant>
   </target>
 
