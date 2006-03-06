@@ -29859,7 +29859,7 @@ public void test0952() {
 		"2. WARNING in X.java (at line 8)\n" + 
 		"	m3(m(null));\n" + 
 		"	   ^^^^^^^\n" + 
-		"Varargs argument null should be cast to Object[] when passed to the method m(Object...) from type X\n" + 
+		"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method m(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 9)\n" + 
 		"	Zork z;\n" + 

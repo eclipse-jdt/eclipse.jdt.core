@@ -388,7 +388,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Y.byte2(null);\n" + 
 			"	^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to byte[][] when passed to the method byte2(byte[]...) from type Y\n" + 
+			"The argument of type null should explicitly be cast to byte[][] for the invocation of the varargs method byte2(byte[]...) from type Y. It could alternatively be cast to byte[] for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	Y.byte2((byte) 1);\n" + 
@@ -403,32 +403,32 @@ public class VarargsTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Y.object(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
+			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 12)\n" + 
 			"	Y.object(new byte[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument byte[][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
+			"The argument of type byte[][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 13)\n" + 
 			"	Y.object(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument byte[][][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
+			"The argument of type byte[][][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 16)\n" + 
 			"	Y.object(new String[] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument String[] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
+			"The argument of type String[] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 17)\n" + 
 			"	Y.object(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument String[][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
+			"The argument of type String[][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 19)\n" + 
 			"	Y.object2(null);\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
+			"The argument of type null should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 20)\n" + 
 			"	Y.object2((byte) 1);\n" + 
@@ -443,7 +443,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"12. WARNING in X.java (at line 23)\n" + 
 			"	Y.object2(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument byte[][][] should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
+			"The argument of type byte[][][] should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" + 
 			"----------\n" + 
 			"13. ERROR in X.java (at line 25)\n" + 
 			"	Y.object2(new String());\n" + 
@@ -453,12 +453,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"14. WARNING in X.java (at line 27)\n" + 
 			"	Y.object2(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument String[][] should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
+			"The argument of type String[][] should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" + 
 			"----------\n" + 
 			"15. WARNING in X.java (at line 29)\n" + 
 			"	Y.string(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to String[] when passed to the method string(String...) from type Y\n" + 
+			"The argument of type null should explicitly be cast to String[] for the invocation of the varargs method string(String...) from type Y. It could alternatively be cast to String for a varargs invocation\n" + 
 			"----------\n" + 
 			"16. ERROR in X.java (at line 32)\n" + 
 			"	Y.string(new String[][] {});\n" + 
@@ -503,12 +503,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to Object[] when passed to the constructor Y(boolean, Object...)\n" + 
+			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs constructor Y(boolean, Object...). It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	y = new Y(\'i\', null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to int[][] when passed to the constructor Y(char, int[]...)\n" + 
+			"The argument of type null should explicitly be cast to int[][] for the invocation of the varargs constructor Y(char, int[]...). It could alternatively be cast to int[] for a varargs invocation\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -1087,7 +1087,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	method.invoke(this, new Class[0]);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument Class[] should be cast to Object[] when passed to the method invoke(Object, Object...) from type Method\n" + 
+			"The argument of type Class[] should explicitly be cast to Object[] for the invocation of the varargs method invoke(Object, Object...) from type Method. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	Zork z;\n" + 
@@ -1125,7 +1125,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 15)\n" + 
 			"	System.out.printf(\"\", s);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument String[] should be cast to Object[] when passed to the method printf(String, Object...) from type PrintStream\n" + 
+			"The argument of type String[] should explicitly be cast to Object[] for the invocation of the varargs method printf(String, Object...) from type PrintStream. It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 19)\n" + 
 			"	Zork z;\n" + 
@@ -1486,12 +1486,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 11)\n" + 
 			"	array(new Integer[] {5, 6}); //warns (as javac does)\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument Integer[] should be cast to Serializable[] when passed to the method array(Serializable...) from type X\n" + 
+			"The argument of type Integer[] should explicitly be cast to Serializable[] for the invocation of the varargs method array(Serializable...) from type X. It could alternatively be cast to Serializable for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 12)\n" + 
 			"	array(null); //warns (as javac does)\n" + 
 			"	^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to Serializable[] when passed to the method array(Serializable...) from type X\n" + 
+			"The argument of type null should explicitly be cast to Serializable[] for the invocation of the varargs method array(Serializable...) from type X. It could alternatively be cast to Serializable for a varargs invocation\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 13)\n" + 
 			"	Zork z;\n" + 
