@@ -275,7 +275,7 @@ private final void checkNonNullTag(int commentStart, int commentEnd) {
 				if (currentChar == 'N') {
 					state++;
 				}
-				else if (!ScannerHelper.isWhitespace(currentChar)) {
+				else if (!CharOperation.isWhitespace(currentChar)) {
 					return;
 				}
 				continue;
@@ -318,7 +318,7 @@ private final void checkNonNullTag(int commentStart, int commentEnd) {
 				}
 				return;
 			case 8:	// got NON-NULL or NN
-				if (currentChar != '*' && !ScannerHelper.isWhitespace(currentChar)) {
+				if (currentChar != '*' && !CharOperation.isWhitespace(currentChar)) {
 					return;
 				}
 				state = 9; // got a marker
@@ -436,9 +436,9 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 			continue;
 		}
 		// trim the message
-		while (ScannerHelper.isWhitespace(src[end]) && msgStart <= end)
+		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
 			end--;
-		while (ScannerHelper.isWhitespace(src[msgStart]) && msgStart <= end)
+		while (CharOperation.isWhitespace(src[msgStart]) && msgStart <= end)
 			msgStart++;
 		// update the end position of the task
 		this.foundTaskPositions[i][1] = end;
@@ -1660,7 +1660,7 @@ public final void jumpOverMethodBody() {
 							&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 						pushLineSeparator();
 					}
-					isWhiteSpace = ScannerHelper.isWhitespace(this.currentCharacter);
+					isWhiteSpace = CharOperation.isWhitespace(this.currentCharacter);
 				}
 			} while (isWhiteSpace);
 
@@ -2013,7 +2013,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 	try {
 		this.wasAcr = false;
 		getNextUnicodeChar();
-		return ScannerHelper.isWhitespace(this.currentCharacter);
+		return CharOperation.isWhitespace(this.currentCharacter);
 	} catch (IndexOutOfBoundsException e){
 		this.currentPosition--;
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);

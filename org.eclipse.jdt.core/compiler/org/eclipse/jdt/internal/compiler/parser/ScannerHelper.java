@@ -211,7 +211,4 @@ public static boolean isDigit(char c) throws InvalidInputException {
 		return false;
 	}
 }
-public static boolean isWhitespace(char c) {
-	return c < ScannerHelper.MAX_OBVIOUS && C_SPACE == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
-}
 }
