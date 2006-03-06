@@ -665,6 +665,7 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceEnd);
 }
 public void autoboxing(Expression expression, TypeBinding originalType, TypeBinding convertedType) {
+	if (this.options.getSeverity(IProblem.BoxingConversion) == ProblemSeverities.Ignore) return;
 	this.handle(
 		originalType.isBaseType() ? IProblem.BoxingConversion : IProblem.UnboxingConversion,
 		new String[] { new String(originalType.readableName()), new String(convertedType.readableName()), },
