@@ -29895,4 +29895,133 @@ public void test0953() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130543
+public void test0954() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X<A,B> {\n" + 
+		"	class Member<C,D> {}\n" + 
+		"	static class SMember<U,V> {}\n" + 
+		"	void foo1() {\n" + 
+		"		X<?,?>[] xs = new X<?,?>[]{};//1\n" + 
+		"		for(X<?,?> x : xs) {\n" + 
+		"			System.out.println(x);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void bar1() {\n" + 
+		"		Member<?,?>[] members = new Member<?,?>[]{};//2\n" + 
+		"		for(Member<?,?> m : members) {\n" + 
+		"			System.out.println(m);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void bas1() {\n" + 
+		"		SMember<?,?>[] members = new SMember<?,?>[]{};//3\n" + 
+		"		for(SMember<?,?> m : members) {\n" + 
+		"			System.out.println(m);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void baz1() {\n" + 
+		"		class Local<E,F>{}\n" + 
+		"		Local<?,?>[] locals = new Local<?,?>[]{};//4\n" + 
+		"		for(Local<?,?> l : locals) {\n" + 
+		"			System.out.println(l);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void foo2() {\n" + 
+		"		X<?,?>[] xs = new X<?,?>[5];//5\n" + 
+		"		for(X<?,?> x : xs) {\n" + 
+		"			System.out.println(x);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void bar2() {\n" + 
+		"		Member<?,?>[] members = new Member<?,?>[5];//6\n" + 
+		"		for(Member<?,?> m : members) {\n" + 
+		"			System.out.println(m);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void bas2() {\n" + 
+		"		SMember<?,?>[] members = new SMember<?,?>[5];//7\n" + 
+		"		for(SMember<?,?> m : members) {\n" + 
+		"			System.out.println(m);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void baz2() {\n" + 
+		"		class Local<E,F>{}\n" + 
+		"		Local<?,?>[] locals = new Local<?,?>[5];//8\n" + 
+		"		for(Local<?,?> l : locals) {\n" + 
+		"			System.out.println(l);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void foo3() {\n" + 
+		"		X<?,?>[] xs = new X<?,?>[5];//9\n" + 
+		"		for(X<?,?> x : xs) {\n" + 
+		"			System.out.println(x);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	void bar3() {\n" + 
+		"		X<?,?>.Member<?,?>[] members = new X<?,?>.Member<?,?>[5];//10\n" + 
+		"		for(X<?,?>.Member<?,?> m : members) {\n" + 
+		"			System.out.println(m);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	static void baz3() {\n" + 
+		"		class Local<E,F>{}\n" + 
+		"		Local<?,?>[] locals = new Local<?,?>[5];//11\n" + 
+		"		for(Local<?,?> l : locals) {\n" + 
+		"			System.out.println(l);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	Member<?,?>[] members = new Member<?,?>[]{};//2\n" + 
+		"	                                         ^^\n" + 
+		"Cannot create a generic array of X<A,B>.Member<?,?>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 26)\n" + 
+		"	Local<?,?>[] locals = new Local<?,?>[]{};//4\n" + 
+		"	                                      ^^\n" + 
+		"Cannot create a generic array of Local<?,?>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 38)\n" + 
+		"	Member<?,?>[] members = new Member<?,?>[5];//6\n" + 
+		"	                        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of X<A,B>.Member<?,?>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 51)\n" + 
+		"	Local<?,?>[] locals = new Local<?,?>[5];//8\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of Local<?,?>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105049
+public void test0955() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.List;\n" + 
+		"public class X<E> {\n" + 
+		"    void method(Object o) {\n" + 
+		"        if (o instanceof List<E>[]) { //incorrect: bug 104695\n" + 
+		"            List<E>[] es= (List<E>[]) o; //unchecked\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof List<E>[]) { //incorrect: bug 104695\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	List<E>[] es= (List<E>[]) o; //unchecked\n" + 
+		"	              ^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to List<E>[] is actually checking against the erased type List[]\n" + 
+		"----------\n");
+}
 }
