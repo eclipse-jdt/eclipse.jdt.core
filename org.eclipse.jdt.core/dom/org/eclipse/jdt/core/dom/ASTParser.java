@@ -216,18 +216,20 @@ public class ASTParser {
 	 * Sets all the setting to their default values.
 	 */
 	private void initializeDefaults() {
-	   this.astKind = K_COMPILATION_UNIT;
-	   this.rawSource = null;
-	   this.classFileSource = null;
-	   this.compilationUnitSource = null;
-	   this.resolveBindings = false;
-	   this.sourceLength = -1;
-	   this.sourceOffset = 0;
-	   this.workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
-	   this.unitName = null;
-	   this.project = null;
-	   this.partial = false;
-	   this.compilerOptions = JavaCore.getOptions();
+		this.astKind = K_COMPILATION_UNIT;
+		this.rawSource = null;
+		this.classFileSource = null;
+		this.compilationUnitSource = null;
+		this.resolveBindings = false;
+		this.sourceLength = -1;
+		this.sourceOffset = 0;
+		this.workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
+		this.unitName = null;
+		this.project = null;
+		this.partial = false;
+		Map options = JavaCore.getOptions();
+		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+		this.compilerOptions = options;
 	}
 	   
 	/**
@@ -257,8 +259,9 @@ public class ASTParser {
 	 */
 	public void setCompilerOptions(Map options) {
 	   if (options == null) {
-	      this.compilerOptions = JavaCore.getOptions();
+	      options = JavaCore.getOptions();
 	   }
+	   options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 	   this.compilerOptions = options;
 	}
 	
@@ -467,7 +470,9 @@ public class ASTParser {
 		this.classFileSource = null;
 		if (source != null) {
 			this.project = source.getJavaProject();
-			this.compilerOptions = this.project.getOptions(true);
+			Map options = this.project.getOptions(true);
+			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+			this.compilerOptions = options;
 		}
 	}
 	
@@ -487,7 +492,9 @@ public class ASTParser {
 		this.compilationUnitSource = null;
 		if (source != null) {
 			this.project = source.getJavaProject();
-			this.compilerOptions = this.project.getOptions(true);
+			Map options = this.project.getOptions(true);
+			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+			this.compilerOptions = options;
 		}
 	}
 	
@@ -585,7 +592,9 @@ public class ASTParser {
 	public void setProject(IJavaProject project) {
 		this.project = project;
 		if (project != null) {
-			this.compilerOptions = project.getOptions(true);
+			Map options = project.getOptions(true);
+			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+			this.compilerOptions = options;
 		}
 	}
 	
