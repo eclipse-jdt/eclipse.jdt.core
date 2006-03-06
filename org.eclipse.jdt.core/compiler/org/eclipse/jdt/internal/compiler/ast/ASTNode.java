@@ -230,20 +230,24 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 	
 			   if (paramLength == argumentTypes.length) { // 70056
-					int varargIndex = paramLength - 1;
-					ArrayBinding varargType = (ArrayBinding) params[varargIndex];
-					TypeBinding lastArgType = argumentTypes[varargIndex];
+					int varargsIndex = paramLength - 1;
+					ArrayBinding varargsType = (ArrayBinding) params[varargsIndex];
+					TypeBinding lastArgType = argumentTypes[varargsIndex];
+					int dimensions;
 					if (lastArgType == TypeBinding.NULL) {
-						if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
+						if (!(varargsType.leafComponentType().isBaseType() && varargsType.dimensions() == 1))
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
-					} else if (varargType.dimensions <= lastArgType.dimensions()) {
-						int dimensions = lastArgType.dimensions();
-						if (lastArgType.leafComponentType().isBaseType())
+					} else if (varargsType.dimensions <= (dimensions = lastArgType.dimensions())) {
+						if (lastArgType.leafComponentType().isBaseType()) {
 							dimensions--;
-						if (varargType.dimensions < dimensions)
+						}
+						if (varargsType.dimensions < dimensions) {
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
-						else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
+						} else if (varargsType.dimensions == dimensions 
+										&& varargsType.leafComponentType != lastArgType.leafComponentType()
+										&& lastArgType.isCompatibleWith(varargsType)) {
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
+						}
 					}
 				}
 			} else {

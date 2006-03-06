@@ -1378,4 +1378,240 @@ public class VarargsTest extends AbstractComparableTest {
 			"The method foo3(String, V, String[]) is ambiguous for the type V\n" + 
 			"----------\n");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801
+	public void test038() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void varargs(Serializable... items) {\n" + 
+				"        System.out.println(Arrays.deepToString(items) + \" (argument wrapped)\");\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"	     varargs(new Object[] {1, 2}); //warns \"Varargs argument Object[] \n" + 
+				"	     //should be cast to Serializable[] ..\", but proposed cast to\n" + 
+				"	     //Serializable[] fails at runtime (javac does not warn here)\n" + 
+				"	     varargs((Serializable[])new Object[] {1, 2}); //warns \"Varargs argument Object[] \n" + 
+				"	     //should be cast to Serializable[] ..\", but proposed cast to\n" + 
+				"	     //Serializable[] fails at runtime (javac does not warn here)\n" + 
+				"        Zork z;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			// ensure no varargs warning
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test039() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void varargs(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items) + \" (argument wrapped)\");\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	try {\n" + 
+				"	        varargs(new Object[] {1, 2}); //warns \"Varargs argument Object[] \n" + 
+				"	        	//should be cast to Serializable[] ..\", but proposed cast to\n" + 
+				"	            //Serializable[] fails at runtime (javac does not warn here)\n" + 
+				"	        varargs((Serializable[])new Object[] {1, 2}); //warns \"Varargs argument Object[] \n" + 
+				"	    	//should be cast to Serializable[] ..\", but proposed cast to\n" + 
+				"	        //Serializable[] fails at runtime (javac does not warn here)\n" + 
+				"    	} catch(ClassCastException e) {\n" + 
+				"    		System.out.println(\"SUCCESS\");\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"[[1, 2]] (argument wrapped)SUCCESS");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test040() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void array(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items));\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        array(new Serializable[] {3, 4});\n" + 
+				"        array(new Integer[] {5, 6}); //warns (as javac does)\n" + 
+				"        array(null); //warns (as javac does)\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"[3, 4][5, 6]null");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test041() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void array(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items));\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        array(new Serializable[] {3, 4});\n" + 
+				"        array(new Integer[] {5, 6}); //warns (as javac does)\n" + 
+				"        array(null); //warns (as javac does)\n" + 
+				"        Zork z;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	array(new Integer[] {5, 6}); //warns (as javac does)\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Varargs argument Integer[] should be cast to Serializable[] when passed to the method array(Serializable...) from type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 12)\n" + 
+			"	array(null); //warns (as javac does)\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Varargs argument null should be cast to Serializable[] when passed to the method array(Serializable...) from type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test042() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void varargs(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items) + \" (argument wrapped)\");\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        varargs((Serializable) new Object[] {1, 2});\n" + 
+				"        varargs((Serializable) new Serializable[] {3, 4}); //warns about\n" + 
+				"            //unnecessary cast, although cast is necessary (causes varargs call)\n" + 
+				"        varargs((Serializable) new Integer[] {5, 6});\n" + 
+				"        varargs((Serializable) null);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"[[1, 2]] (argument wrapped)[[3, 4]] (argument wrapped)[[5, 6]] (argument wrapped)[null] (argument wrapped)");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test043() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void varargs(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items) + \" (argument wrapped)\");\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        varargs((Serializable) new Object[] {1, 2});\n" + 
+				"        varargs((Serializable) new Serializable[] {3, 4}); //warns about\n" + 
+				"            //unnecessary cast, although cast is necessary (causes varargs call)\n" + 
+				"        varargs((Serializable) new Integer[] {5, 6});\n" + 
+				"        varargs((Serializable) null);\n" + 
+				"        Zork z;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test044() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void array(Serializable... items) {\n" + 
+				"        System.out.print(Arrays.deepToString(items));\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings({\"boxing\"})\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        array((Serializable[]) new Serializable[] {3, 4}); //warns about unnecessary cast\n" + 
+				"        array((Serializable[]) new Integer[] {5, 6});\n" + 
+				"        array((Serializable[]) null);\n" + 
+				"        try {\n" + 
+				"	        array((Serializable[]) new Object[] {1, 2}); // CCE at run time\n" + 
+				"        } catch(ClassCastException e) {\n" + 
+				"        	System.out.println(\"SUCCESS\");\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"[3, 4][5, 6]nullSUCCESS");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	public void test045() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.Serializable;\n" + 
+					"import java.util.Arrays;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"    static void array(Serializable... items) {\n" + 
+					"        System.out.print(Arrays.deepToString(items));\n" + 
+					"    }\n" + 
+					"    @SuppressWarnings({\"boxing\"})\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        array((Serializable[]) new Serializable[] {3, 4}); //warns about unnecessary cast\n" + 
+					"        array((Serializable[]) new Integer[] {5, 6});\n" + 
+					"        array((Serializable[]) null);\n" + 
+					"	     array((Serializable[]) new Object[] {1, 2}); // CCE at run time\n" + 
+					"        Zork z;\n" + 
+					"    }\n" + 
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\r\n" + 
+				"	array((Serializable[]) new Serializable[] {3, 4}); //warns about unnecessary cast\r\n" + 
+				"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Serializable[] to Serializable[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 14)\r\n" + 
+				"	Zork z;\r\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
 }
