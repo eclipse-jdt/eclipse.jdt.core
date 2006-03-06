@@ -15,80 +15,22 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 
 public class ScannerHelper {
-	public final static int Bit1 = 0x1;
-	public final static int Bit2 = 0x2;
-	public final static int Bit3 = 0x4;
-	public final static int Bit4 = 0x8;
-	public final static int Bit5 = 0x10;
-	public final static int Bit6 = 0x20;
-	public final static int Bit7 = 0x40;
-	public final static int Bit8 = 0x80;
-	public final static int Bit9 = 0x100;
-	public final static int Bit10= 0x200;
-	public final static int Bit11 = 0x400;
-	public final static int Bit12 = 0x800;
-	public final static int Bit13 = 0x1000;
-	public final static int Bit14 = 0x2000;
-	public final static int Bit15 = 0x4000;
-	public final static int Bit16 = 0x8000;
-	public final static int Bit17 = 0x10000;
-	public final static int Bit18 = 0x20000; 
-	public final static int Bit19 = 0x40000; 
-	public final static int Bit20 = 0x80000; 
-	public final static int Bit21 = 0x100000; 		
-	public final static int Bit22 = 0x200000;
-	public final static int Bit23 = 0x400000;
-	public final static int Bit24 = 0x800000;
-	public final static int Bit25 = 0x1000000;
-	public final static int Bit26 = 0x2000000;
-	public final static int Bit27 = 0x4000000;
-	public final static int Bit28 = 0x8000000;
-	public final static int Bit29 = 0x10000000;
-	public final static int Bit30 = 0x20000000;
-	public final static int Bit31 = 0x40000000;
-	public final static int Bit32 = 0x80000000;
-	public final static long Bit33 = 0x100000000L;
-	public final static long Bit34 = 0x200000000L;
-	public final static long Bit35 = 0x400000000L;
-	public final static long Bit36 = 0x800000000L;
-	public final static long Bit37 = 0x1000000000L;
-	public final static long Bit38 = 0x2000000000L;
-	public final static long Bit39 = 0x4000000000L;
-	public final static long Bit40 = 0x8000000000L;
-	public final static long Bit41 = 0x10000000000L;
-	public final static long Bit42 = 0x20000000000L;
-	public final static long Bit43 = 0x40000000000L;
-	public final static long Bit44 = 0x80000000000L;
-	public final static long Bit45 = 0x100000000000L;
-	public final static long Bit46 = 0x200000000000L;
-	public final static long Bit47 = 0x400000000000L;
-	public final static long Bit48 = 0x800000000000L;
-	public final static long Bit49 = 0x1000000000000L;
-	public final static long Bit50 = 0x2000000000000L;
-	public final static long Bit51 = 0x4000000000000L;
-	public final static long Bit52 = 0x8000000000000L;
-	public final static long Bit53 = 0x10000000000000L;
-	public final static long Bit54 = 0x20000000000000L;
-	public final static long Bit55 = 0x40000000000000L;
-	public final static long Bit56 = 0x80000000000000L;
-	public final static long Bit57 = 0x100000000000000L;
-	public final static long Bit58 = 0x200000000000000L;
-	public final static long Bit59 = 0x400000000000000L;
-	public final static long Bit60 = 0x800000000000000L;
-	public final static long Bit61 = 0x1000000000000000L;
-	public final static long Bit62 = 0x2000000000000000L;
-	public final static long Bit63 = 0x4000000000000000L;
-	public final static long Bit64 = 0x8000000000000000L;
-	public final static long[] Bits = { Bit1, Bit2, Bit3, Bit4, Bit5, Bit6,
-			Bit7, Bit8, Bit9, Bit10, Bit11, Bit12, Bit13, Bit14, Bit15, Bit16,
-			Bit17, Bit18, Bit19, Bit20, Bit21, Bit22, Bit23, Bit24, Bit25,
-			Bit26, Bit27, Bit28, Bit29, Bit30, Bit31, Bit32, Bit33, Bit34,
-			Bit35, Bit36, Bit37, Bit38, Bit39, Bit40, Bit41, Bit42, Bit43,
-			Bit44, Bit45, Bit46, Bit47, Bit48, Bit49, Bit50, Bit51, Bit52,
-			Bit53, Bit54, Bit55, Bit56, Bit57, Bit58, Bit59, Bit60, Bit61,
-			Bit62, Bit63, Bit64,
+	
+	public final static long[] Bits = { 
+		ASTNode.Bit1, ASTNode.Bit2, ASTNode.Bit3, ASTNode.Bit4, ASTNode.Bit5, ASTNode.Bit6,
+		ASTNode.Bit7, ASTNode.Bit8, ASTNode.Bit9, ASTNode.Bit10, ASTNode.Bit11, ASTNode.Bit12, 
+		ASTNode.Bit13, ASTNode.Bit14, ASTNode.Bit15, ASTNode.Bit16, ASTNode.Bit17, ASTNode.Bit18, 
+		ASTNode.Bit19, ASTNode.Bit20, ASTNode.Bit21, ASTNode.Bit22, ASTNode.Bit23, ASTNode.Bit24, 
+		ASTNode.Bit25, ASTNode.Bit26, ASTNode.Bit27, ASTNode.Bit28, ASTNode.Bit29, ASTNode.Bit30, 
+		ASTNode.Bit31, ASTNode.Bit32, ASTNode.Bit33L, ASTNode.Bit34L, ASTNode.Bit35L, ASTNode.Bit36L, 
+		ASTNode.Bit37L, ASTNode.Bit38L, ASTNode.Bit39L, ASTNode.Bit40L, ASTNode.Bit41L, ASTNode.Bit42L, 
+		ASTNode.Bit43L, ASTNode.Bit44L, ASTNode.Bit45L, ASTNode.Bit46L, ASTNode.Bit47L, ASTNode.Bit48L, 
+		ASTNode.Bit49L, ASTNode.Bit50L, ASTNode.Bit51L, ASTNode.Bit52L, ASTNode.Bit53L, ASTNode.Bit54L, 
+		ASTNode.Bit55L, ASTNode.Bit56L, ASTNode.Bit57L, ASTNode.Bit58L, ASTNode.Bit59L, ASTNode.Bit60L, 
+		ASTNode.Bit61L, ASTNode.Bit62L, ASTNode.Bit63L, ASTNode.Bit64L,
 	};
 
 	private static final int START_INDEX = 0;
@@ -98,12 +40,12 @@ public class ScannerHelper {
 
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
-	public final static int C_UPPER_LETTER = Bit6;
-	public final static int C_LOWER_LETTER = Bit5;
-	public final static int C_IDENT_PART = Bit4;
-	public final static int C_DIGIT = Bit3;
-	public final static int C_SEPARATOR = Bit2;
-	public final static int C_SPACE = Bit1;
+	public final static int C_UPPER_LETTER = ASTNode.Bit6;
+	public final static int C_LOWER_LETTER = ASTNode.Bit5;
+	public final static int C_IDENT_PART = ASTNode.Bit4;
+	public final static int C_DIGIT = ASTNode.Bit3;
+	public final static int C_SEPARATOR = ASTNode.Bit2;
+	public final static int C_SPACE = ASTNode.Bit1;
 	static {
 		for (int i = '0'; i <= '9'; i++) 
 			OBVIOUS_IDENT_CHAR_NATURES[i] = C_DIGIT;

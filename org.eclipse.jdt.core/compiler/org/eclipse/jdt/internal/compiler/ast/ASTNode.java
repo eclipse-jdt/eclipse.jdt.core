@@ -80,6 +80,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static long Bit54L = 0x20000000000000L;
 	public final static long Bit55L = 0x40000000000000L;
 	public final static long Bit56L = 0x80000000000000L;
+	public final static long Bit57L = 0x100000000000000L;
+	public final static long Bit58L = 0x200000000000000L;
+	public final static long Bit59L = 0x400000000000000L;
+	public final static long Bit60L = 0x800000000000000L;
+	public final static long Bit61L = 0x1000000000000000L;
+	public final static long Bit62L = 0x2000000000000000L;
+	public final static long Bit63L = 0x4000000000000000L;
+	public final static long Bit64L = 0x8000000000000000L;
 
 	public int bits = IsReachable; 				// reachable by default
 
