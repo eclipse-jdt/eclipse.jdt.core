@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
@@ -254,30 +255,34 @@ public class CharacterLiteral extends Expression {
 					value = '\\';
 					break;
 				default : //octal (well-formed: ended by a ' )
-					if (Character.isDigit(nextChar)) {
-						int number = Character.getNumericValue(nextChar);
-						nextChar = (char) scanner.getNextChar();
-						if (nextChar == -1) {
-							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
-						}
-						if (nextChar != '\'') {
-							if (!Character.isDigit(nextChar)) {
-								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
-							}
-							number = (number * 8) + Character.getNumericValue(nextChar);
+					try {
+						if (ScannerHelper.isDigit(nextChar)) {
+							int number = ScannerHelper.getNumericValue(nextChar);
 							nextChar = (char) scanner.getNextChar();
 							if (nextChar == -1) {
 								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 							}
 							if (nextChar != '\'') {
-								if (!Character.isDigit(nextChar)) {
+								if (!ScannerHelper.isDigit(nextChar)) {
 									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 								}
-								number = (number * 8) + Character.getNumericValue(nextChar);
+								number = (number * 8) + ScannerHelper.getNumericValue(nextChar);
+								nextChar = (char) scanner.getNextChar();
+								if (nextChar == -1) {
+									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+								}
+								if (nextChar != '\'') {
+									if (!ScannerHelper.isDigit(nextChar)) {
+										throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+									}
+									number = (number * 8) + ScannerHelper.getNumericValue(nextChar);
+								}
 							}
+							return (char) number;			
+						} else {
+							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 						}
-						return (char) number;			
-					} else {
+					} catch (InvalidInputException e) {
 						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					}
 			}

@@ -1607,13 +1607,13 @@ public void getNextUnicodeChar()
 			unicodeSize++;
 		}
 
-		if ((c1 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+		if ((c1 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
 			|| c1 < 0
-			|| (c2 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| (c2 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
 			|| c2 < 0
-			|| (c3 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| (c3 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
 			|| c3 < 0
-			|| (c4 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| (c4 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
 			|| c4 < 0){
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
@@ -2503,18 +2503,18 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 			// OctalDigit OctalDigit
 			// ZeroToThree OctalDigit OctalDigit
 
-			int number = Character.getNumericValue(this.currentCharacter);
+			int number = ScannerHelper.getNumericValue(this.currentCharacter);
 			if (number >= 0 && number <= 7) {
 				boolean zeroToThreeNot = number > 3;
 				if (ScannerHelper.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
-					int digit = Character.getNumericValue(this.currentCharacter);
+					int digit = ScannerHelper.getNumericValue(this.currentCharacter);
 					if (digit >= 0 && digit <= 7) {
 						number = (number * 8) + digit;
 						if (ScannerHelper.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 							if (zeroToThreeNot) {// has read \NotZeroToThree OctalDigit Digit --> ignore last character
 								this.currentPosition--;
 							} else {
-								digit = Character.getNumericValue(this.currentCharacter);
+								digit = ScannerHelper.getNumericValue(this.currentCharacter);
 								if (digit >= 0 && digit <= 7){ // has read \ZeroToThree OctalDigit OctalDigit
 									number = (number * 8) + digit;
 								} else {// has read \ZeroToThree OctalDigit NonOctalDigit --> ignore last character

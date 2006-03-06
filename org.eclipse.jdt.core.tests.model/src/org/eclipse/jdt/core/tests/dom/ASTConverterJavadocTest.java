@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class ASTConverterJavadocTest extends ConverterTestSetup {
 
@@ -469,11 +470,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				int c1, c2, c3, c4;
 				charLength++;
 				while (source[idx+charLength] == 'u') charLength++;
-				if (((c1 = Character.getNumericValue(source[idx+charLength++])) > 15
+				if (((c1 = ScannerHelper.getNumericValue(source[idx+charLength++])) > 15
 					|| c1 < 0)
-					|| ((c2 = Character.getNumericValue(source[idx+charLength++])) > 15 || c2 < 0)
-					|| ((c3 = Character.getNumericValue(source[idx+charLength++])) > 15 || c3 < 0)
-					|| ((c4 = Character.getNumericValue(source[idx+charLength++])) > 15 || c4 < 0)) {
+					|| ((c2 = ScannerHelper.getNumericValue(source[idx+charLength++])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getNumericValue(source[idx+charLength++])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getNumericValue(source[idx+charLength++])) > 15 || c4 < 0)) {
 					return ch;
 				}
 				ch = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
@@ -667,11 +668,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				int c1, c2, c3, c4;
 				unicodeSource[u++] = source[i];
 				unicodeSource[u++] = source[++i];
-				if (((c1 = Character.getNumericValue(source[i+1])) > 15
+				if (((c1 = ScannerHelper.getNumericValue(source[i+1])) > 15
 					|| c1 < 0)
-					|| ((c2 = Character.getNumericValue(source[i+2])) > 15 || c2 < 0)
-					|| ((c3 = Character.getNumericValue(source[i+3])) > 15 || c3 < 0)
-					|| ((c4 = Character.getNumericValue(source[i+4])) > 15 || c4 < 0)) {
+					|| ((c2 = ScannerHelper.getNumericValue(source[i+2])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getNumericValue(source[i+3])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getNumericValue(source[i+4])) > 15 || c4 < 0)) {
 					throw new RuntimeException("Invalid unicode in source at "+i);
 				}
 				for (int j=0; j<4; j++) unicodeSource[u++] = source[++i];

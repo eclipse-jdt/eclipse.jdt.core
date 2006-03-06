@@ -217,8 +217,20 @@ public static boolean isDigit(char c) throws InvalidInputException {
 	}
 	if (Character.isDigit(c)) {
 		throw new InvalidInputException(Scanner.INVALID_DIGIT);
-	} else {
-		return false;
 	}
+	return false;
+}
+public static int getNumericValue(char c) {
+	if (c < ScannerHelper.MAX_OBVIOUS) {
+		switch(ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
+			case C_DIGIT :
+				return c - '0';
+			case C_LOWER_LETTER :
+				return 10 + c - 'a';
+			case C_UPPER_LETTER :
+				return 10 + c - 'A';
+		}
+	}
+	return Character.getNumericValue(c);
 }
 }

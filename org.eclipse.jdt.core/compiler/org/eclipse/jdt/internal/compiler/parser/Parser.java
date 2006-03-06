@@ -2665,13 +2665,13 @@ protected void consumeEmptyStatement() {
 				pos--;
 			}
 			if (source[pos] == '\\' &&
-					!((c1 = Character.getNumericValue(source[this.endStatementPosition - 3])) > 15
+					!((c1 = ScannerHelper.getNumericValue(source[this.endStatementPosition - 3])) > 15
 						|| c1 < 0
-						|| (c2 = Character.getNumericValue(source[this.endStatementPosition - 2])) > 15
+						|| (c2 = ScannerHelper.getNumericValue(source[this.endStatementPosition - 2])) > 15
 						|| c2 < 0
-						|| (c3 = Character.getNumericValue(source[this.endStatementPosition - 1])) > 15
+						|| (c3 = ScannerHelper.getNumericValue(source[this.endStatementPosition - 1])) > 15
 						|| c3 < 0
-						|| (c4 = Character.getNumericValue(source[this.endStatementPosition])) > 15
+						|| (c4 = ScannerHelper.getNumericValue(source[this.endStatementPosition])) > 15
 						|| c4 < 0) &&
 					((char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4)) == ';'){
 				// we have a Unicode for the ';' (/u003B)
@@ -8126,11 +8126,11 @@ protected char getNextCharacter(char[] comment, int[] index) {
 			int c1, c2, c3, c4;
 			index[0]++;
 			while (comment[index[0]] == 'u') index[0]++;
-			if (!(((c1 = Character.getNumericValue(comment[index[0]++])) > 15
+			if (!(((c1 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15
 				|| c1 < 0)
-				|| ((c2 = Character.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
-				|| ((c3 = Character.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
-				|| ((c4 = Character.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
+				|| ((c2 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
+				|| ((c3 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
+				|| ((c4 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
 					nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 			}
 			break;

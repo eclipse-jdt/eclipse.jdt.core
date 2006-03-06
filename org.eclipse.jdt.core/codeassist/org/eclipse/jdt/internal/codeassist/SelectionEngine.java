@@ -352,13 +352,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						while (source[pos] == 'u') {
 							pos++;
 						}
-						if ((c1 = Character.getNumericValue(source[pos++])) > 15
+						if ((c1 = ScannerHelper.getNumericValue(source[pos++])) > 15
 							|| c1 < 0
-							|| (c2 = Character.getNumericValue(source[pos++])) > 15
+							|| (c2 = ScannerHelper.getNumericValue(source[pos++])) > 15
 							|| c2 < 0
-							|| (c3 = Character.getNumericValue(source[pos++])) > 15
+							|| (c3 = ScannerHelper.getNumericValue(source[pos++])) > 15
 							|| c3 < 0
-							|| (c4 = Character.getNumericValue(source[pos++])) > 15
+							|| (c4 = ScannerHelper.getNumericValue(source[pos++])) > 15
 							|| c4 < 0) {
 							return false;
 						} else {

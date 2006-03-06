@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class CharLiteral extends NumberLiteral {
 	char value;
@@ -62,15 +63,15 @@ private void computeValue() {
 			value = '\\';
 			break;
 		default : //octal (well-formed: ended by a ' )
-			int number = Character.getNumericValue(digit);
+			int number = ScannerHelper.getNumericValue(digit);
 			if ((digit = source[3]) != '\'')
-				number = (number * 8) + Character.getNumericValue(digit);
+				number = (number * 8) + ScannerHelper.getNumericValue(digit);
 			else {
 				constant = CharConstant.fromValue(value = (char) number);
 				break;
 			}
 			if ((digit = source[4]) != '\'')
-				number = (number * 8) + Character.getNumericValue(digit);
+				number = (number * 8) + ScannerHelper.getNumericValue(digit);
 			value = (char) number;
 			break;
 	}
