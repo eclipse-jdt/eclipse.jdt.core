@@ -1175,6 +1175,51 @@ public void test0083_shortcut_boolean_expression() {
 		"----------\n");
 }
 
+// null analysis - shortcut boolean expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
+public void test0084_shortcut_boolean_expression() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  boolean foo(Integer i1, Integer i2) {\n" + 
+			"    return (i1 == null && i2 == null)\n" + 
+			"      || (i1.byteValue() == i2.byteValue());\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	|| (i1.byteValue() == i2.byteValue());\n" + 
+		"	    ^^\n" + 
+		"The variable i1 may be null\n" + 
+		"----------\n");
+}
+
+// null analysis - shortcut boolean expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
+public void test0085_shortcut_boolean_expression() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  boolean foo(Integer i1, Integer i2) {\n" + 
+			"    return (i1 == null & i2 == null)\n" + 
+			"      || (i1.byteValue() == i2.byteValue());\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	|| (i1.byteValue() == i2.byteValue());\n" + 
+		"	    ^^\n" + 
+		"The variable i1 may be null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	|| (i1.byteValue() == i2.byteValue());\n" + 
+		"	                      ^^\n" + 
+		"The variable i2 may be null\n" + 
+		"----------\n");
+}
+
 // null analysis -- instanceof
 // JLS: instanceof returns false if o turns out to be null
 public void test0090_instanceof() {
