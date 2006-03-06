@@ -352,8 +352,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 				if (tagLength == 0) continue nextTag;
 	
 				// ensure tag is not leaded with letter if tag starts with a letter
-				if (Character.isJavaIdentifierStart(tag[0])) {
-					if (Character.isJavaIdentifierPart(previous)) {
+				if (ScannerHelper.isJavaIdentifierStart(tag[0])) {
+					if (ScannerHelper.isJavaIdentifierPart(previous)) {
 						continue nextTag;
 					}
 				}
@@ -369,8 +369,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					}
 				}
 				// ensure tag is not followed with letter if tag finishes with a letter
-				if (i+tagLength < commentEnd && Character.isJavaIdentifierPart(src[i+tagLength-1])) {
-					if (Character.isJavaIdentifierPart(src[i + tagLength]))
+				if (i+tagLength < commentEnd && ScannerHelper.isJavaIdentifierPart(src[i+tagLength-1])) {
+					if (ScannerHelper.isJavaIdentifierPart(src[i + tagLength]))
 						continue nextTag;
 				}
 				if (this.foundTaskTags == null) {
