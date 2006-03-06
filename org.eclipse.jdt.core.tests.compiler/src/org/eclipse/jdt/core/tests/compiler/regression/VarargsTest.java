@@ -535,12 +535,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to Object[] when passed to the constructor Y(boolean, Object...)\n" + 
+			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs constructor Y(boolean, Object...). It could alternatively be cast to Object for a varargs invocation\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	y = new Y(\'i\', null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^\n" + 
-			"Varargs argument null should be cast to int[][] when passed to the constructor Y(char, int[]...)\n" + 
+			"The argument of type null should explicitly be cast to int[][] for the invocation of the varargs constructor Y(char, int[]...). It could alternatively be cast to int[] for a varargs invocation\n" + 
 			"----------\n");
 	}
 

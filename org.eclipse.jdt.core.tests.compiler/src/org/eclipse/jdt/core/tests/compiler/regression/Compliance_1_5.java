@@ -3133,7 +3133,7 @@ public void test088() {
 		"5. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Varargs argument null should be cast to Class[] when passed to the method getMethod(String, Class...) from type Class\n" + 
+		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
 		"----------\n");
 }
 /*
