@@ -1030,10 +1030,10 @@ public class Util {
 		catch(CoreException ce) {
 			// do not use any encoding
 		}
-		return getResourceContentsAsCharArray(file, encoding);
+		return getResourceContentsAsCharArray(file, encoding, file.getLocationURI());
 	}
 
-	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
+	public static char[] getResourceContentsAsCharArray(IFile file, String encoding, URI location) throws JavaModelException {
 		// Get resource contents
 		InputStream stream= null;
 		try {
@@ -1042,7 +1042,7 @@ public class Util {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 		try {
-			long length = EFS.getStore(file.getLocationURI()).fetchInfo().getLength();
+			long length = EFS.getStore(location).fetchInfo().getLength();
 			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, (int) length, encoding);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

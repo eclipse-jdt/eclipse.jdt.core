@@ -1974,7 +1974,8 @@ public void testEmptyClasspath() throws CoreException {
 public void testEncoding() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src\u3400"}, "bin");
-		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath"), "UTF-8"));
+		IFile file = getFile("/P/.classpath");
+		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(file, "UTF-8", file.getLocationURI()));
 		encodedContents = Util.convertToIndependantLineDelimiter(encodedContents);
 		assertEquals(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

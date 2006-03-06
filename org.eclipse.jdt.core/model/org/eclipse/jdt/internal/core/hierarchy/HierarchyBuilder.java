@@ -260,7 +260,7 @@ public abstract class HierarchyBuilder {
  */
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
 	final char[] elementName = handle.getElementName().toCharArray();
-	return new ResourceCompilationUnit(file) {
+	return new ResourceCompilationUnit(file, file.getLocationURI()) {
 		public char[] getFileName() {
 			return elementName;
 		}

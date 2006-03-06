@@ -85,7 +85,7 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 	if (dirTable != null && dirTable.elementSize > 0) {
 		IFile file = (IFile) dirTable.get(sourceFileWithoutExtension);
 		if (file != null) {
-			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file), null /* no access restriction */);
+			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file, file.getLocationURI()), null /* no access restriction */);
 		}
 	}
 	return null;

@@ -273,7 +273,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
@@ -292,7 +292,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}	
@@ -310,7 +310,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
@@ -400,7 +400,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
@@ -415,7 +415,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}	
@@ -429,7 +429,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding, this.utf8File.getLocationURI()));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
@@ -450,7 +450,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull(this.utf8Source);
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding, this.utf8File.getLocationURI()));
 		assertSourceEquals("Encoded UTF-8 source should have been decoded the same way!", source, encodedContents);
 
 		// Cannot compare bytes array without encoding as we're dependent of linux/windows os for new lines delimiter
@@ -472,7 +472,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull(this.utf8Source);
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding, this.utf8File.getLocationURI()));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
 
@@ -494,7 +494,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull(this.utf8Source);
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding, this.utf8File.getLocationURI()));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 		
 		// Reset zip file encoding
@@ -528,7 +528,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			String source = cu.getBuffer().getContents();
 			
 			// Compare strings and bytes arrays
-			String encodedContents = new String (Util.getResourceContentsAsCharArray(file, encoding));
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(file, encoding, file.getLocationURI()));
 			assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
 			byte[] sourceBytes = source.getBytes(encoding);
 			byte[] encodedBytes = Util.getResourceContentsAsByteArray(file);
@@ -796,7 +796,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertEquals("We should not get any character!", "", new String(fileContents));
 
 		// Test read empty content using io file
-		char[] ifileContents =Util.getResourceContentsAsCharArray(emptyFile, "UTF-8");
+		char[] ifileContents =Util.getResourceContentsAsCharArray(emptyFile, "UTF-8", emptyFile.getLocationURI());
 		assertEquals("We should not get any character!", "", new String(ifileContents));
 		
 		// Delete empty file

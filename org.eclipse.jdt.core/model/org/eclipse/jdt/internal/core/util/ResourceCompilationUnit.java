@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.net.URI;
+
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 
@@ -21,10 +23,12 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 public class ResourceCompilationUnit extends CompilationUnit {
 	
 	private IFile file;
+	private URI location;
 	
-	public ResourceCompilationUnit(IFile file) {
-		super(null/*no contents*/, file.getLocationURI() == null ? file.getFullPath().toString() : file.getLocationURI().getSchemeSpecificPart(), null/*encoding is used only when retrieving the contents*/);
+	public ResourceCompilationUnit(IFile file, URI location) {
+		super(null/*no contents*/, location == null ? file.getFullPath().toString() : location.getSchemeSpecificPart(), null/*encoding is used only when retrieving the contents*/);
 		this.file = file;
+		this.location = location;
 	}
 
 	public char[] getContents() {
@@ -33,8 +37,9 @@ public class ResourceCompilationUnit extends CompilationUnit {
 	
 		// otherwise retrieve it
 		try {
-			return Util.getResourceContentsAsCharArray(this.file);
-		} catch (JavaModelException e) {
+			String encoding = file.getCharset();
+			return Util.getResourceContentsAsCharArray(this.file, encoding, this.location);
+		} catch (CoreException e) {
 			return CharOperation.NO_CHAR;
 		}
 	}
