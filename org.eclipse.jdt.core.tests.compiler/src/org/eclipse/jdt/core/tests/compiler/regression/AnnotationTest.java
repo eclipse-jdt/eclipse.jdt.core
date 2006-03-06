@@ -6385,4 +6385,32 @@ public void test194() {
 		"The method foo() of type X must override a superclass method\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130516
+public void test195() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@SuppressWarnings(\"cast\")\n" + 
+			"	void foo() {\n" + 
+			"		String s = (String) \"hello\";\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		String s = (String) \"hello\";\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	String s = (String) \"hello\";\n" + 
+		"	           ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from String to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

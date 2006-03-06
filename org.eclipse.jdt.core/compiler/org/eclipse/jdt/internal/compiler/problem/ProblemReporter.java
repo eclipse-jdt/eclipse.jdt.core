@@ -665,7 +665,7 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceEnd);
 }
 public void autoboxing(Expression expression, TypeBinding originalType, TypeBinding convertedType) {
-	if (this.options.getSeverity(IProblem.BoxingConversion) == ProblemSeverities.Ignore) return;
+	if (this.options.getSeverity(CompilerOptions.AutoBoxing) == ProblemSeverities.Ignore) return;
 	this.handle(
 		originalType.isBaseType() ? IProblem.BoxingConversion : IProblem.UnboxingConversion,
 		new String[] { new String(originalType.readableName()), new String(convertedType.readableName()), },
@@ -5970,19 +5970,45 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceEnd);	
 }
 public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentType, InvocationSite location) {
-	TypeBinding lastParam = method.parameters[method.parameters.length-1];
+	if (this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast) == ProblemSeverities.Ignore) return;
+	ArrayBinding varargsType = (ArrayBinding)method.parameters[method.parameters.length-1];
 	if (method.isConstructor()) {
 		this.handle(
 			IProblem.ConstructorVarargsArgumentNeedCast,
-			new String[] {new String(argumentType.readableName()), new String(lastParam.readableName()), new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), },
-			new String[] {new String(argumentType.shortReadableName()), new String(lastParam.shortReadableName()), new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), },
+			new String[] {
+					new String(argumentType.readableName()), 
+					new String(varargsType.readableName()), 
+					new String(method.declaringClass.readableName()), 
+					typesAsString(method.isVarargs(), method.parameters, false), 
+					new String(varargsType.elementsType().readableName()), 
+			},
+			new String[] {
+					new String(argumentType.shortReadableName()), 
+					new String(varargsType.shortReadableName()), 
+					new String(method.declaringClass.shortReadableName()), 
+					typesAsString(method.isVarargs(), method.parameters, true), 
+					new String(varargsType.elementsType().shortReadableName()), 
+			},
 			location.sourceStart(),
 			location.sourceEnd());
 	} else {
 		this.handle(
 			IProblem.MethodVarargsArgumentNeedCast,
-			new String[] { new String(argumentType.readableName()), new String(lastParam.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(method.declaringClass.readableName()), },
-			new String[] { new String(argumentType.shortReadableName()), new String(lastParam.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(method.declaringClass.shortReadableName()), },
+			new String[] { 
+					new String(argumentType.readableName()), 
+					new String(varargsType.readableName()), 
+					new String(method.selector), 
+					typesAsString(method.isVarargs(), method.parameters, false), 
+					new String(method.declaringClass.readableName()), 
+					new String(varargsType.elementsType().readableName()), 
+			},
+			new String[] { 
+					new String(argumentType.shortReadableName()), 
+					new String(varargsType.shortReadableName()), 
+					new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), 
+					new String(method.declaringClass.shortReadableName()), 
+					new String(varargsType.elementsType().shortReadableName()), 
+			},
 			location.sourceStart(),
 			location.sourceEnd());
 	}

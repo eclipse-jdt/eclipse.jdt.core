@@ -55,10 +55,13 @@ What's new in this drop</h2>
 <li>Compilation participant reporting problems using <code>BuildContext#recordNewProblems(...)</code> now need to declare the problems
      marker type as being managed for this problems to be persisted as markers by the Java builder. Declaring a managed marker type is
      done using the 'managedMarker' sequence in the 'compilationParticipant' extension point.</li>
+<li>Compiler now supports <code>@SuppressWarnings("cast")</code> for silencing unnecessary cast diagnostics.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105801">105801</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130516">130516</a>
+[1.5][compiler] Add support for "cast" warning token
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105801">105801</a>
 [1.5][compiler] Too many warnings for non-matching types of arguments of varargs call
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=128418">128418</a>
 [1.5][compiler] eclipse doesn't emit unchecked warning

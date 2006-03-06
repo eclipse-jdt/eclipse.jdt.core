@@ -921,6 +921,8 @@ public class CompilerOptions {
 					return "hiding"; //$NON-NLS-1$
 				case (int) NonExternalizedString :
 					return "nls"; //$NON-NLS-1$
+				case (int) UnnecessaryTypeCheck :
+					return "cast"; //$NON-NLS-1$
 				case (int) UnusedLocalVariable :
 				case (int) UnusedArgument :
 				case (int) UnusedImport :
@@ -969,6 +971,7 @@ public class CompilerOptions {
 	public final static String[] warningTokens = {
 		"all", //$NON-NLS-1$
 		"boxing", //$NON-NLS-1$
+		"cast", //$NON-NLS-1$
 		"dep-ann", //$NON-NLS-1$
 		"deprecation", //$NON-NLS-1$
 		"fallthrough", //$NON-NLS-1$
@@ -996,6 +999,10 @@ public class CompilerOptions {
 			case 'b' :
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
 					return AutoBoxing;
+				break;
+			case 'c' :
+				if ("cast".equals(warningToken)) //$NON-NLS-1$
+					return UnnecessaryTypeCheck;
 				break;
 			case 'd' :
 				if ("deprecation".equals(warningToken)) //$NON-NLS-1$
