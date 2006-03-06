@@ -98,12 +98,12 @@ public class ScannerHelper {
 
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
-	public final static int C_UPPER_LETTER = 6;
-	public final static int C_LOWER_LETTER = 5;
-	public final static int C_IDENT_PART = 4;
-	public final static int C_DIGIT = 3;
-	public final static int C_SEPARATOR = 2;
-	public final static int C_SPACE = 1;
+	public final static int C_UPPER_LETTER = Bit6;
+	public final static int C_LOWER_LETTER = Bit5;
+	public final static int C_IDENT_PART = Bit4;
+	public final static int C_DIGIT = Bit3;
+	public final static int C_SEPARATOR = Bit2;
+	public final static int C_SPACE = Bit1;
 	static {
 		for (int i = '0'; i <= '9'; i++) 
 			OBVIOUS_IDENT_CHAR_NATURES[i] = C_DIGIT;
