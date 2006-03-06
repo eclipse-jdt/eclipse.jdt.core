@@ -566,7 +566,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 		}
 		
 		String markerType = problem.getMarkerType();
-		if ((id != IProblem.Task && IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER.equals(markerType)) 
+		if (IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER.equals(markerType)
 				|| managedMarkerTypes.contains(markerType)) {			
 			IMarker marker = resource.createMarker(markerType);
 			
