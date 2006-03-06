@@ -29867,4 +29867,32 @@ public void test0952() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106325
+public void test0953() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.lang.ref.WeakReference;\n" + 
+		"import java.util.Arrays;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"  void m(WeakReference<Integer> ref) {\n" + 
+		"    List<WeakReference<Integer>> list= Arrays.asList(ref);\n" + 
+		"    Zork z;\n" + 
+		"  }\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	List<WeakReference<Integer>> list= Arrays.asList(ref);\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of WeakReference<Integer> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
