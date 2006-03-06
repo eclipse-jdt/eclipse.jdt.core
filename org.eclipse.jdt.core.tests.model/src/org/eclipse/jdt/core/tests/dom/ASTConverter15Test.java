@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 211 };
+//		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6288,7 +6288,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0208() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"@Override(x= 1)\r\n" + 
+			"@Override(x= 1)\n" + 
 			"public class X { }";
 		ASTNode node = buildAST(
 				contents,
@@ -6444,5 +6444,38 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(variableDeclaration.getType(), "java.util.List<?>", contents);
 		checkSourceRange(variableDeclaration.getName(), "tab", contents);
 		assertEquals("wrong number of extra dimensions", 2, variableDeclaration.getExtraDimensions());
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=130528
+	 */
+	public void test0213() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"    int test(String[] strings) {\n" + 
+			"        return strings.length;\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			workingCopy,
+			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		QualifiedName name = (QualifiedName) expression;
+		SimpleName simpleName = name.getName();
+		checkSourceRange(simpleName, "length", contents);
+		IBinding binding = simpleName.resolveBinding();
+		assertEquals("Not a field", IBinding.VARIABLE, binding.getKind());
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("No annotations", 0, variableBinding.getAnnotations().length);
 	}
 }

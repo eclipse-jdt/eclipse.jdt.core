@@ -261,7 +261,11 @@ public long getAnnotationTagBits() {
 
 public AnnotationBinding[] getAnnotations() {
 	FieldBinding originalField = this.original();
-	return originalField.declaringClass.retrieveAnnotations(originalField);
+	ReferenceBinding declaringClassBinding = originalField.declaringClass;
+	if (declaringClassBinding == null) {
+		return Binding.NO_ANNOTATIONS;
+	}	
+	return declaringClassBinding.retrieveAnnotations(originalField);
 }
 
 /* Answer true if the receiver has default visibility
