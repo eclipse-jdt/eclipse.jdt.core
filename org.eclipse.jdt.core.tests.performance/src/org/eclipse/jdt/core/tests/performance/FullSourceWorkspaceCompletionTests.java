@@ -85,7 +85,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 		super.tearDown();
 	}
 	
-	private class TestCompletionRequestor extends CompletionRequestor {
+	class TestCompletionRequestor extends CompletionRequestor {
 		public void accept(CompletionProposal proposal) {
 			PROPOSAL_COUNTS[TESTS_LENGTH-TESTS_COUNT]++;
 		}
