@@ -305,13 +305,10 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar]) {
-						case ScannerHelper.C_LOWER_LETTER :
-						case ScannerHelper.C_IDENT_PART :
-						case ScannerHelper.C_DIGIT :
-							// lowercase/digit char is ignored
-							iName++;
-							continue nextNameChar;
+					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & ScannerHelper.C_LOWER_LETTER|ScannerHelper.C_IDENT_PART|ScannerHelper.C_DIGIT) != 0) {
+						// lowercase/digit char is ignored
+						iName++;
+						continue nextNameChar;
 					}
 				} else if (Character.isJavaIdentifierPart(nameChar) 
 								&& !Character.isUpperCase(nameChar)) {
@@ -1628,16 +1625,7 @@ public static final int hashCode(char[] array) {
  * @return true if c is a whitespace according to the JLS, otherwise false.
  */
 public static boolean isWhitespace(char c) {
-	switch (c) {
-		case 10 : /* \ u000a: LINE FEED               */
-		case 12 : /* \ u000c: FORM FEED               */
-		case 13 : /* \ u000d: CARRIAGE RETURN         */
-		case 32 : /* \ u0020: SPACE                   */
-		case 9 : /* \ u0009: HORIZONTAL TABULATION   */
-			return true;
-		default :
-			return false;
-	}
+	return c < ScannerHelper.MAX_OBVIOUS && ScannerHelper.C_SPACE == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
 }
 
 /**
