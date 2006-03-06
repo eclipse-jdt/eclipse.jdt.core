@@ -169,7 +169,12 @@ private final static boolean isBitSet(long[] values, int i) {
 		return false;
 	}
 }
-
+public static boolean isJavaIdentifierPart(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART | ScannerHelper.C_DIGIT)) != 0;
+	}
+	return Character.isJavaIdentifierPart(c);
+}
 public static boolean isJavaIdentifierPart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
 	switch((codePoint & 0x1F0000) >> 16) {
@@ -184,7 +189,12 @@ public static boolean isJavaIdentifierPart(char high, char low) {
 	}
 	return false;
 }
-
+public static boolean isJavaIdentifierStart(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART)) != 0;
+	}
+	return Character.isJavaIdentifierStart(c);
+}	
 public static boolean isJavaIdentifierStart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
 	switch((codePoint & 0x1F0000) >> 16) {
