@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.index;
 
 import java.io.*;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
@@ -159,23 +160,40 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		}
 		if (results != null && this.cachedChunks == null)
 			cacheDocumentNames();
-	} else if (matchRule == (SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE)) {
-		for (int i = 0, l = categories.length; i < l; i++) {
-			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
-			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
-				results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
-		}
 	} else {
-		for (int i = 0, l = categories.length; i < l; i++) {
-			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
-			if (wordsToDocNumbers != null) {
-				char[][] words = wordsToDocNumbers.keyTable;
-				for (int j = 0, m = words.length; j < m; j++) {
-					char[] word = words[j];
-					if (word != null && Index.isMatch(key, word, matchRule))
-						results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+		switch (matchRule) {
+			case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE:
+				for (int i = 0, l = categories.length; i < l; i++) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+					if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
+						results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
 				}
-			}
+				break;
+			case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE:
+				for (int i = 0, l = categories.length; i < l; i++) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+					if (wordsToDocNumbers != null) {
+						char[][] words = wordsToDocNumbers.keyTable;
+						for (int j = 0, m = words.length; j < m; j++) {
+							char[] word = words[j];
+							if (word != null && key[0] == word[0] && CharOperation.prefixEquals(key, word))
+								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+						}
+					}
+				}
+				break;
+			default:
+				for (int i = 0, l = categories.length; i < l; i++) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+					if (wordsToDocNumbers != null) {
+						char[][] words = wordsToDocNumbers.keyTable;
+						for (int j = 0, m = words.length; j < m; j++) {
+							char[] word = words[j];
+							if (word != null && Index.isMatch(key, word, matchRule))
+								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+						}
+					}
+				}
 		}
 	}
 
