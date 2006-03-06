@@ -983,6 +983,8 @@ void setSourceStart(int sourceStart);
 	int RawTypeReference = TypeRelated + 572;
 	/** @since 3.2 */
 	int NoAdditionalBoundAfterTypeVariable = TypeRelated + 573;
+	/** @since 3.2 */
+	int UnsafeGenericArrayForVarargs = MethodRelated + 574;
 	
 	/**
 	 * Foreach

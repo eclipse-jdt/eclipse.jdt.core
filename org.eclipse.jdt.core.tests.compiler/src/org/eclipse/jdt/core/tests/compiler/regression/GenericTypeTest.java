@@ -30,7 +30,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test788" };
+//		TESTS_NAMES = new String[] { "test0788" };
 //		TESTS_NUMBERS = new int[] { 936 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
@@ -42,7 +42,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		return GenericTypeTest.class;
 	}
 
-	public void test001() {
+	public void test0001() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -62,7 +62,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test002() {
+	public void test0002() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -89,7 +89,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check cannot bind superclass to type variable
-	public void test003() {
+	public void test0003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -110,7 +110,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check cannot bind superinterface to type variable
-	public void test004() {
+	public void test0004() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -131,7 +131,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check cannot bind type variable in static context
-	public void test005() {
+	public void test0005() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -152,7 +152,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 				
 	// check static references to type variables
-	public void test006() {
+	public void test0006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -207,7 +207,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check static references to type variables
-	public void test007() {
+	public void test0007() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -228,7 +228,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check static references to type variables
-	public void test008() {
+	public void test0008() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -247,7 +247,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// Object cannot be generic
-	public void test009() {
+	public void test0009() {
 		this.runNegativeTest(
 			new String[] {
 				"Object.java",
@@ -263,7 +263,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test010() {
+	public void test0010() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -282,7 +282,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test011() {
+	public void test0011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -300,7 +300,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test012() {
+	public void test0012() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -318,7 +318,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test013() {
+	public void test0013() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -341,7 +341,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test014() {
+	public void test0014() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -375,7 +375,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 	}
-	public void test015() {
+	public void test0015() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -403,7 +403,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test016() {
+	public void test0016() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -425,7 +425,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test017() {
+	public void test0017() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -453,7 +453,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method bar(IOException) in the type X<IOException> is not applicable for the arguments (Exception)\n" + 
 			"----------\n");
 	}
-	public void test018() {
+	public void test0018() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -478,7 +478,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test019() {
+	public void test0019() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -513,7 +513,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method toString() of type XY should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}
-	public void test020() {
+	public void test0020() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -549,7 +549,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method print(T) in the type Y<T> is not applicable for the arguments (String)\n" + 
 			"----------\n");
 	}
-	public void test021() {
+	public void test0021() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -582,7 +582,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test022() {
+	public void test0022() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -599,7 +599,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test023() {
+	public void test0023() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -619,7 +619,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test024() {
+	public void test0024() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -651,7 +651,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test025() {
+	public void test0025() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -679,7 +679,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test026() {
+	public void test0026() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -701,7 +701,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test027() {
+	public void test0027() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -730,7 +730,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test028() {
+	public void test0028() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -752,7 +752,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test029() {
+	public void test0029() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -779,7 +779,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test030() {
+	public void test0030() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -800,7 +800,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test031() {
+	public void test0031() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -831,7 +831,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test032() {
+	public void test0032() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -857,7 +857,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test033() {
+	public void test0033() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -879,7 +879,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	
-	public void test034() {
+	public void test0034() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -901,7 +901,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	
-	public void test035() {
+	public void test0035() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -923,7 +923,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	
-	public void test036() {
+	public void test0036() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -938,7 +938,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 				
-	public void test037() {
+	public void test0037() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -953,7 +953,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test038() {
+	public void test0038() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -975,7 +975,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
-	public void test039() {
+	public void test0039() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1011,7 +1011,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test040() {
+	public void test0040() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1024,7 +1024,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test041() {
+	public void test0041() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1037,7 +1037,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test042() {
+	public void test0042() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1052,7 +1052,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	
-	public void test043() {
+	public void test0043() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1066,7 +1066,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test044() {
+	public void test0044() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1080,7 +1080,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
-	public void test045() {
+	public void test0045() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1095,7 +1095,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Z cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	public void test046() {
+	public void test0046() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1110,7 +1110,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"T cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	public void test047() {
+	public void test0047() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1160,7 +1160,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
 	// javac finds no error/warning on this test but it should
-	public void test048() {
+	public void test0048() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1203,7 +1203,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from T to X\n" + 
 			"----------\n");
 	}
-	public void test049() {
+	public void test0049() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1231,7 +1231,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test050() {
+	public void test0050() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1268,7 +1268,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504
-	public void test050a() {
+	public void test0050a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1294,7 +1294,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101387
-	public void test050b() {
+	public void test0050b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1306,7 +1306,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	public void test051() {
+	public void test0051() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1320,7 +1320,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test052() {
+	public void test0052() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1336,7 +1336,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test053() {
+	public void test0053() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1370,7 +1370,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test054() {
+	public void test0054() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1415,7 +1415,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
-	public void test055() {
+	public void test0055() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1445,7 +1445,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	
-	public void test056() {
+	public void test0056() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1486,7 +1486,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test057() {
+	public void test0057() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1517,7 +1517,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-v10[2.1,2.2]: Valid multiple parameter types
-	public void test058() {
+	public void test0058() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -1533,7 +1533,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more declared than referenced
-	public void test059() {
+	public void test0059() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1555,7 +1555,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more referenced than declared
-	public void test060() {
+	public void test0060() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1577,7 +1577,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: primitive types
-	public void test061() {
+	public void test0061() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -1629,7 +1629,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// JSR14-v10[2.1,2.2]: Valid multiple parameter types: primitive type arrays
-	public void test062() {
+	public void test0062() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -1645,7 +1645,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			""
 		);
 	}
-	public void test063() {
+	public void test0063() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1700,7 +1700,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// raw type: variable map to its strict erasure 
-	public void test064() {
+	public void test0064() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1744,7 +1744,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// raw type: assignments 
-	public void test065() {
+	public void test0065() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -1789,7 +1789,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
-	public void test066() {
+	public void test0066() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1813,7 +1813,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
-	public void test067() {
+	public void test0067() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1838,7 +1838,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// JSR14-V10[2.4]: Not terminated consecutive declaration
 	// TODO (david) diagnosis message on error 3 sounds strange, doesn't it?
-	public void test068() {
+	public void test0068() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1872,7 +1872,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-V10[2.4]: Not terminated consecutive declaration
-	public void test069() {
+	public void test0069() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1897,7 +1897,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
-	public void test070() {
+	public void test0070() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1917,7 +1917,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
-	public void test071() {
+	public void test0071() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1938,7 +1938,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
-	public void test072() {
+	public void test0072() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1959,7 +1959,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
-	public void test073() {
+	public void test0073() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -1983,7 +1983,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
-	public void test074() {
+	public void test0074() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X1.java",
@@ -2003,7 +2003,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// A is not an interface
-	public void test075() {
+	public void test0075() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2033,7 +2033,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// A is not an interface
-	public void test076() {
+	public void test0076() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2067,7 +2067,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// unsafe type operation: only for constructors with signature change
-	public void test077() {
+	public void test0077() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2149,7 +2149,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The constructor X<String>(String[]) is undefined\n" + 
 			"----------\n");
 	}	
-	public void test078() {
+	public void test0078() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2238,7 +2238,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	// JSR14-v10[2.4]: Valid consecutive Type Parameters Brackets
-	public void test079() {
+	public void test0079() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -2268,7 +2268,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// TODO (david) remove errors: insert dimension to complete array type
-	public void test080() {
+	public void test0080() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -2302,7 +2302,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// TODO (david) remove errors: insert dimension to complete array type
-	public void test081() {
+	public void test0081() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -2331,7 +2331,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// TODO (david) remove error: insert dimension to complete array type
-	public void test082() {
+	public void test0082() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -2355,7 +2355,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// TODO (david) remove error: insert dimension to complete array type
-	public void test083() {
+	public void test0083() {
 		this.runNegativeTest(
 			new String[] {
 				"test/X.java",
@@ -2378,7 +2378,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	public void test084() {
+	public void test0084() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2480,7 +2480,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
-	public void test085() {
+	public void test0085() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2501,7 +2501,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"null");
 	}		
 
-	public void test086() {
+	public void test0086() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -2546,7 +2546,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		customOptions);		
 	}		
 	
-	public void test087() {
+	public void test0087() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
@@ -2576,7 +2576,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		null/*no custom requestor*/);		
 	}			
 	
-	public void test088() {
+	public void test0088() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
@@ -2602,7 +2602,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		null/*no custom requestor*/);		
 	}				
 
-	public void test089() {
+	public void test0089() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2619,7 +2619,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"SUCCESS");
 	}				
 
-	public void test090() {
+	public void test0090() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
@@ -2648,7 +2648,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		null/*no custom requestor*/);		
 	}				
 
-	public void test091() {
+	public void test0091() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2660,7 +2660,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");		
 	}				
 
-	public void test092() {
+	public void test0092() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2700,7 +2700,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
-	public void test093() {
+	public void test0093() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2720,7 +2720,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// same as test001, but every type is now a SourceTypeBinding
-	public void test094() {
+	public void test0094() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2742,7 +2742,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test095() {
+	public void test0095() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2764,7 +2764,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}	
-	public void test096() {
+	public void test0096() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2777,7 +2777,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}
-	public void test097() {
+	public void test0097() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2790,7 +2790,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}	
-	public void test098() {
+	public void test0098() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
@@ -2861,7 +2861,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}				
 	// wildcard bound cannot be base type
 	// TODO (david) only syntax error should be related to wilcard bound being a base type. Ripple effect is severe here.
-	public void test099() {
+	public void test0099() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2886,7 +2886,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// type parameterized with wildcard cannot appear in allocation
-	public void test100() {
+	public void test0100() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2924,7 +2924,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// wilcard may not pass parameter bound check
-	public void test101() {
+	public void test0101() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2974,7 +2974,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}		
 	// unbound wildcard implicitly bound by matching parameter bounds
-	public void test102() {
+	public void test0102() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3020,7 +3020,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303
-	public void test103() {
+	public void test0103() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3102,7 +3102,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// wildcard bound check
-	public void test104() {
+	public void test0104() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3157,7 +3157,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type safety: The method bar(Object) belongs to the raw type BX. References to generic type BX<Q> should be parameterized\n" + 
 			"----------\n");		
 	}			
-	public void test105() {
+	public void test0105() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3180,7 +3180,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");		
 	}			
-	public void test106() {
+	public void test0106() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3211,7 +3211,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");		
 	}			
 	// unsafe assignment thru binaries
-	public void test107() {
+	public void test0107() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -3244,7 +3244,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);		
 	}			
 	// class literal: Integer.class of type Class<Integer>
-	public void test108() {
+	public void test0108() {
 	    // also ensure no unsafe type operation problem is issued (assignment to variable of type raw)
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
@@ -3277,7 +3277,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		null/*no custom requestor*/);		
 	}	
 	// parameterized interface cannot be implemented simultaneously with distinct arguments
-	public void test109() {
+	public void test0109() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3293,7 +3293,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The interface AX cannot be implemented more than once with different arguments: AX<String> and AX<Thread>\n" + 
 			"----------\n");
 	}		
-	public void test110() {
+	public void test0110() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3314,7 +3314,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The interface AX cannot be implemented more than once with different arguments: AX and AX<Thread>\n" + 
 			"----------\n");		
 	}		
-	public void test111() {
+	public void test0111() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3336,7 +3336,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}		
 	// test member types
-	public void test112() {
+	public void test0112() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3429,7 +3429,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 	}			
-	public void test113() {
+	public void test0113() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3448,7 +3448,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");		
 	}		
-	public void test114() {
+	public void test0114() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3466,7 +3466,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");		
 	}			
-	public void test115() {
+	public void test0115() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3484,7 +3484,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");		
 	}		
-	public void test116() {
+	public void test0116() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3503,7 +3503,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");		
 	}			
 	// test member types
-	public void test117() {
+	public void test0117() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3565,7 +3565,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}				
 	// test generic method with recursive parameter bound <T extends Comparable<? super T>>
-	public void test118() {
+	public void test0118() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3579,7 +3579,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// test binary member types
-	public void _test119() {
+	public void _test0119() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3622,7 +3622,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}
 	// test generic method
-	public void test120() {
+	public void test0120() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3640,7 +3640,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// substitute array types
-	public void test121() {
+	public void test0121() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3657,7 +3657,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// generic method with most specific common supertype: U --> String
-	public void test122() {
+	public void test0122() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3673,7 +3673,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// invalid parameterized type
-	public void test123() {
+	public void test0123() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3689,7 +3689,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// generic method with indirect type inference: BX<String, Thread> --> AX<W>
-	public void test124() {
+	public void test0124() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3712,7 +3712,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// generic method with indirect type inference: CX  --> AX<W>
-	public void test125() {
+	public void test0125() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3736,8 +3736,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}			
-	// variation on test125 with typo: CX extends B instead of BX.
-	public void test126() {
+	// variation on test0125 with typo: CX extends B instead of BX.
+	public void test0126() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3772,7 +3772,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// 57784: test generic method
-	public void test127() {
+	public void test0127() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3787,7 +3787,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	// 58666: special treatment for Object#getClass declared of type: Class<? extends Object>
 	// but implicitly converted to Class<? extends X> for free.
-	public void test128() {
+	public void test0128() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3814,8 +3814,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends X>\n" + 
 			"----------\n");
 	}		
-	// variation on test128
-	public void test129() {
+	// variation on test0128
+	public void test0129() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3860,7 +3860,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// getClass on array type
-	public void test130() {
+	public void test0130() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3876,7 +3876,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// 58979
-	public void test131() {
+	public void test0131() {
 		this.runNegativeTest(
 			new String[] {
 				"ArrayList.java",
@@ -3899,7 +3899,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method bar() is undefined for the type List<T>\n" + 
 			"----------\n");
 	}
-	public void test132() {
+	public void test0132() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3920,7 +3920,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// bridge method
-	public void test133() {
+	public void test0133() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3939,7 +3939,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test134() {
+	public void test0134() {
 		this.runConformTest(
 			new String[] {
 				"Z.java",
@@ -3967,7 +3967,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}	
-	public void test135() {
+	public void test0135() {
 		this.runNegativeTest(
 			new String[] {
 				"Z.java",
@@ -3999,7 +3999,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Bound mismatch: The type ? super String is not a valid substitute for the bounded parameter <T extends ZA> of the type Z<T>\n" + 
 			"----------\n");
 	}
-	public void test136() {
+	public void test0136() {
 		this.runNegativeTest(
 			new String[] {
 				"Z.java",
@@ -4034,7 +4034,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method foo(Z<? super ZA>) in the type Z<capture-of ? super ZA> is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
-	public void test137() {
+	public void test0137() {
 		this.runConformTest(
 			new String[] {
 				"Z.java",
@@ -4063,7 +4063,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// unbound wildcard still remembers its variable bound: Z<?> behaves like Z<AX>
-	public void test138() {
+	public void test0138() {
 		this.runConformTest(
 			new String[] {
 				"Z.java",
@@ -4090,7 +4090,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// extending wildcard considers its bound prior to its corresponding variable
-	public void test139() {
+	public void test0139() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4127,7 +4127,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// extending wildcard considers its bound prior to its corresponding variable
-	public void test140() {
+	public void test0140() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4157,7 +4157,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// super wildcard considers its variable for lookups
-	public void test141() {
+	public void test0141() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4188,7 +4188,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method bfoo() is undefined for the type capture-of ? super BX\n" + 
 			"----------\n");
 	}		
-	public void test142() {
+	public void test0142() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4233,7 +4233,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture-of ? extends X>). The inferred type capture-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
 			"----------\n");
 	}			
-	public void test143() {
+	public void test0143() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4252,7 +4252,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from Class<capture-of ? extends X> to Class<Object>\n" + 
 			"----------\n");
 	}			
-	public void test144() {
+	public void test0144() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4271,7 +4271,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// 59641: check assign/invoke with wildcards
-	public void test145() {
+	public void test0145() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4311,7 +4311,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 59628
-	public void test146() {
+	public void test0146() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4327,7 +4327,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// 59723
-	public void test147() {
+	public void test0147() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4345,7 +4345,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// bridge method
-	public void test148() {
+	public void test0148() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4371,7 +4371,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// method compatibility
-	public void test149() {
+	public void test0149() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4401,7 +4401,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type safety: The return type Object[] for toArray(Object[]) from the type X needs unchecked conversion to conform to T[] from the type Collection<E>\n" + 
 			"----------\n");
 	}			
-	public void test150() {
+	public void test0150() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4423,7 +4423,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Bound mismatch: The generic method foo(T[], List<T>) of type X is not applicable for the arguments (String[], ArrayList<String>). The inferred type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
 			"----------\n");
 	}			
-	public void test151() {
+	public void test0151() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4451,7 +4451,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 60556
-	public void test152() {
+	public void test0152() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4468,7 +4468,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test153() {
+	public void test0153() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4488,7 +4488,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test154() {
+	public void test0154() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4508,7 +4508,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test155() {
+	public void test0155() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4528,7 +4528,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test156() {
+	public void test0156() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4552,7 +4552,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends X> of the type AX<E>\n" + 
 			"----------\n");
 	}			
-	public void test157() {
+	public void test0157() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4578,7 +4578,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method bar(AX<? extends U>, AX<? super U>) in the type X is not applicable for the arguments (AX<X>, AX<String>)\n" + 
 			"----------\n");
 	}
-	public void test158() {
+	public void test0158() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4599,7 +4599,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test159() {
+	public void test0159() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4627,7 +4627,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from capture-of ? to T\n" + 
 			"----------\n");
 	}		
-	public void test160() {
+	public void test0160() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4653,7 +4653,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from String to V\n" + 
 			"----------\n");
 	}		
-	public void test161() {
+	public void test0161() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4682,7 +4682,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from String to V\n" + 
 			"----------\n");
 	}		
-	public void test162() {
+	public void test0162() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4716,7 +4716,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from String to V\n" + 
 			"----------\n");
 	}		
-	public void test163() {
+	public void test0163() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4750,7 +4750,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from String to V\n" + 
 			"----------\n");
 	}		
-	public void test164() {
+	public void test0164() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4774,7 +4774,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test165() {
+	public void test0165() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4799,7 +4799,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test166() {
+	public void test0166() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4827,7 +4827,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}	
-	public void test167() {
+	public void test0167() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4850,7 +4850,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test168() {
+	public void test0168() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4893,7 +4893,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"AX is a raw type. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n");
 	}		
-	public void test169() {
+	public void test0169() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4937,7 +4937,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Expected type inference for cast operation
-	public void test170() {
+	public void test0170() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4971,7 +4971,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Expected type inference for cast operation
-	public void test171() {
+	public void test0171() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5005,7 +5005,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Expected type inference for cast operation
-	public void test172() {
+	public void test0172() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5034,7 +5034,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Expected type inference for return statement
-	public void test173() {
+	public void test0173() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5062,7 +5062,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// Expected type inference for field declaration
-	public void test174() {
+	public void test0174() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5087,7 +5087,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// 60563
-	public void test175() {
+	public void test0175() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5113,7 +5113,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// unsafe raw return value
-	public void test176() {
+	public void test0176() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5152,7 +5152,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	// cast to type variable allowed, can be diagnosed as unnecessary
-	public void test177() {
+	public void test0177() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5175,7 +5175,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	// reject instanceof type variable or parameterized type
-	public void test178() {
+	public void test0178() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5219,7 +5219,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	// 61507
-	public void test179() {
+	public void test0179() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5238,7 +5238,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}	
-	public void test180() {
+	public void test0180() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5258,7 +5258,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=61507 - variation computing most specific type with 'null'
-	public void test181() {
+	public void test0181() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5279,7 +5279,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test182() {
+	public void test0182() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5338,7 +5338,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Unnecessary cast from BX to X<String>\n" + 
 			"----------\n");
 	}
-	public void test183() {
+	public void test0183() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5430,7 +5430,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62292 - parameterized message send
-	public void test184() {
+	public void test0184() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5447,7 +5447,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// parameterized message send - variation on 184 with non-static generic method
-	public void test185() {
+	public void test0185() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5464,7 +5464,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// message send parameterized with type not matching parameter bounds
-	public void test186() {
+	public void test0186() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5491,7 +5491,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// invalid type argument arity for parameterized message send
-	public void test187() {
+	public void test0187() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5518,7 +5518,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}				
 	// parameterized invocation of non generic method with incorrect argument count
-	public void test188() {
+	public void test0188() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5540,7 +5540,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// parameterized invocation of non generic method
-	public void test189() {
+	public void test0189() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5562,7 +5562,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// parameterized allocation
-	public void test190() {
+	public void test0190() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5578,7 +5578,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// parameterized allocation - wrong arity
-	public void test191() {
+	public void test0191() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5599,7 +5599,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized allocation - non generic target constructor
-	public void test192() {
+	public void test0192() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5620,7 +5620,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized allocation - argument type mismatch
-	public void test193() {
+	public void test0193() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5641,7 +5641,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized invocation - argument type mismatch
-	public void test194() {
+	public void test0194() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5663,7 +5663,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// parameterized qualified allocation
-	public void test195() {
+	public void test0195() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5681,7 +5681,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// parameterized qualified allocation - wrong arity
-	public void test196() {
+	public void test0196() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5704,7 +5704,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized qualified allocation - non generic target constructor
-	public void test197() {
+	public void test0197() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5727,7 +5727,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized qualified allocation - argument type mismatch
-	public void test198() {
+	public void test0198() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5750,7 +5750,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized explicit constructor call
-	public void test199() {
+	public void test0199() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5771,7 +5771,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// parameterized explicit constructor call - wrong arity
-	public void test200() {
+	public void test0200() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5797,7 +5797,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized explicit constructor call - non generic target constructor
-	public void test201() {
+	public void test0201() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5823,7 +5823,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized explicit constructor call - argument type mismatch
-	public void test202() {
+	public void test0202() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5848,7 +5848,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822 - supertypes partially resolved during bound check
-	public void test203() {
+	public void test0203() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5880,7 +5880,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62806
-	public void test204() {
+	public void test0204() {
 		this.runConformTest(
 			new String[] {
 				"Function.java",
@@ -5910,7 +5910,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63555 - reference to static type parameter allowed inside type itself
-	public void test205() {
+	public void test0205() {
 		this.runConformTest(
 			new String[] {
 				"Alpha.java",
@@ -5923,7 +5923,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63555 - variation on static method type parameter
-	public void test206() {
+	public void test0206() {
 		this.runConformTest(
 			new String[] {
 				"Alpha.java",
@@ -5935,7 +5935,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63590 - disallow parameterized type in catch/throws clause
-	public void test207() {
+	public void test0207() {
 		this.runNegativeTest(
 			new String[] {
 				"Alpha.java",
@@ -5967,7 +5967,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63590 - disallow parameterized type in catch/throws clause
-	public void test208() {
+	public void test0208() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6008,7 +6008,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63556 - should resolve all occurrences of A to type variable
-	public void test209() {
+	public void test0209() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6019,7 +6019,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68006 - Invalid modifier after parse
-	public void test210() {
+	public void test0210() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6036,7 +6036,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// test compilation against binaries
-	public void test211() {
+	public void test0211() {
 		this.runConformTest(
 			new String[] {
 				"p/Top.java",
@@ -6061,7 +6061,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}			
 	// check type variable equivalence
-	public void test212() {
+	public void test0212() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6081,7 +6081,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	public void test213() {
+	public void test0213() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6098,7 +6098,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68133 - verify error
-	public void test214() {
+	public void test0214() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6121,7 +6121,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68133 variation
-	public void test215() { 
+	public void test0215() { 
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6194,7 +6194,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68998 parameterized field constants
-	public void test216() { 
+	public void test0216() { 
 		this.runConformTest(
 			new String[] {
 				"test/cheetah/NG.java",
@@ -6216,7 +6216,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69135 - unnecessary cast operation
-	public void test217() {
+	public void test0217() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -6240,7 +6240,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 visibility issue due to invalid use of parameterized binding
-	public void test218() {
+	public void test0218() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6264,7 +6264,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 variation
-	public void test219() {
+	public void test0219() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6288,7 +6288,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 unsafe wildcard operation tolerates wildcard with lower bounds
-	public void test220() {
+	public void test0220() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6310,7 +6310,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 variation
-	public void test221() {
+	public void test0221() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6331,7 +6331,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141: variation
-	public void test222() {
+	public void test0222() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6355,7 +6355,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69251- instantiating wildcards
-	public void test223() {
+	public void test0223() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -6412,7 +6412,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68998 variation
-	public void test224() { 
+	public void test0224() { 
 		this.runNegativeTest(
 			new String[] {
 				"test/cheetah/NG.java",
@@ -6445,7 +6445,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69353 - prevent using type parameter in catch block
-	public void test225() {
+	public void test0225() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6483,7 +6483,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - invalid generic array creation
-	public void test226() {
+	public void test0226() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6512,7 +6512,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69359 - unsafe cast diagnosis
-	public void test227() {
+	public void test0227() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6622,7 +6622,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// conversion from raw to X<?> is safe (no unsafe warning)
-	public void test228() {
+	public void test0228() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6634,7 +6634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// can resolve member through type variable
-	public void test229() {
+	public void test0229() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6652,7 +6652,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69375 - equivalence of wildcards
-	public void test230() {
+	public void test0230() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6675,7 +6675,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - variation
-	public void test231() {
+	public void test0231() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6698,7 +6698,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - generic cast should be less strict
-	public void test232() {
+	public void test0232() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6728,7 +6728,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"BAD");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test233() {
+	public void test0233() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6758,7 +6758,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test234() {
+	public void test0234() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6788,7 +6788,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"BAD");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test235() {
+	public void test0235() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6818,7 +6818,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test236() {
+	public void test0236() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6848,7 +6848,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"BAD");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test237() {
+	public void test0237() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6878,7 +6878,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test238() {
+	public void test0238() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6910,7 +6910,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"BAD");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
-	public void test239() {
+	public void test0239() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6942,7 +6942,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69713 NPE due to length pseudo field
-	public void test240() {
+	public void test0240() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6965,7 +6965,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69776 - missing checkcast on cast operation
-	public void test241() {
+	public void test0241() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6984,7 +6984,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	// 69776 - variation
-	public void test242() {
+	public void test0242() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7016,7 +7016,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Unnecessary cast from Class to Class<? extends Object>\n" + 
 			"----------\n");
 	}		
-	public void test243() {
+	public void test0243() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7083,7 +7083,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// generic method of raw type
-	public void test244() {
+	public void test0244() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7116,7 +7116,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// generic method of raw type
-	public void test245() {
+	public void test0245() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7149,7 +7149,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 parameterized type compatibility
-	public void test246() {
+	public void test0246() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7174,7 +7174,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 variation
-	public void test247() {
+	public void test0247() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7266,7 +7266,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70247 check type variable is bound during super type resolution
-	public void test248() {
+	public void test0248() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7280,7 +7280,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70247 variation
-	public void test249() {
+	public void test0249() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7295,7 +7295,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70295 Class<? extends Object> is compatible with Class<?>
-	public void test250() {
+	public void test0250() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7308,7 +7308,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69800 '? extends Object' is not compatible with A
-	public void test251() {
+	public void test0251() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7329,7 +7329,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
-	public void test252() {
+	public void test0252() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7352,7 +7352,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70243 unsafe cast when wildcards
-	public void test253() {
+	public void test0253() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7389,7 +7389,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70053 missing checkcast in string concatenation
-	public void test254() {
+	public void test0254() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7411,7 +7411,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS!");		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69351 generic type cannot extend Throwable
-	public void test255() {
+	public void test0255() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7431,7 +7431,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70616 - reference to binary Enum
-	public void test256() {
+	public void test0256() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7452,7 +7452,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70618 - reference to variable allowed in parameterized super type
-	public void test257() {
+	public void test0257() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7476,7 +7476,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cannot refer to the type parameter T as a supertype\n" + 
 			"----------\n");
 	}
-	public void test258() {
+	public void test0258() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7487,7 +7487,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70767 - NPE compiling code with explicit constructor invocation
-	public void test259() {
+	public void test0259() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7503,7 +7503,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	public void test260() {
+	public void test0260() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7519,7 +7519,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
-	public void test261() {
+	public void test0261() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7536,7 +7536,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cannot cast from X<String> to X<Integer>\n" + 
 			"----------\n");
 	}		
-	public void test262() {
+	public void test0262() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7553,7 +7553,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type safety: The cast from X<String,String> to X<E,String> is actually checking against the erased type X\n" + 
 			"----------\n");
 	}			
-	public void test263() {
+	public void test0263() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7572,7 +7572,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type safety: The cast from X<String,String> to XC<E,String> is actually checking against the erased type XC\n" + 
 			"----------\n");
 	}
-	public void test264() {
+	public void test0264() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7591,7 +7591,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cannot cast from X<String,Integer> to XC<E,String>\n" + 
 			"----------\n");
 	}		
-	public void test265() {
+	public void test0265() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7627,7 +7627,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
 			"----------\n");
 	}		
-	public void test266() {
+	public void test0266() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7639,7 +7639,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
-	public void test267() {
+	public void test0267() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7654,7 +7654,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}		
-	public void test268() {
+	public void test0268() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7686,7 +7686,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
-	public void test269() {
+	public void test0269() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7723,7 +7723,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70969 - lub(List<String>, List<Object>) --> List<? extends Object>
-	public void test270() {
+	public void test0270() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7751,7 +7751,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - parameter bound <T extends Enum<T>> should be allowed
-	public void test271() {
+	public void test0271() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7761,7 +7761,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - variation
-	public void test272() {
+	public void test0272() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7774,7 +7774,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - variation
-	public void test273() {
+	public void test0273() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7787,7 +7787,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241
-	public void test274() {
+	public void test0274() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7828,7 +7828,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
-	public void test275() {
+	public void test0275() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7874,7 +7874,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
-	public void test276() {
+	public void test0276() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7901,7 +7901,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
-	public void test277() {
+	public void test0277() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7933,7 +7933,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
-	public void test278() {
+	public void test0278() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7950,7 +7950,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69901
-	public void test279() {
+	public void test0279() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7975,7 +7975,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822
-	public void test280() {
+	public void test0280() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7985,7 +7985,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
-	public void test281() {
+	public void test0281() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8005,7 +8005,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 	}	
-	public void test282() {
+	public void test0282() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8022,7 +8022,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
-	public void test283() {
+	public void test0283() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8050,7 +8050,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72083
-	public void test284() {
+	public void test0284() {
 		this.runConformTest(
 			new String[] {
 				"p1/A.java",
@@ -8081,7 +8081,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73530
-	public void test285() {
+	public void test0285() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8102,7 +8102,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
 	// TODO (philippe) we need a way to test these 2 methods & find them 'equivalent'... right isEquivalentTo return false
-	public void test286() {
+	public void test0286() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8115,7 +8115,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
-	public void test287() {
+	public void test0287() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8140,7 +8140,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The member type X.A.B<String> must be qualified with a parameterized type, since it is not static\n" + 
 			"----------\n");
 	}	
-	public void test288() {
+	public void test0288() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8160,7 +8160,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
-	public void test289() {
+	public void test0289() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8185,7 +8185,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The member type X<String>.A must be parameterized, since it is qualified with a parameterized type\n" + 
 			"----------\n");
 	}	
-	public void test290() {
+	public void test0290() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8211,7 +8211,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// ensure bound check deals with supertype (and their enclosing type)
-	public void test291() {
+	public void test0291() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8252,7 +8252,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}		
-	public void test292() {
+	public void test0292() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8269,7 +8269,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73837
-	public void test293() {
+	public void test0293() {
 		this.runConformTest(
 			new String[] {
 				"B.java", //---------------------------
@@ -8300,7 +8300,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73837 variation
-	public void test294() {
+	public void test0294() {
 		this.runConformTest(
 			new String[] {
 				"B.java", //---------------------------
@@ -8333,7 +8333,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}
 	// non-static method #start() gets its type substituted when accessed through raw type
-	public void test295() {
+	public void test0295() {
 		this.runNegativeTest(
 			new String[] {
 				"C.java", //---------------------------
@@ -8385,7 +8385,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// static method #start() gets its type does not get substituted when accessed through raw type
-	public void test296() {
+	public void test0296() {
 		this.runNegativeTest(
 			new String[] {
 				"C.java", //---------------------------
@@ -8446,7 +8446,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"D is a raw type. References to generic type D<Y> should be parameterized\n" + 
 			"----------\n");
 	}
-	public void test297() {
+	public void test0297() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8472,7 +8472,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"foo, bar");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
-	public void test298() {
+	public void test0298() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8532,7 +8532,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74244
-	public void test299() {
+	public void test0299() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8545,7 +8545,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");	
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74119
-	public void test300() {
+	public void test0300() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8572,7 +8572,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74320: check no complaint for unused private method
-	public void test301() {
+	public void test0301() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8595,7 +8595,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74514
-	public void test302() {
+	public void test0302() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8604,7 +8604,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"import java.util.Iterator;\n" + 
 				"import java.util.List;\n" + 
 				"public class X {\n" + 
-				"	public void test2() {\n" + 
+				"	public void test02() {\n" + 
 				"		List<String> l= new ArrayList<String>();\n" + 
 				"		for (Iterator<String> i= l.iterator(); i.next(); ) {\n" + 
 				"		}\n" + 
@@ -8619,7 +8619,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74544
-	public void test303() {
+	public void test0303() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8642,7 +8642,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74592
-	public void test304() {
+	public void test0304() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8652,7 +8652,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74420
-	public void test305() {
+	public void test0305() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8664,7 +8664,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74096
-	public void test306() {
+	public void test0306() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8678,7 +8678,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72583
-	public void test307() {
+	public void test0307() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8694,7 +8694,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73696
-	public void test308() {
+	public void test0308() {
 		this.runConformTest(
 			new String[] {
 				"p/X.java",
@@ -8710,7 +8710,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"}\n"
 			});	
 	}	
-	public void test309() {
+	public void test0309() {
 		this.runConformTest(
 			new String[] {
 				"p/X.java",
@@ -8729,7 +8729,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			});	
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75156 - should report name clash
-	public void test310() {
+	public void test0310() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8750,7 +8750,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75156 variation - should report name clash and ambiguity
-	public void test311() {
+	public void test0311() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8779,7 +8779,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}		
 	// 75156 variation - should report name clash instead of final method override
-	public void test312() {
+	public void test0312() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8800,7 +8800,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73963 
-	public void test313() {
+	public void test0313() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8839,7 +8839,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");	
 	}
-	public void test314() {
+	public void test0314() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -8871,7 +8871,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	public void test315() {
+	public void test0315() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -8897,7 +8897,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	public void test316() {
+	public void test0316() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -8955,7 +8955,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
-	public void test317() {
+	public void test0317() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -9005,7 +9005,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75548
-	public void test318() {
+	public void test0318() {
 		this.runConformTest(
 			new String[] {
 				"MyCache.java",	
@@ -9028,7 +9028,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76729
-	public void test319() {
+	public void test0319() {
 		this.runConformTest(
 			new String[] {
 				"test/Test1.java",
@@ -9052,7 +9052,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}				
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74032
-	public void test320() {
+	public void test0320() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9075,7 +9075,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74032 - variation with wildcard
-	public void test321() {
+	public void test0321() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9105,7 +9105,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75134
-	public void test322() {
+	public void test0322() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9129,7 +9129,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76359 - also check warnings for raw conversion
-	public void test323() {
+	public void test0323() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9172,7 +9172,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72998
-	public void test324() {
+	public void test0324() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9205,7 +9205,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");	
 	}
-	public void test325() {
+	public void test0325() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9263,7 +9263,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75400
-	public void test326() {
+	public void test0326() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9294,7 +9294,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// wildcard captures bound and variable superinterfaces
-	public void test327() {
+	public void test0327() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9316,7 +9316,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// wildcard captures bound and variable superinterfaces
-	public void test328() {
+	public void test0328() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9378,7 +9378,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// wildcard captures bound and variable superinterfaces
-	public void test329() {
+	public void test0329() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9414,7 +9414,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"FOOBAR");
 	}	
 	// wildcard captures bound superclass and variable superclass
-	public void test330() {
+	public void test0330() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9449,7 +9449,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"FOOBAR");
 	}		
 	// wildcard captures bound superclass and variable superclass
-	public void test331() {
+	public void test0331() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9484,7 +9484,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"FOOBAR");
 	}		
 	// wildcard considers bound superclass or variable superclass
-	public void test332() {
+	public void test0332() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9532,7 +9532,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"----------\n");
 	}
 	// receveir generic cast matches receiver type (not declaring class)
-	public void test333() {
+	public void test0333() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9557,7 +9557,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"SUCCESS");
 	}
 	// check cannot allocate type parameters
-	public void test334() {
+	public void test0334() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9589,7 +9589,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// variation - check cannot allocate type parameters
-	public void test335() {
+	public void test0335() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9626,7 +9626,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74669
-	public void test336() {
+	public void test0336() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9678,7 +9678,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77078
-	public void test337() {
+	public void test0337() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9699,7 +9699,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77052
-	public void test338() {
+	public void test0338() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9721,7 +9721,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77052 - variation
-	public void test339() {
+	public void test0339() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9739,7 +9739,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76313
-	public void test340() {
+	public void test0340() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9758,7 +9758,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Hallo");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77118
-	public void test341() {
+	public void test0341() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9777,7 +9777,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77142 - check no raw unsafe warning is issued when accessing generic method from raw type
-	public void test342() {
+	public void test0342() {
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",
@@ -9827,7 +9827,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74588
-	public void test343() {
+	public void test0343() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9849,7 +9849,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// checking scenario where generic type and method share the same type parameter name
-	public void test344() {
+	public void test0344() {
 		this.runNegativeTest(
 			new String[] {	
 				"X.java",
@@ -9898,7 +9898,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test345() {
+	public void test0345() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9927,7 +9927,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test346() {
+	public void test0346() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9960,7 +9960,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test347() {
+	public void test0347() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9999,7 +9999,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4");
 	}	
 	// checking scenario where generic type and method share the same type parameter name
-	public void test348() {
+	public void test0348() {
 		this.runNegativeTest(
 			new String[] {	
 				"X.java",
@@ -10041,7 +10041,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// test wildcard compatibilities
-	public void test349() {
+	public void test0349() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10061,7 +10061,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// test wildcard compatibilities
-	public void test350() {
+	public void test0350() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10083,7 +10083,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75328
-	public void test351() {
+	public void test0351() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10099,7 +10099,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77051
-	public void test352() {
+	public void test0352() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10121,7 +10121,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
-	public void test353() {
+	public void test0353() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10134,7 +10134,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");	
 	}		
-	public void test354() {
+	public void test0354() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10147,7 +10147,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
-	public void test355() {
+	public void test0355() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10165,7 +10165,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Name clash: The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
 			"----------\n");
 	}		
-	public void test356() {
+	public void test0356() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10183,7 +10183,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
 	}		
-	public void test357() {
+	public void test0357() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10202,7 +10202,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76720
-	public void test358() {
+	public void test0358() {
 		this.runConformTest(
 			new String[] {
 				"MyClass.java",
@@ -10231,7 +10231,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76790
-	public void test359() {
+	public void test0359() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10247,7 +10247,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76786
-	public void test360() {
+	public void test0360() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10279,7 +10279,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75525
-	public void test361() {
+	public void test0361() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10300,7 +10300,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72643
-	public void test362() {
+	public void test0362() {
 		Map customOptions= getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		this.runConformTest(
@@ -10328,7 +10328,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		null/*no custom requestor*/);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76434
-	public void test363() {
+	public void test0363() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10349,7 +10349,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	// check param type equivalences
-	public void test364() {
+	public void test0364() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10374,7 +10374,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// check param type equivalences
-	public void test365() {
+	public void test0365() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10398,7 +10398,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// check param type equivalences
-	public void test366() {
+	public void test0366() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10533,7 +10533,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// check param type equivalences
-	public void test367() {
+	public void test0367() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -10571,7 +10571,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check param type equivalences
-	public void test368() {
+	public void test0368() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -10590,7 +10590,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	// bound check for Enum<T>
-	public void test369() {
+	public void test0369() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -10602,7 +10602,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// decoding raw binary type
-	public void test370() {
+	public void test0370() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -10620,7 +10620,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	// X<? extends Y> is not compatible with X<Y>
-	public void test371() {
+	public void test0371() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -10639,7 +10639,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from XC<capture-of ? extends Runnable> to XC<Runnable>\n" + 
 			"----------\n");
 	}			
-	public void test372() {
+	public void test0372() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -10671,7 +10671,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	public void test373() {
+	public void test0373() {
 		this.runConformTest(
 			new String[] {
 				"XA.java",	
@@ -10715,7 +10715,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);
 	}
 	// wildcard with no upper bound uses type variable as upper bound
-	public void test374() {
+	public void test0374() {
 		this.runConformTest(
 			new String[] {
 				"X.java",	
@@ -10731,7 +10731,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
-	public void test375() {
+	public void test0375() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -10749,7 +10749,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from X<capture-of ? extends Exception> to X<? super Exception>\n" + 
 			"----------\n");
 	}		
-	public void test376() {
+	public void test0376() {
 		this.runConformTest(
 			new String[] {
 				"XA.java",	
@@ -10795,7 +10795,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76601
-	public void test377() {
+	public void test0377() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10818,7 +10818,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76219
-	public void test378() {
+	public void test0378() {
 		this.runConformTest(
 			new String[] {
 				"BB.java",
@@ -10834,7 +10834,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71612
-	public void test379() {
+	public void test0379() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10857,7 +10857,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77327
-	public void test380() {
+	public void test0380() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10870,7 +10870,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 
-	public void test381() {
+	public void test0381() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10904,7 +10904,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Name clash: The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
-	public void test382() {
+	public void test0382() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10937,7 +10937,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Name clash: The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
 			"----------\n");
 	}
-	public void test383() {
+	public void test0383() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11008,7 +11008,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			                ^
 			 */
 	}
-	public void test384() {
+	public void test0384() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11050,7 +11050,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77496
-	public void test385() { 
+	public void test0385() { 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11092,7 +11092,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77325
-	public void test386() {
+	public void test0386() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11125,7 +11125,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - generic varargs method
-	public void test387() {
+	public void test0387() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11154,7 +11154,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test388() {
+	public void test0388() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11163,13 +11163,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X<T>\n" + 
 				"{\n" + 
 				"\n" + 
-				"	public boolean test1()\n" + 
+				"	public boolean test01()\n" + 
 				"	{\n" + 
-				"			test2(null, null, \"test\");\n" + 
+				"			test02(null, null, \"test\");\n" + 
 				"			return false;\n" + 
 				"	}\n" + 
 				"\n" + 
-				"	public <F> List<F> test2(final List<F> list, final String... strings)\n" + 
+				"	public <F> List<F> test02(final List<F> list, final String... strings)\n" + 
 				"	{\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
@@ -11180,13 +11180,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test389() {
+	public void test0389() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"\n" + 
-				"	public boolean test1()	{\n" + 
+				"	public boolean test01()	{\n" + 
 				"		String s = foo(\"hello\");\n" + 
 				"		return s != null;\n" + 
 				"	}\n" + 
@@ -11201,13 +11201,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test390() {
+	public void test0390() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"\n" + 
-				"	public boolean test1()	{\n" + 
+				"	public boolean test01()	{\n" + 
 				"		String s = foo(null, \"hello\");\n" + 
 				"		return s != null;\n" + 
 				"	}\n" + 
@@ -11222,13 +11222,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test391() {
+	public void test0391() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"\n" + 
-				"	public boolean test1()	{\n" + 
+				"	public boolean test01()	{\n" + 
 				"		String[] s = foo(null, new String[]{ \"hello\" });\n" + 
 				"		return s != null;\n" + 
 				"	}\n" + 
@@ -11248,13 +11248,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test392() {
+	public void test0392() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"\n" + 
-				"	public boolean test1()	{\n" + 
+				"	public boolean test01()	{\n" + 
 				"		foo(null, \"hello\");\n" + // no inference on expected type
 				"		return true;\n" + 
 				"	}\n" + 
@@ -11269,13 +11269,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78049 - chech invalid array initializer
-	public void test393() {
+	public void test0393() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"\n" + 
-				"	public boolean test1()	{\n" + 
+				"	public boolean test01()	{\n" + 
 				"		foo(null, \"hello\");\n" + // no inference on expected type
 				"		return true;\n" + 
 				"	}\n" + 
@@ -11290,7 +11290,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78027
-	public void test394() {
+	public void test0394() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11325,7 +11325,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74119 - variation
-	public void test395() {
+	public void test0395() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11346,7 +11346,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78139 - downcast generic method inference
-	public void test396() {
+	public void test0396() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11412,7 +11412,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76132
-	public void test397() {
+	public void test0397() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11519,7 +11519,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// cannot allocate parameterized type with wildcards
-	public void test398() {
+	public void test0398() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11557,7 +11557,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test399() {
+	public void test0399() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11588,7 +11588,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}
 	
-	public void test400() {
+	public void test0400() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11619,7 +11619,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// legal to allocate/inherit from a type with wildcards, as long as non direct arguments
-	public void test401() {
+	public void test0401() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11636,7 +11636,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// legal to inherit from a type with wildcards, as long as non direct arguments
-	public void test402() {
+	public void test0402() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11647,7 +11647,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	// check cast between generic types
-	public void test403() {
+	public void test0403() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11673,7 +11673,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// check cast between generic types
-	public void test404() {
+	public void test0404() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11699,7 +11699,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// check cast between generic types
-	public void test405() {
+	public void test0405() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11726,7 +11726,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}		
 	
-	public void test406() {
+	public void test0406() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11745,7 +11745,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}		
 	
-	public void test407() {
+	public void test0407() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11765,7 +11765,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78008
-	public void test408() {
+	public void test0408() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11792,7 +11792,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78008
-	public void test409() {
+	public void test0409() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11819,7 +11819,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74178
-	public void test410() {
+	public void test0410() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11853,7 +11853,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78015 
-	public void test411() {
+	public void test0411() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11885,7 +11885,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 
-	public void _test412() {
+	public void _test0412() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11909,7 +11909,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"should warn about unchecked array conversion for T[]");	
 	}
 	
-	public void test413() {
+	public void test0413() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11931,7 +11931,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	
-	public void test414() {
+	public void test0414() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11948,7 +11948,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	
-	public void test415() {
+	public void test0415() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11974,7 +11974,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}	
 	
-	public void test416() {
+	public void test0416() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12002,7 +12002,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}
 	
-	public void test417() {
+	public void test0417() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12022,7 +12022,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}			
 	
-	public void test418() {
+	public void test0418() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12042,7 +12042,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}			
 	
-	public void test419() {
+	public void test0419() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12062,7 +12062,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");	
 	}		
 	
-	public void test420() {
+	public void test0420() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12083,7 +12083,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78863
-	public void test421() {
+	public void test0421() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -12112,7 +12112,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78704
-	public void test422() {
+	public void test0422() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12135,7 +12135,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void test423() {
+	public void test0423() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12163,7 +12163,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	
-	public void test424() {
+	public void test0424() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12188,7 +12188,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// check tiebreak eliminates related generic methods which are less specific
-	public void test425() {
+	public void test0425() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12225,7 +12225,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// check inferred return types are truly based on arguments, and not on parameter erasures
-	public void test426() {
+	public void test0426() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12247,7 +12247,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// check inferred return types are truly based on arguments, and not on parameter erasures
-	public void test427() {
+	public void test0427() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12271,7 +12271,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79390
-	public void test428() {
+	public void test0428() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12302,7 +12302,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
-	public void test429() { 
+	public void test0429() { 
 		this.runConformTest(
 			new String[] {
 				"X1.java",
@@ -12406,7 +12406,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79797
-	public void test430() {
+	public void test0430() {
 		this.runConformTest(
 			new String[] {
 				"p/MMM.java",
@@ -12443,7 +12443,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null);		
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79891
-	public void test431() {
+	public void test0431() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12463,7 +12463,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79891
-	public void test432() {
+	public void test0432() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12478,7 +12478,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80144
-	public void test433() {
+	public void test0433() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12518,7 +12518,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80083
-	public void test434() {
+	public void test0434() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12541,7 +12541,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80765
-	public void test435() {
+	public void test0435() {
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",//===============================
@@ -12559,7 +12559,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"            IllegalAccessException {\n" + 
 				"        Test test = new Test();\n" + 
 				"\n" + 
-				"        for (String method : new String[] { \"test1\", \"test2\", \"test3\", \"test4\" }) {\n" + 
+				"        for (String method : new String[] { \"test01\", \"test02\", \"test03\", \"test04\" }) {\n" + 
 				"            Method m = test.getClass().getMethod(method);\n" + 
 				"            try {\n" + 
 				"                m.invoke(test);\n" + 
@@ -12571,20 +12571,20 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"        }\n" + 
 				"    }\n" + 
 				"\n" + 
-				"    public void test1() { // works\n" + 
+				"    public void test01() { // works\n" + 
 				"        new IntegerOrder().next(new Integer(0)); // works\n" + 
 				"    }\n" + 
 				"\n" + 
-				"    public void test2() { // doesn\'t work\n" + 
+				"    public void test02() { // doesn\'t work\n" + 
 				"        final DiscreteOrder<Integer> order = new IntegerOrder();\n" + 
 				"        order.next(new Integer(0));\n" + 
 				"    }\n" + 
 				"\n" + 
-				"    public void test3() { // works\n" + 
+				"    public void test03() { // works\n" + 
 				"        new IntegerOrder2().next(new Integer(0)); // works\n" + 
 				"    }\n" + 
 				"\n" + 
-				"    public void test4() { // doesn\'t work\n" + 
+				"    public void test04() { // doesn\'t work\n" + 
 				"        final DiscreteOrder<Integer> order = new IntegerOrder2();\n" + 
 				"        order.next(new Integer(0));\n" + 
 				"    }\n" + 
@@ -12672,12 +12672,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                       ^^^^^^^^^^\n" + 
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n"
-			// "*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success"
+			// "*** public void Test.test01(): success*** public void Test.test02(): success*** public void Test.test03(): success*** public void Test.test04(): success"
 			// name clash: next(java.lang.Comparable) in orders.impl.IntegerOrder2 and next(E) in orders.DiscreteOrder<java.lang.Integer> have the same erasure, yet neither overrides the other
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
-	public void test436() {
+	public void test0436() {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -12705,7 +12705,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
-	public void test437() {
+	public void test0437() {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -12733,7 +12733,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78591
-	public void test438() {
+	public void test0438() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12782,7 +12782,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78592
-	public void test439() {
+	public void test0439() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12815,7 +12815,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	
-	public void test440() {
+	public void test0440() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12841,7 +12841,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	
-	public void test441() {
+	public void test0441() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12866,7 +12866,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82053
-	public void test442() {
+	public void test0442() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12893,7 +12893,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81757
-	public void test443() {
+	public void test0443() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12908,7 +12908,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81824
-	public void test444() {
+	public void test0444() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12924,7 +12924,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78810
-	public void test445() {
+	public void test0445() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12952,7 +12952,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159
-	public void test446() {
+	public void test0446() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12995,7 +12995,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	public void test447() {
+	public void test0447() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13065,7 +13065,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	public void test448() {
+	public void test0448() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13081,7 +13081,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	public void test449() {
+	public void test0449() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13108,7 +13108,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	public void test450() {
+	public void test0450() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13135,7 +13135,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	public void test451() {
+	public void test0451() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13157,7 +13157,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82187
-	public void test452() {
+	public void test0452() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13165,17 +13165,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" + 
 				"public class X {\n" + 
 				"	\n" + 
-				"	 public <E extends Object, S extends Collection<E>> S test1(S param){\n" + 
+				"	 public <E extends Object, S extends Collection<E>> S test01(S param){\n" + 
 				"	 	System.out.println(\"SUCCESS\");\n" + 
 				"	 	return null;\n" + 
 				"	 }\n" + 
 				"	 \n" + 
-				"	 public void test2() {\n" + 
-				"	 	test1(new Vector<String>());\n" + 
+				"	 public void test02() {\n" + 
+				"	 	test01(new Vector<String>());\n" + 
 				"	 }\n" + 
 				"\n" + 
 				"	 public static void main(String[] args) {\n" + 
-				"		new X().test2();\n" + 
+				"		new X().test02();\n" + 
 				"	}\n" + 
 				"}\n" ,
 			},
@@ -13183,7 +13183,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82250
-	public void test453() {
+	public void test0453() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13200,7 +13200,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82504
-	public void test454() {
+	public void test0454() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13233,7 +13233,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81719
-	public void test455() {
+	public void test0455() {
 		this.runConformTest(
 			new String[] {
 				"AbstractTest.java",
@@ -13261,7 +13261,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81721
-	public void test456() {
+	public void test0456() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13278,7 +13278,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	
-	public void test457() {
+	public void test0457() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13316,7 +13316,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82243
-	public void test458() {
+	public void test0458() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13362,7 +13362,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78027 - variation (check unchecked warnings)
-	public void test459() {
+	public void test0459() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13412,7 +13412,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82439
-	public void test460() {
+	public void test0460() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13460,7 +13460,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82844
-	public void test461() {
+	public void test0461() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13476,7 +13476,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79628
-	public void test462() {
+	public void test0462() {
 		this.runConformTest(
 			new String[] {
 				"PropertiedObject.java",
@@ -13488,7 +13488,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
-	public void test463() {
+	public void test0463() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13515,7 +13515,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
-	public void test464() {
+	public void test0464() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13543,7 +13543,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82547
-	public void test465() {
+	public void test0465() {
 		this.runNegativeTest(
 			new String[] {
 				"Cla.java",
@@ -13566,7 +13566,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83096
-	public void test466() {
+	public void test0466() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13582,7 +13582,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671
-	public void test467() {
+	public void test0467() {
 		this.runConformTest(
 			new String[] {
 				"test/Foo.java",
@@ -13592,8 +13592,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   protected String dosomething(){ return \"done\"; } \n" + 
 				"   protected class Bar {} \n" +
 				"} \n",
-				"test2/FooBar.java",
-				"package test2; \n" + 
+				"test02/FooBar.java",
+				"package test02; \n" + 
 				"import test.Foo; \n" + 
 				"public class FooBar<R> extends Foo { \n" + 
 				"   void fail() { \n" + 
@@ -13613,7 +13613,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
-	public void test468() {
+	public void test0468() {
 		this.runConformTest(
 			new String[] {
 				"test/Foo.java",
@@ -13644,7 +13644,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83083
-	public void test469() {
+	public void test0469() {
 		this.runConformTest(
 			new String[] {
 				"a/C.java",
@@ -13685,7 +13685,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83225
-	public void test470() {
+	public void test0470() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13729,7 +13729,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
-	public void test471() {
+	public void test0471() {
 		this.runNegativeTest(
 			new String[] {
 				"test/Foo.java",
@@ -13739,8 +13739,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   protected R dosomething(){ return s; } \n" + 
 				"   protected class Bar {} \n" +
 				"} \n",
-				"test2/FooBar.java",
-				"package test2; \n" + 
+				"test02/FooBar.java",
+				"package test02; \n" + 
 				"import test.Foo; \n" + 
 				"public class FooBar<R> extends Foo<R> { \n" + 
 				"   void fail() { \n" + 
@@ -13756,7 +13756,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in test2\\FooBar.java (at line 7)\n" + 
+			"1. ERROR in test02\\FooBar.java (at line 7)\n" + 
 			"	this.s = \"foo\";\n" + 
 			"	         ^^^^^\n" + 
 			"Type mismatch: cannot convert from String to R\n" + 
@@ -13764,7 +13764,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
-	public void test472() {
+	public void test0472() {
 		this.runNegativeTest(
 			new String[] {
 				"test/Foo.java",
@@ -13774,8 +13774,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   private R dosomething(){ return s; } \n" + 
 				"   private class Bar {} \n" +
 				"} \n",
-				"test2/FooBar.java",
-				"package test2; \n" + 
+				"test02/FooBar.java",
+				"package test02; \n" + 
 				"import test.Foo; \n" + 
 				"public class FooBar<R> extends Foo<R> { \n" + 
 				"   void fail() { \n" + 
@@ -13802,44 +13802,44 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The type Foo<R>.Bar is never used locally\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. ERROR in test2\\FooBar.java (at line 6)\n" + 
+			"1. ERROR in test02\\FooBar.java (at line 6)\n" + 
 			"	f.s = \"foo\"; \n" + 
 			"	  ^\n" + 
 			"The field Foo<String>.s is not visible\n" + 
 			"----------\n" + 
-			"2. ERROR in test2\\FooBar.java (at line 7)\n" + 
+			"2. ERROR in test02\\FooBar.java (at line 7)\n" + 
 			"	this.s = \"foo\";\n" + 
 			"	     ^\n" + 
 			"The field Foo<R>.s is not visible\n" + 
 			"----------\n" + 
-			"3. ERROR in test2\\FooBar.java (at line 8)\n" + 
+			"3. ERROR in test02\\FooBar.java (at line 8)\n" + 
 			"	f.dosomething(); \n" + 
 			"	  ^^^^^^^^^^^\n" + 
 			"The method dosomething() from the type Foo<String> is not visible\n" + 
 			"----------\n" + 
-			"4. ERROR in test2\\FooBar.java (at line 9)\n" + 
+			"4. ERROR in test02\\FooBar.java (at line 9)\n" + 
 			"	this.dosomething();  \n" + 
 			"	     ^^^^^^^^^^^\n" + 
 			"The method dosomething() from the type Foo<R> is not visible\n" + 
 			"----------\n" + 
-			"5. ERROR in test2\\FooBar.java (at line 10)\n" + 
+			"5. ERROR in test02\\FooBar.java (at line 10)\n" + 
 			"	Bar b1; \n" + 
 			"	^^^\n" + 
 			"The type Bar is not visible\n" + 
 			"----------\n" + 
-			"6. ERROR in test2\\FooBar.java (at line 11)\n" + 
+			"6. ERROR in test02\\FooBar.java (at line 11)\n" + 
 			"	FooBar<String>.Bar b2; \n" + 
 			"	^^^^^^^^^^^^^^^^^^\n" + 
 			"The type FooBar.Bar is not visible\n" + 
 			"----------\n" + 
-			"7. ERROR in test2\\FooBar.java (at line 12)\n" + 
+			"7. ERROR in test02\\FooBar.java (at line 12)\n" + 
 			"	Foo<String>.Bar b3; \n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
 			"The type Foo.Bar is not visible\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81594
-	public void test473() {
+	public void test0473() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13870,7 +13870,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81594 - variation
-	public void test474() {
+	public void test0474() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13894,7 +13894,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398
-	public void test475() {
+	public void test0475() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13916,7 +13916,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test476() {
+	public void test0476() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13938,7 +13938,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test477() {
+	public void test0477() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13960,7 +13960,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test478() {
+	public void test0478() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13983,7 +13983,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test479() {
+	public void test0479() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14000,7 +14000,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test480() {
+	public void test0480() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14023,7 +14023,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
-	public void test481() {
+	public void test0481() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14045,7 +14045,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83799
-	public void test482() {
+	public void test0482() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14097,7 +14097,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83904
-	public void test483() {
+	public void test0483() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14122,7 +14122,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349
-	public void test484() {
+	public void test0484() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14143,7 +14143,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349 - variation
-	public void test485() {
+	public void test0485() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14164,7 +14164,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349 - variation
-	public void test486() {
+	public void test0486() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14184,7 +14184,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
-	public void test487() {
+	public void test0487() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14207,7 +14207,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
-	public void test488() {
+	public void test0488() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14233,7 +14233,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
-	public void test489() {
+	public void test0489() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14257,7 +14257,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
 			"----------\n");
 	}		
-	public void test490() {
+	public void test0490() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14281,7 +14281,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	
-	public void test491() {
+	public void test0491() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -14346,7 +14346,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81576
-	public void test492() {
+	public void test0492() {
 		this.runConformTest(
 			new String[] {
 				"SuperType.java",//====================================
@@ -14393,7 +14393,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83611
-	public void test493() {
+	public void test0493() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14421,7 +14421,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83615
-	public void test494() {
+	public void test0494() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -14448,7 +14448,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84422
-	public void test495() {
+	public void test0495() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -14474,7 +14474,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593
-	public void test496() {
+	public void test0496() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -14499,7 +14499,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593 - variation - uncheck warnings
-	public void test497() {
+	public void test0497() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -14539,7 +14539,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743 - variation in -source 1.4 mode but 1.5 compliance (ignore covariance)
-public void test498(){
+public void test0498(){
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 	this.runNegativeTest(
@@ -14577,7 +14577,7 @@ public void test498(){
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
-public void test499(){
+public void test0499(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -14599,7 +14599,7 @@ public void test499(){
 		"----------\n");
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84251
-public void test500(){
+public void test0500(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -14623,7 +14623,7 @@ public void test500(){
 			"        return last;\n" + 
 			"    }\n" + 
 			"\n" + 
-			"    public void test1() {\n" + 
+			"    public void test01() {\n" + 
 			"        Sink<Object> s = new SimpleSinkImpl<Object>();\n" + 
 			"        Collection<String> cs = new ArrayList<String>();\n" + 
 			"        cs.add(\"hello!\");\n" + 
@@ -14636,14 +14636,14 @@ public void test500(){
 			"    public static void main(String[] args) {\n" + 
 			"        X test = new X();\n" + 
 			"        \n" + 
-			"        test.test1();\n" + 
+			"        test.test01();\n" + 
 			"    }\n" + 
 			"}\n"
 		},
 		"");
 }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
-	public void test501() {
+	public void test0501() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14722,7 +14722,7 @@ public void test500(){
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
-	public void test502() {
+	public void test0502() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14806,7 +14806,7 @@ public void test500(){
 		}
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
-	public void test503() {
+	public void test0503() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -14908,7 +14908,7 @@ public void test500(){
 		}
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
-	public void test504() {
+	public void test0504() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -15022,7 +15022,7 @@ public void test500(){
 		}
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
-	public void test505() {
+	public void test0505() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -15131,7 +15131,7 @@ public void test500(){
 	}				
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85477
-	public void test506() {
+	public void test0506() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -15233,7 +15233,7 @@ public void test500(){
 			"----------\n");
 	}	
 	// array bound for wildcard
-	public void test507() {
+	public void test0507() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -15256,7 +15256,7 @@ public void test500(){
 			"");
 	}		
 	// array bound for wildcard
-	public void test508() {
+	public void test0508() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -15289,7 +15289,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// type parameter hiding
-	public void test509() {
+	public void test0509() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -15360,7 +15360,7 @@ public void test500(){
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84355
-	public void test510() {
+	public void test0510() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -15388,7 +15388,7 @@ public void test500(){
 			"");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407
-	public void test511() {
+	public void test0511() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -15424,7 +15424,7 @@ public void test500(){
 			},
 			"SUCCESS");
 	}		
-	public void test512() {
+	public void test0512() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -15448,7 +15448,7 @@ public void test500(){
 			},
 			"SUCCESS");
 	}			
-	public void test513() {
+	public void test0513() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -15498,7 +15498,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82955
-	public void test514(){
+	public void test0514(){
 		runConformTest(
 			new String[] {
 				"Test.java",
@@ -15517,7 +15517,7 @@ public void test500(){
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84348
-	public void test515(){
+	public void test0515(){
 		runConformTest(
 			new String[] {
 				"Test.java",
@@ -15539,7 +15539,7 @@ public void test500(){
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944
-	public void test516(){
+	public void test0516(){
 		runConformTest(
 			new String[] {
 				"parser/AbstractParser.java",
@@ -15580,7 +15580,7 @@ public void test500(){
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944 - check no warning for using raw member
-	public void test517(){
+	public void test0517(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15607,7 +15607,7 @@ public void test500(){
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930 - check no warning for using raw member
-	public void test518(){
+	public void test0518(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15633,7 +15633,7 @@ public void test500(){
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262
-	public void test519(){
+	public void test0519(){
 		runConformTest(
 			new String[] {
 				"FooImpl.java",
@@ -15649,7 +15649,7 @@ public void test500(){
 			"");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262 - variation
-	public void test520(){
+	public void test0520(){
 		runConformTest(
 			new String[] {
 				"Bar.java",
@@ -15670,7 +15670,7 @@ public void test500(){
 			false, // do not flush output directory
 			null);
 	}
-	public void test521(){
+	public void test0521(){
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -15695,8 +15695,8 @@ public void test500(){
 			},
 			"SUCCESS");
 	}			
-	// variation on test521, check issuing of unchecked warning (javac misses it)
-	public void test522(){
+	// variation on test0521, check issuing of unchecked warning (javac misses it)
+	public void test0522(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15737,7 +15737,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
-	public void test523(){
+	public void test0523(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15778,7 +15778,7 @@ public void test500(){
 			"----------\n");
 	}
 	// ensure there is no unchecked warning (javac incorrectly reports one)
-	public void test524(){
+	public void test0524(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15806,7 +15806,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}				
-	public void test525(){
+	public void test0525(){
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -15828,7 +15828,7 @@ public void test500(){
 			},
 			"SUCCESS");
 	}			
-	public void test526(){
+	public void test0526(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15874,7 +15874,7 @@ public void test500(){
 			"----------\n");
 	}				
 	// should not produce unchecked errors (javac incorrectly does)
-	public void test527(){
+	public void test0527(){
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15894,7 +15894,7 @@ public void test500(){
 	}				
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86217
-	public void test528() {
+	public void test0528() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -15906,7 +15906,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86463
-	public void test529() {
+	public void test0529() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15936,7 +15936,7 @@ public void test500(){
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86463
-	public void test530() {
+	public void test0530() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15999,7 +15999,7 @@ public void test500(){
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86646
-	public void test531() {
+	public void test0531() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16028,7 +16028,7 @@ public void test500(){
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944
-	public void test532() {
+	public void test0532() {
 		this.runConformTest(
 			new String[] {
 				"p/X.java",
@@ -16057,7 +16057,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838
-	public void test533() {
+	public void test0533() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16107,7 +16107,7 @@ public void test500(){
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test534() {
+	public void test0534() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16128,7 +16128,7 @@ public void test500(){
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test535() {
+	public void test0535() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16149,7 +16149,7 @@ public void test500(){
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test536() {
+	public void test0536() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16170,7 +16170,7 @@ public void test500(){
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test537() {
+	public void test0537() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16211,7 +16211,7 @@ public void test500(){
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test538() {
+	public void test0538() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16256,7 +16256,7 @@ public void test500(){
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
-	public void test539() {
+	public void test0539() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16310,7 +16310,7 @@ public void test500(){
 			"----------\n");
 	}
 	// test paramtype argument compatibility
-	public void test540() {
+	public void test0540() {
 		this.runNegativeTest(
 			new String[] {
 				"Baz.java",
@@ -16339,7 +16339,7 @@ public void test500(){
 			"The method visit(Collection<? extends Foo<?>>, D) in the type Baz<R,D> is not applicable for the arguments (Collection<Bar>, D)\n" + 
 			"----------\n");
 	}		
-	public void test541() {
+	public void test0541() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16356,7 +16356,7 @@ public void test500(){
 			},
 			"");
 	}		
-	public void test542() {
+	public void test0542() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16381,7 +16381,7 @@ public void test500(){
 			},
 			"");
 	}		
-	public void test543() {
+	public void test0543() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16407,7 +16407,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}		
-	public void test544() {
+	public void test0544() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16451,7 +16451,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86898
-	public void test545() {
+	public void test0545() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16515,7 +16515,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// ensure no unsafe cast warning (javac incorrectly reports one)
-	public void test546() {
+	public void test0546() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16542,7 +16542,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	public void test547() {
+	public void test0547() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16560,7 +16560,7 @@ public void test500(){
 			},
 			"");
 	}		
-	public void test548() {
+	public void test0548() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16599,7 +16599,7 @@ public void test500(){
 			"----------\n");
 	}
 	// legal, but javac rejects it
-	public void test549() {
+	public void test0549() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16612,7 +16612,7 @@ public void test500(){
 			},
 			"");
 	}	
-	public void test550() {
+	public void test0550() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16639,7 +16639,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// ensure no unchecked warning
-	public void test551() {
+	public void test0551() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16657,7 +16657,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
-	public void test552() {
+	public void test0552() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16683,7 +16683,7 @@ public void test500(){
 			},
 			"");
 	}					
-	public void test553() {
+	public void test0553() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16711,7 +16711,7 @@ public void test500(){
 			"0SUCCESS");
 	}					
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86898 - variation
-	public void test554() {
+	public void test0554() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16782,7 +16782,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}					
-	public void test555() {
+	public void test0555() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16815,7 +16815,7 @@ public void test500(){
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87273
-	public void test556() {
+	public void test0556() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16850,7 +16850,7 @@ public void test500(){
 			"SUCCESS");
 	}					
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83002
-	public void test557() {
+	public void test0557() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16880,7 +16880,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83002
-	public void test558() {
+	public void test0558() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16910,7 +16910,7 @@ public void test500(){
 			null);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86902
-	public void test559() {
+	public void test0559() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16965,7 +16965,7 @@ public void test500(){
 			"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85924
-	public void test560() {
+	public void test0560() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17000,7 +17000,7 @@ public void test500(){
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87956
-	public void test561() {
+	public void test0561() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17027,7 +17027,7 @@ public void test500(){
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550
-	public void test562() {
+	public void test0562() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17043,7 +17043,7 @@ public void test500(){
 			"");	
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550 - variation	
-	public void test563() {
+	public void test0563() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17059,7 +17059,7 @@ public void test500(){
 			"");	
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550 - variation	
-	public void test564() {
+	public void test0564() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17075,7 +17075,7 @@ public void test500(){
 			"");	
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87995	- check no warning
-	public void test565() {
+	public void test0565() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17099,7 +17099,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");	
 	}	
-	public void test566() {
+	public void test0566() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17126,7 +17126,7 @@ public void test500(){
 			"----------\n");	
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89454
-	public void test567() {
+	public void test0567() {
 		this.runConformTest(
 			new String[] {
 				"Thrower.java",
@@ -17161,7 +17161,7 @@ public void test500(){
 			null);
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89448
-	public void test568() {
+	public void test0568() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17189,7 +17189,7 @@ public void test500(){
 			"5");	
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89778
-	public void test569() {
+	public void test0569() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17207,7 +17207,7 @@ public void test500(){
 			"----------\n");	
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90147
-	public void test570() {
+	public void test0570() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17233,7 +17233,7 @@ public void test500(){
 			"The method compareTo(T) in the type X<T>.InnerClass is not applicable for the arguments (X<T>.InnerClass)\n" + 
 			"----------\n");	
 	}
-	public void test571() {
+	public void test0571() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17251,10 +17251,10 @@ public void test500(){
 				"}\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"	void test1(Box<?> box) {\n" + 
+				"	void test01(Box<?> box) {\n" + 
 				"		box.value().foo();\n" + 
 				"	}\n" + 
-				"	void test2(Box<? extends IBar> box) {\n" + 
+				"	void test02(Box<? extends IBar> box) {\n" + 
 				"		box.value().foo();\n" + 
 				"		box.value().bar();\n" + 
 				"	}\n" + 
@@ -17266,7 +17266,7 @@ public void test500(){
 			"SUCCESS");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430
-	public void test572() {
+	public void test0572() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17283,7 +17283,7 @@ public void test500(){
 			"");	
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430 - check unchecked warnings
-	public void test573() {
+	public void test0573() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17321,7 +17321,7 @@ public void test500(){
 			"----------\n");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
-	public void test574() {
+	public void test0574() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17356,7 +17356,7 @@ public void test500(){
 			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with field ref
-	public void test575() {
+	public void test0575() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17381,7 +17381,7 @@ public void test500(){
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with single ref
-	public void test576() {
+	public void test0576() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17399,7 +17399,7 @@ public void test500(){
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with qualified name ref
-	public void test577() {
+	public void test0577() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17424,7 +17424,7 @@ public void test500(){
 			"----------\n");
 	}	
 	// check array bound for wildcard
-	public void test578() {
+	public void test0578() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17440,7 +17440,7 @@ public void test500(){
 			"");
 	}		
 	// check array bound for wildcard
-	public void test579() {
+	public void test0579() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17461,7 +17461,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// check array bound for wildcard
-	public void test580() {
+	public void test0580() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17483,7 +17483,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation
-	public void test581() {
+	public void test0581() {
 	    this.runNegativeTest(
 			new String[] {
 	            "X.java",
@@ -17509,7 +17509,7 @@ public void test500(){
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
-	public void test582() {
+	public void test0582() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17526,7 +17526,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91021
-	public void test583() {
+	public void test0583() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17566,7 +17566,7 @@ public void test500(){
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91017
-	public void test584() {
+	public void test0584() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17610,7 +17610,7 @@ public void test500(){
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90881
-	public void test585() {
+	public void test0585() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17648,7 +17648,7 @@ public void test500(){
 	}			
 	
 	//javac incorrectly rejects it
-	public void test586() {
+	public void test0586() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17664,7 +17664,7 @@ public void test500(){
 			"");
 	}			
 	
-	public void test587() {
+	public void test0587() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17682,7 +17682,7 @@ public void test500(){
 			"");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90433
-	public void test588() {
+	public void test0588() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17704,7 +17704,7 @@ public void test500(){
 	}			
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281
-	public void test589() {
+	public void test0589() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17741,7 +17741,7 @@ public void test500(){
 	}		
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
-	public void test590() {
+	public void test0590() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17766,7 +17766,7 @@ public void test500(){
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
-	public void test591() {
+	public void test0591() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17788,7 +17788,7 @@ public void test500(){
             },
 			"");
 	}		
-	public void test592() {
+	public void test0592() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17805,7 +17805,7 @@ public void test500(){
             },
 			"");
 	}			
-	public void test593() {
+	public void test0593() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17815,14 +17815,24 @@ public void test500(){
 				"	    List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" + 				
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
-			"	               ^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
+    		"	               ^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 3)\n" + 
+    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
+    		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 4)\n" + 
+    		"	List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" + 
+    		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+    		"----------\n");
 	}		
-	public void test594() {
+	public void test0594() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17851,7 +17861,7 @@ public void test500(){
     		"Type mismatch: cannot convert from Iterator<Map.Entry<String,capture-of ?>> to Iterator<Map.Entry<String,?>>\n" + 
     		"----------\n");
 	}		
-	public void test595() {
+	public void test0595() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17880,7 +17890,7 @@ public void test500(){
     		"Type mismatch: cannot convert from Iterator<Map.Entry<capture-of ? extends String,capture-of ?>> to Iterator<Map.Entry<? extends String,?>>\n" + 
     		"----------\n");
 	}		
-	public void test596() {
+	public void test0596() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17897,7 +17907,7 @@ public void test500(){
             },
 			"");
 	}		
-	public void test597() {
+	public void test0597() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -17923,7 +17933,7 @@ public void test500(){
     		"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879
-	public void test598() {
+	public void test0598() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -17947,7 +17957,7 @@ public void test500(){
 			"");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
-	public void test599() {
+	public void test0599() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18007,7 +18017,7 @@ public void test500(){
 			"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
-	public void test600() {
+	public void test0600() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18073,7 +18083,7 @@ public void test500(){
     		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
-	public void test601() {
+	public void test0601() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18100,7 +18110,7 @@ public void test500(){
 			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<U>\n" + 
 			"----------\n");
 	}		
-	public void test602() {
+	public void test0602() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18124,7 +18134,7 @@ public void test500(){
 			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
 			"----------\n");
 	}		
-	public void test603() {
+	public void test0603() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18144,7 +18154,7 @@ public void test500(){
 			"");
 	}		
 	// capture on array ref 
-	public void test604() {
+	public void test0604() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18165,7 +18175,7 @@ public void test500(){
 			"");
 	}		
 	// capture on array ref
-	public void test605() {
+	public void test0605() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18189,7 +18199,7 @@ public void test500(){
 			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
 			"----------\n");
 	}		
-	public void test606() {
+	public void test0606() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18214,7 +18224,7 @@ public void test500(){
     		"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
     		"----------\n");
 	}		
-	public void test607() {
+	public void test0607() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18222,15 +18232,15 @@ public void test500(){
 				"\n" + 
 				"public class X {\n" + 
 				"\n" + 
-				"	void test1() {\n" + 
+				"	void test01() {\n" + 
 				"		List<Comparable<Object>> lObj = new ArrayList<Comparable<Object>> ();\n" + 
 				"		Collections.sort (lObj);	\n" + 
 				"	}\n" + 
-				"	void test2() {\n" + 
+				"	void test02() {\n" + 
 				"		List<Comparable> lComp = new ArrayList<Comparable> ();\n" + 
 				"		Collections.sort (lComp);		\n" + 
 				"	}\n" + 
-				"	void test3() {\n" + 
+				"	void test03() {\n" + 
 				"		List<Comparable<String>> lStr = new ArrayList<Comparable<String>> ();\n" + 
 				"		Collections.sort (lStr);\n" + 
 				"	}\n" + 
@@ -18259,7 +18269,7 @@ public void test500(){
     		"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84284 - check warnings
-	public void test608() {
+	public void test0608() {
 	    this.runNegativeTest(
             new String[] {
                 "Ball.java",
@@ -18295,7 +18305,7 @@ public void test500(){
     		"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81831
-	public void test609() {
+	public void test0609() {
 	    this.runConformTest(
             new String[] {
                 "I.java",
@@ -18304,7 +18314,7 @@ public void test500(){
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
-	public void _test610() {
+	public void _test0610() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18347,7 +18357,7 @@ public void test500(){
 			"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91696
-	public void test611() {
+	public void test0611() {
 	    this.runConformTest(
             new String[] {
                 "C.java",
@@ -18387,7 +18397,7 @@ public void test500(){
             },
 			"");
 	}			
-	public void test612() {
+	public void test0612() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18418,7 +18428,7 @@ public void test500(){
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973
-	public void test613() {
+	public void test0613() {
 	    this.runNegativeTest(
             new String[] {
                 "Map.java",
@@ -18453,7 +18463,7 @@ public void test500(){
     		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
-	public void test614() {
+	public void test0614() {
 	    this.runNegativeTest(
             new String[] {
                 "X1.java",
@@ -18480,7 +18490,7 @@ public void test500(){
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
-	public void test615() {
+	public void test0615() {
 	    this.runNegativeTest(
             new String[] {
                 "X1.java",
@@ -18511,7 +18521,7 @@ public void test500(){
     		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
-	public void test616() {
+	public void test0616() {
 	    this.runNegativeTest(
             new String[] {
                 "Map.java",
@@ -18540,7 +18550,7 @@ public void test500(){
     		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
     		"----------\n");
 	}
-public void test617() {
+public void test0617() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18567,7 +18577,7 @@ public void test617() {
 			"----------\n");
     }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
-	public void test618() {
+	public void test0618() {
 	    this.runNegativeTest(
             new String[] {
                 "Map.java",
@@ -18614,7 +18624,7 @@ public void test617() {
     		"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
-	public void test619() {
+	public void test0619() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18640,7 +18650,7 @@ public void test617() {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551	
-	public void test620() {
+	public void test0620() {
 	    this.runNegativeTest(
             new String[] {
                 "Outer.java",
@@ -18658,7 +18668,7 @@ public void test617() {
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551- variation
-	public void test621() {
+	public void test0621() {
 	    this.runConformTest(
             new String[] {
                 "Outer.java",
@@ -18671,7 +18681,7 @@ public void test617() {
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551 - variation
-	public void test622() {
+	public void test0622() {
 	    this.runConformTest(
             new String[] {
                 "Outer.java",
@@ -18684,7 +18694,7 @@ public void test617() {
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551 - variation
-	public void test623() {
+	public void test0623() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18698,7 +18708,7 @@ public void test617() {
 			"");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034
-	public void test624() {
+	public void test0624() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18719,7 +18729,7 @@ public void test617() {
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034 - variation
-	public void test625() {
+	public void test0625() {
 	    this.runConformTest(
             new String[] {
                 "Foo.java",
@@ -18751,7 +18761,7 @@ public void test617() {
 			null);
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92037
-	public void test626() {
+	public void test0626() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18801,7 +18811,7 @@ public void test617() {
     		"Incompatible conditional operand types X.B<X.A> and X.C\n" + 
     		"----------\n");
 	}		
-	public void test627() {
+	public void test0627() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18825,7 +18835,7 @@ public void test617() {
     		"----------\n");
 	}	
 	// check capture for conditional operator
-	public void test628() {
+	public void test0628() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18850,7 +18860,7 @@ public void test617() {
     		"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
-	public void test629() {
+	public void test0629() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -18873,7 +18883,7 @@ public void test617() {
             },
 			"");
 	}			
-	public void test630() {
+	public void test0630() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18889,14 +18899,14 @@ public void test617() {
 				"		arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
 				"	}\n" + 
 				"\n" + 
-				"	void test1() {\n" + 
+				"	void test01() {\n" + 
 				"		List<? extends Number[]> arrays= new ArrayList<Number[]>();\n" + 
 				"		Number[] a= null;\n" + 
 				"		arrays.add(null);\n" + 
 				"		arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
 				"	}\n" + 
 				"	\n" + 
-				"	void test2() {\n" + 
+				"	void test02() {\n" + 
 				"		List<? super Number> nums= null;\n" + 
 				"		Number n= null;\n" + 
 				"		nums.add(null);\n" + 
@@ -18919,7 +18929,7 @@ public void test617() {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93044	
-	public void test631() {
+	public void test0631() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18942,19 +18952,19 @@ public void test617() {
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
-	public void test632() {
+	public void test0632() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
 				"import java.util.Vector;\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"	void test1() {\n" + 
+				"	void test01() {\n" + 
 				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
 				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
 				"		lhs.add(rhs.get(0));\n" + 
 				"	}\n" + 
-				"	void test2() {\n" + 
+				"	void test02() {\n" + 
 				"		Vector<? extends java.lang.Object[]> lhs = null;\n" + 
 				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
 				"		lhs.add(rhs.get(0));\n" + 
@@ -18989,7 +18999,7 @@ public void test617() {
 			"----------\n");
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
-	public void test633() {
+	public void test0633() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19009,7 +19019,7 @@ public void test617() {
 			"");
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
-	public void test634() {
+	public void test0634() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19048,7 +19058,7 @@ public void test617() {
 			"----------\n");
 	}					
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93298
-	public void test635() {
+	public void test0635() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19074,7 +19084,7 @@ public void test617() {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78084	
-	public void test636() {
+	public void test0636() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19100,7 +19110,7 @@ public void test617() {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84968	
-	public void test637() {
+	public void test0637() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19158,7 +19168,7 @@ public void test617() {
 			"");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93478	
-	public void test638() {
+	public void test0638() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19194,7 +19204,7 @@ public void test617() {
 	        },
 			"");
 	}
-	public void test639() {
+	public void test0639() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19226,7 +19236,7 @@ public void test617() {
 	        },
 			"");
 	}		
-	public void test640() {
+	public void test0640() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19258,7 +19268,7 @@ public void test617() {
 	        },
 			"");
 	}			
-	public void test641() {
+	public void test0641() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19296,7 +19306,7 @@ public void test617() {
 			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
 			"----------\n");
 	}			
-	public void test642() {
+	public void test0642() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19324,7 +19334,7 @@ public void test617() {
 	        },
 			"");
 	}		
-	public void test643() {
+	public void test0643() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19341,7 +19351,7 @@ public void test617() {
 	        },
 			"");
 	}		
-	public void test644() {
+	public void test0644() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19373,7 +19383,7 @@ public void test617() {
 			"Type mismatch: cannot convert from Object to String\n" + 
 			"----------\n");
 	}			
-	public void test645() {
+	public void test0645() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19422,7 +19432,7 @@ public void test617() {
 			"Type mismatch: cannot convert from Annotation to String\n" + 
 			"----------\n");
 	}			
-	public void test646() {
+	public void test0646() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19478,7 +19488,7 @@ public void test617() {
 			"----------\n");
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644
-	public void test647() {
+	public void test0647() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19533,7 +19543,7 @@ public void test617() {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
-	public void test648() {
+	public void test0648() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19575,7 +19585,7 @@ public void test617() {
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
-	public void test649() {
+	public void test0649() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19618,7 +19628,7 @@ public void test617() {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
-	public void test650() {
+	public void test0650() {
 	    this.runConformTest(
             new String[] {
 				"p/A.java",
@@ -19667,7 +19677,7 @@ public void test617() {
 			false,
 			null);
 	}
-	public void test651() {
+	public void test0651() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19698,7 +19708,7 @@ public void test617() {
 	        },
 			"");
 	}	
-	public void test652() {
+	public void test0652() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19713,7 +19723,7 @@ public void test617() {
 	        },
 			"");
 	}	
-	public void test653() {
+	public void test0653() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19743,7 +19753,7 @@ public void test617() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}		
-	public void test654() {
+	public void test0654() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19805,7 +19815,7 @@ public void test617() {
 			"----------\n");
 	}			
 // javac incorrectly rejects the cast
-public void test655() {
+public void test0655() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -19836,7 +19846,7 @@ public void test655() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }	
-public void test656() {
+public void test0656() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -19856,7 +19866,7 @@ public void test656() {
 		},
 		"SUCCESS");
 }	
-public void test657() {
+public void test0657() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -19886,7 +19896,7 @@ public void test657() {
 		},
 		"abcjava.lang.Exception");
 }	
-public void test658() {
+public void test0658() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -19932,7 +19942,7 @@ public void test658() {
 		"Type safety: The cast from Object to X.GenericWrapper<String> is actually checking against the erased type X.GenericWrapper\n" + 
 		"----------\n");
 }	
-public void test659() {
+public void test0659() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -19987,7 +19997,7 @@ public void test659() {
 		"Type safety: The cast from Reference<capture-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
 		"----------\n");
 }	
-public void test660() {
+public void test0660() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20008,7 +20018,7 @@ public void test660() {
 		"SUCCESS");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066
-public void test661() {
+public void test0661() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20037,7 +20047,7 @@ public void test661() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
-public void test662() {
+public void test0662() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20066,7 +20076,7 @@ public void test662() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
-public void test663() {
+public void test0663() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20122,7 +20132,7 @@ public void test663() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
-public void test664() {
+public void test0664() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20142,7 +20152,7 @@ public void test664() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
-public void test665() {
+public void test0665() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
@@ -20174,7 +20184,7 @@ public void test665() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
-public void test666() {
+public void test0666() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20221,7 +20231,7 @@ public void test666() {
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
 		"----------\n");
 }	
-public void _test667() {
+public void _test0667() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20648,7 +20658,7 @@ public void _test667() {
 		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
 		"----------\n");
 }	
-public void test668() {
+public void test0668() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20663,7 +20673,7 @@ public void test668() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95289
-public void test669() {
+public void test0669() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20695,7 +20705,7 @@ public void test669() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
-public void test670() {
+public void test0670() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20745,7 +20755,7 @@ public void test670() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
-public void test671() {
+public void test0671() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20801,7 +20811,7 @@ public void test671() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
-public void test672() {
+public void test0672() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20848,7 +20858,7 @@ public void test672() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 
-public void test673() {
+public void test0673() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20873,7 +20883,7 @@ public void test673() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
-public void test674() {
+public void test0674() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -20887,7 +20897,7 @@ public void test674() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
-public void test675() {
+public void test0675() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20912,7 +20922,7 @@ public void test675() {
 		"----------\n");
 }	
 //check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
-public void test676() {
+public void test0676() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20936,7 +20946,7 @@ public void test676() {
 		"The method printStackTrace() is undefined for the type String\n" + 
 		"----------\n");
 }	
-public void test677() {
+public void test0677() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20965,7 +20975,7 @@ public void test677() {
 		"Type mismatch: cannot convert from ArrayList<Integer> to ArrayList<Number>\n" + 
 		"----------\n");
 }	
-public void test678() {
+public void test0678() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -20999,7 +21009,7 @@ public void test678() {
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
-public void test679() {
+public void test0679() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21013,7 +21023,7 @@ public void test679() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
-public void test680() {
+public void test0680() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21031,7 +21041,7 @@ public void test680() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
-public void test681() {
+public void test0681() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21054,7 +21064,7 @@ public void test681() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95963
-public void test682() {
+public void test0682() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21070,7 +21080,7 @@ public void test682() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96085
-public void test683() {
+public void test0683() {
 	this.runConformTest(
 		new String[] {
 			"P.java",
@@ -21099,7 +21109,7 @@ public void test683() {
 		false,
 		null);
 }
-public void test684() {
+public void test0684() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21119,7 +21129,7 @@ public void test684() {
 		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
 		"----------\n");
 }	
-public void test685() {
+public void test0685() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21140,7 +21150,7 @@ public void test685() {
 		"----------\n");
 }	
 // check wildcard bounds wrt variable boundCheck
-public void test686() {
+public void test0686() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21168,7 +21178,7 @@ public void test686() {
 		"----------\n");
 }
 // check wildcard bounds wrt variable boundCheck
-public void test687() {
+public void test0687() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21207,7 +21217,7 @@ public void test687() {
 		"----------\n");
 }
 // check wildcard bounds wrt variable boundCheck
-public void test688() {
+public void test0688() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21222,7 +21232,7 @@ public void test688() {
 		"");
 }
 // check wildcard bounds wrt variable boundCheck
-public void test689() {
+public void test0689() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21242,7 +21252,7 @@ public void test689() {
 		"----------\n");
 }
 // check assignment rules across param types with wildcards
-public void test690() {
+public void test0690() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21263,7 +21273,7 @@ public void test690() {
 		"----------\n");
 }
 // check that final class bound is more restrictive
-public void test691() {
+public void test0691() {
 	this.runNegativeTest(
 		new String[] {
 			"XX.java",
@@ -21281,7 +21291,7 @@ public void test691() {
 		"----------\n");
 }
 // check wildcard bounds wrt variable boundCheck
-public void test692() {
+public void test0692() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21301,7 +21311,7 @@ public void test692() {
 		"----------\n");
 }	
 // bound checks
-public void test693() {
+public void test0693() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21328,7 +21338,7 @@ public void test693() {
 		"----------\n");
 }	
 // bound checks
-public void test694() {
+public void test0694() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21370,7 +21380,7 @@ public void test694() {
 		"----------\n");
 }	
 // bound checks
-public void test695() {
+public void test0695() {
 	this.runConformTest(
 		new String[] {
 			"I.java",
@@ -21379,7 +21389,7 @@ public void test695() {
 		},
 		"");
 }
-public void test696() {
+public void test0696() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21407,7 +21417,7 @@ public void test696() {
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n");
 }
-public void test697() {
+public void test0697() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21424,7 +21434,7 @@ public void test697() {
 		},
 		"");
 }
-public void test698() {
+public void test0698() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21447,7 +21457,7 @@ public void test698() {
 		"Bound mismatch: The type ? super Exception is not a valid substitute for the bounded parameter <V extends List<String>> of the type X<U,V>\n" + 
 		"----------\n");
 }
-public void test699() {
+public void test0699() {
 	this.runNegativeTest(
 		new String[] {
 			"X2.java",
@@ -21480,7 +21490,7 @@ public void test699() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96646
-public void test700() {
+public void test0700() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21507,7 +21517,7 @@ public void test700() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303
-public void test701() {
+public void test0701() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21530,14 +21540,29 @@ public void test701() {
 			"class Song {}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 14)\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	List<Counter<?>> list1 = Arrays.asList(songCounter, genreCounter);\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 11)\n" + 
+		"	List<Counter<? extends Object>> list2 = Arrays.asList(songCounter, genreCounter);\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
 		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
 		"	                                ^^^^^\n" + 
 		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 14)\n" + 
+		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
-public void test702() {
+public void test0702() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21590,7 +21615,7 @@ public void test702() {
 		"Type mismatch: cannot convert from X<X<? extends Cloneable>> to X<X<?>>\n" + 
 		"----------\n");
 }
-public void test703() {
+public void test0703() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21602,7 +21627,7 @@ public void test703() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97800
-public void test704() {
+public void test0704() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21621,7 +21646,7 @@ public void test704() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97480
-public void test705() {
+public void test0705() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21667,7 +21692,7 @@ public void test705() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
-public void test706() {
+public void test0706() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21686,7 +21711,7 @@ public void test706() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
-public void test706a() {
+public void test0706a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21722,7 +21747,7 @@ public void test706a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
-public void test706b() {
+public void test0706b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21782,7 +21807,7 @@ public void test706b() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98079
-public void test707() {
+public void test0707() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21802,7 +21827,7 @@ public void test707() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95684
-public void test708() {
+public void test0708() {
 	this.runConformTest(
 		new String[] {
 			"UserClass.java",
@@ -21825,7 +21850,7 @@ public void test708() {
 		null);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95684 - variation
-public void test709() {
+public void test0709() {
 	this.runConformTest(
 		new String[] {
 			"UserClass.java",
@@ -21848,7 +21873,7 @@ public void test709() {
 		null);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96713
-public void test710() {
+public void test0710() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21868,7 +21893,7 @@ public void test710() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97108
-public void test711(){
+public void test0711(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21905,7 +21930,7 @@ public void test711(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97108
 // The case that works
-public void test712(){
+public void test0712(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -21940,7 +21965,7 @@ public void test712(){
         null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96713
-public void test713() {
+public void test0713() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21971,7 +21996,7 @@ public void test713() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98232
-public void test714() {	
+public void test0714() {	
 	this.runConformTest(
 		new String[] {
 			"B.java",
@@ -22002,7 +22027,7 @@ public void test714() {
         null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98393
-public void test715() {
+public void test0715() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22022,7 +22047,7 @@ public void test715() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396
-public void test716() {
+public void test0716() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22040,7 +22065,7 @@ public void test716() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396 - variation
-public void test717() {
+public void test0717() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22059,7 +22084,7 @@ public void test717() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98478
-public void test718() {
+public void test0718() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22121,7 +22146,7 @@ public void test718() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98364
-public void test719() {
+public void test0719() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22145,7 +22170,7 @@ public void test719() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98364 - variation
-public void test720() {
+public void test0720() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22191,7 +22216,7 @@ public void test720() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98561
-public void test721() {
+public void test0721() {
 	this.runConformTest(
 			new String[] {
 				"Foo.java",
@@ -22233,7 +22258,7 @@ public void test721() {
 	        null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98364 - variation
-public void test722() {
+public void test0722() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22248,7 +22273,7 @@ public void test722() {
 		},
 		"");
 }
-public void test723() {
+public void test0723() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22275,7 +22300,7 @@ public void test723() {
 		},
 		"AB");
 }
-public void test724() {
+public void test0724() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22295,7 +22320,7 @@ public void test724() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500
-public void test725() {
+public void test0725() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22320,7 +22345,7 @@ public void test725() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500
-public void test726() {
+public void test0726() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22345,7 +22370,7 @@ public void test726() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500 - variation
-public void test727() {
+public void test0727() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22370,7 +22395,7 @@ public void test727() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500 - variation
-public void test728() {
+public void test0728() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22400,7 +22425,7 @@ public void test728() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96586
-public void test729() {
+public void test0729() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22424,7 +22449,7 @@ public void test729() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90437
-public void test730() {
+public void test0730() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22463,7 +22488,7 @@ public void test730() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97440
-public void test731() {
+public void test0731() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22486,7 +22511,7 @@ public void test731() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331
-public void test732() {
+public void test0732() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22509,7 +22534,7 @@ public void test732() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test733() {
+public void test0733() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22527,7 +22552,7 @@ public void test733() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test734() {
+public void test0734() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22545,7 +22570,7 @@ public void test734() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test735() {
+public void test0735() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22563,7 +22588,7 @@ public void test735() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test736() {
+public void test0736() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22588,7 +22613,7 @@ public void test736() {
 		"Cannot cast from C to D<? extends Exception>\n" + 
 		"----------\n");
 }
-public void test737() {
+public void test0737() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22613,7 +22638,7 @@ public void test737() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test738() {
+public void test0738() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22636,7 +22661,7 @@ public void test738() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test739() {
+public void test0739() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22659,7 +22684,7 @@ public void test739() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test740() {
+public void test0740() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22681,7 +22706,7 @@ public void test740() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
-public void test741() {
+public void test0741() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22703,7 +22728,7 @@ public void test741() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
-public void test742() {
+public void test0742() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22763,7 +22788,7 @@ public void test742() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99553
-public void test743() {
+public void test0743() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22794,7 +22819,7 @@ public void test743() {
 		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" + 
 		"----------\n");
 }
-public void test744() {
+public void test0744() {
 	this.runNegativeTest(
 		new String[] {
 			"java/util/X.java",
@@ -22831,7 +22856,7 @@ public void test744() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922
-public void test745() {
+public void test0745() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22844,7 +22869,7 @@ public void test745() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922 - variation
-public void test746() {
+public void test0746() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22855,14 +22880,19 @@ public void test746() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	String s = java.util.Arrays.asList(3, 3.1);\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
 		"	String s = java.util.Arrays.asList(3, 3.1);\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
-public void test747() {
+public void test0747() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22880,7 +22910,7 @@ public void test747() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
-public void test748() {
+public void test0748() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -22899,7 +22929,7 @@ public void test748() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149
-public void test749() {
+public void test0749() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22925,7 +22955,7 @@ public void test749() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149 - variation
-public void test750() {
+public void test0750() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22957,7 +22987,7 @@ public void test750() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
-public void test751() {
+public void test0751() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22975,7 +23005,7 @@ public void test751() {
 		"Type mismatch: cannot convert from X<capture-of ? extends T> to X<T>\n" + 
 		"----------\n");
 }
-public void test752() {
+public void test0752() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22999,7 +23029,7 @@ public void test752() {
 		"Type mismatch: cannot convert from X<capture-of ? extends I<capture-of ? extends I<E>>> to X<? extends I<E>>\n" + 
 		"----------\n");
 }
-public void test753() {
+public void test0753() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23034,7 +23064,7 @@ public void test753() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99578
-public void test754() {
+public void test0754() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23069,7 +23099,7 @@ public void test754() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999
-public void test755() {
+public void test0755() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23093,7 +23123,7 @@ public void test755() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
-public void test756() {
+public void test0756() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23107,7 +23137,7 @@ public void test756() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
-public void test757() {
+public void test0757() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23145,7 +23175,7 @@ public void test757() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147 - variation
-public void test758() {
+public void test0758() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23188,7 +23218,7 @@ public void test758() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100128
-public void test759() {
+public void test0759() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23204,7 +23234,7 @@ public void test759() {
 		},
 		"");
 }
-public void test760() {
+public void test0760() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23243,7 +23273,7 @@ public void test760() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100421
-public void test761() {
+public void test0761() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23266,7 +23296,7 @@ public void test761() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100421 - variation
-public void test762() {
+public void test0762() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23289,7 +23319,7 @@ public void test762() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100519
-public void test763() {
+public void test0763() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23304,7 +23334,7 @@ public void test763() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100527
-public void test764() {
+public void test0764() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23329,7 +23359,7 @@ public void test764() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
-public void test765() {
+public void test0765() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23345,7 +23375,7 @@ public void test765() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99453
-public void test766() {
+public void test0766() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23374,7 +23404,7 @@ public void test766() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99453 - variation
-public void test767() {
+public void test0767() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23398,7 +23428,7 @@ public void test767() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100619
-public void test768() {
+public void test0768() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23442,7 +23472,7 @@ public void test768() {
 		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
 		"----------\n");
 }
-public void test769() {
+public void test0769() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23465,7 +23495,7 @@ public void test769() {
 		},
 		"[11");
 }
-public void test770() {
+public void test0770() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23488,7 +23518,7 @@ public void test770() {
 		},
 		"[11");
 }
-public void test771() {
+public void test0771() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23512,7 +23542,7 @@ public void test771() {
 		"[11");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101794
-public void test772() {
+public void test0772() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23574,7 +23604,7 @@ public void test772() {
 		}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101794 - variation
-public void test773() {
+public void test0773() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23636,7 +23666,7 @@ public void test773() {
 		}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98532
-public void test774() {
+public void test0774() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23700,7 +23730,7 @@ public void test774() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
-public void test775() {
+public void test0775() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23712,7 +23742,7 @@ public void test775() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103023
-public void test776() {
+public void test0776() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23740,7 +23770,7 @@ public void test776() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472
-public void test777() {
+public void test0777() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23831,7 +23861,7 @@ public void test777() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472 - variation
-public void test778() {
+public void test0778() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23865,7 +23895,7 @@ public void test778() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
-public void test779() {
+public void test0779() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23920,7 +23950,7 @@ public void test779() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227 - variation
-public void test780() {
+public void test0780() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -23940,7 +23970,7 @@ public void test780() {
 		"123");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104109
-public void test781() {
+public void test0781() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23963,7 +23993,7 @@ public void test781() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082
-public void test782() {
+public void test0782() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24025,7 +24055,7 @@ public void test782() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104167
-public void test783() {
+public void test0783() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24048,7 +24078,7 @@ public void test783() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082 - variation
-public void test784() {
+public void test0784() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24063,7 +24093,7 @@ public void test784() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528
-public void test785() {
+public void test0785() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24086,7 +24116,7 @@ public void test785() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
-public void test786() {
+public void test0786() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24104,7 +24134,7 @@ public void test786() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
-public void test787() {
+public void test0787() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24127,7 +24157,7 @@ public void test787() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
-public void test788() {
+public void test0788() {
 	this.runConformTest(
 		new String[] {
 			"test/A.java",
@@ -24151,7 +24181,7 @@ public void test788() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994 - variation (change ordering of files should have no effect)
-public void test789() {
+public void test0789() {
 	this.runConformTest(
 		new String[] {
 			"java/nio/channels/spi/AbstractSelectableChannel.java",
@@ -24175,7 +24205,7 @@ public void test789() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103485
-public void test790() {
+public void test0790() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24237,7 +24267,7 @@ public void test790() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
-public void test791() {
+public void test0791() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24257,7 +24287,7 @@ public void test791() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
-public void test792() {
+public void test0792() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24270,7 +24300,7 @@ public void test792() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105635
-public void test793() {
+public void test0793() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24296,7 +24326,7 @@ public void test793() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105635
-public void test794() {
+public void test0794() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24323,7 +24353,7 @@ public void test794() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297
-public void test795() {
+public void test0795() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24344,7 +24374,7 @@ public void test795() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297 - variation
-public void test796() {
+public void test0796() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24370,7 +24400,7 @@ public void test796() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297 - variation
-public void test797() {
+public void test0797() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24391,7 +24421,7 @@ public void test797() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106284
-public void test798() {
+public void test0798() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24422,7 +24452,7 @@ public void test798() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105531
-public void test799() {
+public void test0799() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24489,7 +24519,7 @@ public void test799() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
-public void test800() {
+public void test0800() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24528,7 +24558,7 @@ public void test800() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
-public void test801() {
+public void test0801() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24548,7 +24578,7 @@ public void test801() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
-public void test802() {
+public void test0802() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24585,7 +24615,7 @@ public void test802() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
-public void test803() {
+public void test0803() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24617,7 +24647,7 @@ public void test803() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106865
-public void test804() {
+public void test0804() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24657,7 +24687,7 @@ public void test804() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106936
-public void test805() {
+public void test0805() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24691,7 +24721,7 @@ public void test805() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107079
-public void test806() {
+public void test0806() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24746,7 +24776,7 @@ public void test806() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107756
-public void test807() {
+public void test0807() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24767,7 +24797,7 @@ public void test807() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107756 - variation
-public void test808() {
+public void test0808() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24788,7 +24818,7 @@ public void test808() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106946
-public void test809() {
+public void test0809() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24865,7 +24895,7 @@ public void test809() {
 		"----------\n");
 }
 //crash javac
-public void test810() {
+public void test0810() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24890,7 +24920,7 @@ public void test810() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372
-public void test811() {
+public void test0811() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24913,7 +24943,7 @@ public void test811() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
-public void test812() {
+public void test0812() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -24959,7 +24989,7 @@ public void test812() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
-public void test813() {
+public void test0813() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24977,7 +25007,7 @@ public void test813() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695
-public void test814() {
+public void test0814() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25034,7 +25064,7 @@ public void test814() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
-public void test815() {
+public void test0815() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25058,7 +25088,7 @@ public void test815() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
-public void test816() {
+public void test0816() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25084,7 +25114,7 @@ public void test816() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
-public void test817() {
+public void test0817() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -25153,7 +25183,7 @@ public void test817() {
 			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
 			"----------\n");
 }
-public void test818() {
+public void test0818() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25166,7 +25196,7 @@ public void test818() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101380
-public void test819() {
+public void test0819() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -25187,7 +25217,7 @@ public void test819() {
 			"value is one");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101380 - variation
-public void test820() {
+public void test0820() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25201,7 +25231,7 @@ public void test820() {
 		},
 		"");
 }
-public void test821() {
+public void test0821() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25261,7 +25291,7 @@ public void test821() {
 		assertTrue(false);
 	}		
 }
-public void test822() {
+public void test0822() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25319,7 +25349,7 @@ public void test822() {
 		assertTrue(false);
 	}		
 }
-public void test823() {
+public void test0823() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25389,7 +25419,7 @@ public void test823() {
 		assertTrue(false);
 	}		
 }
-public void test824() {
+public void test0824() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25455,7 +25485,7 @@ public void test824() {
 		assertTrue(false);
 	}		
 }
-public void test825() {
+public void test0825() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25550,7 +25580,7 @@ public void test825() {
 	}		
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110570
-public void test826() {
+public void test0826() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25599,7 +25629,7 @@ public void test826() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110570 - variation
 // ensure variable V2 is substituted with upper bound erasure (List) and not just upperbound List<String>
 // for raw generic method invocation
-public void test827() {
+public void test0827() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25641,7 +25671,7 @@ public void test827() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249
-public void test828() {
+public void test0828() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25702,7 +25732,7 @@ public void test828() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249 - variation
-public void test829() {
+public void test0829() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25728,7 +25758,7 @@ public void test829() {
 		"");
 }
 // ensure no raw type ref complaint inside instanceof / cast
-public void test830() {
+public void test0830() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25773,7 +25803,7 @@ public void test830() {
 		"----------\n");
 }
 //unnecessary cast may be combined with unchecked cast warning
-public void test831() {
+public void test0831() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25815,7 +25845,7 @@ public void test831() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106010
-public void test832() {
+public void test0832() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25839,7 +25869,7 @@ public void test832() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111014
-public void test833() {
+public void test0833() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -25861,7 +25891,7 @@ public void test833() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100809
-public void test834() {
+public void test0834() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25890,7 +25920,7 @@ public void test834() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100809 - variation
-public void test835() {
+public void test0835() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25910,7 +25940,7 @@ public void test835() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208
-public void test836() {
+public void test0836() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25940,7 +25970,7 @@ public void test836() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
-public void test837() {
+public void test0837() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25964,7 +25994,7 @@ public void test837() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111689
-public void test838() {
+public void test0838() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25981,7 +26011,7 @@ public void test838() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
-public void test839() {
+public void test0839() {
 	this.runConformTest(
 		new String[] {
 			"com/test/Tester.java",
@@ -26019,7 +26049,7 @@ public void test839() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
-public void test840() {
+public void test0840() {
 	this.runNegativeTest(
 		new String[] {
 			"generics/NodeList.java",
@@ -26077,7 +26107,7 @@ public void test840() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112268
-public void test841() {
+public void test0841() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -26096,7 +26126,7 @@ public void test841() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500
-public void test842() {
+public void test0842() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26122,7 +26152,7 @@ public void test842() {
 		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
 		"----------\n");
 }
-public void test843() {
+public void test0843() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26159,7 +26189,7 @@ public void test843() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
-public void test844() {
+public void test0844() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -26174,7 +26204,7 @@ public void test844() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
-public void test845() {
+public void test0845() {
 	this.runConformTest(
 		new String[] {
 			"Generic.java", // =================
@@ -26221,7 +26251,7 @@ public void test845() {
 			"----------\n");
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
-public void test846() {
+public void test0846() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -26237,7 +26267,7 @@ public void test846() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
-public void test847() {
+public void test0847() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26259,7 +26289,7 @@ public void test847() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451
-public void test848() {
+public void test0848() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26273,12 +26303,17 @@ public void test848() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
 		"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Collection<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -26350,7 +26385,7 @@ public void test848() {
 	}			
 }
 //ensure no unsafe cast is diagnosed
-public void test849() {
+public void test0849() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26371,7 +26406,7 @@ public void test849() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");	
 }
-public void test850() {
+public void test0850() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26416,7 +26451,7 @@ public void test850() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");	
 }
-public void test851() {
+public void test0851() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26442,7 +26477,7 @@ public void test851() {
 		"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106466
-public void test852() {
+public void test0852() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -26458,7 +26493,7 @@ public void test852() {
 		"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112109
-public void test853() {
+public void test0853() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26470,7 +26505,7 @@ public void test853() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113236
-public void test854() {
+public void test0854() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26503,7 +26538,7 @@ public void test854() {
 		"SUCCESS");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113218
-public void test855() {
+public void test0855() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26558,7 +26593,7 @@ public void test855() {
 		},
 		"true");	
 }
-public void test856() {
+public void test0856() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26581,7 +26616,7 @@ public void test856() {
 		"SUCCESS");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113070
-public void test857() {
+public void test0857() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26598,7 +26633,7 @@ public void test857() {
 		"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113560
-public void test858() {
+public void test0858() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26620,7 +26655,7 @@ public void test858() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113710
-public void test859() {
+public void test0859() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26649,7 +26684,7 @@ public void test859() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304
-public void test860() {
+public void test0860() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26668,7 +26703,7 @@ public void test860() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
-public void test861() {
+public void test0861() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26687,7 +26722,7 @@ public void test861() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
-public void test862() {
+public void test0862() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26708,7 +26743,7 @@ public void test862() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
-public void test863() {
+public void test0863() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26729,7 +26764,7 @@ public void test863() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
-public void test864() {
+public void test0864() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26750,7 +26785,7 @@ public void test864() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
-public void test865() {
+public void test0865() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
@@ -26772,7 +26807,7 @@ public void test865() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114997
-public void test866() {
+public void test0866() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26789,7 +26824,7 @@ public void test866() {
 		"");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114087
-public void test867() {
+public void test0867() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26855,7 +26890,7 @@ public void test867() {
 		"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114365
-public void test868() {
+public void test0868() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	this.runConformTest(
@@ -26928,7 +26963,7 @@ public void test868() {
 		null);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115181
-public void test869() {
+public void test0869() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26949,7 +26984,7 @@ public void test869() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113950
-public void test870() {
+public void test0870() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26970,7 +27005,7 @@ public void test870() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107788
-public void test871() {
+public void test0871() {
 	this.runConformTest(
 		new String[] {
 			"Lister.java",
@@ -26992,7 +27027,7 @@ public void test871() {
 		},
 		"");
 }
-public void test872() {
+public void test0872() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27050,7 +27085,7 @@ public void test872() {
 		"The member type X.M4<X>.N4 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" + 
 		"----------\n");
 }
-public void test873() {
+public void test0873() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27067,7 +27102,7 @@ public void test873() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693
-public void test874() {
+public void test0874() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27132,7 +27167,7 @@ public void test874() {
 	}		
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395
-public void test875() {
+public void test0875() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27176,7 +27211,7 @@ public void test875() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
-public void test876() {
+public void test0876() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27221,7 +27256,7 @@ public void test876() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
-public void test877() {
+public void test0877() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27287,7 +27322,7 @@ public void test877() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115693 - variation
-public void test878() {
+public void test0878() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27352,7 +27387,7 @@ public void test878() {
 	}		
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122610
-public void test879() {
+public void test0879() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27368,7 +27403,7 @@ public void test879() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369
-public void test880() {
+public void test0880() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27392,7 +27427,7 @@ public void test880() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-public void _test881() {
+public void _test0881() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27416,7 +27451,7 @@ public void _test881() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-public void test882() {
+public void test0882() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27437,7 +27472,7 @@ public void test882() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-public void _test883() {
+public void _test0883() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27459,7 +27494,7 @@ public void _test883() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123078
-public void test884() {
+public void test0884() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27492,7 +27527,7 @@ public void test884() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=125445 
-public void test885() {
+public void test0885() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27511,7 +27546,7 @@ public void test885() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124943
-public void test886() {
+public void test0886() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 	this.runConformTest(
@@ -27531,7 +27566,7 @@ public void test886() {
 		null/*no custom requestor*/);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
-public void test887() {
+public void test0887() {
 	this.runNegativeTest(
 		new String[] {
 			"Bar.java", // =================
@@ -27550,7 +27585,7 @@ public void test887() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
-public void test888() {
+public void test0888() {
 	this.runNegativeTest(
 		new String[] {
 			"Bar.java", // =================
@@ -27569,7 +27604,7 @@ public void test888() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
-public void test889() {
+public void test0889() {
 	this.runConformTest(
 		new String[] {
 			"Test.java", // =================
@@ -27603,7 +27638,7 @@ public void test889() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
-public void test890() {
+public void test0890() {
 	this.runConformTest(
 		new String[] {
 			"Simple.java", // =================
@@ -27623,7 +27658,7 @@ public void test890() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
-public void test891() {
+public void test0891() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java", // =================
@@ -27656,7 +27691,7 @@ public void test891() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126180
-public void test892() {
+public void test0892() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27686,7 +27721,7 @@ public void test892() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177
-public void test893() {
+public void test0893() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27772,7 +27807,7 @@ public void test893() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177 - variation
-public void test894() {
+public void test0894() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27805,7 +27840,7 @@ public void test894() {
 		},
 		"[c1m1][c1m1][c1m1]");
 }
-public void test895() {
+public void test0895() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27821,7 +27856,7 @@ public void test895() {
 		"The constructor Object() of type Object is not generic; it cannot be parameterized with arguments <Object>\n" + 
 		"----------\n");
 }
-public void test896() {
+public void test0896() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27853,7 +27888,7 @@ public void test896() {
 		},
 		"[A#f()][A#g()][B#f()][B#g()]");
 }
-public void test897() {
+public void test0897() {
 	this.runConformTest(
 		new String[] {
 			"Test.java", // =================
@@ -27870,7 +27905,7 @@ public void test897() {
 		},
 		"");
 }
-public void test898() {
+public void test0898() {
 	this.runConformTest(
 		new String[] {
 			"X.java", // =================
@@ -27898,7 +27933,7 @@ public void test898() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122331
-public void test899() {
+public void test0899() {
 	this.runConformTest(
 		new String[] {
 			"A.java", // =================
@@ -27944,7 +27979,7 @@ public void test899() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
-public void test900() {
+public void test0900() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27980,7 +28015,7 @@ public void test900() {
 		"----------\n");
 }
 // Object array vs Object into generic method
-public void test901() {
+public void test0901() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28001,7 +28036,7 @@ public void test901() {
 }
 
 // circular references amongst generic interfaces with co-implementing classes
-public void test902() {
+public void test0902() {
 	this.runConformTest(
 		new String[] {
 			"I.java",
@@ -28026,7 +28061,7 @@ public void test902() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
 // extraneous bound mismatch error
 // this order is OK
-public void test903() {
+public void test0903() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28049,7 +28084,7 @@ public void test903() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
 // extraneous bound mismatch error
 // this order is KO (X before Y)
-public void _test904() {
+public void _test0904() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28070,7 +28105,7 @@ public void _test904() {
 }
 
 // array in super bound
-public void test905() {
+public void test0905() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28085,7 +28120,7 @@ public void test905() {
 }
 
 // raw types in casts
-public void test906() {
+public void test0906() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28142,7 +28177,7 @@ public void test906() {
 }
 
 // parametrized method with array extends Object upper bound verification
-public void test907() {
+public void test0907() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28167,7 +28202,7 @@ public void test907() {
 }
 
 // check capture for conditional operator - variant
-public void test908() {
+public void test0908() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28180,7 +28215,7 @@ public void test908() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126105
-public void test909() {
+public void test0909() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28220,7 +28255,7 @@ public void test909() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583
-public void test910() {
+public void test0910() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28322,7 +28357,7 @@ public void test910() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
-public void test911() {
+public void test0911() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28404,7 +28439,7 @@ public void test911() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
-public void test912() {
+public void test0912() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28430,7 +28465,7 @@ public void test912() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
-public void test913() {
+public void test0913() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28499,7 +28534,7 @@ public void test913() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
-public void test914() {
+public void test0914() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28569,7 +28604,7 @@ public void test914() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128389
-public void test915() {
+public void test0915() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28614,7 +28649,7 @@ public void test915() {
 }
 
 // synchronized inheritance for multiple generic types
-public void test916() {
+public void test0916() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28648,7 +28683,7 @@ public void test916() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423
 // [1.5][compiler] ClassCastException on illegal code fragment
-public void _test917() {
+public void _test0917() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28664,7 +28699,7 @@ public void _test917() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
-public void test918() {
+public void test0918() {
 	this.runConformTest(
 		new String[] {
 			"BasicNode.java",
@@ -28685,7 +28720,7 @@ public void test918() {
 		"");
 }
 
-public void test919() {
+public void test0919() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28725,7 +28760,7 @@ public void test919() {
 		},
 		"");
 }
-public void test920() {
+public void test0920() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -28765,7 +28800,7 @@ public void test920() {
 		},
 		"[15][14][13][12][done]");
 }
-public void test921() {
+public void test0921() {
 	this.runConformTest(
 		new String[] {
 			"Graph.java",
@@ -28797,7 +28832,7 @@ public void test921() {
 		"");
 }
 // Test case which comes from JDT/UI tests TypeEnvironmentTest.testWildcardAssignements
-public void test922() {
+public void test0922() {
 	this.runNegativeTest(
 		new String[] {
 		"Test.java",
@@ -28823,7 +28858,7 @@ public void test922() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129129 
-public void test923() {
+public void test0923() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -28845,7 +28880,7 @@ public void test923() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 
-public void test924() {
+public void test0924() {
 	this.runConformTest(
 		new String[] {
 		"ExtendedOuter.java",
@@ -28871,7 +28906,7 @@ public void test924() {
 		},
 		"SUCCESS");
 }
-public void test925() {
+public void test0925() {
 	this.runConformTest(
 		new String[] {
 		"X.java",
@@ -28925,7 +28960,7 @@ public void test925() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
-public void test926() {
+public void test0926() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -28970,7 +29005,7 @@ public void test926() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test927() {
+public void test0927() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29031,7 +29066,7 @@ public void test927() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test928() {
+public void test0928() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29052,7 +29087,7 @@ public void test928() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117119
-public void test929() {
+public void test0929() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29101,7 +29136,7 @@ public void test929() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238
-public void test930() {
+public void test0930() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29121,7 +29156,7 @@ public void test930() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238 - variation
-public void test931() {
+public void test0931() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29140,7 +29175,7 @@ public void test931() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238 - variation
-public void test932() {
+public void test0932() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -29162,7 +29197,7 @@ public void test932() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063
-public void test933() {
+public void test0933() {
 	this.runNegativeTest(
 		new String[] {
 		"a/AbstractFoo.java", //================================
@@ -29267,7 +29302,7 @@ public void test933() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
-public void test934() {
+public void test0934() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29292,7 +29327,7 @@ public void test934() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
-public void test935() {
+public void test0935() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29317,7 +29352,7 @@ public void test935() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063 - variation
-public void test936() {
+public void test0936() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29351,7 +29386,7 @@ public void test936() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
-public void test937() {
+public void test0937() {
 	this.runNegativeTest(
 		new String[] {
 		"ExtendedOuter.java", //================================
@@ -29385,7 +29420,7 @@ public void test937() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
-public void test938() {
+public void test0938() {
 	this.runNegativeTest(
 		new String[] {
 		"ExtendedOuter.java", //================================
@@ -29414,7 +29449,7 @@ public void test938() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 - variation
-public void test939() {
+public void test0939() {
 	this.runNegativeTest(
 		new String[] {
 		"ExtendedOuter.java", //================================
@@ -29443,7 +29478,7 @@ public void test939() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test940() {
+public void test0940() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29469,7 +29504,7 @@ public void test940() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test941() {
+public void test0941() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29493,7 +29528,7 @@ public void test941() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test942() {
+public void test0942() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29517,7 +29552,7 @@ public void test942() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test943() {
+public void test0943() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29541,7 +29576,7 @@ public void test943() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129996
-public void test944() {
+public void test0944() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29564,7 +29599,7 @@ public void test944() {
 		"Cannot cast from Set<Number> to Set<Integer>\n" + 
 		"----------\n");
 }
-public void test945() {
+public void test0945() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29589,7 +29624,7 @@ public void test945() {
 		"The method transferBug(Var[], Collection<Var>) in the type X is not applicable for the arguments (Object[], ArrayList<String>)\n" + 
 		"----------\n");
 }
-public void test946() {
+public void test0946() {
 	this.runConformTest(
 		new String[] {
 		"X.java", //================================
@@ -29629,7 +29664,7 @@ public void test946() {
 		"Int");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test947() {
+public void test0947() {
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -29658,7 +29693,7 @@ public void test947() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
-public void test948() {
+public void test0948() {
 	this.runConformTest(
 		new String[] {
 		"X.java", //================================
@@ -29682,5 +29717,154 @@ public void test948() {
 		"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418
+public void test0949() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.Arrays;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	public <T> Iterable<T> m(T... ts) {\n" + 
+		"		return Arrays.asList(ts);\n" + 
+		"	}\n" + 
+		"	public <T> void m3(Iterable<T>... ts) {\n" + 
+		"	}\n" + 
+		"	public void m2() {\n" + 
+		"		m3(m(3, 3, 3));\n" + 
+		"		m3(m());\n" + 
+		"		m3(m(new Object[]{}));\n" + 
+		"		Zork z;\n" +
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	m3(m(3, 3, 3));\n" + 
+		"	^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Integer> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 11)\n" + 
+		"	m3(m());\n" + 
+		"	^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	m3(m(new Object[]{}));\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
+public void test0950() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.Arrays;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	public <T> Iterable<T> m(T[]... ts) {\n" + 
+		"		return Arrays.asList(ts[0]);\n" + 
+		"	}\n" + 
+		"	public <T> void m3(Iterable<T>... ts) {\n" + 
+		"	}\n" + 
+		"	public void m2() {\n" + 
+		"		m3(m(new Integer[]{3, 3, 3}));\n" + 
+		"		m3(m());\n" + 
+		"		m3(m(new Object[][]{}));\n" + 
+		"		Zork z;\n" +
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	m3(m(new Integer[]{3, 3, 3}));\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 11)\n" + 
+		"	m3(m());\n" + 
+		"	^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	m3(m(new Object[][]{}));\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
+public void test0951() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.util.Arrays;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	public <T> Iterable<T> m(T[]... ts) {\n" + 
+		"		return Arrays.asList(ts[0]);\n" + 
+		"	}\n" + 
+		"	public <T> void m3(Iterable<T>... ts) {\n" + 
+		"	}\n" + 
+		"	@SuppressWarnings(\"unchecked\")\n" +
+		"	public void m2() {\n" + 
+		"		m3(m(new Integer[]{3, 3, 3}));\n" + 
+		"		m3(m());\n" + 
+		"		m3(m(new Object[][]{}));\n" + 
+		"		Zork z;\n" +
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
+public void test0952() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"public class X {\n" + 
+		"	public <T> Iterable<T> m(T... ts) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	public <T> void m3(Iterable<T>... ts) {\n" + 
+		"	}\n" + 
+		"	public void m2() {\n" + 
+		"		m3(m(null));\n" + 
+		"		Zork z;\n" +
+		"	}\n" + 
+		"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	m3(m(null));\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	m3(m(null));\n" + 
+		"	   ^^^^^^^\n" + 
+		"Varargs argument null should be cast to Object[] when passed to the method m(Object...) from type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }

@@ -218,6 +218,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 				    if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
 				    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
+				    	if (!parameterType.isReifiable()) {
+						    scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);					
+				    	}
 						originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
 				    }
 					for (int i = lastIndex; i < argLength; i++) {
