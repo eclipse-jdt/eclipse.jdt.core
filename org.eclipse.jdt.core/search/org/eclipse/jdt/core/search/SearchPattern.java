@@ -313,14 +313,11 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 	nextPatternChar: while (iPattern < patternEnd) {
 		// check patternChar, keep camelCasing only if uppercase
 		if ((patternChar = pattern.charAt(iPattern)) < ScannerHelper.MAX_OBVIOUS) {
-			switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar]) {
-				case ScannerHelper.C_UPPER_LETTER :
-					// still uppercase
-					break;
-				default:
-					// end of camelCase part of pattern
-					break nextPatternChar;
+			if (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] != ScannerHelper.C_UPPER_LETTER) {
+				// end of camelCase part of pattern
+				break nextPatternChar;
 			}
+			// still uppercase
 		} else if (Character.isJavaIdentifierPart(patternChar) 
 						&& !Character.isUpperCase(patternChar)) {
 			// end of camelCase part of pattern
@@ -329,13 +326,10 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name.charAt(iName)) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar]) {
-						case ScannerHelper.C_LOWER_LETTER :
-						case ScannerHelper.C_IDENT_PART :
-						case ScannerHelper.C_DIGIT :
-							// lowercase/digit char is ignored
-							iName++;
-							continue nextNameChar;
+					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER|ScannerHelper.C_IDENT_PART|ScannerHelper.C_DIGIT)) != 0) {
+						// lowercase/digit char is ignored
+						iName++;
+						continue nextNameChar;
 					}
 				} else if (Character.isJavaIdentifierPart(nameChar) 
 								&& !Character.isUpperCase(nameChar)) {
