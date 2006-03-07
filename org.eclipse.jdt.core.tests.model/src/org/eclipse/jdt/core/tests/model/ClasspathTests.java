@@ -1975,7 +1975,7 @@ public void testEncoding() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src\u3400"}, "bin");
 		IFile file = getFile("/P/.classpath");
-		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(file, "UTF-8", file.getLocationURI()));
+		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(file, "UTF-8"));
 		encodedContents = Util.convertToIndependantLineDelimiter(encodedContents);
 		assertEquals(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

@@ -1023,17 +1023,33 @@ public class Util {
 	 */
 	public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
 		// Get encoding from file
-		String encoding = null;
+		String encoding;
 		try {
 			encoding = file.getCharset();
-		}
-		catch(CoreException ce) {
+		} catch(CoreException ce) {
 			// do not use any encoding
+			encoding = null;
 		}
-		return getResourceContentsAsCharArray(file, encoding, file.getLocationURI());
+		return getResourceContentsAsCharArray(file, encoding);
 	}
-
-	public static char[] getResourceContentsAsCharArray(IFile file, String encoding, URI location) throws JavaModelException {
+		
+	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {		
+		// Get file length
+		// workaround https://bugs.eclipse.org/bugs/show_bug.cgi?id=130736 by using java.io.File if possible
+		IPath location = file.getLocation();
+		long length;
+		if (location == null) {
+			// non local file
+			try {
+				length = EFS.getStore(file.getLocationURI()).fetchInfo().getLength();
+			} catch (CoreException e) {
+				throw new JavaModelException(e);
+			}
+		} else {
+			// local file
+			length = location.toFile().length();
+		}
+		
 		// Get resource contents
 		InputStream stream= null;
 		try {
@@ -1042,12 +1058,9 @@ public class Util {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 		try {
-			long length = EFS.getStore(location).fetchInfo().getLength();
 			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, (int) length, encoding);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
 		} finally {
 			try {
 				stream.close();
@@ -1056,7 +1069,8 @@ public class Util {
 			}
 		}
 	}
-/*
+	
+	/*
 	 * Returns the signature of the given type.
 	 */
 	public static String getSignature(Type type) {

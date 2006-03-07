@@ -23,12 +23,10 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 public class ResourceCompilationUnit extends CompilationUnit {
 	
 	private IFile file;
-	private URI location;
 	
 	public ResourceCompilationUnit(IFile file, URI location) {
 		super(null/*no contents*/, location == null ? file.getFullPath().toString() : location.getSchemeSpecificPart(), null/*encoding is used only when retrieving the contents*/);
 		this.file = file;
-		this.location = location;
 	}
 
 	public char[] getContents() {
@@ -37,8 +35,7 @@ public class ResourceCompilationUnit extends CompilationUnit {
 	
 		// otherwise retrieve it
 		try {
-			String encoding = file.getCharset();
-			return Util.getResourceContentsAsCharArray(this.file, encoding, this.location);
+			return Util.getResourceContentsAsCharArray(this.file);
 		} catch (CoreException e) {
 			return CharOperation.NO_CHAR;
 		}
