@@ -88,8 +88,6 @@ private static Class testClass() {
 
 protected void setUp() throws Exception {
 	super.setUp();
-	this.resultCollector = new JavaSearchResultCollector();
-	this.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 	if (BIG_PROJECT == null) {
 		setUpBigProject();
 	} else if (BIG_PROJECT_TYPE_PATH == null) {
@@ -212,6 +210,7 @@ class JavaSearchResultCollector extends SearchRequestor {
 	}
 }
 
+/*
 protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
 	int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 		? SearchPattern.R_PATTERN_MATCH
@@ -221,6 +220,7 @@ protected void search(String patternString, int searchFor, int limitTo) throws C
 		searchFor,
 		limitTo, 
 		matchMode | SearchPattern.R_CASE_SENSITIVE);
+	this.resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		pattern,
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -228,6 +228,7 @@ protected void search(String patternString, int searchFor, int limitTo) throws C
 		this.resultCollector,
 		null);
 }
+*/
 
 protected void searchAllTypeNames() throws CoreException {
 	class TypeNameCounter extends TypeNameRequestor {
@@ -685,8 +686,9 @@ public void testPerfReconcile() throws CoreException {
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
+ * TODO (frederic) disabled as we cannot rely on this test result
  */
-public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
+public void _testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -694,6 +696,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
+	this.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 	try {
 		ProblemRequestor requestor = new ProblemRequestor();
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
