@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.junit.extension;
 
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.util.*;
 
 import org.eclipse.jdt.core.Flags;
@@ -23,8 +25,77 @@ import junit.framework.TestSuite;
 
 public class TestCase extends PerformanceTestCase {
 
+	// Filters
 	public static final String METHOD_PREFIX = "test";
 	public  static String RUN_ONLY_ID = "ONLY_";
+
+	// Garbage collect constants
+	final static int MAX_GC = 5; // Max gc iterations
+	final static int TIME_GC = 200; // Sleep to wait gc to run (in ms)
+	final static int DELTA_GC = 1000; // Threshold to remaining free memory
+
+	// Debug Log Information
+	public final static File MEM_LOG_FILE;
+	public final static File MEM_LOG_DIR;
+	public static Class CURRENT_CLASS;
+	public static String CURRENT_CLASS_NAME;
+	public final static String STORE_MEMORY;
+	public final static boolean ALL_TESTS_LOG;
+	public final static boolean RUN_GC;
+
+	/*
+	 * Static initializer for memory trace.
+	 * This functionality is activated using system property "storeMemory".
+	 * Here's possible format for this property:
+	 * 	-DstoreMemory=<file name>[,all][,gc][,dir=<directory name>]
+	 * 		<file name>: name of the file where memory data will be stored
+	 * 		optional parameters:
+	 * 			all:	flag to store memory data for all tests. If not specified,
+	 * 					then data will be stored only per test suite
+	 * 			gc:	flag to run garbage collection before each test or test suite
+	 * 					(depending of "all" parameter)
+	 * 			dir=<directory name>:
+	 * 					specify directory where to put the file. Default is the directory
+	 * 					specified in 'user.home' property
+	 */
+	static {
+		String storeMemory = System.getProperty("storeMemory");
+		boolean allTestsLog = false;
+		boolean runGc = false;
+		File memLogDir = new File(System.getProperty("user.home"));
+		if (storeMemory != null) {
+			int index = storeMemory.indexOf(',');
+			if (index>0) {
+				StringTokenizer parameters = new StringTokenizer(storeMemory.substring(storeMemory.indexOf(',')+1), ",");
+				while (parameters.hasMoreTokens()) {
+					String param = parameters.nextToken();
+					if ("all".equals(param)) {
+						allTestsLog = true;
+					} else if ("gc".equals(param)) {
+						runGc = true;
+					} else if (param.startsWith("dir=")) {
+						memLogDir = new File(param.substring(4));
+					}
+				}
+				storeMemory = storeMemory.substring(0, index);
+			}
+		}
+		STORE_MEMORY = storeMemory;
+		ALL_TESTS_LOG = allTestsLog;
+		RUN_GC = runGc;
+		if (!verifyLogDir(memLogDir)) {
+			memLogDir = null;
+		}
+		MEM_LOG_DIR = memLogDir;
+		MEM_LOG_FILE = createMemLogFile();
+		if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
+			System.out.println("Memory storage activated:");
+			System.out.println("	data stored in file "+MEM_LOG_FILE);
+			System.out.println("	all tests log: "+ALL_TESTS_LOG);
+			System.out.println("	gc activated: "+RUN_GC);
+		}
+	}
+	boolean newClass;
 
 	// static variables for subsets tests
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
@@ -35,6 +106,7 @@ public class TestCase extends PerformanceTestCase {
 	public TestCase(String name) {
 		setName(name);
 	}
+
 public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);
 }
@@ -78,34 +150,6 @@ public static void assertStringEquals(String message, String expected, String ac
 			    expected, 
 			    actual);
 	}
-}
-/*
- * Shows the line separators in the given String.
- */
-protected static String showLineSeparators(String string) {
-	if (string == null) return null;
-	StringBuffer buffer = new StringBuffer();
-	int length = string.length();
-	for (int i = 0; i < length; i++) {
-		char car = string.charAt(i);
-		switch (car) {
-			case '\n': 
-				buffer.append("\\n\n"); //$NON-NLS-1$
-				break;
-			case '\r':
-				if (i < length-1 && string.charAt(i+1) == '\n') {
-					buffer.append("\\r\\n\n"); //$NON-NLS-1$
-					i++;
-				} else {
-					buffer.append("\\r\n"); //$NON-NLS-1$
-				}
-				break;
-			default:
-				buffer.append(car);
-				break;
-		}
-	}
-	return buffer.toString();
 }
 
 /**
@@ -390,6 +434,162 @@ public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
 	return suite;
 }
 
+private static File createMemLogFile() {
+	if (STORE_MEMORY == null || MEM_LOG_DIR == null) {
+		return null;
+	}
+	// Get file (create if necessary)
+	File logFile = new File(MEM_LOG_DIR, STORE_MEMORY+".log");
+	try {
+		boolean fileExist = logFile.exists();
+		PrintStream stream = new PrintStream(new FileOutputStream(logFile, true));
+		if (stream != null) {
+			if (fileExist) {
+				stream.println();
+			}
+			// Log date and time
+			Date date = new Date(System.currentTimeMillis());
+			stream.println("Tests:\t" + STORE_MEMORY);
+			stream.println("Date:\t" + DateFormat.getDateInstance(3).format(date));
+			stream.println("Time:\t" + DateFormat.getTimeInstance(3).format(date));
+			// Log columns title
+			stream.print("Class");
+			if (ALL_TESTS_LOG) stream.print("\tTest");
+			stream.print("\tUsed\tTotal\tMax");
+			stream.println();
+			stream.close();
+			System.out.println("Log file " + logFile.getPath() + " opened.");
+			return logFile;
+		} else {
+			System.err.println("Cannot open file " + logFile.getPath());
+		}
+	} catch (FileNotFoundException e) {
+		// no log available for this statistic
+	}
+	return null;
+}
+
+/*
+ * Shows the line separators in the given String.
+ */
+protected static String showLineSeparators(String string) {
+	if (string == null) return null;
+	StringBuffer buffer = new StringBuffer();
+	int length = string.length();
+	for (int i = 0; i < length; i++) {
+		char car = string.charAt(i);
+		switch (car) {
+			case '\n': 
+				buffer.append("\\n\n"); //$NON-NLS-1$
+				break;
+			case '\r':
+				if (i < length-1 && string.charAt(i+1) == '\n') {
+					buffer.append("\\r\\n\n"); //$NON-NLS-1$
+					i++;
+				} else {
+					buffer.append("\\r\n"); //$NON-NLS-1$
+				}
+				break;
+			default:
+				buffer.append(car);
+				break;
+		}
+	}
+	return buffer.toString();
+}
+
+/*
+ * Returns whether a given file is a valid log directory or not.
+ */
+private static boolean verifyLogDir(File logDir) {
+	if (logDir.exists()) {
+		if (logDir.isDirectory()) {
+			return true;
+		} else {
+			System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+		}
+	} else {
+		if (logDir.mkdir()) {
+			return true;
+		} else {
+			System.err.println("Cannot create "+logDir+" as its parent does not exist. Log files will NOT be written!");
+		}
+	}
+	return false;
+}
+
+public void assertPerformance() {
+	// make it public to avoid compiler warning about synthetic access
+	super.assertPerformance();
+}
+
+
+/**
+ * Clean test before run it.
+ * Currently, clean is only perform a gc.
+ */
+protected void clean() {
+	System.out.println("Clean test "+getName());
+	// Run gc
+	int iterations = 0;
+	long delta=0, free=0;
+	for (int i=0; i<MAX_GC; i++) {
+		free = Runtime.getRuntime().freeMemory();
+		System.gc();
+		delta = Runtime.getRuntime().freeMemory() - free;
+		try {
+			Thread.sleep(TIME_GC);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+	}
+	if (iterations == MAX_GC && delta > DELTA_GC) {
+		// perhaps gc was not well executed
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+	}
+}
+
+public void commitMeasurements() {
+	super.commitMeasurements();
+}
+
+protected void setUp() throws Exception {
+	super.setUp();
+
+	// Memory storage if specified
+	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
+		newClass = false;
+		if (CURRENT_CLASS == null || CURRENT_CLASS != getClass()) {
+			if (CURRENT_CLASS != null && RUN_GC) clean();
+			CURRENT_CLASS = getClass();
+			newClass = true;
+			CURRENT_CLASS_NAME = getClass().getName();
+			CURRENT_CLASS_NAME = CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.indexOf(".tests.")+7, CURRENT_CLASS_NAME.length());
+		}
+		if (ALL_TESTS_LOG && MEM_LOG_FILE.exists()) {
+			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
+			stream.print(CURRENT_CLASS_NAME);
+			stream.print('\t');
+			String testName = getName();
+			stream.print(testName);
+			stream.print('\t');
+			long total = Runtime.getRuntime().totalMemory();
+			long used = total - Runtime.getRuntime().freeMemory();
+			stream.print(used);
+			stream.print('\t');
+			stream.print(total);
+			stream.print('\t');
+			stream.print(Runtime.getRuntime().maxMemory());
+			stream.println();
+			stream.close();
+		}
+	}
+}
+
 public void startMeasuring() {
 	// make it public to avoid compiler warning about synthetic access
 	super.startMeasuring();
@@ -398,12 +598,37 @@ public void stopMeasuring() {
 	// make it public to avoid compiler warning about synthetic access
 	super.stopMeasuring();
 }
-public void assertPerformance() {
-	// make it public to avoid compiler warning about synthetic access
-	super.assertPerformance();
-}
-public void commitMeasurements() {
-	// make it public to avoid compiler warning about synthetic access
-	super.commitMeasurements();
+
+protected void tearDown() throws Exception {
+	super.tearDown();
+
+	// Memory storage if specified
+	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
+		if ((newClass || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
+			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
+			stream.print(CURRENT_CLASS_NAME);
+			stream.print('\t');
+			if (ALL_TESTS_LOG) {
+				String testName = getName();
+				String str = "";
+				int length = testName.length()-4;
+				for (int i=0; i<length; i++) {
+					str += '.';
+				}
+				stream.print(str);
+				stream.print("end:");
+				stream.print('\t');
+			}
+			long total = Runtime.getRuntime().totalMemory();
+			long used = total - Runtime.getRuntime().freeMemory();
+			stream.print(used);
+			stream.print('\t');
+			stream.print(total);
+			stream.print('\t');
+			stream.print(Runtime.getRuntime().maxMemory());
+			stream.println();
+			stream.close();
+		}
+	}
 }
 }

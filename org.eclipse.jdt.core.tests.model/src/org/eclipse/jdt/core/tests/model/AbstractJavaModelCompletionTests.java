@@ -120,21 +120,23 @@ protected void setUp() throws Exception {
 	this.wcOwner = new WorkingCopyOwner(){};
 }
 public void tearDownSuite() throws Exception {
-	JavaCore.setOptions(oldOptions);
-		if (COMPLETION_SUITES == null) {
+	JavaCore.setOptions(this.oldOptions);
+	this.oldOptions = null;
+	if (COMPLETION_SUITES == null) {
+		deleteProject("Completion");
+	} else {
+		COMPLETION_SUITES.remove(getClass());
+		if (COMPLETION_SUITES.size() == 0) {
 			deleteProject("Completion");
-		} else {
-			COMPLETION_SUITES.remove(getClass());
-			if (COMPLETION_SUITES.size() == 0) {
-				deleteProject("Completion");
-				COMPLETION_SUITES = null;
-			}
+			COMPLETION_SUITES = null;
 		}
+	}
 	super.tearDownSuite();
 }
 protected void tearDown() throws Exception {
 	if(this.wc != null) {
 		this.wc.discardWorkingCopy();
+		this.wc = null;
 	}
 	super.tearDown();
 }
