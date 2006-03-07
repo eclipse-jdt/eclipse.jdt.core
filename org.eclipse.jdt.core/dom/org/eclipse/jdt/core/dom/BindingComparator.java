@@ -39,23 +39,23 @@ class BindingComparator {
 	static boolean isEqual(TypeVariableBinding[] bindings, TypeVariableBinding[] otherBindings) {
 		if (bindings == null) {
 			return otherBindings == null;
-		} else if (otherBindings == null) {
+		}
+		if (otherBindings == null) {
 			return false;
-		} else {
-			int length = bindings.length;
-			int otherLength = otherBindings.length;
-			if (length != otherLength) {
+		}
+		int length = bindings.length;
+		int otherLength = otherBindings.length;
+		if (length != otherLength) {
+			return false;
+		}
+		for (int i = 0; i < length; i++) {
+			TypeVariableBinding typeVariableBinding = bindings[i];
+			TypeVariableBinding typeVariableBinding2 = otherBindings[i];
+			if (!isEqual(typeVariableBinding, typeVariableBinding2)) {
 				return false;
 			}
-			for (int i = 0; i < length; i++) {
-				TypeVariableBinding typeVariableBinding = bindings[i];
-				TypeVariableBinding typeVariableBinding2 = otherBindings[i];
-				if (!isEqual(typeVariableBinding, typeVariableBinding2)) {
-					return false;
-				}
-			}
-			return true;
 		}
+		return true;
 	}
 	
 	/**
@@ -112,13 +112,16 @@ class BindingComparator {
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding,
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding2,
 			HashSet visitedTypes) {
-		return (methodBinding == null && methodBinding2 == null)
-			|| (CharOperation.equals(methodBinding.selector, methodBinding2.selector)
+		if (methodBinding == null) {
+			return methodBinding2 == null;
+		}
+		if (methodBinding2 == null) return false;
+		return CharOperation.equals(methodBinding.selector, methodBinding2.selector)
 				&& isEqual(methodBinding.returnType, methodBinding2.returnType, visitedTypes) 
 				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, visitedTypes)
 				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, visitedTypes)
 				&& isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, visitedTypes)
-				&& isEqual(methodBinding.parameters, methodBinding2.parameters, visitedTypes));
+				&& isEqual(methodBinding.parameters, methodBinding2.parameters, visitedTypes);
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
@@ -152,21 +155,21 @@ class BindingComparator {
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] bindings, org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] otherBindings, HashSet visitedTypes) {
 		if (bindings == null) {
 			return otherBindings == null;
-		} else if (otherBindings == null) {
+		}
+		if (otherBindings == null) {
 			return false;
-		} else {
-			int length = bindings.length;
-			int otherLength = otherBindings.length;
-			if (length != otherLength) {
+		}
+		int length = bindings.length;
+		int otherLength = otherBindings.length;
+		if (length != otherLength) {
+			return false;
+		}
+		for (int i = 0; i < length; i++) {
+			if (!isEqual(bindings[i], otherBindings[i], visitedTypes)) {
 				return false;
 			}
-			for (int i = 0; i < length; i++) {
-				if (!isEqual(bindings[i], otherBindings[i], visitedTypes)) {
-					return false;
-				}
-			}
-			return true;
 		}
+		return true;
 	}
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, HashSet visitedTypes) {
 		if (typeBinding == typeBinding2)
