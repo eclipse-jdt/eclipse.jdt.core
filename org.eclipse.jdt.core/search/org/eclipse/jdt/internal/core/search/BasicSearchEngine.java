@@ -566,46 +566,72 @@ public class BasicSearchEngine {
 			typeName,
 			typeSuffix,
 			matchRule);
-		
+
+		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
+		String workingCopyPath = null;
 		ICompilationUnit[] copies = getWorkingCopies();
+		final int copiesLength = copies == null ? 0 : copies.length;
 		if (copies != null) {
-			for (int i = 0, length = copies.length; i < length; i++) {
-				ICompilationUnit workingCopy = copies[i];
-				workingCopyPaths.add(workingCopy.getPath().toString());
+			if (copiesLength == 1) {
+				workingCopyPath = copies[0].getPath().toString();
+			} else {
+				for (int i = 0; i < copiesLength; i++) {
+					ICompilationUnit workingCopy = copies[i];
+					workingCopyPaths.add(workingCopy.getPath().toString());
+				}
 			}
 		}
-	
+		final String singleWkcpPath = workingCopyPath;
+
+		// Index requestor
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
 			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
+				// Filter unexpected types
 				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
+				if (record.enclosingTypeNames == IIndexConstants.ONE_ZERO_CHAR) {
+					return true; // filter out local and anonymous classes
+				}
+				switch (copiesLength) {
+					case 0:
+						break;
+					case 1:
+						if (singleWkcpPath.equals(documentPath)) {
+							return true; // fliter out *the* working copy
+						}
+						break;
+					default:
+						if (workingCopyPaths.contains(documentPath)) {
+							return true; // filter out working copies
+						}
+						break;
+				}
+
+				// Accept document path
 				AccessRestriction accessRestriction = null;
-				if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
-						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
-					if (access != null) {
-						// Compute document relative path
-						int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
-						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
-						char[] path = new char[pkgLength+nameLength];
-						int pos = 0;
-						if (pkgLength > 0) {
-							System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
-							CharOperation.replace(path, '.', '/');
-							path[pkgLength-1] = '/';
-							pos += pkgLength;
-						}
-						if (nameLength > 0) {
-							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
-							pos += nameLength;
-						}
-						// Update access restriction if path is not empty
-						if (pos > 0) {
-							accessRestriction = access.getViolatedRestriction(path);
-						}
+				if (access != null) {
+					// Compute document relative path
+					int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
+					int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
+					char[] path = new char[pkgLength+nameLength];
+					int pos = 0;
+					if (pkgLength > 0) {
+						System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
+						CharOperation.replace(path, '.', '/');
+						path[pkgLength-1] = '/';
+						pos += pkgLength;
 					}
-					if (match(record.typeSuffix, record.modifiers)) {
-						nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					if (nameLength > 0) {
+						System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+						pos += nameLength;
 					}
+					// Update access restriction if path is not empty
+					if (pos > 0) {
+						accessRestriction = access.getViolatedRestriction(path);
+					}
+				}
+				if (match(record.typeSuffix, record.modifiers)) {
+					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
 				}
 				return true;
 			}
@@ -627,7 +653,7 @@ public class BasicSearchEngine {
 				
 			// add type names from working copies
 			if (copies != null) {
-				for (int i = 0, length = copies.length; i < length; i++) {
+				for (int i = 0; i < copiesLength; i++) {
 					ICompilationUnit workingCopy = copies[i];
 					if (!scope.encloses(workingCopy)) continue;
 					final String path = workingCopy.getPath().toString();
@@ -739,47 +765,74 @@ public class BasicSearchEngine {
 
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		final TypeDeclarationPattern pattern = new SecondaryTypeDeclarationPattern();
-		
+
+		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
+		String workingCopyPath = null;
 		ICompilationUnit[] copies = getWorkingCopies();
+		final int copiesLength = copies == null ? 0 : copies.length;
 		if (copies != null) {
-			for (int i = 0, length = copies.length; i < length; i++) {
-				ICompilationUnit workingCopy = copies[i];
-				workingCopyPaths.add(workingCopy.getPath().toString());
+			if (copiesLength == 1) {
+				workingCopyPath = copies[0].getPath().toString();
+			} else {
+				for (int i = 0; i < copiesLength; i++) {
+					ICompilationUnit workingCopy = copies[i];
+					workingCopyPaths.add(workingCopy.getPath().toString());
+				}
 			}
 		}
+		final String singleWkcpPath = workingCopyPath;
 
+		// Index requestor
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
 			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
+				// Filter unexpected types
 				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
-				if (record.secondary) {
-					AccessRestriction accessRestriction = null;
-					if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
-							&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
-						if (access != null) {
-							// Compute document relative path
-							int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
-							int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
-							char[] path = new char[pkgLength+nameLength];
-							int pos = 0;
-							if (pkgLength > 0) {
-								System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
-								CharOperation.replace(path, '.', '/');
-								path[pkgLength-1] = '/';
-								pos += pkgLength;
-							}
-							if (nameLength > 0) {
-								System.arraycopy(record.simpleName, 0, path, pos, nameLength);
-								pos += nameLength;
-							}
-							// Update access restriction if path is not empty
-							if (pos > 0) {
-								accessRestriction = access.getViolatedRestriction(path);
-							}
+				if (!record.secondary) {
+					return true; // filter maint types
+				}
+				if (record.enclosingTypeNames == IIndexConstants.ONE_ZERO_CHAR) {
+					return true; // filter out local and anonymous classes
+				}
+				switch (copiesLength) {
+					case 0:
+						break;
+					case 1:
+						if (singleWkcpPath.equals(documentPath)) {
+							return true; // fliter out *the* working copy
 						}
-						nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+						break;
+					default:
+						if (workingCopyPaths.contains(documentPath)) {
+							return true; // filter out working copies
+						}
+						break;
+				}
+
+				// Accept document path
+				AccessRestriction accessRestriction = null;
+				if (access != null) {
+					// Compute document relative path
+					int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
+					int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
+					char[] path = new char[pkgLength+nameLength];
+					int pos = 0;
+					if (pkgLength > 0) {
+						System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
+						CharOperation.replace(path, '.', '/');
+						path[pkgLength-1] = '/';
+						pos += pkgLength;
+					}
+					if (nameLength > 0) {
+						System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+						pos += nameLength;
+					}
+					// Update access restriction if path is not empty
+					if (pos > 0) {
+						accessRestriction = access.getViolatedRestriction(path);
 					}
 				}
+				nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
 				return true;
 			}
 		};
@@ -858,43 +911,67 @@ public class BasicSearchEngine {
 		}
 		final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, matchRule);
 
+		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
+		String workingCopyPath = null;
 		ICompilationUnit[] copies = getWorkingCopies();
+		final int copiesLength = copies == null ? 0 : copies.length;
 		if (copies != null) {
-			for (int i = 0, length = copies.length; i < length; i++) {
-				ICompilationUnit workingCopy = copies[i];
-				workingCopyPaths.add(workingCopy.getPath().toString());
+			if (copiesLength == 1) {
+				workingCopyPath = copies[0].getPath().toString();
+			} else {
+				for (int i = 0; i < copiesLength; i++) {
+					ICompilationUnit workingCopy = copies[i];
+					workingCopyPaths.add(workingCopy.getPath().toString());
+				}
 			}
 		}
+		final String singleWkcpPath = workingCopyPath;
 
+		// Index requestor
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
 			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
-				if (!workingCopyPaths.contains(documentPath)) { // filter out working copies
-					QualifiedTypeDeclarationPattern record = (QualifiedTypeDeclarationPattern) indexRecord;
-					AccessRestriction accessRestriction = null;
-					if (access != null) {
-						// Compute document relative path
-						int qualificationLength = (record.qualification == null || record.qualification.length == 0) ? 0 : record.qualification.length + 1;
-						int nameLength = record.simpleName == null ? 0 : record.simpleName.length;
-						char[] path = new char[qualificationLength + nameLength];
-						int pos = 0;
-						if (qualificationLength > 0) {
-							System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
-							CharOperation.replace(path, '.', '/');
-							path[qualificationLength-1] = '/';
-							pos += qualificationLength;
+				// Filter unexpected types
+				switch (copiesLength) {
+					case 0:
+						break;
+					case 1:
+						if (singleWkcpPath.equals(documentPath)) {
+							return true; // fliter out *the* working copy
 						}
-						if (nameLength > 0) {
-							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
-							pos += nameLength;
+						break;
+					default:
+						if (workingCopyPaths.contains(documentPath)) {
+							return true; // filter out working copies
 						}
-						// Update access restriction if path is not empty
-						if (pos > 0) {
-							accessRestriction = access.getViolatedRestriction(path);
-						}
-					}
-					nameRequestor.acceptType(record.modifiers, record.getPackageName(), record.simpleName, record.getEnclosingTypeNames(), documentPath, accessRestriction);
+						break;
 				}
+
+				// Accept document path
+				QualifiedTypeDeclarationPattern record = (QualifiedTypeDeclarationPattern) indexRecord;
+				AccessRestriction accessRestriction = null;
+				if (access != null) {
+					// Compute document relative path
+					int qualificationLength = (record.qualification == null || record.qualification.length == 0) ? 0 : record.qualification.length + 1;
+					int nameLength = record.simpleName == null ? 0 : record.simpleName.length;
+					char[] path = new char[qualificationLength + nameLength];
+					int pos = 0;
+					if (qualificationLength > 0) {
+						System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
+						CharOperation.replace(path, '.', '/');
+						path[qualificationLength-1] = '/';
+						pos += qualificationLength;
+					}
+					if (nameLength > 0) {
+						System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+						pos += nameLength;
+					}
+					// Update access restriction if path is not empty
+					if (pos > 0) {
+						accessRestriction = access.getViolatedRestriction(path);
+					}
+				}
+				nameRequestor.acceptType(record.modifiers, record.getPackageName(), record.simpleName, record.getEnclosingTypeNames(), documentPath, accessRestriction);
 				return true;
 			}
 		};
