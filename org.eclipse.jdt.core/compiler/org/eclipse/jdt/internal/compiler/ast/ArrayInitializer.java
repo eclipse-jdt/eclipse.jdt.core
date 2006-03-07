@@ -139,14 +139,15 @@ public class ArrayInitializer extends Expression {
 	
 		this.constant = Constant.NotAConstant;
 		
-		// allow new List<?>[5]
-		if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
-			TypeBinding leafComponentType = expectedType.leafComponentType();
-			if (leafComponentType.isBoundParameterizedType() || leafComponentType.isTypeVariable()) {
-			    scope.problemReporter().illegalGenericArray(leafComponentType, this);
-			}
-		}
 		if (expectedType instanceof ArrayBinding) {
+			// allow new List<?>[5]
+			if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
+				// allow new List<?>[5] - only check for generic array when no initializer, since also checked inside initializer resolution
+				TypeBinding leafComponentType = expectedType.leafComponentType();
+				if (!leafComponentType.isReifiable()) {
+				    scope.problemReporter().illegalGenericArray(leafComponentType, this);
+				}
+			}
 			this.resolvedType = this.binding = (ArrayBinding) expectedType;
 			if (this.expressions == null)
 				return this.binding;
