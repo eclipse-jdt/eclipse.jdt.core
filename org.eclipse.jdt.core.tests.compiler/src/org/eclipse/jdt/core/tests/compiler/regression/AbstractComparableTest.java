@@ -56,7 +56,6 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	public IPath dirPath;
 	
 	// Summary display
-	static String CURRENT_CLASS_NAME;
 	static Map TESTS_COUNTERS = new HashMap();
 
 	public static Test buildComparableTestSuite(Class evaluationTestClass) {
