@@ -21,6 +21,8 @@ public int NUM_CHANGES = 100; // number of separate document changes... used to 
 
 SimpleLookupTable docsToReferences; // document paths -> HashtableOfObject(category names -> set of words)
 SimpleWordSet allWords; // save space by locally interning the referenced words, since an indexer can generate numerous duplicates
+String lastDocumentName;
+HashtableOfObject lastReferenceTable;
 
 MemoryIndex() {
 	this.docsToReferences = new SimpleLookupTable(7);
@@ -41,10 +43,17 @@ void addDocumentNames(String substring, SimpleSet results) {
 	}
 }
 void addIndexEntry(char[] category, char[] key, String documentName) {
-	// assumed a document was removed before its reindexed
-	HashtableOfObject referenceTable = (HashtableOfObject) this.docsToReferences.get(documentName);
-	if (referenceTable == null)
-		this.docsToReferences.put(documentName, referenceTable = new HashtableOfObject(3));
+	HashtableOfObject referenceTable;
+	if (documentName.equals(this.lastDocumentName))
+		referenceTable = this.lastReferenceTable;
+	else {
+		// assumed a document was removed before its reindexed
+		referenceTable = (HashtableOfObject) this.docsToReferences.get(documentName);
+		if (referenceTable == null)
+			this.docsToReferences.put(documentName, referenceTable = new HashtableOfObject(3));
+		this.lastDocumentName = documentName;
+		this.lastReferenceTable = referenceTable;
+	}
 
 	SimpleWordSet existingWords = (SimpleWordSet) referenceTable.get(category);
 	if (existingWords == null)
@@ -105,6 +114,10 @@ boolean hasChanged() {
 	return this.docsToReferences.elementSize > 0;
 }
 void remove(String documentName) {
+	if (documentName.equals(this.lastDocumentName)) {
+		this.lastDocumentName = null;
+		this.lastReferenceTable = null;
+	}
 	this.docsToReferences.put(documentName, null);
 }
 boolean shouldMerge() {
