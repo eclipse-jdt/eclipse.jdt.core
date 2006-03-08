@@ -786,16 +786,17 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 	}
 	
 /**
- * Mark this expression as being non null, per a NON-NULL or NN tag in the
+ * Mark this expression as being non null, per a specific tag in the
  * source code.
  */
+// this is no more called for now, waiting for inter procedural null reference analysis
 public void markAsNonNull() {
 	this.bits |= IsNonNull;
 }
 
 	public int nullStatus(FlowInfo flowInfo) {
 		
-		if ((this.bits & IsNonNull) != 0 || 
+		if (/* (this.bits & IsNonNull) != 0 || */ 
 				this.constant != null && this.constant != Constant.NotAConstant)
 			return FlowInfo.NON_NULL; // constant expression cannot be null
 		

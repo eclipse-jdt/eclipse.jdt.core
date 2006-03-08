@@ -8274,11 +8274,6 @@ protected NameReference getUnspecifiedReference() {
 				(int) (this.identifierPositionStack[this.identifierPtr + 1] >> 32), // sourceStart
 				(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	}
-
-	if (this.scanner.gotNonNullTag) {
-		ref.markAsNonNull();
-	}
-
 	return ref;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
@@ -8299,9 +8294,6 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 				this.identifierPositionStack[this.identifierPtr--]); 
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= Binding.LOCAL | Binding.FIELD;
-		if (this.scanner.gotNonNullTag) {
-			ref.markAsNonNull();
-		}
 		return ref;
 	}
 
@@ -8323,9 +8315,6 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 	ref.bits |= Binding.LOCAL | Binding.FIELD;
-	if (this.scanner.gotNonNullTag) {
-		ref.markAsNonNull();
-	}
 	return ref;
 }
 public void goForBlockStatementsopt() {
@@ -8473,10 +8462,6 @@ public void initialize(boolean initializeNLS) {
 	final boolean checkNLS = this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore;
 	this.checkExternalizeStrings = checkNLS;
 	this.scanner.checkNonExternalizedStringLiterals = initializeNLS && checkNLS;
-	this.scanner.checkNullReferences = 
-		this.options.getSeverity(CompilerOptions.NullReference) != 
-			ProblemSeverities.Ignore;
-	this.scanner.gotNonNullTag = false;
 
 	resetModifiers();
 
@@ -8510,9 +8495,7 @@ public void initializeScanner(){
 		this.options.complianceLevel /*complianceLevel*/, 
 		this.options.taskTags/*taskTags*/,
 		this.options.taskPriorites/*taskPriorities*/,
-		this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
-		this.options.getSeverity(CompilerOptions.NullReference) != 
-			ProblemSeverities.Ignore /* checkNullReferences */); 
+		this.options.isTaskCaseSensitive/*taskCaseSensitive*/); 
 }
 public void jumpOverMethodBody() {
 	//on diet parsing.....do not buffer method statements
@@ -9366,10 +9349,6 @@ protected void pushIdentifier() {
 	Increase the total number of identifier in the stack.
 	identifierPtr points on the next top */
 
-	if (this.scanner.gotNonNullTag && this.identifierPtr < 0) {
-		this.scanner.gotNonNullTag = false;
-	}
-	
 	int stackLength = this.identifierStack.length;
 	if (++this.identifierPtr >= stackLength) {
 		System.arraycopy(

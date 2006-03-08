@@ -156,10 +156,6 @@ public class Scanner implements TerminalTokens {
 	protected int nlsTagsPtr;
 	public boolean checkNonExternalizedStringLiterals;
 	
-	// support for tagging references as non null
-	boolean checkNullReferences;
-	public boolean gotNonNullTag;
-
 	// generic support
 	public boolean returnOnlyGreater = false;
 	
@@ -202,8 +198,7 @@ public Scanner(
 		long complianceLevel,
 		char[][] taskTags,
 		char[][] taskPriorities,
-		boolean isTaskCaseSensitive,
-		boolean checkNullReferences) {
+		boolean isTaskCaseSensitive) {
 
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
@@ -214,28 +209,6 @@ public Scanner(
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 	this.isTaskCaseSensitive = isTaskCaseSensitive;
-	this.checkNullReferences = checkNullReferences;
-}
-
-public Scanner(
-		boolean tokenizeComments, 
-		boolean tokenizeWhiteSpace, 
-		boolean checkNonExternalizedStringLiterals, 
-		long sourceLevel,
-		long complianceLevel,
-		char[][] taskTags,
-		char[][] taskPriorities,
-		boolean isTaskCaseSensitive) {
-	this(
-		tokenizeComments,
-		tokenizeWhiteSpace,
-		checkNonExternalizedStringLiterals,
-		sourceLevel,
-		complianceLevel,
-		taskTags,
-		taskPriorities,
-		isTaskCaseSensitive,
-		false);
 }
 
 public Scanner(
@@ -255,8 +228,7 @@ public Scanner(
 		sourceLevel,
 		taskTags,
 		taskPriorities,
-		isTaskCaseSensitive,
-		false);
+		isTaskCaseSensitive);
 }
 
 public  final boolean atEnd() {
@@ -264,71 +236,6 @@ public  final boolean atEnd() {
 	// Only a part of the real stream input
 
 	return this.source.length == this.currentPosition;
-}
-
-// Check presence of non null tags.
-private final void checkNonNullTag(int commentStart, int commentEnd) {
-	for (int i = commentStart + 2, state = 0; state < 9;) {
-		if (i >= commentEnd || i >= this.eofPosition) {
-			return;
-		}
-		char currentChar = this.source[i++];
-		switch (state) {
-			case 0: // start
-				if (currentChar == 'N') {
-					state++;
-				}
-				else if (!CharOperation.isWhitespace(currentChar)) {
-					return;
-				}
-				continue;
-			case 1: // got a N
-				switch (currentChar) {
-					case 'O':
-						state++;
-						continue;
-					case 'N':
-						state = 8;
-						continue;
-					default:
-						return;
-				}
-				// never get there
-			case 2: // got NO
-			case 4: // got NON-
-				if (currentChar == 'N') {
-					state++;
-					continue;
-				}
-				return;
-			case 3: // got NON
-				if (currentChar == '-') {
-					state++;
-					continue;
-				}
-				return;
-			case 5: // got NON-N
-				if (currentChar == 'U') {
-					state++;
-					continue;
-				}
-				return;
-			case 6: // got NON-NU
-			case 7: // got NON-NUL
-				if (currentChar == 'L') {
-					state++;
-					continue;
-				}
-				return;
-			case 8:	// got NON-NULL or NN
-				if (currentChar != '*' && !CharOperation.isWhitespace(currentChar)) {
-					return;
-				}
-				state = 9; // got a marker
-		}
-	}
-	// got a non null marker
-	this.gotNonNullTag = true;
 }
 
 // chech presence of task: tags
@@ -1376,10 +1283,6 @@ public int getNextToken() throws InvalidInputException {
 							   	}
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNullReferences) {
-									checkNonNullTag(this.startPosition, 
-											this.currentPosition);
-								}
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									if (this.checkNonExternalizedStringLiterals) {
 										parseTags();
@@ -1399,10 +1302,6 @@ public int getNextToken() throws InvalidInputException {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNullReferences) {
-									checkNonNullTag(this.startPosition, 
-											this.currentPosition);
-								}
 								if (this.checkNonExternalizedStringLiterals) {
 									parseTags();
 								}
@@ -1508,10 +1407,6 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(token);
 								this.commentTagStarts[this.commentPtr] = firstTag;
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNullReferences) {
-									checkNonNullTag(this.startPosition, 
-											this.currentPosition);
-								}
 								if (this.tokenizeComments) {
 									/*
 									if (isJavadoc)

@@ -5124,7 +5124,7 @@ public void test0805_switch() {
 }
 
 // null analysis -- non null protection tag
-public void test0900_non_null_protection_tag() {
+public void _test0900_non_null_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5139,7 +5139,7 @@ public void test0900_non_null_protection_tag() {
 }
 
 // null analysis -- non null protection tag
-public void test0901_non_null_protection_tag() {
+public void _test0901_non_null_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5170,7 +5170,7 @@ public void test0901_non_null_protection_tag() {
 }
 
 // null analysis -- non null protection tag
-public void test0902_non_null_protection_tag() {
+public void _test0902_non_null_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
