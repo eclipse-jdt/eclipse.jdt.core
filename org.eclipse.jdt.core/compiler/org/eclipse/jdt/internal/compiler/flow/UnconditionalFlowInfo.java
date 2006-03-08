@@ -1154,92 +1154,65 @@ public void markAsDefinitelyAssigned(LocalVariableBinding local) {
 		markAsDefinitelyAssigned(local.id + this.maxFieldCount);
 }
 
-/**
- * Record a definite non-null assignment at a given position.
- */
-final private void markAsDefinitelyNonNull(int position) {
-	// DEAD_END guarded above
-	this.tagBits |= NULL_FLAG_MASK;
-	long mask;
-	// position is zero-based
-	if (position < BitCacheSize) {
-		// use bits
-		this.nullAssignmentStatusBit1 |= (mask = 1L << position);
-		this.nullAssignmentValueBit2 |= mask; // set non null
-		this.nullAssignmentStatusBit2 &= ~mask; // clear protection
-		this.nullAssignmentValueBit1 &= ~mask; // clear null
-		if (coverageTestFlag && coverageTestId == 29) {
-			this.nullAssignmentStatusBit1 = 0;
-		}
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		this.extra[2][vectorIndex] |= 
-			(mask = 1L << (position % BitCacheSize));
-		this.extra[5][vectorIndex] |= mask;
-		this.extra[3][vectorIndex] &= ~mask;
-		this.extra[4][vectorIndex] &= ~mask;
-		if (coverageTestFlag && coverageTestId == 30) {
-			this.extra[5][vectorIndex] = ~0;
-		}
-	}
-}
-
-public void markAsDefinitelyNonNull(FieldBinding field) {
-	if (this != DEAD_END) {
-		markAsDefinitelyNonNull(field.id);
-	}
-}
-
 public void markAsDefinitelyNonNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
-		markAsDefinitelyNonNull(local.id + this.maxFieldCount);
-	}
-}
-
-/**
- * Record a definite null assignment at a given position.
- */
-final private void markAsDefinitelyNull(int position) {
-	// DEAD_END guarded above
-	this.tagBits |= NULL_FLAG_MASK;
-	long mask;
-	if (position < BitCacheSize) {
-		// use bits
-		this.nullAssignmentStatusBit1 |= (mask = 1L << position); // set assignment
-		this.nullAssignmentStatusBit2 &= ~mask; // clear protection
-		this.nullAssignmentValueBit1 |= mask; // set null
-		this.nullAssignmentValueBit2 &= ~mask; // clear non null
-		if (coverageTestFlag && coverageTestId == 31) {
-			this.nullAssignmentValueBit2 = ~0;
+		this.tagBits |= NULL_FLAG_MASK;
+		int position;
+		long mask;
+		// position is zero-based
+		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {		// use bits
+			this.nullAssignmentStatusBit1 |= (mask = 1L << position);
+			this.nullAssignmentValueBit2 |= mask; // set non null
+			this.nullAssignmentStatusBit2 &= ~mask; // clear protection
+			this.nullAssignmentValueBit1 &= ~mask; // clear null
+			if (coverageTestFlag && coverageTestId == 29) {
+				this.nullAssignmentStatusBit1 = 0;
+			}
+		} 
+		else {
+			// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			this.extra[2][vectorIndex] |= 
+				(mask = 1L << (position % BitCacheSize));
+			this.extra[5][vectorIndex] |= mask;
+			this.extra[3][vectorIndex] &= ~mask;
+			this.extra[4][vectorIndex] &= ~mask;
+			if (coverageTestFlag && coverageTestId == 30) {
+				this.extra[5][vectorIndex] = ~0;
+			}
 		}
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		this.extra[2][vectorIndex] |= 
-			(mask = 1L << (position % BitCacheSize));
-		this.extra[3][vectorIndex] &= ~mask;
-		this.extra[4][vectorIndex] |= mask;
-		this.extra[5][vectorIndex] &= ~mask;
-		if (coverageTestFlag && coverageTestId == 32) {
-			this.extra[5][vectorIndex] = ~0;
-		}
-	}
-}
-
-public void markAsDefinitelyNull(FieldBinding field) {
-	if (this != DEAD_END) {
-		markAsDefinitelyNull(field.id);
 	}
 }
 
 public void markAsDefinitelyNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
-		markAsDefinitelyNull(local.id + this.maxFieldCount);
+		this.tagBits |= NULL_FLAG_MASK;
+		int position;
+		long mask;
+		// position is zero-based
+		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {		// use bits
+			this.nullAssignmentStatusBit1 |= (mask = 1L << position); // set assignment
+			this.nullAssignmentStatusBit2 &= ~mask; // clear protection
+			this.nullAssignmentValueBit1 |= mask; // set null
+			this.nullAssignmentValueBit2 &= ~mask; // clear non null
+			if (coverageTestFlag && coverageTestId == 31) {
+				this.nullAssignmentValueBit2 = ~0;
+			}
+		} 
+		else {
+			// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			this.extra[2][vectorIndex] |= 
+				(mask = 1L << (position % BitCacheSize));
+			this.extra[3][vectorIndex] &= ~mask;
+			this.extra[4][vectorIndex] |= mask;
+			this.extra[5][vectorIndex] &= ~mask;
+			if (coverageTestFlag && coverageTestId == 32) {
+				this.extra[5][vectorIndex] = ~0;
+			}
+		}
 	}
 }
 

@@ -196,19 +196,9 @@ abstract public void markAsComparedEqualToNull(LocalVariableBinding local);
 	abstract public void markAsDefinitelyNonNull(LocalVariableBinding local);
 
 	/**
-	 * Record a field got definitely assigned to a non-null value.
-	 */
-	abstract public void markAsDefinitelyNonNull(FieldBinding field);
-
-	/**
 	 * Record a local got definitely assigned to null.
 	 */
 	abstract public void markAsDefinitelyNull(LocalVariableBinding local);
-
-	/**
-	 * Record a field got definitely assigned to null.
-	 */
-	abstract public void markAsDefinitelyNull(FieldBinding field);
 
 	/**
 	 * Record a local got definitely assigned.

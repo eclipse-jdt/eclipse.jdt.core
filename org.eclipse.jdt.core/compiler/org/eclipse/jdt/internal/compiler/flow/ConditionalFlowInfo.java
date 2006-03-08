@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,66 +22,60 @@ public class ConditionalFlowInfo extends FlowInfo {
 	public FlowInfo initsWhenTrue;
 	public FlowInfo initsWhenFalse;
 	
-	ConditionalFlowInfo(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){
-		
-		this.initsWhenTrue = initsWhenTrue;
-		this.initsWhenFalse = initsWhenFalse; 
-	}
+ConditionalFlowInfo(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){
 	
-	public FlowInfo addInitializationsFrom(FlowInfo otherInits) {
-		
-		this.initsWhenTrue.addInitializationsFrom(otherInits);
-		this.initsWhenFalse.addInitializationsFrom(otherInits);
-		return this;
-	}
-	
-	public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits) {
-		
-		this.initsWhenTrue.addPotentialInitializationsFrom(otherInits);
-		this.initsWhenFalse.addPotentialInitializationsFrom(otherInits);
-		return this;
-	}
-	
-	public FlowInfo asNegatedCondition() {
-		
-		FlowInfo extra = initsWhenTrue;
-		initsWhenTrue = initsWhenFalse;
-		initsWhenFalse = extra;
-		return this;
-	}
+	this.initsWhenTrue = initsWhenTrue;
+	this.initsWhenFalse = initsWhenFalse; 
+}
 
-	public FlowInfo copy() {
-		
-		return new ConditionalFlowInfo(initsWhenTrue.copy(), initsWhenFalse.copy());
-	}
+public FlowInfo addInitializationsFrom(FlowInfo otherInits) {
 	
-	public FlowInfo initsWhenFalse() {
-		
-		return initsWhenFalse;
-	}
+	this.initsWhenTrue.addInitializationsFrom(otherInits);
+	this.initsWhenFalse.addInitializationsFrom(otherInits);
+	return this;
+}
+
+public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits) {
 	
-	public FlowInfo initsWhenTrue() {
-		
-		return initsWhenTrue;
-	}
+	this.initsWhenTrue.addPotentialInitializationsFrom(otherInits);
+	this.initsWhenFalse.addPotentialInitializationsFrom(otherInits);
+	return this;
+}
+
+public FlowInfo asNegatedCondition() {
 	
-	/**
-	 * Check status of definite assignment for a field.
-	 */
-	public boolean isDefinitelyAssigned(FieldBinding field) {
-		
-		return initsWhenTrue.isDefinitelyAssigned(field) 
-				&& initsWhenFalse.isDefinitelyAssigned(field);
-	}
+	FlowInfo extra = initsWhenTrue;
+	initsWhenTrue = initsWhenFalse;
+	initsWhenFalse = extra;
+	return this;
+}
+
+public FlowInfo copy() {
 	
-	/**
-	 * Check status of definite assignment for a local variable.
-	 */
-	public boolean isDefinitelyAssigned(LocalVariableBinding local) {
-		
-		return initsWhenTrue.isDefinitelyAssigned(local) 
-				&& initsWhenFalse.isDefinitelyAssigned(local);
-	}
+	return new ConditionalFlowInfo(initsWhenTrue.copy(), initsWhenFalse.copy());
+}
+
+public FlowInfo initsWhenFalse() {
+	
+	return initsWhenFalse;
+}
+
+public FlowInfo initsWhenTrue() {
+	
+	return initsWhenTrue;
+}
+	
+public boolean isDefinitelyAssigned(FieldBinding field) {
+	
+	return initsWhenTrue.isDefinitelyAssigned(field) 
+			&& initsWhenFalse.isDefinitelyAssigned(field);
+}
+
+public boolean isDefinitelyAssigned(LocalVariableBinding local) {
+	
+	return initsWhenTrue.isDefinitelyAssigned(local) 
+			&& initsWhenFalse.isDefinitelyAssigned(local);
+}
 	
 public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 	return initsWhenTrue.isDefinitelyNonNull(local) 
@@ -97,23 +91,16 @@ public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 	return initsWhenTrue.isDefinitelyUnknown(local) 
 			&& initsWhenFalse.isDefinitelyUnknown(local);
 }
-	/**
-	 * Check status of potential assignment for a field.
-	 */
-	public boolean isPotentiallyAssigned(FieldBinding field) {
-		
-		return initsWhenTrue.isPotentiallyAssigned(field) 
-				|| initsWhenFalse.isPotentiallyAssigned(field);
-	}
 	
-	/**
-	 * Check status of potential assignment for a local variable.
-	 */
-	public boolean isPotentiallyAssigned(LocalVariableBinding local) {
-		
-		return initsWhenTrue.isPotentiallyAssigned(local) 
-				|| initsWhenFalse.isPotentiallyAssigned(local);
-	}
+public boolean isPotentiallyAssigned(FieldBinding field) {
+	return initsWhenTrue.isPotentiallyAssigned(field) 
+			|| initsWhenFalse.isPotentiallyAssigned(field);
+}
+
+public boolean isPotentiallyAssigned(LocalVariableBinding local) {
+	return initsWhenTrue.isPotentiallyAssigned(local) 
+			|| initsWhenFalse.isPotentiallyAssigned(local);
+}
 	
 public boolean isPotentiallyNull(LocalVariableBinding local) {
 	return initsWhenTrue.isPotentiallyNull(local) 
@@ -145,59 +132,25 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
     initsWhenFalse.markAsComparedEqualToNull(local);
 }
 	
-	/**
-	 * Record a field got definitely assigned.
-	 */
-	public void markAsDefinitelyAssigned(FieldBinding field) {
-		
-		initsWhenTrue.markAsDefinitelyAssigned(field);
-		initsWhenFalse.markAsDefinitelyAssigned(field);	
-	}
-	
-	/**
-	 * Record a field got definitely assigned.
-	 */
-	public void markAsDefinitelyAssigned(LocalVariableBinding local) {
-		
-		initsWhenTrue.markAsDefinitelyAssigned(local);
-		initsWhenFalse.markAsDefinitelyAssigned(local);	
-	}
-	
-	/**
-	 * Record a field got definitely assigned to non-null value.
-	 */
-	public void markAsDefinitelyNonNull(FieldBinding field) {
-		
-		initsWhenTrue.markAsDefinitelyNonNull(field);
-		initsWhenFalse.markAsDefinitelyNonNull(field);	
-	}
-	
-	/**
-	 * Record a field got definitely assigned to non-null value
-	 */
-	public void markAsDefinitelyNonNull(LocalVariableBinding local) {
-		
-		initsWhenTrue.markAsDefinitelyNonNull(local);
-		initsWhenFalse.markAsDefinitelyNonNull(local);	
-	}
+public void markAsDefinitelyAssigned(FieldBinding field) {
+	initsWhenTrue.markAsDefinitelyAssigned(field);
+	initsWhenFalse.markAsDefinitelyAssigned(field);	
+}
 
-	/**
-	 * Record a field got definitely assigned to null.
-	 */
-	public void markAsDefinitelyNull(FieldBinding field) {
-		
-		initsWhenTrue.markAsDefinitelyNull(field);
-		initsWhenFalse.markAsDefinitelyNull(field);	
-	}
-	
-	/**
-	 * Record a field got definitely assigned to null.
-	 */
-	public void markAsDefinitelyNull(LocalVariableBinding local) {
-		
-		initsWhenTrue.markAsDefinitelyNull(local);
-		initsWhenFalse.markAsDefinitelyNull(local);	
-	}
+public void markAsDefinitelyAssigned(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyAssigned(local);
+	initsWhenFalse.markAsDefinitelyAssigned(local);	
+}
+
+public void markAsDefinitelyNonNull(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyNonNull(local);
+	initsWhenFalse.markAsDefinitelyNonNull(local);	
+}
+
+public void markAsDefinitelyNull(LocalVariableBinding local) {
+	initsWhenTrue.markAsDefinitelyNull(local);
+	initsWhenFalse.markAsDefinitelyNull(local);	
+}
 
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	initsWhenTrue.markAsDefinitelyUnknown(local);
@@ -224,10 +177,11 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	return unconditionalInitsWithoutSideEffect().
 		nullInfoLessUnconditionalCopy();
 }
-	public String toString() {
-		
-		return "FlowInfo<true: " + initsWhenTrue.toString() + ", false: " + initsWhenFalse.toString() + ">"; //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
-	}
+
+public String toString() {
+	
+	return "FlowInfo<true: " + initsWhenTrue.toString() + ", false: " + initsWhenFalse.toString() + ">"; //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+}
 
 public FlowInfo safeInitsWhenTrue() {
 	return initsWhenTrue;
