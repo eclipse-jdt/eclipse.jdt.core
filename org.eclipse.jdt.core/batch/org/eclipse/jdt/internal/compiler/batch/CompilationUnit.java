@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CompilationUnit implements ICompilationUnit {
@@ -56,9 +57,9 @@ public char[] getContents() {
 	try {
 		return Util.getFileCharContent(new File(new String(this.fileName)), this.encoding);
 	} catch (IOException e) {
-		// assume no content then
+		this.contents = CharOperation.NO_CHAR; // assume no source if asked again
+		throw new AbortCompilationUnit(null, e, this.encoding);
 	}
-	return CharOperation.NO_CHAR;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()

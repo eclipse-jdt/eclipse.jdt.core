@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import java.io.CharConversionException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -814,6 +817,35 @@ public void cannotInvokeSuperConstructorInEnum(ExplicitConstructorCall construct
 		 },
 		constructorCall.sourceStart,
 		constructorCall.sourceEnd);
+}
+public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUnit abortException) {
+	String fileName = new String(unit.compilationResult.fileName);
+	if (abortException.exception instanceof CharConversionException) {
+		// specific encoding issue
+		String encoding = abortException.encoding;
+		if (encoding == null) {
+			encoding = System.getProperty("file.encoding"); //$NON-NLS-1$
+		}
+		String[] arguments = new String[]{ fileName, encoding, };
+		this.handle(
+				IProblem.InvalidEncoding,
+				arguments,
+				arguments,
+				0,
+				0);
+		return;
+	}
+	StringWriter stringWriter = new StringWriter();
+	PrintWriter writer = new PrintWriter(stringWriter);
+	abortException.exception.printStackTrace(writer);
+	String exceptionTrace = stringWriter.toString();
+	String[] arguments = new String[]{ fileName, exceptionTrace, };
+	this.handle(
+			IProblem.CannotReadSource,
+			arguments,
+			arguments,
+			0,
+			0);
 }
 public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments =new String[]{ new String(local.readableName())};

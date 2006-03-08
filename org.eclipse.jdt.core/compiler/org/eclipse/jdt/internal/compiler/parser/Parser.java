@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.diagnose.DiagnoseParser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -7704,8 +7705,7 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 	try {
 		this.diet = true;
 		parsedUnit = parse(sourceUnit, compilationResult);
-	}
-	finally {
+	} finally {
 		this.diet = old;
 	}
 	return parsedUnit;
@@ -9033,9 +9033,24 @@ public CompilationUnitDeclaration parse(
 		initialize(true);
 		goForCompilationUnit();
 
+		/* unit creation */
+		this.referenceContext = 
+			this.compilationUnit = 
+				new CompilationUnitDeclaration(
+					this.problemReporter, 
+					compilationResult, 
+					0);
+
 		/* scanners initialization */
-		char[] contents = sourceUnit.getContents();
+		char[] contents;
+		try {
+			contents = sourceUnit.getContents();
+		} catch(AbortCompilationUnit abortException) {
+			this.problemReporter().cannotReadSource(this.compilationUnit, abortException);
+			contents = CharOperation.NO_CHAR; // pretend empty from thereon
+		}
 		this.scanner.setSource(contents);
+		this.compilationUnit.sourceEnd = this.scanner.source.length - 1;
 		if (end != -1) this.scanner.resetTo(start, end);
 		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
 			this.javadocParser.scanner.setSource(contents);
@@ -9043,13 +9058,6 @@ public CompilationUnitDeclaration parse(
 				this.javadocParser.scanner.resetTo(start, end);
 			}
 		}
-		/* unit creation */
-		this.referenceContext = 
-			this.compilationUnit = 
-				new CompilationUnitDeclaration(
-					this.problemReporter, 
-					compilationResult, 
-					this.scanner.source.length);
 		/* run automaton */
 		parse();
 	} finally {

@@ -1090,6 +1090,13 @@ void setSourceStart(int sourceStart);
 	 */
 	/** @since 3.1 */
 	int CorruptedSignature = Internal + 700;
+	/**
+	 * Corrupted source
+	 */
+	/** @since 3.2 */
+	int InvalidEncoding = Internal + 701;
+	/** @since 3.2 */
+	int CannotReadSource = Internal + 702;
 
 	/**
 	 * Autoboxing
