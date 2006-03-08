@@ -1001,7 +1001,7 @@ public class Util {
 	public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
 		InputStream stream= null;
 		try {
-			stream = new BufferedInputStream(file.getContents(true));
+			stream = file.getContents(true);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -1053,7 +1053,7 @@ public class Util {
 		// Get resource contents
 		InputStream stream= null;
 		try {
-			stream = new BufferedInputStream(file.getContents(true));
+			stream = file.getContents(true);
 		} catch (CoreException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +46,7 @@ public class Util implements SuffixConstants {
 	public static byte[] getFileByteContent(File file) throws IOException {
 		InputStream stream = null;
 		try {
-			stream = new BufferedInputStream(new FileInputStream(file));
+			stream = new FileInputStream(file);
 			return getInputStreamAsByteArray(stream, (int) file.length());
 		} finally {
 			if (stream != null) {
@@ -67,7 +66,7 @@ public class Util implements SuffixConstants {
 	public static char[] getFileCharContent(File file, String encoding) throws IOException {
 		InputStream stream = null;
 		try {
-			stream = new BufferedInputStream(new FileInputStream(file));
+			stream = new FileInputStream(file);
 			return getInputStreamAsCharArray(stream, (int) file.length(), encoding);
 		} finally {
 			if (stream != null) {
@@ -278,7 +277,7 @@ public class Util implements SuffixConstants {
 
 		InputStream stream = null;
 		try {
-			stream = new BufferedInputStream(zip.getInputStream(ze));
+			stream = zip.getInputStream(ze);
 			return getInputStreamAsByteArray(stream, (int) ze.getSize());
 		} finally {
 			if (stream != null) {
