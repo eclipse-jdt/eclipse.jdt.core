@@ -28,12 +28,12 @@ public CharArrayCache() {
 /**
  * Constructs a new, empty hashtable with the specified initial
  * capacity.
- * @param initialCapacity int
- *	the initial number of buckets
+ * @param initialCapacity int 
+ *	the initial number of buckets; must be less than Integer.MAX_VALUE / 2
  */
 public CharArrayCache(int initialCapacity) {
 	this.elementSize = 0;
-	this.threshold = (int) (initialCapacity * 0.66f);
+	this.threshold = (initialCapacity * 2) / 3; // faster than float operation
 	this.keyTable = new char[initialCapacity][];
 	this.valueTable = new int[initialCapacity];
 }
@@ -53,11 +53,13 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(char[] key) {
-	int index = hashCodeChar(key);
+	int index = hashCodeChar(key), length = this.keyTable.length;
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key))
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) { // faster than modulo
+			index = 0;
+		}
 	}
 	return false;
 }
@@ -68,11 +70,13 @@ public boolean containsKey(char[] key) {
  *	defined in the hash table.
  */
 public int get(char[] key) {
-	int index = hashCodeChar(key);
+	int index = hashCodeChar(key), length = this.keyTable.length;
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key))
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) { // faster than modulo
+			index = 0;
+		}
 	}
 	return -1;
 }
@@ -95,11 +99,13 @@ private int hashCodeChar(char[] val) {
  * @return int the old value of the key, or -value if it did not have one.
  */
 public int putIfAbsent(char[] key, int value) {
-	int index = hashCodeChar(key);
+	int index = hashCodeChar(key), length = this.keyTable.length;
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key))
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) { // faster than modulo
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;
@@ -120,11 +126,13 @@ public int putIfAbsent(char[] key, int value) {
  * @return int the old value of the key, or -1 if it did not have one.
  */
 private int put(char[] key, int value) { 
-	int index = hashCodeChar(key);
+	int index = hashCodeChar(key), length = this.keyTable.length;
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key))
 			return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) { // faster than modulo
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;
@@ -154,14 +162,16 @@ private void rehash() {
  * @param key <CODE>char[]</CODE> the specified key
  */
 public void remove(char[] key) {
-	int index = hashCodeChar(key);
+	int index = hashCodeChar(key), length = this.keyTable.length;
 	while (keyTable[index] != null) {
 		if (CharOperation.equals(keyTable[index], key)) {
 			valueTable[index] = 0;
 			keyTable[index] = null;
 			return;
 		}
-		index = (index + 1) % keyTable.length;
+		if (++index == length) { // faster than modulo
+			index = 0;
+		}
 	}
 }
 /**
