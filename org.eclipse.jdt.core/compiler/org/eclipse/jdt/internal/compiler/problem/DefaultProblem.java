@@ -63,7 +63,8 @@ public String errorReportSource(char[] unitSource, int tagBits) {
 
 	//sanity .....
 	if ((this.startPosition > this.endPosition)
-		|| ((this.startPosition < 0) && (this.endPosition < 0)))
+		|| ((this.startPosition < 0) && (this.endPosition < 0))
+		|| unitSource.length == 0)
 		return Messages.problem_noSourceInformation; 
 
 	StringBuffer errorBuffer = new StringBuffer();
