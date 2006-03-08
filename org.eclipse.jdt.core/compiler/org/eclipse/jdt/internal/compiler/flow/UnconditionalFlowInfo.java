@@ -920,8 +920,8 @@ final public boolean isProtectedNonNull(LocalVariableBinding local) {
 		this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
-	return (this.extra[4][vectorIndex] & 
-			this.extra[5][vectorIndex] & 
+	return (this.extra[2][vectorIndex] & 
+			this.extra[3][vectorIndex] & 
 			(1L << (position % BitCacheSize))) != 0;
 }
 
@@ -945,8 +945,8 @@ final public boolean isProtectedNull(LocalVariableBinding local) {
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
-	return (~this.extra[4][vectorIndex] & 
-			this.extra[5][vectorIndex] &
+	return (~this.extra[2][vectorIndex] & 
+			this.extra[3][vectorIndex] &
 			(1L << (position % BitCacheSize))) != 0;
 }
 
