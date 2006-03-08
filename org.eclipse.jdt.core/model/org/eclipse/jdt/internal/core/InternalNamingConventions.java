@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 public class InternalNamingConventions {
@@ -181,13 +182,13 @@ public class InternalNamingConventions {
 			for (int j = 0; j <= internalPrefix.length; j++) {
 				if(j == internalPrefix.length || CharOperation.prefixEquals(CharOperation.subarray(internalPrefix, j, -1), unprefixedName, false)) {
 					tempName = CharOperation.concat(CharOperation.subarray(internalPrefix, 0, j), unprefixedName);
-					if(j != 0) tempName[j] = Character.toUpperCase(tempName[j]);
+					if(j != 0) tempName[j] = ScannerHelper.toUpperCase(tempName[j]);
 					for (int k = 0; k < prefixes.length; k++) {
 						if(prefixes[k].length > 0
-							&& Character.isLetterOrDigit(prefixes[k][prefixes[k].length - 1])) {
-							tempName[0] = Character.toUpperCase(tempName[0]);
+							&& ScannerHelper.isLetterOrDigit(prefixes[k][prefixes[k].length - 1])) {
+							tempName[0] = ScannerHelper.toUpperCase(tempName[0]);
 						} else {
-							tempName[0] = Character.toLowerCase(tempName[0]);
+							tempName[0] = ScannerHelper.toLowerCase(tempName[0]);
 						}
 						char[] prefixName = CharOperation.concat(prefixes[k], tempName);
 						for (int l = 0; l < suffixes.length; l++) {
@@ -273,15 +274,15 @@ public class InternalNamingConventions {
 		boolean previousIsUpperCase = false;
 		boolean previousIsLetter = true;
 		for(int i = sourceName.length - 1 ; i >= 0 ; i--){
-			boolean isUpperCase = Character.isUpperCase(sourceName[i]);
-			boolean isLetter = Character.isLetter(sourceName[i]);
+			boolean isUpperCase = ScannerHelper.isUpperCase(sourceName[i]);
+			boolean isLetter = ScannerHelper.isLetter(sourceName[i]);
 			if(isUpperCase && !previousIsUpperCase && previousIsLetter){
 				char[] name = CharOperation.subarray(sourceName,i,sourceName.length);
 				if(name.length > 1){
 					if(nameCount == names.length) {
 						System.arraycopy(names, 0, names = new char[nameCount * 2][], 0, nameCount);
 					}
-					name[0] = Character.toLowerCase(name[0]);
+					name[0] = ScannerHelper.toLowerCase(name[0]);
 					names[nameCount++] = name;
 				}
 			}
@@ -336,7 +337,7 @@ public class InternalNamingConventions {
 				} else {
 					int currLen = 0;
 					for (; currLen < nameLength; currLen++) {
-						if(Character.toLowerCase(prefix[currLen]) != Character.toLowerCase(name[currLen])) {
+						if(ScannerHelper.toLowerCase(prefix[currLen]) != ScannerHelper.toLowerCase(name[currLen])) {
 							if (currLen > bestLength) {
 								bestLength = currLen;
 							}

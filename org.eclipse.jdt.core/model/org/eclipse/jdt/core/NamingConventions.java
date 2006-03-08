@@ -12,6 +12,7 @@ package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
 
@@ -242,8 +243,8 @@ public final class NamingConventions {
 				char[] prefix = prefixes[i];
 				if (CharOperation.prefixEquals(prefix, name)) {
 					int currLen = prefix.length;
-					boolean lastCharIsLetter = Character.isLetter(prefix[currLen - 1]);
-					if(!lastCharIsLetter || (lastCharIsLetter && name.length > currLen && Character.isUpperCase(name[currLen]))) {
+					boolean lastCharIsLetter = ScannerHelper.isLetter(prefix[currLen - 1]);
+					if(!lastCharIsLetter || (lastCharIsLetter && name.length > currLen && ScannerHelper.isUpperCase(name[currLen]))) {
 						if (bestLength < currLen && name.length != currLen) {
 							withoutPrefixName = CharOperation.subarray(name, currLen, name.length);
 							bestLength = currLen;
@@ -269,7 +270,7 @@ public final class NamingConventions {
 			}
 		}
 		
-		withoutSuffixName[0] = Character.toLowerCase(withoutSuffixName[0]);
+		withoutSuffixName[0] = ScannerHelper.toLowerCase(withoutSuffixName[0]);
 		return withoutSuffixName;
 	}
 
@@ -740,7 +741,7 @@ public final class NamingConventions {
 			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name) 
-				&& name.length > prefixLen && Character.isUpperCase(name[prefixLen])) {
+				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {
 				return suggestNewName(name, excludedNames);
 			} else {
 				return suggestNewName(
@@ -833,7 +834,7 @@ public final class NamingConventions {
 			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name) 
-				&& name.length > prefixLen && Character.isUpperCase(name[prefixLen])) {
+				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {
 				name = CharOperation.subarray(name, prefixLen, name.length);
 				return suggestNewName(
 					CharOperation.concat(SETTER_NAME, suggestAccessorName(project, name, modifiers)),
@@ -895,8 +896,8 @@ public final class NamingConventions {
 	
 	private static char[] suggestAccessorName(IJavaProject project, char[] fieldName, int modifiers) {
 		char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
-		if (name.length > 0 && Character.isLowerCase(name[0])) {
-			name[0] = Character.toUpperCase(name[0]);
+		if (name.length > 0 && ScannerHelper.isLowerCase(name[0])) {
+			name[0] = ScannerHelper.toUpperCase(name[0]);
 		}
 		return name;
 	}

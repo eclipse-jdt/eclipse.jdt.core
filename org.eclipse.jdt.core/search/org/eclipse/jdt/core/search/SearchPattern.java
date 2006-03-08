@@ -313,26 +313,26 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 	nextPatternChar: while (iPattern < patternEnd) {
 		// check patternChar, keep camelCasing only if uppercase
 		if ((patternChar = pattern.charAt(iPattern)) < ScannerHelper.MAX_OBVIOUS) {
-			if (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] != ScannerHelper.C_UPPER_LETTER) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & ScannerHelper.C_UPPER_LETTER) == 0) {
 				// end of camelCase part of pattern
 				break nextPatternChar;
 			}
 			// still uppercase
-		} else if (Character.isJavaIdentifierPart(patternChar) 
-						&& !Character.isUpperCase(patternChar)) {
+		} else if (ScannerHelper.isJavaIdentifierPart(patternChar) 
+						&& !ScannerHelper.isUpperCase(patternChar)) {
 			// end of camelCase part of pattern
 			break nextPatternChar;
 		}
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name.charAt(iName)) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER|ScannerHelper.C_IDENT_PART|ScannerHelper.C_DIGIT)) != 0) {
+					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER|ScannerHelper.C_SPECIAL |ScannerHelper.C_DIGIT)) != 0) {
 						// lowercase/digit char is ignored
 						iName++;
 						continue nextNameChar;
 					}
-				} else if (Character.isJavaIdentifierPart(nameChar) 
-								&& !Character.isUpperCase(nameChar)) {
+				} else if (ScannerHelper.isJavaIdentifierPart(nameChar) 
+								&& !ScannerHelper.isUpperCase(nameChar)) {
 					// lowercase name char is ignored
 					iName++;
 					continue nextNameChar;
@@ -1809,13 +1809,13 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 		if (length > 1) {
 			int idx = 0;
 			char ch = stringPattern.charAt(idx++);
-			if (Character.isJavaIdentifierStart(ch)) {
+			if (ScannerHelper.isJavaIdentifierStart(ch)) {
 				ch = stringPattern.charAt(idx++);
-				if (Character.isUpperCase(ch)) {
-					while (idx<length && Character.isUpperCase(stringPattern.charAt(idx))) {
+				if (ScannerHelper.isUpperCase(ch)) {
+					while (idx<length && ScannerHelper.isUpperCase(stringPattern.charAt(idx))) {
 						idx++;
 					}
-					while (idx<length && (!Character.isUpperCase(ch=stringPattern.charAt(idx)) && Character.isJavaIdentifierPart(ch))) {
+					while (idx<length && (!ScannerHelper.isUpperCase(ch=stringPattern.charAt(idx)) && ScannerHelper.isJavaIdentifierPart(ch))) {
 						idx++;
 					}
 					validCamelCase = idx == length;

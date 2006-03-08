@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -6694,7 +6695,7 @@ public final class CompletionEngine
 				if(CharOperation.equals(typeParameterName, methodParameterName, false)) {
 					char[] substitution;
 					if(methodParameterName.length == 1) {
-						if(Character.isUpperCase(methodParameterName[0])) {
+						if(ScannerHelper.isUpperCase(methodParameterName[0])) {
 							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'A', 'Z', excludedNames, substituedParameterNames);
 						} else {
 							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'a', 'z', excludedNames, substituedParameterNames);				
@@ -6718,7 +6719,7 @@ public final class CompletionEngine
 		char name = firstName;
 		next : while (true) {
 			for (int i = 0 ; i < excludedNames.length ; i++){
-				if(excludedNames[i].length == 1 && Character.toLowerCase(excludedNames[i][0]) == Character.toLowerCase(name)) {
+				if(excludedNames[i].length == 1 && ScannerHelper.toLowerCase(excludedNames[i][0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
 					if(name > endChar)
 						name = startChar;
@@ -6729,7 +6730,7 @@ public final class CompletionEngine
 			}
 			
 			for (int i = 0; i < otherParameterNames.length; i++) {
-				if(otherParameterNames[i].length == 1 && Character.toLowerCase(otherParameterNames[i][0]) == Character.toLowerCase(name)) {
+				if(otherParameterNames[i].length == 1 && ScannerHelper.toLowerCase(otherParameterNames[i][0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
 					if(name > endChar)
 						name = startChar;

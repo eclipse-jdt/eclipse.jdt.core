@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -1227,7 +1228,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		char[] s1 = new char[n + 1];
 		for (int k = 0; k < n; k++) {
 			char c = name[k];
-			s1[k] = Character.toLowerCase(c);
+			s1[k] = ScannerHelper.toLowerCase(c);
 		}
 		s1[n] = '\0';
 
@@ -1240,7 +1241,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		char[] s2 = new char[m + 1];
 		for (int k = 0; k < m; k++) {
 			char c = tokenName[k];
-			s2[k] = Character.toLowerCase(c);
+			s2[k] = ScannerHelper.toLowerCase(c);
 		}
 		s2[m] = '\0';
 

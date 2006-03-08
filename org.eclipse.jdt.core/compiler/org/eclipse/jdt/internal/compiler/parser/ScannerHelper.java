@@ -40,22 +40,27 @@ public class ScannerHelper {
 
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
+
+	public final static int C_SPECIAL = ASTNode.Bit8;
+	public final static int C_IDENT_START = ASTNode.Bit7;
 	public final static int C_UPPER_LETTER = ASTNode.Bit6;
 	public final static int C_LOWER_LETTER = ASTNode.Bit5;
 	public final static int C_IDENT_PART = ASTNode.Bit4;
 	public final static int C_DIGIT = ASTNode.Bit3;
 	public final static int C_SEPARATOR = ASTNode.Bit2;
 	public final static int C_SPACE = ASTNode.Bit1;
+
 	static {
 		for (int i = '0'; i <= '9'; i++) 
-			OBVIOUS_IDENT_CHAR_NATURES[i] = C_DIGIT;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_DIGIT | C_IDENT_PART;
 		
 		for (int i = 'a'; i <= 'z'; i++) 
-			OBVIOUS_IDENT_CHAR_NATURES[i] = C_LOWER_LETTER;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_LOWER_LETTER | C_IDENT_PART | C_IDENT_START;
 		for (int i = 'A'; i <= 'Z'; i++) 
-			OBVIOUS_IDENT_CHAR_NATURES[i] = C_UPPER_LETTER;
-		OBVIOUS_IDENT_CHAR_NATURES['_'] = C_IDENT_PART;
-		OBVIOUS_IDENT_CHAR_NATURES['$'] = C_IDENT_PART;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_UPPER_LETTER | C_IDENT_PART | C_IDENT_START;
+
+		OBVIOUS_IDENT_CHAR_NATURES['_'] = C_SPECIAL | C_IDENT_PART | C_IDENT_START;
+		OBVIOUS_IDENT_CHAR_NATURES['$'] = C_SPECIAL | C_IDENT_PART | C_IDENT_START;
 		
 		OBVIOUS_IDENT_CHAR_NATURES[10] = C_SPACE; // \ u000a: LINE FEED
 		OBVIOUS_IDENT_CHAR_NATURES[12] = C_SPACE; // \ u000c: FORM FEED
@@ -171,7 +176,7 @@ private final static boolean isBitSet(long[] values, int i) {
 }
 public static boolean isJavaIdentifierPart(char c) {
 	if (c < MAX_OBVIOUS) {
-		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART | ScannerHelper.C_DIGIT)) != 0;
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_PART) != 0;
 	}
 	return Character.isJavaIdentifierPart(c);
 }
@@ -191,7 +196,7 @@ public static boolean isJavaIdentifierPart(char high, char low) {
 }
 public static boolean isJavaIdentifierStart(char c) {
 	if (c < MAX_OBVIOUS) {
-		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART)) != 0;
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0;
 	}
 	return Character.isJavaIdentifierStart(c);
 }	
@@ -213,7 +218,7 @@ private static int toCodePoint(char high, char low) {
 }
 public static boolean isDigit(char c) throws InvalidInputException {
 	if(c < ScannerHelper.MAX_OBVIOUS) {
-		return ScannerHelper.C_DIGIT == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_DIGIT) != 0;
 	}
 	if (Character.isDigit(c)) {
 		throw new InvalidInputException(Scanner.INVALID_DIGIT);
@@ -232,5 +237,49 @@ public static int getNumericValue(char c) {
 		}
 	}
 	return Character.getNumericValue(c);
+}
+public static char toUpperCase(char c) {
+	if (c < MAX_OBVIOUS) {
+		if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_UPPER_LETTER) != 0) {
+			return c;
+		} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_LOWER_LETTER) != 0) {
+			return (char) (c - 32); 
+		}
+	}
+	return Character.toLowerCase(c);
+}
+public static char toLowerCase(char c) {
+	if (c < MAX_OBVIOUS) {
+		if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_LOWER_LETTER) != 0) {
+			return c;
+		} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_UPPER_LETTER) != 0) {
+			return (char) (32 + c); 
+		}
+	}
+	return Character.toLowerCase(c);
+}
+public static boolean isLowerCase(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_LOWER_LETTER) != 0;
+	}
+	return Character.isLowerCase(c);
+}
+public static boolean isUpperCase(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_UPPER_LETTER) != 0;
+	}
+	return Character.isUpperCase(c);
+}
+public static boolean isLetter(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER)) != 0;
+	}
+	return Character.isLetter(c);
+}
+public static boolean isLetterOrDigit(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_DIGIT)) != 0;
+	}
+	return Character.isLetterOrDigit(c);
 }
 }

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
@@ -306,7 +307,7 @@ public final class JavaConventions {
 			if (CharOperation.contains('$', scannedID)) {
 				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_type_dollarName, null); 
 			}
-			if ((scannedID.length > 0 && Character.isLowerCase(scannedID[0]))) {
+			if ((scannedID.length > 0 && ScannerHelper.isLowerCase(scannedID[0]))) {
 				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_type_lowercaseName, null); 
 			}
 			return JavaModelStatus.VERIFIED_OK;
@@ -384,7 +385,7 @@ public final class JavaConventions {
 			if (!status.isOK()) {
 				return status;
 			}
-			if (firstToken && scannedID.length > 0 && Character.isUpperCase(scannedID[0])) {
+			if (firstToken && scannedID.length > 0 && ScannerHelper.isUpperCase(scannedID[0])) {
 				if (warningStatus == null) {
 					warningStatus = new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_package_uppercaseName, null); 
 				}

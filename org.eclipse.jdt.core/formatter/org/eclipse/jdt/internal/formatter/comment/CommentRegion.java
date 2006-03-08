@@ -24,6 +24,7 @@ import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.formatter.CodeFormatterVisitor;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.Scribe;
@@ -327,7 +328,7 @@ public class CommentRegion extends Position implements IHtmlTagDelimiters, IBord
 		final String token= getText(range.getOffset(), range.getLength());
 
 		for (int index= 0; index < token.length(); index++) {
-			if (!Character.isLetterOrDigit(token.charAt(index)))
+			if (!ScannerHelper.isLetterOrDigit(token.charAt(index)))
 				return false;
 		}
 		return true;
@@ -345,7 +346,7 @@ public class CommentRegion extends Position implements IHtmlTagDelimiters, IBord
 		final String token= getText(range.getOffset(), range.getLength());
 
 		for (int index= 0; index < token.length(); index++) {
-			if (Character.isLetterOrDigit(token.charAt(index)))
+			if (ScannerHelper.isLetterOrDigit(token.charAt(index)))
 				return false;
 		}
 		return true;

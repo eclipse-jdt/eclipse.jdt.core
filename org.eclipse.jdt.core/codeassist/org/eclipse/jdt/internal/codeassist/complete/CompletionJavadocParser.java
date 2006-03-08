@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
@@ -477,7 +478,7 @@ public class CompletionJavadocParser extends JavadocParser {
 						isTypeParam = identifier.length > 0 && identifier[0] == '<';
 						break;
 				}
-				if (identifier != null && identifier.length > 0 && Character.isJavaIdentifierPart(identifier[0])) {
+				if (identifier != null && identifier.length > 0 && ScannerHelper.isJavaIdentifierPart(identifier[0])) {
 					name = identifier;
 				}
 				startPosition = (int)(this.identifierPositionStack[0]>>32);

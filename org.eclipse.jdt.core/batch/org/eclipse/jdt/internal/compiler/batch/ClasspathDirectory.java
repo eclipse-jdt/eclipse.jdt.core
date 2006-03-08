@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class ClasspathDirectory extends ClasspathLocation {
 
@@ -60,7 +61,7 @@ String[] directoryList(String qualifiedPackageName) {
 		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
 		int index = qualifiedPackageName.length();
 		int last = qualifiedPackageName.lastIndexOf(File.separatorChar);
-		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))){/*empty*/}
+		while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackageName.charAt(index))){/*empty*/}
 		if (index > last) {
 			if (last == -1) {
 				if (!doesFileExist(qualifiedPackageName, ""))  //$NON-NLS-1$ 

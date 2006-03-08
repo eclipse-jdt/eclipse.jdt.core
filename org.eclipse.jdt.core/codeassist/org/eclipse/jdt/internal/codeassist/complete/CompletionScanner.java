@@ -166,7 +166,7 @@ public int getNextToken() throws InvalidInputException {
 					&& (this.completionIdentifier == null)
 					&& (whiteStart <= this.cursorLocation+1)
 					&& (this.cursorLocation < this.startPosition)
-					&& !Character.isJavaIdentifierStart(this.currentCharacter)){
+					&& !ScannerHelper.isJavaIdentifierStart(this.currentCharacter)){
 					this.currentPosition = this.startPosition; // for next token read
 					return TokenNameIdentifier;
 				}
@@ -772,7 +772,7 @@ public int getNextToken() throws InvalidInputException {
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 
 				default :
-					if (Character.isJavaIdentifierStart(this.currentCharacter))
+					if (ScannerHelper.isJavaIdentifierStart(this.currentCharacter))
 						return scanIdentifierOrKeyword();
 					if (ScannerHelper.isDigit(this.currentCharacter)) {
 						return scanNumber(false);

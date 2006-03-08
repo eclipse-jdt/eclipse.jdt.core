@@ -228,7 +228,7 @@ public PublicScanner(
 		isTaskCaseSensitive);
 }
 
-public  final boolean atEnd() {
+public final boolean atEnd() {
 	// This code is not relevant if source is 
 	// Only a part of the real stream input
 
@@ -270,7 +270,7 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					int x = i+t;
 					if (x >= this.eofPosition || x >= commentEnd) continue nextTag;
 					if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
-						if (this.isTaskCaseSensitive || (Character.toLowerCase(sc) != Character.toLowerCase(tc))) { 	// case insensitive check
+						if (this.isTaskCaseSensitive || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) { 	// case insensitive check
 							continue nextTag;
 						}
 					}
@@ -798,7 +798,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			this.withoutUnicodePtr = temp2;
 			return false;
 		} else {
-			isJavaIdentifierPart = Character.isJavaIdentifierPart(c);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
 		}
 		if (unicode) {
 			if (!isJavaIdentifierPart) {
@@ -1430,15 +1430,12 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					char c = this.currentCharacter;
 					if (c < ScannerHelper.MAX_OBVIOUS) {
-						switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
-							case ScannerHelper.C_UPPER_LETTER :
-							case ScannerHelper.C_LOWER_LETTER :
-							case ScannerHelper.C_IDENT_PART :
-								return scanIdentifierOrKeyword();
-							case ScannerHelper.C_DIGIT :
+						if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0) {
+							return scanIdentifierOrKeyword();
+						} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_DIGIT) != 0) {
 								return scanNumber(false);
-							default :
-								return TokenNameERROR;
+						} else {
+							return TokenNameERROR;
 						}
 					}
 					boolean isJavaIdStart;
@@ -1460,6 +1457,7 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw new InvalidInputException(INVALID_HIGH_SURROGATE);
 					} else {
+						// optimized case already checked
 						isJavaIdStart = Character.isJavaIdentifierStart(c);
 					}
 					if (isJavaIdStart)
@@ -1847,17 +1845,14 @@ public final void jumpOverMethodBody() {
 					try {
 						char c = this.currentCharacter;
 						if (c < ScannerHelper.MAX_OBVIOUS) {
-							switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
-								case ScannerHelper.C_UPPER_LETTER :
-								case ScannerHelper.C_LOWER_LETTER :
-								case ScannerHelper.C_IDENT_PART :
-									scanIdentifierOrKeyword();
-									break NextToken;
-								case ScannerHelper.C_DIGIT :
-									scanNumber(false);
-									break NextToken;
-								default:
-									break NextToken;
+							if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0) {
+								scanIdentifierOrKeyword();
+								break NextToken;
+							} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_DIGIT) != 0) {
+								scanNumber(false);
+								break NextToken;
+							} else {
+								break NextToken;
 							}
 						}
 						boolean isJavaIdStart;
@@ -1875,6 +1870,7 @@ public final void jumpOverMethodBody() {
 						} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 							break NextToken;
 						} else {
+							// optimized case already checked
 							isJavaIdStart = Character.isJavaIdentifierStart(c);
 						}
 						if (isJavaIdStart) {
@@ -2447,27 +2443,21 @@ public int scanIdentifierOrKeyword() {
 				break identLoop;
 			char c = src[pos];
 			if (c < ScannerHelper.MAX_OBVIOUS) {
-				switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
-					case ScannerHelper.C_UPPER_LETTER :
-					case ScannerHelper.C_LOWER_LETTER :
-					case ScannerHelper.C_IDENT_PART :
-					case ScannerHelper.C_DIGIT :
+				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & 
+						(ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART | ScannerHelper.C_DIGIT)) != 0) {
 		               if (this.withoutUnicodePtr != 0) {
 							this.currentCharacter = c;
 							unicodeStore();
 						}
 						this.currentPosition++;
-						break;						
-						
-					case ScannerHelper.C_SEPARATOR :
-					case ScannerHelper.C_SPACE :
+				} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & 
+						(ScannerHelper.C_SEPARATOR | ScannerHelper.C_SPACE)) != 0) {
 						this.currentCharacter = c;
-						break identLoop;	
-
-					default:
-						//System.out.println("slow<=128:  "+ c);						
-						while (getNextCharAsJavaIdentifierPart()){/*empty*/}
-						break identLoop;						
+						break identLoop;
+				} else {
+					//System.out.println("slow<=128:  "+ c);						
+					while (getNextCharAsJavaIdentifierPart()){/*empty*/}
+					break identLoop;						
 				}
 			} else {
 				//System.out.println("slow>>128:  "+ c);						

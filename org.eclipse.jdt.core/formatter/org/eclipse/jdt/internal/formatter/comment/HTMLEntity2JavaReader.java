@@ -15,6 +15,8 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
 /**
  * <code>SubstitutionTextReader</code> that will substitute plain text values
  * for html entities encountered in the original text. Line breaks and
@@ -96,7 +98,7 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 	private String processEntity() throws IOException {
 		StringBuffer buf= new StringBuffer();
 		int ch= nextChar();
-		while (Character.isLetterOrDigit((char) ch) || ch == '#') {
+		while (ScannerHelper.isLetterOrDigit((char) ch) || ch == '#') {
 			buf.append((char) ch);
 			ch= nextChar();
 		}

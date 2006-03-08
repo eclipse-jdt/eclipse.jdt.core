@@ -289,26 +289,26 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 	nextPatternChar: while (iPattern < patternEnd) {
 		// check patternChar, keep camelCasing only if uppercase
 		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS) {
-			if (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] != ScannerHelper.C_UPPER_LETTER) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & ScannerHelper.C_UPPER_LETTER) == 0) {
 				// end of camelCase part of pattern
 				break nextPatternChar;
 			}
 			// still uppercase
-		} else if (Character.isJavaIdentifierPart(patternChar) 
-						&& !Character.isUpperCase(patternChar)) {
+		} else if (ScannerHelper.isJavaIdentifierPart(patternChar) 
+						&& !ScannerHelper.isUpperCase(patternChar)) {
 			// end of camelCase part of pattern
 			break nextPatternChar;
 		}
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER|ScannerHelper.C_IDENT_PART|ScannerHelper.C_DIGIT)) != 0) {
+					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL | ScannerHelper.C_DIGIT)) != 0) {
 						// lowercase/digit char is ignored
 						iName++;
 						continue nextNameChar;
 					}
-				} else if (Character.isJavaIdentifierPart(nameChar) 
-								&& !Character.isUpperCase(nameChar)) {
+				} else if (ScannerHelper.isJavaIdentifierPart(nameChar) 
+								&& !ScannerHelper.isUpperCase(nameChar)) {
 					// lowercase name char is ignored
 					iName++;
 					continue nextNameChar;
@@ -1430,7 +1430,7 @@ public static final boolean equals(char[] first, char[] second, int secondStart,
 				return false;
 	} else {
 		for (int i = first.length; --i >= 0;)
-			if (Character.toLowerCase(first[i]) != Character.toLowerCase(second[i+secondStart]))
+			if (ScannerHelper.toLowerCase(first[i]) != ScannerHelper.toLowerCase(second[i+secondStart]))
 				return false;
 	}
 	return true;
@@ -1497,8 +1497,8 @@ public static final boolean equals(
 		return false;
 
 	for (int i = first.length; --i >= 0;)
-		if (Character.toLowerCase(first[i])
-			!= Character.toLowerCase(second[i]))
+		if (ScannerHelper.toLowerCase(first[i])
+			!= ScannerHelper.toLowerCase(second[i]))
 			return false;
 	return true;
 }
@@ -1573,8 +1573,8 @@ public static final boolean fragmentEquals(
 	for (int i = max;
 		--i >= 0;
 		) // assumes the prefix is not larger than the name
-		if (Character.toLowerCase(fragment[i])
-			!= Character.toLowerCase(name[i + startIndex]))
+		if (ScannerHelper.toLowerCase(fragment[i])
+			!= ScannerHelper.toLowerCase(name[i + startIndex]))
 			return false;
 	return true;
 }
@@ -1767,7 +1767,7 @@ public static final int indexOf(final char[] toBeFound, final char[] array, fina
 			return 0;
 		} else {
 			for (int i = start; i < arrayLength; i++) {
-				if (Character.toLowerCase(array[i]) != Character.toLowerCase(toBeFound[i])) return -1;
+				if (ScannerHelper.toLowerCase(array[i]) != ScannerHelper.toLowerCase(toBeFound[i])) return -1;
 			}
 			return 0;
 		}
@@ -1783,9 +1783,9 @@ public static final int indexOf(final char[] toBeFound, final char[] array, fina
 		}
 	} else {
 		arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
-			if (Character.toLowerCase(array[i]) == Character.toLowerCase(toBeFound[0])) {
+			if (ScannerHelper.toLowerCase(array[i]) == ScannerHelper.toLowerCase(toBeFound[0])) {
 				for (int j = 1; j < toBeFoundLength; j++) {
-					if (Character.toLowerCase(array[i + j]) != Character.toLowerCase(toBeFound[j])) continue arrayLoop;
+					if (ScannerHelper.toLowerCase(array[i + j]) != ScannerHelper.toLowerCase(toBeFound[j])) continue arrayLoop;
 				}
 				return i;
 			}
@@ -2181,7 +2181,7 @@ public static final boolean match(
 		if (patternChar
 			!= (isCaseSensitive
 				? name[iName]
-				: Character.toLowerCase(name[iName]))
+				: ScannerHelper.toLowerCase(name[iName]))
 			&& patternChar != '?') {
 			return false;
 		}
@@ -2212,7 +2212,7 @@ public static final boolean match(
 			continue checkSegment;
 		}
 		/* check current name character */
-		if ((isCaseSensitive ? name[iName] : Character.toLowerCase(name[iName]))
+		if ((isCaseSensitive ? name[iName] : ScannerHelper.toLowerCase(name[iName]))
 					!= patternChar
 				&& patternChar != '?') {
 			iPattern = segmentStart; // mismatch - restart current segment
@@ -2593,8 +2593,8 @@ public static final boolean prefixEquals(
 	for (int i = max;
 		--i >= 0;
 		) // assumes the prefix is not larger than the name
-		if (Character.toLowerCase(prefix[i])
-			!= Character.toLowerCase(name[i]))
+		if (ScannerHelper.toLowerCase(prefix[i])
+			!= ScannerHelper.toLowerCase(name[i]))
 			return false;
 	return true;
 }
@@ -3205,7 +3205,7 @@ final static public char[] toLowerCase(char[] chars) {
 	char[] lowerChars = null;
 	for (int i = 0; i < length; i++) {
 		char c = chars[i];
-		char lc = Character.toLowerCase(c);
+		char lc = ScannerHelper.toLowerCase(c);
 		if ((c != lc) || (lowerChars != null)) {
 			if (lowerChars == null) {
 				System.arraycopy(

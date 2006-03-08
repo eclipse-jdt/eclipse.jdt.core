@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -593,7 +594,7 @@ public class NameLookup implements SuffixConstants {
 			IProgressMonitor monitor) {
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
-		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
+		} else if (typeName.length() > 0 && ScannerHelper.isLowerCase(typeName.charAt(0))) {
 			// see if this is a known package and not a type
 			if (findPackageFragments(packageName + "." + typeName, false) != null) return null; //$NON-NLS-1$
 		}
