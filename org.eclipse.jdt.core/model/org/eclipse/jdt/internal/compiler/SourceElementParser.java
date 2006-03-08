@@ -51,8 +51,6 @@ public class SourceElementParser extends CommentRecorderParser {
 	char[][] typeNames;
 	char[][] superTypeNames;
 	int nestedTypeIndex;
-	NameReference[] unknownRefs;
-	int unknownRefsCounter;
 	LocalDeclarationVisitor localDeclarationVisitor = null;
 	CompilerOptions options;
 	HashtableOfObjectToInt sourceEnds = new HashtableOfObjectToInt();
@@ -529,35 +527,92 @@ protected void consumeSingleMemberAnnotation() {
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
-	super.consumeSingleStaticImportDeclarationName();
-	ImportReference impt = (ImportReference)astStack[astPtr];
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccStatic));
+	
+	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//this.endPosition is just before the ;
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	
+	if(!this.statementRecoveryActivated &&
+			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
+		this.problemReporter().invalidUsageOfStaticImports(impt);
+	}
+	
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
 	if (reportReferenceInfo) {
 		// Name for static import is TypeName '.' Identifier
 		// => accept unknown ref on identifier
-		int length = impt.tokens.length-1;
-		int start = (int) (impt.sourcePositions[length] >>> 32);
-		char[] last = impt.tokens[length];
+		int tokensLength = impt.tokens.length-1;
+		int start = (int) (impt.sourcePositions[tokensLength] >>> 32);
+		char[] last = impt.tokens[tokensLength];
 		// accept all possible kind for last name, index users will have to select the right one...
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=86901
 		requestor.acceptFieldReference(last, start);
 		requestor.acceptMethodReference(last, 0,start);
 		requestor.acceptTypeReference(last, start);
 		// accept type name
-		if (length > 0) {
-			char[][] compoundName = new char[length][];
-			System.arraycopy(impt.tokens, 0, compoundName, 0, length);
-			int end = (int) impt.sourcePositions[length-1];
+		if (tokensLength > 0) {
+			char[][] compoundName = new char[tokensLength][];
+			System.arraycopy(impt.tokens, 0, compoundName, 0, tokensLength);
+			int end = (int) impt.sourcePositions[tokensLength-1];
 			requestor.acceptTypeReference(compoundName, impt.sourceStart, end);
 		}
 	}
 }
+
 protected void consumeSingleTypeImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' Name
 	/* push an ImportRef build from the last name 
 	stored in the identifier stack. */
 
-	super.consumeSingleTypeImportDeclarationName();
-	ImportReference impt = (ImportReference)astStack[astPtr];
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccDefault));
+	
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//this.endPosition is just before the ;
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
 	if (reportReferenceInfo) {
 		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
@@ -567,8 +622,41 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	/* push an ImportRef build from the last name 
 	stored in the identifier stack. */
 
-	super.consumeStaticImportOnDemandDeclarationName();
-	ImportReference impt = (ImportReference)astStack[astPtr];
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
+	
+	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//this.endPosition is just before the ;
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	
+	if(!this.statementRecoveryActivated &&
+			options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
+		this.problemReporter().invalidUsageOfStaticImports(impt);
+	}
+	
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
 	if (reportReferenceInfo) {
 		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
@@ -578,8 +666,31 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	/* push an ImportRef build from the last name 
 	stored in the identifier stack. */
 
-	super.consumeTypeImportOnDemandDeclarationName();
-	ImportReference impt = (ImportReference)astStack[astPtr];
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault));
+	
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//this.endPosition is just before the ;
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
 	if (reportReferenceInfo) {
 		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
@@ -713,7 +824,7 @@ public NameReference getUnspecifiedReference() {
 	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
 		// single variable reference
 		SingleNameReference ref = 
-			new SingleNameReference(
+			newSingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
 		if (reportReferenceInfo) {
@@ -728,7 +839,7 @@ public NameReference getUnspecifiedReference() {
 		long[] positions = new long[length];
 		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 		QualifiedNameReference ref = 
-			new QualifiedNameReference(
+			newQualifiedNameReference(
 				tokens, 
 				positions,
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
@@ -751,7 +862,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
 		// single variable reference
 		SingleNameReference ref = 
-			new SingleNameReference(
+			newSingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
@@ -774,7 +885,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	QualifiedNameReference ref = 
-		new QualifiedNameReference(
+		newQualifiedNameReference(
 			tokens, 
 			positions,
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
@@ -786,6 +897,15 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		this.addUnknownRef(ref);
 	}
 	return ref;
+}
+protected ImportReference newImportReference(char[][] tokens, long[] positions, boolean onDemand, int mod) {
+	return new ImportReference(tokens, positions, onDemand, mod);
+}
+protected QualifiedNameReference newQualifiedNameReference(char[][] tokens, long[] positions, int sourceStart, int sourceEnd) {
+	return new QualifiedNameReference(tokens, positions, sourceStart, sourceEnd);
+}
+protected SingleNameReference newSingleNameReference(char[] source, long positions) {
+	return new SingleNameReference(source, positions);
 }
 /*
  * Update the bodyStart of the corresponding parse node
@@ -805,9 +925,6 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 				scanner.initialPosition <= parsedUnit.sourceStart
 				&& scanner.eofPosition >= parsedUnit.sourceEnd;
 	
-	if (reportReferenceInfo) {
-		notifyAllUnknownReferences();
-	}
 	// collect the top level ast nodes
 	int length = 0;
 	ASTNode[] nodes = null;
@@ -873,44 +990,6 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 	}
 }
 
-private void notifyAllUnknownReferences() {
-	for (int i = 0, max = this.unknownRefsCounter; i < max; i++) {
-		NameReference nameRef = this.unknownRefs[i];
-		if ((nameRef.bits & Binding.VARIABLE) != 0) {
-			if ((nameRef.bits & Binding.TYPE) == 0) { 
-				// variable but not type
-				if (nameRef instanceof SingleNameReference) { 
-					// local var or field
-					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
-				} else {
-					// QualifiedNameReference
-					// The last token is a field reference and the previous tokens are a type/variable references
-					char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
-					int tokensLength = tokens.length;
-					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd - tokens[tokensLength - 1].length + 1);
-					char[][] typeRef = new char[tokensLength - 1][];
-					System.arraycopy(tokens, 0, typeRef, 0, tokensLength - 1);
-					requestor.acceptUnknownReference(typeRef, nameRef.sourceStart, nameRef.sourceEnd - tokens[tokensLength - 1].length);
-				}
-			} else {
-				// variable or type
-				if (nameRef instanceof SingleNameReference) {
-					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
-				} else {
-					//QualifiedNameReference
-					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
-				}
-			}
-		} else if ((nameRef.bits & Binding.TYPE) != 0) {
-			if (nameRef instanceof SingleNameReference) {
-				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
-			} else {
-				// it is a QualifiedNameReference
-				requestor.acceptTypeReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
-			}
-		}
-	}
-}
 /*
  * Update the bodyStart of the corresponding parse node
  */
@@ -1374,10 +1453,6 @@ public void parseCompilationUnit(
 
 	this.reportReferenceInfo = fullParse;
 	boolean old = diet;
-	if (fullParse) {
-		unknownRefs = new NameReference[10];
-		unknownRefsCounter = 0;
-	}
 	
 	try {
 		diet = true;
@@ -1403,10 +1478,6 @@ public CompilationUnitDeclaration parseCompilationUnit(
 	boolean fullParse) {
 		
 	boolean old = diet;
-	if (fullParse) {
-		unknownRefs = new NameReference[10];
-		unknownRefsCounter = 0;
-	}
 
 	try {
 		diet = true;
@@ -1439,10 +1510,6 @@ public void parseTypeMemberDeclarations(
 	int end, 
 	boolean needReferenceInfo) {
 	boolean old = diet;
-	if (needReferenceInfo) {
-		unknownRefs = new NameReference[10];
-		unknownRefsCounter = 0;
-	}
 	
 	CompilationResult compilationUnitResult = 
 		new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
@@ -1554,16 +1621,18 @@ private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 	}
 }
 public void addUnknownRef(NameReference nameRef) {
-	if (this.unknownRefs.length == this.unknownRefsCounter) {
-		// resize
-		System.arraycopy(
-			this.unknownRefs,
-			0,
-			(this.unknownRefs = new NameReference[this.unknownRefsCounter * 2]),
-			0,
-			this.unknownRefsCounter);
+	// Note that:
+	// - the only requestor interested in references is the SourceIndexerRequestor
+	// - a name reference can become a type reference only during the cast case, it is then tagged later with the Binding.TYPE bit
+	// However since the indexer doesn't make the distinction between name reference and type reference, there is no need
+	// to report a type reference in the SourceElementParser.
+	// This gained 3.7% in the indexing performance test.
+	if (nameRef instanceof SingleNameReference) {
+		requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
+	} else {
+		//QualifiedNameReference
+		requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
 	}
-	this.unknownRefs[this.unknownRefsCounter++] = nameRef;
 }
 
 private void visitIfNeeded(AbstractMethodDeclaration method) {

@@ -172,7 +172,7 @@ public SourceElementParser getSourceElementParser(IJavaProject project, ISourceE
 	Map options = project.getOptions(true);
 	options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 	
-	SourceElementParser parser = new SourceElementParser(
+	SourceElementParser parser = new IndexingParser(
 		requestor, 
 		new DefaultProblemFactory(Locale.getDefault()),
 		new CompilerOptions(options), 
