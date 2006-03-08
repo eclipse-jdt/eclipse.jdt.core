@@ -1659,7 +1659,7 @@ public final class CompletionEngine
 													this.findImportsOfStaticFields(lastToken, ref);
 												}
 												if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
-													this.findImportsOfStaticMethdods(lastToken, ref);
+													this.findImportsOfStaticMethods(lastToken, ref);
 												}
 											}
 										}
@@ -2955,7 +2955,7 @@ public final class CompletionEngine
 		}
 	}
 	
-	private void findImportsOfStaticMethdods(char[] methodName, ReferenceBinding ref) {
+	private void findImportsOfStaticMethods(char[] methodName, ReferenceBinding ref) {
 		MethodBinding[] methods = ref.methods();
 		
 		int methodLength = methodName.length;
