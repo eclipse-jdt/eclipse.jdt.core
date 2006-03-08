@@ -509,7 +509,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						+ ": " //$NON-NLS-1$
 						+ problem.getMessage());
 				this.printlnErr(result);
-				this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource, this.tagBits));
+				final String errorReportSource = ((DefaultProblem) problem).errorReportSource(unitSource, this.tagBits);
+				if (errorReportSource.length() != 0) this.printlnErr(errorReportSource);
 			} else {
 				if (localErrorCount == 0) {
 					this.printlnErr("----------"); //$NON-NLS-1$
@@ -524,7 +525,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 										Integer.toString(globalErrorCount),
 										new String(problem.getOriginatingFileName())));
 				try {
-					this.printlnErr(((DefaultProblem) problem).errorReportSource(unitSource));
+					final String errorReportSource = ((DefaultProblem) problem).errorReportSource(unitSource);
+					if (errorReportSource.length() != 0) this.printlnErr(errorReportSource);
 					this.printlnErr(problem.getMessage());
 				} catch (Exception e) {
 					this.printlnErr(Main.bind(
