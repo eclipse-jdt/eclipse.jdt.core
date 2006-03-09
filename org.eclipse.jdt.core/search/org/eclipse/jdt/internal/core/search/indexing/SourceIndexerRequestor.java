@@ -57,9 +57,7 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {
  * @see ISourceElementRequestor#acceptImport(int, int, char[][], boolean, int)
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
-	for (int i = 0, length = tokens.length; i < length; i++) {
-		this.indexer.addNameReference(tokens[i]);
-	}
+	// imports have already been reported while creating the ImportRef node (see SourceElementParser#comsume*ImportDeclarationName() methods)
 }
 /**
  * @see ISourceElementRequestor#acceptLineSeparatorPositions(int[])
