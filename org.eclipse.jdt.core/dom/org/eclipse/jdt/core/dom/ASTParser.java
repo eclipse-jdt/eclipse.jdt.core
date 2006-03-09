@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -258,11 +259,14 @@ public class ASTParser {
 	 * to set it back to the default
 	 */
 	public void setCompilerOptions(Map options) {
-	   if (options == null) {
-	      options = JavaCore.getOptions();
-	   }
-	   options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
-	   this.compilerOptions = options;
+		if (options == null) {
+			options = JavaCore.getOptions();
+		} else {
+			// copy client's options so as to not do any side effect on them
+			options = new HashMap(options);
+		}
+		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+		this.compilerOptions = options;
 	}
 	
 	/**
