@@ -431,12 +431,13 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
 		if (this.binding == overridenCompilerBinding) 
 			return false;
-		if (!CharOperation.equals(this.binding.selector, overridenCompilerBinding.selector))
+		char[] selector = this.binding.selector;
+		if (!CharOperation.equals(selector, overridenCompilerBinding.selector))
 			return false;
 		TypeBinding match = this.binding.declaringClass.findSuperTypeWithSameErasure(overridenCompilerBinding.declaringClass);
 		if (!(match instanceof ReferenceBinding)) return false;
 		
-		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).methods();
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
 		for (int i = 0, length = superMethods.length; i < length; i++) {
 			if (superMethods[i].original() == overridenCompilerBinding) {
 				LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
