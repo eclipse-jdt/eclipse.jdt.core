@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.core.PackageFragment;
 //import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 //import org.eclipse.jdt.internal.core.ResolvedSourceType;
@@ -353,10 +354,15 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 					contents = unit.getBuffer().getCharacters();
 				} else {
 					IFile file = ((IFile) resource);
-					contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-						null, 
-						file.getLocation().toFile().getPath(),
-						file.getCharset()).getContents();
+					try {
+						contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
+							null, 
+							file.getLocation().toFile().getPath(),
+							file.getCharset()).getContents();
+					} catch(AbortCompilationUnit e) {
+						// TODO (philippe) occured with a FileNotFoundException
+						// ignore
+					}
 				}
 			}
 			return contents;
