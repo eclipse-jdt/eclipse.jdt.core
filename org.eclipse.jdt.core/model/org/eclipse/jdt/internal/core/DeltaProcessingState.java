@@ -167,7 +167,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
 	 * any of the other (for example, if it deregisters itself).
 	 */
-	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
+	public synchronized void addElementChangedListener(IElementChangedListener listener, int eventMask) {
 		for (int i = 0; i < this.elementChangedListenerCount; i++){
 			if (this.elementChangedListeners[i].equals(listener)){
 				
@@ -363,7 +363,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    return updates;
 	}
 	
-	public void removeElementChangedListener(IElementChangedListener listener) {
+	public synchronized void removeElementChangedListener(IElementChangedListener listener) {
 		
 		for (int i = 0; i < this.elementChangedListenerCount; i++){
 			

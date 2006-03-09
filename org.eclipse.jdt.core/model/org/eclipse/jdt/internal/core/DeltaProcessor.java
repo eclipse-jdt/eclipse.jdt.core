@@ -1242,9 +1242,14 @@ public class DeltaProcessor {
 	
 		// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
 		// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
-		IElementChangedListener[] listeners = this.state.elementChangedListeners;
-		int[] listenerMask = this.state.elementChangedListenerMasks;
-		int listenerCount = this.state.elementChangedListenerCount;
+		IElementChangedListener[] listeners;
+		int[] listenerMask;
+		int listenerCount;
+		synchronized (this.state) {
+			listeners = this.state.elementChangedListeners;
+			listenerMask = this.state.elementChangedListenerMasks;
+			listenerCount = this.state.elementChangedListenerCount;
+		}
 
 		switch (eventType) {
 			case DEFAULT_CHANGE_EVENT:
@@ -1804,7 +1809,13 @@ public class DeltaProcessor {
 								this.sourceElementParserCache = null; // don't hold onto parser longer than necessary
 								startDeltas();
 							}
-							notifyTypeHierarchies(this.state.elementChangedListeners, this.state.elementChangedListenerCount);
+							IElementChangedListener[] listeners;
+							int listenerCount;
+							synchronized (this.state) {
+								listeners = this.state.elementChangedListeners;
+								listenerCount = this.state.elementChangedListenerCount;
+							}
+							notifyTypeHierarchies(listeners, listenerCount);
 							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// workaround for bug 15168 circular errors not reported 
