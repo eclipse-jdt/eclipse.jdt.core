@@ -16,7 +16,6 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -948,9 +947,9 @@ public class NameLookup implements SuffixConstants {
 					}
 				}
 			} else {
-				IClassFile[] classFiles= null;
+				IJavaElement[] classFiles= null;
 				try {
-					classFiles= pkg.getClassFiles();
+					classFiles= pkg.getChildren();
 				} catch (JavaModelException npe) {
 					return; // the package is not present
 				}
@@ -967,7 +966,7 @@ public class NameLookup implements SuffixConstants {
 				for (int i = 0; i < length; i++) {
 					if (requestor.isCanceled())
 						return;
-					IClassFile classFile= classFiles[i];
+					IJavaElement classFile= classFiles[i];
 					String elementName = classFile.getElementName();
 					elementName = elementName.toLowerCase();
 		
@@ -976,12 +975,7 @@ public class NameLookup implements SuffixConstants {
 					 * extension ".class" and the elementName always will.
 					 */
 					if (elementName.startsWith(matchName)) {
-						IType type= null;
-						try {
-							type = classFile.getType();
-						} catch (JavaModelException npe) {
-							continue; // the classFile is not present
-						}
+						IType type = ((ClassFile) classFile).getType();
 						if ((type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
 							if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
 								requestor.acceptType(type);
@@ -1013,16 +1007,16 @@ public class NameLookup implements SuffixConstants {
 		try {
 			if (!partialMatch) {
 				try {
-					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
+					IJavaElement[] compilationUnits = pkg.getChildren();
 					for (int i = 0, length = compilationUnits.length; i < length; i++) {
 						if (requestor.isCanceled())
 							return;
-						ICompilationUnit cu = compilationUnits[i];
+						IJavaElement cu = compilationUnits[i];
 						String cuName = cu.getElementName();
 						int lastDot = cuName.lastIndexOf('.');
 						if (!topLevelTypeName.equals(cuName.substring(0, lastDot))) 
 							continue;
-						IType type = cu.getType(topLevelTypeName);
+						IType type = ((ICompilationUnit) cu).getType(topLevelTypeName);
 						type = getMemberType(type, name, firstDot);
 						if (acceptType(type, acceptFlags, true/*a source type*/)) { // accept type checks for existence
 							requestor.acceptType(type);
@@ -1035,15 +1029,15 @@ public class NameLookup implements SuffixConstants {
 			} else {
 				try {
 					String cuPrefix = firstDot == -1 ? name : name.substring(0, firstDot);
-					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
+					IJavaElement[] compilationUnits = pkg.getChildren();
 					for (int i = 0, length = compilationUnits.length; i < length; i++) {
 						if (requestor.isCanceled())
 							return;
-						ICompilationUnit cu = compilationUnits[i];
+						IJavaElement cu = compilationUnits[i];
 						if (!cu.getElementName().toLowerCase().startsWith(cuPrefix))
 							continue;
 						try {
-							IType[] types = cu.getTypes();
+							IType[] types = ((ICompilationUnit) cu).getTypes();
 							for (int j = 0, typeLength = types.length; j < typeLength; j++)
 								seekTypesInTopLevelType(name, firstDot, types[j], requestor, acceptFlags);
 						} catch (JavaModelException e) {
