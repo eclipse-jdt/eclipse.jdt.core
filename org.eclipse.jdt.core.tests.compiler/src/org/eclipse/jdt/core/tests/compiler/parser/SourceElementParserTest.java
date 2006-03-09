@@ -15,6 +15,7 @@ import java.util.Locale;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -80,12 +81,12 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {}
 public void acceptImport(
 	int declarationStart, 
 	int declarationEnd, 
-	char[] name, 
+	char[][] tokens, 
 	boolean onDemand,
 	int modifiers) {
 
 	addImport(
-		new SourceImport(declarationStart, declarationEnd, name, onDemand, modifiers, source)); 
+		new SourceImport(declarationStart, declarationEnd, CharOperation.concatWith(tokens, '.'), onDemand, modifiers, source)); 
 }
 /**
  * acceptLineSeparatorPositions method comment.

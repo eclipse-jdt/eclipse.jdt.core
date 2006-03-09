@@ -100,7 +100,7 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 /**
  * @see ISourceElementRequestor
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
+public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	if (!(parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT)) {
@@ -116,7 +116,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 		this.newElements.put(importContainer, this.importContainerInfo);
 	}
 	
-	String elementName = JavaModelManager.getJavaModelManager().intern(new String(name));
+	String elementName = JavaModelManager.getJavaModelManager().intern(new String(CharOperation.concatWith(tokens, '.')));
 	ImportDeclaration handle = new ImportDeclaration(importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 	

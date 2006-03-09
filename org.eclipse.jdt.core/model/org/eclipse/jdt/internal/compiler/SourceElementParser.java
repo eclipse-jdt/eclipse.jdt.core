@@ -1275,7 +1275,7 @@ public void notifySourceElementRequestor(
 		requestor.acceptImport(
 			importReference.declarationSourceStart, 
 			importReference.declarationSourceEnd, 
-			CharOperation.concatWith(importReference.getImportName(), '.'), 
+			importReference.tokens, 
 			importReference.onDemand,
 			importReference.modifiers); 
 	}

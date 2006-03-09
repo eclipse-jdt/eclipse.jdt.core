@@ -54,12 +54,11 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {
 	this.indexer.addFieldReference(fieldName);
 }
 /**
- * @see ISourceElementRequestor#acceptImport(int, int, char[], boolean, int)
+ * @see ISourceElementRequestor#acceptImport(int, int, char[][], boolean, int)
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
-	char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(name, 0, CharOperation.lastIndexOf('.', name)));
-	for (int i = 0, length = qualification.length; i < length; i++) {
-		this.indexer.addNameReference(qualification[i]);
+public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
+	for (int i = 0, length = tokens.length; i < length; i++) {
+		this.indexer.addNameReference(tokens[i]);
 	}
 }
 /**

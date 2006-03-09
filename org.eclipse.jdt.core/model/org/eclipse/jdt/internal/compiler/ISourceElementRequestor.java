@@ -100,16 +100,15 @@ public interface ISourceElementRequestor {
 	 * @param declarationEnd
 	 *                   This is the position of the ';' ending the import statement or
 	 *                   the end of the comment following the import.
-	 * @param name
-	 *                   This is the name of the import like specified in the source
-	 *                   including the dots. The '.*' is never included in the name.
+	 * @param tokens
+	 *                   This are the tokens of the import like specified in the source.
 	 * @param onDemand
 	 *                   set to true if the import is an import on demand (e.g. import
 	 *                   java.io.*). False otherwise.
 	 * @param modifiers
 	 *                   can be set to static from 1.5 on.
 	 */
-	void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers);
+	void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers);
 
 	/*
 	 * Table of line separator position. This table is passed once at the end of

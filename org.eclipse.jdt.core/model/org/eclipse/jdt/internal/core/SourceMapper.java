@@ -222,7 +222,7 @@ public class SourceMapper
 	public void acceptImport(
 			int declarationStart,
 			int declarationEnd,
-			char[] name,
+			char[][] tokens,
 			boolean onDemand,
 			int modifiers) {
 		char[][] imports = (char[][]) this.importsTable.get(this.binaryType);
@@ -241,6 +241,7 @@ public class SourceMapper
 				0,
 				importsCounter);
 		}
+		char[] name = CharOperation.concatWith(tokens, '.');
 		if (onDemand) {
 			int nameLength = name.length;
 			System.arraycopy(name, 0, (name = new char[nameLength + 2]), 0, nameLength);
