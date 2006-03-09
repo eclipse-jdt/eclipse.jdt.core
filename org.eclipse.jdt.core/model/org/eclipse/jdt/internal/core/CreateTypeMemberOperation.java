@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
 
@@ -128,11 +129,11 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 	int firstNonWhiteSpace = -1;
 	int length = code.length();
 	while (firstNonWhiteSpace < length-1)
-		if (!Character.isWhitespace(code.charAt(++firstNonWhiteSpace)))
+		if (!ScannerHelper.isWhitespace(code.charAt(++firstNonWhiteSpace)))
 			break;
 	int lastNonWhiteSpace = length;
 	while (lastNonWhiteSpace > 0)
-		if (!Character.isWhitespace(code.charAt(--lastNonWhiteSpace)))
+		if (!ScannerHelper.isWhitespace(code.charAt(--lastNonWhiteSpace)))
 			break;
 	String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
 	return IndentManipulation.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, indentWidth, "", lineDelimiter); //$NON-NLS-1$

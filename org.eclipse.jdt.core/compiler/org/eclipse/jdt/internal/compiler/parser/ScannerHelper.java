@@ -41,6 +41,7 @@ public class ScannerHelper {
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
 
+	public final static int C_JLS_SPACE = ASTNode.Bit9;
 	public final static int C_SPECIAL = ASTNode.Bit8;
 	public final static int C_IDENT_START = ASTNode.Bit7;
 	public final static int C_UPPER_LETTER = ASTNode.Bit6;
@@ -87,11 +88,16 @@ public class ScannerHelper {
 		OBVIOUS_IDENT_CHAR_NATURES['_'] = C_SPECIAL | C_IDENT_PART | C_IDENT_START;
 		OBVIOUS_IDENT_CHAR_NATURES['$'] = C_SPECIAL | C_IDENT_PART | C_IDENT_START;
 		
-		OBVIOUS_IDENT_CHAR_NATURES[10] = C_SPACE; // \ u000a: LINE FEED
-		OBVIOUS_IDENT_CHAR_NATURES[12] = C_SPACE; // \ u000c: FORM FEED
-		OBVIOUS_IDENT_CHAR_NATURES[13] = C_SPACE; //  \ u000d: CARRIAGE RETURN
-		OBVIOUS_IDENT_CHAR_NATURES[32] = C_SPACE; //  \ u0020: SPACE
-		OBVIOUS_IDENT_CHAR_NATURES[ 9] = C_SPACE; // \ u0009: HORIZONTAL TABULATION
+		OBVIOUS_IDENT_CHAR_NATURES[9] = C_SPACE | C_JLS_SPACE; // \ u0009: HORIZONTAL TABULATION
+		OBVIOUS_IDENT_CHAR_NATURES[10] = C_SPACE | C_JLS_SPACE; // \ u000a: LINE FEED
+		OBVIOUS_IDENT_CHAR_NATURES[11] = C_SPACE;
+		OBVIOUS_IDENT_CHAR_NATURES[12] = C_SPACE | C_JLS_SPACE; // \ u000c: FORM FEED
+		OBVIOUS_IDENT_CHAR_NATURES[13] = C_SPACE | C_JLS_SPACE; //  \ u000d: CARRIAGE RETURN
+		OBVIOUS_IDENT_CHAR_NATURES[28] = C_SPACE;
+		OBVIOUS_IDENT_CHAR_NATURES[29] = C_SPACE;
+		OBVIOUS_IDENT_CHAR_NATURES[30] = C_SPACE;
+		OBVIOUS_IDENT_CHAR_NATURES[31] = C_SPACE;
+		OBVIOUS_IDENT_CHAR_NATURES[32] = C_SPACE | C_JLS_SPACE; //  \ u0020: SPACE
 		
 		OBVIOUS_IDENT_CHAR_NATURES['.'] = C_SEPARATOR;
 		OBVIOUS_IDENT_CHAR_NATURES[':'] = C_SEPARATOR;
@@ -250,6 +256,34 @@ public static boolean isDigit(char c) throws InvalidInputException {
 	}
 	return false;
 }
+public static int digit(char c, int radix) {
+	if (c < ScannerHelper.MAX_OBVIOUS) {
+		switch(radix) {
+			case 8 :
+				if (c >= 48 && c <= 55) {
+					return c - 48;
+				}
+				return -1;
+			case 10 :
+				if (c >= 48 && c <= 57) {
+					return c - 48;
+				}
+				return -1;
+			case 16 :
+				if (c >= 48 && c <= 57) {
+					return c - 48;
+				}
+				if (c >= 65 && c <= 70) {
+					return c - 65 + 10;
+				}
+				if (c >= 97 && c <= 102) {
+					return c - 97 + 10;
+				}
+				return -1;
+		}
+	}
+	return Character.digit(c, radix);
+}
 public static int getNumericValue(char c) {
 	if (c < ScannerHelper.MAX_OBVIOUS) {
 		switch(ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
@@ -294,6 +328,17 @@ public static boolean isUpperCase(char c) {
 		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_UPPER_LETTER) != 0;
 	}
 	return Character.isUpperCase(c);
+}
+/**
+ * Include also non JLS whitespaces.
+ * 
+ * return true if Character.isWhitespace(c) would return true
+ */
+public static boolean isWhitespace(char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_SPACE) != 0;
+	}	
+	return Character.isWhitespace(c);
 }
 public static boolean isLetter(char c) {
 	if (c < MAX_OBVIOUS) {

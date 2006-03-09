@@ -1622,7 +1622,7 @@ public static final int hashCode(char[] array) {
  * @return true if c is a whitespace according to the JLS, otherwise false.
  */
 public static boolean isWhitespace(char c) {
-	return c < ScannerHelper.MAX_OBVIOUS && ScannerHelper.C_SPACE == ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c];
+	return c < ScannerHelper.MAX_OBVIOUS && ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_JLS_SPACE) != 0);
 }
 
 /**

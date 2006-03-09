@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.BlockContext;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.NodeMarker;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
@@ -812,7 +813,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				char[] cont= getContent();
 				int i= start;
-				while (i < cont.length && Character.isWhitespace(cont[i])) {
+				while (i < cont.length && ScannerHelper.isWhitespace(cont[i])) {
 					i++;
 				}
 				if (i > start) {
@@ -1001,7 +1002,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		int currPos= 0;
 		if (removeLeadingIndent) {
-			while (currPos < formatted.length() && Character.isWhitespace(formatted.charAt(currPos))) {
+			while (currPos < formatted.length() && ScannerHelper.isWhitespace(formatted.charAt(currPos))) {
 				currPos++;
 			}
 		}

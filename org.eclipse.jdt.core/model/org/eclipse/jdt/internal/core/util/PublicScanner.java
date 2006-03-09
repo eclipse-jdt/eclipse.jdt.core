@@ -730,14 +730,14 @@ public final boolean getNextCharAsDigit(int radix) {
 		if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 			&& (this.source[this.currentPosition] == 'u')) {
 			getNextUnicodeChar();
-			if (Character.digit(this.currentCharacter, radix) == -1) {
+			if (ScannerHelper.digit(this.currentCharacter, radix) == -1) {
 				this.currentPosition = temp;
 				this.withoutUnicodePtr--;
 				return false;
 			}
 			return true;
 		} else {
-			if (Character.digit(this.currentCharacter, radix) == -1) {
+			if (ScannerHelper.digit(this.currentCharacter, radix) == -1) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -2154,7 +2154,7 @@ private void parseTags() {
 	if (currentLinePtr >= 0) {
 		position = this.lineEnds[currentLinePtr] + 1; 
 	}
-	while (Character.isWhitespace(this.source[position])) {
+	while (ScannerHelper.isWhitespace(this.source[position])) {
 		position++;
 	}
 	if (currentStartPosition == position) {
@@ -2450,8 +2450,7 @@ public int scanIdentifierOrKeyword() {
 							unicodeStore();
 						}
 						this.currentPosition++;
-				} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & 
-						(ScannerHelper.C_SEPARATOR | ScannerHelper.C_SPACE)) != 0) {
+				} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_SEPARATOR | ScannerHelper.C_JLS_SPACE)) != 0) {
 						this.currentCharacter = c;
 						break identLoop;
 				} else {

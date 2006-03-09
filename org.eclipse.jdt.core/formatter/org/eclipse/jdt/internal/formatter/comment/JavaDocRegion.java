@@ -26,6 +26,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.formatter.CodeFormatterVisitor;
 
 
@@ -119,7 +120,7 @@ public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagCons
 							 */
 							position= null;
 							end= getOffset() + getLength() - MultiCommentLine.MULTI_COMMENT_END_PREFIX.trim().length();
-							while (end > begin && Character.isWhitespace(document.getChar(end - 1)))
+							while (end > begin && ScannerHelper.isWhitespace(document.getChar(end - 1)))
 								end--;
 						}
 						

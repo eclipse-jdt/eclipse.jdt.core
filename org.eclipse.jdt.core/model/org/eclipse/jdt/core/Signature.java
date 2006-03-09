@@ -14,6 +14,7 @@ package org.eclipse.jdt.core;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
@@ -435,7 +436,7 @@ private static int checkName(char[] name, char[] typeName, int pos, int length) 
             case ',' :
                 return pos;
 			default:
-			    if (Character.isWhitespace(currentChar))
+			    if (ScannerHelper.isWhitespace(currentChar))
 			    	return pos;
 			    
         }
@@ -653,7 +654,7 @@ private static int encodeQualifiedName(char[] typeName, int pos, int length, Str
 			    count++;
 			    break;
 			default:
-			    if (currentChar == ' ' || Character.isWhitespace(currentChar)) {
+			    if (currentChar == ' ' || ScannerHelper.isWhitespace(currentChar)) {
 			        if (lastAppendedChar == C_DOT) { // allow spaces after a dot
 			            pos = consumeWhitespace(typeName, pos, length) - 1; // will be incremented
 			            break; 

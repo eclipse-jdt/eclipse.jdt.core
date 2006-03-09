@@ -15,6 +15,8 @@ package org.eclipse.jdt.internal.formatter.comment;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
 /**
  * Reads the text contents from a reader and computes for each character
  * a potential substitution. The substitution may eat more characters than 
@@ -88,10 +90,10 @@ public abstract class SubstitutionTextReader extends Reader {
 			if (ch == -1) {
 				ch= fReader.read();
 			}
-			if (fSkipWhiteSpace && Character.isWhitespace((char)ch)) {
+			if (fSkipWhiteSpace && ScannerHelper.isWhitespace((char)ch)) {
 				do {
 					ch= fReader.read();
-				} while (Character.isWhitespace((char)ch));
+				} while (ScannerHelper.isWhitespace((char)ch));
 				if (ch != -1) {
 					fCharAfterWhiteSpace= ch;
 					return ' ';

@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class LongLiteral extends NumberLiteral {
 	long value;
@@ -56,7 +57,7 @@ public void computeConstant() {
 		}
 				
 		int digitValue ;
-		if ((digitValue = Character.digit(source[j++],radix)) < 0 ) {
+		if ((digitValue = ScannerHelper.digit(source[j++],radix)) < 0 ) {
 			constant = FORMAT_ERROR; return ;
 		}
 		if (digitValue >= 8)
@@ -69,7 +70,7 @@ public void computeConstant() {
 			nbDigit = 1; //digitValue is not 0
 		computedValue = digitValue ;
 		while (j<length) {
-			if ((digitValue = Character.digit(source[j++],radix)) < 0) {
+			if ((digitValue = ScannerHelper.digit(source[j++],radix)) < 0) {
 				constant = FORMAT_ERROR; return ;
 			}
 			if ((nbDigit += shift) > 64)
@@ -83,7 +84,7 @@ public void computeConstant() {
 		final long limit = Long.MAX_VALUE / 10; // needed to check prior to the multiplication
 		for (int i = 0 ; i < length; i++) {
 			int digitValue ;	
-			if ((digitValue = Character.digit(source[i], 10)) < 0 ) return /*constant stays null*/;
+			if ((digitValue = ScannerHelper.digit(source[i], 10)) < 0 ) return /*constant stays null*/;
 			previous = computedValue;
 			if (computedValue > limit)
 				return /*constant stays null*/;

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.formatter.Scribe2;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
@@ -42,7 +43,7 @@ public final class IndentManipulation {
 	 * @return Returns <code>true</code> if this the character is a indent character, <code>false</code> otherwise
 	 */
 	public static boolean isIndentChar(char ch) {
-		return Character.isWhitespace(ch) && !isLineDelimiterChar(ch);
+		return ScannerHelper.isWhitespace(ch) && !isLineDelimiterChar(ch);
 	}
 
 	/**

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 import java.util.LinkedList;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
 /**
  * General comment line in a comment region.
  * 
@@ -286,12 +288,12 @@ public abstract class CommentLine implements IBorderAttributes {
 
 		while (offset < length) {
 
-			while (offset < length && Character.isWhitespace(content.charAt(offset)))
+			while (offset < length && ScannerHelper.isWhitespace(content.charAt(offset)))
 				offset++;
 
 			index= offset;
 
-			while (index < length && !Character.isWhitespace(content.charAt(index)))
+			while (index < length && !ScannerHelper.isWhitespace(content.charAt(index)))
 				index++;
 
 			if (index - offset > 0) {

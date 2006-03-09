@@ -55,7 +55,7 @@ protected boolean parseIdentifierTag(boolean report) {
 			// Store optional additional category identifiers
 			consumeToken();
 			while (this.index < end) {
-				if (readTokenSafely() == TerminalTokens.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter))) {
+				if (readTokenSafely() == TerminalTokens.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter))) {
 					if (this.index > (this.lineEnd+1)) break;
 					// valid additional identifier
 					if (++this.categoriesPtr >= length) {
@@ -113,7 +113,7 @@ protected void parseSimpleTag() {
 					(readChar() == 'e') && (readChar() == 'd')) {
 				// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
 				char c = readChar();
-				if (Character.isWhitespace(c) || c == '*') {
+				if (ScannerHelper.isWhitespace(c) || c == '*') {
 					this.tagValue = TAG_DEPRECATED_VALUE;
 					this.deprecated = true;
 				}
@@ -126,7 +126,7 @@ protected void parseSimpleTag() {
 					(readChar() == 'r') && (readChar() == 'y')) {
 				// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
 				char c = readChar();
-				if (Character.isWhitespace(c) || c == '*') {
+				if (ScannerHelper.isWhitespace(c) || c == '*') {
 					this.tagValue = TAG_CATEGORY_VALUE;
 					if (this.scanner.source == null) {
 						this.scanner.setSource(this.source);

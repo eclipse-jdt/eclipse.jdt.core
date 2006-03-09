@@ -697,7 +697,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		
 		// Verify that there are whitespaces after tag
 		boolean isCompletionParser = (this.kind & COMPLETION_PARSER) != 0;
-		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
+		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(start, this.scanner.getCurrentTokenEndPosition());
 			if (!isCompletionParser) {
 				this.scanner.currentPosition = start;
@@ -1495,7 +1495,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			case '}':
 				return this.inlineTagStarted;
 			default:
-				if (Character.isWhitespace(ch)) {
+				if (ScannerHelper.isWhitespace(ch)) {
 					return true;
 				}
 		}

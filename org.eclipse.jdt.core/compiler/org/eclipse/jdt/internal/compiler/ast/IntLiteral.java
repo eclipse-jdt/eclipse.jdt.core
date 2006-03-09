@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class IntLiteral extends NumberLiteral {
 	public int value;
@@ -69,7 +70,7 @@ public void computeConstant() {
 		
 		while (j<length)
 		{	int digitValue ;
-			if ((digitValue = Character.digit(source[j++],radix))	< 0 ) 	
+			if ((digitValue = ScannerHelper.digit(source[j++],radix))	< 0 ) 	
 			{	constant = FORMAT_ERROR; return ;}
 			computedValue = (computedValue<<shift) | digitValue ;
 			if (computedValue > MAX) return /*constant stays null*/ ;}}
@@ -77,7 +78,7 @@ public void computeConstant() {
 	{	//-----------regular case : radix = 10-----------
 		for (int i = 0 ; i < length;i++)
 		{	int digitValue ;
-			if ((digitValue = Character.digit(source[i],10))	< 0 ) 
+			if ((digitValue = ScannerHelper.digit(source[i],10))	< 0 ) 
 			{	constant = FORMAT_ERROR; return ;}
 			computedValue = 10*computedValue + digitValue;
 			if (computedValue > MAX) return /*constant stays null*/ ; }}

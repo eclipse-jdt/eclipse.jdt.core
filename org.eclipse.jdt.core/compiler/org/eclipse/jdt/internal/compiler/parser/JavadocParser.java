@@ -341,7 +341,7 @@ public class JavadocParser extends AbstractCommentParser {
 						(readChar() == 'e') && (readChar() == 'd')) {
 					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
 					char c = readChar();
-					if (Character.isWhitespace(c) || c == '*') {
+					if (ScannerHelper.isWhitespace(c) || c == '*') {
 						this.abort = true;
 			    		this.deprecated = true;
 						this.tagValue = TAG_DEPRECATED_VALUE;
@@ -375,7 +375,7 @@ public class JavadocParser extends AbstractCommentParser {
 	
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
-		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
+		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 			boolean validTag = true;
 			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
 				int length = tagName.length;
@@ -405,7 +405,7 @@ public class JavadocParser extends AbstractCommentParser {
 						this.index = this.scanner.currentPosition;
 						break;
 					default:
-						if (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter)) {
+						if (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 							break tagNameToken;
 						}
 						token = readTokenAndConsume();

@@ -1071,7 +1071,7 @@ public void constantOutOfFormat(NumberLiteral literal) {
 			//look for the first digit that is incorrect
 			int place = -1;
 			label : for (int i = radix == 8 ? 1 : 2; i < source.length; i++) {
-				if (Character.digit(source[i], radix) == -1) {
+				if (ScannerHelper.digit(source[i], radix) == -1) {
 					place = i;
 					break label;
 				}

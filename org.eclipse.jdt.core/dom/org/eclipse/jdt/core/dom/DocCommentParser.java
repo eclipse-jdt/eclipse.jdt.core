@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
@@ -350,7 +351,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
-		if (this.scanner.currentCharacter != ' ' && !Character.isWhitespace(this.scanner.currentCharacter)) {
+		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
 				int length = tagName.length;
 				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
@@ -372,7 +373,7 @@ class DocCommentParser extends AbstractCommentParser {
 						tagName[length] = this.scanner.currentCharacter;
 						break;
 					default:
-						if (this.scanner.currentCharacter == ' ' || Character.isWhitespace(this.scanner.currentCharacter)) {
+						if (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 							break tagNameToken;
 						}
 						token = readTokenAndConsume();

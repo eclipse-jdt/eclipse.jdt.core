@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
@@ -704,9 +705,9 @@ public class Scribe {
 					break;
 				default:
 					if (isNewLine) {
-						if (Character.isWhitespace((char) currentCharacter)) {
+						if (ScannerHelper.isWhitespace((char) currentCharacter)) {
 							int previousStartPosition = this.scanner.currentPosition;
-							while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && Character.isWhitespace((char) currentCharacter)) {
+							while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
 								previousStart = nextCharacterStart;
 								previousStartPosition = this.scanner.currentPosition;
 								currentCharacter = this.scanner.getNextChar();

@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
@@ -261,7 +262,7 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 		final String content= parent.getText(begin, range.getLength());
 		final int length= content.length();
 
-		while (offset < length && Character.isWhitespace(content.charAt(offset)))
+		while (offset < length && ScannerHelper.isWhitespace(content.charAt(offset)))
 			offset++;
 
 		CommentRange result= null;
@@ -277,7 +278,7 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 		int attribute= COMMENT_FIRST_TOKEN | COMMENT_STARTS_WITH_RANGE_DELIMITER;
 		while (offset < length) {
 
-			while (offset < length && Character.isWhitespace(content.charAt(offset))) {
+			while (offset < length && ScannerHelper.isWhitespace(content.charAt(offset))) {
 				offset++;
 				attribute |= COMMENT_STARTS_WITH_RANGE_DELIMITER;
 			}
@@ -301,7 +302,7 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 					} else {
 						// no tag - do the usual thing from the original offset
 						index= tag;
-						while (index < length && !Character.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
+						while (index < length && !ScannerHelper.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
 							index++;
 					}
 
@@ -318,7 +319,7 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 
 				} else {
 
-					while (index < length && !Character.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
+					while (index < length && !ScannerHelper.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
 						index++;
 				}
 			}
@@ -357,7 +358,7 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 		
 		// extract first token
 		int i= 0;
-		while (i < tag.length() && !Character.isWhitespace(tag.charAt(i)))
+		while (i < tag.length() && !ScannerHelper.isWhitespace(tag.charAt(i)))
 			i++;
 		tag= tag.substring(0, i);
 		
