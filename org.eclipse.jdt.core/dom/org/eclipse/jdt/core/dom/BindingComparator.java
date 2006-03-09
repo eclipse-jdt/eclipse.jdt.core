@@ -282,8 +282,8 @@ class BindingComparator {
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
 					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+					&& ((referenceBinding.modifiers & ~ClassFileConstants.AccSuper) & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+							== ((referenceBinding2.modifiers & ~ClassFileConstants.AccSuper) & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
 					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 		}
 	}

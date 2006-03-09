@@ -7550,4 +7550,34 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * Ensures that 2 type bindings (one from .class file, the other from attache source) are "isEqualTo(...)".
+	 * (regression test for bug 130317 ASTParser with IClassFile as source creates type bindings that are not isEqualTo(..) binary bindings)
+	 */
+	public void test0641() throws JavaModelException {
+		// Integer from attached source
+		IClassFile classFile = getClassFile("Converter", getConverterJCLPath().toOSString(), "java.lang", "Integer.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("public")};
+		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding bindingFromAttachedSource = ((TypeDeclaration) node).resolveBinding();		
+		
+		ICompilationUnit workingCopy = null;
+		try {
+    		workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+	    	String contents =
+				"public class X {\n" + 
+				"	/*start*/Integer/*end*/ field;\n" + 
+				"}";
+		   	IBinding[] bindings = resolveBindings(contents, workingCopy);
+		   	assertTrue("2 type bindings should be equals", bindingFromAttachedSource.isEqualTo(bindings[0]));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
 }
