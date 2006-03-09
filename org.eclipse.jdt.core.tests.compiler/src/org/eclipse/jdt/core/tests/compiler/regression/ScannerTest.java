@@ -655,18 +655,18 @@ public class ScannerTest extends AbstractRegressionTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test031() {
 		this.runConformTest(
-				new String[] {
-					"Test.java",
-					"public class Test {\n" +
-					"  static String C = \"\\u005Cn\";\n" +
-					"  \n" +
-					"  public static void main(String[] args) {\n" +
-					"  	System.out.print(C.length());\n" +
-					"  	System.out.print(C.charAt(0) == \'\\n\');\n" +
-					"  }\n" +
-					"}"
-				},
-				"1true");
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"  static String C = \"\\u005Cn\";\n" +
+				"  \n" +
+				"  public static void main(String[] args) {\n" +
+				"  	System.out.print(C.length());\n" +
+				"  	System.out.print(C.charAt(0) == \'\\n\');\n" +
+				"  }\n" +
+				"}"
+			},
+			"1true");
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
@@ -948,5 +948,54 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Unexpected contents", "\"\\u004Ca\\u000D\\u0022", String.valueOf(buffer));
 			assertEquals("Wrong exception", PublicScanner.INVALID_CHAR_IN_STRING, e.getMessage());
 		}
+	}
+
+	public void test045() {
+		/*
+		 * Corresponding source:
+		 * 
+		 * public class Test {
+		 * 	  static String C = "\n";
+		 *    public static void main(String[] args) {
+		 * 	  	System.out.print(C.length());
+		 * 		  	System.out.print(C.charAt(0) == '\n');
+		 *    }
+		 * }
+		 */
+		this.runConformTest(
+				new String[] {
+					"_X.java",
+					"import java.lang.reflect.Field;\n" + 
+					"public class _X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		String i\\u0000;\n" + 
+					"		String i\\u0001;\n" + 
+					"		String i\\u0002;\n" + 
+					"		String i\\u0003;\n" + 
+					"		String i\\u0004;\n" + 
+					"		String i\\u0005;\n" + 
+					"		String i\\u0006;\n" + 
+					"		String i\\u0007;\n" + 
+					"		String i\\u0008;\n" + 
+					"		String i\\u000e;\n" + 
+					"		String i\\u000f;\n" + 
+					"		String i\\u0010;\n" + 
+					"		String i\\u0011;\n" + 
+					"		String i\\u0012;\n" + 
+					"		String i\\u0013;\n" + 
+					"		String i\\u0014;\n" + 
+					"		String i\\u0015;\n" + 
+					"		String i\\u0016;\n" + 
+					"		String i\\u0017;\n" + 
+					"		String i\\u0018;\n" + 
+					"		String i\\u0019;\n" + 
+					"		String i\\u001a;\n" + 
+					"		String i\\u001b;\n" + 
+					"		String i\\u007f;\n" + 
+					"		System.out.print(\"SUCCESS\");\n" + 
+					"	}\n" + 
+					"}"
+				},
+				"SUCCESS");
 	}
 }
