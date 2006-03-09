@@ -30024,4 +30024,36 @@ public void test0955() {
 		"Type safety: The cast from Object to List<E>[] is actually checking against the erased type List[]\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130128
+public void test0956() {
+	this.runConformTest(
+		new String[] {
+		"X.java", //================================
+		"public class X<F> {\n" + 
+		"\n" + 
+		"    public void printNickname(Person<F> person) {\n" + 
+		"        Person<F>.Nickname nickname = person.getNickname();\n" + 
+		"        System.out.println(nickname);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    static class Person<E> {\n" + 
+		"        private Nickname nickname;\n" + 
+		"\n" + 
+		"        public Nickname getNickname() {\n" + 
+		"            return nickname;\n" + 
+		"        }\n" + 
+		"\n" + 
+		"        public void setNickname(Nickname nickname) {\n" + 
+		"            this.nickname = nickname;\n" + 
+		"        }\n" + 
+		"\n" + 
+		"        class Nickname {\n" + 
+		"            private String name;\n" + 
+		"            private boolean insulting;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n",
+		},
+		"");
+}
 }
