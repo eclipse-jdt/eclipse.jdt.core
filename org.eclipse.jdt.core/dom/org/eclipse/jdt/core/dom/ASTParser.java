@@ -42,12 +42,12 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser(AST.JLS3);  // handles JDK 1.0, 1.1, 1.2, 1.3, 1.4, 1.5
+ * ASTParser parser = ASTParser.newParser(AST.JLS3);  // handles JDK 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
  * Once a configured parser instance has been used to create an AST,
- * the settings are automicatically returned to their defaults,
+ * the settings are automatically reset to their defaults,
  * ready for the parser instance to be reused.
  * </p>
  * <p>
@@ -482,14 +482,16 @@ public class ASTParser {
 	
 	/**
      * Sets the source code to be parsed.
-     * This method automatically sets the project (and compiler
+     * <p>This method automatically sets the project (and compiler
      * options) based on the given compilation unit, in a manner
-     * equivalent to <code>setProject(source.getJavaProject())</code>
+     * equivalent to <code>setProject(source.getJavaProject())</code>.</p>
+     * <p>If the given class file has  no source attachment, the creation of the 
+     * ast will fail with an IllegalStateException.</p>
      *
-	 * @param source the Java model class file whose corresponding source code
+	 * @param classFile the Java model class file whose corresponding source code
      * is to be parsed, or <code>null</code> if none
      */
-	public void setSource(IClassFile source) {
+	public void setSource(IClassFile classFile) {
 		this.classFileSource = source;
 		// clear the others
 		this.rawSource = null;
