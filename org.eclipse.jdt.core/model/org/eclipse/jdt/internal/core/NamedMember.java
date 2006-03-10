@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 public abstract class NamedMember extends Member {
 
@@ -88,6 +89,28 @@ public abstract class NamedMember extends Member {
 		key.append('.');
 		String selector = method.getElementName();
 		key.append(selector);
+		
+		// type parameters
+		if (forceOpen) {
+			ITypeParameter[] typeParameters = method.getTypeParameters();
+			int length = typeParameters.length;
+			if (length > 0) {
+				key.append('<');
+				for (int i = 0; i < length; i++) {
+					ITypeParameter typeParameter = typeParameters[i];
+					String[] bounds = typeParameter.getBounds();
+					int boundsLength = bounds.length;
+					char[][] boundSignatures = new char[boundsLength][];
+					for (int j = 0; j < boundsLength; j++) {
+						boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j].toCharArray(), method.isBinary());
+						CharOperation.replace(boundSignatures[j], '.', '/');
+					}
+					char[] sig = Signature.createTypeParameterSignature(typeParameter.getElementName().toCharArray(), boundSignatures);
+					key.append(sig);
+				}
+				key.append('>');
+			}
+		}
 		
 		// parameters
 		key.append('(');

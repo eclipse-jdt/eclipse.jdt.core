@@ -645,6 +645,24 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 	
 	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (binary method)
+	 * (regression test for bug 122650 ASTParser.createBindings(IJavaElement[]) returns wrong element)
+	 */
+	public void testCreateBindings18() throws CoreException {
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  <E> void foo(E e) {\n" +
+			"  }\n" +
+			"}",
+			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"TE;"})
+		);
+		assertBindingsEqual(
+			"LA;.foo<E:Ljava/lang/Object;>(TE;)V",
+			bindings);
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a field is correct.
 	 */
 	public void testField1() throws JavaModelException {
