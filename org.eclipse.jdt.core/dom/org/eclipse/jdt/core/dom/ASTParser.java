@@ -492,12 +492,12 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
      */
 	public void setSource(IClassFile classFile) {
-		this.classFileSource = source;
+		this.classFileSource = classFile;
 		// clear the others
 		this.rawSource = null;
 		this.compilationUnitSource = null;
-		if (source != null) {
-			this.project = source.getJavaProject();
+		if (classFile != null) {
+			this.project = classFile.getJavaProject();
 			Map options = this.project.getOptions(true);
 			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 			this.compilerOptions = options;
