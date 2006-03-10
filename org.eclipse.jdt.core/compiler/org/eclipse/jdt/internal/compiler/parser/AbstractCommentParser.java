@@ -913,7 +913,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			int token = readTokenSafely();
 			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
-					if (((iToken % 2) > 0)) { // identifiers must be odd tokens
+					if (((iToken & 1) != 0)) { // identifiers must be odd tokens
 						break nextToken;
 					}
 					pushIdentifier(iToken == 0, false);
@@ -921,7 +921,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					break;
 
 				case TerminalTokens.TokenNameDOT :
-					if ((iToken % 2) == 0) { // dots must be even tokens
+					if ((iToken & 1) == 0) { // dots must be even tokens
 						throw new InvalidInputException();
 					}
 					consumeToken();
@@ -951,7 +951,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						return null;
 					}
-					if ((iToken % 2) == 0) { // cannot leave on a dot
+					if ((iToken & 1) == 0) { // cannot leave on a dot
 						switch (parserKind) {
 							case COMPLETION_PARSER:
 								if (this.identifierPtr>=0) {

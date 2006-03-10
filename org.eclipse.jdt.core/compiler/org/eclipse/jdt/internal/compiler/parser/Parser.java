@@ -764,7 +764,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//minimal integrity check (even size expected)
 	int length = bytes.length;
-	if (length % 2 != 0)
+	if ((length & 1) != 0)
 		throw new java.io.IOException(Messages.bind(Messages.parser_corruptedFile, filename)); 
 
 	// convert bytes into chars

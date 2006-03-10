@@ -66,13 +66,13 @@ public String toString() {
 		buffer.append("[]"); //$NON-NLS-1$
 	} else {
 		for (int i = 0; i < this.count; i++) {
-			if (i % 2 == 0) {
+			if ((i & 1) == 0) {
 				buffer.append("[").append(ranges[i]); //$NON-NLS-1$
 			} else { 
 				buffer.append(",").append(ranges[i]).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		if (this.count % 2 == 1) {
+		if ((this.count & 1) == 1) {
 			buffer.append(",?]"); //$NON-NLS-1$
 		}
 	}

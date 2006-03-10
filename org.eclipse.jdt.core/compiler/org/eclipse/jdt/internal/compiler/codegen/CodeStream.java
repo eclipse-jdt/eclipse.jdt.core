@@ -59,7 +59,7 @@ public class CodeStream {
 		while (g <= d) {
 			m = (g + d) / 2;
 			// we search only on even indexes
-			if ((m % 2) != 0)
+			if ((m & 1) != 0) // faster than ((m % 2) != 0)
 				m--;
 			int currentPC = pcToSourceMap[m];
 			if (pc < currentPC) {
@@ -5288,7 +5288,7 @@ public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedIndexes
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_lookupswitch;
-	for (int i = (3 - (pos % 4)); i > 0; i--) {
+	for (int i = (3 - (pos & 3)); i > 0; i--) { // faster than % 4
 		if (classFileOffset >= bCodeStream.length) {
 			resizeByteArray();
 		}
@@ -6253,7 +6253,7 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_tableswitch;
 	// padding
-	for (int i = (3 - (pos % 4)); i > 0; i--) {
+	for (int i = (3 - (pos & 3)); i > 0; i--) {
 		if (classFileOffset >= bCodeStream.length) {
 			resizeByteArray();
 		}
