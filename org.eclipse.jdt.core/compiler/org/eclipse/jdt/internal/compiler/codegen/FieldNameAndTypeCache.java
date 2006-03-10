@@ -53,11 +53,13 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(FieldBinding key) {
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (equalsForNameAndType(keyTable[index], key))
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return false;
 }
@@ -74,11 +76,13 @@ public boolean equalsForNameAndType(FieldBinding field1, FieldBinding field2) {
  *	defined in the hash table.
  */
 public int get(FieldBinding key) {
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (equalsForNameAndType(keyTable[index], key))
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return -1;
 }
@@ -101,11 +105,13 @@ public int hashCode(FieldBinding key) {
  * @return int the old value of the key, or -1 if it did not have one.
  */
 public int put(FieldBinding key, int value) { 
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (equalsForNameAndType(keyTable[index], key))
 			return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;
