@@ -40,7 +40,9 @@ public class SourceType extends NamedMember implements IType {
 	
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1, Messages.bind(Messages.sourcetype_invalidName, name)); 
+	if (name.indexOf('.') != -1) {
+		Assert.isTrue(false, Messages.bind(Messages.sourcetype_invalidName, name)); 
+	}
 }
 protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
