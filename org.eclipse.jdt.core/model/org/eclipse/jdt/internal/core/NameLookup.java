@@ -607,6 +607,7 @@ public class NameLookup implements SuffixConstants {
 		IType type = null;
 		int length= packages.length;
 		HashSet projects = null;
+		IJavaProject javaProject = null;
 		Answer suggestedAnswer = null;
 		for (int i= 0; i < length; i++) {
 			type = findType(typeName, packages[i], partialMatch, acceptFlags);
@@ -623,9 +624,18 @@ public class NameLookup implements SuffixConstants {
 					// remember suggestion and keep looking
 					suggestedAnswer = answer;
 			}
-			if (considerSecondaryTypes) {
-				if (projects == null) projects = new HashSet(3);
-				projects.add(packages[i].getJavaProject());
+			else if (suggestedAnswer == null && considerSecondaryTypes) {
+				if (javaProject == null) {
+					javaProject = packages[i].getJavaProject();
+				} else if (projects == null)  {
+					if (!javaProject.equals(packages[i].getJavaProject())) {
+						projects = new HashSet(3);
+						projects.add(javaProject);
+						projects.add(packages[i].getJavaProject());
+					}
+				} else {
+					projects.add(packages[i].getJavaProject());
+				}
 			}
 		}
 		if (suggestedAnswer != null)
@@ -633,10 +643,14 @@ public class NameLookup implements SuffixConstants {
 			return suggestedAnswer;
 
 		// If type was not found, try to find it as secondary in source folders
-		if (considerSecondaryTypes && projects != null) {
-			Iterator allProjects = projects.iterator();
-			while (type == null && allProjects.hasNext()) {
-				type = findSecondaryType(packageName, typeName, (IJavaProject) allProjects.next(), waitForIndexes, monitor);
+		if (considerSecondaryTypes && javaProject != null) {
+			if (projects == null) {
+				type = findSecondaryType(packageName, typeName, javaProject, waitForIndexes, monitor);
+			} else {
+				Iterator allProjects = projects.iterator();
+				while (type == null && allProjects.hasNext()) {
+					type = findSecondaryType(packageName, typeName, (IJavaProject) allProjects.next(), waitForIndexes, monitor);
+				}
 			}
 		}
 		return type == null ? null : new Answer(type, null);
