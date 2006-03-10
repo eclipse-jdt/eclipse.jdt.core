@@ -68,22 +68,22 @@ public int i1At(int relativeOffset) {
 }
 public int i2At(int relativeOffset) {
 	int position = relativeOffset + structOffset;
-	return (reference[position++] << 8) + (reference[position] & 0xFF);
+	return (reference[position++] << 8) | (reference[position] & 0xFF);
 }
 public int i4At(int relativeOffset) {
 	int position = relativeOffset + structOffset;
-	return ((reference[position++] & 0xFF) << 24) + ((reference[position++] & 0xFF) << 16) + ((reference[position++] & 0xFF) << 8) + (reference[position] & 0xFF);
+	return ((reference[position++] & 0xFF) << 24) | ((reference[position++] & 0xFF) << 16) | ((reference[position++] & 0xFF) << 8) + (reference[position] & 0xFF);
 }
 public long i8At(int relativeOffset) {
 	int position = relativeOffset + structOffset;
 	return (((long) (reference[position++] & 0xFF)) << 56) 
-					+ (((long) (reference[position++] & 0xFF)) << 48) 
-					+ (((long) (reference[position++] & 0xFF)) << 40) 
-					+ (((long) (reference[position++] & 0xFF)) << 32) 
-					+ (((long) (reference[position++] & 0xFF)) << 24) 
-					+ (((long) (reference[position++] & 0xFF)) << 16) 
-					+ (((long) (reference[position++] & 0xFF)) << 8) 
-					+ (reference[position++] & 0xFF);
+					| (((long) (reference[position++] & 0xFF)) << 48) 
+					| (((long) (reference[position++] & 0xFF)) << 40) 
+					| (((long) (reference[position++] & 0xFF)) << 32) 
+					| (((long) (reference[position++] & 0xFF)) << 24) 
+					| (((long) (reference[position++] & 0xFF)) << 16) 
+					| (((long) (reference[position++] & 0xFF)) << 8) 
+					| (reference[position++] & 0xFF);
 }
 protected void reset() {
 	this.reference = null;
@@ -94,11 +94,11 @@ public int u1At(int relativeOffset) {
 }
 public int u2At(int relativeOffset) {
 	int position = relativeOffset + structOffset;
-	return ((reference[position++] & 0xFF) << 8) + (reference[position] & 0xFF);
+	return ((reference[position++] & 0xFF) << 8) | (reference[position] & 0xFF);
 }
 public long u4At(int relativeOffset) {
 	int position = relativeOffset + structOffset;
-	return (((reference[position++] & 0xFFL) << 24) + ((reference[position++] & 0xFF) << 16) + ((reference[position++] & 0xFF) << 8) + (reference[position] & 0xFF));
+	return (((reference[position++] & 0xFFL) << 24) | ((reference[position++] & 0xFF) << 16) | ((reference[position++] & 0xFF) << 8) | (reference[position] & 0xFF));
 }
 public char[] utf8At(int relativeOffset, int bytesAvailable) {
 	int length = bytesAvailable;
