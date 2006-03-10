@@ -33,68 +33,13 @@ public JavaProjectTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	
-	if (false) {
-		String className = JavaProjectTests.class.getName();
-		System.err.println("WARNING: only a subset of "+className+" tests will be run...");
-		TestSuite suite = new Suite(className);
-		suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
-		return suite;
-	}
-	TestSuite suite = new Suite(JavaProjectTests.class.getName());
-	suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntryWhenDuplicate"));
-	suite.addTest(new JavaProjectTests("testProjectGetChildren"));
-	suite.addTest(new JavaProjectTests("testProjectGetPackageFragments"));
-	suite.addTest(new JavaProjectTests("testRootGetPackageFragments"));
-	suite.addTest(new JavaProjectTests("testRootGetPackageFragments2"));
-	suite.addTest(new JavaProjectTests("testRootGetPackageFragments3"));
-	suite.addTest(new JavaProjectTests("testInternalArchiveCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testExternalArchiveCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testProjectCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentHasSubpackages"));
-	suite.addTest(new JavaProjectTests("testIsDefaultPackage"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentRootCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testJarPackageFragmentCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testCompilationUnitCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testClassFileCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testArchiveClassFileCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testBinaryTypeCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testSourceMethodCorrespondingResource"));
-	suite.addTest(new JavaProjectTests("testOutputLocationNotAddedAsPackageFragment"));
-	suite.addTest(new JavaProjectTests("testOutputLocationNestedInRoot"));
-	suite.addTest(new JavaProjectTests("testChangeOutputLocation"));
-	suite.addTest(new JavaProjectTests("testFindElementPackage"));
-	suite.addTest(new JavaProjectTests("testFindElementClassFile"));
-	suite.addTest(new JavaProjectTests("testFindElementCompilationUnit"));
-	suite.addTest(new JavaProjectTests("testFindElementCompilationUnitDefaultPackage"));
-	suite.addTest(new JavaProjectTests("testFindElementInvalidPath"));
-	suite.addTest(new JavaProjectTests("testFindElementPrereqSimpleProject"));
-	suite.addTest(new JavaProjectTests("testProjectClose"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentRenameAndCreate"));
-	suite.addTest(new JavaProjectTests("testFolderWithDotName"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentNonJavaResources"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
-	suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
-	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
-	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
-	suite.addTest(new JavaProjectTests("testGetClasspathOnClosedProject"));
-	suite.addTest(new JavaProjectTests("testGetRequiredProjectNames"));
-	suite.addTest(new JavaProjectTests("testGetNonJavaResources1"));
-	suite.addTest(new JavaProjectTests("testGetNonJavaResources2"));
-	suite.addTest(new JavaProjectTests("testGetNonJavaResources3"));
-	suite.addTest(new JavaProjectTests("testGetNonJavaResources4"));
-	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
-	suite.addTest(new JavaProjectTests("testJdkLevelRoot"));
-	
-	// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
-	//suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension1"));
-	//suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension2"));
-	
+	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class);
+
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
-	suite.addTest(new JavaProjectTests("testDeletePackageWithAutobuild"));
+	if (suite.testCount() > 1) // if not running only 1 test
+		suite.addTest(new JavaProjectTests("lastlyTestDeletePackageWithAutobuild"));
+	
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -229,7 +174,7 @@ public void testCompilationUnitCorrespondingResource() throws JavaModelException
 /**
  * Tests the fix for "1FWNMKD: ITPJCORE:ALL - Package Fragment Removal not reported correctly"
  */
-public void testDeletePackageWithAutobuild() throws CoreException {
+public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 	// close all project except JavaProjectTests so as to avoid side effects while autobuilding
 	IProject[] projects = getWorkspaceRoot().getProjects();
 	for (int i = 0; i < projects.length; i++) {
@@ -285,8 +230,7 @@ public void testExternalArchiveCorrespondingResource() throws JavaModelException
 /*
  * Ensures that a file with an extra Java-like extension is listed in the children of a package.
  */
-// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
-public void _testExtraJavaLikeExtension1() throws CoreException {
+public void testExtraJavaLikeExtension1() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFolder("/P/pack");
@@ -305,8 +249,7 @@ public void _testExtraJavaLikeExtension1() throws CoreException {
 /*
  * Ensures that a file with an extra Java-like extension is not listed in the non-Java resources of a package.
  */
-// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
-public void _testExtraJavaLikeExtension2() throws CoreException {
+public void testExtraJavaLikeExtension2() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFolder("/P/pack");
