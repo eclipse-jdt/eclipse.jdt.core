@@ -51,11 +51,13 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(int key) {
-	int index = hash(key);
+	int index = hash(key), length = keyTable.length;
 	while ((keyTable[index] != 0) || ((keyTable[index] == 0) &&(valueTable[index] != 0))) {
 		if (keyTable[index] == key)
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return false;
 }
@@ -76,11 +78,13 @@ public int hash(int key) {
  * @return int value
  */
 public int put(int key, int value) {
-	int index = hash(key);
+	int index = hash(key), length = keyTable.length;
 	while ((keyTable[index] != 0) || ((keyTable[index] == 0) && (valueTable[index] != 0))) {
 		if (keyTable[index] == key)
 			return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;
@@ -100,11 +104,13 @@ public int put(int key, int value) {
  * @return int value
  */
 public int putIfAbsent(int key, int value) {
-	int index = hash(key);
+	int index = hash(key), length = keyTable.length;
 	while ((keyTable[index] != 0) || ((keyTable[index] == 0) && (valueTable[index] != 0))) {
 		if (keyTable[index] == key)
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;

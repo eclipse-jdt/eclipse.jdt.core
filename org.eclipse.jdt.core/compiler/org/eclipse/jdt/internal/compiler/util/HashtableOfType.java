@@ -33,35 +33,44 @@ public HashtableOfType(int size) {
 	this.valueTable = new ReferenceBinding[extraRoom];
 }
 public boolean containsKey(char[] key) {
-	int index = CharOperation.hashCode(key) % valueTable.length;
+	int length = keyTable.length,
+		index = CharOperation.hashCode(key) % length;
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return false;
 }
 public ReferenceBinding get(char[] key) {
-	int index = CharOperation.hashCode(key) % valueTable.length;
+	int length = keyTable.length,
+		index = CharOperation.hashCode(key) % length;
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return null;
 }
 public ReferenceBinding put(char[] key, ReferenceBinding value) {
-	int index = CharOperation.hashCode(key) % valueTable.length;
+	int length = keyTable.length,
+		index = CharOperation.hashCode(key) % length;
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;

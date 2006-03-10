@@ -55,40 +55,46 @@ public final class HashtableOfObject implements Cloneable {
 	}
 
 	public boolean containsKey(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return true;
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return false;
 	}
 
 	public Object get(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index];
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return null;
 	}
 
 	public Object put(char[] key, Object value) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index] = value;
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		keyTable[index] = key;
 		valueTable[index] = value;
@@ -100,8 +106,8 @@ public final class HashtableOfObject implements Cloneable {
 	}
 
 	public Object removeKey(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
@@ -113,7 +119,9 @@ public final class HashtableOfObject implements Cloneable {
 				rehash();
 				return value;
 			}
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return null;
 	}

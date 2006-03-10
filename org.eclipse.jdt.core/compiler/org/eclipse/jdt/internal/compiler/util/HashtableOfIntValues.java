@@ -57,40 +57,46 @@ public final class HashtableOfIntValues implements Cloneable {
 	}
 
 	public boolean containsKey(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return true;
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return false;
 	}
 
 	public int get(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index];
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return NO_VALUE;
 	}
 
 	public int put(char[] key, int value) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
 			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index] = value;
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		keyTable[index] = key;
 		valueTable[index] = value;
@@ -102,8 +108,8 @@ public final class HashtableOfIntValues implements Cloneable {
 	}
 
 	public int removeKey(char[] key) {
-
-		int index = CharOperation.hashCode(key) % valueTable.length;
+		int length = keyTable.length, 
+			index = CharOperation.hashCode(key) % length;
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
@@ -115,7 +121,9 @@ public final class HashtableOfIntValues implements Cloneable {
 				rehash();
 				return value;
 			}
-			index = (index + 1) % keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return NO_VALUE;
 	}

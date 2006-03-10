@@ -50,11 +50,13 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(Object key) {
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (keyTable[index] == key)
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return false;
 }
@@ -65,11 +67,13 @@ public boolean containsKey(Object key) {
  *  defined in the hash table.
  */
 public int get(Object key) {
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (keyTable[index] == key)
 			return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return -1;
 }
@@ -92,11 +96,13 @@ public int hashCode(Object key) {
  * @return int the old value of the key, or -1 if it did not have one.
  */
 public int put(Object key, int value) { 
-	int index = hashCode(key);
+	int index = hashCode(key), length = keyTable.length;
 	while (keyTable[index] != null) {
 		if (keyTable[index] == key)
 			return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;

@@ -67,14 +67,17 @@ public class WeakHashSetOfCharArray {
 	 */
 	public char[] add(char[] array) {
 		cleanupGarbageCollectedValues();
-		int index = (CharOperation.hashCode(array) & 0x7FFFFFFF) % this.values.length;
+		int valuesLength = this.values.length, 
+			index = (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
 		HashableWeakReference currentValue;
 		while ((currentValue = this.values[index]) != null) {
 			char[] referent;
 			if (CharOperation.equals(array, referent = (char[]) currentValue.get())) {
 				return referent;
 			}
-			index = (index + 1) % this.values.length;
+			if (++index == valuesLength) {
+				index = 0;
+			}
 		}
 		this.values[index] = new HashableWeakReference(array, this.referenceQueue);
 
@@ -95,7 +98,9 @@ public class WeakHashSetOfCharArray {
 			if (CharOperation.equals(array, (char[]) currentValue.get())) {
 				return;
 			}
-			index = (index + 1) % valuesLength;
+			if (++index == valuesLength) {
+				index = 0;
+			}
 		}
 		this.values[index] = value;
 
@@ -123,7 +128,9 @@ public class WeakHashSetOfCharArray {
 					this.elementSize--;
 					break;
 				}
-				index = (index + 1) % valuesLength;
+				if (++index == valuesLength) {
+					index = 0;
+				}
 			}
 		}
 	}
@@ -146,7 +153,9 @@ public class WeakHashSetOfCharArray {
 			if (CharOperation.equals(array, referent = (char[]) currentValue.get())) {
 				return referent;
 			}
-			index = (index + 1) % valuesLength;
+			if (++index == valuesLength) {
+				index = 0;
+			}
 		}
 		return null;
 	}
@@ -181,7 +190,9 @@ public class WeakHashSetOfCharArray {
 				rehash();
 				return referent;
 			}
-			index = (index + 1) % valuesLength;
+			if (++index == valuesLength) {
+				index = 0;
+			}
 		}
 		return null;
 	}

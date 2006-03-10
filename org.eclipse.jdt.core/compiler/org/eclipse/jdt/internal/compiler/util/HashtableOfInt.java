@@ -34,30 +34,36 @@ public HashtableOfInt(int size) {
 	this.valueTable = new Object[extraRoom];
 }
 public boolean containsKey(int key) {
-	int index = key % valueTable.length;
+	int length = keyTable.length, index = key % length;
 	int currentKey;
 	while ((currentKey = keyTable[index]) != 0) {
 		if (currentKey == key)
 			return true;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return false;
 }
 public Object get(int key) {
-	int index = key % valueTable.length;
+	int length = keyTable.length, index = key % length;
 	int currentKey;
 	while ((currentKey = keyTable[index]) != 0) {
 		if (currentKey == key)  return valueTable[index];
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return null;
 }
 public Object put(int key, Object value) {
-	int index = key % valueTable.length;
+	int length = keyTable.length, index = key % length;
 	int currentKey;
 	while ((currentKey = keyTable[index]) != 0) {
 		if (currentKey == key)  return valueTable[index] = value;
-		index = (index + 1) % keyTable.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	keyTable[index] = key;
 	valueTable[index] = value;

@@ -53,25 +53,29 @@ public final class HashtableOfObjectToInt implements Cloneable {
 	}
 
 	public boolean containsKey(Object key) {
-
-		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
+		int length = this.keyTable.length,
+			index = (key.hashCode()& 0x7FFFFFFF) % length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
 				return true;
-			index = (index + 1) % this.keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return false;
 	}
 
 	public int get(Object key) {
-
-		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
+		int length = this.keyTable.length,
+			index = (key.hashCode()& 0x7FFFFFFF) % length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
 				return this.valueTable[index];
-			index = (index + 1) % this.keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return -1;
 	}
@@ -85,13 +89,15 @@ public final class HashtableOfObjectToInt implements Cloneable {
 	}
 
 	public int put(Object key, int value) {
-
-		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
+		int length = this.keyTable.length,
+			index = (key.hashCode()& 0x7FFFFFFF) % length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
 				return this.valueTable[index] = value;
-			index = (index + 1) % this.keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		this.keyTable[index] = key;
 		this.valueTable[index] = value;
@@ -103,8 +109,8 @@ public final class HashtableOfObjectToInt implements Cloneable {
 	}
 
 	public int removeKey(Object key) {
-
-		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
+		int length = this.keyTable.length,
+			index = (key.hashCode()& 0x7FFFFFFF) % length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key)) {
@@ -114,7 +120,9 @@ public final class HashtableOfObjectToInt implements Cloneable {
 				rehash();
 				return value;
 			}
-			index = (index + 1) % this.keyTable.length;
+			if (++index == length) {
+				index = 0;
+			}
 		}
 		return -1;
 	}

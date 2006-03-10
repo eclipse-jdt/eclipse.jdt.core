@@ -256,13 +256,15 @@ private void add(String relativePath, String containerPath, boolean isPackage, A
 	// normalize containerPath and relativePath
 	containerPath = normalize(containerPath);
 	relativePath = normalize(relativePath);
-
-	int index = (containerPath.hashCode() & 0x7FFFFFFF) % this.containerPaths.length;
+	int length = this.containerPaths.length,
+		index = (containerPath.hashCode()& 0x7FFFFFFF) % length;
 	String currentRelativePath, currentContainerPath;
 	while ((currentRelativePath = this.relativePaths[index]) != null && (currentContainerPath = this.containerPaths[index]) != null) {
 		if (currentRelativePath.equals(relativePath) && currentContainerPath.equals(containerPath))
 			return;
-		index = (index + 1) % this.relativePaths.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	this.relativePaths[index] = relativePath;
 	this.containerPaths[index] = containerPath;
@@ -340,7 +342,8 @@ private int indexOf(String fullPath) {
  */
 private int indexOf(String containerPath, String relativePath) {
 	// use the hash to get faster comparison
-	int index = (containerPath.hashCode()& 0x7FFFFFFF) % this.containerPaths.length;
+	int length = this.containerPaths.length,
+		index = (containerPath.hashCode()& 0x7FFFFFFF) % length;
 	String currentContainerPath;
 	while ((currentContainerPath = this.containerPaths[index]) != null) {
 		if (currentContainerPath.equals(containerPath)) {
@@ -348,7 +351,9 @@ private int indexOf(String containerPath, String relativePath) {
 			if (encloses(currentRelativePath, relativePath, index))
 				return index;
 		}
-		index = (index + 1) % this.relativePaths.length;
+		if (++index == length) {
+			index = 0;
+		}
 	}
 	return -1;
 }
