@@ -910,7 +910,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 				case IOpcodeMnemonics.TABLESWITCH :
 					int startpc = pc;
 					pc++;
-					while (((pc - this.codeOffset) % 4) != 0) {
+					while (((pc - this.codeOffset) & 0x03) != 0) { // faster than % 4
 						pc++;
 					}
 					int defaultOffset = i4At(this.classFileBytes, 0, pc);
@@ -930,7 +930,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 				case IOpcodeMnemonics.LOOKUPSWITCH :
 					startpc = pc;
 					pc++;
-					while (((pc - this.codeOffset) % 4) != 0) {
+					while (((pc - this.codeOffset) & 0x03) != 0) {
 						pc++;
 					}
 					defaultOffset = i4At(this.classFileBytes, 0, pc);
