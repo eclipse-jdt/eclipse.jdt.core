@@ -488,16 +488,16 @@ public class ASTParser {
      * <p>If the given class file has  no source attachment, the creation of the 
      * ast will fail with an IllegalStateException.</p>
      *
-	 * @param classFile the Java model class file whose corresponding source code
+	 * @param source the Java model class file whose corresponding source code
      * is to be parsed, or <code>null</code> if none
      */
-	public void setSource(IClassFile classFile) {
-		this.classFileSource = classFile;
+	public void setSource(IClassFile source) {
+		this.classFileSource = source;
 		// clear the others
 		this.rawSource = null;
 		this.compilationUnitSource = null;
-		if (classFile != null) {
-			this.project = classFile.getJavaProject();
+		if (source != null) {
+			this.project = source.getJavaProject();
 			Map options = this.project.getOptions(true);
 			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 			this.compilerOptions = options;
