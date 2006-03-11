@@ -3448,56 +3448,57 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
  * test for bug 32690
  * simulate checkout of project with invalid classpath
  */
-public void testNestedSourceFolders() throws CoreException {
+public void testNestedSourceFolders() throws CoreException, IOException {
 	try {
-		final IProject project = getProject("P");
-		
+		// create project using Platform/Resources API
+		IProject project = getProject("P");
 		project.create(null);
 		project.open(null);
 		
-		try {
-			File pro = project.getLocation().toFile();
-			File src = ClasspathTests.this.createFolder(pro, "src");
-			ClasspathTests.this.createFolder(src, "src2");
-			
-			ClasspathTests.this.createFile(pro, ".project", 
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<projectDescription>\n" +
-				"	<name>org.eclipse.jdt.core</name>\n" +
-				"	<comment></comment>\n" +
-				"	<projects>\n" +
-				"	</projects>\n" +
-				"	<buildSpec>\n" +
-				"		<buildCommand>\n" +
-				"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-				"			<arguments>\n" +
-				"			</arguments>\n" +
-				"		</buildCommand>\n" +
-				"	</buildSpec>\n" +
-				"	<natures>\n" +
-				"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-				"	</natures>\n" +
-				"</projectDescription>");
+		// create folders src and src/src2 using java.io API
+		File pro = project.getLocation().toFile();
+		File src = createFolder(pro, "src");
+		createFolder(src, "src2");
+		
+		// create .project using java.io API
+		createFile(pro, ".project", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<projectDescription>\n" +
+			"	<name>org.eclipse.jdt.core</name>\n" +
+			"	<comment></comment>\n" +
+			"	<projects>\n" +
+			"	</projects>\n" +
+			"	<buildSpec>\n" +
+			"		<buildCommand>\n" +
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+			"			<arguments>\n" +
+			"			</arguments>\n" +
+			"		</buildCommand>\n" +
+			"	</buildSpec>\n" +
+			"	<natures>\n" +
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+			"	</natures>\n" +
+			"</projectDescription>");
 
+		// create .classpath using java.io API
+		createFile(pro, ".classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"src\" path=\"src/src2\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
 
-			ClasspathTests.this.createFile(pro, ".classpath",
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<classpath>\n" +
-				"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-				"    <classpathentry kind=\"src\" path=\"src/src2\"/>\n" +
-				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-				"</classpath>"
-			);
-		} catch (IOException e) {
-			assertTrue(e.getMessage(), false);
-		}
-		project.refreshLocal(IResource.DEPTH_INFINITE,null);
-		this.assertMarkers(
+		// refresh
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		
+		assertMarkers(
 			"Unexpected markers",
 			"Cannot nest \'P/src/src2\' inside \'P/src\'. To enable the nesting exclude \'src2/\' from \'P/src\'",
 			JavaCore.create(project));
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -3563,57 +3564,58 @@ public void testOptionalEntry3() throws CoreException {
 /*
  * test for bug 32974
  */
-public void testOutputFolder1() throws CoreException {
+public void testOutputFolder1() throws CoreException, IOException {
 	try {
-		final IProject project = getProject("P");
-		
+		// create project using Platform/Resources API
+		IProject project = getProject("P");
 		project.create(null);
 		project.open(null);
 		
-		try {
-			File pro = project.getLocation().toFile();
-			File src = ClasspathTests.this.createFolder(pro, "src");
-			ClasspathTests.this.createFolder(src, "src2");
-			
-			ClasspathTests.this.createFile(pro, ".project", 
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<projectDescription>\n" +
-				"	<name>org.eclipse.jdt.core</name>\n" +
-				"	<comment></comment>\n" +
-				"	<projects>\n" +
-				"	</projects>\n" +
-				"	<buildSpec>\n" +
-				"		<buildCommand>\n" +
-				"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-				"			<arguments>\n" +
-				"			</arguments>\n" +
-				"		</buildCommand>\n" +
-				"	</buildSpec>\n" +
-				"	<natures>\n" +
-				"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-				"	</natures>\n" +
-				"</projectDescription>");
+		// create folders src and src/src2 using java.io API
+		File pro = project.getLocation().toFile();
+		File src = createFolder(pro, "src");
+		createFolder(src, "src2");
+		
+		// create .project using java.io API
+		createFile(pro, ".project", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<projectDescription>\n" +
+			"	<name>org.eclipse.jdt.core</name>\n" +
+			"	<comment></comment>\n" +
+			"	<projects>\n" +
+			"	</projects>\n" +
+			"	<buildSpec>\n" +
+			"		<buildCommand>\n" +
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+			"			<arguments>\n" +
+			"			</arguments>\n" +
+			"		</buildCommand>\n" +
+			"	</buildSpec>\n" +
+			"	<natures>\n" +
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+			"	</natures>\n" +
+			"</projectDescription>");
 
+		// create .classpath using java.io API
+		createFile(pro, ".classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"src1\"/>\n" +
+			"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
 
-			ClasspathTests.this.createFile(pro, ".classpath",
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<classpath>\n" +
-				"    <classpathentry kind=\"src\" output=\"bin2\" path=\"src1\"/>\n" +
-				"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
-				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-				"</classpath>"
-			);
-		} catch (IOException e) {
-			assertTrue(e.getMessage(), false);
-		}
+		// refresh
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
-		this.assertMarkers(
+		
+		assertMarkers(
 			"Unexpected markers",
 			"Project P is missing required source folder: \'src1\'\n" + 
 			"Project P is missing required source folder: \'src2\'",
 			JavaCore.create(project));
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 
