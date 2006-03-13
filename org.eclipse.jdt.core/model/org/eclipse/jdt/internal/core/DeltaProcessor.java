@@ -362,7 +362,7 @@ public class DeltaProcessor {
 	private void checkProjectsBeingAddedOrRemoved(IResourceDelta delta) {
 		IResource resource = delta.getResource();
 		boolean processChildren = false;
-
+	
 		switch (resource.getType()) {
 			case IResource.ROOT :
 				// workaround for bug 15168 circular errors not reported 
@@ -392,6 +392,19 @@ public class DeltaProcessor {
 						if (JavaProject.hasJavaNature(project)) {
 							this.addToParentInfo(javaProject);
 						}
+						
+						// ensure project references are updated (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121569)
+						try {
+							this.state.updateProjectReferences(
+								javaProject, 
+								null/*no old classpath*/, 
+								null/*compute new resolved classpath later*/, 
+								null/*read raw classpath later*/, 
+								false/*cannot change resources*/);
+						} catch (JavaModelException e1) {
+							// project always exists
+						}
+					
 						this.state.rootsAreStale = true; 
 						break;
 						
@@ -460,10 +473,10 @@ public class DeltaProcessor {
 								}						
 							}		
 							break;
-
+	
 					case IResourceDelta.REMOVED : 
 						this.manager.batchContainerInitializations = true;
-
+	
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
 						this.manager.removePerProjectInfo(javaProject);
 						// remove container cache for this project

@@ -796,7 +796,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		
 		if (this.newRawPath == DO_NOT_SET_ENTRIES || this.newRawPath == DO_NOT_UPDATE_PROJECT_REFS) return;
 		// will run now, or be deferred until next pre-auto-build notification if resource tree is locked
-		JavaModelManager.getJavaModelManager().deltaState.performClasspathResourceChange(
+		JavaModelManager.getJavaModelManager().deltaState.updateProjectReferences(
 		        project, 
 		        oldResolvedPath, 
 		        newResolvedPath, 

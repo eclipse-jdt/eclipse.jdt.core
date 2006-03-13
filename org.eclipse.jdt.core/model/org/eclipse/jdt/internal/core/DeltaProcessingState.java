@@ -23,6 +23,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -92,10 +93,18 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		 */
 		public void updateProjectReferencesIfNecessary() throws JavaModelException {
 			
-			String[] oldRequired = this.project.projectPrerequisites(this.oldResolvedPath);
+			String[] oldRequired = this.oldResolvedPath == null ? CharOperation.NO_STRINGS : this.project.projectPrerequisites(this.oldResolvedPath);
 	
 			if (this.newResolvedPath == null) {
-				this.newResolvedPath = this.project.getResolvedClasspath(this.newRawPath, null, true, true, null/*no reverse map*/);
+				if (this.newRawPath == null)
+					this.newRawPath = this.project.getRawClasspath(true/*create markers*/, false/*don't log problems*/);
+				this.newResolvedPath = 
+					this.project.getResolvedClasspath(
+						this.newRawPath, 
+						null/*no output*/, 
+						true/*ignore unresolved entry*/, 
+						true/*generate marker on error*/, 
+						null/*no reverse map*/);
 			}
 			String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
 			try {
@@ -216,20 +225,25 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		return deltaProcessor;
 	}
 
-	public void performClasspathResourceChange(JavaProject project, IClasspathEntry[] oldResolvedPath, IClasspathEntry[] newResolvedPath, IClasspathEntry[] newRawPath, boolean canChangeResources) throws JavaModelException {
-	    ProjectUpdateInfo info = new ProjectUpdateInfo();
-	    info.project = project;
-	    info.oldResolvedPath = oldResolvedPath;
-	    info.newResolvedPath = newResolvedPath;
-	    info.newRawPath = newRawPath;
+	public void updateProjectReferences(JavaProject project, IClasspathEntry[] oldResolvedPath, IClasspathEntry[] newResolvedPath, IClasspathEntry[] newRawPath, boolean canChangeResources) throws JavaModelException {
+		ProjectUpdateInfo info;
+		synchronized (this) {
+			info = (ProjectUpdateInfo) (canChangeResources ? this.projectUpdates.remove(project) /*remove possibly awaiting one*/ : this.projectUpdates.get(project));
+			if (info == null) {
+				info = new ProjectUpdateInfo();
+				info.project = project;
+				info.oldResolvedPath = oldResolvedPath;
+				if (!canChangeResources) {
+					this.projectUpdates.put(project, info);
+				}
+		    } // else refresh new classpath information
+		    info.newResolvedPath = newResolvedPath;
+		    info.newRawPath = newRawPath;
+		}
+
 	    if (canChangeResources) {
-	    	synchronized (this) {
-	            this.projectUpdates.remove(project); // remove possibly awaiting one
-			}
 	        info.updateProjectReferencesIfNecessary();
-	        return;
-	    }
-	    this.recordProjectUpdate(info);
+	    } // else project references will be updated on next PRE_BUILD notification
 	}
 	
 	public void initializeRoots() {
@@ -343,17 +357,6 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		}
 	}
 
-	public synchronized void recordProjectUpdate(ProjectUpdateInfo newInfo) {
-	    
-	    JavaProject project = newInfo.project;
-	    ProjectUpdateInfo oldInfo = (ProjectUpdateInfo) this.projectUpdates.get(project);
-	    if (oldInfo != null) { // refresh new classpath information
-	        oldInfo.newRawPath = newInfo.newRawPath;
-	        oldInfo.newResolvedPath = newInfo.newResolvedPath;
-	    } else {
-	        this.projectUpdates.put(project, newInfo);
-	    }
-	}
 	public synchronized ProjectUpdateInfo[] removeAllProjectUpdates() {
 	    int length = this.projectUpdates.size();
 	    if (length == 0) return null;

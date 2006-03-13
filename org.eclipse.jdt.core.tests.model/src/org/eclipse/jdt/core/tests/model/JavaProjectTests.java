@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
@@ -899,6 +900,37 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]",
 		fragments);
+}
+/*
+ * Ensures that importing a project correctly update the project references
+ * (regression test for bug 121569 [Import/Export] Importing projects in workspace, the default build order is alphabetical instead of by dependency)
+ */
+public void testProjectImport() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				createJavaProject("P2");
+				editFile(
+					"/P2/.classpath", 
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<classpath>\n" +
+					"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
+					"    <classpathentry kind=\"output\" path=\"\"/>\n" +
+					"</classpath>"
+				);
+			}
+		};
+		getWorkspace().run(runnable, null);
+		waitForAutoBuild();
+		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
+		assertResourcesEqual(
+			"Unexpected project references", 
+			"/P1", 
+			referencedProjects);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
 }
 /**
  * Test that the correct package fragments exist in the project.
