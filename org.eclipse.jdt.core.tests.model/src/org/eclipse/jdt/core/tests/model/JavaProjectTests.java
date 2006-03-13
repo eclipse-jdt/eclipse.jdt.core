@@ -1053,7 +1053,11 @@ public void testJdkLevelRoot() throws JavaModelException {
 	assertEquals("wrong jdk level", ClassFileConstants.JDK1_1, Util.getJdkLevel(root.getResource()));
 }
 /**
- * Test User Library
+ * Test User Library preference. External jar file referenced in library entry does not exist.
+ * It does not need to as we only test the preference value...
+ * 
+ * @test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88719"
  */
 public void testUserLibrary() throws JavaModelException {
 
