@@ -78,7 +78,26 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class MatchLocator implements ITypeRequestor {
 
-public static final int MAX_AT_ONCE = 400;
+public static final int MAX_AT_ONCE;
+static {
+	long maxMemory = Runtime.getRuntime().maxMemory();		
+	int ratio = (int) Math.round(((double) maxMemory) / (64 * 0x100000));
+	switch (ratio) {
+		case 0:
+		case 1:
+			MAX_AT_ONCE = 100;
+			break;
+		case 2:
+			MAX_AT_ONCE = 200;
+			break;
+		case 3:
+			MAX_AT_ONCE = 300;
+			break;
+		default:
+			MAX_AT_ONCE = 400;
+			break;
+	}
+}
 
 // permanent state
 public SearchPattern pattern;
@@ -1111,6 +1130,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			}
 		}); 
 		int displayed = 0; // progress worked displayed
+		String previousPath = null;
 		for (int i = 0; i < docsLength; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
@@ -1118,8 +1138,9 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 
 			// skip duplicate paths
 			SearchDocument searchDocument = searchDocuments[i];
+			searchDocuments[i] = null; // free current document
 			String pathString = searchDocument.getPath();
-			if (i > 0 && pathString.equals(searchDocuments[i - 1].getPath())) {
+			if (i > 0 && pathString.equals(previousPath)) {
 				if (this.progressMonitor != null) {
 					this.progressWorked++;
 					if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
@@ -1127,6 +1148,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				displayed++;
 				continue;
 			}
+			previousPath = pathString;
 
 			Openable openable;
 			org.eclipse.jdt.core.ICompilationUnit workingCopy = null;
