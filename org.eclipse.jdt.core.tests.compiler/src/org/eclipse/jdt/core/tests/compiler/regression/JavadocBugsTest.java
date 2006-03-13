@@ -38,7 +38,7 @@ public class JavadocBugsTest extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
-		TESTS_NUMBERS = new int[] { 129241 };
+//		TESTS_NUMBERS = new int[] { 129241 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
