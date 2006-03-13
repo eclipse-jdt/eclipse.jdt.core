@@ -20,6 +20,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -1024,6 +1025,8 @@ public void testJdkLevelRoot() throws JavaModelException {
  * Test User Library
  */
 public void testUserLibrary() throws JavaModelException {
+	// TODO (frederic) seems that it should not run if the OS is not Windows
+	if (!Platform.getOS().equals(Platform.OS_WIN32)) return;
 
 	IClasspathEntry[] userEntries = new IClasspathEntry[2];
 
