@@ -136,7 +136,29 @@ public SourceElementParser(
 		this.javadocParser = new SourceJavadocParser(this);
 	}
 }
-
+private void acceptJavadocTypeReference(Expression expression) {
+	if (expression instanceof JavadocSingleTypeReference) {
+		JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) expression;
+		this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+	} else if (expression instanceof JavadocQualifiedTypeReference) {
+		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
+		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+	}
+}
+public void addUnknownRef(NameReference nameRef) {
+	// Note that:
+	// - the only requestor interested in references is the SourceIndexerRequestor
+	// - a name reference can become a type reference only during the cast case, it is then tagged later with the Binding.TYPE bit
+	// However since the indexer doesn't make the distinction between name reference and type reference, there is no need
+	// to report a type reference in the SourceElementParser.
+	// This gained 3.7% in the indexing performance test.
+	if (nameRef instanceof SingleNameReference) {
+		requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
+	} else {
+		//QualifiedNameReference
+		requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
+	}
+}
 public void checkComment() {
 	// discard obsolete comments while inside methods or fields initializer (see bug 74369)
 	if (!(this.diet && this.dietInt==0) && this.scanner.commentPtr >= 0) {
@@ -216,15 +238,6 @@ public void checkComment() {
 				}
 			}
 		}
-	}
-}
-private void acceptJavadocTypeReference(Expression expression) {
-	if (expression instanceof JavadocSingleTypeReference) {
-		JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) expression;
-		this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-	} else if (expression instanceof JavadocQualifiedTypeReference) {
-		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
-		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -730,6 +743,42 @@ protected CompilationUnitDeclaration endParse(int act) {
 		return null;
 	}		
 }
+private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {
+	if (typeParameters == null) return null;
+	int typeParametersLength = typeParameters.length;
+	ISourceElementRequestor.TypeParameterInfo[] result = new ISourceElementRequestor.TypeParameterInfo[typeParametersLength];
+	for (int i = 0; i < typeParametersLength; i++) {
+		TypeParameter typeParameter = typeParameters[i];
+		TypeReference firstBound = typeParameter.type;
+		TypeReference[] otherBounds = typeParameter.bounds;
+		char[][] typeParameterBounds = null;
+		if (firstBound != null) {
+			if (otherBounds != null) {
+				int otherBoundsLength = otherBounds.length;
+				char[][] boundNames = new char[otherBoundsLength+1][];
+				boundNames[0] = CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.');
+				for (int j = 0; j < otherBoundsLength; j++) {
+					boundNames[j+1] = 
+						CharOperation.concatWith(otherBounds[j].getParameterizedTypeName(), '.'); 
+				}
+				typeParameterBounds = boundNames;
+			} else {
+				typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
+			}
+		} else {
+			typeParameterBounds = CharOperation.NO_CHAR_CHAR;
+		}
+		ISourceElementRequestor.TypeParameterInfo typeParameterInfo = new ISourceElementRequestor.TypeParameterInfo();
+		typeParameterInfo.declarationStart = typeParameter.declarationSourceStart;
+		typeParameterInfo.declarationEnd = typeParameter.declarationSourceEnd;
+		typeParameterInfo.name = typeParameter.name;
+		typeParameterInfo.nameSourceStart = typeParameter.sourceStart;
+		typeParameterInfo.nameSourceEnd = typeParameter.sourceEnd;
+		typeParameterInfo.bounds = typeParameterBounds;
+		result[i] = typeParameterInfo;
+	}
+	return result;
+}
 public TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
@@ -1144,42 +1193,6 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		requestor.exitMethod(methodDeclaration.declarationSourceEnd, -1, -1);
 	}
 }
-private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {
-	if (typeParameters == null) return null;
-	int typeParametersLength = typeParameters.length;
-	ISourceElementRequestor.TypeParameterInfo[] result = new ISourceElementRequestor.TypeParameterInfo[typeParametersLength];
-	for (int i = 0; i < typeParametersLength; i++) {
-		TypeParameter typeParameter = typeParameters[i];
-		TypeReference firstBound = typeParameter.type;
-		TypeReference[] otherBounds = typeParameter.bounds;
-		char[][] typeParameterBounds = null;
-		if (firstBound != null) {
-			if (otherBounds != null) {
-				int otherBoundsLength = otherBounds.length;
-				char[][] boundNames = new char[otherBoundsLength+1][];
-				boundNames[0] = CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.');
-				for (int j = 0; j < otherBoundsLength; j++) {
-					boundNames[j+1] = 
-						CharOperation.concatWith(otherBounds[j].getParameterizedTypeName(), '.'); 
-				}
-				typeParameterBounds = boundNames;
-			} else {
-				typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
-			}
-		} else {
-			typeParameterBounds = CharOperation.NO_CHAR_CHAR;
-		}
-		ISourceElementRequestor.TypeParameterInfo typeParameterInfo = new ISourceElementRequestor.TypeParameterInfo();
-		typeParameterInfo.declarationStart = typeParameter.declarationSourceStart;
-		typeParameterInfo.declarationEnd = typeParameter.declarationSourceEnd;
-		typeParameterInfo.name = typeParameter.name;
-		typeParameterInfo.nameSourceStart = typeParameter.sourceStart;
-		typeParameterInfo.nameSourceEnd = typeParameter.sourceEnd;
-		typeParameterInfo.bounds = typeParameterBounds;
-		result[i] = typeParameterInfo;
-	}
-	return result;
-}
 
 /*
 * Update the bodyStart of the corresponding parse node
@@ -1425,26 +1438,6 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		nestedTypeIndex--;
 	}
 }
-private void rememberCategories() {
-	if (this.useSourceJavadocParser) {
-		SourceJavadocParser sourceJavadocParser = (SourceJavadocParser) this.javadocParser;
-		char[][] categories =  sourceJavadocParser.categories;
-		if (categories.length > 0) {
-			this.nodesToCategories.put(this.astStack[this.astPtr], categories);
-			sourceJavadocParser.categories = CharOperation.NO_CHAR_CHAR;
-		}
-	}
-}
-private int sourceEnd(TypeDeclaration typeDeclaration) {
-	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
-		QualifiedAllocationExpression allocation = typeDeclaration.allocation;
-		if (allocation.type == null) // case of enum constant body
-			return typeDeclaration.sourceEnd;
-		return allocation.type.sourceEnd;
-	} else {
-		return typeDeclaration.sourceEnd;
-	}
-}
 public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	int start, 
@@ -1471,6 +1464,7 @@ public void parseCompilationUnit(
 		// ignore this exception
 	} finally {
 		diet = old;
+		reset();
 	}
 }
 public CompilationUnitDeclaration parseCompilationUnit(
@@ -1500,6 +1494,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		// ignore this exception
 	} finally {
 		diet = old;
+		reset();
 	}
 	return null;
 }
@@ -1554,6 +1549,7 @@ public void parseTypeMemberDeclarations(
 			requestor.acceptLineSeparatorPositions(compilationUnitResult.getLineSeparatorPositions());
 		}
 		diet = old;
+		reset();
 	}
 }
 
@@ -1589,6 +1585,7 @@ public void parseTypeMemberDeclarations(
 		// ignore this exception
 	} finally {
 		diet = old;
+		reset();
 	}
 }
 /*
@@ -1620,21 +1617,33 @@ private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 		quickSort(sortedCollection, left, original_right);
 	}
 }
-public void addUnknownRef(NameReference nameRef) {
-	// Note that:
-	// - the only requestor interested in references is the SourceIndexerRequestor
-	// - a name reference can become a type reference only during the cast case, it is then tagged later with the Binding.TYPE bit
-	// However since the indexer doesn't make the distinction between name reference and type reference, there is no need
-	// to report a type reference in the SourceElementParser.
-	// This gained 3.7% in the indexing performance test.
-	if (nameRef instanceof SingleNameReference) {
-		requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
-	} else {
-		//QualifiedNameReference
-		requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
+private void rememberCategories() {
+	if (this.useSourceJavadocParser) {
+		SourceJavadocParser sourceJavadocParser = (SourceJavadocParser) this.javadocParser;
+		char[][] categories =  sourceJavadocParser.categories;
+		if (categories.length > 0) {
+			this.nodesToCategories.put(this.astStack[this.astPtr], categories);
+			sourceJavadocParser.categories = CharOperation.NO_CHAR_CHAR;
+		}
 	}
 }
-
+private void reset() {
+	this.sourceEnds = new HashtableOfObjectToInt();
+	this.nodesToCategories = new HashMap();
+	typeNames = new char[4][];
+	superTypeNames = new char[4][];
+	nestedTypeIndex = 0;
+}
+private int sourceEnd(TypeDeclaration typeDeclaration) {
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
+		QualifiedAllocationExpression allocation = typeDeclaration.allocation;
+		if (allocation.type == null) // case of enum constant body
+			return typeDeclaration.sourceEnd;
+		return allocation.type.sourceEnd;
+	} else {
+		return typeDeclaration.sourceEnd;
+	}
+}
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null 
 		&& (method.bits & ASTNode.HasLocalType) != 0) {
