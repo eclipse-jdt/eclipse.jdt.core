@@ -52,17 +52,17 @@ import org.eclipse.text.edits.TextEditGroup;
  * The following code snippet illustrated usage of this class:
  * </p>
  * <pre>
- * Document doc = new Document("import java.util.List;\nclass X {}\n");
+ * Document document = new Document("import java.util.List;\nclass X {}\n");
  * ASTParser parser = ASTParser.newParser(AST.JLS3);
  * parser.setSource(doc.get().toCharArray());
  * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
  * AST ast = cu.getAST();
  * ImportDeclaration id = ast.newImportDeclaration();
- * id.setName(ast.newName(new String[] {"java", "util", "Set"});
+ * id.setName(ast.newName(new String[] {"java", "util", "Set"}));
  * ASTRewrite rewriter = ASTRewrite.create(ast);
  * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
  * ITrackedNodePosition tdLocation = rewriter.track(td);
- * ListRewriter lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
+ * ListRewrite lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
  * lrw.insertLast(id, null);
  * TextEdit edits = rewriter.rewriteAST(document, null);
  * UndoEdit undo = edits.apply(document);
