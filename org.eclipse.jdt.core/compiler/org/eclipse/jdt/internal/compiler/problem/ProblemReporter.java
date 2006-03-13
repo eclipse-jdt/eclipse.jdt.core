@@ -351,6 +351,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)(CompilerOptions.AutoBoxing >>> 32):
 				case (int)(CompilerOptions.MissingOverrideAnnotation >>> 32):
 				case (int)(CompilerOptions.MissingDeprecatedAnnotation >>> 32):
+				case (int)(CompilerOptions.ParameterAssignment >>> 32):
 					return CategorizedProblem.CAT_CODE_STYLE;
 				
 				case (int)(CompilerOptions.MissingSerialVersion >>> 32):
