@@ -157,7 +157,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"    11  iconst_5\n" + 
 				"    12  ireturn\n" + 
 				"      Exception Table:\n" + 
-				"        [pc: 0, pc: 10] -> 10 when : java.lang.Exception\n" + 
+				"        [pc: 0, pc: 5] -> 10 when : java.lang.Exception\n" + 
+				"        [pc: 6, pc: 9] -> 10 when : java.lang.Exception\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 14]\n" + 
 				"        [pc: 4, line: 15]\n" + 
