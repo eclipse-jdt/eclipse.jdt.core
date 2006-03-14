@@ -28,7 +28,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
-
+		// If modified, also modify the method JavaModelManager#getDefaultOptionsNoInitialization()
 		// Get options names set
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		

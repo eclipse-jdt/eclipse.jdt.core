@@ -2599,9 +2599,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns the table of the current options. Initially, all options have their default values,
 	 * and this method returns a table that includes all known options.
-	 * <p>
-	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
-	 * </p>
+	 * <p>For a complete description of the configurable options, see <code>getDefaultOptions</code>.</p>
+	 * <p>Returns a default set of options even if the platform is not running.</p>
 	 * 
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)

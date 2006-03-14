@@ -38,10 +38,12 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
@@ -863,7 +865,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public DeltaProcessingState deltaState = new DeltaProcessingState();
 
-	public IndexManager indexManager = new IndexManager();
+	public IndexManager indexManager = null;
 	
 	/**
 	 * Table from IProject to PerProjectInfo.
@@ -1059,6 +1061,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private JavaModelManager() {
 		// singleton: prevent others from creating a new instance
+		if (Platform.isRunning()) this.indexManager = new IndexManager();
 	}
 
 	/**
@@ -1296,11 +1299,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return preferencesLookup[PREF_INSTANCE];
 	}
  
+	// If modified, also modify the method getDefaultOptionsNoInitialization()
 	public Hashtable getDefaultOptions(){
-	
+
 		Hashtable defaultOptions = new Hashtable(10);
 
 		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
+		// If modified, also modify the method getDefaultOptionsNoInitialization()
 		IEclipsePreferences defaultPreferences = getDefaultPreferences();
 		
 		// initialize preferences to their default
@@ -1388,6 +1393,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// return cached options if already computed
 		if (this.optionsCache != null) return new Hashtable(this.optionsCache);
 
+		if (!Platform.isRunning()) {
+			return this.optionsCache = getDefaultOptionsNoInitialization();
+		}
 		// init
 		Hashtable options = new Hashtable(10);
 		IPreferencesService service = Platform.getPreferencesService();
@@ -1413,6 +1421,58 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// return built map
 		return options;
+	}
+
+	// Do not modify without modifying getDefaultOptions()
+	private Hashtable getDefaultOptionsNoInitialization() {
+		Map defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
+		
+		// Override some compiler defaults
+		defaultOptionsMap.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.GENERATE);
+		defaultOptionsMap.put(JavaCore.COMPILER_CODEGEN_UNUSED_LOCAL, JavaCore.PRESERVE);
+		defaultOptionsMap.put(JavaCore.COMPILER_TASK_TAGS, JavaCore.DEFAULT_TASK_TAGS);
+		defaultOptionsMap.put(JavaCore.COMPILER_TASK_PRIORITIES, JavaCore.DEFAULT_TASK_PRIORITIES);
+		defaultOptionsMap.put(JavaCore.COMPILER_TASK_CASE_SENSITIVE, JavaCore.ENABLED);
+		defaultOptionsMap.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+		defaultOptionsMap.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		
+		// Builder settings
+		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT); 
+		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, JavaCore.WARNING); 
+		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, JavaCore.CLEAN); 
+
+		// JavaCore settings
+		defaultOptionsMap.put(JavaCore.CORE_JAVA_BUILD_ORDER, JavaCore.IGNORE); 
+		defaultOptionsMap.put(JavaCore.CORE_INCOMPLETE_CLASSPATH, JavaCore.ERROR); 
+		defaultOptionsMap.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.ERROR); 
+		defaultOptionsMap.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.IGNORE); 
+		defaultOptionsMap.put(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, JavaCore.ENABLED); 
+		defaultOptionsMap.put(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, JavaCore.ENABLED); 
+
+		// Formatter settings
+		defaultOptionsMap.putAll(DefaultCodeFormatterConstants.getEclipseDefaultSettings());
+
+		// CodeAssist settings
+		defaultOptionsMap.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_IMPLICIT_QUALIFICATION, JavaCore.DISABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		
+		// Time out for parameter names
+		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
+		
+		return new Hashtable(defaultOptionsMap);
 	}
 	
 	/*
