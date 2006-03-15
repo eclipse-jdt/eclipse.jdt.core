@@ -75,6 +75,13 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return this.resolvedType;
 	}
 
+	protected void reportInvalidType(Scope scope) {
+		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
+	}
+	protected void reportDeprecatedType(Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getDeclarationModifiers());
+	}
+
 	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
 		return internalResolveType(blockScope);
 	}
