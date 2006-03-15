@@ -689,20 +689,26 @@ public IImportContainer getImportContainer() {
  * @see ICompilationUnit#getImports()
  */
 public IImportDeclaration[] getImports() throws JavaModelException {
-	try {
-		IImportContainer container= getImportContainer();
-		IJavaElement[] elements= container.getChildren();
-		IImportDeclaration[] imprts= new IImportDeclaration[elements.length];
-		System.arraycopy(elements, 0, imprts, 0, elements.length);
-		return imprts;
-	} catch (JavaModelException e) {
-		IJavaElement[] elements;
-		if (e.isDoesNotExist()
-				&& (elements = e.getJavaModelStatus().getElements()).length > 0
-				&& elements[0] == this)
-			throw e;
-		return NO_IMPORTS;
+	IImportContainer container= getImportContainer();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	Object info = manager.getInfo(container);
+	if (info == null) {
+		if (manager.getInfo(this) != null)
+			// CU was opened, but no import container, then no imports
+			return NO_IMPORTS;
+		else {
+			open(null); // force opening of CU
+			info = manager.getInfo(container);
+			if (info == null) 
+				// after opening, if no import container, then no imports
+				return NO_IMPORTS;
+		}	
 	}
+	IJavaElement[] elements = ((JavaElementInfo) info).children;
+	int length = elements.length;
+	IImportDeclaration[] imports = new IImportDeclaration[length];
+	System.arraycopy(elements, 0, imports, 0, length);
+	return imports;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
