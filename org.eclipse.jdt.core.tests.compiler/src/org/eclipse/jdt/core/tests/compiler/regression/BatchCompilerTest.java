@@ -33,8 +33,14 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 public BatchCompilerTest(String name) {
 	super(name);
 }
+/**
+ * This test suite only needs to be run on one compliance.
+ * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
+ * and not be duplicated in general test suite.
+ * @see TestAll
+ */
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
 }
 
 	private String getLibraryClasses() {
