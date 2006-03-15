@@ -33,6 +33,20 @@ import com.sun.mirror.util.Declarations;
 @SuppressWarnings("nls")
 public class MirrorTestAnnotationProcessor extends BaseProcessor {
 	
+	private static final String[] CLASSNAMES = {
+		"java.util.Map.Entry",
+		"java.lang.Object",
+		"java.lang.String",
+		"java.util.concurrent.TimeUnit",
+		"java.lang.Override"
+	};
+	
+	private static final String[] NONEXISTANT_CLASSNAMES = {
+		"java.util.NotExist",
+		"java.annotation.NotExist.ReallyNotExist",
+		"bar.baz.Foo"
+	};
+	
 	public static boolean _processRun = false;
 	
 	public MirrorTestAnnotationProcessor(AnnotationProcessorEnvironment env) {
@@ -51,6 +65,7 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 			testTypeDecl(decl);
 			testDeclarationsUtil(decl);
 			testPackageImpl();
+			testGetTypeDeclarations();
 		}
 		catch (Throwable t) {
 			if (!ProcessorTestStatus.hasErrors()) {
@@ -133,5 +148,25 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 			}
 		}
 		ProcessorTestStatus.assertTrue("inner's staticMethod() should hide MirrorTestClass'", utils.hides(innerMethod, outerMethod));
+	}
+	
+	private void testGetTypeDeclarations() {
+		for (String className : CLASSNAMES) {
+			testGetTypeDeclaration(className);
+		}
+		for (String className : NONEXISTANT_CLASSNAMES) {
+			testNonExistantTypeDeclaration(className);
+		}
+	}
+	
+	private void testGetTypeDeclaration(String className) {
+		TypeDeclaration type = _env.getTypeDeclaration(className);
+		ProcessorTestStatus.assertTrue("Could not find " + className, type != null);
+		ProcessorTestStatus.assertTrue("Name is incorrect", className.equals(type.getQualifiedName()));
+	}
+	
+	private void testNonExistantTypeDeclaration(String className) {
+		TypeDeclaration type = _env.getTypeDeclaration(className);
+		ProcessorTestStatus.assertTrue("Bad class found: " + className, null == type);
 	}
 }
