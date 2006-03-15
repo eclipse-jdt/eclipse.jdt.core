@@ -1028,7 +1028,7 @@ public class NameLookup implements SuffixConstants {
 						IJavaElement cu = compilationUnits[i];
 						String cuName = cu.getElementName();
 						int lastDot = cuName.lastIndexOf('.');
-						if (!topLevelTypeName.equals(cuName.substring(0, lastDot))) 
+						if (lastDot != topLevelTypeName.length() || !topLevelTypeName.regionMatches(0, cuName, 0, lastDot)) 
 							continue;
 						IType type = ((ICompilationUnit) cu).getType(topLevelTypeName);
 						type = getMemberType(type, name, firstDot);
