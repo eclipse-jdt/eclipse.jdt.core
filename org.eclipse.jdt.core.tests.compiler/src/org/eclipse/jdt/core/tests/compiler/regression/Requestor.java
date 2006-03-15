@@ -103,7 +103,7 @@ protected void outputClassFiles(CompilationResult unitResult) {
 				String relativeName = 
 					new String(classFile.fileName()).replace('/', File.separatorChar) + ".class";
 				try {
-					ClassFile.writeToDisk(true, outputPath, relativeName, classFile.getBytes());
+					ClassFile.writeToDisk(true, outputPath, relativeName, classFile);
 				} catch(IOException e) {
 				}
 			}

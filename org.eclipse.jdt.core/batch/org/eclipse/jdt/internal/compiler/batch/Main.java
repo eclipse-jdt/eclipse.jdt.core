@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -1033,6 +1034,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private boolean javaHomeChecked;
 	private boolean didSpecifyTarget;
 	private boolean didSpecifySource;
+	Compiler batchCompiler;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 		this(outWriter, errWriter, systemExitWhenFinished, null);
@@ -2795,7 +2797,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							this.generatePackagesStructure,
 							this.destinationPath,
 							relativeStringName,
-							classFile.getBytes());
+							classFile);
+						if (classFile.ownSharedArrays) {
+							LookupEnvironment env = this.batchCompiler.lookupEnvironment;
+							env.sharedArraysUsed = false;
+						}
 						this.logger.logClassFile(
 							this.generatePackagesStructure,
 							this.destinationPath,
@@ -2818,7 +2824,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.startTime = System.currentTimeMillis();
 
 		INameEnvironment environment = getLibraryAccess();
-		Compiler batchCompiler =
+		this.batchCompiler =
 			new Compiler(
 				environment,
 				getHandlingPolicy(),
@@ -2827,6 +2833,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				getProblemFactory(),
 				this.out,
 				false);
+		
+		// enable shared byte[]'s used by ClassFile to avoid allocating MBs during a build
+		this.batchCompiler.lookupEnvironment.sharedArraysUsed = false;
+		this.batchCompiler.lookupEnvironment.sharedClassFileHeader = new byte[30000];
+		this.batchCompiler.lookupEnvironment.sharedClassFileContents = new byte[30000];
+
 		this.compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.

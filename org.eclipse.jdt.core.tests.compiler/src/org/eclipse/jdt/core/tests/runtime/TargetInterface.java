@@ -150,7 +150,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 			if ((i == 0) && (className.indexOf("CodeSnippet") != -1)) {
 				codeSnippetClassName = className;
 				try {
-					ClassFile.writeToDisk(true, "d:\\eval\\snippets", className, classes[0].getBytes());
+					ClassFile.writeToDisk(true, "d:\\eval\\snippets", className, classes[0]);
 				} catch(IOException e) {
 				}
 			} else {
@@ -161,7 +161,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 					dirName = "d:\\eval\\" + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY;
 				}
 				try {
-					ClassFile.writeToDisk(true, dirName, className, classes[i].getBytes());
+					ClassFile.writeToDisk(true, dirName, className, classes[i]);
 				} catch(IOException e) {
 				}
 			}

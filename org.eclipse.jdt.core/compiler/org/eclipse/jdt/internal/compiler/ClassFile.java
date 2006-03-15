@@ -286,16 +286,16 @@ public class ClassFile
 	 * relativeFileName is formed like:
 	 *     java\lang\String.class
 	 * @param generatePackagesStructure a flag to know if the packages structure has to be generated.
-	 * @param outputPath the output directory
-	 * @param relativeFileName java.lang.String
-	 * @param contents byte[]
+	 * @param outputPath the given output directory
+	 * @param relativeFileName the given relative file name
+	 * @param classFile the given classFile to write
 	 * 
 	 */
 	public static void writeToDisk(
 		boolean generatePackagesStructure,
 		String outputPath,
 		String relativeFileName,
-		byte[] contents)
+		ClassFile classFile)
 		throws IOException {
 			
 		BufferedOutputStream output = null;
@@ -330,7 +330,8 @@ public class ClassFile
 						new File(fileName)));
 		}
 		try {
-			output.write(contents);
+			output.write(classFile.header, 0, classFile.headerOffset);
+			output.write(classFile.contents, 0, classFile.contentsOffset);
 		} finally {
 			output.flush();
 			output.close();
@@ -461,10 +462,10 @@ public class ClassFile
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
-		ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
-		if (this == outermostClassFile) {
+		if (this.enclosingClassFile == null) {
 			codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
 		} else {
+			ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
 			codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
 		}
 	}
@@ -1568,7 +1569,7 @@ public class ClassFile
 					codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
 							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(codeStream.methodDeclaration.selector)), 
 							codeStream.methodDeclaration);
-				}				
+				}
 				while  (iRange < maxRange) {
 					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
 					this.contents[localContentsOffset++] = (byte) (start >> 8);
