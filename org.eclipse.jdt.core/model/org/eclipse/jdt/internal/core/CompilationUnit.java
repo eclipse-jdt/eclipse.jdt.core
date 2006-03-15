@@ -40,6 +40,8 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 	 */
 	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
 	
+	private static final IImportDeclaration[] NO_IMPORTS = new IImportDeclaration[0];
+	
 	protected String name;
 	public WorkingCopyOwner owner;
 
@@ -687,18 +689,20 @@ public IImportContainer getImportContainer() {
  * @see ICompilationUnit#getImports()
  */
 public IImportDeclaration[] getImports() throws JavaModelException {
-	IImportContainer container= getImportContainer();
-	if (container.exists()) {
+	try {
+		IImportContainer container= getImportContainer();
 		IJavaElement[] elements= container.getChildren();
 		IImportDeclaration[] imprts= new IImportDeclaration[elements.length];
 		System.arraycopy(elements, 0, imprts, 0, elements.length);
 		return imprts;
-	} else if (!exists()) {
-			throw newNotPresentException();
-	} else {
-		return new IImportDeclaration[0];
+	} catch (JavaModelException e) {
+		IJavaElement[] elements;
+		if (e.isDoesNotExist()
+				&& (elements = e.getJavaModelStatus().getElements()).length > 0
+				&& elements[0] == this)
+			throw e;
+		return NO_IMPORTS;
 	}
-
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
