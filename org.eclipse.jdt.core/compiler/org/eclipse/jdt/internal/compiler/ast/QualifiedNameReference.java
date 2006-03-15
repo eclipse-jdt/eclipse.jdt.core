@@ -320,6 +320,9 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 			}
 			flowInfo.markAsComparedEqualToNonNull(local); 
 				// from thereon it is set
+			if (flowContext.initsOnFinally != null) {
+				flowContext.initsOnFinally.markAsComparedEqualToNonNull(local); 
+			}			
 		}
 	}
 }

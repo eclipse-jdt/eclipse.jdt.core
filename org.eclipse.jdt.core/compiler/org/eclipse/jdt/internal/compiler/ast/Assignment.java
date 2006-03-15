@@ -59,6 +59,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			default:
 				flowInfo.markAsDefinitelyUnknown(local);
 		}
+		if (flowContext.initsOnFinally != null) {
+			switch(nullStatus) {
+				case FlowInfo.NULL :
+					flowContext.initsOnFinally.markAsDefinitelyNull(local);
+					break;
+				case FlowInfo.NON_NULL :
+					flowContext.initsOnFinally.markAsDefinitelyNonNull(local);
+					break;
+				default:
+					flowContext.initsOnFinally.markAsDefinitelyUnknown(local);
+			}
+		}
 	}		
 	return flowInfo;
 }

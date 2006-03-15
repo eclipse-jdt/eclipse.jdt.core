@@ -45,14 +45,20 @@ public class FlowContext implements TypeConstants {
 			// check against null, with potential values -- NPE guard
 	public ASTNode associatedNode; 
 		public FlowContext parent;
+	public NullInfoRegistry initsOnFinally; 
+		// only used within try blocks; remembers upstream flow info mergedWith
+		// any null related operation happening within the try block
 		
 boolean deferNullDiagnostic, preemptNullDiagnostic;
 
 public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
 	this.associatedNode = associatedNode;
-	this.deferNullDiagnostic = parent != null && 
-		(parent.deferNullDiagnostic || parent.preemptNullDiagnostic); 
+	if (parent != null) {
+		this.deferNullDiagnostic = 
+			parent.deferNullDiagnostic || parent.preemptNullDiagnostic;
+		this.initsOnFinally = parent.initsOnFinally;
+	}
 }
 
 public BranchLabel breakLabel() {
@@ -472,7 +478,7 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
  * context).
  * @param scope the scope into which the check is performed
  * @param local the local variable involved in the check
- * @param reference the expression within which local lays
+ * @param reference the expression within which local lies
  * @param checkType the status against which the check must be performed; one 
  * 		of {@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL 
  * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}

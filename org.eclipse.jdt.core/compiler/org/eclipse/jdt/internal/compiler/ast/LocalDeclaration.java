@@ -58,6 +58,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			default:
 				flowInfo.markAsDefinitelyUnknown(this.binding);
 		}
+		// no need to inform enclosing try block since its locals won't get
+		// known by the finally block
 	}
 	return flowInfo;
 }

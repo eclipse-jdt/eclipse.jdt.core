@@ -33,7 +33,7 @@ public NullReferenceTest(String name) {
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
 //    	TESTS_NAMES = new String[] { "test011" };
-//    	TESTS_NUMBERS = new int[] { 729 };   
+//    	TESTS_NUMBERS = new int[] { 516 };   
 //    	TESTS_NUMBERS = new int[] { 2999 };   
 //    	TESTS_RANGE = new int[] { 2050, -1 }; 
 //  	TESTS_RANGE = new int[] { 1, 2049 }; 
@@ -3723,6 +3723,121 @@ public void test0512_try_finally() {
 		"	^\n" + 
 		"The variable x may be null\n" + 
 		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
+public void test0513_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" X bar() {\n" + 
+			"   return null;\n" +
+			" }\n" +
+			" Object foo() {\n" + 
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     x = bar();\n" +
+			"     x.toString();\n" +
+			"     return x;\n" + 
+			"   } finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
+// embedded variant 1
+public void test0514_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" X bar() {\n" + 
+			"   return null;\n" +
+			" }\n" +
+			" Object foo() {\n" + 
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     try {\n" + 
+			"       x = bar();\n" +
+			"       x.toString();\n" +
+			"       return x;\n" + 
+			"     }\n" +
+			"     finally {\n" + 
+			"     }\n" +
+			"   }\n" + 
+			"   finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
+// embedded variant 2
+public void test0515_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" X bar() {\n" + 
+			"   return null;\n" +
+			" }\n" +
+			" Object foo() {\n" + 
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     try {\n" + 
+			"       x = bar();\n" +
+			"       x.toString();\n" +
+			"       return x;\n" + 
+			"     }\n" +
+			"     finally {\n" + 
+			"       System.out.println();\n" +
+			"     }\n" +
+			"   }\n" + 
+			"   finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
+// variant
+public void test0516_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" Object foo() {\n" + 
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     x = new X();\n" +
+			"     return x;\n" +
+			"   }\n" + 
+			"   finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		""); 
 }
 
 // null analysis -- try/catch

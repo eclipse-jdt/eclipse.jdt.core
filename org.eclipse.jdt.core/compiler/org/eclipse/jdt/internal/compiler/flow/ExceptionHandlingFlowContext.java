@@ -210,6 +210,7 @@ public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 		}
 	}
 }
+
 /**
  * Exception handlers (with no finally block) are also included with subroutine
  * only once (in case parented with true InsideSubRoutineFlowContext).
@@ -226,5 +227,4 @@ public SubRoutineStatement subroutine() {
 	}
 	return null;
 }
-
 }

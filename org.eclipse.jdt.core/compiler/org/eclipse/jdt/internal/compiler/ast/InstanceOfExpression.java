@@ -43,6 +43,7 @@ public FlowInfo analyseCode(
 			unconditionalInits();
 		FlowInfo initsWhenFalse = flowInfo.copy();
 		flowInfo.markAsComparedEqualToNonNull(local);
+		// no impact upon enclosing try context
 		return FlowInfo.conditional(flowInfo, initsWhenFalse);
 	}
 	return expression.analyseCode(currentScope, flowContext, flowInfo).

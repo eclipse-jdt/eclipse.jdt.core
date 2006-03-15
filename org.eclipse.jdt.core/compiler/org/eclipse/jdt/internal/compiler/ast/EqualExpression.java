@@ -54,6 +54,8 @@ public class EqualExpression extends BinaryExpression {
 				}
 				break;
 		}	
+		// we do not impact enclosing try context because this kind of protection
+		// does not preclude the variable from being null in an enclosing scope
 	}
 	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

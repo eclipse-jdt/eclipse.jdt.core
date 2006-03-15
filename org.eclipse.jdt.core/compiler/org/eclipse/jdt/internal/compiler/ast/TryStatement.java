@@ -86,6 +86,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.caughtExceptionTypes,
 				this.scope,
 				flowInfo.unconditionalInits());
+		handlingContext.initsOnFinally = 
+			new NullInfoRegistry(flowInfo.unconditionalInits());
+		// only try blocks initialize that member - may consider creating a
+		// separate class if needed
 
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
@@ -144,6 +148,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		this.mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(tryInfo);
+		
+		// chain up null info registry
+		if (flowContext.initsOnFinally != null) {
+			flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+		}
+		
 		return tryInfo;
 	} else {
 		InsideSubRoutineFlowContext insideSubContext;
@@ -172,6 +182,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.caughtExceptionTypes,
 				this.scope,
 				flowInfo.unconditionalInits());
+		handlingContext.initsOnFinally =
+			new NullInfoRegistry(flowInfo.unconditionalInits());
+		// only try blocks initialize that member - may consider creating a
+		// separate class if needed		
 
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
@@ -231,16 +245,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
 		finallyContext.complainOnDeferredChecks( 
-			(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 
-				? flowInfo.unconditionalCopy().
+			handlingContext.initsOnFinally.mitigateNullInfoOf(
+				(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
+					flowInfo.unconditionalCopy().
 					addPotentialInitializationsFrom(tryInfo).
 						// lighten the influence of the try block, which may have 
 						// exited at any point
-					addPotentialInitializationsFrom(
-						insideSubContext.initsOnReturn)
-				: insideSubContext.initsOnReturn,
+					addPotentialInitializationsFrom(insideSubContext.initsOnReturn) : 
+					insideSubContext.initsOnReturn),
 			currentScope);
-		
+
+		// chain up null info registry
+		if (flowContext.initsOnFinally != null) {
+			flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+		}
+
 		if (subInfo == FlowInfo.DEAD_END) {
 			this.mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(subInfo);
