@@ -65,15 +65,15 @@ public NullInfoRegistry(UnconditionalFlowInfo upstream) {
 			for (int i = 2; i < extraLength; i++) {
 				this.extra[i] = new long[length];
 			}
-			for (int i = 2; i < length; i++) {
-				a1 = this.extra[i][2] = 
-					(b1nb2 = upstream.extra[i][2] 
-							& ~upstream.extra[i][3])
-						& (b3 = upstream.extra[i][4])
-						& ~(b4 = upstream.extra[i][5]);
-				a2 = this.extra[i][3] =
+			for (int i = 0; i < length; i++) {
+				a1 = this.extra[2][i] = 
+					(b1nb2 = upstream.extra[2][i] 
+							& ~upstream.extra[3][i])
+						& (b3 = upstream.extra[4][i])
+						& ~(b4 = upstream.extra[5][i]);
+				a2 = this.extra[3][i] =
 					b1nb2 & ~b3 & b4;
-				a3 = this.extra[i][4] =
+				a3 = this.extra[4][i] =
 					b1nb2 & b3 & b4;
 				if ((a1 | a2 | a3) != 0) {
 					this.tagBits |= NULL_FLAG_MASK;

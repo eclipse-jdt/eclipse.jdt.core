@@ -23,7 +23,7 @@ import junit.framework.Test;
 
 public class NullReferenceTest extends AbstractRegressionTest {
 
-public NullReferenceTest(String name) {
+public NullReferenceTest(String name) { 
     super(name);
 }
 
@@ -3838,6 +3838,95 @@ public void test0516_try_finally() {
 			" }\n" + 
 			"}\n"},
 		""); 
+}
+
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132072
+// [compiler][null] AIOOBE in null check compiling com.sun.org.apache.xalan.internal.res.XSLTErrorResources from JDK 1.5 source
+public void test0517_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" Object foo() {\n" +
+			"   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;\n" + 
+			"   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;\n" + 
+			"   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;\n" + 
+			"   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;\n" + 
+			"   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;\n" + 
+			"   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;\n" + 
+			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" + 
+			"   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;\n" + 
+			"   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;\n" + 
+			"   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;\n" + 
+			"   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;\n" + 
+			"   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;\n" + 
+			"   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;\n" + 
+			"   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;\n" + 
+			"   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;\n" + 
+			"   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;\n" + 
+			"   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;\n" + 
+			"   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;\n" + 
+			"   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;\n" + 
+			"   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;\n" + 
+			"   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;\n" +
+			"   X x = new X();\n" + 
+			"   try {\n" + 
+			"     return x;\n" +
+			"   }\n" + 
+			"   finally {\n" + 
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		""); 
+}
+
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132120
+// [compiler][null] NPE batch compiling JDT/Core from HEAD
+public void _test0518_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" void foo() {\n" + 
+			"   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;\n" + 
+			"   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;\n" + 
+			"   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;\n" + 
+			"   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;\n" + 
+			"   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;\n" + 
+			"   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;\n" + 
+			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" + 
+			"   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;\n" + 
+			"   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;\n" + 
+			"   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;\n" + 
+			"   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;\n" + 
+			"   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;\n" + 
+			"   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;\n" + 
+			"   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;\n" + 
+			"   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;\n" + 
+			"   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;\n" + 
+			"   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;\n" + 
+			"   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;\n" + 
+			"   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;\n" + 
+			"   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;\n" + 
+			"   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;\n" +
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     x = new X();\n" + 
+			"   } finally {\n" + 
+			"     x.toString();\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	x.toString();\n" + 
+		"	^\n" + 
+		"The variable x may be null\n" + 
+		"----------\n");
 }
 
 // null analysis -- try/catch
