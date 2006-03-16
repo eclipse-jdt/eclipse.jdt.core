@@ -2348,24 +2348,28 @@ public final class CompletionEngine
 					excludedNames[excludedNameCount++] = typeDeclaration.name;
 					
 					TypeParameter[] classTypeParameters = typeDeclaration.typeParameters;
-					for (int i = 0; i < classTypeParameters.length; i++) {
-						TypeParameter typeParameter = classTypeParameters[i];
-						if(excludedNameCount == excludedNames.length) {
-							System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+					if(classTypeParameters != null) {
+						for (int i = 0; i < classTypeParameters.length; i++) {
+							TypeParameter typeParameter = classTypeParameters[i];
+							if(excludedNameCount == excludedNames.length) {
+								System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+							}
+							excludedNames[excludedNameCount++] = typeParameter.name;
 						}
-						excludedNames[excludedNameCount++] = typeParameter.name;
 					}
 					break;
 				case Scope.METHOD_SCOPE :
 					MethodScope methodScope = (MethodScope) currentScope;
 					if(methodScope.referenceContext instanceof AbstractMethodDeclaration) {
 						TypeParameter[] methodTypeParameters = ((AbstractMethodDeclaration)methodScope.referenceContext).typeParameters();
-						for (int i = 0; i < methodTypeParameters.length; i++) {
-							TypeParameter typeParameter = methodTypeParameters[i];
-							if(excludedNameCount == excludedNames.length) {
-								System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+						if(methodTypeParameters != null) {
+							for (int i = 0; i < methodTypeParameters.length; i++) {
+								TypeParameter typeParameter = methodTypeParameters[i];
+								if(excludedNameCount == excludedNames.length) {
+									System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+								}
+								excludedNames[excludedNameCount++] = typeParameter.name;
 							}
-							excludedNames[excludedNameCount++] = typeParameter.name;
 						}
 					}
 					break;
