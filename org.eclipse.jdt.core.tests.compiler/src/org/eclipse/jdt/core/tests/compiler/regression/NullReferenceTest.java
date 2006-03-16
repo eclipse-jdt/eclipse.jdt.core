@@ -3886,7 +3886,7 @@ public void test0517_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132120
 // [compiler][null] NPE batch compiling JDT/Core from HEAD
-public void _test0518_try_finally() {
+public void test0518_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3898,7 +3898,7 @@ public void _test0518_try_finally() {
 			"   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;\n" + 
 			"   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;\n" + 
 			"   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;\n" + 
-			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" + 
+			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" +
 			"   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;\n" + 
 			"   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;\n" + 
 			"   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;\n" + 
@@ -3922,7 +3922,7 @@ public void _test0518_try_finally() {
 			" }\n" + 
 			"}\n"},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
+		"1. ERROR in X.java (at line 28)\n" + 
 		"	x.toString();\n" + 
 		"	^\n" + 
 		"The variable x may be null\n" + 
