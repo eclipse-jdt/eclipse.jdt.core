@@ -272,9 +272,7 @@ public class SourceTypeConverter {
 	/*
 	 * Convert a method source element into a parsed method/constructor declaration 
 	 */
-	private AbstractMethodDeclaration convert(SourceMethod methodHandle, CompilationResult compilationResult) throws JavaModelException {
-
-		SourceMethodElementInfo methodInfo = (SourceMethodElementInfo) methodHandle.getElementInfo();
+	private AbstractMethodDeclaration convert(SourceMethod methodHandle, SourceMethodElementInfo methodInfo, CompilationResult compilationResult) throws JavaModelException {
 		AbstractMethodDeclaration method;
 
 		/* only source positions available */
@@ -541,12 +539,13 @@ public class SourceTypeConverter {
 			boolean hasAbstractMethods = false;
 			for (int i = 0; i < sourceMethodCount; i++) {
 				SourceMethod sourceMethod = sourceMethods[i];
-				boolean isConstructor = sourceMethod.isConstructor();
-				if ((sourceMethod.getFlags() & ClassFileConstants.AccAbstract) != 0) {
+				SourceMethodElementInfo methodInfo = (SourceMethodElementInfo)sourceMethod.getElementInfo();
+				boolean isConstructor = methodInfo.isConstructor();
+				if ((methodInfo.getModifiers() & ClassFileConstants.AccAbstract) != 0) {
 					hasAbstractMethods = true;
 				}
 				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
-					AbstractMethodDeclaration method = convert(sourceMethod, compilationResult);
+					AbstractMethodDeclaration method = convert(sourceMethod, methodInfo, compilationResult);
 					if (isAbstract || method.isAbstract()) { // fix-up flag 
 						method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 					}
