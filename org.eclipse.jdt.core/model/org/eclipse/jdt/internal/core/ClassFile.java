@@ -361,14 +361,8 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 	if (mapper == null) {
 		return null;
 	} else {		
-		String prefix = null;
 		int index = this.name.indexOf('$');
-		if (index > -1) {
-			prefix = this.name.substring(0, index);
-		} else {
-			prefix = this.name;
-		}
-		
+		int prefixLength = index < 0 ? this.name.length() : index;
 		
 		IType type = null;
 		int start = -1;
@@ -377,15 +371,9 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 		for (int i = 0; i < children.length; i++) {
 			String childName = children[i].getElementName();
 			
-			String childPrefix = null;
 			int childIndex = childName.indexOf('$');
-			if (childIndex > -1) {
-				childPrefix = childName.substring(0, childIndex);
-			} else {
-				childPrefix = childName.substring(0, childName.indexOf('.'));
-			}
-			
-			if(prefix.equals(childPrefix)) {
+			int childPrefixLength = childIndex < 0 ? childName.indexOf('.') : childIndex;
+			if (prefixLength == childPrefixLength && this.name.regionMatches(0, childName, 0, prefixLength)) {
 				IClassFile classFile = (IClassFile) children[i];
 				
 				// ensure this class file's buffer is open so that source ranges are computed

@@ -69,6 +69,7 @@ public class HandleFactory {
 		this.javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 	
+
 	/**
 	 * Creates an Openable handle from the given resource path.
 	 * The resource path can be a path to a file in the workbench (eg. /Proj/com/ibm/jdt/core/HandleFactory.java)
@@ -83,9 +84,12 @@ public class HandleFactory {
 		int separatorIndex;
 		if ((separatorIndex= resourcePath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
 			// path to a class file inside a jar
-			String jarPath= resourcePath.substring(0, separatorIndex);
 			// Optimization: cache package fragment root handle and package handles
-			if (!jarPath.equals(this.lastPkgFragmentRootPath)) {
+			int rootPathLength;
+			if (this.lastPkgFragmentRootPath == null 
+					|| (rootPathLength = this.lastPkgFragmentRootPath.length()) != resourcePath.length()
+					|| !resourcePath.regionMatches(0, this.lastPkgFragmentRootPath, 0, rootPathLength)) {
+				String jarPath= resourcePath.substring(0, separatorIndex);
 				IPackageFragmentRoot root= this.getJarPkgFragmentRoot(jarPath, scope);
 				if (root == null)
 					return null; // match is outside classpath
@@ -151,7 +155,7 @@ public class HandleFactory {
 				return (Openable) classFile;
 			}
 		}
-	}
+	}	
 	
 	/**
 	 * Returns a handle denoting the class member identified by its scope.

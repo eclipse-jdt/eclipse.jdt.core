@@ -946,10 +946,14 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (fieldCount >> 8);
 		contents[contentsOffset++] = (byte) fieldCount;
 
-		FieldBinding[] fieldBindings = currentBinding.fields();
-		for (int i = 0, max = fieldBindings.length; i < max; i++) {
-			addFieldInfo(fieldBindings[i]);
+		FieldDeclaration[] fieldDecls = currentBinding.scope.referenceContext.fields;
+		for (int i = 0, max = fieldDecls == null ? 0 : fieldDecls.length; i < max; i++) {
+			FieldDeclaration fieldDecl = fieldDecls[i];
+			if (fieldDecl.binding != null) {
+				addFieldInfo(fieldDecl.binding);
+			}
 		}
+
 		if (syntheticFields != null) {
 			for (int i = 0, max = syntheticFields.length; i < max; i++) {
 				addFieldInfo(syntheticFields[i]);

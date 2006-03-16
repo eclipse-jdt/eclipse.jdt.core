@@ -196,6 +196,10 @@ public int hashCode() {
  * @see IMethod
  */
 public boolean isConstructor() throws JavaModelException {
+	if (!this.getElementName().equals(this.parent.getElementName())) {
+		// faster than reaching the info
+		return false;
+	}
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
 	return info.isConstructor();
 }

@@ -976,21 +976,17 @@ public class NameLookup implements SuffixConstants {
 					// unqualifiedName is empty if the name ends with a '$' sign.
 					// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
 				}
-				String matchName = name.toLowerCase();
+				int matchLength = name.length();
 				for (int i = 0; i < length; i++) {
 					if (requestor.isCanceled())
 						return;
 					IJavaElement classFile= classFiles[i];
+					// MatchName will never have the extension ".class" and the elementName always will.
 					String elementName = classFile.getElementName();
-					elementName = elementName.toLowerCase();
-		
-					/**
-					 * Must use startWith because matchName will never have the 
-					 * extension ".class" and the elementName always will.
-					 */
-					if (elementName.startsWith(matchName)) {
+					if (elementName.regionMatches(true /*ignore case*/, 0, name, 0, matchLength)) {
 						IType type = ((ClassFile) classFile).getType();
-						if ((type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
+						String typeName = type.getElementName();
+						if (typeName.length() > 0 && !Character.isDigit(typeName.charAt(0))) { //not an anonymous type
 							if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
 								requestor.acceptType(type);
 						}

@@ -351,6 +351,10 @@ public int hashCode() {
  * @see IMethod
  */
 public boolean isConstructor() throws JavaModelException {
+	if (!this.getElementName().equals(this.parent.getElementName())) {
+		// faster than reaching the info
+		return false;
+	}	
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return info.isConstructor();
 }
