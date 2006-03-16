@@ -337,6 +337,8 @@ public class ClassFile
 			output.close();
 		}
 	}
+	
+	private byte[] bytes;
 	public CodeStream codeStream;
 	public ConstantPool constantPool;
 	public int constantPoolOffset;
@@ -5741,10 +5743,12 @@ public class ClassFile
 	 * @return byte[]
 	 */
 	public byte[] getBytes() {
-		byte[] fullContents = new byte[headerOffset + contentsOffset];
-		System.arraycopy(header, 0, fullContents, 0, headerOffset);
-		System.arraycopy(contents, 0, fullContents, headerOffset, contentsOffset);
-		return fullContents;
+		if (this.bytes == null) {
+			this.bytes = new byte[this.headerOffset + this.contentsOffset];
+			System.arraycopy(this.header, 0, this.bytes, 0, this.headerOffset);
+			System.arraycopy(this.contents, 0, this.bytes, this.headerOffset, this.contentsOffset);
+		}
+		return this.bytes;
 	}
 
 	/**

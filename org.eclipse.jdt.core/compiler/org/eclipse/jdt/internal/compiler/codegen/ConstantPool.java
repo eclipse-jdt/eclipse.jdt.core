@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -748,23 +749,41 @@ public int literalIndexForLdc(char[] stringCharArray) {
 	}
 	return index;
 }
+/**
+ * @param key1 the given name
+ * @param key2 the given signature
+ * @param value the given index
+ * @return the new index
+ */
 private int putInNameAndTypeCacheIfAbsent(final char[] key1, final char[] key2, int value) {
 	int index ;
-	CharArrayCache key1Value = (CharArrayCache) this.nameAndTypeCacheForFieldsAndMethods.get(key1);
+	Object key1Value = this.nameAndTypeCacheForFieldsAndMethods.get(key1);
 	if (key1Value == null) {
-		CharArrayCache charArrayCache = new CharArrayCache();
-		index = charArrayCache.putIfAbsent(key2, value);
-		this.nameAndTypeCacheForFieldsAndMethods.put(key1, charArrayCache);
+		CachedIndexEntry cachedIndexEntry = new CachedIndexEntry(key2, value);
+		index = -value;
+		this.nameAndTypeCacheForFieldsAndMethods.put(key1, cachedIndexEntry);
+	} else if (key1Value instanceof CachedIndexEntry) {
+		// adding a second entry
+		CachedIndexEntry entry = (CachedIndexEntry) key1Value;
+		if (CharOperation.equals(key2, entry.signature)) {
+			index = entry.index;
+		} else {
+			CharArrayCache charArrayCache = new CharArrayCache();
+			charArrayCache.putIfAbsent(entry.signature, entry.index);
+			index = charArrayCache.putIfAbsent(key2, value);
+			this.nameAndTypeCacheForFieldsAndMethods.put(key1, charArrayCache);			
+		}
 	} else {
-		index = key1Value.putIfAbsent(key2, value);
+		CharArrayCache charArrayCache = (CharArrayCache) key1Value;
+		index = charArrayCache.putIfAbsent(key2, value);
 	}
 	return index;
 }
 /**
- * @param key1
- * @param key2
- * @param key3
- * @param value
+ * @param key1 the given declaring class name
+ * @param key2 the given field name or method selector
+ * @param key3 the given signature
+ * @param value the new index
  * @return the given index
  */
 private int putInCacheIfAbsent(final char[] key1, final char[] key2, final char[] key3, int value) {
@@ -773,16 +792,28 @@ private int putInCacheIfAbsent(final char[] key1, final char[] key2, final char[
 	if (key1Value == null) {
 		key1Value = new HashtableOfObject();
 		this.methodsAndFieldsCache.put(key1, key1Value);
-		CharArrayCache charArrayCache = new CharArrayCache();
-		index = charArrayCache.putIfAbsent(key3, value);
-		key1Value.put(key2, charArrayCache);
+		CachedIndexEntry cachedIndexEntry = new CachedIndexEntry(key3, value);
+		index = -value;
+		key1Value.put(key2, cachedIndexEntry);
 	} else {
-		CharArrayCache charArrayCache = (CharArrayCache) key1Value.get(key2);
-		if (charArrayCache == null) {
-			charArrayCache = new CharArrayCache();
-			index = charArrayCache.putIfAbsent(key3, value);
-			key1Value.put(key2, charArrayCache);
+		Object key2Value = key1Value.get(key2);
+		if (key2Value == null) {
+			CachedIndexEntry cachedIndexEntry = new CachedIndexEntry(key3, value);
+			index = -value;
+			key1Value.put(key2, cachedIndexEntry);
+		} else if (key2Value instanceof CachedIndexEntry) {
+			// adding a second entry
+			CachedIndexEntry entry = (CachedIndexEntry) key2Value;
+			if (CharOperation.equals(key3, entry.signature)) {
+				index = entry.index;
+			} else {
+				CharArrayCache charArrayCache = new CharArrayCache();
+				charArrayCache.putIfAbsent(entry.signature, entry.index);
+				index = charArrayCache.putIfAbsent(key3, value);				
+				key1Value.put(key2, charArrayCache);
+			}
 		} else {
+			CharArrayCache charArrayCache = (CharArrayCache) key2Value;
 			index = charArrayCache.putIfAbsent(key3, value);			
 		}
 	}
