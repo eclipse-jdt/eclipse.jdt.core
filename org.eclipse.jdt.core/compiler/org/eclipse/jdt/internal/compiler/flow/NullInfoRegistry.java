@@ -148,7 +148,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 		}
 		else {
 			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+			if (vectorIndex >= (oldLength = this.extra[2].length)) {
 				int newLength = vectorIndex + 1;
 				for (int j = 2 /* do not care about non null info */; 
 						j < extraLength; j++) {
@@ -183,7 +183,7 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
 		}
 		else {
 			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+			if (vectorIndex >= (oldLength = this.extra[2].length)) {
 				int newLength = vectorIndex + 1;
 				for (int j = 2 /* do not care about non null info */; 
 						j < extraLength; j++) {
@@ -218,7 +218,7 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 		}
 		else {
 			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+			if (vectorIndex >= (oldLength = this.extra[2].length)) {
 				int newLength = vectorIndex + 1;
 				for (int j = 2 /* do not care about non null info */; 
 						j < extraLength; j++) {
@@ -253,7 +253,7 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 		}
 		else {
 			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+			if (vectorIndex >= (oldLength = this.extra[2].length)) {
 				int newLength = vectorIndex + 1;
 				for (int j = 2 /* do not care about non null info */; 
 						j < extraLength; j++) {
