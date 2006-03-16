@@ -70,6 +70,20 @@ public void testAddFileToNonJavaProject() throws CoreException {
 	}
 }
 /*
+ * Ensiure that no markers are created for a non-Java project
+ * (regression test for bug 131937 JDT core adding problem markers to non-java projects)
+ */
+public void testCreateNonJavaProject() throws CoreException {
+	try {
+		IProject project = createProject("NonJava");
+		waitForAutoBuild();
+		IMarker[] markers = project.findMarkers(null/*all type of markers*/, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "", markers);
+	} finally {
+		deleteProject("NonJava");
+	}
+}
+/*
  * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
  * Case of non-accessible resources
  */

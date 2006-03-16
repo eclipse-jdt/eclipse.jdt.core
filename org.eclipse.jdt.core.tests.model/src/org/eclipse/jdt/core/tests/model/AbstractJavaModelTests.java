@@ -370,6 +370,24 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
 	}
+	protected void assertMarkers(String message, String expectedMarkers, IMarker[] markers) throws CoreException {
+		StringBuffer buffer = new StringBuffer();
+		if (markers != null) {
+			for (int i = 0, length = markers.length; i < length; i++) {
+				IMarker marker = markers[i];
+				buffer.append(marker.getAttribute(IMarker.MESSAGE));
+				if (i != length-1) {
+					buffer.append("\n");
+				}
+			}
+		}
+		String actual = buffer.toString();
+		if (!expectedMarkers.equals(actual)) {
+		 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		}
+		assertEquals(message, expectedMarkers, actual);
+	}
+	
 	protected void assertProblems(String message, String expected, ProblemRequestor problemRequestor) {
 		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
 		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);

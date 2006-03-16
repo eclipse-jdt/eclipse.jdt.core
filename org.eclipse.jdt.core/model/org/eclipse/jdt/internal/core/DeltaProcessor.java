@@ -391,20 +391,20 @@ public class DeltaProcessor {
 						// workaround for bug 15168 circular errors not reported 
 						if (JavaProject.hasJavaNature(project)) {
 							this.addToParentInfo(javaProject);
+							
+							// ensure project references are updated (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121569)
+							try {
+								this.state.updateProjectReferences(
+									javaProject, 
+									null/*no old classpath*/, 
+									null/*compute new resolved classpath later*/, 
+									null/*read raw classpath later*/, 
+									false/*cannot change resources*/);
+							} catch (JavaModelException e1) {
+								// project always exists
+							}					
 						}
 						
-						// ensure project references are updated (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121569)
-						try {
-							this.state.updateProjectReferences(
-								javaProject, 
-								null/*no old classpath*/, 
-								null/*compute new resolved classpath later*/, 
-								null/*read raw classpath later*/, 
-								false/*cannot change resources*/);
-						} catch (JavaModelException e1) {
-							// project always exists
-						}
-					
 						this.state.rootsAreStale = true; 
 						break;
 						

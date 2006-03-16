@@ -132,19 +132,7 @@ protected void assertMarkers(String message, String expectedMarkers, IJavaProjec
 	waitForAutoBuild();
 	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	this.sortMarkers(markers);
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = markers.length; i < length; i++) {
-		IMarker marker = markers[i];
-		buffer.append(marker.getAttribute(IMarker.MESSAGE));
-		if (i != length-1) {
-			buffer.append("\n");
-		}
-	}
-	String actual = buffer.toString();
-	if (!expectedMarkers.equals(actual)) {
-	 	System.out.println(Util.displayString(actual, 2));
-	}
-	assertEquals(message, expectedMarkers, actual);
+	assertMarkers(message, expectedMarkers, markers);
 }
 protected void assertStatus(String expected, IStatus status) {
 	String actual = status.getMessage();
