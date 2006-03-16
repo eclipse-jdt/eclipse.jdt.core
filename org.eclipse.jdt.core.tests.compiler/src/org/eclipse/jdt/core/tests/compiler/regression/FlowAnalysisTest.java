@@ -638,6 +638,32 @@ public void test022() {
 		"----------\n",
 		null, true, options);
 }
+public void test023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		final X x;\n" + 
+			"		while (true) {\n" + 
+			"			if (true) {\n" + 
+			"				break;\n" + 
+			"			}\n" + 
+			"			x = new X();\n" + 
+			"		}\n" + 
+			"		x.foo();\n" + 
+			"	}\n" + 
+			"	public void foo() {\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	x.foo();\n" + 
+		"	^\n" + 
+		"The local variable x may not have been initialized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
