@@ -386,6 +386,8 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 			switch (entry.getEntryKind()) {
 				case IClasspathEntry.CPE_PROJECT :
 					p = workspaceRoot.getProject(path.lastSegment()); // missing projects are considered too
+					if (((ClasspathEntry) entry).isOptional() && !JavaProject.hasJavaNature(p)) // except if entry is optional
+						p = null;
 					break;
 				case IClasspathEntry.CPE_LIBRARY :
 					if (includeBinaryPrerequisites && path.segmentCount() > 1) {

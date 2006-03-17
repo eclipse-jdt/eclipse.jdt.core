@@ -199,6 +199,12 @@ public class TestingEnvironment {
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, new IAccessRule[] {accessRule}, true, new IClasspathAttribute[0], false));
 	}
 
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, boolean isOptional) throws JavaModelException {
+		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
+		IClasspathAttribute[] attributes = isOptional ? new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true")} : new IClasspathAttribute[0];
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, null, true, attributes, false));
+	}
+
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {
 		addExternalJars(projectPath, jars, false);
 	}

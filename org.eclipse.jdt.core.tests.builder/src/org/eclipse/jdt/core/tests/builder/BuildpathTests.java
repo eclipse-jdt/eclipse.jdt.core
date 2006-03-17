@@ -406,4 +406,51 @@ public class BuildpathTests extends BuilderTests {
 		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
 		JavaCore.setOptions(options);
 	}
+	
+	public void testMissingOptionalProject() throws JavaModelException {
+		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		IPath project2Path = env.addProject("MP2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, true/*optional*/);
+
+		fullBuild();
+		expectingNoProblems();
+
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		env.removeProject(project1Path);
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		//----------------------------
+		//           Step 3
+		//----------------------------
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
+		env.removeProject(project1Path);
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
+		JavaCore.setOptions(options);
+	}
+
 }
