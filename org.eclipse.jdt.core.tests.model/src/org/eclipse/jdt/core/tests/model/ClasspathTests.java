@@ -3538,7 +3538,7 @@ public void testOptionalEntry3() throws CoreException {
 		IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true");
 		IClasspathEntry[] classpath = 
 			new IClasspathEntry[] {
-				JavaCore.newProjectEntry(new Path("/B"), null, false, new IClasspathAttribute[] {attribute}, false)
+				JavaCore.newProjectEntry(new Path("/B"), null/*no access rules*/, false/*don't combine access rule*/, new IClasspathAttribute[] {attribute}, false/*not exported*/)
 			};
 		javaProject.setRawClasspath(classpath, null);
 		assertMarkers(
