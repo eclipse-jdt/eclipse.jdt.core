@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
 
 import junit.framework.*;
 
@@ -556,6 +558,34 @@ public void testLocalClass8() throws JavaModelException {
 		"LocalClass [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 		elements
 	);
+}
+/*
+ * Resolve the local class in a class file and ensure it is a binary type.
+ * (regression test for bug 131459 Java model returns stale resolved source type for binary type
+ */
+public void testLocalClass9() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		addLibrary(
+			project, 
+			"lib.jar", 
+			"libsrc.zip", 
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    class Y {\n" +
+				"    }\n" +
+				"  }\n" +
+				"}"
+			}, 
+			"1.4");
+		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "X.class");
+		IJavaElement[] elements = codeSelect(classFile, "Y", "Y");
+		assertTrue("Should be a binary type", ((IType) elements[0]).isBinary());
+	} finally {
+		deleteProject("P");
+	}
 }
 /**
  * Resolve a local constructor

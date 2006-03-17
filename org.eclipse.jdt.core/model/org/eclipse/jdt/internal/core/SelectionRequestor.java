@@ -297,7 +297,7 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 			}
 		} else if(methodBinding.selector == TypeConstants.INIT && res.getElementType() == IJavaElement.TYPE) {
 			// it's a default constructor
-			res = new ResolvedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(methodBinding.declaringClass.computeUniqueKey()));
+			res = ((JavaElement)res).resolved(methodBinding.declaringClass);
 			addElement(res);
 			if(SelectionEngine.DEBUG){
 				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
@@ -316,7 +316,7 @@ public void acceptLocalType(TypeBinding typeBinding) {
 		res = findLocalElement(((SourceTypeBinding)typeBinding).sourceStart());
 	}
 	if(res != null && res.getElementType() == IJavaElement.TYPE) {
-		res = new ResolvedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.computeUniqueKey()));
+		res = ((JavaElement)res).resolved(typeBinding);
 		addElement(res);
 		if(SelectionEngine.DEBUG){
 			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
