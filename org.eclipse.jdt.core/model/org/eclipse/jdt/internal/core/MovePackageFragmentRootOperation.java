@@ -45,6 +45,27 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 					System.arraycopy(classpath, 0, newClasspath, 0, i);
 					newCPIndex = i;
 				}
+			} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				// update exclusion/inclusion patterns
+				IPath projectRelativePath = rootPath.removeFirstSegments(1);
+				IPath[] newExclusionPatterns = renamePatterns(projectRelativePath, entry.getExclusionPatterns());
+				IPath[] newInclusionPatterns = renamePatterns(projectRelativePath, entry.getInclusionPatterns());
+				if (newExclusionPatterns != null || newInclusionPatterns != null) {
+					if (newClasspath == null) {
+						newClasspath = new IClasspathEntry[cpLength];
+						System.arraycopy(classpath, 0, newClasspath, 0, i);
+						newCPIndex = i;
+					}
+					newClasspath[newCPIndex++] = 
+						JavaCore.newSourceEntry(
+							entry.getPath(), 
+							newInclusionPatterns == null ? entry.getInclusionPatterns() : newInclusionPatterns, 
+							newExclusionPatterns == null ? entry.getExclusionPatterns() : newExclusionPatterns, 
+							entry.getOutputLocation(), 
+							entry.getExtraAttributes());
+				} else if (newClasspath != null) {
+					newClasspath[newCPIndex++] = entry;
+				}
 			} else if (newClasspath != null) {
 				newClasspath[newCPIndex++] = entry;
 			}
@@ -54,8 +75,31 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 			if (newCPIndex < newClasspath.length) {
 				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
-			project.setRawClasspath(newClasspath, progressMonitor);
+			IJavaModelStatus status = JavaConventions.validateClasspath(project, newClasspath, project.getOutputLocation());
+			if (status.isOK())
+				project.setRawClasspath(newClasspath, progressMonitor);
+			// don't update classpath if status is not ok to avoid JavaModelException (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=129991)
 		}
+	}
+
+	private IPath[] renamePatterns(IPath rootPath, IPath[] patterns) {
+		IPath[] newPatterns = null;
+		int newPatternsIndex = -1;
+		for (int i = 0, length = patterns.length; i < length; i++) {
+			IPath pattern = patterns[i];
+			if (pattern.equals(rootPath)) {
+				if (newPatterns == null) {
+					newPatterns = new IPath[length];
+					System.arraycopy(patterns, 0, newPatterns, 0, i);
+					newPatternsIndex = i;
+				}
+				IPath newPattern = this.destination.removeFirstSegments(1);
+				if (pattern.hasTrailingSeparator())
+					newPattern = newPattern.addTrailingSeparator();
+				newPatterns[newPatternsIndex++] = newPattern;
+			}
+		}
+		return newPatterns;
 	}
 
 	public MovePackageFragmentRootOperation(

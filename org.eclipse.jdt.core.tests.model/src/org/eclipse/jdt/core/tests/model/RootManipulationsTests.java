@@ -962,6 +962,69 @@ public void testRenameSourceFolder1() throws CoreException {
 	}
 }
 /*
+ * Ensure that renaming a nested source root doesn't throw a JavaModelException
+ * (regression test for bug 129991 [refactoring] Rename sourcefolder fails with JME)
+ */
+public void testRenameSourceFolder3() throws CoreException {
+	try {
+		createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry excluding=\"src1/\" kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\"/>\n" + 
+			"</classpath>"
+		);
+		createFolder("/P/src1");
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P/src1");
+		startDeltas();
+		move(root, new Path("/P/src2"));
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+			"	src1[-]: {MOVED_TO(src2 [in P])}\n" + 
+			"	src2[+]: {MOVED_FROM(src1 [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
+ * Ensure that renaming a nested source root doesn't throw a JavaModelException
+ * (regression test for bug 129991 [refactoring] Rename sourcefolder fails with JME)
+ */
+public void testRenameSourceFolder4() throws CoreException {
+	try {
+		createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry excluding=\"src1/**\" kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\"/>\n" + 
+			"</classpath>"
+		);
+		createFolder("/P/src1");
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P/src1");
+		startDeltas();
+		move(root, new Path("/P/src2"));
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	src1[-]: {MOVED_TO(src2 [in <project root> [in P]])}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		src2[+]: {MOVED_FROM(<default> [in src1 [in P]])}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
  * Ensure that renaming a source root keeps the same roots order,
  * and that it triggers the right delta and that the model is up-to-date.
  */
