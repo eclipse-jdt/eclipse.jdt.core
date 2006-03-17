@@ -9,21 +9,25 @@
  *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.util;
+package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 
-public class ReaderAnnotationScanner extends AnnotationScanner {
+
+public class CharArrayAnnotationScanner extends AnnotationScanner {
+
+	private final char[] _data;
+	private int index = 0;
 	
-	private final InputStreamReader _reader;
-	
-	public ReaderAnnotationScanner(final InputStreamReader reader) {
-		_reader = reader;
+	public CharArrayAnnotationScanner(final char[] data) {
+		_data = data;
 	}
-
+	
 	@Override
 	protected int getNext() throws IOException {
-		return _reader.read();
+		if (index == _data.length - 1) 
+			return -1;
+		return _data[index++];
 	}
+
 }

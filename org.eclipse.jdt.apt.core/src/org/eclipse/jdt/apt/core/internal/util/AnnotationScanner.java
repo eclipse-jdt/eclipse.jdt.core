@@ -9,11 +9,11 @@
  *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.util;
+package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.IOException;
 
-import static org.eclipse.jdt.apt.core.util.AnnotationScanner.State.*;
+import static org.eclipse.jdt.apt.core.internal.util.AnnotationScanner.State.*;
 
 /**
  * Utility scanner for quickly determining if a file contains annotations

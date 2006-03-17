@@ -9,10 +9,11 @@
  *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.util;
+package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 
 public class InputStreamAnnotationScanner extends AnnotationScanner {
 
