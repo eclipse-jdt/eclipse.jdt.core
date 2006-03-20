@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
@@ -539,6 +538,7 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 				return this.getTypeBinding(compilerExpression.resolvedType);
 			case ASTNode.STRING_LITERAL :
+				if (this.scope == null) return null;
 				return this.getTypeBinding(this.scope.getJavaLangString());
 			case ASTNode.BOOLEAN_LITERAL :
 			case ASTNode.NULL_LITERAL : 
@@ -600,6 +600,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	synchronized IBinding resolveImport(ImportDeclaration importDeclaration) {
+		if (this.scope == null) return null;
 		try {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
 			if (node instanceof ImportReference) {
@@ -653,7 +654,7 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 			}
-		} catch(RuntimeException e) {
+		} catch(AbortCompilation e) {
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
@@ -749,11 +750,12 @@ class DefaultBindingResolver extends BindingResolver {
 				Binding binding = null;
 				try {
 					if (internalScope == null) {
+						if (this.scope == null) return null;
 						binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					} else {
 						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					}
-				} catch (RuntimeException e) {
+				} catch (AbortCompilation e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
@@ -827,11 +829,12 @@ class DefaultBindingResolver extends BindingResolver {
 					Binding binding = null;
 					try {
 						if (internalScope == null) {
+							if (this.scope == null) return null;
 							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						} else {
 							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						}
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
@@ -849,16 +852,17 @@ class DefaultBindingResolver extends BindingResolver {
 			int importReferenceLength = importReference.tokens.length;
 			if (index >= 0) {
 				Binding binding = null;
+				if (this.scope == null) return null;
 				if (importReferenceLength == index) {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), importReference.onDemand, importReference.isStatic());
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				} else {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				}
@@ -957,11 +961,12 @@ class DefaultBindingResolver extends BindingResolver {
 				Binding binding = null;
 				try {
 					if (internalScope == null) {
+						if (this.scope == null) return null;
 						binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					} else {
 						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					}
-				} catch (RuntimeException e) {
+				} catch (AbortCompilation e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
@@ -1034,11 +1039,12 @@ class DefaultBindingResolver extends BindingResolver {
 					Binding binding = null;
 					try {
 						if (internalScope == null) {
+							if (this.scope == null) return null;
 							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						} else {
 							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						}
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
@@ -1056,16 +1062,17 @@ class DefaultBindingResolver extends BindingResolver {
 			int importReferenceLength = importReference.tokens.length;
 			if (index >= 0) {
 				Binding binding = null;
+				if (this.scope == null) return null;
 				if (importReferenceLength == index) {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), importReference.onDemand, importReference.isStatic());
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				} else {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
-					} catch (RuntimeException e) {
+					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				}
@@ -1203,6 +1210,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolvePackage(PackageDeclaration)
 	 */
 	synchronized IPackageBinding resolvePackage(PackageDeclaration pkg) {
+		if (this.scope == null) return null;
 		try {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
 			if (node instanceof ImportReference) {
@@ -1221,7 +1229,7 @@ class DefaultBindingResolver extends BindingResolver {
 					return packageBinding;
 				}
 			}
-		} catch (RuntimeException e) {
+		} catch (AbortCompilation e) {
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
@@ -1383,6 +1391,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (binding != null) {
 				if (type.isArrayType()) {
 					ArrayType arrayType = (ArrayType) type;
+					if (this.scope == null) return null;
 					if (binding.isArrayType()) {
 						ArrayBinding arrayBinding = (ArrayBinding) binding;
 						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
@@ -1510,6 +1519,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized ITypeBinding resolveWellKnownType(String name) {
+		if (this.scope == null) return null;
 		try {
 			if (("boolean".equals(name))//$NON-NLS-1$
 				|| ("char".equals(name))//$NON-NLS-1$
