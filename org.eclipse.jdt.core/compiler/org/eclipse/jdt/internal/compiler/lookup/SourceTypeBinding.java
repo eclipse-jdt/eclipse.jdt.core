@@ -571,7 +571,8 @@ public FieldBinding[] fields() {
 		// lazily sort fields
 		if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
 			int length = this.fields.length;
-			if (length > 1) 	ReferenceBinding.sortFields(this.fields, 0, length - 1);
+			if (length > 1)
+				ReferenceBinding.sortFields(this.fields, 0, length - 1);
 			this.tagBits |= TagBits.AreFieldsSorted;
 		}			
 		for (int i = 0, length = this.fields.length; i < length; i++) {
@@ -589,9 +590,8 @@ public FieldBinding[] fields() {
 
 			FieldBinding[] newFields = new FieldBinding[newSize];
 			for (int i = 0, j = 0, length = this.fields.length; i < length; i++) {
-				if (this.fields[i] != null) {
+				if (this.fields[i] != null)
 					newFields[j++] = this.fields[i];
-				}
 			}
 			this.fields = newFields;
 		}
@@ -679,7 +679,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 		long range;
 		if ((range = ReferenceBinding.binarySearch(TypeConstants.INIT, this.methods)) >= 0) {
 			nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
-				MethodBinding method = this.methods[imethod];			
+				MethodBinding method = this.methods[imethod];
 				if (method.parameters.length == argCount) {
 					TypeBinding[] toMatch = method.parameters;
 					for (int iarg = 0; iarg < argCount; iarg++)
@@ -693,7 +693,8 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 		// lazily sort methods
 		if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 			int length = this.methods.length;
-			if (length > 1) 	ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			if (length > 1)
+				ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 			this.tagBits |= TagBits.AreMethodsSorted;
 		}		
 		long range;
@@ -728,7 +729,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 		long range;
 		if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
 			nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
-				MethodBinding method = this.methods[imethod];			
+				MethodBinding method = this.methods[imethod];
 				foundNothing = false; // inner type lookups must know that a method with this name exists
 				if (method.parameters.length == argCount) {
 					TypeBinding[] toMatch = method.parameters;
@@ -743,7 +744,8 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 		// lazily sort methods
 		if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 			int length = this.methods.length;
-			if (length > 1) 	ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			if (length > 1)
+				ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 			this.tagBits |= TagBits.AreMethodsSorted;
 		}
 		
@@ -777,11 +779,9 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 				MethodBinding method = this.methods[imethod];						
 				TypeBinding[] toMatch = method.parameters;
 				if (toMatch.length == argCount) {
-					for (int iarg = 0; iarg < argCount; iarg++) {
-						if (toMatch[iarg] != argumentTypes[iarg]) {
+					for (int iarg = 0; iarg < argCount; iarg++)
+						if (toMatch[iarg] != argumentTypes[iarg])
 							continue nextMethod;
-						}
-					}
 					return method;
 				}
 			}				
@@ -807,13 +807,14 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 //NOTE: the type of a field of a source type is resolved when needed
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	
-	if ((this.tagBits & TagBits.AreFieldsComplete) != 0) {
+	if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
-	}
+
 	// lazily sort fields
 	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
 		int length = this.fields.length;
-		if (length > 1) 	ReferenceBinding.sortFields(this.fields, 0, length - 1);
+		if (length > 1)
+			ReferenceBinding.sortFields(this.fields, 0, length - 1);
 		this.tagBits |= TagBits.AreFieldsSorted;
 	}		
 	// always resolve anyway on source types
@@ -862,7 +863,8 @@ public MethodBinding[] getMethods(char[] selector) {
 	// lazily sort methods
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
-		if (length > 1) 	ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+		if (length > 1)
+			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	MethodBinding[] result;	
@@ -1050,14 +1052,14 @@ public boolean hasMemberTypes() {
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
-	
 	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
 		return this.methods;
 	
 	// lazily sort methods
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
-		if (length > 1) 	ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+		if (length > 1)
+			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 

@@ -806,6 +806,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		unitScope.recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
 		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES) {
+			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -1130,6 +1131,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
+							// TODO (kent) Add cases that justify these tests
 							if (matchingMethod.typeVariables != Binding.NO_TYPE_VARIABLES && invocationSite.genericTypeArguments() == null)
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
@@ -1322,7 +1324,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 		if (isCompliant14) {
 			matchingMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
-			if (parameterCompatibilityLevel(matchingMethod, argumentTypes) > COMPATIBLE) {
+			if (matchingMethod.isValidBinding() && parameterCompatibilityLevel(matchingMethod, argumentTypes) > COMPATIBLE) {
 				// see if there is a better match in the interfaces - see AutoBoxingTest 99
 				MethodBinding interfaceMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, new ObjectVector());
@@ -3365,7 +3367,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
 				if (compatibilityLevels[i] != level || skipValues[i] == -1) continue nextVisible; // skip this method for now
 				MethodBinding original = visible[i].original();
-				MethodBinding method = visible[i].tiebreakMethod();
+				MethodBinding tiebreakMethod = visible[i].tiebreakMethod();
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
 					max = level; // do not examine further categories
@@ -3373,14 +3375,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (original == original2)
 						continue; // parameterized superclasses & interfaces may be walked twice from different paths
 
-					MethodBinding method2 = visible[j].tiebreakMethod();
-					if (!isMoreSpecificMethod(method, method2)) {
-						if (!isMoreSpecificMethod(method2, method))
+					MethodBinding tiebreakMethod2 = visible[j].tiebreakMethod();
+					if (!isMoreSpecificMethod(tiebreakMethod, tiebreakMethod2)) {
+						if (!isMoreSpecificMethod(tiebreakMethod2, tiebreakMethod))
 							skipValues[j] = -1; // no point checking method2 either
 						continue nextVisible; // method2 is a better match
 					}
 
-					if (method.areParametersEqual(method2)) {
+					if (tiebreakMethod.areParametersEqual(tiebreakMethod2)) {
+						MethodBinding method = tiebreakMethod;
+						MethodBinding method2 = tiebreakMethod2;
 						if (method.isStatic() && method2.isStatic()) {
 							// if you knew that method overrode method2, it would help
 							TypeBinding superType = method.declaringClass.erasure().findSuperTypeWithSameErasure(method2.declaringClass.erasure());
@@ -3394,7 +3398,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						if (method.declaringClass == method2.declaringClass)
 							continue nextVisible; // duplicates thru substitution
 
-						if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract() && receiverType != null) {
+						if (method.isAbstract() == method2.isAbstract() && receiverType != null
+							&& (method.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES)) {
 							// class A<T> { void foo(T t) {} }
 							// class B<T, S> extends A<S> { void foo(T t) {} }
 							receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
@@ -3424,6 +3429,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									}
 								}
 							}
+							// when method has no type variables and method2 does, then you need a way to substitute them with their erasures at least
 							if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
 								method2 = method.computeSubstitutedMethod(method2, environment());
 							if (method2 == null || !method.areParametersEqual(method2)) {
@@ -3432,21 +3438,20 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							}
 							// method overrides method2, accept it
 						} else if (!original.areTypeVariableErasuresEqual(original2)) {
+							// to detect   class AA<T> { void test() {} }   vs   class BB extends AA<CC> { <U> void test() {} }
 							if (original.typeVariables != Binding.NO_TYPE_VARIABLES) {
 								skipValues[j] = -1;
 								continue nextVisible; // method is not better since variables are not equal
 							}
-							continue nextVisible; // method2 is better match than method
 						}
 					}
 				}
-				method = visible[i]; // instead of the tieBreakMethod
-				compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-				return method;
+				compilationUnitScope().recordTypeReferences(visible[i].thrownExceptions);
+				return visible[i];
 			}
 		}
 		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
-	}	
+	}
 
 	public final ClassScope outerMostClassScope() {
 		ClassScope lastClassScope = null;
