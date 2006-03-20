@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 936 };
+//		TESTS_NUMBERS = new int[] { 957 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -30055,5 +30055,26 @@ public void test0956() {
 		"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132348
+public void test0957() {
+	this.runNegativeTest(
+		new String[] {
+		"AnyInterface.java", //================================
+		"public interface AnyInterface {\n" + 
+		"        public void doSomething();\n" + 
+		"}",
+		"UsingGenericsClass",
+		"public class UsingGenericsClass<A,B extends A & AnyInterface> {\n" + 
+		"        public UsingGenericsClass(){\n" + 
+		"        }\n" + 
+		"}"
+		},
+		"----------\n" + 
+		"1. ERROR in UsingGenericsClass (at line 1)\n" + 
+		"	public class UsingGenericsClass<A,B extends A & AnyInterface> {\n" + 
+		"	                                                ^^^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound AnyInterface when first bound is a type parameter\n" + 
+		"----------\n");
 }
 }
