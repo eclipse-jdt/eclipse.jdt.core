@@ -3936,7 +3936,17 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		IBinding binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding); //$NON-NLS-1$
 		assertEquals("wrong name", binding.getName(), simpleName.getIdentifier()); //$NON-NLS-1$
-		assertTrue("Canonical method binding", methodBinding1 == methods[1]); //$NON-NLS-1$
+		// search method foo
+		IMethodBinding methodBinding = null;
+		loop: for (int i = 0, max = methods.length; i < max; i++) {
+			IMethodBinding currentMethod = methods[i];
+			if ("foo".equals(currentMethod.getName())) {
+				methodBinding = currentMethod;
+				break loop;
+			}
+		}
+		assertNotNull("Cannot be null", methodBinding);
+		assertTrue("Canonical method binding", methodBinding1 == methodBinding); //$NON-NLS-1$
 		assertTrue("declaring class is canonical", typeBinding == methodBinding1.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes = methodBinding1.getExceptionTypes();
 		assertNotNull("No exception types", exceptionTypes); //$NON-NLS-1$
@@ -3954,7 +3964,17 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		MethodDeclaration method2 = (MethodDeclaration) bodyDeclarations.get(1);
 		IMethodBinding methodBinding2 = method2.resolveBinding();
 		assertNotNull("No method binding for main", methodBinding2); //$NON-NLS-1$
-		assertTrue("Canonical method binding", methodBinding2 == methods[2]); //$NON-NLS-1$
+		// search main
+		methodBinding = null;
+		loop: for (int i = 0, max = methods.length; i < max; i++) {
+			IMethodBinding currentMethod = methods[i];
+			if ("main".equals(currentMethod.getName())) {
+				methodBinding = currentMethod;
+				break loop;
+			}
+		}
+		assertNotNull("Cannot be null", methodBinding);		
+		assertTrue("Canonical method binding", methodBinding2 == methodBinding); //$NON-NLS-1$
 		assertTrue("declaring class is canonical", typeBinding == methodBinding2.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes2 = methodBinding2.getExceptionTypes();
 		assertNotNull("No exception types", exceptionTypes2); //$NON-NLS-1$
@@ -3970,8 +3990,18 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		
 		MethodDeclaration method3 = (MethodDeclaration) bodyDeclarations.get(2);
 		IMethodBinding methodBinding3 = method3.resolveBinding();
-		assertNotNull("No method binding for main", methodBinding3); //$NON-NLS-1$
-		assertTrue("Canonical method binding", methodBinding3 == methods[3]); //$NON-NLS-1$
+		assertNotNull("No method binding for bar", methodBinding3); //$NON-NLS-1$
+		// search method bar
+		methodBinding = null;
+		loop: for (int i = 0, max = methods.length; i < max; i++) {
+			IMethodBinding currentMethod = methods[i];
+			if ("bar".equals(currentMethod.getName())) {
+				methodBinding = currentMethod;
+				break loop;
+			}
+		}
+		assertNotNull("Cannot be null", methodBinding);		
+		assertTrue("Canonical method binding", methodBinding3 == methodBinding); //$NON-NLS-1$
 		assertTrue("declaring class is canonical", typeBinding == methodBinding3.getDeclaringClass()); //$NON-NLS-1$
 		ITypeBinding[] exceptionTypes3 = methodBinding3.getExceptionTypes();
 		assertNotNull("No exception types", exceptionTypes3); //$NON-NLS-1$

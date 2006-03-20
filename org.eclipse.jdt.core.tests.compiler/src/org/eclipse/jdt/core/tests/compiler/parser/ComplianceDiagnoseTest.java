@@ -1982,12 +1982,12 @@ public void test0044() {
 		"4. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 
 		"	 ^^^^^^\n" + 
-		"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+		"Syntax error, type parameters are only available if source level is 5.0\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 
 		"	 ^^^^^^\n" + 
-		"Syntax error, type parameters are only available if source level is 5.0\n" + 
+		"Syntax error, parameterized types are only available if source level is 5.0\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 

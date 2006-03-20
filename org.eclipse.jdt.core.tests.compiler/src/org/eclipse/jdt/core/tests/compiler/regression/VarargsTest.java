@@ -688,22 +688,22 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	class Y extends X { void count(int[] values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method count(int[]) of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"Varargs methods should only override or be overridden by other varargs methods unlike Y.count(int[]) and X.count(int...)\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	class Y extends X { void count(int[] values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs methods should only override or be overridden by other varargs methods unlike Y.count(int[]) and X.count(int...)\n" + 
+			"The method count(int[]) of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 3)\n" + 
 			"	class Z extends Y { void count(int... values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method count(int...) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"Varargs methods should only override or be overridden by other varargs methods unlike Z.count(int...) and Y.count(int[])\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 3)\n" + 
 			"	class Z extends Y { void count(int... values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs methods should only override or be overridden by other varargs methods unlike Z.count(int...) and Y.count(int[])\n" + 
+			"The method count(int...) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}
 

@@ -171,7 +171,7 @@ public class ClassFile
 			classFile.recordEnclosingTypeAttributes(typeBinding);
 	
 		// add its fields
-		FieldBinding[] fields = typeBinding.fields;
+		FieldBinding[] fields = typeBinding.fields();
 		if ((fields != null) && (fields != Binding.NO_FIELDS)) {
 			classFile.addFieldInfos();
 		} else {
@@ -182,9 +182,6 @@ public class ClassFile
 		// leave some space for the methodCount
 		classFile.setForMethodInfos();
 		// add its user defined methods
-		MethodBinding[] methods = typeBinding.methods;
-		AbstractMethodDeclaration[] methodDeclarations = typeDeclaration.methods;
-		int maxMethodDecl = methodDeclarations == null ? 0 : methodDeclarations.length;
 		int problemsLength;
 		CategorizedProblem[] problems = unitResult.getErrors();
 		if (problems == null) {
@@ -192,49 +189,35 @@ public class ClassFile
 		}
 		CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 		System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-		if (methods != null) {
+		
+		AbstractMethodDeclaration[] methodDecls = typeDeclaration.methods;
+		if (methodDecls != null) {
 			if (typeBinding.isInterface()) {
 				// we cannot create problem methods for an interface. So we have to generate a clinit
 				// which should contain all the problem
 				classFile.addProblemClinit(problemsCopy);
-				for (int i = 0, max = methods.length; i < max; i++) {
-					MethodBinding methodBinding;
-					if ((methodBinding = methods[i]) != null) {
-						// find the corresponding method declaration
-						for (int j = 0; j < maxMethodDecl; j++) {
-							if ((methodDeclarations[j] != null)
-								&& (methodDeclarations[j].binding == methods[i])) {
-								if (!methodBinding.isConstructor()) {
-									classFile.addAbstractMethod(methodDeclarations[j], methodBinding);
-								}
-								break;
-							}
-						}
-					}
-				}
+				for (int i = 0, length = methodDecls.length; i < length; i++) {
+					AbstractMethodDeclaration methodDecl = methodDecls[i];
+					MethodBinding method = methodDecl.binding;
+					if (method == null || method.isConstructor()) continue;
+					classFile.addAbstractMethod(methodDecl, method);
+				}		
 			} else {
-				for (int i = 0, max = methods.length; i < max; i++) {
-					MethodBinding methodBinding;
-					if ((methodBinding = methods[i]) != null) {
-						// find the corresponding method declaration
-						for (int j = 0; j < maxMethodDecl; j++) {
-							if ((methodDeclarations[j] != null)
-								&& (methodDeclarations[j].binding == methods[i])) {
-								AbstractMethodDeclaration methodDecl;
-								if ((methodDecl = methodDeclarations[j]).isConstructor()) {
-									classFile.addProblemConstructor(methodDecl, methodBinding, problemsCopy);
-								} else {
-									classFile.addProblemMethod(methodDecl, methodBinding, problemsCopy);
-								}
-								break;
-							}
-						}
+				for (int i = 0, length = methodDecls.length; i < length; i++) {
+					AbstractMethodDeclaration methodDecl = methodDecls[i];
+					MethodBinding method = methodDecl.binding;
+					if (method == null) continue;
+					if (method.isConstructor()) {
+						classFile.addProblemConstructor(methodDecl, method, problemsCopy);
+					} else {
+						classFile.addProblemMethod(methodDecl, method, problemsCopy);
 					}
 				}
 			}
 			// add abstract methods
 			classFile.addDefaultAbstractMethods();
-		}
+		}		
+		
 		// propagate generation of (problem) member types
 		if (typeDeclaration.memberTypes != null) {
 			for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {

@@ -38,9 +38,7 @@ public class ClassScope extends Scope {
 	}
 	
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
-		
 		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
-
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if (supertype.isInterface()) {
 			sourceType.superclass = getJavaLangObject();
@@ -57,7 +55,7 @@ public class ClassScope extends Scope {
 	
 	private void buildFields() {
 		if (referenceContext.fields == null) {
-			referenceContext.binding.fields = Binding.NO_FIELDS;
+			referenceContext.binding.setFields(Binding.NO_FIELDS);
 			return;
 		}
 		// count the number of fields vs. initializers
@@ -84,6 +82,7 @@ public class ClassScope extends Scope {
 					problemReporter().interfaceCannotHaveInitializers(referenceContext.binding, field);
 			} else {
 				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, referenceContext.binding);
+				fieldBinding.id = count;
 				// field's type will be resolved when needed for top level types
 				checkAndSetModifiersForField(fieldBinding, field);
 
@@ -119,16 +118,16 @@ public class ClassScope extends Scope {
 			count = 0;
 			for (int i = 0; i < size; i++) {
 				FieldBinding fieldBinding = fieldBindings[i];
-				if (knownFieldNames.get(fieldBinding.name) != null)
+				if (knownFieldNames.get(fieldBinding.name) != null) {
+					fieldBinding.id = count;
 					newFieldBindings[count++] = fieldBinding;
+				}
 			}
 			fieldBindings = newFieldBindings;
 		}
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
-		for (int i = 0; i < count; i++)
-			fieldBindings[i].id = i;
-		referenceContext.binding.fields = fieldBindings;
+		referenceContext.binding.setFields(fieldBindings);
 	}
 	
 	void buildFieldsAndMethods() {
@@ -144,9 +143,7 @@ public class ClassScope extends Scope {
 			 ((SourceTypeBinding) memberTypes[i]).scope.buildFieldsAndMethods();
 	}
 	
-	private LocalTypeBinding buildLocalType(
-		SourceTypeBinding enclosingType,
-		PackageBinding packageBinding) {
+	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
 	    
 		referenceContext.scope = this;
 		referenceContext.staticInitializerScope = new MethodScope(this, referenceContext, true);
@@ -259,9 +256,9 @@ public class ClassScope extends Scope {
 	private void buildMethods() {
 		boolean isEnum = TypeDeclaration.kind(referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
 		if (referenceContext.methods == null && !isEnum) {
-			referenceContext.binding.methods = Binding.NO_METHODS;
+			referenceContext.binding.setMethods(Binding.NO_METHODS);
 			return;
-		}
+		} 
 
 		// iterate the method declarations to create the bindings
 		AbstractMethodDeclaration[] methods = referenceContext.methods;
@@ -278,8 +275,8 @@ public class ClassScope extends Scope {
 		int count = isEnum ? 2 : 0; // reserve 2 slots for special enum methods: #values() and #valueOf(String)
 		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + count];
 		// create special methods for enums
+	    SourceTypeBinding sourceType = referenceContext.binding;
 		if (isEnum) {
-		    SourceTypeBinding sourceType = referenceContext.binding;
 			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values() 
 			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf() 
 		}
@@ -294,8 +291,8 @@ public class ClassScope extends Scope {
 		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
-
-		referenceContext.binding.methods = methodBindings;
+		sourceType.tagBits &= ~TagBits.AreMethodsSorted; // in case some static imports reached already into this type
+		sourceType.setMethods(methodBindings);
 	}
 	
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding, AccessRestriction accessRestriction) {

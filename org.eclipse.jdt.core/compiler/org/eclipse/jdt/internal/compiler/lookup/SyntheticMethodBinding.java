@@ -78,13 +78,24 @@ public class SyntheticMethodBinding extends MethodBinding {
 			check : {
 				needRename = false;
 				// check for collision with known methods
-				MethodBinding[] methods = declaringSourceType.methods;
-				for (int i = 0, length = methods.length; i < length; i++) {
-					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
-						needRename = true;
-						break check;
+				long range;
+				MethodBinding[] methods = declaringSourceType.methods();
+				if ((range = ReferenceBinding.binarySearch(this.selector, methods)) >= 0) {
+					int paramCount = this.parameters.length;
+					nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
+						MethodBinding method = methods[imethod];			
+						if (method.parameters.length == paramCount) {
+							TypeBinding[] toMatch = method.parameters;
+							for (int i = 0; i < paramCount; i++) {
+								if (toMatch[i] != this.parameters[i]) {
+									continue nextMethod;
+								}
+							}
+							needRename = true;
+							break check;
+						}
 					}
-				}
+				}				
 				// check for collision with synthetic accessors
 				if (knownAccessMethods != null) {
 					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
@@ -156,13 +167,24 @@ public class SyntheticMethodBinding extends MethodBinding {
 			check : {
 				needRename = false;
 				// check for collision with known methods
-				MethodBinding[] methods = declaringSourceType.methods;
-				for (int i = 0, length = methods.length; i < length; i++) {
-					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
-						needRename = true;
-						break check;
+				long range;
+				MethodBinding[] methods = declaringSourceType.methods();
+				if ((range = ReferenceBinding.binarySearch(this.selector, methods)) >= 0) {
+					int paramCount = this.parameters.length;
+					nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
+						MethodBinding method = methods[imethod];			
+						if (method.parameters.length == paramCount) {
+							TypeBinding[] toMatch = method.parameters;
+							for (int i = 0; i < paramCount; i++) {
+								if (toMatch[i] != this.parameters[i]) {
+									continue nextMethod;
+								}
+							}
+							needRename = true;
+							break check;
+						}
 					}
-				}
+				}						
 				// check for collision with synthetic accessors
 				if (knownAccessMethods != null) {
 					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
@@ -274,7 +296,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			check : {
 				needRename = false;
 				// check for collision with known methods
-				MethodBinding[] methods = sourceType.methods;
+				MethodBinding[] methods = sourceType.methods();
 				for (int i = 0, length = methods.length; i < length; i++) {
 					if (CharOperation.equals(this.selector, methods[i].selector)
 						&& this.areParametersEqual(methods[i])) {
@@ -353,7 +375,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			check : {
 				needRename = false;
 				// check for collision with known methods
-				MethodBinding[] methods = declaringSourceType.methods;
+				MethodBinding[] methods = declaringSourceType.methods();
 				for (int i = 0, length = methods.length; i < length; i++) {
 					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
 						needRename = true;

@@ -2119,12 +2119,12 @@ public void test059() {
 		"1. WARNING in p\\FieldQualification.java (at line 6)\n" + 
 		"	String field = \"Enclosing field for anonymous type\";\n" + 
 		"	       ^^^^^\n" + 
-		"The field Local.field is never read locally\n" + 
+		"The field Local.field is hiding a field from type FieldQualification\n" + 
 		"----------\n" + 
 		"2. WARNING in p\\FieldQualification.java (at line 6)\n" + 
 		"	String field = \"Enclosing field for anonymous type\";\n" + 
 		"	       ^^^^^\n" + 
-		"The field Local.field is hiding a field from type FieldQualification\n" + 
+		"The field Local.field is never read locally\n" + 
 		"----------\n" + 
 		"3. WARNING in p\\FieldQualification.java (at line 7)\n" + 
 		"	void foo() {\n" + 

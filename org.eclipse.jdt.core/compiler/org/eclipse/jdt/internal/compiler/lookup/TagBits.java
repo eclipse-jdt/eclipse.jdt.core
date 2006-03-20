@@ -43,14 +43,16 @@ public interface TagBits {
 	long InterfaceVisited = ASTNode.Bit12;
 
 	// test bits to see if parts of binary types are faulted
-	long AreFieldsComplete = ASTNode.Bit13;
-	long AreMethodsComplete = ASTNode.Bit14;
+	long AreFieldsSorted = ASTNode.Bit13;
+	long AreFieldsComplete = ASTNode.Bit14; // sorted and all resolved
+	long AreMethodsSorted = ASTNode.Bit15;
+	long AreMethodsComplete = ASTNode.Bit16; // sorted and all resolved
 
 	// test bit to avoid asking a type for a member type (includes inherited member types)
-	long HasNoMemberTypes = ASTNode.Bit15;
+	long HasNoMemberTypes = ASTNode.Bit17;
 
 	// test bit to identify if the type's hierarchy is inconsistent
-	long HierarchyHasProblems = ASTNode.Bit16;
+	long HierarchyHasProblems = ASTNode.Bit18;
 
 	// set for parameterized type with successfull bound check
 	long PassedBoundCheck = ASTNode.Bit23;

@@ -1794,12 +1794,12 @@ public class EnumTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	switch (x) {\n" + 
 			"	        ^\n" + 
-			"The enum constant X.C has no corresponding case label\n" + 
+			"The enum constant X.B has no corresponding case label\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	switch (x) {\n" + 
 			"	        ^\n" + 
-			"The enum constant X.B has no corresponding case label\n" + 
+			"The enum constant X.C has no corresponding case label\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	case D:\n" + 
@@ -1837,12 +1837,12 @@ public class EnumTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	switch (x) {\n" + 
 			"	        ^\n" + 
-			"The enum constant X.C has no corresponding case label\n" + 
+			"The enum constant X.B has no corresponding case label\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	switch (x) {\n" + 
 			"	        ^\n" + 
-			"The enum constant X.B has no corresponding case label\n" + 
+			"The enum constant X.C has no corresponding case label\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	case X.D:\n" + 

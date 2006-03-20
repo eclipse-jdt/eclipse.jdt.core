@@ -384,29 +384,32 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		int argCount = argumentTypes.length;
 
 		if ((tagBits & TagBits.AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
-			nextMethod : for (int m = methods.length; --m >= 0;) {
-				MethodBinding method = methods[m];
-				if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
-					TypeBinding[] toMatch = method.parameters;
-					for (int p = 0; p < argCount; p++)
-						if (toMatch[p] != argumentTypes[p])
-							continue nextMethod;
-					return method;
+			long range;
+			if ((range = ReferenceBinding.binarySearch(TypeConstants.INIT, this.methods)) >= 0) {
+				nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
+					MethodBinding method = methods[imethod];			
+					if (method.parameters.length == argCount) {
+						TypeBinding[] toMatch = method.parameters;
+						for (int iarg = 0; iarg < argCount; iarg++)
+							if (toMatch[iarg] != argumentTypes[iarg])
+								continue nextMethod;
+						return method;
+					}
 				}
 			}
 		} else {
-			MethodBinding[] constructors = getMethods(TypeConstants.INIT); // takes care of duplicates & default abstract methods
-			nextConstructor : for (int c = constructors.length; --c >= 0;) {
-				MethodBinding constructor = constructors[c];
-				TypeBinding[] toMatch = constructor.parameters;
+			MethodBinding[] matchingMethods = getMethods(TypeConstants.INIT); // takes care of duplicates & default abstract methods
+			nextMethod : for (int m = matchingMethods.length; --m >= 0;) {
+				MethodBinding method = matchingMethods[m];
+				TypeBinding[] toMatch = method.parameters;
 				if (toMatch.length == argCount) {
 					for (int p = 0; p < argCount; p++)
 						if (toMatch[p] != argumentTypes[p])
-							continue nextConstructor;
-					return constructor;
+							continue nextMethod;
+						return method;
 				}
 			}
-		}
+		}		
 		return null;
 	}
 
@@ -416,19 +419,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 		// sender from refScope calls recordTypeReference(this)
 		int argCount = argumentTypes.length;
-		int selectorLength = selector.length;
 		boolean foundNothing = true;
 		MethodBinding match = null;
 
 		if ((tagBits & TagBits.AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
-			nextMethod : for (int m = methods.length; --m >= 0;) {
-				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
+			long range;
+			if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
+				nextMethod: for (int imethod = (int)range, end = (int)(range >> 32); imethod <= end; imethod++) {
+					MethodBinding method = methods[imethod];			
 					foundNothing = false; // inner type lookups must know that a method with this name exists
 					if (method.parameters.length == argCount) {
 						TypeBinding[] toMatch = method.parameters;
-						for (int p = 0; p < argCount; p++)
-							if (toMatch[p] != argumentTypes[p])
+						for (int iarg = 0; iarg < argCount; iarg++)
+							if (toMatch[iarg] != argumentTypes[iarg])
 								continue nextMethod;
 						if (match != null) return null; // collision case
 						match = method;
@@ -477,15 +480,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
 		fields(); // ensure fields have been initialized... must create all at once unlike methods
-		int fieldLength = fieldName.length;
-		for (int i = fields.length; --i >= 0;) {
-			FieldBinding field = fields[i];
-			if (field.name.length == fieldLength && CharOperation.equals(field.name, fieldName))
-				return field;
-		}
-		return null;
+		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
-
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
 	 */
@@ -504,26 +501,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
 	public MethodBinding[] getMethods(char[] selector) {
-		java.util.ArrayList matchingMethods = null;
 		if (this.methods != null) {
-			int selectorLength = selector.length;
-			for (int i = 0, length = this.methods.length; i < length; i++) {
-				MethodBinding method = this.methods[i];
-				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
-					if (matchingMethods == null)
-						matchingMethods = new java.util.ArrayList(2);
-					matchingMethods.add(method);
-				}
-			}
-			if (matchingMethods != null) {
-				MethodBinding[] result = new MethodBinding[matchingMethods.size()];
-				matchingMethods.toArray(result);
+			long range;
+			if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
+				int start = (int) range;
+				int length = (int) (range >> 32) - start + 1;
+				// cannot optimize since some clients rely on clone array
+				// if (start == 0 && length == this.methods.length) 
+				//	return this.methods; // current set is already interesting subset
+				MethodBinding[] result;
+				System.arraycopy(this.methods, start, result = new MethodBinding[length], 0, length);
 				return result;
 			}
 		}
-		if ((tagBits & TagBits.AreMethodsComplete) != 0)
+		if ((tagBits & TagBits.AreMethodsComplete) != 0) {
 			return Binding.NO_METHODS; // have created all the methods and there are no matches
-
+		}
 		MethodBinding[] parameterizedMethods = null;
 		try {
 		    MethodBinding[] originalMethods = this.type.getMethods(selector);
@@ -539,9 +532,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    	System.arraycopy(parameterizedMethods, 0, temp, 0, length);
 		    	this.methods = temp; // must be a copy of parameterizedMethods since it will be returned below
 		    } else {
-		    	MethodBinding[] temp = new MethodBinding[length + this.methods.length];
+		    	int total = length + this.methods.length;
+		    	MethodBinding[] temp = new MethodBinding[total];
 		    	System.arraycopy(parameterizedMethods, 0, temp, 0, length);
 		    	System.arraycopy(this.methods, 0, temp, length, this.methods.length);
+		    	if (total > 1) {
+		    		ReferenceBinding.sortMethods(temp, 0, total-1); // resort to ensure order is good
+		    	}
 		    	this.methods = temp;
 			}
 		    return parameterizedMethods;

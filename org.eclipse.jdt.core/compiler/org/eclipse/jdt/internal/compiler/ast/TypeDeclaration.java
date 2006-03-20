@@ -355,31 +355,31 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	TypeBinding[] argumentTypes = inheritedConstructorBinding.parameters;
 	int argumentsLength = argumentTypes.length;
 	//the constructor
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationResult);
-	cd.selector = new char[] { 'x' }; //no maining
-	cd.sourceStart = this.sourceStart;
-	cd.sourceEnd = this.sourceEnd;
+	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
+	constructor.selector = new char[] { 'x' }; //no maining
+	constructor.sourceStart = this.sourceStart;
+	constructor.sourceEnd = this.sourceEnd;
 	int newModifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 	if (inheritedConstructorBinding.isVarargs()) {
 		newModifiers |= ClassFileConstants.AccVarargs;
 	}
-	cd.modifiers = newModifiers;
-	cd.isDefaultConstructor = true;
+	constructor.modifiers = newModifiers;
+	constructor.isDefaultConstructor = true;
 
 	if (argumentsLength > 0) {
-		Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
+		Argument[] arguments = (constructor.arguments = new Argument[argumentsLength]);
 		for (int i = argumentsLength; --i >= 0;) {
 			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 		}
 	}
 	//the super call inside the constructor
-	cd.constructorCall = SuperReference.implicitSuperConstructorCall();
-	cd.constructorCall.sourceStart = this.sourceStart;
-	cd.constructorCall.sourceEnd = this.sourceEnd;
+	constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
+	constructor.constructorCall.sourceStart = this.sourceStart;
+	constructor.constructorCall.sourceEnd = this.sourceEnd;
 
 	if (argumentsLength > 0) {
 		Expression[] args;
-		args = cd.constructorCall.arguments = new Expression[argumentsLength];
+		args = constructor.constructorCall.arguments = new Expression[argumentsLength];
 		for (int i = argumentsLength; --i >= 0;) {
 			args[i] = new SingleNameReference((baseName + i).toCharArray(), 0L);
 		}
@@ -387,7 +387,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 
 	//adding the constructor in the methods list
 	if (this.methods == null) {
-		this.methods = new AbstractMethodDeclaration[] { cd };
+		this.methods = new AbstractMethodDeclaration[] { constructor };
 	} else {
 		AbstractMethodDeclaration[] newMethods;
 		System.arraycopy(
@@ -396,37 +396,34 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
 			1,
 			this.methods.length);
-		newMethods[0] = cd;
+		newMethods[0] = constructor;
 		this.methods = newMethods;
 	}
 
 	//============BINDING UPDATE==========================
-	cd.binding = new MethodBinding(
-			cd.modifiers, //methodDeclaration
+	constructor.binding = new MethodBinding(
+			constructor.modifiers, //methodDeclaration
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
 			inheritedConstructorBinding.thrownExceptions, //exceptions
 			this.binding); //declaringClass
 			
-	cd.scope = new MethodScope(this.scope, cd, true);
-	cd.bindArguments();
-	cd.constructorCall.resolve(cd.scope);
+	constructor.scope = new MethodScope(this.scope, constructor, true);
+	constructor.bindArguments();
+	constructor.constructorCall.resolve(constructor.scope);
 
-	if (this.binding.methods == null) {
-		this.binding.methods = new MethodBinding[] { cd.binding };
-	} else {
-		MethodBinding[] newMethods;
-		System.arraycopy(
-			this.binding.methods,
-			0,
-			newMethods = new MethodBinding[this.binding.methods.length + 1],
-			1,
-			this.binding.methods.length);
-		newMethods[0] = cd.binding;
-		this.binding.methods = newMethods;
-	}
+	MethodBinding[] oldMethods = this.binding.methods(); // trigger sorting
+	MethodBinding[] newMethods;
+	System.arraycopy(
+		this.binding.methods(),
+		0,
+		newMethods = new MethodBinding[oldMethods.length + 1],
+		1,
+		oldMethods.length);
+	newMethods[0] = constructor.binding; // position 0 is important, since if sorted, constructor will still be ahead
+	this.binding.setMethods(newMethods);
 	//===================================================
 
-	return cd.binding;
+	return constructor.binding;
 }
 
 /**

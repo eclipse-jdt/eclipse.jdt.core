@@ -244,12 +244,12 @@ public void test05() {
 		"1. ERROR in <test> (at line 3)\n"+
 		"	(X) foo(); 							\n"+
 		"	  ^\n"+
-		"Syntax error, insert \";\" to complete BlockStatements\n"+
+		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n"+
 		"----------\n"+
 		"2. ERROR in <test> (at line 3)\n"+
 		"	(X) foo(); 							\n"+
 		"	  ^\n"+
-		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n"+
+		"Syntax error, insert \";\" to complete BlockStatements\n"+
 		"----------\n";
 
 	String testName = "<test>";

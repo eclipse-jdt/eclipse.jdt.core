@@ -1480,4 +1480,42 @@ public class StaticImportTest extends AbstractComparableTest {
 			"The method foo_I() is undefined for the type X\n" + 
 			"----------\n");
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490 - variation
+	public void test040() {
+		this.runConformTest(
+			new String[] {
+				"p1/Z.java",//====================
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"	public interface I {\n" + 
+				"	}\n" + 
+				"}\n",
+				"q/Y.java",//====================
+				"package q;\n" + 
+				"import static p.X.foo;\n" + 
+				"import static p1.Z.I;\n" + 
+				"public class Y implements I {\n" + 
+				"}\n",
+				"p/X.java",//====================
+				"package p;\n" + 
+				"public class X {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n"	,			
+			},
+			"");
+		// recompile Y against binaries
+		this.runConformTest(
+			new String[] {
+				"q/Y.java",//====================
+				"package q;\n" + 
+				"import static p.X.foo;\n" + 
+				"import static p1.Z.I;\n" + 
+				"public class Y implements I {\n" + 
+				"}\n",
+			},
+			"",
+			null,
+			false,
+			null);
+	}	
 }

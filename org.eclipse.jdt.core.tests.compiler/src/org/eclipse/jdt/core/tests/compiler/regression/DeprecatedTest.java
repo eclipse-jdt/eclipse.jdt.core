@@ -158,15 +158,13 @@ public void test004() {
 		"1. WARNING in p\\Warning.java (at line 7)\n" + 
 		"	dateObj.UTC(1,2,3,4,5,6);\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" + 
+		"The static method UTC(int, int, int, int, int, int) from the type Date should be accessed in a static way\n" + 
 		"----------\n" + 
 		"2. WARNING in p\\Warning.java (at line 7)\n" + 
 		"	dateObj.UTC(1,2,3,4,5,6);\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The static method UTC(int, int, int, int, int, int) from the type Date should be accessed in a static way\n" + 
-		"----------\n"
-
-	);
+		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" + 
+		"----------\n");
 }
 public void test005() {
 	this.runConformTest(

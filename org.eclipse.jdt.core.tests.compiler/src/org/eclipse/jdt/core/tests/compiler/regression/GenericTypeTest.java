@@ -2369,14 +2369,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in test\\X.java (at line 2)\n" + 
 			"	public class X<A extends X1<X2<X3<String {}\n" + 
 			"	                                  ^^^^^^\n" + 
-			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
 			"----------\n" + 
 			"2. ERROR in test\\X.java (at line 2)\n" + 
 			"	public class X<A extends X1<X2<X3<String {}\n" + 
 			"	                                  ^^^^^^\n" + 
-			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
-			"----------\n"
-		);
+			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+			"----------\n");
 	}
 	public void test0084() {
 		this.runNegativeTest(
@@ -3533,15 +3532,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                            ^^^^^^^^\n" + 
 			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
-			"	new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
-			"	        ^^^^^^^^\n" + 
-			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 4)\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
 			"	new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
 			"	        ^^^^^^^^\n" + 
 			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 4)\n" + 
+			"	new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+			"	        ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 7)\n" + 
 			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
@@ -3848,15 +3847,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                         ^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends XY>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 14)\n" + 
-			"	public Class <? extends Object> getClass() {\n" + 
-			"	                                ^^^^^^^^^^\n" + 
-			"The method getClass() of type XY should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 14)\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	public Class <? extends Object> getClass() {\n" + 
 			"	                                ^^^^^^^^^^\n" + 
 			"Cannot override the final method from Object\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 14)\n" + 
+			"	public Class <? extends Object> getClass() {\n" + 
+			"	                                ^^^^^^^^^^\n" + 
+			"The method getClass() of type XY should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}			
 	// getClass on array type
@@ -4880,12 +4879,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<AX<T,T>,U>\n" + 
+			"Type safety: The constructor AX(Object) belongs to the raw type AX. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The constructor AX(Object) belongs to the raw type AX. References to generic type AX<E,F> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<AX<T,T>,U>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
@@ -4923,12 +4922,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<T>\n" + 
+			"Type safety: The constructor AX(Object) belongs to the raw type AX. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The constructor AX(Object) belongs to the raw type AX. References to generic type AX<E> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<T>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
@@ -7850,12 +7849,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	       ^^^^\n" + 
-			"Type safety: The return type List for useList(List) from the type Y needs unchecked conversion to conform to List<String> from the type X\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	       ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"Type safety: The return type List for useList(List) from the type Y needs unchecked conversion to conform to List<String> from the type X\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
@@ -7966,12 +7965,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Class getSomething() { return null; }\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: The return type Class for getSomething() from the type X needs unchecked conversion to conform to Class<? extends Y> from the type ISomething\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	public Class getSomething() { return null; }\n" + 
 			"	       ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The return type Class for getSomething() from the type X needs unchecked conversion to conform to Class<? extends Y> from the type ISomething\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822
@@ -16093,12 +16092,12 @@ public void test0500(){
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	                     ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum>\n" + 
+			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	                     ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum>\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
@@ -16242,12 +16241,12 @@ public void test0500(){
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
 			"	                        ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum<?>>\n" + 
+			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
 			"	                        ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum<?>>\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
@@ -16580,12 +16579,12 @@ public void test0500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from DA<capture-of ?> to DC<?>\n" + 
+			"Type safety: The cast from DA<capture-of ?> to DC<?> is actually checking against the erased type DC\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from DA<capture-of ?> to DC<?> is actually checking against the erased type DC\n" + 
+			"Unnecessary cast from DA<capture-of ?> to DC<?>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
@@ -20108,27 +20107,27 @@ public void test0663() {
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
 		"	         ^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from List<V> to List<U>\n" + 
+		"Type safety: The cast from List<V> to List<U> is actually checking against the erased type List\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
 		"	         ^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<V> to List<U> is actually checking against the erased type List\n" + 
+		"Unnecessary cast from List<V> to List<U>\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 11)\n" + 
 		"	List l = (List<List<U>>) lv;\n" + 
 		"	^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 11)\n" + 
-		"	List l = (List<List<U>>) lv;\n" + 
-		"	         ^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from List<List<V>> to List<List<U>>\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
 		"	List l = (List<List<U>>) lv;\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from List<List<V>> to List<List<U>>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 11)\n" + 
+		"	List l = (List<List<U>>) lv;\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<List<V>> to List<List<U>>\n" + 
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
@@ -23459,12 +23458,12 @@ public void test0768() {
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
 		"	                                    ^\n" + 
-		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
+		"Cannot specify any additional bound Z when first bound is a type parameter\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
 		"	                                    ^\n" + 
-		"Cannot specify any additional bound Z when first bound is a type parameter\n" + 
+		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
@@ -26180,12 +26179,12 @@ public void test0843() {
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
+		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
@@ -28133,47 +28132,47 @@ public void test0906() {
 			"    I<Integer> x3 = (I<Integer>) null;\n" + 
 			"    X x4 = (X) (I<Integer>) null;\n" + 
 			"}"},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	public class X implements I {\n" + 
-		"	                          ^\n" + 
-		"I is a raw type. References to generic type I<V> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
-		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from X to I<Integer>\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 5)\n" + 
-		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 5)\n" + 
-		"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
-		"	                             ^^^^^^^^\n" + 
-		"Unnecessary cast from null to X\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 6)\n" + 
-		"	I<Integer> x2 = (I<Integer>) new X();\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from X to I<Integer>\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 6)\n" + 
-		"	I<Integer> x2 = (I<Integer>) new X();\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 7)\n" + 
-		"	I<Integer> x3 = (I<Integer>) null;\n" + 
-		"	                ^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from null to I<Integer>\n" + 
-		"----------\n" + 
-		"8. WARNING in X.java (at line 8)\n" + 
-		"	X x4 = (X) (I<Integer>) null;\n" + 
-		"	           ^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from null to I<Integer>\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public class X implements I {\n" + 
+			"	                          ^\n" + 
+			"I is a raw type. References to generic type I<V> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from X to I<Integer>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 5)\n" + 
+			"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
+			"	                             ^^^^^^^^\n" + 
+			"Unnecessary cast from null to X\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 6)\n" + 
+			"	I<Integer> x2 = (I<Integer>) new X();\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 6)\n" + 
+			"	I<Integer> x2 = (I<Integer>) new X();\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from X to I<Integer>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 7)\n" + 
+			"	I<Integer> x3 = (I<Integer>) null;\n" + 
+			"	                ^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from null to I<Integer>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 8)\n" + 
+			"	X x4 = (X) (I<Integer>) null;\n" + 
+			"	           ^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from null to I<Integer>\n" + 
+			"----------\n");
 }
 
 // parametrized method with array extends Object upper bound verification
