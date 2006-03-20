@@ -110,6 +110,21 @@ protected CompletionResult contextComplete(ICompilationUnit cu, int cursorLocati
 	result.cursorLocation = cursorLocation;
 	return result;
 }
+protected CompletionResult snippetContextComplete(
+		IType type,
+		String snippet,
+		int insertion,
+		int cursorLocation,
+		boolean isStatic) throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	type.codeComplete(snippet.toCharArray(), insertion, cursorLocation, null, null, null, isStatic, requestor, this.wcOwner);
+	
+	CompletionResult result =  new CompletionResult();
+	result.proposals = requestor.getResults();
+	result.context = requestor.getContext();
+	result.cursorLocation = cursorLocation;
+	return result;
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getOptions();

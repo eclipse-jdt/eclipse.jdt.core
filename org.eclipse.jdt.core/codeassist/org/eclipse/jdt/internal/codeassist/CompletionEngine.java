@@ -670,7 +670,7 @@ public final class CompletionEngine
 			context.setExpectedTypesKeys(expKeys);
 		}
 		
-		context.setOffset(this.actualCompletionPosition + 1);
+		context.setOffset(this.actualCompletionPosition + 1 - this.offset);
 		
 		// Set javadoc info
 		if (astNode instanceof CompletionOnJavadoc) {
@@ -682,23 +682,23 @@ public final class CompletionEngine
 			CompletionScanner scanner = (CompletionScanner)this.parser.scanner;
 			context.setToken(scanner.completionIdentifier);
 			context.setTokenRange(
-					scanner.completedIdentifierStart,
-					scanner.completedIdentifierEnd,
-					scanner.endOfEmptyToken);
+					scanner.completedIdentifierStart - this.offset,
+					scanner.completedIdentifierEnd - this.offset,
+					scanner.endOfEmptyToken - this.offset);
 		} else if(astNode instanceof CompletionOnJavadocTag) {
 			CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
 			context.setToken(CharOperation.concat(new char[]{'@'}, javadocTag.token));
 			context.setTokenRange(
-					javadocTag.tagSourceStart,
-					javadocTag.tagSourceEnd,
-					((CompletionScanner)this.parser.javadocParser.scanner).endOfEmptyToken);
+					javadocTag.tagSourceStart - this.offset,
+					javadocTag.tagSourceEnd - this.offset,
+					((CompletionScanner)this.parser.javadocParser.scanner).endOfEmptyToken - this.offset);
 		} else {
 			CompletionScanner scanner = (CompletionScanner)this.parser.javadocParser.scanner;
 			context.setToken(scanner.completionIdentifier);
 			context.setTokenRange(
-					scanner.completedIdentifierStart,
-					scanner.completedIdentifierEnd,
-					scanner.endOfEmptyToken);
+					scanner.completedIdentifierStart - this.offset,
+					scanner.completedIdentifierEnd - this.offset,
+					scanner.endOfEmptyToken - this.offset);
 		}
 		
 		if(astNode instanceof CompletionOnStringLiteral) {
@@ -6427,7 +6427,7 @@ public final class CompletionEngine
 	}
 	
 	protected CompletionProposal createProposal(int kind, int completionOffset) {
-		CompletionProposal proposal = CompletionProposal.create(kind, completionOffset);
+		CompletionProposal proposal = CompletionProposal.create(kind, completionOffset - this.offset);
 		proposal.nameLookup = this.nameEnvironment.nameLookup;
 		proposal.completionEngine = this;
 		return proposal;
@@ -6440,7 +6440,7 @@ public final class CompletionEngine
 
 		// Create standard type proposal
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(packageName);
@@ -6461,7 +6461,7 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(packageName);
@@ -6488,7 +6488,7 @@ public final class CompletionEngine
 
 		// Create standard type proposal
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
@@ -6508,7 +6508,7 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
@@ -6535,7 +6535,7 @@ public final class CompletionEngine
 
 		// Create standard type proposal
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setSignature(getSignature(typeParameter.binding));
@@ -6553,7 +6553,7 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition);
+			CompletionProposal proposal = CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
 			proposal.nameLookup = this.nameEnvironment.nameLookup;
 			proposal.completionEngine = this;
 			proposal.setSignature(getSignature(typeParameter.binding));

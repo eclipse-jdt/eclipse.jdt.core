@@ -53,9 +53,17 @@ public static Test suite() {
 	return suite;
 	*/
 }
-
+protected void assertResults(String expected, String actual) {
+	try {
+		assertEquals(expected, actual);
+	} catch(ComparisonFailure c) {
+		System.out.println(actual);
+		System.out.println();
+		throw c;
+	}
+}
 public void testCodeSnippetAssistForClassFile() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
 	
@@ -70,19 +78,20 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
 
 public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	ICompilationUnit cu = getCompilationUnit("SnippetCompletion", "src", "aa.bb.cc", "BClass.java");
 	IType type = cu.getTypes()[0];
 	String snippet = 
@@ -102,19 +111,20 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 6 completions",
-		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
 public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "CClass.class");
 	IType type = cf.getType();
 	
@@ -135,20 +145,21 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 6 completions",
-		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) ,
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
 
 public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	ICompilationUnit cu = getCompilationUnit("SnippetCompletion", "src", "aa.bb.cc", "BClass.java");
 	IType type = cu.getTypes()[0];
 	
@@ -165,19 +176,20 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
 
 public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass$Inner.class");
 	IType type = cf.getType();
 	
@@ -198,20 +210,21 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 /*
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=50686
  */
 public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface.class");
 	IType type = cf.getType();
 	
@@ -226,20 +239,21 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 	
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 /*
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62201
  */
 public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface2.class");
 	IType type = cf.getType();
 	
@@ -254,18 +268,19 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 	
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varFoo    completion:varFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varFoo[METHOD_REF]{varFoo(), Lxx.yy.MyInterface2;, ()V, varFoo, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "test00XX", "Test.class");
 	IType type = cf.getType();
 	
@@ -280,16 +295,17 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 3 completions",
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) ,
+	int tokenStart = snippet.lastIndexOf("var");
+	int tokenEnd = tokenStart + "var".length();
+	assertResults(
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
 public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
 	
@@ -302,8 +318,7 @@ public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
 	
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
-	assertEquals(
-		"should have 0 completions",
+	assertResults(
 		"",
 		requestor.getResults());
 }

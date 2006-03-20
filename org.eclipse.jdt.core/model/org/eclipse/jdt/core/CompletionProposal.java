@@ -784,7 +784,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 			throw new IllegalArgumentException();
 		}
 		if (this.completion == null || completionLocation < 0) {
-			throw new IllegalArgumentException();
+			// Work around for bug 132558 (https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558).
+			// completionLocation can be -1 if the completion occur at the start of a file or
+			// the start of a code snippet but this API isn't design to support negative position.
+			if(this.completion == null || completionLocation != -1) {
+				throw new IllegalArgumentException();
+			}
+			completionLocation = 0;
 		}
 		this.completionKind = kind;
 		this.completionLocation = completionLocation;
