@@ -34,6 +34,9 @@ public class SingleTypeReference extends TypeReference {
 		return new ArrayTypeReference(token, dim,(((long)sourceStart)<<32)+sourceEnd);
 	}
 
+	public char[] getLastToken() {
+		return this.token;
+	}
 	protected TypeBinding getTypeBinding(Scope scope) {
 		if (this.resolvedType != null)
 			return this.resolvedType;

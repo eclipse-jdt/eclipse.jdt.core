@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -540,6 +541,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (annotations == null) 
 			return;
 		int length = annotations.length;
+		if (length == 0) 
+			return;
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :
@@ -568,6 +571,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}			
 		}
 		for (int i = 0; i < length; i++) {
+			TypeReference annotationTypeRef = annotations[i].type;
+			// only resolve type name if 'Deprecated' last token
+			if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) return;
 			TypeBinding annotationType = annotations[i].type.resolveType(scope);
 			if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
 				if (recipient != null) {

@@ -54,6 +54,9 @@ public class QualifiedTypeReference extends TypeReference {
 		}
 	}
 
+	public char[] getLastToken() {
+		return this.tokens[this.tokens.length-1];
+	}
 	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null)

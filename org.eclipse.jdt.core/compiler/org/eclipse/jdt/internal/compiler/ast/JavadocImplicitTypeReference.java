@@ -39,6 +39,10 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return this.resolvedType = scope.enclosingSourceType();
 	}
 
+	public char[] getLastToken() {
+		return this.token;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
 	 */

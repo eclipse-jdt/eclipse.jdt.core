@@ -87,6 +87,9 @@ public abstract TypeReference copyDims(int dim);
 public int dimensions() {
 	return 0;
 }
+
+public abstract char[] getLastToken();
+
 /**
  * @return char[][]
  * TODO (jerome) should merge back into #getTypeName()
