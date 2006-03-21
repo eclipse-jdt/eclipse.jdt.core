@@ -242,11 +242,22 @@ public MethodPattern(
 	if (hasMethodArguments())  ((InternalSearchPattern)this).mustResolve = true;
 }
 public void decodeIndexKey(char[] key) {
-	int size = key.length;
-	int lastSeparatorIndex = CharOperation.lastIndexOf(SEPARATOR, key);	
-
-	this.parameterCount = Integer.parseInt(new String(key, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
-	this.selector = CharOperation.subarray(key, 0, lastSeparatorIndex);
+	int last = key.length - 1;
+	this.parameterCount = 0;
+	this.selector = null;
+	int power = 1;
+	for (int i=last; i>=0; i--) {
+		if (key[i] == SEPARATOR) {
+			System.arraycopy(key, 0, this.selector = new char[i], 0, i);
+			break;
+		}
+		if (i == last) {
+			this.parameterCount = key[i] - '0';
+		} else {
+			power *= 10;
+			this.parameterCount += power * (key[i] - '0');
+		}
+	}
 }
 public SearchPattern getBlankPattern() {
 	return new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);

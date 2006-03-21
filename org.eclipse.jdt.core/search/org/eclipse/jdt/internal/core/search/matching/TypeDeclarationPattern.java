@@ -159,35 +159,47 @@ TypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
 }
 /*
- * Type entries are encoded as simpleTypeName / packageName / enclosingTypeName / modifiers
- * e.g. Object/java.lang//0
- * e.g. Cloneable/java.lang//512
- * e.g. LazyValue/javax.swing/UIDefaults/0
+ * Type entries are encoded as:
+ * 	simpleTypeName / packageName / enclosingTypeName / modifiers
+ *			e.g. Object/java.lang//0
+ * 		e.g. Cloneable/java.lang//512
+ * 		e.g. LazyValue/javax.swing/UIDefaults/0
+ * or for secondary types as:
+ * 	simpleTypeName / packageName / enclosingTypeName / modifiers / S
  */
 public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
 	this.simpleName = CharOperation.subarray(key, 0, slash);
 
-	int start = slash + 1;
-	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	this.pkg = slash == start ? CharOperation.NO_CHAR : internedPackageNames.add(CharOperation.subarray(key, start, slash));
+	int start = ++slash;
+	if (key[start] == SEPARATOR) {
+		this.pkg = CharOperation.NO_CHAR;
+	} else {
+		slash = CharOperation.indexOf(SEPARATOR, key, start);
+		this.pkg = internedPackageNames.add(CharOperation.subarray(key, start, slash));
+	}
 
-	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	if (slash == start) {
+	// Continue key read by the end to decode modifiers
+	int last = key.length-1;
+	this.secondary = key[last] == 'S';
+	if (this.secondary) {
+		last -= 2;
+	}
+	this.modifiers = key[last-1] + (key[last]<<16);
+	decodeModifiers();
+
+	// Retrieve enclosing type names
+	start = slash + 1;
+	last -= 2; // position of ending slash
+	if (start == last) {
 		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	} else {
-		char[] names = CharOperation.subarray(key, start, slash);
-		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
+		if (last == (start+1) && key[start] == ZERO_CHAR) {
+			this.enclosingTypeNames = ONE_ZERO_CHAR;
+		} else {
+			this.enclosingTypeNames = CharOperation.splitOn('.', key, start, last);
+		}
 	}
-
-	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	int last = key.length;
-	if (slash > 0) { // secondary
-		this.secondary = key[slash+1] == 'S';
-		last = slash;
-	}
-	this.modifiers = key[last-2] + (key[last-1]<<16);
-	decodeModifiers();
 }
 protected void decodeModifiers() {
 

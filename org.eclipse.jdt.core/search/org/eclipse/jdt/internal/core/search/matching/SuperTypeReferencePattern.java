@@ -185,28 +185,38 @@ public void decodeIndexKey(char[] key) {
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
 	this.simpleName = CharOperation.subarray(key, start, slash);
 
-	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	if (slash == start) {
+	start = ++slash;
+	if (key[start] == SEPARATOR) {
 		this.enclosingTypeName = null;
 	} else {
-		char[] names = CharOperation.subarray(key, start, slash);
-		this.enclosingTypeName = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO : names;
+		slash = CharOperation.indexOf(SEPARATOR, key, start);
+		if (slash == (start+1) && key[start] == ZERO_CHAR) {
+			this.enclosingTypeName = ONE_ZERO;
+		} else {
+			char[] names = CharOperation.subarray(key, start, slash);
+			this.enclosingTypeName = names;
+		}
 	}
 
-	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	if (slash == start) {
+	start = ++slash;
+	if (key[start] == SEPARATOR) {
 		this.typeParameterSignatures = null;
 	} else {
-		char[] names = CharOperation.subarray(key, start, slash);
-		this.typeParameterSignatures = CharOperation.splitOn(',', names);
+		slash = CharOperation.indexOf(SEPARATOR, key, start);
+		this.typeParameterSignatures = CharOperation.splitOn(',', key, start, slash);
 	}
 
-	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	if (slash == start) {
+	start = ++slash;
+	if (key[start] == SEPARATOR) {
 		this.pkgName = null;
 	} else {
-		char[] names = CharOperation.subarray(key, start, slash);
-		this.pkgName = CharOperation.equals(ONE_ZERO, names) ? this.superQualification : names;
+		slash = CharOperation.indexOf(SEPARATOR, key, start);
+		if (slash == (start+1) && key[start] == ZERO_CHAR) {
+			this.pkgName = this.superQualification;
+		} else {
+			char[] names = CharOperation.subarray(key, start, slash);
+			this.pkgName = names;
+		}
 	}
 
 	this.superClassOrInterface = key[slash + 1];

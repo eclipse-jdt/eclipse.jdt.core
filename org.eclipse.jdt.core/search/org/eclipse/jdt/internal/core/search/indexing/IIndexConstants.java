@@ -42,7 +42,8 @@ public interface IIndexConstants {
 	char[][] ONE_STAR_CHAR = new char[][] {ONE_STAR};
 
 	// used as special marker for enclosing type name of local and anonymous classes
-	char[] ONE_ZERO = new char[] {'0'}; 
+	char ZERO_CHAR = '0'; 
+	char[] ONE_ZERO = new char[] { ZERO_CHAR }; 
 	char[][] ONE_ZERO_CHAR = new char[][] {ONE_ZERO};
 
 	int PKG_REF_PATTERN = 0x0001;

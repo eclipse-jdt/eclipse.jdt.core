@@ -51,13 +51,14 @@ public void decodeIndexKey(char[] key) {
 		this.packageIndex = slash - start;
 		this.qualification[this.packageIndex] = '.';
 	}
-	slash = CharOperation.indexOf(SEPARATOR, key, secondSlash + 1);
-	int last = key.length;
-	if (slash > 0) { // secondary
-		this.secondary = key[slash+1] == 'S';
-		last = slash;
+
+	// Continue key read by the end to decode modifiers
+	int last = key.length-1;
+	this.secondary = key[last] == 'S';
+	if (this.secondary) {
+		last -= 2;
 	}
-	this.modifiers = key[last-2] + (key[last-1]<<16);
+	this.modifiers = key[last-1] + (key[last]<<16);
 	decodeModifiers();
 }
 public SearchPattern getBlankPattern() {
