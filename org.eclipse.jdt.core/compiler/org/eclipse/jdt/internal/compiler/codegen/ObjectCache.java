@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,11 +38,11 @@ public ObjectCache(int initialCapacity) {
  * Clears the hash table so that it has no more elements in it.
  */
 public void clear() {
-	for (int i = keyTable.length; --i >= 0;) {
-		keyTable[i] = null;
-		valueTable[i] = 0;
+	for (int i = this.keyTable.length; --i >= 0;) {
+		this.keyTable[i] = null;
+		this.valueTable[i] = 0;
 	}
-	elementSize = 0;
+	this.elementSize = 0;
 }
 /** Returns true if the collection contains an element for the key.
  *
@@ -50,9 +50,9 @@ public void clear() {
  * @return boolean
  */
 public boolean containsKey(Object key) {
-	int index = hashCode(key), length = keyTable.length;
-	while (keyTable[index] != null) {
-		if (keyTable[index] == key)
+	int index = hashCode(key), length = this.keyTable.length;
+	while (this.keyTable[index] != null) {
+		if (this.keyTable[index] == key)
 			return true;
 		if (++index == length) {
 			index = 0;
@@ -67,10 +67,10 @@ public boolean containsKey(Object key) {
  *  defined in the hash table.
  */
 public int get(Object key) {
-	int index = hashCode(key), length = keyTable.length;
-	while (keyTable[index] != null) {
-		if (keyTable[index] == key)
-			return valueTable[index];
+	int index = hashCode(key), length = this.keyTable.length;
+	while (this.keyTable[index] != null) {
+		if (this.keyTable[index] == key)
+			return this.valueTable[index];
 		if (++index == length) {
 			index = 0;
 		}
@@ -84,7 +84,7 @@ public int get(Object key) {
  * @return int
  */
 public int hashCode(Object key) {
-	return (key.hashCode() & 0x7FFFFFFF) % keyTable.length;
+	return (key.hashCode() & 0x7FFFFFFF) % this.keyTable.length;
 }
 /**
  * Puts the specified element into the hashtable, using the specified
@@ -96,19 +96,19 @@ public int hashCode(Object key) {
  * @return int the old value of the key, or -1 if it did not have one.
  */
 public int put(Object key, int value) { 
-	int index = hashCode(key), length = keyTable.length;
-	while (keyTable[index] != null) {
-		if (keyTable[index] == key)
-			return valueTable[index] = value;
+	int index = hashCode(key), length = this.keyTable.length;
+	while (this.keyTable[index] != null) {
+		if (this.keyTable[index] == key)
+			return this.valueTable[index] = value;
 		if (++index == length) {
 			index = 0;
 		}
 	}
-	keyTable[index] = key;
-	valueTable[index] = value;
+	this.keyTable[index] = key;
+	this.valueTable[index] = value;
 
 	// assumes the threshold is never equal to the size of the table
-	if (++elementSize > threshold)
+	if (++this.elementSize > this.threshold)
 		rehash();
 	return value;
 }
@@ -118,10 +118,10 @@ public int put(Object key, int value) {
  * size exceeds the threshold.
  */
 private void rehash() {
-	ObjectCache newHashtable = new ObjectCache(keyTable.length * 2);
-	for (int i = keyTable.length; --i >= 0;)
-		if (keyTable[i] != null)
-			newHashtable.put(keyTable[i], valueTable[i]);
+	ObjectCache newHashtable = new ObjectCache(this.keyTable.length * 2);
+	for (int i = this.keyTable.length; --i >= 0;)
+		if (this.keyTable[i] != null)
+			newHashtable.put(this.keyTable[i], this.valueTable[i]);
 
 	this.keyTable = newHashtable.keyTable;
 	this.valueTable = newHashtable.valueTable;
@@ -133,7 +133,7 @@ private void rehash() {
  * @return <CODE>int</CODE> The size of the table
  */
 public int size() {
-	return elementSize;
+	return this.elementSize;
 }
 /**
  * Converts to a rather lengthy String.
@@ -145,8 +145,8 @@ public String toString() {
 	StringBuffer buf = new StringBuffer();
 	buf.append("{"); //$NON-NLS-1$
 	for (int i = 0; i < max; ++i) {
-		if (keyTable[i] != null) {
-			buf.append(keyTable[i]).append("->").append(valueTable[i]); //$NON-NLS-1$
+		if (this.keyTable[i] != null) {
+			buf.append(this.keyTable[i]).append("->").append(this.valueTable[i]); //$NON-NLS-1$
 		}
 		if (i < max) {
 			buf.append(", "); //$NON-NLS-1$

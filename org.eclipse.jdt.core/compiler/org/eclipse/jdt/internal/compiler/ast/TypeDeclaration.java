@@ -512,7 +512,8 @@ public void generateCode(ClassFile enclosingClassFile) {
 	}
 	try {
 		// create the result for a compiled type
-		ClassFile classFile = new ClassFile(this.binding, enclosingClassFile, false);
+		ClassFile classFile = ClassFile.getNewInstance(this.binding);
+		classFile.initialize(this.binding, enclosingClassFile, false);
 		// generate all fiels
 		classFile.addFieldInfos();
 

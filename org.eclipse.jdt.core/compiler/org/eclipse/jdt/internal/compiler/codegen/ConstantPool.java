@@ -248,11 +248,14 @@ public ConstantPool(ClassFile classFile) {
 	this.methodsAndFieldsCache = new HashtableOfObject(METHODS_AND_FIELDS_INITIAL_SIZE);
 	this.classCache = new CharArrayCache(CLASS_INITIAL_SIZE);
 	this.nameAndTypeCacheForFieldsAndMethods = new HashtableOfObject(NAMEANDTYPE_INITIAL_SIZE);
-	this.poolContent = classFile.header;
-	this.currentOffset = classFile.headerOffset;
+	initialize(classFile);
+}
+public void initialize(ClassFile givenClassFile) {
+	this.poolContent = givenClassFile.header;
+	this.currentOffset = givenClassFile.headerOffset;
 	// currentOffset is initialized to 0 by default
 	this.currentIndex = 1;
-	this.classFile = classFile;
+	this.classFile = givenClassFile;
 }
 /**
  * Return the content of the receiver
@@ -871,5 +874,18 @@ protected final void writeU2(int value) {
 	}
 	poolContent[currentOffset++] = (byte) (value >>> 8);
 	poolContent[currentOffset++] = (byte) value;
+}
+public void reset() {
+	if (this.doubleCache != null) this.doubleCache.clear();
+	if (this.floatCache != null) this.floatCache.clear();
+	if (this.intCache != null) this.intCache.clear();
+	if (this.longCache != null) this.longCache.clear();
+	this.UTF8Cache.clear();
+	this.stringCache.clear();
+	this.methodsAndFieldsCache.clear();
+	this.classCache.clear();
+	this.nameAndTypeCacheForFieldsAndMethods.clear();
+	this.currentIndex = 1;
+	this.currentOffset = 0;
 }
 }

@@ -139,7 +139,6 @@ public class CompilationUnitDeclaration
 			ClassFile classFile = classFiles[i];
 			// null out the classfile backpointer to a type binding
 			classFile.referenceBinding = null;
-			classFile.codeStream = null; // codeStream holds onto ast and scopes
 			classFile.innerClassesBindings = null;
 		}
 	}

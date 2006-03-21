@@ -39,6 +39,14 @@ public final class HashtableOfObject implements Cloneable {
 		this.valueTable = new Object[extraRoom];
 	}
 
+	public void clear() {
+		for (int i = this.keyTable.length; --i >= 0;) {
+			this.keyTable[i] = null;
+			this.valueTable[i] = null;
+		}
+		this.elementSize = 0;
+	}
+
 	public Object clone() throws CloneNotSupportedException {
 		HashtableOfObject result = (HashtableOfObject) super.clone();
 		result.elementSize = this.elementSize;

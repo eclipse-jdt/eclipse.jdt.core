@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -47,10 +48,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public CompilerOptions globalOptions;
 	public ProblemReporter problemReporter;
 
-	// shared byte[]'s used by ClassFile to avoid allocating MBs during a build
-	public boolean sharedArraysUsed = true; // set to false once actual arrays are allocated
-	public byte[] sharedClassFileContents = null;
-	public byte[] sharedClassFileHeader = null;
+	public ClassFilePool classFilePool;
 
 	// indicate in which step on the compilation we are.
 	// step 1 : build the reference binding
@@ -82,6 +80,8 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
+	
+	this.classFilePool = ClassFilePool.newInstance();
 }
 
 /**
@@ -1034,6 +1034,7 @@ public void reset() {
 	this.lastCompletedUnitIndex = -1;
 	this.unitBeingCompleted = null; // in case AbortException occurred
 
+	this.classFilePool.reset();
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }

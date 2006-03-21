@@ -2739,10 +2739,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							this.destinationPath,
 							relativeStringName,
 							classFile);
-						if (classFile.ownSharedArrays) {
-							LookupEnvironment env = this.batchCompiler.lookupEnvironment;
-							env.sharedArraysUsed = false;
-						}
+						LookupEnvironment env = this.batchCompiler.lookupEnvironment;
+						if (classFile.isShared) env.classFilePool.release(classFile);
 						this.logger.logClassFile(
 							this.generatePackagesStructure,
 							this.destinationPath,
@@ -2775,12 +2773,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				getProblemFactory(),
 				this.out,
 				false);
-		
-		// enable shared byte[]'s used by ClassFile to avoid allocating MBs during a build
-		this.batchCompiler.lookupEnvironment.sharedArraysUsed = false;
-		this.batchCompiler.lookupEnvironment.sharedClassFileHeader = new byte[30000];
-		this.batchCompiler.lookupEnvironment.sharedClassFileContents = new byte[30000];
-
 		this.compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.

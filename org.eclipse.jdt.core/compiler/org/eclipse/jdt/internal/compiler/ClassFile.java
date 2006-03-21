@@ -84,6 +84,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
  */
 public class ClassFile
 	implements TypeConstants, TypeIds {
+
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
@@ -162,7 +163,8 @@ public class ClassFile
 		TypeDeclaration typeDeclaration,
 		CompilationResult unitResult) {
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
-		ClassFile classFile = new ClassFile(typeBinding, null, true);
+		ClassFile classFile = ClassFile.getNewInstance(typeBinding);
+		classFile.initialize(typeBinding, null, true);
 	
 		// TODO (olivier) handle cases where a field cannot be generated (name too long)
 		// TODO (olivier) handle too many methods
@@ -337,7 +339,9 @@ public class ClassFile
 	public int methodCount;
 	public int methodCountOffset;
 	public int numberOfInnerClasses;
-	public boolean ownSharedArrays = false; // flag set when header/contents are set to shared arrays
+	
+	// pool managment
+	public boolean isShared = false;
 	// used to generate private access methods
 	// debug and stack map attributes
 	public int produceAttributes;
@@ -348,34 +352,38 @@ public class ClassFile
 	 * INTERNAL USE-ONLY
 	 * This methods creates a new instance of the receiver.
 	 */
-	public ClassFile() {
+	protected ClassFile() {
 		// default constructor for subclasses
 	}
+	
+	public ClassFile(SourceTypeBinding typeBinding) {
+		// default constructor for subclasses
+		this.constantPool = new ConstantPool(this);
+		final CompilerOptions options = typeBinding.scope.compilerOptions();
+		this.targetJDK = options.targetJDK;
+		this.produceAttributes = options.produceDebugAttributes;
+		this.referenceBinding = typeBinding;
+		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
+			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
+			this.codeStream = new StackMapFrameCodeStream(this);
+		} else {
+			this.codeStream = new CodeStream(this);
+		}
+		this.initByteArrays();
+	}
+	
+	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
+		LookupEnvironment env = typeBinding.scope.environment();
+		return env.classFilePool.acquire(typeBinding);
+	}
 
-	/**
-	 * INTERNAL USE-ONLY
-	 * This methods creates a new instance of the receiver.
-	 *
-	 * @param aType org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding
-	 * @param enclosingClassFile org.eclipse.jdt.internal.compiler.ClassFile
-	 * @param creatingProblemType <CODE>boolean</CODE>
-	 */
-	public ClassFile(
-		SourceTypeBinding aType,
-		ClassFile enclosingClassFile,
-		boolean creatingProblemType) {
-	    
-		this.referenceBinding = aType;
-		initByteArrays();
-
+	public void initialize(SourceTypeBinding aType, ClassFile parentClassFile, boolean createProblemType) {
 		// generate the magic numbers inside the header
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		final CompilerOptions options = aType.scope.compilerOptions();
-		this.targetJDK = options.targetJDK;
 		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
 		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
@@ -383,7 +391,7 @@ public class ClassFile
 
 		constantPoolOffset = headerOffset;
 		headerOffset += 2;
-		constantPool = new ConstantPool(this);
+		this.constantPool.initialize(this);
 		
 		// Modifier manipulations for classfile
 		int accessFlags = aType.getAccessFlags();
@@ -408,7 +416,7 @@ public class ClassFile
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		
-		this.enclosingClassFile = enclosingClassFile;
+		this.enclosingClassFile = parentClassFile;
 		// innerclasses get their names computed at code gen time
 
 		// now we continue to generate the bytes inside the contents array
@@ -435,23 +443,16 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
-		produceAttributes = options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
-		this.creatingProblemType = creatingProblemType;
-		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
-			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
-			codeStream = new StackMapFrameCodeStream(this);
-		} else {
-			codeStream = new CodeStream(this);
-		}
+		this.creatingProblemType = createProblemType;
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
 		if (this.enclosingClassFile == null) {
-			codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
+			this.codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
 		} else {
 			ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
-			codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
+			this.codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
 		}
 	}
 
@@ -5749,19 +5750,9 @@ public class ClassFile
 	}
 
 	protected void initByteArrays() {
-		LookupEnvironment env = this.referenceBinding.scope.environment();
-		synchronized (env) {
-			if (env.sharedArraysUsed) {
-				this.ownSharedArrays = false;
-				int members = referenceBinding.methods().length + referenceBinding.fields().length;
-				this.header = new byte[INITIAL_HEADER_SIZE];
-				this.contents = new byte[members < 15 ? INITIAL_CONTENTS_SIZE : INITIAL_HEADER_SIZE];
-			} else {
-				this.ownSharedArrays = env.sharedArraysUsed = true;
-				this.header = env.sharedClassFileHeader;
-				this.contents = env.sharedClassFileContents;
-			}
-		}
+		int members = referenceBinding.methods().length + referenceBinding.fields().length;
+		this.header = new byte[INITIAL_HEADER_SIZE];
+		this.contents = new byte[members < 15 ? INITIAL_CONTENTS_SIZE : INITIAL_HEADER_SIZE];
 	}
 
 	
@@ -5893,5 +5884,27 @@ public class ClassFile
 		// leave some space for the methodCount
 		methodCountOffset = contentsOffset;
 		contentsOffset += 2;
+	}
+
+	public void reset(SourceTypeBinding typeBinding) {
+		// the code stream is reinitialized for each method
+		final CompilerOptions options = typeBinding.scope.compilerOptions();
+		this.referenceBinding = typeBinding;
+		this.targetJDK = options.targetJDK;
+		this.produceAttributes = options.produceDebugAttributes;
+		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
+			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
+		}
+		this.bytes = null;
+		this.constantPool.reset();
+		this.codeStream.reset(this);
+		this.constantPoolOffset = 0;
+		this.contentsOffset = 0;
+		this.creatingProblemType = false;
+		this.enclosingClassFile = null;
+		this.headerOffset = 0;
+		this.methodCount = 0;
+		this.methodCountOffset = 0;
+		this.numberOfInnerClasses = 0;
 	}
 }

@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 public class CodeStream {
-
 	public static final boolean DEBUG = false;
 	
 	// It will be responsible for the following items.
@@ -159,11 +158,11 @@ public LocalVariableBinding[] visibleLocals = new LocalVariableBinding[LOCALS_IN
 int visibleLocalsCount;
 // to handle goto_w
 public boolean wideMode = false;
-public CodeStream(ClassFile classFile) {
-	this.targetLevel = classFile.targetJDK;
-	this.generateAttributes = classFile.produceAttributes;
-	if ((classFile.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
-		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
+public CodeStream(ClassFile givenClassFile) {
+	this.targetLevel = givenClassFile.targetJDK;
+	this.generateAttributes = givenClassFile.produceAttributes;
+	if ((givenClassFile.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
+		this.lineSeparatorPositions = givenClassFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
 	}
 }
 public void aaload() {
@@ -5914,7 +5913,13 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
 }
-
+public void reset(ClassFile givenClassFile) {
+	this.targetLevel = givenClassFile.targetJDK;
+	this.generateAttributes = givenClassFile.produceAttributes;
+	if ((givenClassFile.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
+		this.lineSeparatorPositions = givenClassFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
+	}
+}
 /**
  * @param targetClassFile The given classfile to reset the code stream
  */
