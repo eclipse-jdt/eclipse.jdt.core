@@ -3407,6 +3407,32 @@ public void test0450_while() {
 		"----------\n");
 } 
 
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// variant
+public void _test0451_while() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object doubt) {\n" + 
+			"    Object o = null;\n" + 
+			"    while (true) {\n" + 
+			"      if (o == null) {\n" +
+			"        return;\n" +
+			"      }\n" + 
+			"      o = doubt;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (o == null) {\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n"
+	);
+}
+
 // null analysis - while
 public void _test0451_while_nested() {
 	this.runNegativeTest(
