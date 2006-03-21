@@ -1224,10 +1224,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
 		IJavaElement focus = ((InternalSearchPattern) searchPattern).focus;
 		if (focus != null) {
-			SearchDocument document = participant.getDocument(focus.getPath().toString());
-			this.currentPossibleMatch = new PossibleMatch(this, focus.getResource(), null, document, ((InternalSearchPattern) searchPattern).mustResolve);
 			if (encloses(focus)) {
-				SearchMatch match = newDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), null/*no binding*/, SearchMatch.A_ACCURATE, -1, -1);
+				SearchMatch match = new PackageDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), SearchMatch.A_ACCURATE, -1, -1, participant, focus.getResource());
 				report(match);
 			}
 			return;
@@ -1258,11 +1256,9 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 						IResource resource = pkg.getResource();
 						if (resource == null) // case of a file in an external jar
 							resource = javaProject.getProject();
-						SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document, ((InternalSearchPattern) searchPattern).mustResolve);
 						try {
 							if (encloses(pkg)) {
-								SearchMatch match = newDeclarationMatch(pkg, null/*no binding*/, SearchMatch.A_ACCURATE, -1, -1);
+								SearchMatch match = new PackageDeclarationMatch(pkg, SearchMatch.A_ACCURATE, -1, -1, participant, resource);
 								report(match);
 							}
 						} catch (JavaModelException e) {
