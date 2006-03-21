@@ -3407,9 +3407,28 @@ public void test0450_while() {
 		"----------\n");
 } 
 
+// null analysis - while
+public void _test0451_while_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    Object o = new Object();\n" + 
+			"    while (b) {\n" + 
+			"      while (b) {\n" + 
+			"        o = new Object();\n" + // o still non null
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o != null) { /* */ }\n" + 
+			"  }\n" + 
+			"}"},
+		"ERR");
+} 
+
 // TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
-// variant
-public void _test0451_while() {
+// variant - the bug is not specific to the do while loop
+public void _test0452_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3433,24 +3452,30 @@ public void _test0451_while() {
 	);
 }
 
-// null analysis - while
-public void _test0451_while_nested() {
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// variant - cannot refine the diagnostic without engaging into conditionals
+// dedicated flow context
+public void _test0453_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" + 
-			"  void foo(boolean b) {\n" + 
-			"    Object o = new Object();\n" + 
-			"    while (b) {\n" + 
-			"      while (b) {\n" + 
-			"        o = new Object();\n" + // o still non null
+			"public class X {\n" + 
+			"  void foo(Object doubt, boolean b) {\n" + 
+			"    Object o1 = null, o2 = null;\n" + 
+			"    while (true) {\n" + 
+			"      if (o1 == null) { /* empty */ }\n" +
+			"      if (b) {\n" +
+			"        if (o2 == null) {\n" +
+			"          return;\n" +
+			"        }\n" + 
 			"      }\n" + 
+			"      o1 = o2 = doubt;\n" + 
 			"    }\n" + 
-			"    if (o != null) { /* */ }\n" + 
 			"  }\n" + 
 			"}"},
-		"ERR");
-} 
+		"ERROR: complain on line 7, but not on line 5"
+	);
+}
 
 // null analysis -- try/finally
 public void test0500_try_finally() {
