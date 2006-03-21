@@ -8100,10 +8100,10 @@ public int[] getJavaDocPositions() {
 
 		//real parse of the method....
 		CompilationResult compilationResult = unit.compilationResult;
-		this.scanner.setSource(compilationResult);
+		char[] contents = compilationResult.compilationUnit.getContents();
+		this.scanner.setSource(contents, compilationResult);
 		
 		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
-			char[] contents = compilationResult.compilationUnit.getContents();
 			this.javadocParser.scanner.setSource(contents);
 		}
 		if (unit.types != null) {
