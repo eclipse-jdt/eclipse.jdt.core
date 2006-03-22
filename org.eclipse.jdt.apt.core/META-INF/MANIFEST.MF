@@ -10,7 +10,6 @@ Export-Package:  com.sun.mirror.apt,
  com.sun.mirror.declaration,
  com.sun.mirror.type,
  com.sun.mirror.util,
- org.eclipse.jdt.apt.core,
  org.eclipse.jdt.apt.core.build,
  org.eclipse.jdt.apt.core.env,
  org.eclipse.jdt.apt.core.internal;x-friends:="org.eclipse.jdt.apt.tests",
@@ -24,7 +23,7 @@ Require-Bundle: org.eclipse.jdt.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.apache.ant
-Bundle-Activator: org.eclipse.jdt.apt.core.AptPlugin
+Bundle-Activator: org.eclipse.jdt.apt.core.internal.AptPlugin
 Eclipse-LazyStart: true
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

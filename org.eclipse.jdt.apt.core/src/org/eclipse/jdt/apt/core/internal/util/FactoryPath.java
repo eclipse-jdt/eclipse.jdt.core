@@ -19,7 +19,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 
 /**
@@ -172,12 +172,10 @@ public class FactoryPath implements IFactoryPath {
 	/**
 	 * Add a single factory container to the head of the FactoryPath, 
 	 * and save the new path to the appropriate settings file.  
-	 * If the container specified is already  in the project's list in 
+	 * If the container specified is already in the project's list in 
 	 * some other FactoryPathEntry, the existing entry will be removed 
 	 * before the new one is added.
-	 * @param jproj - the IJavaProject, for per-project settings, or
-	 * null for workspace settings.
-	 * @param must not be null.
+	 * @param fc must not be null.
 	 */
 	public void addEntryToHead(FactoryContainer fc, boolean enabled, boolean runInBatchMode) {
 		Attributes a = new Attributes(enabled, runInBatchMode);

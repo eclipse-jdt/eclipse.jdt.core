@@ -1,4 +1,4 @@
-package org.eclipse.jdt.apt.ui;
+package org.eclipse.jdt.apt.ui.internal;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

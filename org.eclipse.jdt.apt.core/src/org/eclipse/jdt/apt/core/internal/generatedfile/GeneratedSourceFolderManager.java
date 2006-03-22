@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -227,7 +227,6 @@ public class GeneratedSourceFolderManager {
 	 * <p>
 	 * This should only be called on an event thread, with no locks on the project
 	 * or classpath.
-	 * @param enable
 	 */
 	public void enabledPreferenceChanged()
 	{
@@ -315,7 +314,6 @@ public class GeneratedSourceFolderManager {
 	 * @throws JavaModelException
 	 * 
 	 * @see #getFolder()
-	 * @see #isGeneratedSourceFolderConfigured()	
 	 */
 	public IPath getBinaryOutputLocation()
 		 throws JavaModelException 
@@ -454,7 +452,7 @@ public class GeneratedSourceFolderManager {
 
 	/**
 	 * Check whether the proposed name is permitted.
-	 * @param dirString can be anything, including null.
+	 * @param folderName can be anything, including null.
 	 * @return true if attempting to set the generated source folder to 
 	 * <code>dirString</code> is likely to succeed.
 	 */

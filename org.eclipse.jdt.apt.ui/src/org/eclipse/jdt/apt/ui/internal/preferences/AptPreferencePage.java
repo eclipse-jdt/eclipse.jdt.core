@@ -11,7 +11,7 @@
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
-import org.eclipse.jdt.apt.ui.AptUIPlugin;
+import org.eclipse.jdt.apt.ui.internal.AptUIPlugin;
 import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;

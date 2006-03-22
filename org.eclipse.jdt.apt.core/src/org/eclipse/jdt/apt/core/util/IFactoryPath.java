@@ -82,9 +82,9 @@ public interface IFactoryPath {
 	/**
 	 * Enable a plugin on the factory path, and move it to the head of the
 	 * path.
-	 * @throws CoreException if the plugin is not installed.
 	 * @param pluginId the unique id of the processor plugin, e.g., 
 	 * "org.example.myProcessors"
+	 * @throws CoreException if the plugin is not installed.
 	 */
 	public void enablePlugin(String pluginId) throws CoreException;
 	

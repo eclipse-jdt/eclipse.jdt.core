@@ -37,8 +37,9 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	EclipseMessager getMessager();
 	
 	/**	
-	 * @return the current processing phase. Either
-	 * @link{Phase.RECONCILE} or @link{Phase.BUILD}
+	 * @return the current processing phase: either
+	 * {@link Phase#RECONCILE} or {@link Phase#BUILD}
+	 * 
 	 */
 	Phase getPhase();
 	

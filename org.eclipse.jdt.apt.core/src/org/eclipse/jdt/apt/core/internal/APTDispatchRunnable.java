@@ -29,7 +29,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.env.CompilationProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
@@ -543,7 +542,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * @param filesWithMissingType
 	 * @param internalRound
 	 * @param result output parameter
-	 * @return 
 	 */
 	private Set<AnnotationProcessorFactory> build(final ProcessorEnvImpl processorEnv)
 	{

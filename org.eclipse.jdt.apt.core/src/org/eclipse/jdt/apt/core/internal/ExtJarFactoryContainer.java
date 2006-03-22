@@ -22,7 +22,7 @@ public class ExtJarFactoryContainer extends JarFactoryContainer {
 	private File _jarFile;
 	
 	/**
-	 * @param jarPath
+	 * @param jar must not be null
 	 */
 	public ExtJarFactoryContainer(File jar) {
 		_jarFile = jar.getAbsoluteFile();

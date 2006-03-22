@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.ExtJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.VarJarFactoryContainer;
@@ -83,7 +83,7 @@ public final class FactoryPathUtil {
 	 * that it is a file, it belongs to a project, it is located in the root 
 	 * of that project, and it is named ".factorypath".  Note that the 
 	 * workspace-wide factorypath file does NOT meet these criteria.
-	 * @param path any sort of IResource, or null.
+	 * @param res any sort of IResource, or null.
 	 * @return true if the resource is a project-specific factory path file.
 	 */
 	public static boolean isFactoryPathFile(IResource res) {
@@ -175,9 +175,7 @@ public final class FactoryPathUtil {
 	
 	/**
 	 * Returns an XML string encoding all of the factories.
-	 * @param jproj
 	 * @param factories
-	 * @return
 	 */
 	public static String encodeFactoryPath(Map<FactoryContainer, FactoryPath.Attributes> factories) {
 		StringBuilder sb = new StringBuilder();
@@ -209,7 +207,7 @@ public final class FactoryPathUtil {
 	
 	/**
 	 * Create a factory container based on a jar file in the workspace.
-	 * @param an Eclipse IPath representing the jar file; the path is
+	 * @param jar an Eclipse IPath representing the jar file; the path is
 	 * relative to the workspace root.
 	 */
 	public static FactoryContainer newWkspJarFactoryContainer(IPath jar) {

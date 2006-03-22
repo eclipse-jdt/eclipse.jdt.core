@@ -9,7 +9,7 @@
  *    wharley@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core;
+package org.eclipse.jdt.apt.core.internal;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -19,8 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
-import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedResourceChangeListener;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;

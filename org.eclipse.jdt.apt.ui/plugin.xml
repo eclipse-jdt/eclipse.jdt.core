@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension-point id="aptQuickFixProvider" name="%aptQuickFixProviderName" schema="schema/aptQuickFixProvider.exsd"/>
 
 <!-- =================================================================================== -->
 <!-- Extension: Preferences                                                              -->
@@ -65,29 +64,4 @@
       </page>            
    </extension>
    
-<!-- =================================================================================== -->
-<!-- Extension: Docs                                                                     -->
-<!-- =================================================================================== -->
-<extension
-      point="org.eclipse.help.toc">
-   <toc file="toc.xml" primary="true"/>
-</extension>
-<extension
-      point="org.eclipse.help.contexts">
-   <contexts
-         file="docs/contexts_APT.xml"
-         plugin="org.eclipse.jdt.apt.ui"/>
-</extension>
-
-<!-- =================================================================================== -->
-<!-- Extension: QuickFixProcessor                                                                     -->
-<!-- =================================================================================== -->
-<extension
-      point="org.eclipse.jdt.ui.quickFixProcessors">
-   <quickFixProcessor
-         class="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
-         id="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
-         name="%aptQuickFixProcessorName"/>
-</extension>
-
 </plugin>

@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.apt.core.AptPlugin;
 
 /**
  * Annotation processor factory container based on a jar file 

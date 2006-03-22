@@ -3,7 +3,6 @@ package org.eclipse.jdt.apt.core.internal;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -56,8 +55,6 @@ public class AptProject {
 	 * from a context where resources may be locked, e.g., within
 	 * certain resource change listeners.
 	 * @param key a preference key such as @see AptPreferenceConstants#APT_ENABLED
-	 * @param oldValue the old value, or null if unknown
-	 * @param newValue the new value, which will be ignored if it is null
 	 */
 	public void preferenceChanged(String key) {
 		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {

@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 
@@ -41,7 +41,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        super.close();
 	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
 	        FileGenerationResult result = gfm.generateFileDuringBuild( 
-					_env.getFile(),  _typeName, contents, _env, null /* progress monitor */ );
+					_env.getFile(),  _typeName, contents, null /* progress monitor */ );
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }

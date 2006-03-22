@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -35,7 +35,7 @@ public class ClasspathUtil {
 	 * 
 	 * @param jp - the java project
 	 * @param folder - the folder that you want to see if it is a classpath entry for the java project
-	 * @return
+	 * @return the IClasspathEntry corresponding to folder, or null if none was found.
 	 * @throws JavaModelException
 	 */
 	public static IClasspathEntry findProjectSourcePath( IJavaProject jp, IFolder folder )
@@ -59,7 +59,7 @@ public class ClasspathUtil {
 	 * @param cp if non-null, use this classpath and ignore jp
 	 * @param path the entry to look for on the classpath
 	 * @param progressMonitor
-	 * @return
+	 * @return true if classpath contains the path specified.
 	 * @throws JavaModelException
 	 */
 	public static boolean doesClasspathContainEntry(		

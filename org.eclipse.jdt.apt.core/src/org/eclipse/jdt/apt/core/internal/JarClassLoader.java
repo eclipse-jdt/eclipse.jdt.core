@@ -27,7 +27,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.eclipse.jdt.apt.core.AptPlugin;
 
 
 /**

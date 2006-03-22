@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IJavaProject;
@@ -54,7 +54,7 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 /**
  * Preference pane for most APT (Java annotation processing) settings.
- * @see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
+ * see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
  * for the conceptual source of some of this code.
  * <p>
  * 
@@ -380,7 +380,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Validate "generated source directory" setting.  It must be a valid
 	 * pathname relative to a project, and must not be a source directory.
-	 * @return
+	 * @return true if current field value is valid
 	 */
 	private IStatus validateGenSrcDir() {
 		String dirName = fGenSrcDirField.getText();

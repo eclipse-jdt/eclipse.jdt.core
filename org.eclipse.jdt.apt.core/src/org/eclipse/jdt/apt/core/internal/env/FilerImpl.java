@@ -20,8 +20,8 @@ import java.io.StringWriter;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.JavaModelException;
@@ -48,7 +48,7 @@ public class FilerImpl implements Filer {
      * 
      * Character set used is the default character set for the platform
      * 
-     * @param name - canonical (fully qualified) name of the principal type being declared in this file 
+     * @param typeName - canonical (fully qualified) name of the principal type being declared in this file 
      */
     public PrintWriter createSourceFile(String typeName) throws IOException 
     {

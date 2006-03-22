@@ -29,8 +29,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -527,7 +527,7 @@ public class AptConfig {
 	/**
 	 * Is annotation processing turned on for this project?
 	 * @param jproject an IJavaProject, or null to request workspace preferences.
-	 * @return
+	 * @return true if annotation processing is turned on.
 	 */
 	public static boolean isEnabled(IJavaProject jproject) {
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
@@ -609,7 +609,6 @@ public class AptConfig {
 	/**
 	 * Has an explicit factory path been set for the specified project, or
 	 * is it just defaulting to the workspace settings? 
-	 * @param project
 	 * @return true if there is a project-specific factory path.
 	 */
 	public static boolean hasProjectSpecificFactoryPath(IJavaProject jproj) {
@@ -631,7 +630,7 @@ public class AptConfig {
 	 * 
 	 * @param jproj the project, or null for workspace.
 	 * @param optionName a preference constant from @see AptPreferenceConstants.
-	 * @return
+	 * @return the string value of the setting.
 	 */
     public static String getString(IJavaProject jproj, String optionName) {
 		IPreferencesService service = Platform.getPreferencesService();

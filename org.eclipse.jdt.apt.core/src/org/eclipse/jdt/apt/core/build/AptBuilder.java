@@ -29,6 +29,20 @@ import org.eclipse.core.runtime.NullProgressMonitor;
  */
 public class AptBuilder implements IPlatformRunnable {
 
+	/**
+	 * Runs this runnable with the given args and returns a result.
+	 * The content of the args is unchecked and should conform to the expectations of
+	 * the runnable being invoked.  Typically this is a <code>String</code> array.
+	 * Applications can return any object they like.  If an <code>Integer</code> is returned
+	 * it is treated as the program exit code if Eclipse is exiting.
+	 * 
+	 * @param args the argument(s) to pass to the application
+	 * @return the return value of the application
+	 * @exception Exception if there is a problem running this runnable.
+	 * @see #EXIT_OK
+	 * @see #EXIT_RESTART
+	 * @see #EXIT_RELAUNCH
+	 */
 	public Object run(Object args) throws Exception {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProgressMonitor progressMonitor = new SystemOutProgressMonitor();

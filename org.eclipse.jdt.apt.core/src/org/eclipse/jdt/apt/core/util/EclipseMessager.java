@@ -30,7 +30,7 @@ public interface EclipseMessager extends Messager
 	 * If an APT plugin wants to write a quick-fix for their problems,
 	 * they should look for this ID.
 	 * 
-	 * @see org.eclipse.jdt.ui.text.java.IQuickAssistProcessor
+	 * see org.eclipse.jdt.ui.text.java.IQuickAssistProcessor
 	 */
 	public static final int APT_QUICK_FIX_PROBLEM_ID = /* TODO: switch to IProblem.ExternalProblemFixable*/ 900;
 	
@@ -141,7 +141,7 @@ public interface EclipseMessager extends Messager
 	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
 	 *        Cannot be null.
 	 */
-	void printFixableWarning(String msg, String pluginID, String errorId);
+	void printFixableWarning(String msg, String pluginId, String errorId);
 	
 	/**
 	 * Print a notice including the given arguments for use
@@ -156,5 +156,5 @@ public interface EclipseMessager extends Messager
 	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
 	 *        Cannot be null.
 	 */
-	void printFixableNotice(String msg, String pluginID, String errorId);
+	void printFixableNotice(String msg, String pluginId, String errorId);
 }

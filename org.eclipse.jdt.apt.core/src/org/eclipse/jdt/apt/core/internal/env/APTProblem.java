@@ -11,7 +11,7 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;

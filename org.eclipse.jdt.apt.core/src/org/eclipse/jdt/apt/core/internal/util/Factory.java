@@ -21,7 +21,6 @@ import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -223,7 +222,7 @@ public class Factory
 	 * Build an {@link AnnotationValue} object based on the given dom value.
 	 * @param domValue default value according to the DOM API.
 	 * @param decl the element declaration whose default value is <code>domValue</code>
-	 * 			   if {@link #domValue} is an annotation, then this is the declaration it annotated. 
+	 * 			   if domValue is an annotation, then this is the declaration it annotated. 
 	 * 			   In all other case, this parameter is ignored.
 	 * @param env 
 	 * @return an annotation value
@@ -267,8 +266,6 @@ public class Factory
 	 *              in the annotation instance.
 	 * @param mirror either {@link AnnotationMirrorImpl } or {@link AnnotationElementDeclarationImpl}
 	 * @param env
-	 * @param needBoxing whether the expected type of the member value is an array or not.
-	 * @return
 	 */
 	public static AnnotationValue createAnnotationValueFromDOMValue(Object convertedValue, 
 																	String name,
@@ -288,7 +285,7 @@ public class Factory
      * Building an annotation value object based on the dom value.
      * 
      * @param dom the dom value to convert to the mirror specification.      
-     * @see com.sun.mirror.declaration.AnnotationValue.getObject()
+     * @see com.sun.mirror.declaration.AnnotationValue#getObject()
      * @param name the name of the element if <code>domValue</code> is an 
      * element member value of an annotation
      * @param parent the parent of this annotation value.
@@ -411,8 +408,8 @@ public class Factory
      * Return the value unchanged. 
      *  
      * In the invocation handler case: 
-     * The value returned by {@link #invoke(Object, Method, Object[])} will be converted 
-     * into the expected type by the {@link java.lang.reflect.Proxy}. 
+     * The value returned by {@link java.lang.reflect.InvocationHandler#invoke} 
+     * will be converted into the expected type by the {@link java.lang.reflect.Proxy}. 
      * If the value and the expected type does not agree, and the value is not null, 
      * a ClassCastException will be thrown. A NullPointerException will be resulted if the 
      * expected type is a primitive type and the value is null.
@@ -430,7 +427,7 @@ public class Factory
      * {@link java.lang.reflect.InvocationHandler#invoke} and also deviates from 
      * Sun's implementation.
      *
-     * @see CR260743 and 260563.
+     * see CR260743 and 260563.
      * @param value the current value from the annotation instance.
      * @param expectedType the expected type of the value.
      * 

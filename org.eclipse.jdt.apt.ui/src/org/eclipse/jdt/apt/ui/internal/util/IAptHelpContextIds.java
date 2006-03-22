@@ -11,7 +11,7 @@
 
 package org.eclipse.jdt.apt.ui.internal.util;
 
-import org.eclipse.jdt.apt.ui.AptUIPlugin;
+import org.eclipse.jdt.apt.ui.internal.AptUIPlugin;
 
 /**
  * Help context ids for the Java annotation processing UI.

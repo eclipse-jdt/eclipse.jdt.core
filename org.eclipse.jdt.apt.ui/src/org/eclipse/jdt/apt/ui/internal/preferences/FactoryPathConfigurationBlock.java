@@ -207,12 +207,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	private CheckedListDialogField fFactoryPathList;
 
-	/**
-	 * @param context
-	 * @param project
-	 * @param keys
-	 * @param container
-	 */
 	public FactoryPathConfigurationBlock(IStatusChangeListener context,
 			IProject project, IWorkbenchPreferenceContainer container) {
 		super(context, project, new Key[] {}, container);

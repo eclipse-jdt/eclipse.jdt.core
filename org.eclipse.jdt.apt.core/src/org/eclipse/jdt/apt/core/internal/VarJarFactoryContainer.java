@@ -15,7 +15,6 @@ import java.io.File;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.JavaCore;
 
 /**

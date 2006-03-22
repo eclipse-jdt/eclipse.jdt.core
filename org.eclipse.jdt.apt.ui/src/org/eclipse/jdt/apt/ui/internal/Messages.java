@@ -9,7 +9,7 @@
  *   wharley@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.ui;
+package org.eclipse.jdt.apt.ui.internal;
 
 import org.eclipse.osgi.util.NLS;
 

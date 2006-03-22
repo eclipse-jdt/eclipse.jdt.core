@@ -41,7 +41,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -367,7 +366,7 @@ public class AnnotationProcessorFactoryLoader {
     
     /**
      * Convenience method: get the key set of the map returned by
-     * @see #getFactoriesAndAttributesForProject(IJavaProject), as a List.
+     * @see #getFactoriesAndAttributesForProject(IJavaProject) as a List.
      */
     public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
     	

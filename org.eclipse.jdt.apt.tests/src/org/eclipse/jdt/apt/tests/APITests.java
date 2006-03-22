@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptUtil;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessorFactory;

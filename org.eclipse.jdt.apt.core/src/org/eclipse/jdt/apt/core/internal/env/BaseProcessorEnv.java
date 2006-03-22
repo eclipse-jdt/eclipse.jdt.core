@@ -22,8 +22,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
@@ -641,7 +641,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     }
     
     /**
-	 * @param bindin a type, method or field binding.
+	 * @param binding a type, method or field binding.
 	 * @return the top-level type binding that declares <code>binding</code>
 	 * 	       or itself if it is already one.
 	 */
@@ -725,7 +725,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	/**
 	 * Parse and fully resolve all files. 
 	 * @param javaProject
-	 * @param files the files to be parsed and resolved.
+	 * @param parseUnits the files to be parsed and resolved.
 	 * @return the array of ast units parallel to <code>files</code>
 	 * Any entry in the returned array may be <code>null</code>. 
 	 * This indicates an error while reading the file. 

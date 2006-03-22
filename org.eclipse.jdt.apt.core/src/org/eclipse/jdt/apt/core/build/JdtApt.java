@@ -16,6 +16,7 @@ import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Path;
+import org.eclipse.jdt.apt.core.internal.build.Messages;
 
 /**
  * Ant task for invoking the commandline apt builder

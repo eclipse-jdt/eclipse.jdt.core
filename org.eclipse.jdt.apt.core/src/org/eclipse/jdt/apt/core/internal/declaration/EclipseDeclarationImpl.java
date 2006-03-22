@@ -113,9 +113,9 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 	}  
 	
 	/**
-     * @return the ast node that corresponding to this declaration.
-     *         Return null if this declaration came from binary.
-     * @see #isFromSource();
+     * @return the ast node that corresponding to this declaration,
+     * or null if this declaration came from binary.
+     * @see #isFromSource()
      */
     abstract ASTNode getAstNode();
 

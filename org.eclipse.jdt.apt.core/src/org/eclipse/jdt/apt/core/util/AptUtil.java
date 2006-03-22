@@ -30,7 +30,6 @@ public final class AptUtil {
 	 * 
 	 * @param fullyQualifiedAnnotation the annotation for which a factory
 	 * is desired. This must be fully qualfied -- e.g. "org.eclipse.annotation.Foo"
-	 * @param project the project in which the annotation was found
 	 */
 	public static AnnotationProcessorFactory getFactoryForAnnotation(
 			final String fullyQualifiedAnnotation,

@@ -9,7 +9,7 @@
  *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.build;
+package org.eclipse.jdt.apt.core.internal.build;
 
 import org.eclipse.osgi.util.NLS;
 

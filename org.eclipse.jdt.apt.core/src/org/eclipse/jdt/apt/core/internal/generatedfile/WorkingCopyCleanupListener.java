@@ -13,7 +13,7 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IElementChangedListener;
