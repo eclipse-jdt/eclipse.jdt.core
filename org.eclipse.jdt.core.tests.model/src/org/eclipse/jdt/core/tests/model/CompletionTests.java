@@ -191,8 +191,8 @@ public void testCompletionFindConstructor() throws JavaModelException {
             requestor.getContext());
     
    assertResults(
-			"CompletionFindConstructor[ANONYMOUS_CLASS_DECLARATION]{), LCompletionFindConstructor;, (I)V, null, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{), LCompletionFindConstructor;, (I)V, CompletionFindConstructor, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}",
+			"CompletionFindConstructor[ANONYMOUS_CLASS_DECLARATION]{, LCompletionFindConstructor;, (I)V, null, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
+			"CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{, LCompletionFindConstructor;, (I)V, CompletionFindConstructor, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 
@@ -2699,7 +2699,7 @@ public void testCompletionConstructorForAnonymousType() throws JavaModelExceptio
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:TypeWithConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING+ R_NON_RESTRICTED),
+		"element:TypeWithConstructor    completion:    relevance:"+(R_DEFAULT + R_INTERESTING+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -9885,8 +9885,8 @@ public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException
 			result.context);
 	
 	assertResults(
-			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Object[METHOD_REF<CONSTRUCTOR>]{), Ljava.lang.Object;, ()V, Object, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Object[ANONYMOUS_CLASS_DECLARATION]{, Ljava.lang.Object;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Object[METHOD_REF<CONSTRUCTOR>]{, Ljava.lang.Object;, ()V, Object, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
 public void testCompletionBasicCompletionContext() throws JavaModelException {

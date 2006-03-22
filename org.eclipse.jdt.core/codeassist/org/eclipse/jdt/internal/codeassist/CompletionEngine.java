@@ -1882,11 +1882,6 @@ public final class CompletionEngine
 
 		if (currentType.isInterface()) {
 			char[] completion = CharOperation.NO_CHAR;
-			// nothing to insert - do not want to replace the existing selector & arguments
-			if (this.source == null
-				|| this.source.length <= this.endPosition
-				|| this.source[this.endPosition] != ')')
-				completion = new char[] { ')' };
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -2175,12 +2170,6 @@ public final class CompletionEngine
 					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
 					
 					char[] completion = CharOperation.NO_CHAR;
-					// nothing to insert - do not want to replace the existing selector & arguments
-					if (this.source == null
-						|| this.source.length <= this.endPosition
-						|| this.source[this.endPosition] != ')')
-						completion = new char[] { ')' };
-					
 					if(forAnonymousType){
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
