@@ -5300,6 +5300,103 @@ public void test0731_for() {
 		"----------\n");
 }
 
+// null analysis - for nested with break
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
+public void test0732_for_nested_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(String doubt) {\n" + 
+			"    for(int i = 0; i < 10; i++) {\n" + 
+			"      String s = doubt;\n" + 
+			"      if(s != null) {\n" + 
+			"        for(int j = 0; j < 1; j++) {\n" + 
+			"          break;\n" + 
+			"        }\n" + 
+			"        s.length();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n"},
+		"");
+}
+
+// null analysis - for while with break
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
+// variant
+public void test0733_for_while_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(String doubt, boolean b) {\n" + 
+			"    for(int i = 0; i < 10; i++) {\n" + 
+			"      String s = doubt;\n" + 
+			"      if (s != null) {\n" + 
+			"        while (b) {\n" + 
+			"          break;\n" + 
+			"        }\n" + 
+			"        s.length();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n"},
+		"");
+}
+
+// null analysis - for while with break
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
+// variant
+public void test0734_for_while_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(String doubt, boolean b) {\n" + 
+			"    for(int i = 0; i < 10; i++) {\n" + 
+			"      String s = doubt;\n" + 
+			"      if (s != null) {\n" + 
+			"        do {\n" + 
+			"          break;\n" + 
+			"        } while (b);\n" + 
+			"        s.length();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n"},
+		"");
+}
+
+// null analysis - for nested with break
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
+// variant
+public void test0735_for_nested_break() {
+	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo(Object[] a, String doubt) {\n" + 
+				"    for(int i = 0; i < 10; i++) {\n" + 
+				"      String s = doubt;\n" + 
+				"      if(s != null) {\n" + 
+				"        for(Object o : a) {\n" + 
+				"          break;\n" + 
+				"        }\n" + 
+				"        s.length();\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n"},
+			"");
+	}
+}
+
 // null analysis -- switch
 public void test0800_switch() {
 	this.runConformTest(

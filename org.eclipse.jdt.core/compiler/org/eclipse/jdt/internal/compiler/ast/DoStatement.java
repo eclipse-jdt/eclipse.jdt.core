@@ -107,7 +107,10 @@ public class DoStatement extends Statement {
 
 		// end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
-				loopingContext.initsOnBreak, 
+				(loopingContext.initsOnBreak.tagBits &
+					FlowInfo.UNREACHABLE) != 0 ?
+					loopingContext.initsOnBreak :
+					flowInfo.addInitializationsFrom(loopingContext.initsOnBreak), // recover upstream null info
 				isConditionOptimizedTrue,
 				(condInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
 						flowInfo.addInitializationsFrom(condInfo.initsWhenFalse()) : condInfo, 

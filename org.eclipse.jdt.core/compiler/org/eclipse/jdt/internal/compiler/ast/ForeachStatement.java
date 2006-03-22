@@ -143,7 +143,10 @@ public class ForeachStatement extends Statement {
 		loopingContext.complainOnDeferredNullChecks(currentScope, actionInfo);
 
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
-				loopingContext.initsOnBreak, 
+				(loopingContext.initsOnBreak.tagBits &
+					FlowInfo.UNREACHABLE) != 0 ?
+					loopingContext.initsOnBreak :
+					flowInfo.addInitializationsFrom(loopingContext.initsOnBreak), // recover upstream null info
 				false, 
 				exitBranch, 
 				false, 
