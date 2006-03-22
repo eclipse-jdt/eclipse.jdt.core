@@ -817,12 +817,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	/**
 	 * Returns the character index in the source file buffer
 	 * where source completion was requested (the 
-	 * <code>offset</code>parameter to
-	 * <code>ICodeAssist.codeComplete</code>.
+	 * <code>offset</code> parameter to
+	 * <code>ICodeAssist.codeComplete</code> minus one).
 	 * 
 	 * @return character index in source file buffer
 	 * @see ICodeAssist#codeComplete(int,CompletionRequestor)
 	 */
+	// TODO (david) https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558
 	public int getCompletionLocation() {
 		return this.completionLocation;
 	}

@@ -165,11 +165,12 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * in the source file buffer containing the
 	 * relevant token. When there is no relevant token, the
 	 * range is empty
-	 * (<code>getTokenEnd() == getTokenStart()</code>).
+	 * (<code>getTokenEnd() == getTokenStart() - 1</code>).
 	 * 
 	 * @return character index of token end position (exclusive)
 	 * @since 3.2
 	 */
+	// TODO (david) https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558
 	public int getTokenEnd() {
 		return this.tokenEnd;
 	}
