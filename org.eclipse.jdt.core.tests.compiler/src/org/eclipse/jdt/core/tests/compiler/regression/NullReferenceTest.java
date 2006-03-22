@@ -2274,6 +2274,77 @@ public void test0336_if_else() {
 		"----------\n");
 }
 
+
+// null analysis - if/else nested with correlation
+// TODO (maxime) reconsider if we implement correlation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128861
+public void _test0337_if_else_nested_correlation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public int foo (Object o1, Object o2) {\n" + 
+			"    int result = 0;\n" + 
+			"    if (o1 == null && o2 != null) {\n" + 
+			"      result = -1;\n" + 
+			"    } else {\n" + 
+			"      if (o1 == null && o2 == null) {\n" + 
+			"        result = 0;\n" + 
+			"      } else {\n" + 
+			"        if (o1 != null && o2 == null) {\n" + 
+			"          result = 1;\n" + 
+			"        } else {\n" + 
+			"          int lhs = ((Y) o1).foo();  // may be null\n" + 
+			"          int rhs = ((Y) o2).foo();\n" + 
+			"          result = lhs - rhs;\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y {\n" + 
+			"  abstract int foo();\n" + 
+			"}\n" + 
+			"\n"},
+		"");
+}
+
+// null analysis - if/else nested with correlation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128861
+// workaround
+public void test0338_if_else_nested() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public int foo (Object o1, Object o2) {\n" + 
+			"    int result = 0;\n" + 
+			"    if (o1 == null && o2 == null) {\n" + 
+			"      result = 0;\n" + 
+			"    } else {\n" + 
+			"      if (o1 == null) {\n" + 
+			"        result = -1;\n" + 
+			"      } else {\n" + 
+			"        if (o2 == null) {\n" + 
+			"          result = 1;\n" + 
+			"        } else {\n" + 
+			"          int lhs = ((Y) o1).foo();\n" + 
+			"          int rhs = ((Y) o2).foo();\n" + 
+			"          result = lhs - rhs;\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y {\n" + 
+			"  abstract int foo();\n" + 
+			"}\n" + 
+			"\n"},
+		"");
+}
+
 // null analysis -- while
 public void test0401_while() {
 	this.runNegativeTest(
