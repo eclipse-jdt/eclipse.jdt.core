@@ -3997,6 +3997,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+
 	/**
 	 * Bug 128954: Javadoc problems with category CAT_INTERNAL
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954"
@@ -4174,6 +4175,39 @@ public class JavadocBugsTest extends JavadocTest {
 				"	void bar() {}\n" + 
 				"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Bug 132813: NPE in Javadoc.resolve(Javadoc.java:196) + log swamped
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=132813"
+	 */
+	public void testBug132813() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class X { \n" + 
+				"	/**	 */ \n" + 
+				"	public Test() {}\n" + 
+				"	/**	 */\n" + 
+				"	public test() {}\n" + 
+				"}\n"			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 1)\n" + 
+			"	public class X { \n" + 
+			"	             ^\n" + 
+			"The public type X must be defined in its own file\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	public Test() {}\n" + 
+			"	       ^^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 5)\n" + 
+			"	public test() {}\n" + 
+			"	       ^^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n"
 		);
 	}
 }
