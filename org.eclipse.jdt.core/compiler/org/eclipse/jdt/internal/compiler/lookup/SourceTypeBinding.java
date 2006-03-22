@@ -1074,10 +1074,10 @@ public MethodBinding[] methods() {
 
 		// find & report collision cases
 		boolean complyTo15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-		nextMethod: for (int i = 0, length = this.methods.length; i < length; i++) {
+		for (int i = 0, length = this.methods.length; i < length; i++) {
 			MethodBinding method = this.methods[i];
 			if (method == null) 
-				continue nextMethod;
+				continue;
 			char[] selector = method.selector;
 			AbstractMethodDeclaration methodDecl = null;
 			nextSibling: for (int j = i + 1; j < length; j++) {
@@ -1085,7 +1085,7 @@ public MethodBinding[] methods() {
 				if (method2 == null)
 					continue nextSibling;
 				if (!CharOperation.equals(selector, method2.selector)) 
-					continue nextMethod; // methods with same selector are contiguous
+					break nextSibling; // methods with same selector are contiguous
 
 				if (complyTo15 && method.returnType != null && method2.returnType != null) {
 					// 8.4.2, for collision to be detected between m1 and m2:
