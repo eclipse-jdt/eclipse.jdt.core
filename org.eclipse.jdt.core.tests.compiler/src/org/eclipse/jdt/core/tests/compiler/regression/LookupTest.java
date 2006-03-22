@@ -1941,6 +1941,44 @@ public void test059() {
 		"The method bb() is undefined for the type X\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132813 - variation
+public void test060() {
+    this.runNegativeTest(
+        new String[] {
+        		"X.java", // =================
+    			"public class X {\n" + 
+    			"	\n" + 
+    			"	void aa(int i) {\n" + 
+    			"	}\n" + 
+    			"	Zork aa(long l) {\n" + 
+    			"	}\n" + 
+    			"	Zork bb() {\n" + 
+    			"	}\n" + 
+    			"	void cc() {\n" +
+    			"		this.bb();\n" + 
+    			"	}\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		System.out.println(\"SUCCESS\");\n" + 
+    			"	}\n" + 
+    			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Zork aa(long l) {\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Zork bb() {\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	this.bb();\n" + 
+		"	     ^^\n" + 
+		"The method bb() is undefined for the type X\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
