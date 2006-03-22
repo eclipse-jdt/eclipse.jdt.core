@@ -123,7 +123,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void _testUnresolvableDeclarations0() //TODO: jgarms: re-enable this test 
+	public void testUnresolvableDeclarations0()
 		throws Exception 
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -168,7 +168,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void _testUnresolvableDeclarations1()  // TODO: jgarms: re-enable this test
+	public void testUnresolvableDeclarations1()
 		throws Exception 
 	{
 		IProject project = env.getProject( getProjectName() );
