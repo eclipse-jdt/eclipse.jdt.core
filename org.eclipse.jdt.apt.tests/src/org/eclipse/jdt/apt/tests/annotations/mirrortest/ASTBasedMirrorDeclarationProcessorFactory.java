@@ -60,8 +60,7 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 			if( typeDecl != null ){				
 				final String typename = typeDecl.getSimpleName();
 				if(typename.equals("Foo")){
-					final Collection<? extends MethodDeclaration> methods = 
-						typeDecl.getMethods();
+					final Collection<? extends MethodDeclaration> methods = typeDecl.getMethods();
 					assertEqual(2, methods.size(), "number of methods do not match ");
 					for(MethodDeclaration method : methods ){
 						final String name = method.getSimpleName();
