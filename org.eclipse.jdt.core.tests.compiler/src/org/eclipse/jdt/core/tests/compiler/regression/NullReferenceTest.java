@@ -3965,7 +3965,7 @@ public void test0516_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132072
-// [compiler][null] AIOOBE in null check compiling com.sun.org.apache.xalan.internal.res.XSLTErrorResources from JDK 1.5 source
+// AIOOBE in null check compiling com.sun.org.apache.xalan.internal.res.XSLTErrorResources from JDK 1.5 source
 public void test0517_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -4049,6 +4049,36 @@ public void test0518_try_finally() {
 		"	^\n" + 
 		"The variable x may be null\n" + 
 		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128962
+// incorrect analysis within try finally with a constructor
+public void _test0519_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo(Y y) throws  E {\n" + 
+			"    try {\n" + 
+			"      new Y();\n" + 
+			"      y.bar();\n" + // should be quiet
+			"    } finally {\n" + 
+			"      y = null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"    Y() throws E {\n" + 
+			"    }\n" + 
+			"    void bar() throws E {\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class E extends Exception {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"\n"},
+		"");
 }
 
 // null analysis -- try/catch
