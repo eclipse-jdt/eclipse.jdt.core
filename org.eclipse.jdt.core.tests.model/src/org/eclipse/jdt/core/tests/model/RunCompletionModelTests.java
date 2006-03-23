@@ -45,10 +45,11 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 	public static Class[] getTestClasses() {
 		int size = COMPLETION_SUITES.size();
 		if (!ONLY_JAVADOC) {
-			Class[] testClasses = new Class[size+2];
+			Class[] testClasses = new Class[size+3];
 			COMPLETION_SUITES.toArray(testClasses);
 			testClasses[size] = CompletionTests2.class;
 			testClasses[size+1] = SnippetCompletionTests.class;
+			testClasses[size+2] = SnippetCompletionTests_1_5.class;
 			return testClasses;
 		}
 		Class[] testClasses = new Class[size];
