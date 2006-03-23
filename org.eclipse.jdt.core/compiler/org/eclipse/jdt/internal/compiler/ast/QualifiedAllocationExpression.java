@@ -75,7 +75,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			flowContext.checkExceptionHandlers(
 				thrownExceptions,
 				this,
-				flowInfo,
+				flowInfo.unconditionalCopy(),
 				currentScope);
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);

@@ -48,7 +48,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowContext.checkExceptionHandlers(
 			thrownExceptions,
 			this,
-			flowInfo,
+			flowInfo.unconditionalCopy(),
 			currentScope);
 	}
 	manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);

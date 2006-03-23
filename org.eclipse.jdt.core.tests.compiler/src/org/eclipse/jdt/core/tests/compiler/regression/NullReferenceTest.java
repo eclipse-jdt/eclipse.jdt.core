@@ -4077,31 +4077,61 @@ public void test0518_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128962
-// incorrect analysis within try finally with a constructor
-public void _test0519_try_finally() {
+// incorrect analysis within try finally with a constructor throwing an exception
+public void test0519_try_finally_constructor_exc() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"  public void foo(Y y) throws  E {\n" + 
+			"  public void foo(Y y) throws E {\n" + 
 			"    try {\n" + 
 			"      new Y();\n" + 
-			"      y.bar();\n" + // should be quiet
+			"      y.toString();\n" + // should be quiet
 			"    } finally {\n" + 
 			"      y = null;\n" + 
 			"    }\n" + 
 			"  }\n" + 
 			"}\n" + 
 			"class Y {\n" + 
-			"    Y() throws E {\n" + 
-			"    }\n" + 
-			"    void bar() throws E {\n" + 
-			"    }\n" + 
+			"  Y() throws E {\n" + 
+			"  }\n" + 
 			"}\n" + 
 			"class E extends Exception {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128962
+// incorrect analysis within try finally with a constructor throwing an exception
+// variant
+public void test0520_try_finally_constructor_exc() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo(Y y) throws E { \n" + 
+			"    try { \n" + 
+			"      new Y() {\n" + 
+			"          void bar() {\n" + 
+			"              // do nothing\n" + 
+			"          }\n" + 
+			"      }; \n" + 
+			"      y.toString();\n" + 
+			"    } finally { \n" + 
+			"      y = null; \n" + 
+			"    } \n" + 
+			"  } \n" + 
 			"}\n" + 
-			"\n"},
+			"abstract class Y {\n" + 
+			"  Y() throws E { \n" + 
+			"  }\n" + 
+			"  abstract void bar();\n" + 
+			"} \n" + 
+			"class E extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"},
 		"");
 }
 
