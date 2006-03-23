@@ -13,11 +13,14 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.PrintStream;
 import java.text.NumberFormat;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 
 /**
@@ -534,13 +537,18 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		}
 	}
 
+	/**
+	 * Create AST nodes tree for a given compilation unit at a JLS given level
+	 * 
+	 * @deprecated
+	 */
 	private void createAST(ICompilationUnit unit, int astLevel) throws JavaModelException {
 
 		// Warm up
 		for (int i = 0; i < 2; i++) {
 			ASTParser parser = ASTParser.newParser(astLevel);
 			parser.setSource(unit);
-			parser.setResolveBindings(false);
+			parser.setResolveBindings(astLevel!=AST.JLS2);
 			parser.createAST(null);
 		}
 		
@@ -570,7 +578,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		assertPerformance();
 	}
 
-	// Do NOT forget that tests must start with "testPerf"
 	/**
 	 * @deprecated To reduce deprecated warnings
 	 */
@@ -585,17 +592,19 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	/**
-	 * Removed as there's no reference to compare with
-	 * TODO (frederic) put back post 3.1
+	 * Performance DOM/AST creation on the entire workspace using JLS3.
 	 */
-	public void _testDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Src>JLS3", true); // put in fingerprint
+	public void testDomAstCreationJLS3() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Src>JLS3", false); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		createAST(unit, AST.JLS3);
 	}
 
-	private int runAstCreation(int astLevel) throws JavaModelException {
+	/*
+	 * Create AST nodes tree for all compilation units of all projects
+	 */
+	private int runAllProjectsAstCreation(int astLevel) throws JavaModelException {
 		int unitsCount = 0;
 		startMeasuring();
 		if (DEBUG) System.out.println("Creating AST hierarchy for all units of projects:");
@@ -646,15 +655,75 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	public void testWkspDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM>Creation>Wksp>JLS2", true); // put in fingerprint
-		runAstCreation(AST.JLS2);
+		runAllProjectsAstCreation(AST.JLS2);
 	}
 
-	/**
-	 * Removed as there's no reference to compare with
-	 * TODO (frederic) put back post 3.1
+	/*
+	 * Create AST nodes for all compilation unit of a given project
 	 */
-	public void _testWkspDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Wksp>JLS3", true); // put in fingerprint
-		runAstCreation(AST.JLS3);
+	private void runAstCreation(IJavaProject javaProject) throws JavaModelException {
+		if (DEBUG) System.out.println("Creating AST for project" + javaProject.getElementName());
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(javaProject);
+				
+		Map options= javaProject.getOptions(true);
+		// turn all errors and warnings into ignore. The customizable set of compiler
+		// options only contains additional Eclipse options. The standard JDK compiler
+		// options can't be changed anyway.
+		for (Iterator iter= options.keySet().iterator(); iter.hasNext();) {
+			String key= (String)iter.next();
+			String value= (String)options.get(key);
+			if ("error".equals(value) || "warning".equals(value)) {  //$NON-NLS-1$//$NON-NLS-2$
+				// System.out.println("Ignoring - " + key);
+				options.put(key, "ignore"); //$NON-NLS-1$
+			}
+		}
+		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$		
+		parser.setCompilerOptions(options);
+		
+		List units = getProjectCompilationUnits(javaProject);
+		ICompilationUnit[] compilationUnits = new ICompilationUnit[units.size()];
+		units.toArray(compilationUnits);
+
+		// warm up
+		if (PRINT) System.out.println("	- "+compilationUnits.length+" units will be parsed in "+javaProject.getElementName()+" project");
+		parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {
+				public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+					IProblem[] problems = ast.getProblems();
+					int length = problems.length;
+					if (length > 0) {
+						StringBuffer buffer = new StringBuffer();
+						for (int i=0; i<length; i++) {
+							buffer.append(problems[i].getMessage());
+							buffer.append('\n');
+						}
+						assertEquals("Unexpected problems: "+buffer.toString(), 0, length);
+					}
+				}
+			},
+			null);
+		
+		// Clean memory
+		runGc();
+		
+		// Measures
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			startMeasuring();
+			parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {/* do nothing*/}, null);
+			stopMeasuring();
+		}
+		commitMeasurements();
+		assertPerformance();
+	}
+	
+	/**
+	 * Create AST nodes tree for all compilation units in JUnit project.
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void testDomAstCreationProjectJLS3() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Project>JLS3", true); // put in fingerprint
+		runAstCreation(getProject("org.eclipse.search"));
 	}
 }

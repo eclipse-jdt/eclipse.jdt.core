@@ -160,7 +160,11 @@ public class TestingEnvironment {
 		addEntry(projectPath, entry);
 		return path;
 	}
-	
+
+	public void addProject(IProject project){
+		fProjects.put(project.getName(), project);
+	}
+
 	public IPath addProject(String projectName){
 		return addProject(projectName, "1.4");
 	}
@@ -393,14 +397,21 @@ public class TestingEnvironment {
 		fWasBuilt = true;
 	}
 
-	/** Batch builds a project.  A workspace must be
-	 * open.
+	/**
+	 * Batch builds a project.  A workspace must be open.
 	 */
 	public void fullBuild(IPath projectPath) {
+		fullBuild(projectPath.lastSegment());
+	}
+
+	/**
+	 * Batch builds a project.  A workspace must be open.
+	 */
+	public void fullBuild(String projectName) {
 		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
-			getProject(projectPath).build(IncrementalProjectBuilder.FULL_BUILD, null);
+			getProject(projectName).build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} catch (CoreException e) {
 			handle(e);
 		}

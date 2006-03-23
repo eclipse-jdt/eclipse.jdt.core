@@ -18,8 +18,10 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -55,6 +57,38 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	// Log files
 	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
+	// Options
+	private static final String ALL_OPTIONS = "-warn:" +
+			"allDeprecation," +
+			"allJavadoc," +
+			"assertIdentifier," +
+			"charConcat," +
+			"conditionAssign," +
+			"constructorName," +
+			"deprecation," +
+			"emptyBlock," +
+			"fieldHiding," +
+			"finally," +
+			"indirectStatic," +
+			"intfNonInherited," +
+			"localHiding," +
+			"maskedCatchBlock," +
+			"nls," +
+			"noEffectAssign," +
+			"pkgDefaultMethod," +
+			"semicolon," +
+			"unqualifiedField," +
+			"unusedArgument," +
+			"unusedImport," +
+			"unusedLocal," +
+			"unusedPrivate," +
+			"unusedThrown," +
+			"unnecessaryElse," +
+			"uselessTypeCheck," +
+			"specialParamHiding," +
+			"staticReceiver," +
+			"syntheticAccess," +
+			"tasks(TODO|FIX|XXX)";
 	
 	/**
 	 * @param name
@@ -64,8 +98,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-//		TESTS_PREFIX = "testPerfBatch";
-//		TESTS_NAMES = new String[] { "testBatchCompilerAllWarnings" };
+//		TESTS_PREFIX = "testCompile";
+//		TESTS_NAMES = new String[] { "testFullBuild", "testBatch" };
 	}
 
 	public static Test suite() {
@@ -82,7 +116,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/*
 	 * Parse several times a file giving its name.
 	 */
-	private long[] parseFile(String fileName, int kind, int iterations) throws InvalidInputException, IOException {
+	long[] parseFile(String fileName, int kind, int iterations) throws InvalidInputException, IOException {
 
 		// Test for parser
 		File file = new File(fileName);
@@ -158,19 +192,37 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
-	void parseParserFile(int kind) throws InvalidInputException, IOException {
+	void parseParserFile(final int kind) throws InvalidInputException, IOException, CoreException {
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID)
-			.getLocation()
-			.toFile()
-			.getCanonicalPath();
+		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 		
 		// Run test
 		for (int i=0; i<MEASURES_COUNT; i++) {
-			parseFile(targetWorkspacePath+"/compiler/org/eclipse/jdt/internal/compiler/parser/Parser.java", kind, ITERATIONS_COUNT*6);
+			IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					try {
+						parseFile(workspacePath+PARSER_WORKING_COPY.getPath(), kind, ITERATIONS_COUNT*6);
+					} catch (InvalidInputException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			};
+			if (workspace.isTreeLocked()) {
+				compilation.run(null/*no progress available*/);
+			} else {
+				workspace.run(
+					compilation,
+					null/*don't take any lock*/,
+					IWorkspace.AVOID_UPDATE,
+					null/*no progress available here*/);
+			}
 		}
 
 		// dump measure
@@ -184,7 +236,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 	- 0: only scan all tokens
 	 * 	- 1: scan all tokens and get each identifier
 	 */
-	private void scanFile(String fileName, int kind) throws InvalidInputException, IOException {
+	void scanFile(String fileName, int kind) throws InvalidInputException, IOException {
 
 		// Test for scanner
 		long tokenCount = 0;
@@ -218,12 +270,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			}
 		}
 
-		// Clean memory
-		runGc();
-
 		// Measures
 		long size = 0;
 		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
 			startMeasuring();
 			for (int j = 0; j < SCAN_REPEAT; j++) {
 				scanner.resetTo(0, content.length);
@@ -288,144 +338,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	/**
-	 * Full build with no warning.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 */
-	public void testFullBuildNoWarning() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		startBuild(warningOptions(-1/*no warning*/), false);
-	}
-
-	/**
-	 * Full build with JavaCore default options.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 */
-	public void testFullBuildDefault() throws CoreException, IOException {
-		tagAsGlobalSummary("Compile>Build>Clean>Full>Default warnings", true); // put in fingerprint
-		startBuild(warningOptions(0/*default warnings*/), false);
-	}
-
-	/**
-	 * Full build with all warnings.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 * 
-	 */
-	public void testFullBuildAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		startBuild(warningOptions(1/*all warnings*/), false);
-	}
-
-	/**
-	 * Batch compiler build with no warning
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerNoWarning() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>No warning", true); // put in fingerprint
-		buildUsingBatchCompiler("-nowarn");
-	}
-
-	/**
-	 * Batch compiler build with default warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerDefault() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
-		buildUsingBatchCompiler("");
-	}
-
-	/**
-	 * Batch compiler build with default javadoc warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerJavadoc() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
-		buildUsingBatchCompiler("-warn:javadoc");
-	}
-
-	/**
-	 * Batch compiler build with invalid javadoc warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	// TODO (frederic) put back after having understood why this test result can have variation over 20%
-	public void _testBatchCompilerAllJavadoc() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
-		buildUsingBatchCompiler("-warn:allJavadoc");
-	}
-
-	/**
-	 * Batch compiler build with all warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerAllWarnings() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
-
-		String allOptions = "-warn:" +
-			"allDeprecation," +
-			"allJavadoc," +
-			"assertIdentifier," +
-			"charConcat," +
-			"conditionAssign," +
-			"constructorName," +
-			"deprecation," +
-			"emptyBlock," +
-			"fieldHiding," +
-			"finally," +
-			"indirectStatic," +
-			"intfNonInherited," +
-			"localHiding," +
-			"maskedCatchBlock," +
-			"nls," +
-			"noEffectAssign," +
-			"pkgDefaultMethod," +
-			"semicolon," +
-			"unqualifiedField," +
-			"unusedArgument," +
-			"unusedImport," +
-			"unusedLocal," +
-			"unusedPrivate," +
-			"unusedThrown," +
-			"unnecessaryElse," +
-			"uselessTypeCheck," +
-			"specialParamHiding," +
-			"staticReceiver," +
-			"syntheticAccess," +
-			"tasks(TODO|FIX|XXX)";
-		buildUsingBatchCompiler(allOptions);
-	}
-
-	/**
 	 * Test performance for Scanner on one file.
 	 * Scan is executed many times ({@link #SCAN_REPEAT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #ITERATIONS_COUNT}) to average time measuring.
@@ -433,21 +345,38 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
-	public void testScanner() throws InvalidInputException, IOException {
+	public void testScanner() throws InvalidInputException, IOException, CoreException {
 		// Do no longer print result in performance fingerprint
 		tagAsSummary("Compile>Scan>Parser>Default", true); // put in fingerprint
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID)
-			.getLocation()
-			.toFile()
-			.getCanonicalPath();
-		
+		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+
 		// Run test
-//		scanFile(targetWorkspacePath+"/compiler/org/eclipse/jdt/internal/compiler/parser/Parser.java", 0/*only scan tokens*/);
-		scanFile(targetWorkspacePath+"/compiler/org/eclipse/jdt/internal/compiler/parser/Parser.java", 1/*scan tokens+get identifiers*/);
+		IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				try {
+					scanFile(workspacePath+PARSER_WORKING_COPY.getPath(), 1/*scan tokens+get identifiers*/);
+				} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		};
+		if (workspace.isTreeLocked()) {
+			compilation.run(null/*no progress available*/);
+		} else {
+			workspace.run(
+				compilation,
+				null/*don't take any lock*/,
+				IWorkspace.AVOID_UPDATE,
+				null/*no progress available here*/);
+		}
 	}
 
 	/**
@@ -458,7 +387,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
-	public void testParser() throws InvalidInputException, IOException {
+	public void testParser() throws InvalidInputException, IOException, CoreException {
 		tagAsSummary("Compile>Parse>Parser>Default", true); // put in fingerprint
 		parseParserFile(0); // Parser kind
 	}
@@ -475,8 +404,214 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
-	public void _testSourceParser() throws InvalidInputException, IOException {
+	public void _testSourceParser() throws InvalidInputException, IOException, CoreException {
 		tagAsSummary("Compile>SrcParse>Parser>Default", true); // put in fingerprint
 		parseParserFile(1); // SourceElementParser kind
+	}
+
+	/**
+	 * Full build with no warning.
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testFullBuildNoWarning() throws CoreException, IOException {
+		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
+		build(null, warningOptions(-1/*no warning*/), false);
+	}
+
+	/**
+	 * Full build with JavaCore default options.
+	 * 
+	 * WARNING:
+	 * 	This test must be and _ever_ stay at first position as it build the entire workspace.
+	 * 	It also cannot be removed as it's a Global fingerprint!
+	 * 	Move it would have great consequence on all other tests results...
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	public void testFullBuildDefault() throws CoreException, IOException {
+		tagAsGlobalSummary("Compile>Build>Full>Wksp>Default warnings", true); // put in fingerprint
+		build(null, warningOptions(0/*default warnings*/), false);
+	}
+
+	/**
+	 * Full build with all warnings.
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testFullBuildAllWarnings() throws CoreException, IOException {
+		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
+		build(null, warningOptions(1/*all warnings*/), false);
+	}
+
+	/**
+	 * JDT/Core project full build with no warning.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
+		tagAsSummary("Compile>Build>Full>Project>No warning", false); // do NOT put in fingerprint
+		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), false);
+	}
+
+	/**
+	 * JDT/Core project full build with JavaCore default options.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testFullBuildProjectDefault() throws CoreException, IOException {
+		tagAsSummary("Compile>Build>Full>Project>Default warnings", false); // put in fingerprint
+		build(JDT_CORE_PROJECT, warningOptions(0/*default warnings*/), false);
+	}
+
+	/**
+	 * JDT/Core project full build with all warnings.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testFullBuildProjectAllWarnings() throws CoreException, IOException {
+		tagAsSummary("Compile>Build>Full>Project>All warnings", false); // do NOT put in fingerprint
+		build(JDT_CORE_PROJECT, warningOptions(1/*all warnings*/), false);
+	}
+
+	/**
+	 * Batch compiler build with no warning
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws IOException
+	 */
+	public void testBatchCompilerNoWarning() throws IOException, CoreException {
+		tagAsSummary("Compile>Batch>Compiler>No warning", true); // put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/);
+	}
+
+	/**
+	 * Batch compiler build with default warnings
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testBatchCompilerDefault() throws IOException, CoreException {
+		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "", true/*log errors*/);
+	}
+
+	/**
+	 * Batch compiler build with default javadoc warnings
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testBatchCompilerJavadoc() throws IOException, CoreException {
+		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", true/*log errors*/);
+	}
+
+	/**
+	 * Batch compiler build with invalid javadoc warnings
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testBatchCompilerAllJavadoc() throws IOException, CoreException {
+		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-warn:allJavadoc", true/*log errors*/);
+	}
+
+	/**
+	 * Batch compiler build with all warnings
+	 * 
+	 * Not calling tagAsSummary means that this test is currently evaluated
+	 * before put it in builds performance results.
+	 * 
+	 * @throws IOException
+	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 */
+	public void _testBatchCompilerAllWarnings() throws IOException, CoreException {
+		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, true/*log errors*/);
+	}
+
+	/**
+	 * Compile JDT/Core project with default warnings
+	 * 
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
+		tagAsSummary("Compile>Project>JDT/Core>No warning", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/);
+	}
+
+	/**
+	 * Compile JDT/Core project with default warnings
+	 * 
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
+		tagAsSummary("Compile>Project>JDT/Core>Default warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "", false/*no log*/);
+	}
+
+	/**
+	 * Compile JDT/Core project with default javadoc warnings
+	 * 
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
+		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/);
+	}
+
+	/**
+	 * Compile JDT/Core project with all warnings
+	 * 
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
+		tagAsSummary("Compile>Project>JDT/Core>All warnings", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/);
+	}
+
+	/**
+	 * Compile JDT/Core project with default warnings
+	 * 
+	 * @throws IOException
+	 * @since 3.2 M6
+	 */
+	public void testCompileSWTProjectDefault() throws IOException, CoreException {
+		tagAsSummary("Compile>Project>SWT>Default warnings", false); // do NOT put in fingerprint
+		compile("org.eclipse.swt", "", false/*no log*/);
 	}
 }

@@ -13,18 +13,12 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.*;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -32,7 +26,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
 
 /**
@@ -42,7 +35,7 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	// Tests counters
 	static int TESTS_COUNT = 0;
 	private final static int WARMUP_COUNT = 1; // 30;
-	private final static int ITERATIONS_COUNT = 30;
+	private final static int ITERATIONS_COUNT = 1000;
 	private final static int FOLDERS_COUNT = 200;
 	private final static int PACKAGES_COUNT = 200;
 	static int TESTS_LENGTH;
@@ -50,10 +43,6 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	// Log file streams
 	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
-	// Search variables
-	IJavaSearchScope scope;
-	protected JavaSearchResultCollector resultCollector;
-	
 	// Type path
 	static IPath BIG_PROJECT_TYPE_PATH;
 	static ICompilationUnit WORKING_COPY;
@@ -102,9 +91,9 @@ private void setUpBigProject() throws CoreException {
 
 		// Print for log in case of project creation troubles...
 		System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
-		System.out.println("	- create "+FOLDERS_COUNT+" folders and "+PACKAGES_COUNT+" packages...");
 
 		// setup projects with several source folders and several packages per source folder
+		System.out.println("	- create "+FOLDERS_COUNT+" folders x "+PACKAGES_COUNT+" packages...");
 		final String[] sourceFolders = new String[FOLDERS_COUNT];
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
@@ -230,7 +219,7 @@ protected void search(String patternString, int searchFor, int limitTo) throws C
 }
 */
 
-protected void searchAllTypeNames() throws CoreException {
+protected void searchAllTypeNames(IJavaSearchScope scope) throws CoreException {
 	class TypeNameCounter extends TypeNameRequestor {
 		int count = 0;
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
@@ -243,7 +232,7 @@ protected void searchAllTypeNames() throws CoreException {
 		null,
 		SearchPattern.R_PREFIX_MATCH, // not case sensitive
 		IJavaSearchConstants.TYPE,
-		this.scope,
+		scope,
 		requestor,
 		WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -293,71 +282,6 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	assertEquals(message, expected, actual);
 }
 
-/**
- * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#createJavaProject(String, String[], String[], String[][], String[][], String[], String[][], String[][], boolean[], String, String[], String[][], String[][], String)
- */
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String projectOutput, final String compliance) throws CoreException {
-	final IJavaProject[] result = new IJavaProject[1];
-	IWorkspaceRunnable create = new IWorkspaceRunnable() {
-		public void run(IProgressMonitor monitor) throws CoreException {
-			
-			// create classpath entries 
-			IProject project = ENV.getProject(projectName);
-			IPath projectPath = project.getFullPath();
-			int sourceLength = sourceFolders == null ? 0 : sourceFolders.length;
-			IClasspathEntry[] entries = new IClasspathEntry[sourceLength];
-			for (int i= 0; i < sourceLength; i++) {
-				IPath sourcePath = new Path(sourceFolders[i]);
-				int segmentCount = sourcePath.segmentCount();
-				if (segmentCount > 0) {
-					// create folder and its parents
-					IContainer container = project;
-					for (int j = 0; j < segmentCount; j++) {
-						IFolder folder = container.getFolder(new Path(sourcePath.segment(j)));
-						if (!folder.exists()) {
-							folder.create(true, true, null);
-						}
-						container = folder;
-					}
-				}
-				// create source entry
-				entries[i] = 
-					JavaCore.newSourceEntry(
-						projectPath.append(sourcePath), 
-						new IPath[0],
-						new IPath[0], 
-						null
-					);
-			}
-			
-			// create project's output folder
-			IPath outputPath = new Path(projectOutput);
-			if (outputPath.segmentCount() > 0) {
-				IFolder output = project.getFolder(outputPath);
-				if (!output.exists()) {
-					output.create(true, true, null);
-				}
-			}
-			
-			// set classpath and output location
-			IJavaProject javaProject = ENV.getJavaProject(projectName);
-			javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
-			
-			// set compliance level options
-			if ("1.5".equals(compliance)) {
-				Map options = new HashMap();
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-				javaProject.setOptions(options);
-			}
-			
-			result[0] = javaProject;
-		}
-	};
-	ResourcesPlugin.getWorkspace().run(create, null);	
-	return result[0];
-}
 private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
 	return project.newNameLookup((WorkingCopyOwner)null);
 }
@@ -686,9 +610,8 @@ public void testPerfReconcile() throws CoreException {
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
- * TODO (frederic) disabled as we cannot rely on this test result
  */
-public void _testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
+public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -696,13 +619,13 @@ public void _testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
-	this.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 	try {
 		ProblemRequestor requestor = new ProblemRequestor();
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 		if (WARMUP_COUNT > 0) {
 			for (int i=0; i<WARMUP_COUNT; i++) {
-				searchAllTypeNames();
+				searchAllTypeNames(scope);
 				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
 				assertNotNull("Compilation Unit should not be null!", unit);
 				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
@@ -716,7 +639,7 @@ public void _testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 			runGc();
 			startMeasuring();
 			for (int n=0; n<iterations; n++) {
-				searchAllTypeNames();
+				searchAllTypeNames(scope);
 				workingCopy.reconcile(AST.JLS3, true, null, null);
 			}
 			stopMeasuring();

@@ -40,10 +40,39 @@ import org.eclipse.test.performance.Performance;
 
 public abstract class FullSourceWorkspaceTests extends TestCase {
 
-	// Final static variables
+	// Debug variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	final static boolean PRINT = "true".equals(System.getProperty("print"));
+
+	// Options
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
+	final static String COMPLIANCE = System.getProperty("compliance");
+	static {
+		Hashtable options = INITIAL_OPTIONS;
+		String compliance = compliance();
+		if (compliance == null) {
+			System.out.println("Used default compliance: "+options.get(JavaCore.COMPILER_COMPLIANCE));
+		} else {
+			System.out.println("Used compliance: "+compliance);
+			options.put(CompilerOptions.OPTION_Compliance, compliance);
+			options.put(CompilerOptions.OPTION_Source, compliance);	
+			options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
+			JavaCore.setOptions(options);
+		}
+	}
+	protected static String compliance() {
+		String compliance = null;
+		if ("1.3".equals(COMPLIANCE)) {
+			compliance = CompilerOptions.VERSION_1_3;
+		} else if ("1.4".equals(COMPLIANCE)) {
+			compliance = CompilerOptions.VERSION_1_4;
+		} else if ("1.5".equals(COMPLIANCE) || "5.0".equals(COMPLIANCE)) {
+			compliance = CompilerOptions.VERSION_1_5;
+		} else if ("1.6".equals(COMPLIANCE) || "6.0".equals(COMPLIANCE)) {
+			compliance = CompilerOptions.VERSION_1_6;
+		}
+		return compliance;
+	}
 	
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
@@ -55,7 +84,36 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static IJavaProject[] ALL_PROJECTS;
 	protected static IJavaProject JDT_CORE_PROJECT;
 	protected static ICompilationUnit PARSER_WORKING_COPY;
+	protected final static String BIG_PROJECT_NAME = "BigProject";
+	protected static JavaProject BIG_PROJECT;
+//	protected final static String JUNIT_PROJECT_NAME = "junit";
+//	protected static IJavaProject JUNIT_PROJECT;
 	
+	// Compilaiton variable
+	public static final String COMPILER_OUTPUT_DIR;
+	static {
+		String outputDir = null;
+		String container = System.getProperty("user.home");
+		if (container == null){
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IWorkspaceRoot workspaceRoot = workspace.getRoot();
+			File pluginDir = workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile();
+			try {
+				outputDir = pluginDir.getCanonicalPath() + File.separator + "bin";
+			} catch (IOException e) {
+				// skip
+			}
+		} else {
+			outputDir = Util.toNativePath(container) + File.separator + "bin";
+		}
+		if (outputDir == null) {
+			COMPILER_OUTPUT_DIR = "none";
+		} else {
+			COMPILER_OUTPUT_DIR = "\""+outputDir+"\"";
+		}
+	}
+
+
 	// Index variables
 	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
 	
@@ -64,7 +122,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static int TEST_POSITION = 0;
 	protected static List TESTS_NAME_LIST;
 
-	// Tests counters
+	/**
+	 * Count of measures done for all tests.
+	 * <b>
+	 * Default value is 10 but can be modified using system property "measures".
+	 * <b>
+	 * For example, "-Dmeasures=1" will make all performance test suites to run
+	 * only 1 iteration for each test.
+	 */
 	protected final static int MEASURES_COUNT;
 	static {
 		String measures = System.getProperty("measures", "10");
@@ -89,13 +154,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	String scenarioReadableName, scenarioShortName;
 	StringBuffer scenarioComment;
 	static Map SCENARII_COMMENT = new HashMap();
-	
-	// Project
-	final static String BIG_PROJECT_NAME = "BigProject";
-	static JavaProject BIG_PROJECT;
 
 	// Time measuring
 	long startMeasuring, testDuration;
+
+	// Standard deviation threshold. Statistic should not be take into account when it's reached
+	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
 
 	/**
 	 * Variable used for log files.
@@ -184,23 +248,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		LOG_DIR = dir;
 	}
 
-	// Standard deviation threshold. Statistic should not be take into account when it's reached
-	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
-
 	/**
 	 * @param name
 	 */
 	public FullSourceWorkspaceTests(String name) {
 		super(name);
-	}
-
-	protected static String suiteTypeShortName(Class testClass) {
-		String className = testClass.getName();
-		int startIndex = className.indexOf("FullSourceWorkspace");
-		int endIndex = className.lastIndexOf("Test");
-		if (startIndex < 0) return null;
-		startIndex += "FullSourceWorkspace".length();
-		return className.substring(startIndex, endIndex);
 	}
 
 	/**
@@ -257,53 +309,55 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				try {
 					boolean fileExist = logFile.exists();
 					logStreams[i] = new PrintStream(new FileOutputStream(logFile, true));
-					if (!fileExist && logStreams[i] != null) {
-						logStreams[i].print("Date  \tTime  \t");
-						for (int j=0; j<count; j++) {
-							String testName = ((String) TESTS_NAME_LIST.get(j)).substring(4+(prefix==null?0:prefix.length())); // 4="test".length()
-							logStreams[i].print(testName+'\t');
+					if (logStreams[i] != null) {
+						if (!fileExist) {
+							logStreams[i].print("Date  \tTime  \t");
+							for (int j=0; j<count; j++) {
+								String testName = ((String) TESTS_NAME_LIST.get(j)).substring(4+(prefix==null?0:prefix.length())); // 4="test".length()
+								logStreams[i].print(testName+'\t');
+							}
+							logStreams[i].println("Comment");
+							
 						}
-						logStreams[i].println("Comment");
-						
+						// Log date and time
+						Date date = new Date(System.currentTimeMillis());
+						logStreams[i].print(DateFormat.getDateInstance(3).format(date)+'\t');
+						logStreams[i].print(DateFormat.getTimeInstance(3).format(date)+'\t');
+						System.out.println("Log file "+logFile.getPath()+" opened.");
+					} else {
+						System.err.println("Cannot open "+logFile.getPath()+"!!!");
 					}
-					// Log date and time
-					Date date = new Date(System.currentTimeMillis());
-					logStreams[i].print(DateFormat.getDateInstance(3).format(date)+'\t');
-					logStreams[i].print(DateFormat.getTimeInstance(3).format(date)+'\t');
-					System.out.println("Log file "+logFile.getPath()+" opened.");
 				} catch (FileNotFoundException e) {
-					// no log available for this statistic
+					System.err.println("Cannot find file "+logFile.getPath()+"!!!");
 				}
 			}
 		}
 	}
 
-	/**
-	 * Perform gc several times to be sure that it won't take time while executing current test.
+	/*
+	 * Returns the OS path to the directory that contains this plugin.
 	 */
-	protected void runGc() {
-		int iterations = 0;
-		long delta=0, free=0;
-		for (int i=0; i<MAX_GC; i++) {
-			free = Runtime.getRuntime().freeMemory();
-			System.gc();
-			delta = Runtime.getRuntime().freeMemory() - free;
-//			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
-			try {
-				Thread.sleep(TIME_GC);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
+	static String getPluginDirectoryPath() {
+		try {
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.performance").getEntry("/");
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		if (iterations == MAX_GC && delta > DELTA_GC) {
-			// perhaps gc was not well executed
-			System.out.println("WARNING: "+this.scenarioShortName+" still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-		}
+		return null;
+	}
+
+	/**
+	 * Return a short name for a given suite test.
+	 * Typically remove prefix "FullSourceWorkspace" and suffix "Test"
+	 */
+	protected static String suiteTypeShortName(Class testClass) {
+		String className = testClass.getName();
+		int startIndex = className.indexOf("FullSourceWorkspace");
+		int endIndex = className.lastIndexOf("Test");
+		if (startIndex < 0) return null;
+		startIndex += "FullSourceWorkspace".length();
+		return className.substring(startIndex, endIndex);
 	}
 
 	/**
@@ -407,6 +461,34 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	/**
+	 * Perform gc several times to be sure that it won't take time while executing current test.
+	 */
+	protected void runGc() {
+		int iterations = 0;
+		long delta=0, free=0;
+		for (int i=0; i<MAX_GC; i++) {
+			free = Runtime.getRuntime().freeMemory();
+			System.gc();
+			delta = Runtime.getRuntime().freeMemory() - free;
+//			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
+			try {
+				Thread.sleep(TIME_GC);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+		if (iterations == MAX_GC && delta > DELTA_GC) {
+			// perhaps gc was not well executed
+			System.out.println("WARNING: "+this.scenarioShortName+" still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+	}
+
+	/**
 	 * Override super implementation to:
 	 * <ul>
 	 *		<li>store scenario names and comment (one scenario per test)</li>
@@ -429,18 +511,153 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			ENV = new TestingEnvironment();
 			ENV.openEmptyWorkspace();
 			setUpFullSourceWorkspace();
+//			if (JUNIT_PROJECT == null) {
+//				setUpJunitProject();
+//			}
 		}
-		
+
+		// Verify that all used projects were found in wksp
+		assertNotNull("We should have found "+JavaCore.PLUGIN_ID+" project in workspace!!!", JDT_CORE_PROJECT);
+
 		// Increment test position
 		TEST_POSITION++;
-		
+
 		// Print test name
-		System.out.println("--------------------------------------------------------------------------------");
+		System.out.println("================================================================================");
 		System.out.println("Running "+this.scenarioReadableName+"...");
 
 		// Time measuring
 		this.testDuration = 0;
+
+		// Wait 2 seconds
+		Thread.sleep(2000);
 	}
+
+	/*
+	 * Set up full source workpsace from zip file.
+	 */
+	private void setUpFullSourceWorkspace() throws IOException, CoreException {
+
+		// Get projects in workspace (save projects creation on local boxes...)
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		IProject[] projects = workspaceRoot.getProjects();
+		int projectsLength = projects.length;
+
+		// If no projects then unzip file
+		if (projectsLength == 0) {
+			projects = createFullSourceWorkspace();
+			projectsLength = projects.length;
+		}
+
+		// Init environment with existing porjects
+		for (int i = 0; i < projectsLength; i++) {
+			ENV.addProject(projects[i]);
+		}
+
+		// Init JRE_LIB variable
+		String jdkLib = Util.getJavaClassLibs()[0];
+		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
+		
+		// Set classpaths (workaround bug 73253 Project references not set on project open)
+		System.out.print("Set projects classpaths...");
+		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
+		int length = ALL_PROJECTS.length;
+		for (int i = 0; i < length; i++) {
+			String projectName = ALL_PROJECTS[i].getElementName();
+			if (JavaCore.PLUGIN_ID.equals(projectName)) {
+				JDT_CORE_PROJECT = ALL_PROJECTS[i];
+			} else if (BIG_PROJECT_NAME.equals(projectName)) {
+				BIG_PROJECT = (JavaProject) ALL_PROJECTS[i];
+//			} else if (JUNIT_PROJECT_NAME.equals(projectName)) {
+//				JUNIT_PROJECT = ALL_PROJECTS[i];
+			}
+			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
+			// Make Big project dependent from jdt.core one
+//			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
+//			int bpeLength = bigProjectEntries.length;
+//			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
+//			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
+		}
+		System.out.println("done");
+
+		// Initialize Parser wokring copy
+		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
+		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
+		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
+	}
+
+	private IProject[] createFullSourceWorkspace() throws IOException, CoreException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+
+		// Print for log in case of project creation troubles...
+		String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
+		long start = System.currentTimeMillis();
+		System.out.println("Unzipping "+fullSourceZipPath);
+		System.out.print("	in "+targetWorkspacePath+"...");
+
+		// Unzip file
+		Util.unzip(fullSourceZipPath, targetWorkspacePath);
+		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
+
+		// Create and open projects
+		System.out.print("Create and open projects in environment...");
+		start = System.currentTimeMillis();
+		workspace.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				File targetWorkspaceDir = new File(targetWorkspacePath);
+				String[] projectNames = targetWorkspaceDir.list();
+				for (int i = 0, length = projectNames.length; i < length; i++) {
+					String projectName = projectNames[i];
+					if (".metadata".equals(projectName)) continue;
+					IProject project = workspaceRoot.getProject(projectName);
+					project.create(monitor);
+					project.open(monitor);
+				}
+			}
+		}, null);
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		
+		// Return unzipped projects
+		return workspaceRoot.getProjects();
+	}
+
+	/*
+	 * Create JUnit project and add it to the workspace
+	 *
+	private void setUpJunitProject() throws CoreException, IOException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+	
+		// Print for log in case of project creation troubles...
+		System.out.println("Create '"+JUNIT_PROJECT_NAME+"' project in "+workspaceRoot.getLocation()+":");
+		long start = System.currentTimeMillis();
+	
+		// Print for log in case of project creation troubles...
+		String genericsZipPath = getPluginDirectoryPath() + File.separator + JUNIT_PROJECT_NAME + "src.zip";
+		start = System.currentTimeMillis();
+		System.out.println("Unzipping "+genericsZipPath);
+		System.out.print("	in "+targetWorkspacePath+"...");
+	
+		// Unzip file
+		Util.unzip(genericsZipPath, targetWorkspacePath);
+		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
+	
+		// Add project to workspace
+		System.out.print("	- add project to full source workspace...");
+		start = System.currentTimeMillis();
+		ENV.addProject(JUNIT_PROJECT_NAME);
+		JUNIT_PROJECT = createJavaProject(JUNIT_PROJECT_NAME, new String[]{ "src" }, "bin", "1.5");
+		JUNIT_PROJECT.setRawClasspath(JUNIT_PROJECT.getResolvedClasspath(true), null);
+	
+		// Print for log in case of project creation troubles...
+		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
+	}
+	*/
+
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
 	 */
@@ -492,7 +709,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		this.testDuration += System.currentTimeMillis() - this.startMeasuring;
 	}
 	public void commitMeasurements() {
-		System.out.println("	Test duration = "+this.testDuration+"ms");
+		if (PRINT) System.out.println("	Test duration = "+this.testDuration+"ms");
 		super.commitMeasurements();
 	}
 	/**
@@ -506,150 +723,102 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected void tearDown() throws Exception {
 		ALL_TESTS_COUNT--;
 		if (ALL_TESTS_COUNT == 0) {
-			ENV.resetWorkspace();
+//			ENV.resetWorkspace();
 			JavaCore.setOptions(INITIAL_OPTIONS);
 		}
 		super.tearDown();
 	}
 
-	/*
-	 * Returns the OS path to the directory that contains this plugin.
+	/**
+	 * Start a build on given projkect or workspace using given options.
+	 * 
+	 * @param javaProject Project which must be (full) build or null if all workspace has to be built.
+	 * @param options Options used while building
 	 */
-	private static String getPluginDirectoryPath() {
-		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.performance").getEntry("/");
-			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	protected void build(final IJavaProject javaProject, Hashtable options, boolean noWarning) throws IOException, CoreException {
+		if (DEBUG) System.out.print("\tstart build...");
+		JavaCore.setOptions(options);
+		if (PRINT) System.out.println("Options: "+options);
 
-	/*
-	 * Set up full source workpsace from zip file.
-	 */
-	private static void setUpFullSourceWorkspace() throws IOException, CoreException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		if (workspaceRoot.getProjects().length == 0) {
-			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
-			final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-
-			// Print for log in case of project creation troubles...
-			long start = System.currentTimeMillis();
-			System.out.println("Unzipping "+fullSourceZipPath);
-			System.out.print("	in "+targetWorkspacePath+"...");
-			
-			// Unzip file
-			Util.unzip(fullSourceZipPath, targetWorkspacePath);
-
-			// Create and open projects
-			workspace.run(new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
-					File targetWorkspaceDir = new File(targetWorkspacePath);
-					String[] projectNames = targetWorkspaceDir.list();
-					for (int i = 0, length = projectNames.length; i < length; i++) {
-						String projectName = projectNames[i];
-						if (".metadata".equals(projectName)) continue;
-						IProject project = workspaceRoot.getProject(projectName);
-						project.create(monitor);
-						project.open(monitor);
-					}
-				}
-			}, null);
-			System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-		}
-		String jdkLib = Util.getJavaClassLibs()[0];
-		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
-		
-		// Set classpaths (workaround bug 73253 Project references not set on project open)
-		System.out.print("Set projects classpaths...");
-		long start = System.currentTimeMillis();
-		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
-		int length = ALL_PROJECTS.length;
-		for (int i = 0; i < length; i++) {
-			String projectName = ALL_PROJECTS[i].getElementName();
-			if (JavaCore.PLUGIN_ID.equals(projectName)) {
-				JDT_CORE_PROJECT = ALL_PROJECTS[i];
-			} else if (BIG_PROJECT_NAME.equals(projectName)) {
-				BIG_PROJECT = (JavaProject) ALL_PROJECTS[i];
-			}
-			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
-			// Make Big project dependent from jdt.core one
-//			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
-//			int bpeLength = bigProjectEntries.length;
-//			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
-//			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
-		}
-		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
-		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
-		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-	}
-
-	/*
-	 * Full Build using batch compiler
-	 */
-	protected void buildUsingBatchCompiler(String options) throws IOException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile().getCanonicalPath();
-		final String sources = targetWorkspacePath + File.separator + "compiler";
-		final String bins = targetWorkspacePath + File.separator + "bin"; //$NON-NLS-1$
-		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
-
-		// Warm up
-		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
-		int errorsCount = 0;
-		for (int i=0; i<2; i++) {
-			StringWriter errStrWriter = new StringWriter();
-			PrintWriter err = new PrintWriter(errStrWriter);
-			PrintWriter out = new PrintWriter(new StringWriter());
-			Main main = new Main(out, err, false);
-			main.compile(Main.tokenize(cmdLine));
-			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
-				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
-				if (DEBUG) {
-					System.out.println(errStrWriter.toString());
-					System.out.println("--------------------");
-				}
-				errorsCount = main.globalErrorsCount;
-			}
-		}
-
-		// Clear memory
-		runGc();
-
-		// Measures
-		int max = MEASURES_COUNT * 2;
-		int warnings = 0;
-		for (int i = 0; i < max; i++) {
-			StringWriter errStrWriter = new StringWriter();
-			PrintWriter err = new PrintWriter(errStrWriter);
-			PrintWriter out = new PrintWriter(new StringWriter());
+		// Build workspace if no project
+		if (javaProject == null) {
+			// single measure
+			runGc();
 			startMeasuring();
-			Main main = new Main(out, err, false);
-			main.compile(Main.tokenize(cmdLine));
+			ENV.fullBuild();
 			stopMeasuring();
-			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
-				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
-				if (DEBUG) {
-					System.out.println(errStrWriter.toString());
-					System.out.println("--------------------");
+		} else {
+			// warm-up
+			ENV.fullBuild(javaProject.getProject().getName());
+			
+			// measures
+			int max = MEASURES_COUNT / 2;
+			for (int i=0; i<max; i++) {
+				runGc();
+				startMeasuring();
+				IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						ENV.fullBuild(javaProject.getPath());
+					}
+				};
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				if (workspace.isTreeLocked()) {
+					compilation.run(null/*no progress available*/);
+				} else {
+					workspace.run(
+						compilation,
+						null/*don't take any lock*/,
+						IWorkspace.AVOID_UPDATE,
+						null/*no progress available here*/);
 				}
-				errorsCount = main.globalErrorsCount;
+				stopMeasuring();
 			}
-			cleanupDirectory(new File(bins));
-			warnings = main.globalWarningsCount;
 		}
 		
-		// Commit measures
+		// Verify markers
+		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		List resources = new ArrayList();
+		List messages = new ArrayList();
+		int warnings = 0;
+		for (int i = 0, length = markers.length; i < length; i++) {
+			IMarker marker = markers[i];
+			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
+				case IMarker.SEVERITY_ERROR:
+					resources.add(marker.getResource().getName());
+					messages.add(marker.getAttribute(IMarker.MESSAGE));
+					break;
+				case IMarker.SEVERITY_WARNING:
+					warnings++;
+					if (noWarning) {
+						resources.add(marker.getResource().getName());
+						messages.add(marker.getAttribute(IMarker.MESSAGE));
+					}
+					break;
+			}
+		}
+		
+		// Assert result
+		int size = messages.size();
+		if (size > 0) {
+			StringBuffer debugBuffer = new StringBuffer();
+			for (int i=0; i<size; i++) {
+				debugBuffer.append(resources.get(i));
+				debugBuffer.append(":\n\t");
+				debugBuffer.append(messages.get(i));
+				debugBuffer.append('\n');
+			}
+			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
+			System.out.println("--------------------");
+		}
+		if (DEBUG) System.out.println("done");
+		
+		// Commit measure
 		commitMeasurements();
 		assertPerformance();
-
+	
 		// Store warning
 		if (warnings>0) {
-			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
+			System.out.println("\t- "+warnings+" warnings found while performing build.");
 		}
 		if (this.scenarioComment == null) {
 			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
@@ -682,6 +851,157 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			System.out.println("Could not delete directory " + directory.getPath()); //$NON-NLS-1$
 	}
 
+	/*
+	 * Full Build using batch compiler
+	 */
+	protected void compile(String pluginID, String options, boolean log) throws IOException, CoreException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
+		String sources = targetWorkspacePath;
+//		if (JavaCore.PLUGIN_ID.equals(pluginID)) sources += File.separator + "compiler";
+		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
+
+		// Warm up
+		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
+		final String cmdLine = sources + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"");
+		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
+		int errorsCount = 0;
+		int warnings = 0;
+		StringWriter errStrWriter = new StringWriter();
+		PrintWriter err = new PrintWriter(errStrWriter);
+		PrintWriter out = new PrintWriter(new StringWriter());
+		Main warmup = new Main(out, err, false);
+		warmup.compile(Main.tokenize(cmdLine));
+		if (warmup.globalErrorsCount > 0 && warmup.globalErrorsCount != errorsCount) {
+			System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+			if (DEBUG) {
+				System.out.println(errStrWriter.toString());
+				System.out.println("--------------------");
+			}
+			errorsCount = warmup.globalErrorsCount;
+		}
+		if (!"none".equals(COMPILER_OUTPUT_DIR)) {
+			cleanupDirectory(new File(COMPILER_OUTPUT_DIR));
+		}
+		warnings = warmup.globalWarningsCount;
+		if (!log) Util.writeToFile(errStrWriter.toString(), logFileName);
+
+		// Measures
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
+			NullPrintWriter nullPrint= new NullPrintWriter();
+			startMeasuring();
+			final Main main = new Main(nullPrint, nullPrint, false);
+			IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					main.compile(Main.tokenize(cmdLine));
+				}
+			};
+			if (workspace.isTreeLocked()) {
+				compilation.run(null/*no progress available*/);
+			} else {
+				workspace.run(
+					compilation,
+					null/*don't take any lock*/,
+					IWorkspace.AVOID_UPDATE,
+					null/*no progress available here*/);
+			}
+			stopMeasuring();
+			if (!"none".equals(COMPILER_OUTPUT_DIR)) {
+				cleanupDirectory(new File(COMPILER_OUTPUT_DIR));
+			}
+		}
+		
+		// Commit measures
+		commitMeasurements();
+		assertPerformance();
+
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#createJavaProject(String, String[], String[], String[][], String[][], String[], String[][], String[][], boolean[], String, String[], String[][], String[][], String)
+	 */
+	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String projectOutput, final String compliance) throws CoreException {
+		final IJavaProject[] result = new IJavaProject[1];
+		IWorkspaceRunnable create = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				
+				// create classpath entries 
+				IProject project = ENV.getProject(projectName);
+				IPath projectPath = project.getFullPath();
+				int sourceLength = sourceFolders == null ? 0 : sourceFolders.length;
+				IClasspathEntry[] entries = new IClasspathEntry[sourceLength+1];
+				for (int i= 0; i < sourceLength; i++) {
+					IPath sourcePath = new Path(sourceFolders[i]);
+					int segmentCount = sourcePath.segmentCount();
+					if (segmentCount > 0) {
+						// create folder and its parents
+						IContainer container = project;
+						for (int j = 0; j < segmentCount; j++) {
+							IFolder folder = container.getFolder(new Path(sourcePath.segment(j)));
+							if (!folder.exists()) {
+								folder.create(true, true, null);
+							}
+							container = folder;
+						}
+					}
+					// create source entry
+					entries[i] = 
+						JavaCore.newSourceEntry(
+							projectPath.append(sourcePath), 
+							new IPath[0],
+							new IPath[0], 
+							null
+						);
+				}
+				
+				// Add JRE_LIB entry
+				entries[sourceLength] = JavaCore.newVariableEntry(
+								new Path("JRE_LIB"),
+								null,
+								null);
+
+				// create project's output folder
+				IPath outputPath = new Path(projectOutput);
+				if (outputPath.segmentCount() > 0) {
+					IFolder output = project.getFolder(outputPath);
+					if (!output.exists()) {
+						output.create(true, true, null);
+					}
+				}
+				
+				// set classpath and output location
+				IJavaProject javaProject = ENV.getJavaProject(projectName);
+				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
+				
+				// set compliance level options
+				if ("1.5".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+					javaProject.setOptions(options);
+				}
+				
+				result[0] = javaProject;
+			}
+		};
+		ResourcesPlugin.getWorkspace().run(create, null);	
+		return result[0];
+	}
+
 	private void collectAllFiles(File root, ArrayList collector, FileFilter fileFilter) {
 		File[] files = root.listFiles(fileFilter);
 		for (int i = 0; i < files.length; i++) {
@@ -707,16 +1027,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	/**
-	 * Returns project correspoding to given name or null if none is found.
-	 * @param projectName
-	 * @return IJavaProject
+	 * Returns the specified compilation unit in the given project, root, and
+	 * package fragment or <code>null</code> if it does not exist.
 	 */
-	protected IJavaProject getProject(String projectName) {
-		for (int i=0, length = ALL_PROJECTS.length; i<length; i++) {
-			if (ALL_PROJECTS[i].getElementName().equals(projectName))
-				return ALL_PROJECTS[i];
+	protected IClassFile getClassFile(IJavaProject project, String rootPath, String packageName, String className) throws JavaModelException {
+		IPackageFragment pkg= getPackageFragment(project, rootPath, packageName);
+		if (pkg == null) {
+			return null;
 		}
-		return null;
+		return pkg.getClassFile(className);
 	}
 
 	/**
@@ -729,21 +1048,82 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected ICompilationUnit getCompilationUnit(String projectName, String packageName, String unitName) throws JavaModelException {
 		IJavaProject javaProject = getProject(projectName);
 		if (javaProject == null) return null;
-		IPackageFragmentRoot[] fragmentRoots = javaProject.getPackageFragmentRoots();
-		int length = fragmentRoots.length;
-		for (int i=0; i<length; i++) {
-			if (fragmentRoots[i] instanceof JarPackageFragmentRoot) continue;
-			IJavaElement[] packages= fragmentRoots[i].getChildren();
-			for (int k= 0; k < packages.length; k++) {
-				IPackageFragment pack = (IPackageFragment) packages[k];
-				if (pack.getElementName().equals(packageName)) {
-					ICompilationUnit[] units = pack.getCompilationUnits();
-					for (int u=0; u<units.length; u++) {
-						if (units[u].getElementName().equals(unitName))
-							return units[u];
-					}
+		IType type = javaProject.findType(packageName, unitName);
+		if (type != null) {
+			return type.getCompilationUnit();
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the specified package fragment in the given project and root, or
+	 * <code>null</code> if it does not exist.
+	 * The rootPath must be specified as a project relative path. The empty
+	 * path refers to the default package fragment.
+	 */
+	protected IPackageFragment getPackageFragment(IJavaProject project, String rootPath, String packageName) throws JavaModelException {
+		IPackageFragmentRoot root= getPackageFragmentRoot(project, rootPath);
+		if (root == null) {
+			return null;
+		}
+		return root.getPackageFragment(packageName);
+	}
+
+	/**
+	 * Returns the specified package fragment root in the given project, or
+	 * <code>null</code> if it does not exist.
+	 * If relative, the rootPath must be specified as a project relative path. 
+	 * The empty path refers to the package fragment root that is the project
+	 * folder iteslf.
+	 * If absolute, the rootPath refers to either an external jar, or a resource 
+	 * internal to the workspace
+	 */
+	public IPackageFragmentRoot getPackageFragmentRoot(
+		IJavaProject project, 
+		String rootPath)
+		throws JavaModelException {
+
+		if (project == null) {
+			return null;
+		}
+		IPath path = new Path(rootPath);
+		if (path.isAbsolute()) {
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IResource resource = workspaceRoot.findMember(path);
+			IPackageFragmentRoot root;
+			if (resource == null) {
+				// external jar
+				root = project.getPackageFragmentRoot(rootPath);
+			} else {
+				// resource in the workspace
+				root = project.getPackageFragmentRoot(resource);
+			}
+			return root;
+		} else {
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			if (roots == null || roots.length == 0) {
+				return null;
+			}
+			for (int i = 0; i < roots.length; i++) {
+				IPackageFragmentRoot root = roots[i];
+				if (!root.isExternal()
+					&& root.getUnderlyingResource().getProjectRelativePath().equals(path)) {
+					return root;
 				}
 			}
+		}
+		return getExternalJarFile(project, rootPath);
+	}
+
+	/**
+	 * Returns project corresponding to given name or null if none is found.
+	 * @param projectName
+	 * @return IJavaProject
+	 */
+	protected IJavaProject getProject(String projectName) {
+		for (int i=0, length = ALL_PROJECTS.length; i<length; i++) {
+			if (ALL_PROJECTS[i].getElementName().equals(projectName))
+				return ALL_PROJECTS[i];
 		}
 		return null;
 	}
@@ -769,6 +1149,20 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 		}
 		return allUnits;
+	}
+
+	protected IPackageFragmentRoot getExternalJarFile(IJavaProject project, String jarSimpleName) throws JavaModelException {
+		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+		if (roots == null || roots.length == 0) {
+			return null;
+		}
+		for (int i = 0; i < roots.length; i++) {
+			IPackageFragmentRoot root = roots[i];
+			if (root.isExternal() && root.getElementName().equals(jarSimpleName)) {
+				return root;
+			}
+		}		
+		return null;
 	}
 
 	/**
@@ -811,78 +1205,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 		}
 		return splitted;
-	}
-
-	/**
-	 * Start a build on workspace using given options.
-	 * @param options
-	 * @throws IOException
-	 * @throws CoreException
-	 */
-	protected void startBuild(Hashtable options, boolean noWarning) throws IOException, CoreException {
-		if (DEBUG) System.out.print("\tstart build...");
-		JavaCore.setOptions(options);
-		
-		// Clean memory
-		runGc();
-		
-		// Measure
-		startMeasuring();
-		ENV.fullBuild();
-		stopMeasuring();
-		
-		// Verify markers
-		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-		List resources = new ArrayList();
-		List messages = new ArrayList();
-		int warnings = 0;
-		for (int i = 0, length = markers.length; i < length; i++) {
-			IMarker marker = markers[i];
-			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
-				case IMarker.SEVERITY_ERROR:
-					resources.add(marker.getResource().getName());
-					messages.add(marker.getAttribute(IMarker.MESSAGE));
-					break;
-				case IMarker.SEVERITY_WARNING:
-					warnings++;
-					if (noWarning) {
-						resources.add(marker.getResource().getName());
-						messages.add(marker.getAttribute(IMarker.MESSAGE));
-					}
-					break;
-			}
-		}
-		
-		// Assert result
-		int size = messages.size();
-		if (size > 0) {
-			StringBuffer debugBuffer = new StringBuffer();
-			for (int i=0; i<size; i++) {
-				debugBuffer.append(resources.get(i));
-				debugBuffer.append(":\n\t");
-				debugBuffer.append(messages.get(i));
-				debugBuffer.append('\n');
-			}
-			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
-			System.out.println("--------------------");
-		}
-		if (DEBUG) System.out.println("done");
-		
-		// Commit measure
-		commitMeasurements();
-		assertPerformance();
-
-		// Store warning
-		if (warnings>0) {
-			System.out.println("\t- "+warnings+" warnings found while performing build.");
-		}
-		if (this.scenarioComment == null) {
-			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
-		} else {
-			this.scenarioComment.append(' ');
-		}
-		this.scenarioComment.append("warn=");
-		this.scenarioComment.append(warnings);
 	}
 
 	// Wait for indexing end
@@ -1003,6 +1325,17 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE); 
 		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
+
+		// Ignore 3.2 options
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE); 
+
+		// Set compliance
+		String compliance= compliance();
+		if (compliance != null) {
+			optionsMap.put(CompilerOptions.OPTION_Compliance, compliance);
+			optionsMap.put(CompilerOptions.OPTION_Source, compliance);
+			optionsMap.put(CompilerOptions.OPTION_TargetPlatform, compliance);
+		}
 
 		// Return created options map
 		return optionsMap;
