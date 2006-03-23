@@ -278,6 +278,7 @@ public class Util implements SuffixConstants {
 		InputStream stream = null;
 		try {
 			stream = zip.getInputStream(ze);
+			if (stream == null) throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
 			return getInputStreamAsByteArray(stream, (int) ze.getSize());
 		} finally {
 			if (stream != null) {
