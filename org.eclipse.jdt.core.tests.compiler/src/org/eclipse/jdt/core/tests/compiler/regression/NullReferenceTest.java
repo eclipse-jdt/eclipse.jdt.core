@@ -3548,6 +3548,30 @@ public void _test0453_while() {
 	);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129122
+public void test0454_while() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Object bar() {\n" + 
+			"    return new Object();\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    while (true) {\n" + 
+			"      o = bar();\n" + 
+			"      if (o != null) {\n" + 
+			"        o = new Object();\n" + 
+			"      }\n" + 
+			"      o = null; // quiet pls\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		""
+	);
+}
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
