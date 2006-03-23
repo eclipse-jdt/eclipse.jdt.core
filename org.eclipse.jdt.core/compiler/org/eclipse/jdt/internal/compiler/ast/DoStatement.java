@@ -110,7 +110,8 @@ public class DoStatement extends Statement {
 				(loopingContext.initsOnBreak.tagBits &
 					FlowInfo.UNREACHABLE) != 0 ?
 					loopingContext.initsOnBreak :
-					flowInfo.addInitializationsFrom(loopingContext.initsOnBreak), // recover upstream null info
+					flowInfo.unconditionalCopy().addInitializationsFrom(loopingContext.initsOnBreak), 
+						// recover upstream null info
 				isConditionOptimizedTrue,
 				(condInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
 						flowInfo.addInitializationsFrom(condInfo.initsWhenFalse()) : condInfo, 

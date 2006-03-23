@@ -664,6 +664,31 @@ public void test023() {
 		"The local variable x may not have been initialized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132974
+public void test024() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo(boolean b) {\n" + 
+			"    final Object l;\n" + 
+			"    do {\n" + 
+			"      if (b) {\n" + 
+			"        l = new Object();\n" + 
+			"        break;\n" + 
+			"      }\n" + 
+			"    } while (false);\n" + 
+			"    l.toString();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	l.toString();\n" + 
+		"	^\n" + 
+		"The local variable l may not have been initialized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
