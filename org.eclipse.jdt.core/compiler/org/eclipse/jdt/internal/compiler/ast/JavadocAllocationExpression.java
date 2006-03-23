@@ -18,10 +18,12 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	public int tagSourceStart, tagSourceEnd;
 	public int tagValue;
 	public boolean superAccess = false;
+	public int originalSourceEnd;
 	
 	public JavadocAllocationExpression(int start, int end) {
 		this.sourceStart = start;
 		this.sourceEnd = end;
+		this.originalSourceEnd = end;
 		this.bits |= InsideJavadoc;
 	}
 	public JavadocAllocationExpression(long pos) {
