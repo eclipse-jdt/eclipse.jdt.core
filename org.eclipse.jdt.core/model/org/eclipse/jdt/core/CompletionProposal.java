@@ -416,7 +416,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Completion is a link reference to a field in a javadoc text.
 	 * This kind of completion might occur in a context like
 	 * <code>"	* blabla System.o^ blabla"</code> and complete it to
-	 * <code>"	* blabla {@link System#out } blabla"</code>.
+	 * <code>"	* blabla {&#64;link System#out } blabla"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
@@ -447,7 +447,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Completion is a link reference to a method in a javadoc text.
 	 * This kind of completion might occur in a context like
 	 * <code>"	* blabla Runtime.get^ blabla"</code> and complete it to
-	 * <code>"	* blabla {@link Runtime#getRuntime() }"</code>.
+	 * <code>"	* blabla {&#64;link Runtime#getRuntime() }"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
@@ -478,7 +478,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * array types, parameterized types, and type variables.
 	 * This kind of completion might occur in a context like
 	 * <code>"	* blabla Str^ blabla"</code> and complete it to
-	 * <code>"	* blabla {@link String } blabla"</code>.
+	 * <code>"	* blabla {&#64;link String } blabla"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
@@ -506,7 +506,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Completion is a value reference to a static field in a javadoc text.
 	 * This kind of completion might occur in a context like
 	 * <code>"	* blabla System.o^ blabla"</code> and complete it to
-	 * <code>"	* blabla {@value System#out } blabla"</code>.
+	 * <code>"	* blabla {&#64;value System#out } blabla"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
@@ -603,7 +603,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Completion is a javadoc inline tag.
 	 * This kind of completion might occur in a context like
 	 * <code>"	* Insert @l^ Object"</code> and complete it to
-	 * <code>"	* Insert {@link Object }"</code>.
+	 * <code>"	* Insert {&#64;link Object }"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
