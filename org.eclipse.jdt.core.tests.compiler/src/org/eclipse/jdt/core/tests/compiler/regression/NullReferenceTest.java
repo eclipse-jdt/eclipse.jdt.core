@@ -4472,6 +4472,28 @@ public void test0560_try_catch() {
 		"----------\n");
 }
 
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=130359
+public void _test0561_try_catch_unchecked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    try {\n" + 
+			"      o = bar();\n" + 
+			"    } catch (RuntimeException e) {\n" + 
+			"      o.toString();\n" + // may be null
+			"    }\n" + 
+			"  }\n" + 
+			"  private Object bar() {\n" + 
+			"    return new Object();\n" + 
+			"  }\n" + 
+			"}\n"},
+		"ERR may be null only");
+}
+
 // null analysis -- do while
 public void test0601_do_while() {
 	this.runNegativeTest(
