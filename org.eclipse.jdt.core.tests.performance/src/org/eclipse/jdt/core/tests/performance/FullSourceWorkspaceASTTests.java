@@ -677,17 +677,24 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			if ("error".equals(value) || "warning".equals(value)) {  //$NON-NLS-1$//$NON-NLS-2$
 				// System.out.println("Ignoring - " + key);
 				options.put(key, "ignore"); //$NON-NLS-1$
+			} else if ("enabled".equals(value)) {
+				// System.out.println("	- disabling " + key);
+				options.put(key, "disabled");
 			}
 		}
-		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$		
+		options.put(JavaCore.COMPILER_TASK_TAGS, "");
 		parser.setCompilerOptions(options);
 		
 		List units = getProjectCompilationUnits(javaProject);
 		ICompilationUnit[] compilationUnits = new ICompilationUnit[units.size()];
 		units.toArray(compilationUnits);
 
+		if (PRINT) {
+			System.out.println("	- options: "+options);
+			System.out.println("	- "+compilationUnits.length+" units will be parsed in "+javaProject.getElementName()+" project");
+		}
+
 		// warm up
-		if (PRINT) System.out.println("	- "+compilationUnits.length+" units will be parsed in "+javaProject.getElementName()+" project");
 		parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {
 				public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 					IProblem[] problems = ast.getProblems();
