@@ -18,6 +18,7 @@ import junit.framework.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Performance;
@@ -30,15 +31,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
 
-	// Search stats
-	private static int[] REFERENCES = new int[4];
-	private static int ALL_TYPES_NAMES = 0;
-
 	// Log file streams
 	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
-
-	// Scopes
-	IJavaSearchScope workspaceScope;
 
 	/**
 	 * @param name
@@ -49,7 +43,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	static {
 //		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
-//		TESTS_NAMES = new String[] { "testPerfIndexing", "testPerfSearchAllTypeNames" };
+//		TESTS_NAMES = new String[] { "testSearchField" };
 	}
 	/*
 	 * Specific way to build test suite.
@@ -71,8 +65,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.resultCollector = new JavaSearchResultCollector();
-		this.workspaceScope = SearchEngine.createWorkspaceScope();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -85,19 +77,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Log perf result
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
-		}
-
-		// Print statistics
-		if (TESTS_COUNT == 0) {
-			System.out.println("-------------------------------------");
-			System.out.println("Search performance test statistics:");
-			NumberFormat intFormat = NumberFormat.getIntegerInstance();
-			System.out.println("  - "+intFormat.format(REFERENCES[0])+" type references found.");
-			System.out.println("  - "+intFormat.format(REFERENCES[1])+" field references found.");
-			System.out.println("  - "+intFormat.format(REFERENCES[2])+" method references found.");
-			System.out.println("  - "+intFormat.format(REFERENCES[3])+" constructor references found.");
-			System.out.println("  - "+intFormat.format(ALL_TYPES_NAMES)+" all types names.");
-			System.out.println("-------------------------------------\n");
 		}
 		super.tearDown();
 	}
@@ -155,9 +134,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		}
 	}
 	
-	protected JavaSearchResultCollector resultCollector;
-
-	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
+	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, JavaSearchResultCollector resultCollector) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
@@ -169,21 +146,22 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			this.workspaceScope,
-			this.resultCollector,
+			scope,
+			resultCollector,
 			null);
 	}
 
 	/**
 	 * Clean last category table cache
 	 * @param type Tells whether previous search was a type search or not
+	 * @param scope TODO
 	 */
-	protected void cleanCategoryTableCache(boolean type) throws CoreException {
+	protected void cleanCategoryTableCache(boolean type, IJavaSearchScope scope, JavaSearchResultCollector resultCollector) throws CoreException {
 		long time = System.currentTimeMillis();
 		if (type) {
-			search("foo", FIELD, DECLARATIONS);
+			search("foo", FIELD, DECLARATIONS, scope, resultCollector);
 		} else {
-			search("Foo", TYPE, DECLARATIONS);
+			search("Foo", TYPE, DECLARATIONS, scope, resultCollector);
 		}
 		if (DEBUG) System.out.println("Time to clean category table cache: "+(System.currentTimeMillis()-time));
 	}
@@ -237,19 +215,23 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		waitUntilIndexesReady();
 
 		// Warm up
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		new SearchEngine().searchAllTypeNames(
 			null,
 			null,
 			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 			IJavaSearchConstants.TYPE,
-			this.workspaceScope, 
+			scope, 
 			requestor,
 			WAIT_UNTIL_READY_TO_SEARCH,
 			null);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	All type names = "+intFormat.format(requestor.count));
 
 		// Measures
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		for (int i=0; i<MEASURES_COUNT; i++) {
-			cleanCategoryTableCache(true);
+			cleanCategoryTableCache(true, scope, resultCollector);
 			runGc();
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
@@ -258,7 +240,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 					null,
 					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 					IJavaSearchConstants.TYPE,
-					this.workspaceScope, 
+					scope, 
 					requestor,
 					WAIT_UNTIL_READY_TO_SEARCH,
 					null);
@@ -269,9 +251,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-
-		// Store counter
-		ALL_TYPES_NAMES = requestor.count;
 	}
 
 	/**
@@ -293,23 +272,25 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		waitUntilIndexesReady();
 
 		// Warm up
-		search("JavaCore", TYPE, ALL_OCCURRENCES);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "JavaCore";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, TYPE, ALL_OCCURRENCES, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for type '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
-			cleanCategoryTableCache(true);
+			cleanCategoryTableCache(true, scope, resultCollector);
 			runGc();
 			startMeasuring();
-			search("JavaCore", TYPE, ALL_OCCURRENCES);
+			search(name, TYPE, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
 		
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-
-		// Store counter
-		REFERENCES[0] = this.resultCollector.count;
 	}
 
 	/**
@@ -325,59 +306,103 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		waitUntilIndexesReady();
 
 		// Warm up
-		search("FILE", FIELD, ALL_OCCURRENCES);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "TYPE";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, FIELD, ALL_OCCURRENCES, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for field '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
-			cleanCategoryTableCache(false);
+			cleanCategoryTableCache(false, scope, resultCollector);
 			runGc();
 			startMeasuring();
-			search("FILE", FIELD, ALL_OCCURRENCES);
+			search(name, FIELD, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
 		
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-
-		// Store counter
-		REFERENCES[1] = this.resultCollector.count;
 	}
 
 	/**
-	 * Performance tests for search: Declarations Types Names.
+	 * Performance tests for search: All occurences of a method.
+	 * This search do NOT use binding resolution.
 	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
+	 * TODO (frederic) remove from fingerprint as soon as results on
+	 * 	{@link #testSearchBinaryMethod()} will have been verified in releng output.
 	 */
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be rewritten...");
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
 	
 		// Wait for indexing end
 		waitUntilIndexesReady();
 	
 		// Warm up
-		search("equals", METHOD, ALL_OCCURRENCES);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "equals";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
 	
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			// clean before test
-			cleanCategoryTableCache(false);
+			cleanCategoryTableCache(false, scope, resultCollector);
 			runGc();
 	
 			// test
 			startMeasuring();
-			search("equals", METHOD, ALL_OCCURRENCES);
+			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
 		
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-	
-		// Store counter
-		REFERENCES[2] = this.resultCollector.count;
+	}
+
+	/**
+	 * Performance tests for search: All occurences of a method.
+	 * This search use binding resolution.
+	 * 
+	 * @since 3.2 M6
+	 * 
+	 * TODO (frederic) put in fingerprint as soon as results will have been verified in releng output.
+	 */
+	public void testSearchBinaryMethod() throws CoreException {
+		tagAsSummary("Search>Occurences>Methods>Resolved", false); // put in fingerprint
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "java.lang.Object.hashCode()";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			// clean before test
+			cleanCategoryTableCache(false, scope, resultCollector);
+			runGc();
+
+			// test
+			startMeasuring();
+			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
 	}
 
 	/**
@@ -393,22 +418,58 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		waitUntilIndexesReady();
 
 		// Warm up
-		search("String", CONSTRUCTOR, ALL_OCCURRENCES);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "String";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, CONSTRUCTOR, ALL_OCCURRENCES, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for constructor '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
-			cleanCategoryTableCache(false);
+			cleanCategoryTableCache(false, scope, resultCollector);
 			runGc();
 			startMeasuring();
-			search("String", CONSTRUCTOR, ALL_OCCURRENCES);
+			search(name, CONSTRUCTOR, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
 		
 		// Commit
 		commitMeasurements();
 		assertPerformance();
+	}
 
-		// Store counter
-		REFERENCES[3] = this.resultCollector.count;
+	/**
+	 * Performance tests for search: Package Declarations.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 */
+	public void testSearchPackageDeclarations() throws CoreException {
+		tagAsSummary("Search>Declarations>Packages", false); // do NOT put in fingerprint
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
+		String name = "*";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	- "+intFormat.format(resultCollector.count)+" package declarations in project "+JDT_CORE_PROJECT.getElementName());
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false, scope, resultCollector);
+			runGc();
+			startMeasuring();
+			search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
 	}
 }
