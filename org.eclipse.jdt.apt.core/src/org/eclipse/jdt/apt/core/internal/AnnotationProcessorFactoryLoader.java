@@ -729,8 +729,14 @@ public class AnnotationProcessorFactoryLoader {
 			}
 		}
 		
+		// Try to use the iterative CL as parent, so we can resolve classes within it
+		ClassLoader parentCL = _iterativeLoaders.get(p);
+		if (parentCL == null) {
+			parentCL = AnnotationProcessorFactoryLoader.class.getClassLoader();
+		}
+		
 		if ( fileList.size() > 0 ) {
-			_batchLoaders.put(p,createClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader()));
+			_batchLoaders.put(p,createClassLoader( fileList, parentCL));
 		}
 	}
 	
