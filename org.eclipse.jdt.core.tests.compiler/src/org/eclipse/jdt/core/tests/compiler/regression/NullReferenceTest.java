@@ -699,7 +699,7 @@ public void test0033_conditional_expression() {
 // one possible trick would be to add a slot for this
 // other path: use a tainted unknown expression status; does not seem to cope well 
 // with o = (o ==  null ? new Object() : o)
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
 public void _test0034_conditional_expression() {
 	this.runNegativeTest(
 		new String[] {
@@ -2247,7 +2247,7 @@ public void test0334_if_else() {
 }
 
 // null analysis - if/else
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
 // this is a limit of the fix for bug 128014 - calls for a nuance 
 // between potential null and tainted null
 public void _test0335_if_else() {
@@ -2307,8 +2307,8 @@ public void test0336_if_else() {
 
 
 // null analysis - if/else nested with correlation
-// TODO (maxime) reconsider if we implement correlation
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=128861
+// reconsider if we implement correlation
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=128861
 public void _test0337_if_else_nested_correlation() {
 	this.runConformTest(
 		new String[] {
@@ -3510,6 +3510,7 @@ public void test0450_while() {
 } 
 
 // null analysis - while
+// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
 public void _test0451_while_nested() {
 	this.runNegativeTest(
 		new String[] {
