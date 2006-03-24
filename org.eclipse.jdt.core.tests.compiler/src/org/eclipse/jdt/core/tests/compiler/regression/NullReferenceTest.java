@@ -699,6 +699,7 @@ public void test0033_conditional_expression() {
 // one possible trick would be to add a slot for this
 // other path: use a tainted unknown expression status; does not seem to cope well 
 // with o = (o ==  null ? new Object() : o)
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
 public void _test0034_conditional_expression() {
 	this.runNegativeTest(
 		new String[] {
