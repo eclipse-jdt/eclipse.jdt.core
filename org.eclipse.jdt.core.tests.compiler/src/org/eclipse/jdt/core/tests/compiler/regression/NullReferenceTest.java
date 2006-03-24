@@ -3604,6 +3604,30 @@ public void test0454_while() {
 	);
 }
 
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
+// variant
+public void test0455_while_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    Object o = new Object();\n" + 
+			"    while (b) {\n" + 
+			"      o = new Object();\n" + // o still non null
+			"    }\n" + 
+			"    if (o != null) { /* */ }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (o != null) { /* */ }\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+} 
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
