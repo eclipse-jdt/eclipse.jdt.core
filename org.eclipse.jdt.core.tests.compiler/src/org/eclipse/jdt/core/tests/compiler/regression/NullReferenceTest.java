@@ -1316,7 +1316,7 @@ public void test0094_instanceof() {
 
 // null analysis -- strings concatenation
 // JLS 15.18.1: if one of the operands is null, it is replaced by "null"
-// Note: having the diagnostic could come handing when the initialization path
+// Note: having the diagnostic could come handy when the initialization path
 //       is non trivial; to get the diagnostic, simply put in place an
 //       extraneous call to toString() -- and remove it before releasing.
 public void test0120_strings_concatenation() {
@@ -1418,6 +1418,36 @@ public void test0125_strings_concatenation() {
 			"  void foo(Object o, Integer i) {\n" + 
 			"    System.out.println(o + (o == null ? \"\" : o.toString()));\n" + // quiet: o replaced by "null" if null
 			"    System.out.println(i + (i == null ? \"\" : i.toString()));\n" + // quiet: o replaced by "null" if null
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132867
+public void test0126_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    System.out.println(o + \"\");\n" +
+			"    if (o != null) { /* */ };\n" +
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// null analysis -- strings concatenation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132867
+public void test0127_strings_concatenation() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" +
+			"    Object o = null;\n" + 
+			"    System.out.println(o + \"\");\n" +
 			"  }\n" + 
 			"}\n"},
 		"");
