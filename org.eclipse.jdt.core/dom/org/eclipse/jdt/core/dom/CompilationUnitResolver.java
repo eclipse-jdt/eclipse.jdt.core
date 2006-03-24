@@ -347,7 +347,6 @@ class CompilationUnitResolver extends Compiler {
 				
 				//fill the methods bodies in order for the code to be generated
 				//real parse of the method....
-				parser.scanner.setSource(compilationResult);
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 				if (types != null) {
 					for (int j = types.length; --j >= 0;)
@@ -355,7 +354,7 @@ class CompilationUnitResolver extends Compiler {
 				}
 				
 				// convert AST
-				CompilationUnit node = convert(compilationUnitDeclaration, sourceUnit.getContents(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
+				CompilationUnit node = convert(compilationUnitDeclaration, parser.scanner.getSource(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
 				node.setJavaElement(compilationUnits[i]);
 				
 				// accept AST
@@ -390,7 +389,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 		
 		if (nodeSearcher != null) {
-			char[] source = sourceUnit.getContents();
+			char[] source = parser.scanner.getSource();
 			int searchPosition = nodeSearcher.position;
 			if (searchPosition < 0 || searchPosition > source.length) {
 				// the position is out of range. There is no need to search for a node.
@@ -418,7 +417,6 @@ class CompilationUnitResolver extends Compiler {
 		} else {
 			//fill the methods bodies in order for the code to be generated
 			//real parse of the method....
-			parser.scanner.setSource(compilationResult);
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 			if (types != null) {
 				for (int i = types.length; --i >= 0;)
@@ -844,12 +842,14 @@ diff -u -r1.87 FieldReference.java
 				this.parser.getMethodBodies(unit); // no-op if method bodies have already been parsed
 			} else {
 				int searchPosition = nodeSearcher.position;
-				if (searchPosition >= 0 && searchPosition <= sourceUnit.getContents().length) {
+				char[] source = sourceUnit.getContents();
+				int length = source.length;
+				if (searchPosition >= 0 && searchPosition <= length) {
 					unit.traverse(nodeSearcher, unit.scope);
 					
 					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
 					
-					this.parser.scanner.setSource(unit.compilationResult);
+					this.parser.scanner.setSource(source, unit.compilationResult);
 					
 		 			if (node != null) {
 						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
