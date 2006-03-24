@@ -109,18 +109,31 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				FlowInfo catchInfo =
-					flowInfo.unconditionalCopy().
-						addPotentialInitializationsFrom(
-							handlingContext.initsOnException(
-								this.caughtExceptionTypes[i]))
-						.addPotentialInitializationsFrom(
-							tryInfo.nullInfoLessUnconditionalCopy())
-							// remove null info to protect point of 
-							// exception null info 
-						.addPotentialInitializationsFrom(
-							handlingContext.initsOnReturn.
-								nullInfoLessUnconditionalCopy());
+				
+				FlowInfo catchInfo;
+				if (this.caughtExceptionTypes[i].isUncheckedException(false)) {
+					catchInfo =
+						flowInfo.unconditionalCopy().
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnException(
+									this.caughtExceptionTypes[i]))
+							.addPotentialInitializationsFrom(tryInfo)
+							.addPotentialInitializationsFrom(handlingContext.initsOnReturn);
+				}
+				else {
+					catchInfo =
+						flowInfo.unconditionalCopy().
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnException(
+									this.caughtExceptionTypes[i]))
+							.addPotentialInitializationsFrom(
+								tryInfo.nullInfoLessUnconditionalCopy())
+								// remove null info to protect point of 
+								// exception null info 
+							.addPotentialInitializationsFrom(
+								handlingContext.initsOnReturn.
+									nullInfoLessUnconditionalCopy());
+				}
 
 				// catch var is always set
 				LocalVariableBinding catchArg = this.catchArguments[i].binding;

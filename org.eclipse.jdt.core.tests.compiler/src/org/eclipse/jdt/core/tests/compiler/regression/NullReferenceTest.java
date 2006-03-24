@@ -33,7 +33,7 @@ public NullReferenceTest(String name) {
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
 //    	TESTS_NAMES = new String[] { "test011" };
-//    	TESTS_NUMBERS = new int[] { 516 };   
+//    	TESTS_NUMBERS = new int[] { 561 };   
 //    	TESTS_NUMBERS = new int[] { 2999 };   
 //    	TESTS_RANGE = new int[] { 2050, -1 }; 
 //  	TESTS_RANGE = new int[] { 1, 2049 }; 
@@ -4474,7 +4474,7 @@ public void test0560_try_catch() {
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130359
-public void _test0561_try_catch_unchecked_exception() {
+public void test0561_try_catch_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -4491,7 +4491,12 @@ public void _test0561_try_catch_unchecked_exception() {
 			"    return new Object();\n" + 
 			"  }\n" + 
 			"}\n"},
-		"ERR may be null only");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
 }
 
 // null analysis -- do while
