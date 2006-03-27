@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal local variable structure for parsing recovery 
  */
+import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -84,7 +85,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  */
 public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	if (localDeclaration.declarationSourceEnd == 0 
-		&& localDeclaration.type instanceof ArrayTypeReference
+		&& (localDeclaration.type instanceof ArrayTypeReference || localDeclaration.type instanceof ArrayQualifiedTypeReference)
 		&& !alreadyCompletedLocalInitialization){
 		bracketBalance++;
 		return null; // no update is necessary	(array initializer)

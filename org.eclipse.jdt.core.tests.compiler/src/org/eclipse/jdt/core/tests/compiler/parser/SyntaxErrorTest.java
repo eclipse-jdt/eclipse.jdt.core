@@ -282,4 +282,96 @@ public void test06() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+public void test07() {
+
+	String s = 
+		"public class X { 											\n"+
+		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
+		"}															\n"; 	
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n"+
+		"1. ERROR in <test> (at line 2)\n"+
+		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
+		"	                                               ^\n"+
+		"Syntax error on token \";\", , expected\n"+
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+public void test08() {
+
+	String s = 
+		"public class X { 											\n"+
+		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
+		"}															\n"; 	
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n"+
+		"1. ERROR in <test> (at line 2)\n"+
+		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
+		"	                                     ^\n"+
+		"Syntax error on token \";\", , expected\n"+
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+public void test09() {
+
+	String s = 
+		"public class X { 												\n"+
+		"	void foo() {												\n"+
+		"		java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
+		"	}															\n"+
+		"}																\n"; 	
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n"+
+		"1. ERROR in <test> (at line 3)\n"+
+		"	java.lang.Object o[] = { new String(\"SUCCESS\") ; };	\n"+
+		"	                                               ^\n"+
+		"Syntax error on token \";\", , expected\n"+
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+public void test10() {
+
+	String s = 
+		"public class X { 												\n"+
+		"	void foo() {												\n"+
+		"		Object o[] = { new String(\"SUCCESS\") ; };				\n"+
+		"	}															\n"+
+		"}																\n"; 	
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n"+
+		"1. ERROR in <test> (at line 3)\n"+
+		"	Object o[] = { new String(\"SUCCESS\") ; };				\n"+
+		"	                                     ^\n"+
+		"Syntax error on token \";\", , expected\n"+
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
 }
