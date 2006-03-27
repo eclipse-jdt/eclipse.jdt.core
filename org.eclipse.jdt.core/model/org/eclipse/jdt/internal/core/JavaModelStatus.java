@@ -362,10 +362,13 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					});
 			case CANNOT_RETRIEVE_ATTACHED_JAVADOC :
 				if (elements != null && elements.length == 1) {
-					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors()); 
+					if (this.string != null) {
+						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), this.string); 
+					}
+					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), ""); //$NON-NLS-1$
 				}
 				if (this.string != null) {
-					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string);
+					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string, "");//$NON-NLS-1$
 				}
 				break;
 			case UNKNOWN_JAVADOC_FORMAT :
@@ -374,7 +377,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 			if (string != null) {
 				return string;
 			} else {
-				return ""; // //$NON-NLS-1$
+				return ""; //$NON-NLS-1$
 			}
 		} else {
 			String message = exception.getMessage();

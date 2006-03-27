@@ -14,6 +14,8 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -716,7 +718,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/*
 	 * We don't use getContentEncoding() on the URL connection, because it might leave open streams behind.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117890 
-	 * 
 	 */
 	protected String getURLContents(String docUrlValue) throws JavaModelException {
 		InputStream stream = null;
@@ -766,8 +767,15 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
-		} catch(IOException e) {
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+		} /*catch(SocketException e) {
+			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
+		} */catch(IOException e) {
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter writer = new PrintWriter(stringWriter);
+			e.printStackTrace(writer);
+			writer.flush();
+			writer.close();
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this, String.valueOf(stringWriter.getBuffer())));
 		} finally {
 			if (stream != null) {
 				try {
