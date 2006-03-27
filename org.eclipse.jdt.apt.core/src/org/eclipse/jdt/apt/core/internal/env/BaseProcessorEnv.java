@@ -119,7 +119,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
+	
+	// This type cache exists for the duration of a single round. 
+	// We store positive as well as negative hits. Negative hits are
+	// stored with a value of null
 	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<String,TypeDeclaration>();
+	
 	protected IPackageFragmentRoot[] _packageRootsCache;
 	
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
@@ -356,6 +361,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	//First check cache
     	TypeDeclaration result = _typeCache.get(name);
     	if (result != null) return result;
+    	if (_typeCache.containsKey(name)) {
+    		// We've seen this before, and it doesn't exist
+    		return null;
+    	}
 
 		// first see if it is one of the well known types.
 		// any AST is as good as the other.		
@@ -391,9 +400,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		result = Factory.createReferenceType(typeBinding, this);
     	
-    	// update cache
-    	if (result != null)
-    		_typeCache.put(name, result);
+    	// update cache, nulls included
+    	_typeCache.put(name, result);
     	return result;
     }
     
