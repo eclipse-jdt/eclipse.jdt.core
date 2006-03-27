@@ -27,7 +27,9 @@ import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
+import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.InterfaceType;
+import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.util.Declarations;
 
 @SuppressWarnings("nls")
@@ -84,7 +86,20 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertEquals("Package", CodeExample.CODE_PACKAGE, pkg.getQualifiedName());
 		
 		Collection<FieldDeclaration> fields = typeDecl.getFields();
-		ProcessorTestStatus.assertEquals("Number of fields: " + fields, 3, fields.size());
+		ProcessorTestStatus.assertEquals("Number of fields: " + fields, 4, fields.size());
+		
+		// Test for multi-dimensional arrays
+		boolean testedMultiDimensionalCase = false;
+		for (FieldDeclaration fd : fields) {
+			if (fd.getSimpleName().equals("multiArray")) {
+				ArrayType outerArray = (ArrayType)fd.getType();
+				ArrayType innerArray = (ArrayType)outerArray.getComponentType();
+				PrimitiveType primitiveType = (PrimitiveType)innerArray.getComponentType();
+				ProcessorTestStatus.assertTrue("Expected boolean, but found " + primitiveType, PrimitiveType.Kind.BOOLEAN == primitiveType.getKind());
+				testedMultiDimensionalCase = true;
+			}
+		}
+		ProcessorTestStatus.assertTrue("Never hit the multidimensional array case. Check if boolean[][] multiArray exists in source", testedMultiDimensionalCase);
 		
 		Collection<TypeParameterDeclaration> typeParams = typeDecl.getFormalTypeParameters();
 		ProcessorTestStatus.assertEquals("Number of type params", 0, typeParams.size());

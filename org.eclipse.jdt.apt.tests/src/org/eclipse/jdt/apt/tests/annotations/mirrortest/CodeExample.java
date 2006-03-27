@@ -39,6 +39,8 @@ public class CodeExample {
         "\n" +
         "    public String field;\n" +
         "\n" +
+        "    public boolean[][] multiArray;\n" +
+        "\n" +
         "    public MirrorTestClass() {\n" +
         "        field = \"Field\";\n" +
         "    }\n" +
