@@ -947,6 +947,23 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	}
 	return ref;
 }
+
+/*
+ * Checks whether one of the annotations is the @Deprecated annotation
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89807)
+ */
+private boolean hasDeprecatedAnnotation(Annotation[] annotations) {
+	if (annotations != null) {
+		for (int i = 0, length = annotations.length; i < length; i++) {
+			Annotation annotation = annotations[i];
+			if (CharOperation.equals(annotation.type.getLastToken(), TypeConstants.JAVA_LANG_DEPRECATED[2])) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 protected ImportReference newImportReference(char[][] tokens, long[] positions, boolean onDemand, int mod) {
 	return new ImportReference(tokens, positions, onDemand, mod);
 }
@@ -1110,7 +1127,10 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			int currentModifiers = methodDeclaration.modifiers;
 			if (isVarArgs)
 				currentModifiers |= ClassFileConstants.AccVarargs;
-			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			
+			// remember deprecation so as to not lose it below
+			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0 || hasDeprecatedAnnotation(methodDeclaration.annotations);
+			
 			ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 			methodInfo.isConstructor = true;
 			methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
@@ -1158,7 +1178,10 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		int currentModifiers = methodDeclaration.modifiers;
 		if (isVarArgs)
 			currentModifiers |= ClassFileConstants.AccVarargs;
-		boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
+		
+		// remember deprecation so as to not lose it below
+		boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0 || hasDeprecatedAnnotation(methodDeclaration.annotations);	
+			
 		TypeReference returnType = methodDeclaration instanceof MethodDeclaration
 			? ((MethodDeclaration) methodDeclaration).returnType
 			: null;
@@ -1223,7 +1246,10 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 			}
 			if (isInRange) {
 				int currentModifiers = fieldDeclaration.modifiers;
-				boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				
+				// remember deprecation so as to not lose it below
+				boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0 || hasDeprecatedAnnotation(fieldDeclaration.annotations);	
+			
 				char[] typeName = null;
 				if (fieldDeclaration.type == null) {
 					// enum constant
@@ -1340,7 +1366,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		char[] implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
 		if (isInRange) {
 			int currentModifiers = typeDeclaration.modifiers;
-			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			
+			// remember deprecation so as to not lose it below
+			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0 || hasDeprecatedAnnotation(typeDeclaration.annotations);	
+			
 			boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
 			char[] superclassName;
 			if (isEnumInit) {

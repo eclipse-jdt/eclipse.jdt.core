@@ -47,6 +47,8 @@ public void setUpSuite() throws Exception {
 		"  private X f3;\n" +
 		"  java.lang.String f4;\n" +
 		"  int f5, f6, f7;\n" +
+		"  @Deprecated\n" +
+		"  int f8;\n" +
 		"  public class Inner {\n" +
 		"    class InnerInner {\n" +
 		"    }\n" +
@@ -58,6 +60,9 @@ public void setUpSuite() throws Exception {
 		"  /** @deprecated\n */" +
 		"  private int fred() {\n" +
 		"  }\n" +
+		"  @Deprecated\n" +
+		"  private void fred2() {\n" +
+		"  }\n" +
 		"  void testIsVarArgs(String s, Object ... args) {\n" +
 		"  }\n" +
 		"  X(String... s) {\n" +
@@ -68,6 +73,9 @@ public void setUpSuite() throws Exception {
 		"  int run();\n" +
 		"}\n" +
 		"interface I2<E> {\n" +
+		"}\n" +
+		"@Deprecated\n" +
+		"interface I3 {\n" +
 		"}\n" +
 		"class Y<E> implements I2<E> {\n" +
 		"}\n" +
@@ -179,7 +187,6 @@ public void testDeprecatedFlag04() throws JavaModelException {
 	assertTrue("Field f2 should be deprecated", Flags.isDeprecated(field.getFlags()));
 }
 
-
 /*
  * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
@@ -187,8 +194,7 @@ public void testDeprecatedFlag04() throws JavaModelException {
 public void testDeprecatedFlag05() throws JavaModelException {
 	IMethod method = this.cu.getType("X").getMethod("bar", new String[]{});
 	assertTrue("Method bar should not be deprecated", !Flags.isDeprecated(method.getFlags()));
-}	
-
+}
 
 /*
  * Ensure that the deprecated flag is correctly reported
@@ -197,6 +203,33 @@ public void testDeprecatedFlag05() throws JavaModelException {
 public void testDeprecatedFlag06() throws JavaModelException {
 	IMethod method = this.cu.getType("X").getMethod("fred", new String[]{});
 	assertTrue("Method fred should be deprecated", Flags.isDeprecated(method.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 89807 Outliner should recognize @Deprecated annotation)
+ */
+public void testDeprecatedFlag07() throws JavaModelException {
+	IType type = this.cu.getType("I3");
+	assertTrue("Type I3 should be deprecated", Flags.isDeprecated(type.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 89807 Outliner should recognize @Deprecated annotation)
+ */
+public void testDeprecatedFlag08() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f8");
+	assertTrue("Field f8 should be deprecated", Flags.isDeprecated(field.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 89807 Outliner should recognize @Deprecated annotation)
+ */
+public void testDeprecatedFlag09() throws JavaModelException {
+	IMethod method = this.cu.getType("X").getMethod("fred2", new String[0]);
+	assertTrue("Method fred2 should be deprecated", Flags.isDeprecated(method.getFlags()));
 }
 
 /*
@@ -704,9 +737,9 @@ public void testGetElementAt7() throws JavaModelException {
 public void testGetFields() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IField[] fields= type.getFields();
-	String[] fieldNames = new String[] {"f1", "f2", "f3", "f4", "f5", "f6", "f7"};
-	String[] flags = new String[] {"public", "protected", "private", "", "", "", ""};
-	String[] signatures = new String[] {"I", "QObject;", "QX;", "Qjava.lang.String;", "I", "I", "I"};
+	String[] fieldNames = new String[] {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8"};
+	String[] flags = new String[] {"public", "protected", "private", "", "", "", "", ""};
+	String[] signatures = new String[] {"I", "QObject;", "QX;", "Qjava.lang.String;", "I", "I", "I", "I"};
 	assertEquals("Wrong number of fields returned",  fieldNames.length, fields.length);
 	for (int i = 0; i < fields.length; i++) {
 		assertEquals("Incorrect name for the " + i + " field", fieldNames[i], fields[i].getElementName());
@@ -857,8 +890,8 @@ public void testGetMethod3() throws JavaModelException {
 public void testGetMethods() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod[] methods= type.getMethods();
-	String[] methodNames = new String[] {"foo", "bar", "fred", "testIsVarArgs", "X"};
-	String[] flags = new String[] {"public", "protected static", "private", "", ""};
+	String[] methodNames = new String[] {"foo", "bar", "fred", "fred2", "testIsVarArgs", "X"};
+	String[] flags = new String[] {"public", "protected static", "private", "private", "", ""};
 	assertEquals("Wrong number of methods returned", methodNames.length, methods.length);
 	for (int i = 0; i < methods.length; i++) {
 		assertEquals("Incorrect name for the " + i + " method", methodNames[i], methods[i].getElementName());
@@ -944,22 +977,22 @@ public void testGetType() {
  */
 public void testGetTypes() throws JavaModelException {
 	IType[] types = this.cu.getTypes();
-	String[] typeNames = new String[] {"X", "I", "I2", "Y", "Colors", "Annot"};
-	String[] flags = new String[] {"public", "", "", "", "", ""};
-	boolean[] isClass = new boolean[] {true, false, false, true, false, false};
-	boolean[] isInterface = new boolean[] {false, true, true, false, false, true};
-	boolean[] isAnnotation = new boolean[] {false, false, false, false, false, true};
-	boolean[] isEnum = new boolean[] {false, false, false, false, true, false};
-	String[] superclassName = new String[] {null, null, null, null, null, null};
-	String[] superclassType = new String[] {null, null, null, null, null, null};
+	String[] typeNames = new String[] {"X", "I", "I2", "I3", "Y", "Colors", "Annot"};
+	String[] flags = new String[] {"public", "", "", "", "", "", ""};
+	boolean[] isClass = new boolean[] {true, false, false, false, true, false, false};
+	boolean[] isInterface = new boolean[] {false, true, true, true, false, false, true};
+	boolean[] isAnnotation = new boolean[] {false, false, false, false, false, false, true};
+	boolean[] isEnum = new boolean[] {false, false, false, false, false, true, false};
+	String[] superclassName = new String[] {null, null, null, null, null, null, null};
+	String[] superclassType = new String[] {null, null, null, null, null, null, null};
 	String[][] superInterfaceNames = new String[][] {
-			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}, new String[0], new String[0]
+			new String[] {"Runnable"}, new String[0], new String[0], new String[0], new String[] {"I2<E>"}, new String[0], new String[0]
 	};
 	String[][] superInterfaceTypes = new String[][] {
-			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}, new String[0], new String[0]
+			new String[] {"QRunnable;"}, new String[0], new String[0], new String[0], new String[] {"QI2<QE;>;"}, new String[0], new String[0]
 	};
 	String[][] formalTypeParameters = new String[][] {
-		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}, new String[0], new String[0]
+		new String[0], new String[0], new String[] {"E"}, new String[0], new String[] {"E"}, new String[0], new String[0]
 	};
 	
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
