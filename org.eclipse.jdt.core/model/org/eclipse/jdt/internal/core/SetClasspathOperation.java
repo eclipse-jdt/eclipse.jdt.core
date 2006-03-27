@@ -306,6 +306,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void generateClasspathChangeDeltas() {
 
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (manager.deltaState.findJavaProject(this.project.getElementName()) == null)
+			// project doesn't exist yet (we're in an IWorkspaceRunnable)
+			// no need to create a delta here and no need to index (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=133334)
+			// the delta processor will create an ADDED project delta, and index the project
+			return;
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;

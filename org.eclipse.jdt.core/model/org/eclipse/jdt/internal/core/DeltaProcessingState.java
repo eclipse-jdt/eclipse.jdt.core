@@ -170,7 +170,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 * Workaround for bug 15168 circular errors not reported  
 	 * This is a cache of the projects before any project addition/deletion has started.
 	 */
-	public IJavaProject[] modelProjectsCache;
+	private HashSet javaProjectNamesCache;
 	
 	/*
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
@@ -479,6 +479,39 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			this.externalTimeStamps = timeStamps;
 		}
 		return this.externalTimeStamps;
+	}
+	
+	public IJavaProject findJavaProject(String name) {
+		if (getOldJavaProjecNames().contains(name))
+			return JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(name);
+		return null;
+	}
+	
+	/*
+	 * Workaround for bug 15168 circular errors not reported 
+	 * Returns the list of java projects before resource delta processing
+	 * has started.
+	 */
+	public synchronized HashSet getOldJavaProjecNames() {
+		if (this.javaProjectNamesCache == null) {
+			HashSet result = new HashSet();
+			IJavaProject[] projects;
+			try {
+				projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+			} catch (JavaModelException e) {
+				return this.javaProjectNamesCache;
+			}
+			for (int i = 0, length = projects.length; i < length; i++) {
+				IJavaProject project = projects[i];
+				result.add(project.getElementName());
+			}
+			return this.javaProjectNamesCache = result;
+		}
+		return this.javaProjectNamesCache;
+	}
+	
+	public synchronized void resetOldJavaProjectNames() {
+		this.javaProjectNamesCache = null;
 	}
 	
 	private File getTimeStampsFile() {

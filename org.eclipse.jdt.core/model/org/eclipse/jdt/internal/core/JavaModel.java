@@ -139,24 +139,6 @@ public boolean equals(Object o) {
 	return super.equals(o);
 }
 /**
- * Finds the given project in the list of the java model's children.
- * Returns null if not found.
- */
-public IJavaProject findJavaProject(IProject project) {
-	try {
-		IJavaProject[] projects = this.getOldJavaProjectsList();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject javaProject = projects[i];
-			if (project.equals(javaProject.getProject())) {
-				return javaProject;
-			}
-		}
-	} catch (JavaModelException e) {
-		// java model doesn't exist: cannot find any project
-	}
-	return null;
-}
-/**
  * @see IJavaElement
  */
 public int getElementType() {
@@ -240,17 +222,6 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		return ((JavaModelInfo) getElementInfo()).getNonJavaResources();
 }
 
-/**
- * Workaround for bug 15168 circular errors not reported 
- * Returns the list of java projects before resource delta processing
- * has started.
- */
-public IJavaProject[] getOldJavaProjectsList() throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	return manager.deltaState.modelProjectsCache == null ? 
-			this.getJavaProjects() : 
-			manager.deltaState.modelProjectsCache; 
-}
 /*
  * @see IJavaElement
  */
