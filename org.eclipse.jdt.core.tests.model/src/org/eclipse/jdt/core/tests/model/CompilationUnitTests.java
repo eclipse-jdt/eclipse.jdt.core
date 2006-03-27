@@ -147,16 +147,56 @@ public void testCommitWorkingCopy() {
  * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
  */
-public void testDeprecatedFlag() throws JavaModelException {
+public void testDeprecatedFlag01() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	assertTrue("Type X should not be deprecated", !Flags.isDeprecated(type.getFlags()));
-	assertTrue("Type I should be deprecated", Flags.isDeprecated(this.cu.getType("I").getFlags()));
-	
-	assertTrue("Field f1 should not be deprecated", !Flags.isDeprecated(type.getField("f1").getFlags()));
-	assertTrue("Field f2 should be deprecated", Flags.isDeprecated(type.getField("f2").getFlags()));
-	
-	assertTrue("Method bar should not be deprecated", !Flags.isDeprecated(type.getMethod("bar", new String[]{}).getFlags()));
-	assertTrue("Method fred should be deprecated", Flags.isDeprecated(type.getMethod("fred", new String[]{}).getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
+public void testDeprecatedFlag02() throws JavaModelException {
+	IType type = this.cu.getType("I");
+	assertTrue("Type I should be deprecated", Flags.isDeprecated(type.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
+public void testDeprecatedFlag03() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f1");
+	assertTrue("Field f1 should not be deprecated", !Flags.isDeprecated(field.getFlags()));
+}
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
+public void testDeprecatedFlag04() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f2");
+	assertTrue("Field f2 should be deprecated", Flags.isDeprecated(field.getFlags()));
+}
+
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
+public void testDeprecatedFlag05() throws JavaModelException {
+	IMethod method = this.cu.getType("X").getMethod("bar", new String[]{});
+	assertTrue("Method bar should not be deprecated", !Flags.isDeprecated(method.getFlags()));
+}	
+
+
+/*
+ * Ensure that the deprecated flag is correctly reported
+ * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
+ */
+public void testDeprecatedFlag06() throws JavaModelException {
+	IMethod method = this.cu.getType("X").getMethod("fred", new String[]{});
+	assertTrue("Method fred should be deprecated", Flags.isDeprecated(method.getFlags()));
 }
 
 /*
