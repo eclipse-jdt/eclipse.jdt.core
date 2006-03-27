@@ -301,17 +301,16 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg) throws CoreExcepti
 	return null;
 }
 public IBuffer getBuffer() throws JavaModelException {
-	if (validateClassFile().isOK()) {
+	IStatus status = validateClassFile();
+	if (status.isOK()) {
 		return super.getBuffer();
 	} else {
 		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
-		Object info = null;
-		try {
-			info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) getResource());
-		} catch (JavaModelException e) {		
-			// ignore
-		}
-		return openBuffer(null, info);
+		Object info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) getResource());
+		IBuffer buffer = openBuffer(null, info);
+		if (buffer != null)
+			return buffer;
+		throw new JavaModelException((IJavaModelStatus) status);
 	}
 }
 /**

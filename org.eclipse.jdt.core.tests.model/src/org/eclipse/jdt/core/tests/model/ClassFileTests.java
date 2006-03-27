@@ -588,6 +588,27 @@ public void testReturnType2() throws JavaModelException {
 }
 
 /*
+ * Ensures that asking for a IClassFile in a non-Java project throws a JavaModelException
+ * (regression test for bug 132494 JavaModelException opening up class file in non java project
+ */
+public void testSourceRangeNonJavaProject() throws CoreException {
+	try {
+		createProject("Simple");
+		createFile("/Simple/X.class", "");
+		IClassFile classX = getClassFile("/Simple/X.class");
+		JavaModelException exception = null;
+		try {
+			classX.getSourceRange();
+		} catch (JavaModelException e) {
+			exception = e;
+		}
+		assertExceptionEquals("Unexpected exception", "Simple does not exist", exception);
+	} finally {
+		deleteProject("Simple");
+	}
+}
+
+/*
  * Ensure that opening a binary type parameter when its parent has not been open yet
  * doesn't throw a JavaModelException
  * (regression test for bug 101228 JME on code assist)
