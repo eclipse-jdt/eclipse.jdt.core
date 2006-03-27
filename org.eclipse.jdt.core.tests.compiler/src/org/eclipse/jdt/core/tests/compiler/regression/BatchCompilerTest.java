@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
@@ -2815,6 +2816,79 @@ public void test051(){
         true);
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123476
+public void test052(){
+	try {
+		File barFile = new File(OUTPUT_DIR +  File.separator + "Bar.java");
+		FileOutputStream barOutput = new FileOutputStream(barFile);
+		try {
+			String barContents = 
+				"public class Bar	\n" +
+				"{	\n" +
+				"  Bar(int class)	\n" +
+				"  {	\n" +
+				"  }	\n" +
+				"}\n";
+			barOutput.write(barContents.getBytes());
+		} finally {
+			barOutput.close();
+		}
+	} catch(IOException e) {
+		// do nothing, will fail below
+	}
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  static Object x()\n" + 
+			"  {\n" + 
+			"    return new Bar(5);\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+     + " -cp \"" + OUTPUT_DIR + File.pathSeparator + "\""
+     + " -d \"" + OUTPUT_DIR + "\"",
+     "", 
+     "----------\n" + 
+     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+     " (at line 5)\n" + 
+     "	return new Bar(5);\n" + 
+     "	       ^^^^^^^^^^\n" + 
+     "The constructor Bar(int) is undefined\n" + 
+     "----------\n" + 
+     "----------\n" + 
+     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java\n" + 
+     " (at line 2)\n" + 
+     "	{	\n" + 
+     "	^\n" + 
+     "Syntax error, insert \"}\" to complete ClassBody\n" + 
+     "----------\n" + 
+     "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java\n" + 
+     " (at line 3)\n" + 
+     "	Bar(int class)	\n" + 
+     "	        ^^^^^\n" + 
+     "Syntax error on token \"class\", invalid VariableDeclaratorId\n" + 
+     "----------\n" + 
+     "4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java\n" + 
+     " (at line 3)\n" + 
+     "	Bar(int class)	\n" + 
+     "  {	\n" + 
+     "  }	\n" + 
+     "	        ^^^^^^^^^^^^^^^^\n" + 
+     "Syntax error on tokens, delete these tokens\n" + 
+     "----------\n" + 
+     "5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java\n" + 
+     " (at line 6)\n" + 
+     "	}\n" + 
+     "	^\n" + 
+     "Syntax error on token \"}\", delete this token\n" + 
+     "----------\n" + 
+     "5 problems (5 errors)",
+     false);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
