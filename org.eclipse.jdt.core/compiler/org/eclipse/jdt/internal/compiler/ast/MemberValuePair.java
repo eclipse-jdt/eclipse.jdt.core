@@ -154,6 +154,7 @@ public class MemberValuePair extends ASTNode {
 			}
 			if (leafType.isEnum()) {
 				if (this.value instanceof NullLiteral) {
+					// TODO (olivier) change message for annotation value must be an *enum* constant
 					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value);
 				}
 				break checkAnnotationMethodType;
