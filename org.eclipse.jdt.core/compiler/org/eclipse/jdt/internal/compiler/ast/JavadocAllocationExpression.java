@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,10 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	public int tagSourceStart, tagSourceEnd;
 	public int tagValue;
 	public boolean superAccess = false;
-	public int originalSourceEnd;
 	
 	public JavadocAllocationExpression(int start, int end) {
 		this.sourceStart = start;
 		this.sourceEnd = end;
-		this.originalSourceEnd = end;
 		this.bits |= InsideJavadoc;
 	}
 	public JavadocAllocationExpression(long pos) {
