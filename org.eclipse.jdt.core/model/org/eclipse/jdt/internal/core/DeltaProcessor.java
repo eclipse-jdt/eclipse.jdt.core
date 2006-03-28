@@ -1162,6 +1162,9 @@ public class DeltaProcessor {
 					return NON_JAVA_RESOURCE;
 				}
 				if (res.getType() == IResource.FOLDER) {
+					if (parentType == NON_JAVA_RESOURCE && !Util.isExcluded(res.getParent(), rootInfo.inclusionPatterns, rootInfo.exclusionPatterns))
+						// parent is a non-Java resource because it doesn't have a valid package name (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=130982)
+						return NON_JAVA_RESOURCE;
 					if (Util.isValidFolderNameForPackage(res.getName())) {
 						return IJavaElement.PACKAGE_FRAGMENT;
 					}

@@ -293,6 +293,28 @@ public void testAddFileToNonJavaProject() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/*
+ * Ensure that adding a folder in a non-Java folder (i.e. a folder with an invalid package name) reports the correct delta
+ * (regression test for bug 130982 META-INF directories shown as empty META-INF.* packages in J2EE Navigator)
+ */
+public void testAddFolderInNonJavaFolder() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/META-INF");
+		startDeltas();
+		createFolder("/P/META-INF/folder");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P/META-INF)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
 /*
  * Ensure that a resource delta is fired when a .name folder is added to a java project where prj=src.
  * (regression test for bug 31383 Strange rendering of of link resources when link points to Eclipse workspace)
