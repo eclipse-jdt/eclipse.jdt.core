@@ -153,6 +153,9 @@ public class MemberValuePair extends ASTNode {
 					break checkAnnotationMethodType;
 			}
 			if (leafType.isEnum()) {
+				if (this.value instanceof NullLiteral) {
+					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value);
+				}
 				break checkAnnotationMethodType;
 			}
 			if (leafType.isAnnotationType()) {

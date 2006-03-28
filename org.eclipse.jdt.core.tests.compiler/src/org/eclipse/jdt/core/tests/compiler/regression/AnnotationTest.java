@@ -38,7 +38,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 188 };
+//		TESTS_NUMBERS = new int[] { 196 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -6411,6 +6411,25 @@ public void test195() {
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133440
+public void test196() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public @interface X {\n" + 
+			"    enum MyEnum {\n" + 
+			"        VAL_1, VAL_2\n" + 
+			"    }\n" + 
+			"    public MyEnum theValue() default null;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	public MyEnum theValue() default null;\n" + 
+		"	                                 ^^^^\n" + 
+		"The value for annotation attribute X.theValue must be a constant expression\n" + 
 		"----------\n");
 }
 }
