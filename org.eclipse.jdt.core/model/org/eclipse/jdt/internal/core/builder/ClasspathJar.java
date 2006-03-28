@@ -88,8 +88,13 @@ AccessRuleSet accessRuleSet;
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.resource = resource;
 	try {
-		File localFile = Util.toLocalFile(resource.getLocationURI(), null);
-		this.zipFilename = localFile.getPath();
+		java.net.URI location = resource.getLocationURI();
+		if (location == null) {
+			this.zipFilename = ""; //$NON-NLS-1$
+		} else {
+			File localFile = Util.toLocalFile(location, null);
+			this.zipFilename = localFile.getPath();
+		}
 	} catch (CoreException e) {
 		// ignore
 	}	
