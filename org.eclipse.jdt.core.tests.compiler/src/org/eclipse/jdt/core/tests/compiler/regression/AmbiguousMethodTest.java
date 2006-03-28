@@ -26,6 +26,27 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		return AmbiguousMethodTest.class;
 	}
 
+	public void test000() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test { public static void main(String[] args) { new B().foo(new C()); } }\n" +
+				"class A { void foo(A a) {} }\n" +
+				"class B extends A { void foo(B b) { System.out.println(1); } }\n" +
+				"class C extends B {}"
+			},
+			"1"
+		);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test { public static void main(String[] args) { new Subtype<String>().foo(1, \"works\"); } }\n" +
+				"class Supertype<T1> { <U1> void foo(U1 u, T1 t) {} }\n" +
+				"class Subtype <T2> extends Supertype<T2> { <U3> void foo(U3 u, T2 t) { System.out.println(t); } }"
+			},
+			"works"
+		);
+	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test001() {
 		this.runConformTest(
@@ -40,6 +61,24 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test002() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static interface I1<E1> { void method(E1 o); }\n" +
+				"	static interface I2<E2> { void method(E2 o); }\n" +
+				"	static interface I3<E3, E4> extends I1<E3>, I2<E4> {}\n" +
+				"	static class Class1 implements I3<String, String> {\n" +
+				"		public void method(String o) { System.out.println(o); }\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I3<String, String> i = new Class1();\n" +
+				"		i.method(\"works\");\n" +
+				"	}\n" +
+				"}"
+			},
+			"works"
+		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -387,37 +426,67 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<A, B> extends Y<A> {\n" + 
-				"  	<T extends Number> void foo(Number n, T t) throws ExOne {}\n" + 
-				"   void test(X<Integer,Integer> c) throws ExTwo { c.foo(new Integer(1), new Integer(2)); }\n" +
+				"public class X<A extends Number> extends Y<A> {\n" + 
+				"	<T> void foo(A n, T t) throws ExOne {}\n" + 
+				"	void test(X<Integer> x) throws ExTwo { x.foo(new Integer(1), new Integer(2)); }\n" +
+				"	void test2(X x) throws ExTwo { x.foo(new Integer(1), new Integer(2)); }\n" +
 				"}\n" +
-				"class Y<C> {\n" + 
-				"   void foo(Number x, C n) throws ExTwo {}\n" +
+				"class Y<C extends Number> {\n" + 
+				"	void foo(C x, C n) throws ExTwo {}\n" +
 				"}\n" + 
+				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
+				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	void test2(X x) throws ExTwo { x.foo(new Integer(1), new Integer(2)); }\n" + 
+			"	           ^\n" + 
+			"X is a raw type. References to generic type X<A> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	void test2(X x) throws ExTwo { x.foo(new Integer(1), new Integer(2)); }\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(Number, Number) belongs to the raw type Y. References to generic type Y<C> should be parameterized\n" + 
+			"----------\n"
+			// test2 - warning: [unchecked] unchecked call to foo(C,C) as a member of the raw type Y
+		);
+		this.runConformTest(
+			new String[] {
+				"Combined.java",
+				"public class Combined<A, B> {\n" + 
+				"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
+				"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
+				"	void pickOne(Combined<Integer,Integer> c) throws ExOne { c.pickOne(\"test\"); }\n" + 
+				"	<T extends Number> void pickTwo(Number n, T t) throws ExOne {}\n" + 
+				"	void pickTwo(A x, Number n) throws ExTwo {}\n" + 
+				"	void pickTwo(Combined<Integer,Integer> c) throws ExTwo { c.pickTwo(new Integer(1), 2); }\n" +
+				"}\n" +
 				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
 				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
 			},
 			""
 		);
-//		this.runConformTest(
-//			new String[] {
-//				"Combined.java",
-//				"public class Combined<A, B> {\n" + 
-//				"  	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
-//				"  	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
-//				"  	void pickOne(Combined<Integer,Integer> c) throws ExOne { c.pickOne(\"test\"); }\n" + 
-//				"  	<T extends Number> void pickTwo(Number n, T t) throws ExOne {}\n" + 
-//				"   void pickTwo(A x, Number n) throws ExTwo {}\n" + 
-//				"   void pickTwo(Combined<Integer,Integer> c) throws ExTwo { c.pickTwo(new Integer(1), 2); }\n" +
-//				"}\n" +
-//				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
-//				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
-//			},
-//			""
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"Test1.java",
+				"public class Test1<AA, BB> {\n" +
+				"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" +
+				"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" +
+				"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" +
+				"}\n" +
+				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
+				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
+			},
+			"----------\n" + 
+			"1. WARNING in Test1.java (at line 4)\n" + 
+			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
+			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation pickOne(Comparable) of the generic method pickOne(T) of type Test1<Integer,Integer>\n" + 
+			"----------\n"
+		);
 	}
 	public void test012() {
 		this.runConformTest(
@@ -470,6 +539,54 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	public void test014() {
 		this.runConformTest(
 			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void a(G x) { System.out.print(1); }\n" + 
+				"	void b(F x) { System.out.print(2); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		H<C> h = null;\n" +
+				"		G<C> g = null;\n" +
+				"		new X().a(h);\n" +
+				"		new X().a(g);\n" +
+				"		new X().b(h);\n" +
+				"		new X().b(g);\n" +
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n" +
+				"class C extends B {}\n" +
+				"class F<T1> {} \n" + 
+				"class G<T2> extends F<T2> {}\n" +
+				"class H<T3> extends G<T3> {}"
+			},
+			"1122"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void a(G<C> x) { System.out.print(1); }\n" + 
+				"	void b(F<C> x) { System.out.print(2); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		H h = null;\n" +
+				"		G g = null;\n" +
+				"		new X().a(h);\n" +
+				"		new X().a(g);\n" +
+				"		new X().b(h);\n" +
+				"		new X().b(g);\n" +
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n" +
+				"class C extends B {}\n" +
+				"class F<T1> {} \n" + 
+				"class G<T2> extends F<T2> {}\n" +
+				"class H<T3> extends G<T3> {}"
+			},
+			"1122"
+		);
+		this.runConformTest(
+			new String[] {
 				"X0.java",
 				"public class X0 {\n" + 
 				"	void two(G x) { System.out.print(1); }\n" + 
@@ -491,27 +608,45 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"13"
 		);
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"public class X {\n" + 
-//				"	void four(G x) { System.out.print(5); }\n" + 
-//				"	void four(F<C> x) { System.out.print(6); }\n" + 
-//				"	public static void main(String[] args) {\n" + 
-//				"		H<C> h = null;\n" +
-//				"		new X().four(h);\n" +
-//				"	}\n" + 
-//				"}\n" +
-//				"class A {}\n" + 
-//				"class B extends A {}\n" +
-//				"class C extends B {}\n" +
-//				"class F<T1> {} \n" + 
-//				"class G<T2> extends F<T2> {}\n" +
-//				"class H<T3> extends G<T3> {}"
-//			},
-//			"ambiguous?"
-//			// reference to four is ambiguous, both method four(G) in X and method four(F<C>) in X match
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void a(G x) {}\n" + 
+				"	void a(F<C> x) {}\n" + 
+				"	void b(G<C> x) {}\n" + 
+				"	void b(F x) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		H<C> h = null;\n" +
+				"		new X().a(h);\n" +
+				"		new X().b(h);\n" +
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n" +
+				"class C extends B {}\n" +
+				"class F<T1> {} \n" + 
+				"class G<T2> extends F<T2> {}\n" +
+				"class H<T3> extends G<T3> {}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\r\n" + 
+			"	void a(G x) {}\r\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\r\n" + 
+			"	void b(F x) {}\r\n" + 
+			"	       ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\r\n" + 
+			"	new X().a(h);\r\n" + 
+			"	        ^\n" + 
+			"The method a(G) is ambiguous for the type X\n" + 
+			"----------\n"
+			// reference to a is ambiguous, both method a(G) in X and method a(F<C>) in X match
+		);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -563,31 +698,31 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"145"
 		);
-//		this.runNegativeTest(
-//			new String[] {
-//				"X.java",
-//				"public class X {\n" + 
-//				"	<E1, E2 extends B> void three(G<E2> x) {}\n" + 
-//				"	<E3 extends C> void three(F<E3> x) {}\n" + 
-//				"	public static void main(String[] args) {\n" + 
-//				"		H<C> h = null;\n" +
-//				"		new X().three(h);\n" +
-//				"	}\n" + 
-//				"}\n" +
-//				"class A {}\n" + 
-//				"class B extends A {}\n" +
-//				"class C extends B {}\n" +
-//				"class F<T1> {} \n" + 
-//				"class G<T2> extends F<T2> {}\n" +
-//				"class H<T3> extends G<T3> {}"
-//			},
-//			"----------\n" + 
-//			"1. ERROR in X.java (at line 6)\r\n" + 
-//			"	new X().three(h);\r\n" + 
-//			"	        ^^^^^\n" + 
-//			"The method three(G<C>) is ambiguous for the type X\n" + 
-//			"----------\n"
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<E1, E2 extends B> void three(G<E2> x) {}\n" + 
+				"	<E3 extends C> void three(F<E3> x) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		H<C> h = null;\n" +
+				"		new X().three(h);\n" +
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n" +
+				"class C extends B {}\n" +
+				"class F<T1> {} \n" + 
+				"class G<T2> extends F<T2> {}\n" +
+				"class H<T3> extends G<T3> {}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\r\n" + 
+			"	new X().three(h);\r\n" + 
+			"	        ^^^^^\n" + 
+			"The method three(G<C>) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
 		this.runConformTest(
 			new String[] {
 				"X3.java",

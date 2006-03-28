@@ -27,8 +27,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     public boolean inferredReturnType;
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     public boolean isRaw; // set to true for method behaving as raw for substitution purpose
-    public MethodBinding tiebreakMethod;
-	public boolean isUnchecked; // indicates whether inferred arguments used unchecked conversion during bound check or was raw
+    private MethodBinding tiebreakMethod;
+    public boolean isUnchecked; // indicates whether inferred arguments used unchecked conversion during bound check or was raw
 	
 	/**
 	 * Perform inference of generic method type parameters and/or expected type
@@ -484,7 +484,17 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
-			this.tiebreakMethod = this.isRaw ? this : new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+//			if (this.isRaw) {
+//				this.tiebreakMethod = this;
+//			} else {
+//				this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+				TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+				int length = originalVariables.length;
+				TypeBinding[] rawArguments = new TypeBinding[length];
+				for (int i = 0; i < length; i++)
+					rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure());
+				this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, rawArguments, this.environment);
+//			}
 		} 
 		return this.tiebreakMethod;
 	}	

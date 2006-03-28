@@ -2673,6 +2673,48 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return null;
 	}
 
+	protected boolean isAcceptableMethod(MethodBinding one, MethodBinding two) {
+		TypeBinding[] oneParams = one.parameters;
+		TypeBinding[] twoParams = two.parameters;
+		int oneParamsLength = oneParams.length;
+		int twoParamsLength = twoParams.length;
+		if (oneParamsLength == twoParamsLength) {
+			for (int i = 0; i < oneParamsLength; i++) {
+				TypeBinding oneParam = oneParams[i];
+				TypeBinding twoParam = twoParams[i];
+				if (oneParam == twoParam) continue;
+				if (oneParam.isRawType()) {
+					TypeBinding match = oneParam.findSuperTypeWithSameErasure(twoParam);
+					if (match != twoParam)
+						return false;
+				}
+				if (!oneParam.isCompatibleWith(twoParam)) {
+					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
+						TypeBinding eType = ((ArrayBinding) twoParam).elementsType();
+						if (oneParam == eType || oneParam.isCompatibleWith(eType))
+							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+					}
+					return false;
+				}
+			}
+			return true;
+		}
+
+		if (one.isVarargs() && two.isVarargs() && oneParamsLength > twoParamsLength) {
+			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
+			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
+				return false;
+			// check that each parameter before the vararg parameters are compatible (no autoboxing allowed here)
+			for (int i = twoParamsLength - 2; i >= 0; i--)
+				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
+					return false;
+			if (parameterCompatibilityLevel(one, twoParams) == NOT_COMPATIBLE
+				&& parameterCompatibilityLevel(two, oneParams) == VARARGS_COMPATIBLE)
+					return true; 
+		}
+		return false;
+	}
+
 	public boolean isBoxingCompatibleWith(TypeBinding expressionType, TypeBinding targetType) {
 		LookupEnvironment environment = environment();
 		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || expressionType.isBaseType() == targetType.isBaseType())
@@ -2808,40 +2850,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							return true;
 					}
 				}
-		}
-		return false;
-	}
-
-	protected final boolean isMoreSpecificMethod(MethodBinding one, MethodBinding two) {
-		TypeBinding[] oneParams = one.parameters;
-		TypeBinding[] twoParams = two.parameters;
-		int oneParamsLength = oneParams.length;
-		int twoParamsLength = twoParams.length;
-		if (oneParamsLength == twoParamsLength) {
-			for (int i = 0; i < oneParamsLength; i++) {
-				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i])) {
-					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
-						TypeBinding eType = ((ArrayBinding) twoParams[i]).elementsType();
-						if (oneParams[i] == eType || oneParams[i].isCompatibleWith(eType))
-							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
-					}
-					return false;
-				}
-			}
-			return true;
-		}
-
-		if (one.isVarargs() && two.isVarargs() && oneParamsLength > twoParamsLength) {
-			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
-			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
-				return false;
-			// check that each parameter before the vararg parameters are compatible (no autoboxing allowed here)
-			for (int i = twoParamsLength - 2; i >= 0; i--)
-				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
-					return false;
-			if (parameterCompatibilityLevel(one, twoParams) == NOT_COMPATIBLE
-				&& parameterCompatibilityLevel(two, oneParams) == VARARGS_COMPATIBLE)
-					return true; 
 		}
 		return false;
 	}
@@ -3361,95 +3369,139 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		int[] compatibilityLevels = new int[visibleSize];
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
-		byte[] skipValues = new byte[visibleSize]; // tagged with -1 if method cannot be best match
 
+		boolean useTiebreakMethod = invocationSite.genericTypeArguments() == null;
+		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
+		int count = 0;
 		for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
-				if (compatibilityLevels[i] != level || skipValues[i] == -1) continue nextVisible; // skip this method for now
-				MethodBinding original = visible[i].original();
-				MethodBinding tiebreakMethod = visible[i].tiebreakMethod();
+				if (compatibilityLevels[i] != level) continue nextVisible;
+				max = level; // do not examine further categories, will either return mostSpecific or report ambiguous case
+				MethodBinding current = visible[i];
+				MethodBinding original = current.original();
+				MethodBinding tiebreakMethod = useTiebreakMethod ? current.tiebreakMethod() : current;
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
-					max = level; // do not examine further categories
-					MethodBinding original2 = visible[j].original();
-					if (original == original2)
-						continue; // parameterized superclasses & interfaces may be walked twice from different paths
-
-					MethodBinding tiebreakMethod2 = visible[j].tiebreakMethod();
-					if (!isMoreSpecificMethod(tiebreakMethod, tiebreakMethod2)) {
-						if (!isMoreSpecificMethod(tiebreakMethod2, tiebreakMethod))
-							skipValues[j] = -1; // no point checking method2 either
-						continue nextVisible; // method2 is a better match
+					MethodBinding next = visible[j];
+					if (original == next.original()) {
+						// parameterized superclasses & interfaces may be walked twice from different paths so skip next from now on
+						compatibilityLevels[j] = -1; 
+						continue;
 					}
 
-					if (tiebreakMethod.areParametersEqual(tiebreakMethod2)) {
-						MethodBinding method = tiebreakMethod;
-						MethodBinding method2 = tiebreakMethod2;
-						if (method.isStatic() && method2.isStatic()) {
-							// if you knew that method overrode method2, it would help
-							TypeBinding superType = method.declaringClass.erasure().findSuperTypeWithSameErasure(method2.declaringClass.erasure());
-							if (superType == null)
-								continue nextVisible; // static methods from unrelated types
-						}
-						if (original == method && original2 == method2)
-							continue; // no need to check further
-						if (!method.isAbstract() && method2.isAbstract())
-							continue; // 15.12.2, concrete method beats abstract method
-						if (method.declaringClass == method2.declaringClass)
-							continue nextVisible; // duplicates thru substitution
-
-						if (method.isAbstract() == method2.isAbstract() && receiverType != null
-							&& (method.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES)) {
-							// class A<T> { void foo(T t) {} }
-							// class B<T, S> extends A<S> { void foo(T t) {} }
-							receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
-							TypeBinding superType = receiverType.findSuperTypeWithSameErasure(method.declaringClass.erasure());
-							if (original.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
-								method = original;
-							} else {
-								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = ((ReferenceBinding)superType).getMethods(method.selector);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == original) {
-										method = superMethods[m];
-										break;
-									}
-								}
-							}
-							superType = receiverType.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
-							if (original2.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
-								method2 = original2;
-							} else {
-								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = ((ReferenceBinding)superType).getMethods(method2.selector);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == original2) {
-										method2 = superMethods[m];
-										break;
-									}
-								}
-							}
-							// when method has no type variables and method2 does, then you need a way to substitute them with their erasures at least
-							if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
-								method2 = method.computeSubstitutedMethod(method2, environment());
-							if (method2 == null || !method.areParametersEqual(method2)) {
-								skipValues[j] = -1;
-								continue nextVisible; // dup thru substitution, not overridden... cannot find possible match
-							}
-							// method overrides method2, accept it
-						} else if (!original.areTypeVariableErasuresEqual(original2)) {
-							// to detect   class AA<T> { void test() {} }   vs   class BB extends AA<CC> { <U> void test() {} }
-							if (original.typeVariables != Binding.NO_TYPE_VARIABLES) {
-								skipValues[j] = -1;
-								continue nextVisible; // method is not better since variables are not equal
-							}
+					MethodBinding methodToTest = next;
+					if (next instanceof ParameterizedGenericMethodBinding) {
+						ParameterizedGenericMethodBinding pNext = (ParameterizedGenericMethodBinding) next;
+						if (pNext.isRaw) {
+							// hold onto the raw substituted method
+						} else {
+							methodToTest = pNext.originalMethod;
 						}
 					}
+					MethodBinding acceptable = computeCompatibleMethod(methodToTest, tiebreakMethod.parameters, invocationSite);
+					/* There are 4 choices to consider with current & next :
+					 foo(B) & foo(A) where B extends A
+					 1. the 2 methods are equal (both accept each others parameters) -> want to continue
+					 2. current has more specific parameters than next (so acceptable is a valid method) -> want to continue
+					 3. current has less specific parameters than next (so acceptable is null) -> go on to next
+					 4. current and next are not compatible with each other (so acceptable is null) -> go on to next
+					 */
+					if (acceptable == null || !acceptable.isValidBinding())
+						continue nextVisible;
+					if (!isAcceptableMethod(tiebreakMethod, acceptable))
+						continue nextVisible;
 				}
-				compilationUnitScope().recordTypeReferences(visible[i].thrownExceptions);
-				return visible[i];
+				moreSpecific[i] = current;
+				count++;
 			}
 		}
+		if (count == 1) {
+			for (int i = 0; i < visibleSize; i++) {
+				if (moreSpecific[i] != null) {
+					compilationUnitScope().recordTypeReferences(visible[i].thrownExceptions);
+					return visible[i];
+				}
+			}
+		} else if (count == 0) {
+			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+		}
+
+		// found several methods that are mutually acceptable -> must be equal
+		// so now with the first acceptable method, find the 'correct' inherited method for each other acceptable method AND
+		// see if they are equal after substitution of type variables (do the type variables have to be equal to be considered an override???)
+		if (receiverType != null)
+			receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
+		nextSpecific : for (int i = 0; i < visibleSize; i++) {
+			MethodBinding current = moreSpecific[i];
+			if (current != null) {
+				MethodBinding original = current.original();
+				for (int j = 0; j < visibleSize; j++) {
+					MethodBinding next = moreSpecific[j];
+					if (next == null || i == j) continue;
+					MethodBinding original2 = next.original();
+					if (original.declaringClass == original2.declaringClass)
+						break nextSpecific; // duplicates thru substitution
+
+					if (!original.isAbstract()) {
+						if (original2.isAbstract())
+							continue; // only compare current against other concrete methods
+						TypeBinding superType = original.declaringClass.findSuperTypeWithSameErasure(original2.declaringClass.erasure());
+						if (superType == null)
+							continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
+						if (current != original) {
+							if (original2.declaringClass != superType) {
+								// must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == original2) {
+										original2 = superMethods[m];
+										break;
+									}
+								}
+							}
+							if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
+								original2 = original.computeSubstitutedMethod(original2, environment());
+							if (original2 == null || !original.areParametersEqual(original2))
+								continue nextSpecific; // current does not override next
+						}
+					} else if (receiverType != null) { // should not be null if original isAbstract, but be safe
+						TypeBinding superType = receiverType.findSuperTypeWithSameErasure(original.declaringClass.erasure());
+						if (original.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
+							// keep original
+						} else {
+							// must find inherited method with the same substituted variables
+							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector);
+							for (int m = 0, l = superMethods.length; m < l; m++) {
+								if (superMethods[m].original() == original) {
+									original = superMethods[m];
+									break;
+								}
+							}
+						}
+						superType = receiverType.findSuperTypeWithSameErasure(original2.declaringClass.erasure());
+						if (original2.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
+							// keep original2
+						} else {
+							// must find inherited method with the same substituted variables
+							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector);
+							for (int m = 0, l = superMethods.length; m < l; m++) {
+								if (superMethods[m].original() == original2) {
+									original2 = superMethods[m];
+									break;
+								}
+							}
+						}
+						if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
+							original2 = original.computeSubstitutedMethod(original2, environment());
+						if (original2 == null || !original.areParameterErasuresEqual(original2) || !original.returnType.isCompatibleWith(original2.returnType)) // 15.2.2
+							continue nextSpecific; // current does not override next
+					}
+				}
+				return current;
+			}
+		}
+
+		// if all moreSpecific methods are equal then see if duplicates exist because of substitution
 		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 
@@ -3494,17 +3546,18 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		int level = COMPATIBLE; // no autoboxing or varargs support needed
 		int lastIndex = argLength;
+		LookupEnvironment env = environment();
 		if (method.isVarargs()) {
 			lastIndex = paramLength - 1;
 			if (paramLength == argLength) { // accept X or X[] but not X[][]
 				TypeBinding param = parameters[lastIndex]; // is an ArrayBinding by definition
 				TypeBinding arg = arguments[lastIndex];
 				if (param != arg) {
-					level = parameterCompatibilityLevel(arg, param, environment());
+					level = parameterCompatibilityLevel(arg, param, env);
 					if (level == NOT_COMPATIBLE) {
 						// expect X[], is it called with X
 						param = ((ArrayBinding) param).elementsType();
-						if (parameterCompatibilityLevel(arg, param, environment()) == NOT_COMPATIBLE)
+						if (parameterCompatibilityLevel(arg, param, env) == NOT_COMPATIBLE)
 							return NOT_COMPATIBLE;
 						level = VARARGS_COMPATIBLE; // varargs support needed
 					}
@@ -3514,7 +3567,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					TypeBinding param = ((ArrayBinding) parameters[lastIndex]).elementsType();
 					for (int i = lastIndex; i < argLength; i++) {
 						TypeBinding arg = arguments[i];
-						if (param != arg && parameterCompatibilityLevel(arg, param, environment()) == NOT_COMPATIBLE)
+						if (param != arg && parameterCompatibilityLevel(arg, param, env) == NOT_COMPATIBLE)
 							return NOT_COMPATIBLE;
 					}
 				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
@@ -3522,15 +3575,15 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				}
 				level = VARARGS_COMPATIBLE; // varargs support needed
 			}
-		} else 	if (paramLength != argLength) {
-				return NOT_COMPATIBLE;
+		} else if (paramLength != argLength) {
+			return NOT_COMPATIBLE;
 		}
 		// now compare standard arguments from 0 to lastIndex
 		for (int i = 0; i < lastIndex; i++) {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = arguments[i];
 			if (arg != param) {
-				int newLevel = parameterCompatibilityLevel(arg, param, environment());
+				int newLevel = parameterCompatibilityLevel(arg, param, env);
 				if (newLevel == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
 				if (newLevel > level)

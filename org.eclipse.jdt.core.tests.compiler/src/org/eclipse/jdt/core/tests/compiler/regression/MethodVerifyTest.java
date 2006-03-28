@@ -2556,12 +2556,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class E<A, B> extends C<A> implements I<B> {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X { void test(E<Integer,Integer> e) { e.id(new Integer(1)); } }\n" + 
-			"	                                                     ^^\n" + 
-			"The method id(Integer) is ambiguous for the type E<Integer,Integer>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
 			"	abstract class E<A, B> extends C<A> implements I<B> {}\n" + 
 			"	               ^\n" + 
 			"Name clash: The method id(A) of type C<A> has the same erasure as id(B) of type I<B> but does not override it\n" + 
