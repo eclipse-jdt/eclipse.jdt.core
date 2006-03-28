@@ -3448,7 +3448,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						TypeBinding superType = original.declaringClass.findSuperTypeWithSameErasure(original2.declaringClass.erasure());
 						if (superType == null)
 							continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
-						if (current != original) {
+						if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
 							if (original2.declaringClass != superType) {
 								// must find inherited method with the same substituted variables
 								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector);

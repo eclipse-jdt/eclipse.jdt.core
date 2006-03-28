@@ -4302,20 +4302,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"true"
 		);
-// TODO (kent) incorrectly reported as ambiguous
-//		this.runConformTest(
-//			new String[] {
-//				"NumericArray3.java",
-//				"class Array<T> {\n" + 
-//				"	public <U extends Number> void add(U u) {}\n" + 
-//				"}\n" + 
-//				"public class NumericArray3<T extends Number> extends Array<T> {\n" +
-//				"	public static void main(String[] s) { new NumericArray3<Integer>().add(1); }\n" +
-//				"	@Override public void add(Number n) { System.out.println(true); }\n" +
-//				"}"
-//			},
-//			"true"
-//		);
+		this.runConformTest(
+			new String[] {
+				"NumericArray3.java",
+				"class Array<T> {\n" + 
+				"	public <U extends Number> void add(U u) {}\n" + 
+				"}\n" + 
+				"public class NumericArray3<T extends Number> extends Array<T> {\n" +
+				"	public static void main(String[] s) { new NumericArray3<Integer>().add(1); }\n" +
+				"	@Override public void add(Number n) { System.out.println(true); }\n" +
+				"}"
+			},
+			"true"
+		);
 		this.runNegativeTest(
 			new String[] {
 				"NumericArray4.java",
