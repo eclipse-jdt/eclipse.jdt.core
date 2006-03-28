@@ -16487,27 +16487,22 @@ public void test0500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	m3((X2) m());  // A<Object>.m() --> X<? extends Object> - cannot cast to X2\n" + 
-			"	   ^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? extends Object> to X2 is actually checking against the erased type X2\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
 			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 21)\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
 			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X2\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 29)\n" + 
+			"3. ERROR in X.java (at line 29)\n" + 
 			"	void foo(X<String> xs) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(X<String>) of type D has the same erasure as foo(X<? extends Object>) of type C but does not override it\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 30)\n" + 
+			"4. ERROR in X.java (at line 30)\n" + 
 			"	void bar(X<? extends Object> xo) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method bar(X<? extends Object>) of type D has the same erasure as bar(X<String>) of type C but does not override it\n" + 
@@ -16579,19 +16574,14 @@ public void test0500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from DA<capture-of ?> to DC<?> is actually checking against the erased type DC\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\n" + 
-			"	Object o = (DC<?>) (DA<?>) null;\n" + 
-			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from DA<capture-of ?> to DC<?>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	                   ^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from null to DA<?>\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -16753,29 +16743,24 @@ public void test0500(){
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
 			"	            ^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? extends Object> to X2 is actually checking against the erased type X2\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 10)\n" + 
-			"	Object o3 = (X2) xo;\n" + 
-			"	            ^^^^^^^\n" + 
 			"Unnecessary cast from X<capture-of ? extends Object> to X2\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 11)\n" + 
+			"5. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X2 to X<? extends Object>\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 12)\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from X<capture-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 12)\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X<capture-of ? extends Object> to X3<String>\n" + 
 			"----------\n" + 
-			"9. ERROR in X.java (at line 18)\n" + 
+			"8. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -22479,11 +22464,6 @@ public void test0730() {
 		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
 		"	                                  ^^^^^^^^^^^^^^\n" + 
 		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 14)\n" + 
-		"	((SubInterface) this.x).getString();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X.SuperInterface<capture-of ? extends X.SuperInterface> to X.SubInterface is actually checking against the erased type X.SubInterface\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97440
@@ -30074,6 +30054,49 @@ public void test0957() {
 		"	public class UsingGenericsClass<A,B extends A & AnyInterface> {\n" + 
 		"	                                                ^^^^^^^^^^^^\n" + 
 		"Cannot specify any additional bound AnyInterface when first bound is a type parameter\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=131935
+public void test0958() {
+	this.runNegativeTest(
+		new String[] {
+		"X.java", //================================
+		"import java.lang.ref.ReferenceQueue;\n" + 
+		"import java.lang.ref.SoftReference;\n" + 
+		"import java.util.Hashtable;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	private static final Hashtable<Integer, Soft> cache = new Hashtable<Integer, Soft>();\n" + 
+		"\n" + 
+		"	private static final ReferenceQueue<String> trash = new ReferenceQueue<String>();\n" + 
+		"\n" + 
+		"	private static final class Soft extends SoftReference<String> {\n" + 
+		"		int key;\n" + 
+		"\n" + 
+		"		Soft() {\n" + 
+		"			super(null);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	final Thread clean = new Thread(\"BigTableModel cleaner\") {\n" + 
+		"		@Override\n" + 
+		"		public void run() {\n" + 
+		"			for (;;)\n" + 
+		"				try {\n" + 
+		"					cache.remove(((Soft) trash.remove()).key);\n" + 
+		"				} catch (final InterruptedException e) {\n" + 
+		"					return;\n" + 
+		"				}\n" + 
+		"				Zork z;\n" +
+		"		}\n" + 
+		"	};\n" + 
+		"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 27)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }

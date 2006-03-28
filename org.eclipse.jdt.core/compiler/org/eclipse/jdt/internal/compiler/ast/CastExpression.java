@@ -273,22 +273,22 @@ public class CastExpression extends Expression {
 			}
 			return true;
 		}
+		boolean isCastingToBoundParameterized;
 		if (match != null && (
-				castType.isBoundParameterizedType() 
+				(isCastingToBoundParameterized = castType.isBoundParameterizedType())
 				|| 	expressionType.isBoundParameterizedType())) {
 			
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 
 			}
-			if (isNarrowing ? !expressionType.isEquivalentTo(match) : !match.isEquivalentTo(castType)) {
+			if (isCastingToBoundParameterized 
+					&& (isNarrowing ? !expressionType.isEquivalentTo(match) : !match.isEquivalentTo(castType))) {
 				this.bits |= UnsafeCast;
 				return true;
-			}
-			if ((castType.tagBits & TagBits.HasDirectWildcard) == 0) {
-				if (!match.isParameterizedType() || expressionType.isRawType()) {
-					this.bits |= UnsafeCast;
-					return true;
-				}
+			} else if ((castType.tagBits & TagBits.HasDirectWildcard) == 0
+					&& (!match.isParameterizedType() || expressionType.isRawType())) {
+				this.bits |= UnsafeCast;
+				return true;
 			}
 		} else if (isNarrowing) {
 			TypeBinding leafType = castType.leafComponentType();
