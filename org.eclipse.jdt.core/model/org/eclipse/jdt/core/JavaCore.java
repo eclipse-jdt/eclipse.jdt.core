@@ -18,7 +18,7 @@
  *     IBM Corporation - added specific output location to source classpath entries
  *     IBM Corporation - added the following constants:
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
- *                                 CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT
+ *                                 CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER
  *                                 CLEAN
  *     IBM Corporation - added getClasspathContainerInitializer(String)
  *     IBM Corporation - added the following constants:
@@ -699,7 +699,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.2
 	 */
-	public static final String CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT = PLUGIN_ID + ".builder.makeOutputFolderConsistent"; //$NON-NLS-1$	 	
+	public static final String CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER = PLUGIN_ID + ".builder.recreateModifiedClassFileInOutputFolder"; //$NON-NLS-1$	 	
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2312,11 +2312,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "clean", "ignore" }
 	 *     - default:           "clean"
 	 * 
-	 * BUILDER / Make Output Folder(s) Consistent
-	 *    Indicate whether the JavaBuilder should check that the output folders
-	 *    are consistent while performing incremental build operations. If changes
-	 *    are detected to managed .class files, then a full build is performed.
-	 *     - option id:         "org.eclipse.jdt.core.builder.makeOutputFolderConsistent"
+	 * BUILDER / Recreate Modified class files in Output Folder
+	 *    Indicate whether the JavaBuilder should check for any changes to .class files
+	 *    in the output folders while performing incremental build operations. If changes
+	 *    are detected to managed .class files, then a full build is performed, otherwise
+	 *    the changes are left as is. Tools further altering generated .class files, like optimizers,
+	 *    should ensure this option remains set in its default state of ignore.
+	 *     - option id:         "org.eclipse.jdt.core.builder.recreateModifiedClassFileInOutputFolder"
 	 *     - possible values:   { "enabled", "ignore" }
 	 *     - default:           "ignore"
 	 * 

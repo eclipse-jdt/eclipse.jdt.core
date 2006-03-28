@@ -47,7 +47,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder, State buildState) {
 	super(javaBuilder, true, buildState);
 	this.nameEnvironment.isIncrementalBuild = true;
 	this.makeOutputFolderConsistent = JavaCore.ENABLED.equals(
-		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, true));
+		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, true));
 }
 
 protected IncrementalImageBuilder(JavaBuilder javaBuilder) {

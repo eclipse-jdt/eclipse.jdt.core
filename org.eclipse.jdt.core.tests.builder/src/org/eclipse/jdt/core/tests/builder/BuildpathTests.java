@@ -177,7 +177,7 @@ public class BuildpathTests extends BuilderTests {
 		expectingNoProblems();
 
 		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, JavaCore.ENABLED);
+		options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
 		env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
@@ -185,7 +185,7 @@ public class BuildpathTests extends BuilderTests {
 		incrementalBuild();
 		expectingNoProblems();
 
-		options.put(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, JavaCore.IGNORE);
+		options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
 		JavaCore.setOptions(options);
 	}
 
