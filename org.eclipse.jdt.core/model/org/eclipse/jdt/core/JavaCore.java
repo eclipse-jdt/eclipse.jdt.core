@@ -18,6 +18,7 @@
  *     IBM Corporation - added specific output location to source classpath entries
  *     IBM Corporation - added the following constants:
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
+ *                                 CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT
  *                                 CLEAN
  *     IBM Corporation - added getClasspathContainerInitializer(String)
  *     IBM Corporation - added the following constants:
@@ -693,6 +694,12 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static final String CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER = PLUGIN_ID + ".builder.cleanOutputFolder"; //$NON-NLS-1$	 	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT = PLUGIN_ID + ".builder.makeOutputFolderConsistent"; //$NON-NLS-1$	 	
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2304,6 +2311,14 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.builder.cleanOutputFolder"
 	 *     - possible values:   { "clean", "ignore" }
 	 *     - default:           "clean"
+	 * 
+	 * BUILDER / Make Output Folder(s) Consistent
+	 *    Indicate whether the JavaBuilder should check that the output folders
+	 *    are consistent while performing incremental build operations. If changes
+	 *    are detected to managed .class files, then a full build is performed.
+	 *     - option id:         "org.eclipse.jdt.core.builder.makeOutputFolderConsistent"
+	 *     - possible values:   { "enabled", "ignore" }
+	 *     - default:           "ignore"
 	 * 
 	 * BUILDER / Reporting Duplicate Resources
 	 *    Indicate the severity of the problem reported when more than one occurrence

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
@@ -38,18 +39,24 @@ protected StringSet simpleStrings;
 protected SimpleLookupTable secondaryTypesToRemove;
 protected boolean hasStructuralChanges;
 protected int compileLoop;
+protected boolean makeOutputFolderConsistent;
 
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
-protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
-	super(javaBuilder, true, null);
+protected IncrementalImageBuilder(JavaBuilder javaBuilder, State buildState) {
+	super(javaBuilder, true, buildState);
 	this.nameEnvironment.isIncrementalBuild = true;
+	this.makeOutputFolderConsistent = JavaCore.ENABLED.equals(
+		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, true));
+}
+
+protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
+	this(javaBuilder, null);
 	this.newState.copyFrom(javaBuilder.lastState);
 }
 
 protected IncrementalImageBuilder(BatchImageBuilder batchBuilder) {
-	super(batchBuilder.javaBuilder, true, batchBuilder.newState);
-	this.nameEnvironment.isIncrementalBuild = true;
+	this(batchBuilder.javaBuilder, batchBuilder.newState);
 	resetCollections();
 }
 
@@ -394,7 +401,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 }
 
 protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
-	ArrayList visited = new ArrayList(sourceLocations.length);
+	ArrayList visited = this.makeOutputFolderConsistent ? new ArrayList(sourceLocations.length) : null;
 	for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		ClasspathMultiDirectory md = sourceLocations[i];
 		if (md.sourceFolder.equals(javaBuilder.currentProject)) {
@@ -406,7 +413,7 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 					if (!findSourceFiles(children[j], md, segmentCount))
 						return false;
 		} else {
-			if (md.hasIndependentOutputFolder && !visited.contains(md.binaryFolder)) {
+			if (this.makeOutputFolderConsistent && md.hasIndependentOutputFolder && !visited.contains(md.binaryFolder)) {
 				visited.add(md.binaryFolder);
 				IResourceDelta binaryDelta = delta.findMember(md.binaryFolder.getProjectRelativePath());
 				if (binaryDelta != null) {
@@ -559,11 +566,13 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 				return true;
 			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(resourceName)) {
 				// perform full build if a managed class file has been changed
-				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
-				if (newState.isKnownType(typePath.toString())) {
-					if (JavaBuilder.DEBUG)
-						System.out.println("MOST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
-					return false;
+				if (this.makeOutputFolderConsistent) {
+					IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
+					if (newState.isKnownType(typePath.toString())) {
+						if (JavaBuilder.DEBUG)
+							System.out.println("MOST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
+						return false;
+					}
 				}
 				return true;
 			} else if (md.hasIndependentOutputFolder) {

@@ -150,7 +150,7 @@ public class BuildpathTests extends BuilderTests {
 		IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
-		IPath test = env.addClass(project1Path, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(project1Path, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;" + //$NON-NLS-1$
 			"public class Test {}" //$NON-NLS-1$
 		);
@@ -158,14 +158,35 @@ public class BuildpathTests extends BuilderTests {
 		fullBuild();
 		expectingNoProblems();
 
-		env.removeBinaryClass(test.removeLastSegments(1), "Test"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath outputFolderPackage = env.getOutputLocation(project1Path).append("p"); //$NON-NLS-1$
+		env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
 
-		env.addClass(project1Path, "", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
+		IPath subTest = env.addClass(project1Path, "", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class SubTest extends p.Test {}" //$NON-NLS-1$
 		);
 
 		incrementalBuild();
+		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 29, 35, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+
+		env.addClass(project1Path, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;" + //$NON-NLS-1$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
 		expectingNoProblems();
+
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+
+		env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		options.put(JavaCore.CORE_JAVA_BUILD_MAKE_OUTPUT_FOLDER_CONSISTENT, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
 	}
 
 	/*
