@@ -866,20 +866,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
 		final String cmdLine = sources + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"");
 		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
-		int errorsCount = 0;
 		int warnings = 0;
 		StringWriter errStrWriter = new StringWriter();
 		PrintWriter err = new PrintWriter(errStrWriter);
 		PrintWriter out = new PrintWriter(new StringWriter());
 		Main warmup = new Main(out, err, false);
 		warmup.compile(Main.tokenize(cmdLine));
-		if (warmup.globalErrorsCount > 0 && warmup.globalErrorsCount != errorsCount) {
-			System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+		if (warmup.globalErrorsCount > 0) {
+			System.out.println(this.scenarioShortName+": "+warmup.globalErrorsCount+" Unexpected compile ERROR!");
 			if (DEBUG) {
 				System.out.println(errStrWriter.toString());
 				System.out.println("--------------------");
 			}
-			errorsCount = warmup.globalErrorsCount;
 		}
 		if (!"none".equals(COMPILER_OUTPUT_DIR)) {
 			cleanupDirectory(new File(COMPILER_OUTPUT_DIR));

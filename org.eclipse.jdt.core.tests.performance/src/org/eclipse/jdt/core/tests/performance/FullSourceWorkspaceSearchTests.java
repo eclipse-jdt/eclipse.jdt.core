@@ -206,6 +206,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Perform one search before measure performance for warm-up.
 	 * 
 	 * @deprecated As we use deprecated API
+	 * 
+	 * TODO (frederic) Rename after M6 as reference has changed
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
 		tagAsSummary("Search>Names>Workspace", true); // put in fingerprint
@@ -264,6 +266,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 *		- "Object":			13497 matches
 	 *		- ""IResource":	5886 macthes
 	 *		- "JavaCore":		2145 matches
+	 *
+	 * TODO (frederic) Rename after M6 as reference has changed
 	 */
 	public void testSearchType() throws CoreException {
 		tagAsSummary("Search>Occurences>Types", true); // put in fingerprint
@@ -298,6 +302,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * 
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
+	 * 
+	 * TODO (frederic) Rename after M6 as reference has changed
 	 */
 	public void testSearchField() throws CoreException {
 		tagAsSummary("Search>Occurences>Fields", true); // put in fingerprint
@@ -331,11 +337,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: All occurences of a method.
 	 * This search do NOT use binding resolution.
 	 * 
-	 * TODO (frederic) remove from fingerprint as soon as results on
-	 * 	{@link #testSearchBinaryMethod()} will have been verified in releng output.
+	 * TODO (frederic) Rename after M6 as reference has changed
 	 */
 	public void testSearchMethod() throws CoreException {
-		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
+		tagAsSummary("Search>Occurences>Methods", false); // do NOT put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
 	
 		// Wait for indexing end
@@ -371,11 +376,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * This search use binding resolution.
 	 * 
 	 * @since 3.2 M6
-	 * 
-	 * TODO (frederic) put in fingerprint as soon as results will have been verified in releng output.
+	 * TODO (frederic) Rename after M6
 	 */
 	public void testSearchBinaryMethod() throws CoreException {
-		tagAsSummary("Search>Occurences>Methods>Resolved", false); // put in fingerprint
+		tagAsSummary("Search>Occurences>Methods>Resolved", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -410,6 +414,8 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * 
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
+	 * 
+	 * TODO (frederic) Rename after M6 as reference has changed
 	 */
 	public void testSearchConstructor() throws CoreException {
 		tagAsSummary("Search>Occurences>Constructors", true); // put in fingerprint
@@ -446,7 +452,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Perform one search before measure performance for warm-up.
 	 */
 	public void testSearchPackageDeclarations() throws CoreException {
-		tagAsSummary("Search>Declarations>Packages", false); // do NOT put in fingerprint
+		tagAsSummary("Search>Declarations>Packages", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();

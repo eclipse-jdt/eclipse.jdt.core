@@ -206,10 +206,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 					try {
 						parseFile(workspacePath+PARSER_WORKING_COPY.getPath(), kind, ITERATIONS_COUNT*6);
 					} catch (InvalidInputException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -347,7 +345,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testScanner() throws InvalidInputException, IOException, CoreException {
 		// Do no longer print result in performance fingerprint
-		tagAsSummary("Compile>Scan>Parser>Default", true); // put in fingerprint
+		tagAsSummary("Compile>Scan>Parser>Default", false); // do NOT put in fingerprint
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -360,10 +358,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				try {
 					scanFile(workspacePath+PARSER_WORKING_COPY.getPath(), 1/*scan tokens+get identifiers*/);
 				} catch (InvalidInputException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -410,21 +406,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	/**
-	 * Full build with no warning.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
-	 */
-	public void _testFullBuildNoWarning() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		build(null, warningOptions(-1/*no warning*/), false);
-	}
-
-	/**
 	 * Full build with JavaCore default options.
 	 * 
 	 * WARNING:
@@ -436,23 +417,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
-		tagAsGlobalSummary("Compile>Build>Full>Wksp>Default warnings", true); // put in fingerprint
+		tagAsGlobalSummary("Compile>Build>Full>Wksp>Default warnings", true); // put in global fingerprint
 		build(null, warningOptions(0/*default warnings*/), false);
-	}
-
-	/**
-	 * Full build with all warnings.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
-	 */
-	public void _testFullBuildAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		build(null, warningOptions(1/*all warnings*/), false);
 	}
 
 	/**
@@ -463,7 +429,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>No warning", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Build>Full>Project>No warning", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), false);
 	}
 
@@ -475,7 +441,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectDefault() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>Default warnings", false); // put in fingerprint
+		tagAsSummary("Compile>Build>Full>Project>Default warnings", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(0/*default warnings*/), false);
 	}
 
@@ -487,7 +453,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>All warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Build>Full>Project>All warnings", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(1/*all warnings*/), false);
 	}
 
@@ -498,9 +464,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
-		tagAsSummary("Compile>Batch>Compiler>No warning", true); // put in fingerprint
+		tagAsSummary("Compile>Batch>Compiler>No warning", false); // do NOT put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/);
 	}
 
@@ -511,7 +478,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerDefault() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
@@ -525,7 +492,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
@@ -539,7 +506,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerAllJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
@@ -553,7 +520,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerAllWarnings() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
@@ -567,7 +534,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>No warning", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Project>JDT/Core>No warning", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/);
 	}
 
@@ -578,7 +545,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>Default warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Project>JDT/Core>Default warnings", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "", false/*no log*/);
 	}
 
@@ -589,7 +556,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/);
 	}
 
@@ -600,7 +567,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>All warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Project>JDT/Core>All warnings", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/);
 	}
 
@@ -611,7 +578,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileSWTProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>SWT>Default warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Project>SWT>Default warnings", true); // put in fingerprint
 		compile("org.eclipse.swt", "", false/*no log*/);
 	}
 }
