@@ -159,7 +159,7 @@ public class MemberValuePair extends ASTNode {
 				break checkAnnotationMethodType;
 			}
 			if (leafType.isAnnotationType()) {
-				if (!valueType.leafComponentType().isAnnotationType()) { // null literal
+				if (!valueType.leafComponentType().isAnnotationType()) { // check annotation type and also reject null literal
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
 				}
 				break checkAnnotationMethodType;
