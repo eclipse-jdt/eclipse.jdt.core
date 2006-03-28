@@ -453,7 +453,8 @@ public static void flushDirectoryContent(File dir) {
 			if (current.isDirectory()) {
 				flushDirectoryContent(current);
 			}
-			current.delete();
+			if (!current.delete()) 
+				System.err.println("Could not delete " + current.getName());
 		}
 	}
 }
