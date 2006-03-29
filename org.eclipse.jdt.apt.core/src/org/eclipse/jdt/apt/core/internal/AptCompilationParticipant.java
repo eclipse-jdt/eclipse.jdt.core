@@ -79,9 +79,6 @@ public class AptCompilationParticipant extends CompilationParticipant
         else if (!AptConfig.isEnabled(cpe.getJavaProject())) {
 			return GENERIC_COMPILATION_RESULT;
         }
-        else if ( cpe == null ) {
-			return GENERIC_COMPILATION_RESULT;
-		}
 		else if ( cpe.getKind() == CompilationParticipant.PRE_BUILD_EVENT ) {
 			return preBuildNotify( (PreBuildCompilationEvent) cpe );
 		}
