@@ -69,7 +69,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 				values[i] = buildDOMValue(elements[i], resolver);
 			return values;
 		}
-		throw new IllegalStateException(internalObject.toString()); // should never get here
+		return null;
 	}
 	
 	MemberValuePairBinding(ElementValuePair pair, BindingResolver resolver) {
