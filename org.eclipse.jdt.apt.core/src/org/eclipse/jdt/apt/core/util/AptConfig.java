@@ -12,11 +12,16 @@
 package org.eclipse.jdt.apt.core.util;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
@@ -141,30 +146,27 @@ public class AptConfig {
     	// Add sourcepath and classpath variables
     	try {
     		IClasspathEntry[] classpathEntries = jproj.getResolvedClasspath(true);
-    		StringBuilder classpathSB = new StringBuilder();
-    		StringBuilder sourcepathSB = new StringBuilder();
-    		boolean firstCP = true;
-    		boolean firstSP = true;
+    		Set<String> classpath = new LinkedHashSet<String>();
+    		Set<String> sourcepath = new LinkedHashSet<String>();
+    		
+    		// For projects on the classpath, loops can exist; need to make sure we 
+    		// don't loop forever
+    		Set<IJavaProject> projectsProcessed = new HashSet<IJavaProject>();
+    		projectsProcessed.add(jproj);
     		for (IClasspathEntry entry : classpathEntries) {
     			int kind = entry.getEntryKind();
     			if (kind == IClasspathEntry.CPE_LIBRARY) {
-	    			if (firstCP) {
-	    				firstCP = false;
-	    			}
-	    			else {
-	    				classpathSB.append(File.pathSeparatorChar);
-	    			}
 	    			IPath cpPath = entry.getPath();
 	    			
 	    			IResource res = root.findMember(cpPath);
 	    			
 	    			// If res is null, the path is absolute (it's an external jar)
 	    			if (res == null) {
-	    				classpathSB.append(cpPath.toOSString());
+	    				classpath.add(cpPath.toOSString());
 	    			}
 	    			else {
 	    				// It's relative
-	    				classpathSB.append(res.getLocation().toOSString());
+	    				classpath.add(res.getLocation().toOSString());
 	    			}
     			}
     			else if (kind == IClasspathEntry.CPE_SOURCE) {
@@ -177,22 +179,29 @@ public class AptConfig {
     					continue;
     				}
     				
-    				if (firstSP) {
-    					firstSP = false;
-    				}
-    				else {
-    					sourcepathSB.append(File.pathSeparatorChar);
-    				}
+    				sourcepath.add(srcPath.toOSString());
+    			}
+    			else if (kind == IClasspathEntry.CPE_PROJECT) {
+    				// Add the dependent project's build path and classpath to ours
+    				IPath otherProjectPath = entry.getPath();
+    				IProject otherProject = root.getProject(otherProjectPath.segment(0));
     				
-    				sourcepathSB.append(srcPath.toOSString());
+    				// Note: JavaCore.create() is safe, even if the project is null -- 
+    				// in that case, we get null back
+    				IJavaProject otherJavaProject = JavaCore.create(otherProject);
+    				
+    				// If it doesn't exist, ignore it
+    				if (otherJavaProject != null) {
+    					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath);
+    				}
     			}
     		}
     		// if you add options here, also add them in isAutomaticProcessorOption(),
     		// and document them in docs/reference/automatic_processor_options.html.
     		
     		// Classpath and sourcepath
-    		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$    		
-    		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
+    		options.put("-classpath",convertPathCollectionToString(classpath)); //$NON-NLS-1$    		
+    		options.put("-sourcepath", convertPathCollectionToString(sourcepath)); //$NON-NLS-1$
     		
     		// Get absolute path for generated source dir
     		IFolder genSrcDir = jproj.getProject().getFolder(getGenSrcDir(jproj));
@@ -224,7 +233,84 @@ public class AptConfig {
     	return options;
     }
     
-    /**
+    // We need this as a separate method, as we'll put dependent projects' output
+    // on the classpath
+    private static void addProjectClasspath(
+    		IWorkspaceRoot root,
+    		IJavaProject otherJavaProject,
+    		Set<IJavaProject> projectsProcessed,
+    		Set<String> classpath) {
+    	
+    	// Check for cycles. If we've already seen this project, 
+    	// no need to go any further.
+    	if (projectsProcessed.contains(otherJavaProject)) {
+			return;
+		}
+    	projectsProcessed.add(otherJavaProject);
+    	
+    	try {
+    		// Add the output directory first as a binary entry for other projects
+    		IPath binPath = otherJavaProject.getOutputLocation();
+    		IResource binPathResource = root.findMember(binPath);
+    		String binDirString;
+    		if (binPathResource != null) {
+    			binDirString = root.findMember(binPath).getLocation().toOSString();
+    		}
+    		else {
+    			binDirString = binPath.toOSString();
+    		}
+    		classpath.add(binDirString);
+    		
+    		// Now the rest of the classpath
+    		IClasspathEntry[] classpathEntries = otherJavaProject.getResolvedClasspath(true);
+    		for (IClasspathEntry entry : classpathEntries) {
+    			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+    				IPath cpPath = entry.getPath();
+	    			
+	    			IResource res = root.findMember(cpPath);
+	    			
+	    			// If res is null, the path is absolute (it's an external jar)
+	    			if (res == null) {
+	    				classpath.add(cpPath.toOSString());
+	    			}
+	    			else {
+	    				// It's relative
+	    				classpath.add(res.getLocation().toOSString());
+	    			}
+    			}
+    			else if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+	    			IPath otherProjectPath = entry.getPath();
+					IProject otherProject = (IProject)root.getContainerForLocation(otherProjectPath);
+					IJavaProject yetAnotherJavaProject = JavaCore.create(otherProject);
+					addProjectClasspath(root, yetAnotherJavaProject, projectsProcessed, classpath);
+    			}
+    			// Ignore source types
+    		}
+    	}
+    	catch (JavaModelException jme) {
+    		AptPlugin.log(jme, "Failed to get the classpath for the following project: " + otherJavaProject); //$NON-NLS-1$
+    	}
+	}
+    
+    private static String convertPathCollectionToString(Collection<String> paths) {
+    	if (paths.size() == 0) {
+    		return ""; //$NON-NLS-1$
+    	}
+    	StringBuilder sb = new StringBuilder();
+    	boolean first = true;
+    	for (String path : paths) {
+    		if (first) {
+    			first = false;
+    		}
+    		else {
+    			sb.append(File.pathSeparatorChar);
+    		}
+    		sb.append(path);
+    	}
+    	return sb.toString();
+    }
+
+	/**
      * Set all the processor options in one call.  This will delete any
      * options that are not passed in, so callers who do not wish to
      * destroy pre-existing options should use addProcessorOption() instead.

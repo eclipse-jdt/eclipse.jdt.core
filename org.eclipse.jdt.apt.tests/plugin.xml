@@ -65,6 +65,9 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.ASTBasedMirrorDeclarationProcessorFactory">
 	      </factory>  
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.exceptionhandling.ExceptionHandlingProcessorFactory">
+	      </factory>  
 	   </factories>
    </extension>
 

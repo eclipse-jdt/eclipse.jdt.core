@@ -119,7 +119,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
+	
+	// This type cache exists for the duration of a single round. 
+	// We store positive as well as negative hits. Negative hits are
+	// stored with a value of null
 	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<String,TypeDeclaration>();
+	
 	protected IPackageFragmentRoot[] _packageRootsCache;
 	
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
@@ -356,6 +361,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	//First check cache
     	TypeDeclaration result = _typeCache.get(name);
     	if (result != null) return result;
+    	if (_typeCache.containsKey(name)) {
+    		// We've seen this before, and it doesn't exist
+    		return null;
+    	}
 
 		// first see if it is one of the well known types.
 		// any AST is as good as the other.		
@@ -385,14 +394,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		
 		// finally go search for it in the universe.
-		if (typeBinding == null)
+		if (typeBinding == null) {
 			typeBinding = getTypeDefinitionBindingFromName(name);
+		}
 		
 		result = Factory.createReferenceType(typeBinding, this);
     	
-    	// update cache
-    	if (result != null)
-    		_typeCache.put(name, result);
+    	// update cache, nulls included
+    	_typeCache.put(name, result);
     	return result;
     }
     
@@ -404,9 +413,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     /**
      * @param fullyQualifiedName the fully qualified name of a type.
      * The name cannot contain type argument or array signature.
+     * The name *must* also be correct wrt $ for inner-class separators.
+     * e.g. java.util.Map$Entry, NOT java.util.Map.Entry
      * @return the type binding corresponding to the parameter.
      */
-    ITypeBinding getTypeDefinitionBindingFromName(
+    private ITypeBinding getTypeDefinitionBindingFromCorrectName(
     		final String fullyQualifiedName ){
     	final int dollarIndex = fullyQualifiedName.indexOf('$');
     	final String toplevelTypeName;
@@ -423,6 +434,24 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	ICompilationUnit unit = getICompilationUnitForTopLevelType(toplevelTypeName);
        	final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
     	return getTypeBindingFromKey(key, unit);
+    }
+  
+    private ITypeBinding getTypeDefinitionBindingFromName(String fullyQualifiedName) {
+    	// We don't know for sure that the name we have represents a top-level type,
+    	// so we need to loop backwards until we find one, in case we have something
+    	// like "java.util.Map.Entry", converting it to "java.util.Map$Entry". --jgarms
+    	ITypeBinding binding = getTypeDefinitionBindingFromCorrectName(fullyQualifiedName);
+    	while (binding == null) {
+    		int dotIndex = fullyQualifiedName.lastIndexOf('.');
+    		if (dotIndex == -1) {
+    			break;
+    		}
+    		fullyQualifiedName = fullyQualifiedName.substring(0, dotIndex) + 
+    			"$" +  //$NON-NLS-1$
+    			fullyQualifiedName.substring(dotIndex + 1);
+    		binding = getTypeDefinitionBindingFromCorrectName(fullyQualifiedName);
+    	}
+    	return binding;
     }
     
     /**

@@ -30,6 +30,21 @@ public abstract class BaseProcessor implements AnnotationProcessor {
 		}
 	}
 	
+	protected void assertEqual(final Object expected, final Object actual, final String message) {
+		if( expected == null ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + " actual: " + actual );
+		}
+		else if( actual == null ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + "expected " + expected );
+		}
+		else if( !expected.equals(actual) ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError(message + " expected: " + expected + " actual: " + actual );
+		}
+	}
+	
 	protected void assertEqual(final String expected, final String actual, final String message){
 		if( expected == null ){
 			final Messager msgr = _env.getMessager();
