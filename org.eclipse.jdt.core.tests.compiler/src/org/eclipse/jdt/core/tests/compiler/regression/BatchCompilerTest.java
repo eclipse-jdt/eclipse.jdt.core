@@ -1566,7 +1566,6 @@ public void test019(){
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 		        "",
-		        "incorrect ext dir entry; D:/eclipse/I0329-0800/eclipse must be a directory\n" + 
 		        "----------\n" + 
 		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
 		        " (at line 3)\n" + 
