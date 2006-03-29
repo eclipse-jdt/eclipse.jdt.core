@@ -119,7 +119,9 @@ public final boolean mayRepresentMIN_VALUE(){
 			(source[6] == '3') &&
 			(source[7] == '6') &&			
 			(source[8] == '4') &&
-			(source[9] == '8'));}
+			(source[9] == '8') &&
+			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
+}
 public TypeBinding resolveType(BlockScope scope) {
 	// the format may be incorrect while the scanner could detect
 	// such an error only on painfull tests...easier and faster here

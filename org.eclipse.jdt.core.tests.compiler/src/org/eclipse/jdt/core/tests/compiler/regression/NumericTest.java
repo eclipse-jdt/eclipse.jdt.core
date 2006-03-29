@@ -57,6 +57,38 @@ public void test002() {
 		"}\n",
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
+public void test003() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"  int i1 = -2147483648;\n" + 
+		"  int i2 = -(2147483648);\n" + 
+		"}",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 3)\n" + 
+	"	int i2 = -(2147483648);\n" + 
+	"	          ^^^^^^^^^^^^\n" + 
+	"The literal 2147483648 of type int is out of range \n" + 
+	"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
+public void test004() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"  long l1 = -9223372036854775808L;\n" + 
+		"  long l2 = -(9223372036854775808L);\n" + 
+		"}",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 3)\n" + 
+	"	long l2 = -(9223372036854775808L);\n" + 
+	"	           ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The literal 9223372036854775808L of type long is out of range \n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return NumericTest.class;
 }

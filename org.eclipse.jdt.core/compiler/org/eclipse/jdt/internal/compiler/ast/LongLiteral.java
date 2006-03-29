@@ -140,7 +140,8 @@ public final boolean mayRepresentMIN_VALUE(){
 			(source[15] == '5') &&
 			(source[16] == '8') &&			
 			(source[17] == '0') &&
-			(source[18] == '8'));
+			(source[18] == '8') &&
+			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// the format may be incorrect while the scanner could detect
