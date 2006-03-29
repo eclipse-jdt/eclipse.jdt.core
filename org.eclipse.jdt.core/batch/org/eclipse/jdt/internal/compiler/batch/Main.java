@@ -2448,7 +2448,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							extdirsClasspaths.add(classpath);
 						}
 					}
-				} else {
+				} else if (directoriesToCheck[i].isFile()) {
 					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
 				}
 			}
