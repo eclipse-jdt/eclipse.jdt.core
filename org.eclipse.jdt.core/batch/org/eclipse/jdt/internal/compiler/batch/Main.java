@@ -439,6 +439,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		/**
+		 * @param wrongPath
+		 *            the given wrong path entry
+		 */
+		public void logIncorrectExtDirsEntry(String wrongPath) {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.clear();
+				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
+				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(Main.bind(
+				"configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
+		}
+
+		/**
 		 * 
 		 */
 		public void logNoClassFileCreated(String fileName) {
@@ -2405,8 +2419,7 @@ public void configure(String[] argv) throws InvalidInputException {
 		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
 		if (extdirsStr == null) {
 			extdirsNames.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
-		}
-		else {
+		} else {
 			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) 
 				extdirsNames.add(tokenizer.nextToken());
@@ -2435,6 +2448,8 @@ public void configure(String[] argv) throws InvalidInputException {
 							extdirsClasspaths.add(classpath);
 						}
 					}
+				} else {
+					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
 				}
 			}
 		}
