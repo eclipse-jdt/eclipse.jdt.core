@@ -37,7 +37,6 @@ import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
-import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -90,7 +89,10 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	private BuildContext[] _additionFiles = null;
 	/** 
 	 * This is intialized when <code>_batchMode</code> is set to be <code>true</code> or
-	 * when batch processing is expected. @see #getAllAnnotationTypes(Map)
+	 * when batch processing is expected. <p>
+	 * It is also set in build mode for perf reason rather than parsing and resolving
+	 * each file individually.
+	 * @see #getAllAnnotationTypes(Map)
 	 */
 	private CompilationUnit[] _astRoots = null;
 	private List<MarkerInfo> _markerInfos = null;
@@ -114,6 +116,8 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		_additionFiles = additionalFiles;
 		_problems = new ArrayList<APTProblem>();
 		_markerInfos = new ArrayList<MarkerInfo>();
+		// Aggressively cache all ASTs
+		// createDomASTs();
 	}
 
     public Filer getFiler()
@@ -130,60 +134,21 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
     public TypeDeclaration getTypeDeclaration(String name)
     {
 		checkValid();		
-		TypeDeclaration decl = null;
-		if( !_batchMode ){
-			// we are not keeping dependencies unless we are processing on a
-			// per file basis.
-			decl = super.getTypeDeclaration(name);			
-			addTypeDependency( name );
-		}
-		else
-			decl = getTypeDeclarationInBatch(name);
+		TypeDeclaration decl = super.getTypeDeclaration(name);
+		
+		if (!_batchMode) 
+			addTypeDependency(name);
 			
 		return decl;
     }
 
-    private TypeDeclaration getTypeDeclarationInBatch(String name)
-    {	
-    	if( name == null || _astRoots == null ) return null;
-		// get rid of the generics parts.
-		final int index = name.indexOf('<');
-		if( index != -1 )
-			name = name.substring(0, index);
-		
-		// first see if it is one of the well known types.
-		// any AST is as good as the other.
-		ITypeBinding typeBinding = null;
-		String typeKey = BindingKey.createTypeBindingKey(name);
-		if( _astRoots.length > 0 ){
-			_astRoots[0].getAST().resolveWellKnownType(name);
-			
-			if(typeBinding == null){
-				// then look into the current compilation units			
-				ASTNode node = null;
-				for( int i=0, len=_astRoots.length; i<len; i++ )
-					node = _astRoots[i].findDeclaringNode(typeKey);			
-				if( node != null ){
-					final int nodeType = node.getNodeType();
-					if( nodeType == ASTNode.TYPE_DECLARATION ||
-						nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-						nodeType == ASTNode.ENUM_DECLARATION )
-					typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
-				}
-			}
-			if( typeBinding != null )
-				return Factory.createReferenceType(typeBinding, this);
-		}
-
-		// finally go search for it in the universe.
-		typeBinding = getTypeDefinitionBindingFromName(name);
-		if( typeBinding != null ){			
-			return Factory.createReferenceType(typeBinding, this);
-		}
-
-		return null;
-    }  
-
+    // Called by getTypeDeclaration(). allows the searching of all asts, not just the current one.
+    protected CompilationUnit[] getAsts() {
+    	if (_astRoots != null) return _astRoots;
+    	return super.getAsts();
+    }
+    
+  
 	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {
 		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
 			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
@@ -428,6 +393,20 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		completedProcessing();
 	}
 	
+/*	private void createDomASTs()
+	{
+		if( _astRoots != null || _filesWithAnnotation == null) return;
+		
+		if (AptPlugin.DEBUG) 
+			System.out.println("Preparsing " + _filesWithAnnotation.length + " files.");  //$NON-NLS-1$//$NON-NLS-2$
+		
+		createICompilationUnits();		
+		_astRoots = createDietASTs(_javaProject, _astRoots);
+		
+		if (AptPlugin.DEBUG) 
+			System.out.println("Finished with Preparsing");  //$NON-NLS-1$
+	}
+*/	
 	private CompilationUnit[] createASTsFrom(BuildContext[] cpResults){
 		final int size = cpResults.length;
 		final IFile[] files = new IFile[size];

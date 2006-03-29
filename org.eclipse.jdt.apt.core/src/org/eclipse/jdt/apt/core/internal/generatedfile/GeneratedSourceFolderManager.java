@@ -434,7 +434,23 @@ public class GeneratedSourceFolderManager {
 	        public void run(IProgressMonitor monitor)
 	        {		
             	try {
-            		FileSystemUtil.deleteDerivedResources(srcFolder);
+            		IResource parent = srcFolder.getParent();
+            		boolean deleted = FileSystemUtil.deleteDerivedResources(srcFolder);
+            		
+            		// We also want to delete our parent folder(s) if they are derived and empty
+            		if (deleted) {
+            			while (parent.isDerived() && parent.getType() == IResource.FOLDER) {
+            				IFolder parentFolder = (IFolder)parent;
+            				if (parentFolder.members().length == 0) {
+            					parent = parentFolder.getParent();
+            					FileSystemUtil.deleteDerivedResources(parentFolder);
+            				}
+            				else {
+            					break;
+            				}
+            			}
+            		}
+            		
             	} catch(CoreException e) {
             		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
             	} catch(OperationCanceledException cancel) {

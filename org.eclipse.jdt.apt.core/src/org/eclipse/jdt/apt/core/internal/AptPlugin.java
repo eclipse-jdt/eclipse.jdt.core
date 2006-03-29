@@ -58,8 +58,13 @@ public class AptPlugin extends Plugin {
 		AnnotationProcessorFactoryLoader.getLoader();
 		// register resource-changed listener
 		// TODO: can move this into AptProject.
-		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
+		int mask = 
+			IResourceChangeEvent.PRE_BUILD | 
+			IResourceChangeEvent.PRE_CLOSE | 
+			IResourceChangeEvent.PRE_DELETE | 
+			IResourceChangeEvent.POST_CHANGE;
 		JavaCore.addPreProcessingResourceChangedListener( new GeneratedResourceChangeListener(), mask );
+		
 		if( DEBUG )
 			trace("registered resource change listener"); //$NON-NLS-1$
 	}

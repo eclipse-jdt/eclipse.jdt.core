@@ -348,33 +348,39 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     {	
     	if( name == null || name.length() == 0 ) return null;
 
-    	//First check cache
-    	TypeDeclaration result = _typeCache.get(name);
-    	if (result != null) return result;
-
     	// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )
 			name = name.substring(0, index);
 		
+    	//First check cache
+    	TypeDeclaration result = _typeCache.get(name);
+    	if (result != null) return result;
+
 		// first see if it is one of the well known types.
 		// any AST is as good as the other.		
 		ITypeBinding typeBinding = null;
-		if( _astRoot != null )
-			typeBinding = _astRoot.getAST().resolveWellKnownType(name);
-		String typeKey = BindingKey.createTypeBindingKey(name);
-		if(typeBinding == null){
-			// then look into the current compilation units			
-			ASTNode node = null;
-			if( _astRoot != null )
-				node = _astRoot.findDeclaringNode(typeKey);
-						
-			if( node != null ){
-				final int nodeType = node.getNodeType();
-				if( nodeType == ASTNode.TYPE_DECLARATION ||
-					nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-					nodeType == ASTNode.ENUM_DECLARATION )
-				typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
+		CompilationUnit[] asts = getAsts();
+		
+		if( asts != null && asts.length > 0) {
+			typeBinding = asts[0].getAST().resolveWellKnownType(name);
+
+			if(typeBinding == null){
+				// then look into the current compilation units			
+				ASTNode node = null;
+				String typeKey = BindingKey.createTypeBindingKey(name);
+				for (int i=0, len=asts.length;i<len;i++) {
+					node = asts[i].findDeclaringNode(typeKey);
+							
+					if( node != null ){
+						final int nodeType = node.getNodeType();
+						if( nodeType == ASTNode.TYPE_DECLARATION ||
+							nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
+							nodeType == ASTNode.ENUM_DECLARATION )
+						typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
+						break;
+					}
+				}
 			}
 		}
 		
@@ -390,6 +396,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	return result;
     }
     
+    protected CompilationUnit[] getAsts() {
+    	if (_astRoot == null) return null;
+    	return new CompilationUnit[] {_astRoot};
+	}
+
     /**
      * @param fullyQualifiedName the fully qualified name of a type.
      * The name cannot contain type argument or array signature.
