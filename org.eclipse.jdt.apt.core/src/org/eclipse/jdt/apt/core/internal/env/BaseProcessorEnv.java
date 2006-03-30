@@ -395,7 +395,15 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		// finally go search for it in the universe.
 		if (typeBinding == null) {
-			typeBinding = getTypeDefinitionBindingFromName(name);
+			try {
+				typeBinding = getTypeDefinitionBindingFromName(name);
+			}
+			catch (ArrayIndexOutOfBoundsException e) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133947
+				// if the name is invalid, JDT can throw an ArrayIndexOutOfBoundsException
+				// We'll ignore this and return null to the user
+				AptPlugin.log(e, "Unable to get type definition binding for: " + name); //$NON-NLS-1$
+			}
 		}
 		
 		result = Factory.createReferenceType(typeBinding, this);
