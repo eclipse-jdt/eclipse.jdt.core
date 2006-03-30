@@ -10,14 +10,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -34,7 +40,10 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_5 = 0x4;
 	public static final int F_1_6 = 0x8;
 
-	private static int possibleComplianceLevels = -1;
+	protected static boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
+	private static int possibleComplianceLevels = 
+		RUN_JAVAC ? F_1_5 : -1;
+	  // javac tests imply 1.5 compliance
 
 	protected String complianceLevel;
 
@@ -277,6 +286,92 @@ public class AbstractCompilerTest extends TestCase {
 		return possibleComplianceLevels;
 	}
 
+	/*
+	 * Returns a test suite including the tests defined by the given classes for all possible complianceLevels
+	 * and using the given setup class (CompilerTestSetup or a subclass)
+	 */
+	public static Test suite(String suiteName, Class setupClass, ArrayList testClasses) {
+		TestSuite all = new TestSuite(suiteName);
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			all.addTest(suiteForComplianceLevel(COMPLIANCE_1_3, setupClass, testClasses));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			all.addTest(suiteForComplianceLevel(COMPLIANCE_1_4, setupClass, testClasses));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			all.addTest(suiteForComplianceLevel(COMPLIANCE_1_5, setupClass, testClasses));
+		}
+		return all;
+	}
+
+	/*
+	 * Returns a test suite including the tests defined by the given classes for the given complianceLevel 
+	 * (see AbstractCompilerTest for valid values) and using the given setup class (CompilerTestSetup or a subclass)
+	 */
+	public static Test suiteForComplianceLevel(String complianceLevel, Class setupClass, ArrayList testClasses) {
+		TestSuite suite;
+		Class testClass;
+		if (testClasses.size() == 1) {
+			suite = new TestSuite(testClass = (Class)testClasses.get(0), complianceLevel);
+			TESTS_COUNTERS.put(testClass.getName(), new Integer(suite.countTestCases()));
+		} else {
+			suite = new TestSuite(complianceLevel);
+			for (int i = 0, length = testClasses.size(); i < length; i++) {
+				TestSuite innerSuite = new TestSuite(testClass = (Class)testClasses.get(i));
+				TESTS_COUNTERS.put(testClass.getName(), new Integer(innerSuite.countTestCases()));
+				suite.addTest(innerSuite);
+			}
+		}
+
+		// call the setup constructor with the suite and compliance level
+		try {
+			Constructor constructor = setupClass.getConstructor(new Class[]{Test.class, String.class});
+			Test setUp = (Test)constructor.newInstance(new Object[]{suite, complianceLevel});
+			return setUp;
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.getTargetException().printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static Test setupSuite(Class clazz) {
+		ArrayList testClasses = new ArrayList();
+		testClasses.add(clazz);
+		return suite(clazz.getName(), RegressionTestSetup.class, testClasses);
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass) {
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
+			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
+		}
+		return setupSuite(evaluationTestClass);
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClass, String complianceLevel) {
+		TestSuite suite = new TestSuite(complianceLevel);
+		List tests = buildTestsList(evaluationTestClass);
+		for (int index=0, size=tests.size(); index<size; index++) {
+			suite.addTest((Test)tests.get(index));
+		}
+		TestSuite test = new TestSuite(evaluationTestClass.getName());
+		test.addTest(new RegressionTestSetup(suite, complianceLevel));
+		String className = evaluationTestClass.getName();
+		Integer testsNb;
+		int newTestsNb = test.countTestCases();
+		if ((testsNb = (Integer) TESTS_COUNTERS.get(className)) != null)
+			newTestsNb += testsNb.intValue();
+		TESTS_COUNTERS.put(className, new Integer(newTestsNb));
+		return test;
+	}
+
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}
@@ -319,4 +414,51 @@ public class AbstractCompilerTest extends TestCase {
 	protected String testName() {
 		return super.getName();
 	}
+	
+	// Output files management
+	protected IPath 
+		outputRootDirectoryPath = new Path(Util.getOutputDirectory()),
+		outputTestDirectoryPath;
+
+	/**
+	 * Create a test specific output directory as a subdirectory of 
+	 * outputRootDirectory, given a subdirectory path. The whole 
+	 * subtree is created as needed. outputTestDirectoryPath is 
+	 * modified according to the latest call to this method.
+	 * @param suffixPath a valid relative path for the subdirectory
+	 */
+	protected void createOutputTestDirectory(String suffixPath) {
+		this.outputTestDirectoryPath = 
+			((IPath) this.outputRootDirectoryPath.clone()).append(suffixPath);
+		File dir = this.outputTestDirectoryPath.toFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+	}
+	/*
+	 * Write given source test files in current output sub-directory.
+	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
+	 */
+	protected void writeFiles(String[] testFiles) {
+		createOutputTestDirectory(testName());
+
+		// Write each given test file
+		for (int i = 0, length = testFiles.length; i < length; ) {
+			String fileName = testFiles[i++];
+			String contents = testFiles[i++];
+			IPath filePath = 
+				((IPath) this.outputTestDirectoryPath.clone()).append(fileName);
+			if (fileName.lastIndexOf('/') >= 0) {
+				File dir = filePath.removeLastSegments(1).toFile();
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
+			}
+			Util.writeToFile(contents, filePath.toString());
+		}
+	}
+	
+	// Summary display		
+	// Used by AbstractRegressionTest for javac comparison tests
+	protected static Map TESTS_COUNTERS = new HashMap();
 }

@@ -30,6 +30,11 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 	static boolean debug = false;
 
+	// Javadoc execution
+	protected static final String JAVADOC_NAME = 
+		File.pathSeparatorChar == ':' ? "javadoc" : "javadoc.exe";
+  protected static String javadocCommandLineHeader;
+	
 	static {
 		ALL_CLASSES = new ArrayList();
 		ALL_CLASSES.add(JavadocBugsTest.class);
@@ -269,6 +274,10 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
+		if (RUN_JAVAC) {
+			javadocCommandLineHeader = 
+				jdkRootDirPath.append("bin").append(JAVADOC_NAME).toString(); // PREMATURE replace JAVA_NAME and JAVAC_NAME with locals? depends on potential reuse
+		}
 //		SHIFT = true;
 //		INDENT = 3;
 	}
@@ -342,7 +351,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			generateOutput);
 	}
 	*/
-	void writeFiles(String[] testFiles) {
+	protected void writeFiles(String[] testFiles) {
 		String classDirName = getClass().getName().substring(getClass().getName().lastIndexOf('.')+1); //.substring(11);
 		String testName = getName();
 		int idx = testName.indexOf(" - ");
@@ -350,17 +359,17 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			testName = testName.substring(idx+3);
 		}
 
-		File dir = new File("d:/usr/OTI/tests/javadoc/");
-		if (!dir.exists()) return;
-		dir = new File(dir, classDirName);
-		if (!dir.exists()) dir.mkdirs();
-		dir = new File(dir, Character.toUpperCase(testName.charAt(0))+testName.substring(1));
-		if (!dir.exists()) dir.mkdirs();
-		System.out.println("Write test file to "+dir+"...");
+    // File dir = new File("d:/usr/OTI/tests/javadoc/");
+		// non portable
+		createOutputTestDirectory(classDirName);
+		createOutputTestDirectory(Character.toUpperCase(testName.charAt(0)) + 
+				testName.substring(1));
+		System.out.println("Write test file to " + 
+				this.outputTestDirectoryPath + "...");
 		for (int i=0, length=testFiles.length; i<length; i++) {
 			String contents = testFiles[i+1];
 			String fileName = testFiles[i++];
-			String dirFileName = dir.getPath();
+			String dirFileName = this.outputTestDirectoryPath.toString();
 			if (fileName.indexOf("Visibility")>0) {
 				continue;
 			} else {
@@ -369,12 +378,200 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 					String subdirs = fileName.substring(0, index);
 					String packName = subdirs.replace('/', '.');
 					contents = "package "+packName+";"+contents.substring(contents.indexOf(';')+1);
-					dir = new File(dirFileName, subdirs);
+					File dir = new File(dirFileName, subdirs);
 					if (!dir.exists()) dir.mkdirs();
+					if (RUN_JAVAC) {
+						Util.writeToFile(contents, dirFileName+"/"+fileName);
+						// PREMATURE this results into a duplicate file.
+					}
 					fileName = fileName.substring(index+1);
 				}
 			}
-			Util.writeToFile(contents, dirFileName+"/"+fileName);
+			Util.writeToFile(contents, dirFileName+"/"+fileName); 
+			// REVIEW don't know why this is created at the default package level
 		}
 	}
+
+	/*
+	 * Run Sun compilation using javadoc.
+	 * See implementation in parent for details.
+	 */
+	protected void runJavac(
+			String[] testFiles, 
+			final String expectedProblemLog, 
+			final String expectedSuccessOutputString, 
+			boolean shouldFlushOutputDirectory) {
+		String testName = null;
+		Process compileProcess = null;
+		Process execProcess = null;
+		try {
+			// Init test name
+			testName = testName();
+
+			// Cleanup javac output dir if needed
+			File javacOutputDirectory = new File(JAVAC_OUTPUT_DIR);
+			if (shouldFlushOutputDirectory) {
+				cleanupDirectory(javacOutputDirectory);
+			}
+			
+			// Write files in dir
+			writeFiles(testFiles);
+
+			// Prepare command line
+			StringBuffer cmdLine = new StringBuffer(javadocCommandLineHeader);
+			// compute extra classpath
+			String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR, false);
+			StringBuffer cp = new StringBuffer(" -classpath ");
+			int length = classpath.length;
+			for (int i = 0; i < length; i++) {
+				if (i > 0)
+				  cp.append(File.pathSeparatorChar);
+				if (classpath[i].indexOf(" ") != -1) {
+					cp.append("\"" + classpath[i] + "\"");
+				} else {
+					cp.append(classpath[i]);
+				}
+			} 
+			cmdLine.append(cp);
+			// add source files
+			for (int i = 0; i < testFiles.length; i += 2) {
+				// *.java is not enough (p1/X.java, p2/Y.java)
+				cmdLine.append(' ');
+				cmdLine.append(testFiles[i]);
+			}
+
+			// Launch process
+			compileProcess = Runtime.getRuntime().exec(
+				cmdLine.toString(), null, this.outputTestDirectoryPath.toFile());
+
+			// Log errors
+      Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
+
+      // Log output
+      Logger outputLogger = new Logger(compileProcess.getInputStream(), "OUTPUT");
+
+      // start the threads to run outputs (standard/error)
+      errorLogger.start();
+      outputLogger.start();
+
+      // Wait for end of process
+			int exitValue = compileProcess.waitFor();
+			errorLogger.join(); // make sure we get the whole output
+			outputLogger.join();
+
+			// Report raw javadoc results
+			if (! testName.equals(javacTestName)) {
+				javacTestName = testName;
+				javacTestErrorFlag = false;
+				javacFullLog.println("-----------------------------------------------------------------");
+				javacFullLog.println(CURRENT_CLASS_NAME + " " + testName);
+			}
+			if (exitValue != 0) {
+				javacTestErrorFlag = true;
+			}
+			if (errorLogger.buffer.length() > 0) {
+				javacFullLog.println("--- javac err: ---");
+				javacFullLog.println(errorLogger.buffer.toString());
+			}
+			if (outputLogger.buffer.length() > 0) {
+				javacFullLog.println("--- javac out: ---");
+				javacFullLog.println(outputLogger.buffer.toString());
+			}
+
+			// Compare compilation results
+			if (expectedProblemLog == null || expectedProblemLog.length() == 0) {
+				// Eclipse found no error and no warning
+				if (exitValue != 0) {
+					// Javac found errors
+					System.out.println("----------------------------------------");
+					System.out.println(testName + " - Javadoc has found error(s) but Eclipse expects conform result:\n");
+					javacFullLog.println("JAVAC_MISMATCH: Javadoc has found error(s) but Eclipse expects conform result");
+					System.out.println(errorLogger.buffer.toString());
+					printFiles(testFiles);
+					DIFF_COUNTERS[0]++;
+				} 
+				else {
+					// Javac found no error - may have found warnings
+					if (errorLogger.buffer.length() > 0) {
+						System.out.println("----------------------------------------");
+						System.out.println(testName + " - Javadoc has found warning(s) but Eclipse expects conform result:\n");
+						javacFullLog.println("JAVAC_MISMATCH: Javadoc has found warning(s) but Eclipse expects conform result");
+						System.out.println(errorLogger.buffer.toString());
+						printFiles(testFiles);
+						DIFF_COUNTERS[0]++;
+					} 
+				}
+			} 
+			else {
+				// Eclipse found errors or warnings
+				if (errorLogger.buffer.length() == 0) {
+					System.out.println("----------------------------------------");
+					System.out.println(testName + " - Eclipse has found error(s)/warning(s) but Javadoc did not find any:");
+					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s)/warning(s) but Javadoc did not find any");
+					dualPrintln("eclipse:");
+					dualPrintln(expectedProblemLog);
+					printFiles(testFiles);
+					DIFF_COUNTERS[1]++;
+				} else if (expectedProblemLog.indexOf("ERROR") > 0 && exitValue == 0){
+					System.out.println("----------------------------------------");
+					System.out.println(testName + " - Eclipse has found error(s) but Javadoc only found warning(s):");
+					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s) but Javadoc only found warning(s)");
+					dualPrintln("eclipse:");
+					dualPrintln(expectedProblemLog);
+					System.out.println("javadoc:");
+					System.out.println(errorLogger.buffer.toString());
+					printFiles(testFiles);
+					DIFF_COUNTERS[1]++;
+				} else {
+					// PREMATURE refine comparison
+					// TODO (frederic) compare warnings in each result and verify they are similar...
+//						System.out.println(testName+": javac has found warnings :");
+//						System.out.print(errorLogger.buffer.toString());
+//						System.out.println(testName+": we're expecting warning results:");
+//						System.out.println(expectedProblemLog);
+				}
+			}
+		} 
+		catch (InterruptedException e1) {
+			if (compileProcess != null) compileProcess.destroy();
+			if (execProcess != null) execProcess.destroy();
+			System.out.println(testName+": Sun javadoc compilation was aborted!");
+			javacFullLog.println("JAVAC_WARNING: Sun javadoc compilation was aborted!");
+			e1.printStackTrace(javacFullLog);
+		}
+		catch (Throwable e) {
+			System.out.println(testName+": could not launch Sun javadoc compilation!");
+			e.printStackTrace();
+			javacFullLog.println("JAVAC_ERROR: could not launch Sun javac compilation!");
+			e.printStackTrace(javacFullLog);
+			// PREMATURE failing the javac pass or comparison could also fail
+			//           the test itself
+		} 
+		finally {
+			cleanupDirectory(outputTestDirectoryPath.toFile());
+		}
+	}
+	
+	protected void	printJavacResultsSummary() {
+		if (RUN_JAVAC) {
+			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
+			if (count != null) {
+				int newCount = count.intValue()-1;
+				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
+				if (newCount == 0) {
+					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
+						dualPrintln("===========================================================================");
+						dualPrintln("Results summary:");
+					}
+					if (DIFF_COUNTERS[0]!=0)
+						dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javadoc found errors/warnings but Eclipse did not");
+					if (DIFF_COUNTERS[1]!=0)
+						dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javadoc did not");
+					System.out.println("\n");
+				}
+			}
+			javacFullLog.flush();
+		}
+	}
+
 }

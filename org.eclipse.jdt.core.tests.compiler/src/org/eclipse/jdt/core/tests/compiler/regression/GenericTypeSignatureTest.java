@@ -64,6 +64,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean RunJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
+	// WORK unify runJavac methods (do we really need a different one here?)
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
@@ -80,7 +81,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		return GenericTypeSignatureTest.class;
 	}
 	
-	IPath dirPath = new Path(OUTPUT_DIR);
+	IPath dirPath = new Path(OUTPUT_DIR); // WORK check whether needed or not
 	
 	public GenericTypeSignatureTest(String name) {
 		super(name);
@@ -234,7 +235,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(mainMethod);
+		if (mainMethod == null) {
+			assertNotNull(mainMethod);
+			return;
+		}
 		ICodeAttribute codeAttribute = mainMethod.getCodeAttribute();
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
 		assertNotNull(classFileAttribute);
@@ -248,7 +252,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(xsEntry);
+		if (xsEntry == null) {
+			assertNotNull(xsEntry);
+			return;
+		}
 		signature = xsEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(signature));
@@ -261,7 +268,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(constructorMethod);
+		if (constructorMethod == null) {
+			assertNotNull(constructorMethod);
+			return;
+		}
 		codeAttribute = constructorMethod.getCodeAttribute();
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
 		assertNotNull(classFileAttribute);
@@ -275,7 +285,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(thisEntry);
+		if (thisEntry == null) {
+			assertNotNull(thisEntry);
+			return;
+		}
 		signature = thisEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "LX<TT;>;", new String(signature));
@@ -287,7 +300,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(tEntry);
+		if (tEntry == null) {
+			assertNotNull(tEntry);
+			return;
+		}
 		signature = tEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "TT;", new String(signature));
@@ -317,7 +333,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(mainMethod);
+		if (mainMethod == null) {
+			assertNotNull(mainMethod);
+			return;
+		}
 		codeAttribute = mainMethod.getCodeAttribute();
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
 		assertNotNull(classFileAttribute);
@@ -331,7 +350,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(xsEntry);
+		if (xsEntry == null) {
+			assertNotNull(xsEntry);
+			return;
+		}
 		signature = xsEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(signature));
@@ -344,7 +366,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(constructorMethod);
+		if (constructorMethod == null) {
+			assertNotNull(constructorMethod);
+			return;
+		}
 		codeAttribute = constructorMethod.getCodeAttribute();
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
 		assertNotNull(classFileAttribute);
@@ -358,7 +383,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(thisEntry);
+		if (thisEntry == null) {
+			assertNotNull(thisEntry);
+			return;
+		}
 		signature = thisEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "LX<TT;>;", new String(signature));
@@ -370,7 +398,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(tEntry);
+		if (tEntry == null) {
+			assertNotNull(tEntry);
+			return;
+		}
 		signature = tEntry.getSignature();
 		assertNotNull("no signature", signature);
 		assertEquals("Wrong signature", "TT;", new String(signature));
@@ -426,7 +457,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(thisEntry);
+		if (thisEntry == null) {
+			assertNotNull(thisEntry);
+			return;
+		}
 		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(thisEntry.getSignature()));
 		ILocalVariableTypeTableEntry tEntry = null;
 		for (int i = 0, max = entries.length; i < max; i++) {
@@ -436,7 +470,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(tEntry);
+		if (tEntry == null) {
+			assertNotNull(tEntry);
+			return;
+		}
 		signature = tEntry.getSignature();
 		assertNotNull("No signature", signature);
 		assertEquals("Wrong signature", "TP;", new String(signature));
@@ -480,7 +517,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(thisEntry);
+		if (thisEntry == null) {
+			assertNotNull(thisEntry);
+			return;
+		}
 		signature = thisEntry.getSignature();
 		assertNotNull("No signature", signature);
 		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(signature));
@@ -492,7 +532,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				break;
 			}
 		}
-		assertNotNull(tEntry);
+		if (tEntry == null) {
+			assertNotNull(tEntry);
+			return;
+		}
 		signature = tEntry.getSignature();
 		assertNotNull("No signature", signature);
 		assertEquals("Wrong signature", "TP;", new String(signature));
@@ -874,11 +917,12 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	
+	// WORK check whether needed or not
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
-	private void writeFiles(String[] testFiles) {
+	protected void writeFiles(String[] testFiles) {
 		// Compute and create specific dir
 		IPath dirFilePath = (IPath) this.dirPath.clone();
 		File dir = dirFilePath.toFile();
