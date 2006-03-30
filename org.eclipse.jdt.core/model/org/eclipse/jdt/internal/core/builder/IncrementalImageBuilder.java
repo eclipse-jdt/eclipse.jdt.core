@@ -246,7 +246,8 @@ protected boolean checkForClassFileChanges(IResourceDelta binaryDelta, Classpath
 
 			IResourceDelta[] children = binaryDelta.getAffectedChildren();
 			for (int i = 0, l = children.length; i < l; i++)
-				checkForClassFileChanges(children[i], md, segmentCount);
+				if (!checkForClassFileChanges(children[i], md, segmentCount))
+					return false;
 			return true;
 		case IResource.FILE :
 			if (!isExcluded && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(resource.getName())) {
@@ -254,7 +255,7 @@ protected boolean checkForClassFileChanges(IResourceDelta binaryDelta, Classpath
 				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 				if (newState.isKnownType(typePath.toString())) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("MOST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
+						System.out.println("MUST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
 					return false;
 				}
 				return true;
@@ -479,14 +480,16 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = sourceDelta.getAffectedChildren();
 					for (int i = 0, l = children.length; i < l; i++)
-						findSourceFiles(children[i], md, segmentCount);
+						if (!findSourceFiles(children[i], md, segmentCount))
+							return false;
 					return true;
 				case IResourceDelta.REMOVED :
 				    if (isExcluded) {
 				    	// since this folder is excluded then there is nothing to delete (from this md), but must walk any included subfolders
 						children = sourceDelta.getAffectedChildren();
 						for (int i = 0, l = children.length; i < l; i++)
-							findSourceFiles(children[i], md, segmentCount);
+							if (!findSourceFiles(children[i], md, segmentCount))
+								return false;
 						return true;
 				    }
 					IPath removedPackagePath = resource.getFullPath().removeFirstSegments(segmentCount);
@@ -497,7 +500,8 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 								createFolder(removedPackagePath, md.binaryFolder); // ensure package exists in the output folder
 								IResourceDelta[] removedChildren = sourceDelta.getAffectedChildren();
 								for (int j = 0, m = removedChildren.length; j < m; j++)
-									findSourceFiles(removedChildren[j], md, segmentCount);
+									if (!findSourceFiles(removedChildren[j], md, segmentCount))
+										return false;
 								return true;
 							}
 						}

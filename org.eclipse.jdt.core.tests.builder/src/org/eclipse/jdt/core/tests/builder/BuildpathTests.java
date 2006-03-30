@@ -189,6 +189,53 @@ public class BuildpathTests extends BuilderTests {
 		JavaCore.setOptions(options);
 	}
 
+	public void testCorruptBuilder2() throws JavaModelException {
+		IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
+
+		env.addClass(src, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;" + //$NON-NLS-1$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingNoProblems();
+
+		IPath outputFolderPackage = bin.append("p"); //$NON-NLS-1$
+		env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
+
+		IPath subTest = env.addClass(src, "p2", "SubTest", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;" + //$NON-NLS-1$
+			"public class SubTest extends p.Test {}" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 40, 46, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+
+		env.addClass(src, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;" + //$NON-NLS-1$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingNoProblems();
+
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+
+		env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
+	}
+
 	/*
 	 * Ensures that changing an external jar and refreshing the projects triggers a rebuild
 	 * (regression test for bug 50207 Compile errors fixed by 'refresh' do not reset problem list or package explorer error states)
