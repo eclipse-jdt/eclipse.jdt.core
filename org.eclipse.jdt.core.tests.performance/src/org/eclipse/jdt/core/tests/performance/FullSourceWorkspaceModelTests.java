@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,26 +32,20 @@ import org.eclipse.jdt.internal.core.*;
  */
 public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 
-// Tests counters
-static int TESTS_COUNT = 0;
+	// Tests counters
+	static int TESTS_COUNT = 0;
+	private final static int WARMUP_COUNT = 1; // 30;
+	private final static int ITERATIONS_COUNT = 1000;
+	private final static int FOLDERS_COUNT = 200;
+	private final static int PACKAGES_COUNT = 200;
+	static int TESTS_LENGTH;
 
-private final static int WARMUP_COUNT = 1; // 30;
+	// Log file streams
+	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
-private final static int ITERATIONS_COUNT = 1000;
-
-private final static int FOLDERS_COUNT = 200;
-
-private final static int PACKAGES_COUNT = 200;
-
-static int TESTS_LENGTH;
-
-// Log file streams
-private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
-
-// Type path
-static IPath BIG_PROJECT_TYPE_PATH;
-
-static ICompilationUnit WORKING_COPY;
+	// Type path
+	static IPath BIG_PROJECT_TYPE_PATH;
+	static ICompilationUnit WORKING_COPY;
 
 /**
  * @param name
@@ -61,16 +55,15 @@ public FullSourceWorkspaceModelTests(String name) {
 }
 
 static {
-	// TESTS_NAMES = new String[] {
-	// "testPerfNameLookupFindKnownSecondaryType",
-	// "testPerfNameLookupFindUnknownType",
-	// "testPerfReconcile",
-	// "testPerfSearchAllTypeNamesAndReconcile",
-	// };
-
-	// TESTS_PREFIX = "testPerfReconcile";
+//	TESTS_NAMES = new String[] {
+//		"testPerfNameLookupFindKnownSecondaryType",
+//		"testPerfNameLookupFindUnknownType",
+//		"testPerfReconcile", 
+//		"testPerfSearchAllTypeNamesAndReconcile",
+//	};
+	
+//	TESTS_PREFIX = "testPerfReconcile";
 }
-
 public static Test suite() {
 	Test suite = buildSuite(testClass());
 	TESTS_LENGTH = TESTS_COUNT = suite.countTestCases();
@@ -90,7 +83,6 @@ protected void setUp() throws Exception {
 		setUpBigProjectInfo();
 	}
 }
-
 private void setUpBigProject() throws CoreException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -98,29 +90,26 @@ private void setUpBigProject() throws CoreException {
 		long start = System.currentTimeMillis();
 
 		// Print for log in case of project creation troubles...
-		System.out.println("Create project " + BIG_PROJECT_NAME + " in " + workspaceRoot.getLocation() + ":");
+		System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
 
-		// setup projects with several source folders and several packages per
-		// source folder
-		System.out.println("	- create " + FOLDERS_COUNT + " folders x " + PACKAGES_COUNT + " packages...");
+		// setup projects with several source folders and several packages per source folder
+		System.out.println("	- create "+FOLDERS_COUNT+" folders x "+PACKAGES_COUNT+" packages...");
 		final String[] sourceFolders = new String[FOLDERS_COUNT];
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
 			sourceFolders[i] = "src" + i;
 		}
 		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
 		for (int i = 0; i < FOLDERS_COUNT; i++) {
-			if (PRINT && i > 0 && i % 10 == 0)
-				System.out.print("		+ folder src" + i + "...");
+			if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
 			long top = System.currentTimeMillis();
 			for (int j = 0; j < PACKAGES_COUNT; j++) {
 				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
 			}
-			if (PRINT && i > 0 && i % 10 == 0)
-				System.out.println("(" + (System.currentTimeMillis() - top) + "ms)");
+			if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
 		}
 
 		// Print for log in case of project creation troubles...
-		System.out.println("		=> global time = " + (System.currentTimeMillis() - start) / 1000.0 + " seconds)");
+		System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
 		start = System.currentTimeMillis();
 		System.out.print("	- add project to full source workspace...");
 
@@ -130,44 +119,55 @@ private void setUpBigProject() throws CoreException {
 		BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
 
 		// Print for log in case of project creation troubles...
-		System.out.println("(" + (System.currentTimeMillis() - start) + "ms)");
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 		start = System.currentTimeMillis();
 		System.out.print("	- Create compilation unit with secondary type...");
 
 		// Add CU with secondary type
-		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT - 1) + "/org/eclipse/jdt/core/tests"
-				+ (FOLDERS_COUNT - 1) + "/performance" + (PACKAGES_COUNT - 1) + "/TestBigProject.java");
+		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-		String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT - 1) + ".performance" + (PACKAGES_COUNT - 1)
-				+ ";\n" + "public class TestBigProject {\n" + "	class Level1 {\n" + "		class Level2 {\n"
-				+ "			class Level3 {\n" + "				class Level4 {\n" + "					class Level5 {\n" + "						class Level6 {\n"
-				+ "							class Level7 {\n" + "								class Level8 {\n" + "									class Level9 {\n"
-				+ "										class Level10 {}\n" + "									}\n" + "								}\n" + "							}\n" + "						}\n" + "					}\n"
-				+ "				}\n" + "			}\n" + "		}\n" + "	}\n" + "}\n" + "class TestSecondary {}\n";
+		String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT-1) + ".performance" + (PACKAGES_COUNT-1) + ";\n" +
+			"public class TestBigProject {\n" +
+			"	class Level1 {\n" +
+			"		class Level2 {\n" +
+			"			class Level3 {\n" +
+			"				class Level4 {\n" +
+			"					class Level5 {\n" +
+			"						class Level6 {\n" +
+			"							class Level7 {\n" +
+			"								class Level8 {\n" +
+			"									class Level9 {\n" +
+			"										class Level10 {}\n" +
+			"									}\n" +
+			"								}\n" +
+			"							}\n" +
+			"						}\n" +
+			"					}\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class TestSecondary {}\n";
 		file.create(new ByteArrayInputStream(content.getBytes()), true, null);
-		WORKING_COPY = (ICompilationUnit) JavaCore.create(file);
-		System.out.println("(" + (System.currentTimeMillis() - start) + "ms)");
+		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	} finally {
 		// do not delete project
 	}
-
+	
 }
-
 private void setUpBigProjectInfo() {
 	// Set up type path
-	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT - 1) + "/org/eclipse/jdt/core/tests"
-			+ (FOLDERS_COUNT - 1) + "/performance" + (PACKAGES_COUNT - 1) + "/TestBigProject.java");
+	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 
 	// Set up working copy
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	IWorkspaceRoot workspaceRoot = workspace.getRoot();
 	IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-	WORKING_COPY = (ICompilationUnit) JavaCore.create(file);
+	WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
 }
-
-/*
- * (non-Javadoc)
- * 
+/* (non-Javadoc)
  * @see junit.framework.TestCase#tearDown()
  */
 protected void tearDown() throws Exception {
@@ -184,106 +184,106 @@ protected void tearDown() throws Exception {
 	if (TESTS_COUNT == 0) {
 		System.out.println("-------------------------------------");
 		System.out.println("Model performance test statistics:");
-		// NumberFormat intFormat = NumberFormat.getIntegerInstance();
+//		NumberFormat intFormat = NumberFormat.getIntegerInstance();
 		System.out.println("-------------------------------------\n");
 	}
 	super.tearDown();
 }
-
 /**
  * Simple search result collector: only count matches.
  */
 class JavaSearchResultCollector extends SearchRequestor {
-int count = 0;
-
-public void acceptSearchMatch(SearchMatch match) throws CoreException {
-	this.count++;
-}
+	int count = 0;
+	public void acceptSearchMatch(SearchMatch match) throws CoreException {
+		this.count++;
+	}
 }
 
 /*
- * protected void search(String patternString, int searchFor, int limitTo)
- * throws CoreException { int matchMode = patternString.indexOf('*') != -1 ||
- * patternString.indexOf('?') != -1 ? SearchPattern.R_PATTERN_MATCH :
- * SearchPattern.R_EXACT_MATCH; SearchPattern pattern =
- * SearchPattern.createPattern( patternString, searchFor, limitTo, matchMode |
- * SearchPattern.R_CASE_SENSITIVE); this.resultCollector = new
- * JavaSearchResultCollector(); new SearchEngine().search( pattern, new
- * SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, this.scope,
- * this.resultCollector, null); }
- */
+protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
+	int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
+		? SearchPattern.R_PATTERN_MATCH
+		: SearchPattern.R_EXACT_MATCH;
+	SearchPattern pattern = SearchPattern.createPattern(
+		patternString, 
+		searchFor,
+		limitTo, 
+		matchMode | SearchPattern.R_CASE_SENSITIVE);
+	this.resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		this.scope,
+		this.resultCollector,
+		null);
+}
+*/
 
 protected void searchAllTypeNames(IJavaSearchScope scope) throws CoreException {
 	class TypeNameCounter extends TypeNameRequestor {
-	int count = 0;
-
-	public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
-		count++;
-	}
+		int count = 0;
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+			count++;
+		}
 	}
 	TypeNameCounter requestor = new TypeNameCounter();
-	new SearchEngine().searchAllTypeNames(null, null, SearchPattern.R_PREFIX_MATCH, // not
-																					// case
-																					// sensitive
-		IJavaSearchConstants.TYPE, scope, requestor, WAIT_UNTIL_READY_TO_SEARCH, null);
-	assertTrue("We should have found at least one type!", requestor.count > 0);
+	new SearchEngine().searchAllTypeNames(
+		null,
+		null,
+		SearchPattern.R_PREFIX_MATCH, // not case sensitive
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor,
+		WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertTrue("We should have found at least one type!", requestor.count>0);
 }
 
 /**
- * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementEquals(String,
- *      String, IJavaElement)
+ * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementEquals(String, String, IJavaElement)
  */
 protected void assertElementEquals(String message, String expected, IJavaElement element) {
-	String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*
-																									 * don't
-																									 * show
-																									 * key
-																									 */);
+	String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*don't show key*/);
 	if (!expected.equals(actual)) {
-		System.out.println(getName() + " actual result is:");
+		System.out.println(getName()+" actual result is:");
 		System.out.println(actual + ',');
 	}
 	assertEquals(message, expected, actual);
 }
-
 /**
- * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementsEqual(String,
- *      String, IJavaElement[])
+ * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementsEqual(String, String, IJavaElement[])
  */
 protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
-	assertElementsEqual(message, expected, elements, false/* don't show key */);
+	assertElementsEqual(message, expected, elements, false/*don't show key*/);
 }
-
 /**
- * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementsEqual(String,
- *      String, IJavaElement[], boolean)
+ * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementsEqual(String, String, IJavaElement[], boolean)
  */
 protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo) {
 	StringBuffer buffer = new StringBuffer();
 	if (elements != null) {
-		for (int i = 0, length = elements.length; i < length; i++) {
-			JavaElement element = (JavaElement) elements[i];
+		for (int i = 0, length = elements.length; i < length; i++){
+			JavaElement element = (JavaElement)elements[i];
 			if (element == null) {
 				buffer.append("<null>");
 			} else {
 				buffer.append(element.toStringWithAncestors(showResolvedInfo));
 			}
-			if (i != length - 1)
-				buffer.append("\n");
+			if (i != length-1) buffer.append("\n");
 		}
 	} else {
 		buffer.append("<null>");
 	}
 	String actual = buffer.toString();
 	if (!expected.equals(actual)) {
-		System.out.println(getName() + " actual result is:");
+		System.out.println(getName()+" actual result is:");
 		System.out.println(actual + ',');
 	}
 	assertEquals(message, expected, actual);
 }
 
 private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
-	return project.newNameLookup((WorkingCopyOwner) null);
+	return project.newNameLookup((WorkingCopyOwner)null);
 }
 
 /**
@@ -293,8 +293,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>KnownType", false); // do NOT put in
-															// fingerprint
+	tagAsSummary("Model>NameLookup>Find>KnownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -303,28 +302,25 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.');
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*
-																		 * full
-																		 * match
-																		 */, NameLookup.ACCEPT_ALL);
-			assertNotNull("We should find type '" + fullQualifiedName + "' in project " + BIG_PROJECT_NAME, type);
+			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
+			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			nameLookup.findType(fullQualifiedName, false /* full match */, NameLookup.ACCEPT_ALL);
+			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -337,43 +333,36 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>SecondaryType", false); // do NOT put in
-																// fingerprint
+	tagAsSummary("Model>NameLookup>Find>SecondaryType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
 
 	// Warm up
-	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension()
-		.removeFirstSegments(2)
-		.removeLastSegments(1)
-		.toString();
-	fullQualifiedName = fullQualifiedName.replace('/', '.') + ".TestSecondary";
+	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
+	fullQualifiedName = fullQualifiedName.replace('/', '.')+".TestSecondary";
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*
-																		 * full
-																		 * match
-																		 */, NameLookup.ACCEPT_ALL);
+			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 			if (LOG_VERSION.compareTo("v_623") > 0) {
-				assertNotNull("We should find type '" + fullQualifiedName + "' in project " + BIG_PROJECT_NAME, type);
+				assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 			}
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			nameLookup.findType(fullQualifiedName, false /* full match */, NameLookup.ACCEPT_ALL);
+			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -386,41 +375,34 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindUnknownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>UnknownType", false); // do NOT put in
-																// fingerprint
+	tagAsSummary("Model>NameLookup>Find>UnknownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
 
 	// Warm up
-	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension()
-		.removeFirstSegments(2)
-		.removeLastSegments(1)
-		.toString();
-	fullQualifiedName = fullQualifiedName.replace('/', '.') + ".Unknown";
+	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
+	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*
-																		 * full
-																		 * match
-																		 */, NameLookup.ACCEPT_ALL);
-			assertNull("We should not find an unknown type in project " + BIG_PROJECT_NAME, type);
+			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
+			assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			nameLookup.findType(fullQualifiedName, false /* full match */, NameLookup.ACCEPT_ALL);
+			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -433,8 +415,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>KnownType", false); // do NOT put in
-															// fingerprint
+	tagAsSummary("Model>Project>Find>KnownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -443,23 +424,23 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.');
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNotNull("We should find type '" + fullQualifiedName + "' in project " + BIG_PROJECT_NAME, type);
+			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -472,8 +453,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownMemberType() throws CoreException {
-	tagAsSummary("Model>Project>Find>MemberType", false); // do NOT put in
-															// fingerprint
+	tagAsSummary("Model>Project>Find>MemberType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -481,27 +461,27 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.');
-	for (int i = 1; i <= 10; i++) {
+	for (int i=1; i<=10; i++) {
 		fullQualifiedName += ".Level" + i;
 	}
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNotNull("We should find type '" + fullQualifiedName + "' in project " + BIG_PROJECT_NAME, type);
+			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -514,35 +494,31 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>Project>Find>SecondaryType", false); // do NOT put in
-																// fingerprint
+	tagAsSummary("Model>Project>Find>SecondaryType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
 
 	// Warm up
-	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension()
-		.removeFirstSegments(2)
-		.removeLastSegments(1)
-		.toString();
-	fullQualifiedName = fullQualifiedName.replace('/', '.') + ".TestSecondary";
+	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
+	fullQualifiedName = fullQualifiedName.replace('/', '.')+".TestSecondary";
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -555,44 +531,40 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindUnknownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>UnknownType", false); // do NOT put in
-															// fingerprint
+	tagAsSummary("Model>Project>Find>UnknownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
 
 	// Warm up
-	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension()
-		.removeFirstSegments(2)
-		.removeLastSegments(1)
-		.toString();
-	fullQualifiedName = fullQualifiedName.replace('/', '.') + ".Unknown";
+	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
+	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
 	if (WARMUP_COUNT > 0) {
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i=0; i<WARMUP_COUNT; i++) {
 			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNull("We should not find an unknown type in project " + BIG_PROJECT_NAME, type);
+			assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
 	// Measures
 	resetCounters();
-	for (int i = 0; i < MEASURES_COUNT; i++) {
+	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n = 0; n < ITERATIONS_COUNT; n++) {
+		for (int n=0; n<ITERATIONS_COUNT; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
 }
 
 /**
- * Ensures that the reconciler does nothing when the source to reconcile with is
- * the same as the current contents.
+ * Ensures that the reconciler does nothing when the source
+ * to reconcile with is the same as the current contents.
  */
 public void testPerfReconcile() throws CoreException {
 	tagAsSummary("Model>Reconcile>Parser", true); // put in fingerprint
@@ -604,10 +576,9 @@ public void testPerfReconcile() throws CoreException {
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor requestor = new ProblemRequestor();
-		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {
-		}, requestor, null);
+		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
 		if (WARMUP_COUNT > 0) {
-			for (int i = 0; i < WARMUP_COUNT; i++) {
+			for (int i=0; i<WARMUP_COUNT; i++) {
 				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
 				assertNotNull("Compilation Unit should not be null!", unit);
 				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
@@ -617,18 +588,19 @@ public void testPerfReconcile() throws CoreException {
 		// Measures
 		resetCounters();
 		int iterations = 2;
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
 			startMeasuring();
-			for (int n = 0; n < iterations; n++) {
+			for (int n=0; n<iterations; n++) {
 				workingCopy.reconcile(AST.JLS3, true, null, null);
 			}
 			stopMeasuring();
 		}
-	} finally {
+	}
+	finally {
 		workingCopy.discardWorkingCopy();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -636,11 +608,11 @@ public void testPerfReconcile() throws CoreException {
 }
 
 /**
- * Ensures that the reconciler does nothing when the source to reconcile with is
- * the same as the current contents.
+ * Ensures that the reconciler does nothing when the source
+ * to reconcile with is the same as the current contents.
  */
 public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
-	tagAsSummary("Model>Reconcile>Parser", false); // do NOT put in fingerprint
+	tagAsSummary("Model>Completion+Reconcile>Parser", true); // put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -649,11 +621,10 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	ICompilationUnit workingCopy = null;
 	try {
 		ProblemRequestor requestor = new ProblemRequestor();
-		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {
-		}, requestor, null);
+		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 		if (WARMUP_COUNT > 0) {
-			for (int i = 0; i < WARMUP_COUNT; i++) {
+			for (int i=0; i<WARMUP_COUNT; i++) {
 				searchAllTypeNames(scope);
 				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
 				assertNotNull("Compilation Unit should not be null!", unit);
@@ -664,19 +635,20 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 		// Measures
 		int iterations = 2;
 		resetCounters();
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
 			startMeasuring();
-			for (int n = 0; n < iterations; n++) {
+			for (int n=0; n<iterations; n++) {
 				searchAllTypeNames(scope);
 				workingCopy.reconcile(AST.JLS3, true, null, null);
 			}
 			stopMeasuring();
 		}
-	} finally {
+	}
+	finally {
 		workingCopy.discardWorkingCopy();
 	}
-
+	
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -684,51 +656,39 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 }
 
 /*
- * Performance test for looking up package fragments (see bug 72683 Slow code
- * assist in Display view)
+ * Performance test for looking up package fragments
+ * (see bug 72683 Slow code assist in Display view)
  */
 public void testPerfSeekPackageFragments() throws CoreException {
 	assertNotNull("We should have the 'BigProject' in workspace!", BIG_PROJECT);
 	class PackageRequestor implements IJavaElementRequestor {
-	ArrayList pkgs = new ArrayList();
-
-	public void acceptField(IField field) {
+		ArrayList pkgs = new ArrayList();
+		public void acceptField(IField field) {}
+		public void acceptInitializer(IInitializer initializer) {}
+		public void acceptMemberType(IType type) {}
+		public void acceptMethod(IMethod method) {}
+		public void acceptPackageFragment(IPackageFragment packageFragment) {
+			if (pkgs != null)
+				pkgs.add(packageFragment);
+		}
+		public void acceptType(IType type) {}
+		public boolean isCanceled() {
+			return false;
+		}
 	}
-
-	public void acceptInitializer(IInitializer initializer) {
-	}
-
-	public void acceptMemberType(IType type) {
-	}
-
-	public void acceptMethod(IMethod method) {
-	}
-
-	public void acceptPackageFragment(IPackageFragment packageFragment) {
-		if (pkgs != null)
-			pkgs.add(packageFragment);
-	}
-
-	public void acceptType(IType type) {
-	}
-
-	public boolean isCanceled() {
-		return false;
-	}
-	}
-
-	// first pass: ensure all class are loaded, and ensure that the test works
-	// as expected
+	
+	// first pass: ensure all class are loaded, and ensure that the test works as expected
 	PackageRequestor requestor = new PackageRequestor();
-	getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5",
-		false/* not partial match */,
-		requestor);
+	getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5", false/*not partial match*/, requestor);
 	int size = requestor.pkgs.size();
 	IJavaElement[] result = new IJavaElement[size];
 	requestor.pkgs.toArray(result);
-	assertElementsEqual("Unexpected packages", "org.eclipse.jdt.core.tests78.performance5 [in src78 [in " + BIG_PROJECT_NAME
-			+ "]]", result);
-
+	assertElementsEqual(
+		"Unexpected packages",
+		"org.eclipse.jdt.core.tests78.performance5 [in src78 [in "+BIG_PROJECT_NAME+"]]",
+		result
+	);
+	
 	// measure performance
 	requestor.pkgs = null;
 	resetCounters();
@@ -736,9 +696,7 @@ public void testPerfSeekPackageFragments() throws CoreException {
 		runGc();
 		startMeasuring();
 		for (int j = 0; j < ITERATIONS_COUNT; j++) {
-			getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests" + j + "0.performance" + j,
-				false/* not partial match */,
-				requestor);
+			getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests" + j + "0.performance" + j, false/*not partial match*/, requestor);
 		}
 		stopMeasuring();
 	}

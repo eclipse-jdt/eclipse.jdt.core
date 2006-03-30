@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,6 +90,18 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			"syntheticAccess," +
 			"tasks(TODO|FIX|XXX)";
 	
+	// Source paths
+	final static String[] JDT_CORE_SRC_PATHS = {
+		"batch",
+		"codeassist",
+		"compiler",
+		"dom",
+		"eval",
+		"formatter",
+		"model",
+		"search"
+	};
+	
 	/**
 	 * @param name
 	 */
@@ -98,8 +110,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-//		TESTS_PREFIX = "testBatch";
-//		TESTS_NAMES = new String[] { "testFullBuild", "testBatch" };
+//		TESTS_PREFIX = "testCompile";
+//		TESTS_NAMES = new String[] { "testFullBuildProjectNoWarning" };
 	}
 
 	public static Test suite() {
@@ -206,10 +218,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 					try {
 						parseFile(workspacePath+PARSER_WORKING_COPY.getPath(), kind, ITERATIONS_COUNT*6);
 					} catch (InvalidInputException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -347,7 +357,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testScanner() throws InvalidInputException, IOException, CoreException {
 		// Do no longer print result in performance fingerprint
-		tagAsSummary("Compile>Scan>Parser>Default", true); // put in fingerprint
+		tagAsSummary("Compile>Scan>Parser>Default", false); // do NOT put in fingerprint
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -360,10 +370,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				try {
 					scanFile(workspacePath+PARSER_WORKING_COPY.getPath(), 1/*scan tokens+get identifiers*/);
 				} catch (InvalidInputException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -410,21 +418,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	/**
-	 * Full build with no warning.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
-	 */
-	public void _testFullBuildNoWarning() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		build(null, warningOptions(-1/*no warning*/), false);
-	}
-
-	/**
 	 * Full build with JavaCore default options.
 	 * 
 	 * WARNING:
@@ -436,23 +429,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
-		tagAsGlobalSummary("Compile>Build>Full>Wksp>Default warnings", true); // put in fingerprint
+		tagAsGlobalSummary("Compile>Build>Full>Wksp>Default warnings", true); // put in global fingerprint
 		build(null, warningOptions(0/*default warnings*/), false);
-	}
-
-	/**
-	 * Full build with all warnings.
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws CoreException
-	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
-	 */
-	public void _testFullBuildAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		build(null, warningOptions(1/*all warnings*/), false);
 	}
 
 	/**
@@ -463,8 +441,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>No warning", false); // do NOT put in fingerprint
-		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), false);
+		tagAsSummary("Compile>Build>Full>Project>No warning", true); // put in fingerprint
+		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), true);
 	}
 
 	/**
@@ -475,7 +453,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectDefault() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>Default warnings", false); // put in fingerprint
+		tagAsSummary("Compile>Build>Full>Project>Default warnings", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(0/*default warnings*/), false);
 	}
 
@@ -487,7 +465,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Compile>Build>Full>Project>All warnings", false); // do NOT put in fingerprint
+		tagAsSummary("Compile>Build>Full>Project>All warnings", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(1/*all warnings*/), false);
 	}
 
@@ -498,10 +476,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
-		tagAsSummary("Compile>Batch>Compiler>No warning", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/);
+		tagAsSummary("Compile>Batch>Compiler>No warning", false); // do NOT put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/, null);
 	}
 
 	/**
@@ -511,11 +490,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerDefault() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "", true/*log errors*/, null);
 	}
 
 	/**
@@ -525,11 +504,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", true/*log errors*/, null);
 	}
 
 	/**
@@ -539,11 +518,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerAllJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:allJavadoc", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "-warn:allJavadoc", true/*log errors*/, null);
 	}
 
 	/**
@@ -553,11 +532,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * before put it in builds performance results.
 	 * 
 	 * @throws IOException
-	 * TODO (frederic) remove when results on new tests will be verified with releng output
+	 * TODO (frederic) remove for 3.2 RC1
 	 */
 	public void _testBatchCompilerAllWarnings() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, true/*log errors*/, null);
 	}
 
 	/**
@@ -567,8 +546,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>No warning", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/);
+		tagAsSummary("Compile>Project>JDT/Core>No warning", true); // put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -578,8 +557,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>Default warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "", false/*no log*/);
+		tagAsSummary("Compile>Project>JDT/Core>Default warnings", true); // put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -589,8 +568,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/);
+		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", true); // put in fingerprint
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -600,8 +579,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>JDT/Core>All warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/);
+		tagAsSummary("Compile>Project>JDT/Core>All warnings", true); // put in fingerprint
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -611,7 +590,28 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileSWTProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile>Project>SWT>Default warnings", false); // do NOT put in fingerprint
-		compile("org.eclipse.swt", "", false/*no log*/);
+		tagAsSummary("Compile>Project>SWT>Default warnings", true); // put in fingerprint
+		String[] sourcePaths = {
+				"Eclipse SWT/win32",
+				"Eclipse SWT/common",
+				"Eclipse SWT/common_j2se",
+				"Eclipse SWT PI/win32",
+				"Eclipse SWT PI/common_j2se",
+				"Eclipse SWT OLE Win32/win32",
+				"Eclipse SWT Accessibility/win32",
+				"Eclipse SWT Accessibility/common",
+				"Eclipse SWT AWT/win32",
+				"Eclipse SWT AWT/common",
+				"Eclipse SWT Drag and Drop/win32",
+				"Eclipse SWT Drag and Drop/common",
+				"Eclipse SWT Printing/win32",
+				"Eclipse SWT Printing/common",
+				"Eclipse SWT Program/win32",
+				"Eclipse SWT Program/common",
+				"Eclipse SWT Custom Widgets/common",
+				"Eclipse SWT Browser/common",
+				"Eclipse SWT Browser/win32",
+		};
+		compile("org.eclipse.swt", "", false/*no log*/, sourcePaths);
 	}
 }

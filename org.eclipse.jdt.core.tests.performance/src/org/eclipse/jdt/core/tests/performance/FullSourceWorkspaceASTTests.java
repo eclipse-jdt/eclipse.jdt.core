@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -551,13 +551,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			parser.setResolveBindings(astLevel!=AST.JLS2);
 			parser.createAST(null);
 		}
-		
-		// Clean memory
-		runGc();
-		
+
 		// Measures
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			ASTNode result = null;
+			runGc();
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
 				ASTParser parser = ASTParser.newParser(astLevel);
@@ -695,7 +693,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		}
 
 		// warm up
-		 parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {
+		parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {
 				public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 					IProblem[] problems = ast.getProblems();
 					int length = problems.length;
@@ -710,12 +708,10 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 				}
 			},
 			null);
-		
-		// Clean memory
-		runGc();
-		
+
 		// Measures
 		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
 			startMeasuring();
 			parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {/* do nothing*/}, null);
 			stopMeasuring();
