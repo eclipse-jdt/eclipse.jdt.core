@@ -551,13 +551,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			parser.setResolveBindings(astLevel!=AST.JLS2);
 			parser.createAST(null);
 		}
-		
-		// Clean memory
-		runGc();
-		
+
 		// Measures
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			ASTNode result = null;
+			runGc();
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
 				ASTParser parser = ASTParser.newParser(astLevel);
@@ -710,12 +708,10 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 				}
 			},
 			null);
-		
-		// Clean memory
-		runGc();
-		
+
 		// Measures
 		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
 			startMeasuring();
 			parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {/* do nothing*/}, null);
 			stopMeasuring();

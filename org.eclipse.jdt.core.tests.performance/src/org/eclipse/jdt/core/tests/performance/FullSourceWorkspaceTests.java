@@ -738,7 +738,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected void build(final IJavaProject javaProject, Hashtable options, boolean noWarning) throws IOException, CoreException {
 		if (DEBUG) System.out.print("\tstart build...");
 		JavaCore.setOptions(options);
-		if (PRINT) System.out.println("Options: "+options);
+		if (PRINT) System.out.println("JavaCore options: "+options);
 
 		// Build workspace if no project
 		if (javaProject == null) {
@@ -748,6 +748,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			ENV.fullBuild();
 			stopMeasuring();
 		} else {
+			if (PRINT) System.out.println("Project options: "+javaProject.getOptions(false));
 			// warm-up
 			ENV.fullBuild(javaProject.getProject().getName());
 			
@@ -776,7 +777,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		
 		// Verify markers
-		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IMarker[] markers = workspaceRoot.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 		List resources = new ArrayList();
 		List messages = new ArrayList();
 		int warnings = 0;
@@ -796,7 +798,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					break;
 			}
 		}
-		
+		workspaceRoot.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+
 		// Assert result
 		int size = messages.size();
 		if (size > 0) {
@@ -852,19 +855,57 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	/*
+	 * Clear given options
+	 */
+	Map clearOptions(Map options) {
+		// turn all errors and warnings into ignore. The customizable set of compiler
+		// options only contains additional Eclipse options. The standard JDK compiler
+		// options can't be changed anyway.
+		for (Iterator iter= options.keySet().iterator(); iter.hasNext();) {
+			String key= (String)iter.next();
+			String value= (String)options.get(key);
+			if ("error".equals(value) || "warning".equals(value)) {  //$NON-NLS-1$//$NON-NLS-2$
+				// System.out.println("Ignoring - " + key);
+				options.put(key, "ignore"); //$NON-NLS-1$
+			} else if ("enabled".equals(value)) {
+				// System.out.println("	- disabling " + key);
+				options.put(key, "disabled");
+			}
+		}
+		options.put(JavaCore.COMPILER_TASK_TAGS, "");
+		return options;
+	}
+
+	/*
 	 * Full Build using batch compiler
 	 */
-	protected void compile(String pluginID, String options, boolean log) throws IOException, CoreException {
+	protected void compile(String pluginID, String options, boolean log, String[] srcPaths) throws IOException, CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
-		String sources = targetWorkspacePath;
-//		if (JavaCore.PLUGIN_ID.equals(pluginID)) sources += File.separator + "compiler";
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
+		String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath()+File.separator;
+		String binPath = File.separator+"bin"+File.pathSeparator;
+		String classpath = " -cp " +
+			workspacePath+"org.eclipse.osgi" + binPath +
+			workspacePath+"org.eclipse.jface" + binPath +
+			workspacePath+"org.eclipse.core.runtime" + binPath +
+			workspacePath+"org.eclipse.core.resources"+binPath +
+			workspacePath+"org.eclipse.text"+binPath;
+		String sources = srcPaths == null ? " "+targetWorkspacePath : "";
+		if (srcPaths != null) {
+			for (int i=0, l=srcPaths.length; i<l; i++) {
+				String path = workspacePath + pluginID + File.separator + srcPaths[i];
+				if (path.indexOf(" ") > 0) {
+					path = "\"" + path + "\"";
+				}
+				sources += " " + path;
+			}
+		}
 
 		// Warm up
 		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
-		final String cmdLine = sources + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"");
+		final String cmdLine = classpath + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"") + sources;
 		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
 		int warnings = 0;
 		StringWriter errStrWriter = new StringWriter();
@@ -884,6 +925,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		warnings = warmup.globalWarningsCount;
 		if (!log) Util.writeToFile(errStrWriter.toString(), logFileName);
+
+		// Clean writer
+		err = null;
+		out = null;
+		errStrWriter = null;
 
 		// Measures
 		for (int i = 0; i < MEASURES_COUNT; i++) {
@@ -1254,19 +1300,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected Hashtable warningOptions(int kind) {
 
 		// Values
-		Hashtable optionsMap = null;
-		switch (kind) {
-			case 0:
-				optionsMap = JavaCore.getDefaultOptions();
-				break;
-			default:
-				optionsMap = new Hashtable(350);
-				break;
-		}
+		Hashtable optionsMap = JavaCore.getDefaultOptions();
 		if (kind == 0) {
 			// Default set since 3.1
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
 		} else {
+			clearOptions(optionsMap);
 			boolean all = kind == 1;
 			String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
 			String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;

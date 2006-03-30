@@ -90,6 +90,18 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			"syntheticAccess," +
 			"tasks(TODO|FIX|XXX)";
 	
+	// Source paths
+	final static String[] JDT_CORE_SRC_PATHS = {
+		"batch",
+		"codeassist",
+		"compiler",
+		"dom",
+		"eval",
+		"formatter",
+		"model",
+		"search"
+	};
+	
 	/**
 	 * @param name
 	 */
@@ -99,7 +111,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	static {
 //		TESTS_PREFIX = "testCompile";
-//		TESTS_NAMES = new String[] { "testFullBuild", "testBatch" };
+//		TESTS_NAMES = new String[] { "testFullBuildProjectNoWarning" };
 	}
 
 	public static Test suite() {
@@ -430,7 +442,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Full>Project>No warning", true); // put in fingerprint
-		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), false);
+		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), true);
 	}
 
 	/**
@@ -468,7 +480,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>No warning", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/, null);
 	}
 
 	/**
@@ -482,7 +494,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void _testBatchCompilerDefault() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "", true/*log errors*/, null);
 	}
 
 	/**
@@ -496,7 +508,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void _testBatchCompilerJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", true/*log errors*/, null);
 	}
 
 	/**
@@ -510,7 +522,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void _testBatchCompilerAllJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:allJavadoc", true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, "-warn:allJavadoc", true/*log errors*/, null);
 	}
 
 	/**
@@ -524,7 +536,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void _testBatchCompilerAllWarnings() throws IOException, CoreException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, true/*log errors*/);
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, true/*log errors*/, null);
 	}
 
 	/**
@@ -535,7 +547,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile>Project>JDT/Core>No warning", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/);
+		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -546,7 +558,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
 		tagAsSummary("Compile>Project>JDT/Core>Default warnings", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "", false/*no log*/);
+		compile(JavaCore.PLUGIN_ID, "", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -557,7 +569,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile>Project>JDT/Core>Javadoc warnings", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/);
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -568,7 +580,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
 		tagAsSummary("Compile>Project>JDT/Core>All warnings", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/);
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -579,6 +591,27 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileSWTProjectDefault() throws IOException, CoreException {
 		tagAsSummary("Compile>Project>SWT>Default warnings", true); // put in fingerprint
-		compile("org.eclipse.swt", "", false/*no log*/);
+		String[] sourcePaths = {
+				"Eclipse SWT/win32",
+				"Eclipse SWT/common",
+				"Eclipse SWT/common_j2se",
+				"Eclipse SWT PI/win32",
+				"Eclipse SWT PI/common_j2se",
+				"Eclipse SWT OLE Win32/win32",
+				"Eclipse SWT Accessibility/win32",
+				"Eclipse SWT Accessibility/common",
+				"Eclipse SWT AWT/win32",
+				"Eclipse SWT AWT/common",
+				"Eclipse SWT Drag and Drop/win32",
+				"Eclipse SWT Drag and Drop/common",
+				"Eclipse SWT Printing/win32",
+				"Eclipse SWT Printing/common",
+				"Eclipse SWT Program/win32",
+				"Eclipse SWT Program/common",
+				"Eclipse SWT Custom Widgets/common",
+				"Eclipse SWT Browser/common",
+				"Eclipse SWT Browser/win32",
+		};
+		compile("org.eclipse.swt", "", false/*no log*/, sourcePaths);
 	}
 }
