@@ -279,10 +279,12 @@ public class AptConfig {
 	    			}
     			}
     			else if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-	    			IPath otherProjectPath = entry.getPath();
-					IProject otherProject = (IProject)root.getContainerForLocation(otherProjectPath);
+    				IPath otherProjectPath = entry.getPath();
+    				IProject otherProject = root.getProject(otherProjectPath.segment(0));
 					IJavaProject yetAnotherJavaProject = JavaCore.create(otherProject);
-					addProjectClasspath(root, yetAnotherJavaProject, projectsProcessed, classpath);
+					if (yetAnotherJavaProject != null) {
+						addProjectClasspath(root, yetAnotherJavaProject, projectsProcessed, classpath);
+					}
     			}
     			// Ignore source types
     		}
