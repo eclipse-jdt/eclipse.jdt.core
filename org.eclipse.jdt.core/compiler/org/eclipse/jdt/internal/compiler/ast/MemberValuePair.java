@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -72,18 +71,18 @@ public class MemberValuePair extends ASTNode {
 		}
 
 		this.value.setExpectedType(requiredType); // needed in case of generic method invocation
+		TypeBinding valueType;
 		if (this.value instanceof ArrayInitializer) {
 			ArrayInitializer initializer = (ArrayInitializer) this.value;
-			if ((initializer.resolveTypeExpecting(scope, this.binding.returnType)) != null) {
-				this.value.resolvedType = initializer.binding = (ArrayBinding) this.binding.returnType;
-			}			
+			valueType = initializer.resolveTypeExpecting(scope, this.binding.returnType);
 		} else if (this.value instanceof ArrayAllocationExpression) {
-			scope.problemReporter().annotationValueMustBeArrayInitializer(this.value);				
-		} else {
+			scope.problemReporter().annotationValueMustBeArrayInitializer(this.value);
 			this.value.resolveType(scope);
+			valueType = null; // no need to pursue
+		} else {
+			valueType = this.value.resolveType(scope);
 		}
 		this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
-		TypeBinding valueType = this.value.resolvedType;
 		if (valueType == null)
 			return;
 

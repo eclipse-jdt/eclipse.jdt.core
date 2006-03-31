@@ -30099,4 +30099,111 @@ public void test0958() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133803
+public void test0959() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"import java.lang.ref.*;\n" + 
+			"\n" + 
+			"class Soft extends SoftReference<String> {\n" + 
+			"    Soft() { super(null); }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Bug {\n" + 
+			"    void m(Reference<? extends Number> remove) {\n" + 
+			"        Soft soft= (Soft) remove;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Soft soft= (Soft) remove;\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Reference<capture-of ? extends Number> to Soft\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118273
+public void test0960() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X<A> {\n" + 
+			"        <B extends Comparable<B>> X<B> newInstance() {\n" + 
+			"                return new X<B>();\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        X<String>[] bugDemo() {\n" + 
+			"                X x = newInstance();\n" + 
+			"                return new X[] { x };\n" + 
+			"        }\n" + 
+			"    Zork z;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X x = newInstance();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	return new X[] { x };\n" + 
+		"	       ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X[] needs unchecked conversion to conform to X<String>[]\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118273 - variation
+public void test0961() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X<A> {\n" + 
+			"    <B extends Comparable<B>> B newInstance2(X<B> xb) {\n" + 
+			"            return null;\n" + 
+			"    }\n" + 
+			"    void foo() {\n" + 
+			"        X x = new X();\n" + 
+			"        Comparable c = newInstance2(x);\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	X x = new X();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	X x = new X();\n" + 
+		"	          ^\n" + 
+		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	Comparable c = newInstance2(x);\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Comparable c = newInstance2(x);\n" + 
+		"	               ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation newInstance2(X) of the generic method newInstance2(X<B>) of type X<A>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	Comparable c = newInstance2(x);\n" + 
+		"	                            ^\n" + 
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<B>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

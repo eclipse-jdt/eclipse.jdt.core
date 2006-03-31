@@ -5031,6 +5031,65 @@ public void test126() {
 		"The interface member type AInner can only be public\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89347
+public void test127() {
+	this.runConformTest(
+		new String[] {
+			"p/BugContainer.java",
+			"package p;\n" + 
+			"\n" + 
+			"public abstract class BugContainer {\n" + 
+			"        protected static class InternalInfo$ {\n" + 
+			"                public InternalInfo$() {}\n" + 
+			"        }\n" + 
+			"        abstract protected InternalInfo$ getInfo();\n" + 
+			"}\n", // =================
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+				"q/BugUser.java", // =================
+				"package q;\n" + 
+				"\n" + 
+				"import p.BugContainer;\n" + 
+				"\n" + 
+				"public class BugUser extends BugContainer{\n" + 
+				"        protected InternalInfo$ getInfo() {\n" + 
+				"                return new InternalInfo$();\n" + 
+				"        }\n" + 
+				"}", // =================
+			},
+		"",
+		null, 
+		false, 
+		null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89347 - variation
+public void test128() {
+	this.runConformTest(
+		new String[] {
+			"p/BugContainer.java",
+			"package p;\n" + 
+			"\n" + 
+			"public abstract class BugContainer {\n" + 
+			"        protected static class InternalInfo$ {\n" + 
+			"                public InternalInfo$() {}\n" + 
+			"        }\n" + 
+			"        abstract protected InternalInfo$ getInfo();\n" + 
+			"}\n", // =================
+			"q/BugUser.java", // =================
+			"package q;\n" + 
+			"\n" + 
+			"import p.BugContainer;\n" + 
+			"\n" + 
+			"public class BugUser extends BugContainer{\n" + 
+			"        protected InternalInfo$ getInfo() {\n" + 
+			"                return new InternalInfo$();\n" + 
+			"        }\n" + 
+			"}", // =================
+		},
+		"");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

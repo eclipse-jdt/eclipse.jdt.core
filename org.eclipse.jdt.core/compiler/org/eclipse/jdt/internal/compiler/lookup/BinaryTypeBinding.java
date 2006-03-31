@@ -159,16 +159,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
 		: Binding.NO_TYPE_VARIABLES;
 
-	// source name must be one name without "$".
-	char[] possibleSourceName = this.compoundName[this.compoundName.length - 1];
-	int start = CharOperation.lastIndexOf('$', possibleSourceName) + 1;
-	if (start == 0) {
-		this.sourceName = possibleSourceName;
-	} else {
-		this.sourceName = new char[possibleSourceName.length - start];
-		System.arraycopy(possibleSourceName, start, this.sourceName, 0, this.sourceName.length);
-	}
-
+	this.sourceName = binaryType.getSourceName();
 	this.modifiers = binaryType.getModifiers();
 		
 	if (binaryType.isAnonymous()) {

@@ -404,20 +404,18 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 	if (depth > 1)
 		return true;
 	switch (otherType.kind()) {
-	case Binding.TYPE_PARAMETER:
-	case Binding.WILDCARD_TYPE:
-		return false;
+		case Binding.TYPE_PARAMETER:
+		case Binding.WILDCARD_TYPE:
+			return false;
 	}
 	switch (kind()) {
-
 	case Binding.TYPE_PARAMETER:
 	case Binding.WILDCARD_TYPE:
 		return false;
 
 	case Binding.PARAMETERIZED_TYPE:
 		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
-		if (parameterizedType.type.isProvablyDistinctFrom(otherType
-				.erasure(), depth))
+		if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure(), depth))
 			return true;
 		switch (otherType.kind()) {
 		case Binding.GENERIC_TYPE:
@@ -432,8 +430,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 			if (otherArguments == null)
 				return false;
 			for (int i = 0, length = arguments.length; i < length; i++) {
-				if (arguments[i].isProvablyDistinctFrom(otherArguments[i],
-						depth + 1))
+				if (arguments[i].isProvablyDistinctFrom(otherArguments[i], depth + 1))
 					return true;
 			}
 			return false;
@@ -442,8 +439,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 		break;
 
 	case Binding.RAW_TYPE:
-		return this.erasure()
-				.isProvablyDistinctFrom(otherType.erasure(), 0);
+		return this.erasure().isProvablyDistinctFrom(otherType.erasure(), 0);
 
 	case Binding.GENERIC_TYPE:
 		return this != otherType.erasure();

@@ -6432,4 +6432,61 @@ public void test196() {
 		"The value for annotation attribute X.theValue must be a constant expression\n" + 
 		"----------\n");
 }
+// no override between package private methods
+public void test197() {
+    this.runNegativeTest(
+        new String[] {
+            "p/X.java",
+            "package p;\n" +
+			"public class X extends q.OldStuff {\n" + 
+			"	@Override\n" + 
+			"	void foo() {\n" + 
+			"	}\n" + 
+			"}\n",
+            "q/OldStuff.java",
+            "package q;\n" +
+			"public class OldStuff {\n" + 
+			"	void foo() {\n" + 
+			"	}	\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 4)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method X.foo() does not override the inherited method from OldStuff since it is private to a different package.\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 4)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() of type X must override a superclass method\n" + 
+		"----------\n");
+}    
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134129
+public void test198() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"@interface Anno {\n" + 
+			"        boolean b() default false;\n" + 
+			"        String[] c() default \"\";\n" + 
+			"}\n" + 
+			"@Anno(b = {})\n" + 
+			"public class X {\n" + 
+			"	@Anno(c = { 0 })\n" + 
+			"	void foo(){}\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	@Anno(b = {})\n" + 
+		"	          ^^\n" + 
+		"Type mismatch: cannot convert from Object[] to boolean\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	@Anno(c = { 0 })\n" + 
+		"	            ^\n" + 
+		"Type mismatch: cannot convert from int to String\n" + 
+		"----------\n");
+}    
 }

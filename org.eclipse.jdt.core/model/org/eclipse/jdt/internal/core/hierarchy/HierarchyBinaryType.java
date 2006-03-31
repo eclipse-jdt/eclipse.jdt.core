@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
 	private int modifiers;
+	private char[] sourceName;
 	private char[] name;
 	private char[] enclosingTypeName;
 	private char[] superclass;
@@ -30,13 +31,14 @@ public class HierarchyBinaryType implements IBinaryType {
 	private char[][] typeParameterSignatures;
 	private char[] genericSignature;
 	
-public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName, char[] enclosingTypeName, char[][] typeParameterSignatures, char typeSuffix){
+public HierarchyBinaryType(int modifiers, char[] qualification, char[] sourceName, char[] enclosingTypeName, char[][] typeParameterSignatures, char typeSuffix){
 
 	this.modifiers = modifiers;
+	this.sourceName = sourceName;
 	if (enclosingTypeName == null){
-		this.name = CharOperation.concat(qualification, typeName, '/');
+		this.name = CharOperation.concat(qualification, sourceName, '/');
 	} else {
-		this.name = CharOperation.concat(qualification, '/', enclosingTypeName, '$', typeName); //rebuild A$B name
+		this.name = CharOperation.concat(qualification, '/', enclosingTypeName, '$', sourceName); //rebuild A$B name
 		this.enclosingTypeName = CharOperation.concat(qualification, enclosingTypeName,'/');
 		CharOperation.replace(this.enclosingTypeName, '.', '/');
 	}
@@ -126,6 +128,11 @@ public int getModifiers() {
 public char[] getName() {
 	return this.name;
 }
+
+public char[] getSourceName() {
+	return this.sourceName;
+}
+
 /**
  * Answer the resolved name of the receiver's superclass in the
  * class file format as specified in section 4.2 of the Java 2 VM spec

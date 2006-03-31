@@ -70,14 +70,21 @@ IBinaryNestedType[] getMemberTypes();
  */
 
 IBinaryMethod[] getMethods();
+
 /**
  * Answer the resolved name of the type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec.
  *
  * For example, java.lang.String is java/lang/String.
  */
-
 char[] getName();
+
+/**
+ * Answer the simple name of the type in the class file.
+ * For member A$B, will answer B.
+ * For anonymous will answer null.
+ */
+char[] getSourceName();
 
 /**
  * Answer the resolved name of the receiver's superclass in the

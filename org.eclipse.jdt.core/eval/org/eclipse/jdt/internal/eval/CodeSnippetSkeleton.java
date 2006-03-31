@@ -135,6 +135,9 @@ public int getModifiers() {
 public char[] getName() {
 	return CODE_SNIPPET_NAME;
 }
+public char[] getSourceName() {
+	return ROOT_CLASS_NAME;
+}
 public char[] getSuperclassName() {
 	return null;
 }

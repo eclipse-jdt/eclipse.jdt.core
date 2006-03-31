@@ -90,6 +90,7 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
 	private MethodInfo[] methods;
 	private int methodsCount;
 	private char[] signature;
+	private char[] sourceName;
 	private char[] sourceFileName;
 	private char[] superclassName;
 	private long tagBits;
@@ -546,6 +547,28 @@ public int getModifiers() {
 public char[] getName() {
 	return this.className;
 }
+public char[] getSourceName() {
+	if (this.sourceName != null) 
+		return this.sourceName;
+	
+	this.sourceName = getInnerSourceName(); // member or local scenario
+	if (this.sourceName == null) {
+		char[] name = getName(); // extract from full name
+		int start;
+		if (isAnonymous()) {
+			start = CharOperation.indexOf('$', name, CharOperation.lastIndexOf('/', name) + 1) + 1;			
+		} else {
+			start = CharOperation.lastIndexOf('/', name) + 1;			
+		}
+		if (start == 0) {
+			this.sourceName = name;
+		} else {
+			this.sourceName = new char[name.length - start];
+			System.arraycopy(name, start, this.sourceName, 0, this.sourceName.length);
+		}	
+	}
+	return this.sourceName;	
+}
 /**
  * Answer the resolved name of the receiver's superclass in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
@@ -876,8 +899,8 @@ private void initialize() throws ClassFormatException {
  */
 public boolean isAnonymous() {
 	if (this.innerInfo == null) return false;
-	char[] sourceName = this.innerInfo.getSourceName();
-	return (sourceName == null || sourceName.length == 0);
+	char[] innerSourceName = this.innerInfo.getSourceName();
+	return (innerSourceName == null || innerSourceName.length == 0);
 }
 /**
  * Answer whether the receiver contains the resolved binary form
@@ -896,8 +919,8 @@ public boolean isBinaryType() {
 public boolean isLocal() {
 	if (this.innerInfo == null) return false;
 	if (this.innerInfo.getEnclosingTypeName() != null) return false;
-	char[] sourceName = this.innerInfo.getSourceName();
-	return (sourceName != null && sourceName.length > 0);	
+	char[] innerSourceName = this.innerInfo.getSourceName();
+	return (innerSourceName != null && innerSourceName.length > 0);	
 }
 /**
  * Answer true if the receiver is a member type, false otherwise
@@ -907,8 +930,8 @@ public boolean isLocal() {
 public boolean isMember() {
 	if (this.innerInfo == null) return false;
 	if (this.innerInfo.getEnclosingTypeName() == null) return false;
-	char[] sourceName = this.innerInfo.getSourceName();
-	return (sourceName != null && sourceName.length > 0);	 // protection against ill-formed attributes (67600)
+	char[] innerSourceName = this.innerInfo.getSourceName();
+	return (innerSourceName != null && innerSourceName.length > 0);	 // protection against ill-formed attributes (67600)
 }
 /**
  * Answer true if the receiver is a nested type, false otherwise
