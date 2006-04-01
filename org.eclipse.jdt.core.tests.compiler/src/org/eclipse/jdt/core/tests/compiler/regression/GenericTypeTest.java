@@ -30100,7 +30100,7 @@ public void test0958() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133803
-public void test0959() {
+public void _test0959() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", //================================
