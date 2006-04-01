@@ -89,9 +89,7 @@ public class ExceptionHandlingTests extends APTTestBase {
 
 		fullBuild( project.getFullPath() );
 		ExpectedProblem ep = new ExpectedProblem("Test", "Type mismatch: cannot convert from Object[] to boolean", testPath);
-		// JDT seems to be reporting multiple problems for a single failure.
-		// It should not be necessary to include the problem twice
-		expectingOnlySpecificProblemsFor(testPath, new ExpectedProblem[]{ep, ep});
+		expectingOnlySpecificProblemFor(testPath, ep);
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
@@ -140,7 +138,7 @@ public class ExceptionHandlingTests extends APTTestBase {
 
 		fullBuild( project.getFullPath() );
 		ExpectedProblem ep = new ExpectedProblem("Test", "Type mismatch: cannot convert from Object[] to String", testPath);
-		expectingOnlySpecificProblemsFor(testPath, new ExpectedProblem[] {ep, ep}); 
+		expectingOnlySpecificProblemFor(testPath, ep); 
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
