@@ -47,8 +47,25 @@ static ArrayList builtProjects = null;
 
 public static IMarker[] getProblemsFor(IResource resource) {
 	try {
-		if (resource != null && resource.exists())
-			return resource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		if (resource != null && resource.exists()) {
+			IMarker[] markers = resource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
+			if (markerTypes.isEmpty()) return markers;
+			ArrayList markerList = new ArrayList(5);
+			for (int i = 0, length = markers.length; i < length; i++) {
+				markerList.add(markers[i]);
+			}
+			Iterator iterator = markerTypes.iterator();
+			while (iterator.hasNext()) {
+				markers = resource.findMarkers((String) iterator.next(), false, IResource.DEPTH_INFINITE);
+				for (int i = 0, length = markers.length; i < length; i++) {
+					markerList.add(markers[i]);
+				}
+			}
+			IMarker[] result;
+			markerList.toArray(result = new IMarker[markerList.size()]);
+			return result;
+		}
 	} catch (CoreException e) {
 		// assume there are no problems
 	}
