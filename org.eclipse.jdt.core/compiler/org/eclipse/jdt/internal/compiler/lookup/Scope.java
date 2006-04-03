@@ -1679,6 +1679,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 											if (problemField == null)
 												problemField = temp;
 										} else if (temp.isStatic()) {
+											if (foundField == temp) continue;
 											ImportReference importReference = importBinding.reference;
 											if (importReference != null) importReference.used = true;
 											if (foundInImport)

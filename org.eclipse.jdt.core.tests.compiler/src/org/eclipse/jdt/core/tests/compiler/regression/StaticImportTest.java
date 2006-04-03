@@ -1479,7 +1479,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	               ^^^^^\n" + 
 			"The method foo_I() is undefined for the type X\n" + 
 			"----------\n");
-	}		
+	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490 - variation
 	public void test040() {
 		this.runConformTest(
@@ -1517,5 +1517,30 @@ public class StaticImportTest extends AbstractComparableTest {
 			null,
 			false,
 			null);
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134118
+	public void test041() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import static p.I.*;\n" + 
+				"import static p.J.*;\n" + 
+				"public class Test {\n" + 
+				"	int i = Constant;\n" + 
+				"}\n",
+				"p/I.java",
+				"package p;\n" + 
+				"public interface I { static int Constant = 1; }\n",
+				"p/J.java",
+				"package p;\n" + 
+				"public interface J extends I {}\n"	,			
+			},
+			"----------\n" + 
+			"1. WARNING in Test.java (at line 2)\n" + 
+			"	import static p.J.*;\n" + 
+			"	              ^^^\n" + 
+			"The import p.J is never used\n" + 
+			"----------\n"
+		);
+	}
 }
