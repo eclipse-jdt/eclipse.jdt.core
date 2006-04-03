@@ -104,7 +104,9 @@ public static void removeProblemsFor(IResource resource) {
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 			
 			// delete managed markers
-			Iterator iterator = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes().iterator();
+			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
+			if (markerTypes.size() == 0) return;
+			Iterator iterator = markerTypes.iterator();
 			while (iterator.hasNext())
 				resource.deleteMarkers((String) iterator.next(), false, IResource.DEPTH_INFINITE);
 		}
@@ -129,7 +131,9 @@ public static void removeProblemsAndTasksFor(IResource resource) {
 			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
 			
 			// delete managed markers
-			Iterator iterator = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes().iterator();
+			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
+			if (markerTypes.size() == 0) return;
+			Iterator iterator = markerTypes.iterator();
 			while (iterator.hasNext())
 				resource.deleteMarkers((String) iterator.next(), false, IResource.DEPTH_INFINITE);
 		}

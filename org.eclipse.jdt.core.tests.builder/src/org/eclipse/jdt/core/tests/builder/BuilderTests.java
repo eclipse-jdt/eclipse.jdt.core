@@ -91,6 +91,17 @@ public class BuilderTests extends TestCase {
 
 	}
 
+	protected void expectingParticipantProblems(IPath path, String expected) {
+		Problem[] problems = env.getProblemsFor(path, "org.eclipse.jdt.core.tests.compile.problem");
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0, length = problems.length; i < length; i++) {
+			Problem problem = problems[i];
+			buf.append(problem.getMessage());
+			if (i < length - 1) buf.append('\n');
+		}
+		assertEquals("Unexpected problems", expected, buf.toString());		
+	}
+
 	/** Verifies that given element is not present.
 	 */
 	protected void expectingPresenceOf(IPath path) {

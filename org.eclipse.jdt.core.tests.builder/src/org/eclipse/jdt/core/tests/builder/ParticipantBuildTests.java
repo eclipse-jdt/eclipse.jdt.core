@@ -65,7 +65,7 @@ public class ParticipantBuildTests extends BuilderTests {
 		public void setSourceLineNumber(int lineNumber)  {/* not needed */}
 		public void setSourceStart(int sourceStart) {/* not needed */}
 		public int getCategoryID() { return 0; }
-		public String getMarkerType() { return "Test_Marker"; }
+		public String getMarkerType() { return "org.eclipse.jdt.core.tests.compile.problem"; }
 	}
 
 	CompilationUnit buildCompilationUnit(BuildContext file) {
@@ -78,7 +78,7 @@ public class ParticipantBuildTests extends BuilderTests {
 		p.setUnitName(file.getFile().getName());
 		return (CompilationUnit) p.createAST(null);
 	}
-
+	
 	public void testBuildStarting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -199,6 +199,45 @@ public class ParticipantBuildTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingNoProblems();
+	}
+	
+	/*
+	 * Ensure that participants problems are correctly managed by the Java builder
+	 * (regression test for bug 134345 Problems from CompilationParticipants do not get cleaned up unless there are Java errors)
+	 */
+	public void testParticipantProblems() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); 
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "p", "X", 
+			"package p;\n" + 
+			"public class X { /* generate problem*/ }"
+			);
+
+		// install compilationParticipant
+		new BuildTestParticipant() {
+			public void buildStarting(BuildContext[] files, boolean isBatch) {
+				for (int i = 0, total = files.length; i < total; i++) {
+					BuildContext context = files[i];
+					if (CharOperation.indexOf("generate problem".toCharArray(), context.getContents(), true) != -1) {
+						context.recordNewProblems(new CategorizedProblem[] {new ParticipantProblem("Participant problem", context.getFile().getFullPath().toString())});
+					}
+				}
+			}
+		};
+
+		fullBuild(projectPath);
+		expectingParticipantProblems(projectPath, "Participant problem");
+		
+		env.addClass(root, "p", "X", 
+			"package p;\n" + 
+			"public class X { }"
+			);
+		incrementalBuild(projectPath);
+		expectingParticipantProblems(projectPath, "");
 	}
 
 	public void testProcessAnnotationDeclarations() throws JavaModelException {
