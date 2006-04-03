@@ -1560,9 +1560,16 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
-					if (this.destinationPath != null)
+					if (this.destinationPath != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateOutputPath", currentArg)); //$NON-NLS-1$
+							Main.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
+					}
 					mode = INSIDE_DESTINATION_PATH;
 					this.generatePackagesStructure = true;
 					continue;
@@ -1573,23 +1580,44 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
-					if (bootclasspaths.size() > 0)
+					if (bootclasspaths.size() > 0) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
+							Main.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
+					}
 					mode = INSIDE_BOOTCLASSPATH;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-					if (sourcepathClasspaths.size() > 0)
+					if (sourcepathClasspaths.size() > 0) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
+							Main.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
+					}
 					mode = INSIDE_SOURCE_PATH;
 					continue;
 				}
 				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-					if (extdirsNames.size() > 0)
+					if (extdirsNames.size() > 0) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
+							Main.bind("configure.duplicateExtdirs", errorMessage.toString())); //$NON-NLS-1$
+					}
 					mode = INSIDE_EXT_DIRS;
 					continue;
 				}

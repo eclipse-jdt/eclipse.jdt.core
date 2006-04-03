@@ -1524,7 +1524,7 @@ public void test019(){
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "",
-	        "duplicate sourcepath specification: -sourcepath\n",
+	        "duplicate sourcepath specification: -sourcepath ---OUTPUT_DIR_PLACEHOLDER---/src2\n",
 	        true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -extdirs fails
@@ -1547,7 +1547,7 @@ public void test019(){
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 		        "",
-		        "duplicate extdirs specification: -extdirs\n",
+		        "duplicate extdirs specification: -extdirs ---OUTPUT_DIR_PLACEHOLDER---/src2\n",
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
