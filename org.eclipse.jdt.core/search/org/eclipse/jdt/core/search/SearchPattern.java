@@ -1059,11 +1059,11 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *					<li>{@link IJavaSearchConstants#IGNORE_DECLARING_TYPE}: declaring type will be ignored
  *							during the search.<br>
  *							For example using following test case:
- *							<pre>
- *								class A { A method() { return null; } }
- *								class B extends A { B method() { return null; } }
- *								class C { A method() { return null; } }
- *							</pre>
+ *					<pre>
+ *                  class A { A method() { return null; } }
+ *                  class B extends A { B method() { return null; } }
+ *                  class C { A method() { return null; } }
+ *					</pre>
  *							search for <code>method</code> declaration with this flag
  *							will return 2 matches: in A and in C
  *					</li>
@@ -1072,7 +1072,7 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *							Using same example, search for <code>method</code> declaration with this flag
  *							will return 2 matches: in A and in B.
  *					</li>
- *				<ul>
+ *				</ul>
  *				Note that these two flags may be combined and both declaring and return types can be ignored
  *				during the search. Then, using same example, search for <code>method</code> declaration
  *				with these 2 flags will return 3 matches: in A, in B  and in C
@@ -1106,11 +1106,11 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *					<li>{@link IJavaSearchConstants#IGNORE_DECLARING_TYPE}: declaring type will be ignored
  *							during the search.<br>
  *							For example using following test case:
- *							<pre>
- *								class A { A method() { return null; } }
- *								class B extends A { B method() { return null; } }
- *								class C { A method() { return null; } }
- *							</pre>
+ *					<pre>
+ *                  class A { A method() { return null; } }
+ *                  class B extends A { B method() { return null; } }
+ *                  class C { A method() { return null; } }
+ *					</pre>
  *							search for <code>method</code> declaration with this flag
  *							will return 2 matches: in A and in C
  *					</li>
@@ -1119,7 +1119,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *							Using same example, search for <code>method</code> declaration with this flag
  *							will return 2 matches: in A and in B.
  *					</li>
- *				<ul>
+ *				</ul>
  *				Note that these two flags may be combined and both declaring and return types can be ignored
  *				during the search. Then, using same example, search for <code>method</code> declaration
  *				with these 2 flags will return 3 matches: in A, in B  and in C
