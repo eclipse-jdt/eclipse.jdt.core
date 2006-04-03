@@ -274,7 +274,7 @@ public void test011() {
 	},
 	"SUCCESS");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86813
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86813
 public void test012() {
 	this.runConformTest(new String[] {
 		"X.java",
