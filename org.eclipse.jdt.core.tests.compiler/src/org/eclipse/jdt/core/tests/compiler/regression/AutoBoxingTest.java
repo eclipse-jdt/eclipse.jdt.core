@@ -1044,8 +1044,10 @@ public class AutoBoxingTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		

@@ -387,7 +387,7 @@ public class SwitchStatement extends Statement {
 		// generated (if any), and have them directly branch to a better
 		// location (the argument label).
 		// we know at this point that the breakLabel already got placed
-		if (this.breakLabel.hasForwardReferences()) {
+		if (this.breakLabel.forwardReferenceCount > 0) {
 			label.appendForwardReferencesFrom(this.breakLabel);
 		}
 	}

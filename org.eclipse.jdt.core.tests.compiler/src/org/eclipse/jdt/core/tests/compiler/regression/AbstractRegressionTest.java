@@ -91,9 +91,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				FileInputStream stream = new FileInputStream(f);
 				ClassFileReader.read(stream, className + ".class", true);
 				stream.close();
-			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e1) {
+			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+				e.printStackTrace();
 				assertTrue("ClassFormatException", false);
-			} catch (IOException e1) {
+			} catch (IOException e) {
+				e.printStackTrace();
 				assertTrue("IOException", false);
 			}
 		} finally {

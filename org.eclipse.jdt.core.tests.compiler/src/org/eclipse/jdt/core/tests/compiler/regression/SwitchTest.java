@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+
 import junit.framework.Test;
 
 public class SwitchTest extends AbstractRegressionTest {
@@ -266,6 +273,87 @@ public void test011() {
 		"}\n",
 	},
 	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86813
+public void test012() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    boolean x= true;\n" + 
+		"    try {\n" + 
+		"      int i= 1;\n" + 
+		"      switch (i) { // <-- breakpoint here\n" + 
+		"        case 1:\n" + 
+		"          break;      //step 1 \n" + 
+		"        case 2:\n" + 
+		"          x = false;   //step 2 \n" + 
+		"          break;\n" + 
+		"      }\n" + 
+		"    }catch(Exception e) {\n" + 
+		"    }\n" + 
+		"    System.out.println(\"SUCCESS\");\n" + 
+		"  }\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+
+	String expectedOutput = 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [x]\n" + 
+		"     2  iconst_1\n" + 
+		"     3  istore_2 [i]\n" + 
+		"     4  iload_2 [i]\n" + 
+		"     5  tableswitch default: 33\n" + 
+		"          case 1: 28\n" + 
+		"          case 2: 31\n" + 
+		"    28  goto 37\n" + 
+		"    31  iconst_0\n" + 
+		"    32  istore_1 [x]\n" + 
+		"    33  goto 37\n" + 
+		"    36  astore_2\n" + 
+		"    37  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    40  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    42  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    45  return\n" + 
+		"      Exception Table:\n" + 
+		"        [pc: 2, pc: 36] -> 36 when : java.lang.Exception\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 5]\n" + 
+		"        [pc: 4, line: 6]\n" + 
+		"        [pc: 28, line: 8]\n" + 
+		"        [pc: 31, line: 10]\n" + 
+		"        [pc: 36, line: 13]\n" + 
+		"        [pc: 37, line: 15]\n" + 
+		"        [pc: 45, line: 16]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 46] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 46] local: x index: 1 type: boolean\n" + 
+		"        [pc: 4, pc: 36] local: i index: 2 type: int\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		e.printStackTrace();
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		e.printStackTrace();
+		assertTrue("IOException", false);
+	}		
 }
 public static Class testClass() {
 	return SwitchTest.class;

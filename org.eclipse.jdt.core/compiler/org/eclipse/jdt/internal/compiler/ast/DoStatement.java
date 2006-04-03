@@ -167,7 +167,7 @@ public class DoStatement extends Statement {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
-		if (breakLabel.hasForwardReferences()) {
+		if (breakLabel.forwardReferenceCount > 0) {
 			breakLabel.place();
 		}
 

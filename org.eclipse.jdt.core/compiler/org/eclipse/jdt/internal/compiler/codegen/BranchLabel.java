@@ -109,17 +109,17 @@ public void appendForwardReferencesFrom(BranchLabel otherLabel) {
 * Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
-	this.tagBits |= USED;
-	if (position == POS_NOT_SET) {
-		addForwardReference(codeStream.position);
+	this.tagBits |= BranchLabel.USED;
+	if (this.position == Label.POS_NOT_SET) {
+		addForwardReference(this.codeStream.position);
 		// Leave two bytes free to generate the jump afterwards
-		codeStream.position += 2;
-		codeStream.classFileOffset += 2;
+		this.codeStream.position += 2;
+		this.codeStream.classFileOffset += 2;
 	} else {
 		/*
 		 * Position is set. Write it if it is not a wide branch.
 		 */
-		codeStream.writePosition(this);
+		this.codeStream.writePosition(this);
 	}
 }
 
@@ -127,27 +127,21 @@ void branch() {
 * No support for wide branches yet
 */
 void branchWide() {
-	this.tagBits |= USED;
-	if (position == POS_NOT_SET) {
-		addForwardReference(codeStream.position);
+	this.tagBits |= BranchLabel.USED;
+	if (this.position == Label.POS_NOT_SET) {
+		addForwardReference(this.codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
-		this.tagBits |= WIDE;
-		codeStream.position += 4;
-		codeStream.classFileOffset += 4;
+		this.tagBits |= BranchLabel.WIDE;
+		this.codeStream.position += 4;
+		this.codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
-		codeStream.writeWidePosition(this);
+		this.codeStream.writeWidePosition(this);
 	}
 }
 
-/**
- * @return boolean
- */
-public boolean hasForwardReferences() {
-	return forwardReferenceCount != 0;
-}
 public void initialize(CodeStream stream) {
     this.codeStream = stream;
-   	this.position = POS_NOT_SET;
+   	this.position = Label.POS_NOT_SET;
 	this.forwardReferenceCount = 0; 
 }
 public boolean isCaseLabel() {
@@ -160,27 +154,27 @@ public boolean isStandardLabel(){
 * Place the label. If we have forward references resolve them.
 */
 public void place() { // Currently lacking wide support.
-	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
+	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+this.codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
 //	if ((this.tagBits & USED) == 0 && this.forwardReferenceCount == 0) {
 //		return;
 //	}
 
 	//TODO how can position be set already ? cannot place more than once
-	if (position == POS_NOT_SET) {
-		if ((this.tagBits & USED) != 0 || this.forwardReferenceCount != 0) {
-			this.position = codeStream.getPosition();
+	if (this.position == Label.POS_NOT_SET) {
+		if ((this.tagBits & BranchLabel.USED) != 0 || this.forwardReferenceCount != 0) {
+			this.position = this.codeStream.getPosition();
 		} else {
-			this.position = codeStream.position;
+			this.position = this.codeStream.position;
 		}
-		codeStream.addLabel(this);
-		int oldPosition = position;
+		this.codeStream.addLabel(this);
+		int oldPosition = this.position;
 		boolean isOptimizedBranch = false;
-		if (forwardReferenceCount != 0) {
-			isOptimizedBranch = (forwardReferences[forwardReferenceCount - 1] + 2 == position) && (codeStream.bCodeStream[codeStream.classFileOffset - 3] == Opcodes.OPC_goto);
+		if (this.forwardReferenceCount != 0) {
+			isOptimizedBranch = (this.forwardReferences[this.forwardReferenceCount - 1] + 2 == this.position) && (this.codeStream.bCodeStream[this.codeStream.classFileOffset - 3] == Opcodes.OPC_goto);
 			if (isOptimizedBranch) {
-				codeStream.position = (position -= 3);
-				codeStream.classFileOffset -= 3;
-				forwardReferenceCount--;
+				this.codeStream.position = (this.position -= 3);
+				this.codeStream.classFileOffset -= 3;
+				this.forwardReferenceCount--;
 				// also update the PCs in the related debug attributes
 				/* OLD CODE
 					int index = codeStream.pcToSourceMapSize - 1;
@@ -189,34 +183,34 @@ public void place() { // Currently lacking wide support.
 						}
 				*/
 				// Beginning of new code
-				int index = codeStream.pcToSourceMapSize - 2;
-				if (codeStream.lastEntryPC == oldPosition) {
-					codeStream.lastEntryPC = position;
+				int index = this.codeStream.pcToSourceMapSize - 2;
+				if (this.codeStream.lastEntryPC == oldPosition) {
+					this.codeStream.lastEntryPC = this.position;
 				}
-				if ((index >= 0) && (codeStream.pcToSourceMap[index] == position)) {
-					codeStream.pcToSourceMapSize-=2;
+				if ((index >= 0) && (this.codeStream.pcToSourceMap[index] == this.position)) {
+					this.codeStream.pcToSourceMapSize-=2;
 				}
 				// end of new code
-				if ((codeStream.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
-					LocalVariableBinding locals[] = codeStream.locals;
+				if ((this.codeStream.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
+					LocalVariableBinding locals[] = this.codeStream.locals;
 					for (int i = 0, max = locals.length; i < max; i++) {
 						LocalVariableBinding local = locals[i];
 						if ((local != null) && (local.initializationCount > 0)) {
 							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
 								// we want to prevent interval of size 0 to have a negative size.
 								// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
-								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = position;
+								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
 							}
 							if (local.initializationPCs[(local.initializationCount - 1) << 1] == oldPosition) {
-								local.initializationPCs[(local.initializationCount - 1) << 1] = position;
+								local.initializationPCs[(local.initializationCount - 1) << 1] = this.position;
 							}
 						}
 					}
 				}
 			}
 		}
-		for (int i = 0; i < forwardReferenceCount; i++) {
-			codeStream.writePosition(this, forwardReferences[i]);
+		for (int i = 0; i < this.forwardReferenceCount; i++) {
+			this.codeStream.writePosition(this, this.forwardReferences[i]);
 		}
 		// For all labels placed at that position we check if we need to rewrite the jump
 		// offset. It is the case each time a label had a forward reference to the current position.
@@ -234,12 +228,12 @@ public String toString() {
 	basic = basic.substring(basic.lastIndexOf('.')+1);
 	StringBuffer buffer = new StringBuffer(basic); 
 	buffer.append('@').append(Integer.toHexString(hashCode()));
-	buffer.append("(position=").append(position); //$NON-NLS-1$
+	buffer.append("(position=").append(this.position); //$NON-NLS-1$
 	buffer.append(", forwards = ["); //$NON-NLS-1$
-	for (int i = 0; i < forwardReferenceCount - 1; i++)
-		buffer.append(forwardReferences[i] + ", "); //$NON-NLS-1$
-	if (forwardReferenceCount >= 1)
-		buffer.append(forwardReferences[forwardReferenceCount-1]);
+	for (int i = 0; i < this.forwardReferenceCount - 1; i++)
+		buffer.append(this.forwardReferences[i] + ", "); //$NON-NLS-1$
+	if (this.forwardReferenceCount >= 1)
+		buffer.append(this.forwardReferences[this.forwardReferenceCount-1]);
 	buffer.append("] )"); //$NON-NLS-1$
 	return buffer.toString();
 }

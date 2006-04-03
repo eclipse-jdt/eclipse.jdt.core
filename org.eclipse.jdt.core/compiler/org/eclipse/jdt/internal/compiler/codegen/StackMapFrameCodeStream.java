@@ -945,12 +945,14 @@ public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int go
 	if (hasStandardLabel) {
 		for (int i = this.countLabels - 1; i >= 0; i--) {
 			BranchLabel currentLabel = labels[i];
-			if ((currentLabel.position == gotoLocation) && currentLabel.isStandardLabel()){
-				label.appendForwardReferencesFrom(currentLabel);
-				// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
-				if (removeFrame) {
-					currentLabel.tagBits &= ~BranchLabel.USED;
-					this.removeStackFrameFor(gotoLocation);
+			if (currentLabel.position == gotoLocation) {
+				if (currentLabel.isStandardLabel()){
+					label.appendForwardReferencesFrom(currentLabel);
+					// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
+					if (removeFrame) {
+						currentLabel.tagBits &= ~BranchLabel.USED;
+						this.removeStackFrameFor(gotoLocation);
+					}
 				}
 				/*
 				 Code required to optimized unreachable gotos.

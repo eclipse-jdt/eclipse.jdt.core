@@ -85,7 +85,7 @@ public FlowInfo analyseCode(
 							valueRequired);
 						if (valueRequired) {
 							codeStream.iconst_0();
-							if (falseLabel.hasForwardReferences()) {
+							if (falseLabel.forwardReferenceCount > 0) {
 								codeStream.goto_(endifLabel = new BranchLabel(codeStream));
 								codeStream.decrStackSize(1);
 								falseLabel.place();

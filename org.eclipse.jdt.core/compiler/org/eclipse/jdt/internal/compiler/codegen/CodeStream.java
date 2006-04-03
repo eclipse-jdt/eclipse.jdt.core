@@ -3607,8 +3607,10 @@ public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int go
 	
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
-		if ((currentLabel.position == gotoLocation) && currentLabel.isStandardLabel()){
-			label.appendForwardReferencesFrom(currentLabel);
+		if (currentLabel.position == gotoLocation) {
+			if (currentLabel.isStandardLabel()) {
+				label.appendForwardReferencesFrom(currentLabel);
+			}
 			/*
 			 Code required to optimized unreachable gotos.
 				label.position = POS_NOT_SET;
@@ -5794,18 +5796,18 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 		// resize the array pcToSourceMap
 		System.arraycopy(pcToSourceMap, 0, pcToSourceMap = new int[pcToSourceMapSize << 1], 0, pcToSourceMapSize);
 	}
-	int newLine = ClassFile.searchLineNumber(lineSeparatorPositions, sourcePos);
+	int lineNumber = ClassFile.searchLineNumber(lineSeparatorPositions, sourcePos);
 	// lastEntryPC represents the endPC of the lastEntry.
 	if (pcToSourceMapSize > 0) {
 		// in this case there is already an entry in the table
-		if (pcToSourceMap[pcToSourceMapSize - 1] != newLine) {
+		if (pcToSourceMap[pcToSourceMapSize - 1] != lineNumber) {
 			if (startPC < lastEntryPC) {
 				// we forgot to add an entry.
 				// search if an existing entry exists for startPC
 				int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
 				if (insertionIndex != -1) {
 					// there is no existing entry starting with startPC.
-					int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, newLine); // index for PC
+					int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
 					/* the existingEntryIndex corresponds to en entry with the same line and a PC >= startPC.
 						in this case it is relevant to widen this entry instead of creating a new one.
 						line1: this(a,
@@ -5819,21 +5821,21 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 					if (existingEntryIndex != -1) {
 						// widen existing entry
 						pcToSourceMap[existingEntryIndex] = startPC;
-					} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != newLine) {
+					} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != lineNumber) {
 						// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
 						System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
 						pcToSourceMap[insertionIndex++] = startPC;
-						pcToSourceMap[insertionIndex] = newLine;
+						pcToSourceMap[insertionIndex] = lineNumber;
 						pcToSourceMapSize += 2;
 					}
 				} else if (position != lastEntryPC) { // no bytecode since last entry pc
 					pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
-					pcToSourceMap[pcToSourceMapSize++] = newLine;
+					pcToSourceMap[pcToSourceMapSize++] = lineNumber;
 				}
 			} else {
 				// we can safely add the new entry. The endPC of the previous entry is not in conflit with the startPC of the new entry.
 				pcToSourceMap[pcToSourceMapSize++] = startPC;
-				pcToSourceMap[pcToSourceMapSize++] = newLine;
+				pcToSourceMap[pcToSourceMapSize++] = lineNumber;
 			}
 		} else {
 			/* the last recorded entry is on the same line. But it could be relevant to widen this entry.
@@ -5849,11 +5851,11 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 					 * In this case we don't want to change the table. If not, we want to insert a new entry. Prior to insertion
 					 * we want to check if it is worth doing an arraycopy. If not we simply update the recorded pc.
 					 */
-					if (!((insertionIndex > 1) && (pcToSourceMap[insertionIndex - 1] == newLine))) {
+					if (!((insertionIndex > 1) && (pcToSourceMap[insertionIndex - 1] == lineNumber))) {
 						if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
 							System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
 							pcToSourceMap[insertionIndex++] = startPC;
-							pcToSourceMap[insertionIndex] = newLine;						
+							pcToSourceMap[insertionIndex] = lineNumber;						
 						} else {
 							pcToSourceMap[pcToSourceMapSize - 2] = startPC;
 						}
@@ -5865,7 +5867,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 	} else {
 		// record the first entry
 		pcToSourceMap[pcToSourceMapSize++] = startPC;
-		pcToSourceMap[pcToSourceMapSize++] = newLine;
+		pcToSourceMap[pcToSourceMapSize++] = lineNumber;
 		lastEntryPC = position;
 	}
 }

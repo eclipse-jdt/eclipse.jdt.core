@@ -1151,8 +1151,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1252,8 +1254,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1294,8 +1298,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1335,8 +1341,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1376,8 +1384,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1417,8 +1427,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1458,8 +1470,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1499,8 +1513,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1540,8 +1556,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1582,8 +1600,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1627,8 +1647,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1671,8 +1693,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1715,8 +1739,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1781,8 +1807,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1860,8 +1888,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1914,8 +1944,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -1956,8 +1988,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -2199,8 +2233,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -2301,8 +2337,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -2995,8 +3033,10 @@ public class AnnotationTest extends AbstractComparableTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 		
@@ -5527,10 +5567,13 @@ public void test142c() {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED);			
 		} catch (ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			e.printStackTrace();
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
+			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
 	}    

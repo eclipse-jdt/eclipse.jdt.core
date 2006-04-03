@@ -145,7 +145,7 @@ public class AND_AND_Expression extends BinaryExpression {
 				} else {
 					codeStream.iconst_1();
 				}
-				if (falseLabel.hasForwardReferences()) {
+				if (falseLabel.forwardReferenceCount > 0) {
 					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);
