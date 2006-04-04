@@ -1030,7 +1030,23 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	if (indexOfNextSummary == -1) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	}
-	return contents.substring(indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH, indexOfNextSummary);
+	/*
+	 * Check out to cut off the hierarchy see 119844
+	 * We remove what the contents between the start of class data and the first <P>
+	 */
+	final int searchStart = indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH;
+	int indexOfFirstParagraph = contents.indexOf("<P>", searchStart); //$NON-NLS-1$
+	if (indexOfFirstParagraph == -1) {
+		indexOfFirstParagraph = contents.indexOf("<p>", searchStart); //$NON-NLS-1$
+		if (indexOfFirstParagraph == -1) {
+			indexOfFirstParagraph = indexOfNextSummary;
+		} else {
+			indexOfFirstParagraph += 3 /* size of <P> */;
+		}
+	} else {
+		indexOfFirstParagraph += 3 /* size of <P> */;
+	}
+	return contents.substring(indexOfFirstParagraph, indexOfNextSummary);
 }
 public String getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
