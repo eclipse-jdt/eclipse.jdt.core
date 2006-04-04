@@ -4764,4 +4764,84 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: foo() in V overrides <T>foo() in U; return type requires unchecked conversion
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132831
+	public void test083() {
+		this.runConformTest(
+			new String[] {
+				"C.java",
+				"public class C extends p.B {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(((p.I) new C()).m() == null);\n" +
+				"	}\n" +
+				"}",
+				"p/B.java",
+				"package p;\n" +
+				"public abstract class B extends A {}\n" +
+				"abstract class A implements I {\n" +
+				"	public A m() { return null; }\n" +
+				"}",
+				"p/I.java",
+				"package p;\n" +
+				"public interface I { I m(); }\n"
+			},
+			"true"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	public void test084() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<T1 extends A.M> implements I<T1> {\n" +
+				"	public java.util.List<T1> f(M n) { return null; }\n" +
+				"	static class M {}\n" +
+				"}\n" +
+				"interface I<T2> {\n" +
+				"	java.util.List<T2> f(T2 t);\n" +
+				"}"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<T1 extends A.M> implements I<T1> {\n" +
+				"	public void foo(Number n, M m) {}\n" +
+				"	public void foo2(Number n, M m) {}\n" +
+				"	public void foo3(Number n, M m) {}\n" +
+				"	static class M {}\n" +
+				"}\n" +
+				"interface I<T2> {\n" +
+				"	<U extends Number> void foo(U u, T2 t);\n" +
+				"	void foo2(Number n, T2 t);\n" +
+				"	<U extends Number> void foo3(U u, A.M m);\n" +
+				"}"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A<T1 extends A.M> implements I<T1> {\n" +
+				"	public void foo4(Number n, T1 m) {}\n" +
+				"	static class M {}\n" +
+				"}\n" +
+				"interface I<T2> {\n" +
+				"	<U extends Number> void foo4(U u, A.M m);\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 1)\r\n" + 
+			"	public class A<T1 extends A.M> implements I<T1> {\r\n" + 
+			"	             ^\n" + 
+			"The type A<T1> must implement the inherited abstract method I<T1>.foo4(U, A.M)\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\r\n" + 
+			"	public void foo4(Number n, T1 m) {}\r\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo4(Number, T1) of type A<T1> has the same erasure as foo4(U, A.M) of type I<T2> but does not override it\n" + 
+			"----------\n"
+			// A is not abstract and does not override abstract method <U>foo4(U,A.M) in I
+		);
+	}
 }

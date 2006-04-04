@@ -113,7 +113,8 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 			}
 		}
 
-		this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
+		if (concreteMethod.declaringClass.erasure().findSuperTypeWithSameErasure(originalInherited.declaringClass) == null)
+			this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 	}
 }
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods) {
@@ -460,6 +461,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
 			if (interfaceLength != interfaces.length)
 				return inheritedMethod; // not a match
+			// TODO (kent) another place where we expect the superinterfaces to be in the exact same order
 			next : for (int j = 0; j < interfaceLength; j++) {
 				TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
 				for (int k = 0; k < interfaceLength; k++)
@@ -467,8 +469,8 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 						continue next;
 				return inheritedMethod; // not a match
 			}
-		} else if (inheritedTypeVariables[i].boundCheck(substitute, argument) != TypeConstants.OK) {
-	    	return inheritedMethod;
+		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
+	    		return inheritedMethod;
 		}
 	}
    return substitute;
@@ -507,9 +509,14 @@ boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substit
 	if (method.declaringClass.findSuperTypeWithSameErasure(substituteMethod.declaringClass) == null)
 		return false;
 
-	for (int i = 0; i < length; i++)
-		if (params[i] != inheritedParams[i].erasure())
-			return false;
+	for (int i = 0; i < length; i++) {
+		if (inheritedParams[i].kind() == Binding.TYPE_PARAMETER) {
+			if (params[i] != ((TypeVariableBinding) inheritedParams[i]).upperBound())
+				return false;
+		} else if (params[i] != inheritedParams[i]) {
+			return false;			
+		}
+	}
 	return true;
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
