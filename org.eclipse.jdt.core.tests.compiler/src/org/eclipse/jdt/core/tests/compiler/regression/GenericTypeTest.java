@@ -30270,4 +30270,39 @@ public void test0964() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97494
+public void test0965() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X<T> {\n" + 
+			"  protected static final Class<X<?>> theClass = (Class<X<?>>) X.class;\n" + 
+			"  void foo(Class<X> cx) {\n" + 
+			"	  Class<X<?>> cx1 = cx;\n" + 
+			"	  Class<X<?>> cx2 = (Class<X<?>>) cx;\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	protected static final Class<X<?>> theClass = (Class<X<?>>) X.class;\n" + 
+		"	                                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Class<X> to Class<X<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	void foo(Class<X> cx) {\n" + 
+		"	               ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	Class<X<?>> cx1 = cx;\n" + 
+		"	                  ^^\n" + 
+		"Type mismatch: cannot convert from Class<X> to Class<X<?>>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	Class<X<?>> cx2 = (Class<X<?>>) cx;\n" + 
+		"	                  ^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Class<X> to Class<X<?>>\n" + 
+		"----------\n");
+}
 }

@@ -439,9 +439,11 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 		break;
 
 	case Binding.RAW_TYPE:
+		if (depth > 0) return true;
 		return this.erasure().isProvablyDistinctFrom(otherType.erasure(), 0);
 
 	case Binding.GENERIC_TYPE:
+		if (depth > 0) return true;
 		return this != otherType.erasure();
 	}
 	return this != otherType;
