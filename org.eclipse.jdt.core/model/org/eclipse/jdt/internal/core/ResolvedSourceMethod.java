@@ -38,6 +38,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	public boolean isResolved() {
 		return true;
 	}
+	
 	/**
 	 * @private Debugging purposes
 	 */
@@ -48,5 +49,11 @@ public class ResolvedSourceMethod extends SourceMethod {
 			buffer.append(this.uniqueKey);
 			buffer.append("}"); //$NON-NLS-1$
 		}
+	}
+
+	public JavaElement unresolved() {
+		SourceRefElement handle = new SourceMethod(this.parent, this.name, this.parameterTypes);
+		handle.occurrenceCount = this.occurrenceCount;
+		return handle;
 	}
 }

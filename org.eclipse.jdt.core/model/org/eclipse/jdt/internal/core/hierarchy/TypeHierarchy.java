@@ -150,7 +150,7 @@ public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaProject 
  * Creates a TypeHierarchy on the given type.
  */
 public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) {
-	this.focusType = type;
+	this.focusType = type == null ? null : (IType) ((JavaElement) type).unresolved(); // unsure the focus type is unresolved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=92357)
 	this.workingCopies = workingCopies;
 	this.computeSubtypes = computeSubtypes;
 	this.scope = scope;

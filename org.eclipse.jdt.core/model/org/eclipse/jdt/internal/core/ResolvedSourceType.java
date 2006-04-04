@@ -57,4 +57,10 @@ public class ResolvedSourceType extends SourceType {
 			buffer.append("}"); //$NON-NLS-1$
 		}
 	}
+	
+	public JavaElement unresolved() {
+		SourceRefElement handle = new SourceType(this.parent, this.name);
+		handle.occurrenceCount = this.occurrenceCount;
+		return handle;
+	}
 }

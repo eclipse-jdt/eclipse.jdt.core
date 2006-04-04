@@ -57,4 +57,10 @@ public class ResolvedBinaryType extends BinaryType {
 			buffer.append("}"); //$NON-NLS-1$
 		}
 	}
+	
+	public JavaElement unresolved() {
+		SourceRefElement handle = new BinaryType(this.parent, this.name);
+		handle.occurrenceCount = this.occurrenceCount;
+		return handle;
+	}
 }

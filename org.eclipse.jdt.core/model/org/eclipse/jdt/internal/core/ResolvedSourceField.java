@@ -51,4 +51,10 @@ public class ResolvedSourceField extends SourceField {
 			buffer.append("}"); //$NON-NLS-1$
 		}
 	}
+	
+	public JavaElement unresolved() {
+		SourceRefElement handle = new SourceField(this.parent, this.name);
+		handle.occurrenceCount = this.occurrenceCount;
+		return handle;
+	}
 }

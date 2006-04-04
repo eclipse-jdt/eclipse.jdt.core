@@ -37,6 +37,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	public boolean isResolved() {
 		return true;
 	}
+	
 	/**
 	 * @private Debugging purposes
 	 */
@@ -47,5 +48,11 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 			buffer.append(this.uniqueKey);
 			buffer.append("}"); //$NON-NLS-1$
 		}
+	}
+	
+	public JavaElement unresolved() {
+		SourceRefElement handle = new BinaryMethod(this.parent, this.name, this.parameterTypes);
+		handle.occurrenceCount = this.occurrenceCount;
+		return handle;
 	}
 }

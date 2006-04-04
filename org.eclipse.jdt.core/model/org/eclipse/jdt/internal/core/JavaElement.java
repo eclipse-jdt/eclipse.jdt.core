@@ -533,6 +533,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public JavaElement resolved(Binding binding) {
 		return this;
 	}
+	public JavaElement unresolved() {
+		return this;
+	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = tab; i > 0; i--)

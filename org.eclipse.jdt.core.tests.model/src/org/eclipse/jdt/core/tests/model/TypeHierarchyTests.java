@@ -738,6 +738,35 @@ public void testRegion4() throws CoreException {
 }
 
 /*
+ * Ensures that the focus type is put as a non-resolved type
+ * (regression test for bug 92357 ITypeHierarchy#getType() should return an unresolved handle)
+ */
+public void testResolvedTypeAsFocus() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		String source =
+			"public class X {\n" +
+			"  Y<String> field;\n" +
+			"}\n" +
+			"class Y<E> {\n" +
+			"}";
+		createFile("/P/X.java", source);
+		int start = source.indexOf("Y");
+		int end = source.indexOf("<String>");
+		IJavaElement[] elements = getCompilationUnit("/P/X.java").codeSelect(start, end-start);
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+		assertElementsEqual(
+			"Unexpected focus type in hierarchy", 
+			"Y [in X.java [in <default> [in <project root> [in P]]]]",
+			new IJavaElement[] {hierarchy.getType()},
+			true/*show resolved info*/);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
  * Ensures that a type hierarchy on a member type with subtypes in another project is correct
  * (regression test for bug 101019 RC3: Type Hierarchy does not find implementers/extenders of inner class/interface in other project)
  */
