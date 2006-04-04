@@ -962,6 +962,10 @@ public void resolve() {
 					break checkEnclosedInGeneric;						
 				}
 				if (current.isStatic()) break checkEnclosedInGeneric;
+				if (current.isLocalType()) {
+					NestedTypeBinding nestedType = (NestedTypeBinding) current.erasure();
+					if (nestedType.scope.methodScope().isStatic) break checkEnclosedInGeneric;
+				}				
 			} while ((current = current.enclosingType()) != null);
 		}
 		this.maxFieldCount = 0;

@@ -30206,4 +30206,68 @@ public void test0961() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645
+public void test0962() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X<T> {\n" + 
+			"    public void bug() throws Exception {\n" + 
+			"        throw new Exception(\"Bug134645\") {\n" + 
+			"            @Override\n" + 
+			"            public String toString() {\n" + 
+			"                return \"Bug134645\";\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	throw new Exception(\"Bug134645\") {\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"The generic class new Exception(){} may not subclass java.lang.Throwable\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	throw new Exception(\"Bug134645\") {\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The serializable class  does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645 - variation
+public void test0963() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X {\n" + 
+			"    public void bug() throws Exception {\n" + 
+			"        throw new Exception(\"Bug134645\") {\n" + 
+			"            @Override\n" + 
+			"            public String toString() {\n" + 
+			"                return \"Bug134645\";\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645 - variation
+public void test0964() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X<T> {\n" + 
+			"    public static void bug() throws Exception {\n" + 
+			"        throw new Exception(\"Bug134645\") {\n" + 
+			"            @Override\n" + 
+			"            public String toString() {\n" + 
+			"                return \"Bug134645\";\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"");
+}
 }

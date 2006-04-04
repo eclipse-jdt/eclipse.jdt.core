@@ -1689,12 +1689,13 @@ public void forwardTypeVariableReference(ASTNode location, TypeVariableBinding t
 		location.sourceEnd);
 }
 public void genericTypeCannotExtendThrowable(TypeDeclaration typeDecl) {
+	ASTNode location = typeDecl.binding.isAnonymousType() ? typeDecl.allocation.type : typeDecl.superclass;
 	this.handle(
 		IProblem.GenericTypeCannotExtendThrowable,
 		new String[]{ new String(typeDecl.binding.readableName()) },
 		new String[]{ new String(typeDecl.binding.shortReadableName()) },
-		typeDecl.superclass.sourceStart,
-		typeDecl.superclass.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd);
 }
 // use this private API when the compilation unit result can be found through the
 // reference context. Otherwise, use the other API taking a problem and a compilation result
