@@ -555,19 +555,19 @@ public class ASTParser {
 
 	/**
      * Sets the name of the compilation unit that would hypothetically contains
-     * the source string. This is used in conjunction with
-     * <code>setSource(char[])</code> and <code>setProject</code> to locate the
-     * compilation unit relative to a Java project.
+     * the source string. This is used in conjunction with {@link #setSource(char[])}
+     * and {@link #setProject(IJavaProject) } to locate the compilation unit relative to a Java project.
      * Defaults to none (<code>null</code>).
 	 * <p>
 	 * The name of the compilation unit must be supplied for resolving bindings.
 	 * This name should be suffixed by a dot ('.') followed by one of the 
 	 * {@link JavaCore#getJavaLikeExtensions() Java-like extensions} 
-	 * and match the name of the main
-	 * (public) class or interface declared in the source. For example, if the source
-	 * declares a public class named "Foo", the name of the compilation can be
-	 * "Foo.java".
-	 * </p>
+	 * and match the name of the main (public) class or interface declared in the source.</p>
+	 * 
+	 * <p>This name must represent the full path of the unit inside the given project. For example, if the source
+	 * declares a public class named "Foo" in a project "P", the name of the compilation unit must be
+	 * "/P/Foo.java". If the source declares a public class name "Bar" in a project "P" that is in a package "p1.p2",
+	 * the name of the compilation unit must be "/P/p1/p2/Bar.java".</p>
      *
 	 * @param unitName the name of the compilation unit that would contain the source
 	 *    string, or <code>null</code> if none
