@@ -1114,7 +1114,13 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		stats.startRun(new String(this.getFileName()));
 	}
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, forceProblemDetection, enableStatementsRecovery,workingCopyOwner);
-	op.runOperation(monitor);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	try {
+		manager.cacheZipFiles(); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
+		op.runOperation(monitor);
+	} finally {
+		manager.flushZipFiles();
+	}
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats.endRun();
 	}
