@@ -985,6 +985,8 @@ void setSourceStart(int sourceStart);
 	int NoAdditionalBoundAfterTypeVariable = TypeRelated + 573;
 	/** @since 3.2 */
 	int UnsafeGenericArrayForVarargs = MethodRelated + 574;
+	/** @since 3.2 */
+	int IllegalAccessFromTypeVariable = TypeRelated + 575;
 	
 	/**
 	 * Foreach

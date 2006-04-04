@@ -73,7 +73,11 @@ public class QualifiedTypeReference extends TypeReference {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;
-			
+			if (i == 0 && this.resolvedType.isTypeVariable()) { // cannot select from a type variable
+				scope.problemReporter().illegalAccessFromTypeVariable((TypeVariableBinding) this.resolvedType, this);
+				return this.resolvedType = null;
+			}
+
 			if (isClassScope)
 				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
 					return null;

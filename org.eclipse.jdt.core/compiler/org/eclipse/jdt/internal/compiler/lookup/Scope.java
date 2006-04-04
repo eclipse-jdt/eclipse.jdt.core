@@ -975,6 +975,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	public ReferenceBinding findMemberType(char[] typeName, ReferenceBinding enclosingType) {
 		if ((enclosingType.tagBits & TagBits.HasNoMemberTypes) != 0)
 			return null; // know it has no member types (nor inherited member types)
+		if (enclosingType.isTypeVariable())
+			return null; // cannot access anything from a type variable
 
 		ReferenceBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();

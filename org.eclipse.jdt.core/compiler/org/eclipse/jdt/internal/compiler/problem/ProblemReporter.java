@@ -1828,6 +1828,15 @@ public void illegalAbstractModifierCombinationForMethod(ReferenceBinding type, A
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void illegalAccessFromTypeVariable(TypeVariableBinding variable, ASTNode location) {
+	String[] arguments = new String[] { new String(variable.sourceName) };
+	this.handle(
+		IProblem.IllegalAccessFromTypeVariable,
+		arguments, 
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void illegalClassLiteralForTypeVariable(TypeVariableBinding variable, ASTNode location) {
 	String[] arguments = new String[] { new String(variable.sourceName) };
 	this.handle(

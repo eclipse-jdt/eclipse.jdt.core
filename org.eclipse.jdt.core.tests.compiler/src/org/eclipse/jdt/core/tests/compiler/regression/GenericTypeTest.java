@@ -6634,7 +6634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// can resolve member through type variable
 	public void test0229() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X <T extends XC> {\n" + 
@@ -6648,8 +6648,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 				" 	class MXC {}\n" + 
 				" }\n",
 			},
-			"SUCCESS");
-	}			
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	T.MXC f;\r\n" + 
+			"	^^^^^\n" + 
+			"Illegal qualified access from the type parameter T\n" + 
+			"----------\n"
+			 // cannot select from a type variable
+		);
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69375 - equivalence of wildcards
 	public void test0230() {
 		this.runNegativeTest(
@@ -8664,17 +8671,38 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74096
 	public void test0306() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
 				"public class X<T extends X<T>> {\n" + 
+				"  	static int CONSTANT = 1;\n" + 
 				"  	private int i = 1;\n" + 
 				"  	private int i() {return i;}\n" + 
 				"  	private static class M { private static int j = 2; }\n" + 
 				"  	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
+				"  	public int foo2(T t) { return T.CONSTANT; }\n" + // why is this allowed?
 				"}\n"
 			},
-			"");	
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	private static class M { private static int j = 2; }\n" + 
+			"	                     ^\n" + 
+			"The type X<T>.M is never used locally\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	private static class M { private static int j = 2; }\n" + 
+			"	                                            ^\n" + 
+			"The field X<T>.M.j is never read locally\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
+			"	                                           ^^^\n" + 
+			"T.M cannot be resolved\n" + 
+			"----------\n"
+			// 5: cannot select from a type variable
+			// 5: operator + cannot be applied to int,<any>.j
+			// 5: incompatible type, found : <nulltype>, required: int
+		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72583
 	public void test0307() {
@@ -28662,19 +28690,63 @@ public void test0916() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423
 // [1.5][compiler] ClassCastException on illegal code fragment
-public void _test0917() {
+public void test0917() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  class X1<T> { \n" + 
-			"      public static Class clazz = T.getClass();\n" + 
-			"  }\n" + 
-			"  class X2<T> { }\n" + 
-			"  class X3<T> extends X2<T.clazz> { }\n" + 
-			"}\n",
+			"public class X<T extends A> extends X2<T.M> { }\n" +
+			"class X2<T> { }\n" +
+			"class A { static class M {} }"
 		},
-		"ERR");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends A> extends X2<T.M> { }\n" + 
+		"	                                       ^^^\n" + 
+		"Illegal qualified access from the type parameter T\n" + 
+		"----------\n"
+		// cannot select from a type variable
+	);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> extends X2<T.clazz> { }\n" +
+			"class X2<T> { }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T> extends X2<T.clazz> { }\n" + 
+		"	                             ^^^^^^^\n" + 
+		"Illegal qualified access from the type parameter T\n" + 
+		"----------\n"
+		// cannot select from a type variable
+	);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> { Class<T> c = T.class; }"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T> { Class<T> c = T.class; }\n" + 
+		"	                                 ^^^^^^^\n" + 
+		"Illegal class literal for the type parameter T\n" + 
+		"----------\n"
+		// cannot select from a type variable
+	);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> extends X2<T.class> { }\n" +
+			"class X2<T> { }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T> extends X2<T.class> { }\n" + 
+		"	                               ^^^^^\n" + 
+		"Syntax error on token \"class\", Identifier expected\n" + 
+		"----------\n"
+		// cannot select from a type variable
+	);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
