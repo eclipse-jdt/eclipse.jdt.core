@@ -429,7 +429,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					
 					parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
 					parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
-					parameterSignatures[0] = enclosingDeclaringTypeSignature;
+					parameterSignatures[0] = Signature.getTypeErasure(enclosingDeclaringTypeSignature);
 				}
 				
 				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey, isConstructor);

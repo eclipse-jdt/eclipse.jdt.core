@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.*;
@@ -2252,5 +2255,34 @@ public void test0101() throws JavaModelException {
 	ISourceRange nameRange = ((ITypeParameter)elements[0]).getNameRange();
 	assertEquals("Offset is not correct" , str.indexOf("T>"), nameRange.getOffset());
 	assertEquals("Length is not correct" , "T".length(), nameRange.getLength());
+}
+
+/*
+ * Ensure that resolving a binary synthetic contructor call in a generic class returns the member type
+ * (regression test for bug 131519 JDK with attached source unnavigable.)
+ */
+public void test102() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL15_LIB"}, "", "1.5");
+		String source =
+			"public class X<E> {\n" +
+			"  private class Y {\n" +
+			"  }\n" +
+			"  Object foo() {\n" +
+			"    return new Y();\n" +
+			"  }\n" +
+			"}";
+		addLibrary(project, "lib15.jar", "lib15.zip", new String[] {"X.java", source}, "1.5");
+		IClassFile classFile = getClassFile("P", "/P/lib15.jar", "", "X.class");
+		int start = source.indexOf("Y()");
+		int end = source.indexOf("();");
+		IJavaElement[] elements = classFile.codeSelect(start, end-start);
+		assertElementsEqual(
+			"Unexpected selection", 
+			"Y [in X$Y.class [in <default> [in lib15.jar [in P]]]]",
+			elements);
+	} finally {
+		deleteProject("P");
+	}
 }
 }
