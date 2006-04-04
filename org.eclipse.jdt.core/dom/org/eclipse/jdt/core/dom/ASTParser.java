@@ -566,7 +566,7 @@ public class ASTParser {
 	 * 
 	 * <p>This name must represent the full path of the unit inside the given project. For example, if the source
 	 * declares a public class named "Foo" in a project "P", the name of the compilation unit must be
-	 * "/P/Foo.java". If the source declares a public class name "Bar" in a project "P" that is in a package "p1.p2",
+	 * "/P/Foo.java". If the source declares a public class name "Bar" in a package "p1.p2" in a project "P",
 	 * the name of the compilation unit must be "/P/p1/p2/Bar.java".</p>
      *
 	 * @param unitName the name of the compilation unit that would contain the source
