@@ -1034,15 +1034,15 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	 * Check out to cut off the hierarchy see 119844
 	 * We remove what the contents between the start of class data and the first <P>
 	 */
-	final int searchStart = indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH;
-	int indexOfFirstParagraph = contents.indexOf("<P>", searchStart); //$NON-NLS-1$
+	int start = indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH;
+	int indexOfFirstParagraph = contents.indexOf("<P>", start); //$NON-NLS-1$
 	if (indexOfFirstParagraph == -1) {
-		indexOfFirstParagraph = contents.indexOf("<p>", searchStart); //$NON-NLS-1$
-		if (indexOfFirstParagraph == -1) {
-			indexOfFirstParagraph = indexOfNextSummary;
-		}
+		indexOfFirstParagraph = contents.indexOf("<p>", start); //$NON-NLS-1$
 	}
-	return contents.substring(indexOfFirstParagraph, indexOfNextSummary);
+	if (indexOfFirstParagraph != -1 && indexOfFirstParagraph < indexOfNextSummary) {
+		start = indexOfFirstParagraph;
+	}	
+	return contents.substring(start, indexOfNextSummary);
 }
 public String getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
