@@ -1040,11 +1040,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 		indexOfFirstParagraph = contents.indexOf("<p>", searchStart); //$NON-NLS-1$
 		if (indexOfFirstParagraph == -1) {
 			indexOfFirstParagraph = indexOfNextSummary;
-		} else {
-			indexOfFirstParagraph += 3 /* size of <P> */;
 		}
-	} else {
-		indexOfFirstParagraph += 3 /* size of <P> */;
 	}
 	return contents.substring(indexOfFirstParagraph, indexOfNextSummary);
 }
