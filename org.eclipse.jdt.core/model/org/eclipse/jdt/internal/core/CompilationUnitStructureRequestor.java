@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -57,6 +59,12 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * will be the type the method is contained in.
 	 */
 	protected Stack infoStack;
+	
+	/*
+	 * Map from JavaElementInfo to of ArrayList of IJavaElement representing the children 
+	 * of the given info.
+	 */
+	protected HashMap children;
 
 	/**
 	 * Stack of parent handles, corresponding to the info stack. We
@@ -101,7 +109,6 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
  * @see ISourceElementRequestor
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
-	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	if (!(parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT)) {
 		Assert.isTrue(false); // Should not happen
@@ -111,8 +118,9 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 	//create the import container and its info
 	ImportContainer importContainer= (ImportContainer)parentCU.getImportContainer();
 	if (this.importContainerInfo == null) {
-		this.importContainerInfo= new JavaElementInfo();
-		parentInfo.addChild(importContainer);
+		this.importContainerInfo = new JavaElementInfo();
+		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
+		addToChildren(parentInfo, importContainer);
 		this.newElements.put(importContainer, this.importContainerInfo);
 	}
 	
@@ -125,7 +133,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 	info.setSourceRangeEnd(declarationEnd);
 	info.setFlags(modifiers);
 
-	this.importContainerInfo.addChild(handle);
+	addToChildren(this.importContainerInfo, handle);
 	this.newElements.put(handle, info);
 }
 /*
@@ -159,7 +167,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		info.setSourceRangeStart(declarationStart);
 		info.setSourceRangeEnd(declarationEnd);
 
-		parentInfo.addChild(handle);
+		addToChildren(parentInfo, handle);
 		this.newElements.put(handle, info);
 
 }
@@ -167,6 +175,12 @@ public void acceptProblem(CategorizedProblem problem) {
 	if ((problem.getID() & IProblem.Syntax) != 0){
 		this.hasSyntaxErrors = true;
 	}
+}
+private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
+	ArrayList childrenList = (ArrayList) this.children.get(parentInfo);
+	if (childrenList == null)
+		this.children.put(parentInfo, childrenList = new ArrayList());
+	childrenList.add(handle);
 }
 /**
  * Convert these type names to signatures.
@@ -190,6 +204,7 @@ public void acceptProblem(CategorizedProblem problem) {
  */
 public void enterCompilationUnit() {
 	this.infoStack = new Stack();
+	this.children = new HashMap();
 	this.handleStack= new Stack();
 	this.infoStack.push(this.unitInfo);
 	this.handleStack.push(this.unit);
@@ -227,7 +242,7 @@ public void enterField(FieldInfo fieldInfo) {
 	
 	this.unitInfo.addAnnotationPositions(handle, fieldInfo.annotationPositions);
 
-	parentInfo.addChild(handle);
+	addToChildren(parentInfo, handle);
 	parentInfo.addCategories(handle, fieldInfo.categories);
 	this.newElements.put(handle, info);
 
@@ -256,7 +271,7 @@ public void enterInitializer(
 		info.setSourceRangeStart(declarationSourceStart);
 		info.setFlags(modifiers);
 
-		parentInfo.addChild(handle);
+		addToChildren(parentInfo, handle);
 		this.newElements.put(handle, info);
 
 		this.infoStack.push(info);
@@ -316,7 +331,7 @@ public void enterMethod(MethodInfo methodInfo) {
 	for (int i = 0, length = exceptionTypes.length; i < length; i++)
 		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
 	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);
-	parentInfo.addChild(handle);
+	addToChildren(parentInfo, handle);
 	parentInfo.addCategories(handle, methodInfo.categories);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
@@ -357,7 +372,7 @@ public void enterType(TypeInfo typeInfo) {
 	info.addCategories(handle, typeInfo.categories);
 	if (parentHandle.getElementType() == IJavaElement.TYPE)
 		((SourceTypeElementInfo) parentInfo).addCategories(handle, typeInfo.categories);
-	parentInfo.addChild(handle);
+	addToChildren(parentInfo, handle);
 	this.unitInfo.addAnnotationPositions(handle, typeInfo.annotationPositions);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
@@ -407,6 +422,14 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
  * @see ISourceElementRequestor
  */
 public void exitCompilationUnit(int declarationEnd) {
+	// set import container children
+	if (this.importContainerInfo != null) {
+		setChildren(this.importContainerInfo);
+	}
+	
+	// set children
+	setChildren(this.unitInfo);
+	
 	this.unitInfo.setSourceLength(declarationEnd + 1);
 
 	// determine if there were any parsing errors
@@ -424,6 +447,7 @@ public void exitConstructor(int declarationEnd) {
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) this.infoStack.pop();
 	info.setSourceRangeEnd(declarationSourceEnd);
+	setChildren(info);
 	
 	// remember initializer source if field is a constant
 	if (initializationStart != -1) {
@@ -454,6 +478,7 @@ public void exitInitializer(int declarationEnd) {
 protected void exitMember(int declarationEnd) {
 	SourceRefElementInfo info = (SourceRefElementInfo) this.infoStack.pop();
 	info.setSourceRangeEnd(declarationEnd);
+	setChildren(info);
 	this.handleStack.pop();
 }
 /**
@@ -462,6 +487,7 @@ protected void exitMember(int declarationEnd) {
 public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) this.infoStack.pop();
 	info.setSourceRangeEnd(declarationEnd);
+	setChildren(info);
 	
 	// remember default value of annotation method
 	if (info.isAnnotationMethod()) {
@@ -485,6 +511,15 @@ public void exitType(int declarationEnd) {
 protected void resolveDuplicates(SourceRefElement handle) {
 	while (this.newElements.containsKey(handle)) {
 		handle.occurrenceCount++;
+	}
+}
+private void setChildren(JavaElementInfo info) {
+	ArrayList childrenList = (ArrayList) this.children.get(info);
+	if (childrenList != null) {
+		int length = childrenList.size();
+		IJavaElement[] elements = new IJavaElement[length];
+		childrenList.toArray(elements);
+		info.children = elements;
 	}
 }
 }

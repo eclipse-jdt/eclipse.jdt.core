@@ -34,12 +34,16 @@ import org.eclipse.jdt.core.IJavaElement;
 		this.children = JavaElement.NO_ELEMENTS;
 	}
 	public void addChild(IJavaElement child) {
-		if (this.children == JavaElement.NO_ELEMENTS) {
-			setChildren(new IJavaElement[] {child});
+		int length = this.children.length;		
+		if (length == 0) {
+			this.children = new IJavaElement[] {child};
 		} else {
-			if (!includesChild(child)) {
-				setChildren(growAndAddToArray(this.children, child));
+			for (int i = 0; i < length; i++) {
+				if (children[i].equals(child))
+					return; // already included
 			}
+			System.arraycopy(this.children, 0, this.children = new IJavaElement[length+1], 0, length);
+			this.children[length] = child;
 		}
 	}
 	public Object clone() {
@@ -53,51 +57,21 @@ import org.eclipse.jdt.core.IJavaElement;
 	public IJavaElement[] getChildren() {
 		return this.children;
 	}
-	/**
-	 * Adds the new element to a new array that contains all of the elements of the old array.
-	 * Returns the new array.
-	 */
-	protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement addition) {
-		IJavaElement[] old = array;
-		array = new IJavaElement[old.length + 1];
-		System.arraycopy(old, 0, array, 0, old.length);
-		array[old.length] = addition;
-		return array;
-	}
-	/**
-	 * Returns <code>true</code> if this child is in my children collection
-	 */
-	protected boolean includesChild(IJavaElement child) {
-		
-		for (int i= 0; i < this.children.length; i++) {
-			if (this.children[i].equals(child)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	/**
-	 * Returns an array with all the same elements as the specified array except for
-	 * the element to remove. Assumes that the deletion is contained in the array.
-	 */
-	protected IJavaElement[] removeAndShrinkArray(IJavaElement[] array, IJavaElement deletion) {
-		IJavaElement[] old = array;
-		array = new IJavaElement[old.length - 1];
-		int j = 0;
-		for (int i = 0; i < old.length; i++) {
-			if (!old[i].equals(deletion)) {
-				array[j] = old[i];
-			} else {
-				System.arraycopy(old, i + 1, array, j, old.length - (i + 1));
-				return array;
-			}
-			j++;
-		}
-		return array;
-	}
 	public void removeChild(IJavaElement child) {
-		if (includesChild(child)) {
-			setChildren(removeAndShrinkArray(this.children, child));
+		for (int i = 0, length = this.children.length; i < length; i++) {
+			IJavaElement element = this.children[i];
+			if (element.equals(child)) {
+				if (length == 1) {
+					this.children = JavaElement.NO_ELEMENTS;
+				} else {
+					IJavaElement[] newChildren = new IJavaElement[length-1];
+					System.arraycopy(this.children, 0, newChildren , 0, i);
+					if (i < length-1)
+						System.arraycopy(this.children, i+1, newChildren, i, length-1-i);
+					this.children = newChildren;
+				}
+				break;
+			}
 		}
 	}
 	public void setChildren(IJavaElement[] children) {

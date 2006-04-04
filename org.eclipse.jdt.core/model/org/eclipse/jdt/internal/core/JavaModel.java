@@ -72,12 +72,18 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 
 	// determine my children
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-	for (int i = 0, max = projects.length; i < max; i++) {
+	int length = projects.length;
+	IJavaElement[] children = new IJavaElement[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
 		IProject project = projects[i];
 		if (JavaProject.hasJavaNature(project)) {
-			info.addChild(getJavaProject(project));
+			children[index++] = getJavaProject(project);
 		}
 	}
+	if (index < length)
+		System.arraycopy(children, 0, children = new IJavaElement[index], 0, index);
+	info.setChildren(children);
 
 	newElements.put(this, info);
 	

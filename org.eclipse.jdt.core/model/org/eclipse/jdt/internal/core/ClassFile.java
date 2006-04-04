@@ -93,7 +93,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 
 	// Make the type
 	IType type = new BinaryType(this, simpleName(typeInfo.getName()));
-	info.addChild(type);
+	info.setChildren(new IJavaElement[] {type});
 	newElements.put(type, typeInfo);
 	return true;
 }
