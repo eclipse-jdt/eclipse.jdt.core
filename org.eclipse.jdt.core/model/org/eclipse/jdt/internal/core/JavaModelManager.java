@@ -2106,44 +2106,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		// backward compatibility, load variables and containers from preferences into cache
-		IEclipsePreferences preferences = getInstancePreferences();
-		try {
-			// only get variable from preferences not set to their default
-			String[] propertyNames = preferences.keys();
-			int variablePrefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
-			for (int i = 0; i < propertyNames.length; i++){
-				String propertyName = propertyNames[i];
-				if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
-					String varName = propertyName.substring(variablePrefixLength);
-					String propertyValue = preferences.get(propertyName, null);
-					if (propertyValue != null) {
-						String pathString = propertyValue.trim();
-						
-						if (CP_ENTRY_IGNORE.equals(pathString)) {
-							// cleanup old preferences
-							preferences.remove(propertyName); 
-							continue;
-						}
-						
-						// add variable to table
-						IPath varPath = new Path(pathString);
-						this.variables.put(varName, varPath); 
-						this.previousSessionVariables.put(varName, varPath);
-					}
-				} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
-					String propertyValue = preferences.get(propertyName, null);
-					if (propertyValue != null) {
-						// cleanup old preferences
-						preferences.remove(propertyName); 
-						
-						// recreate container
-						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
-					}
-				}
-			}
-		} catch (BackingStoreException e1) {
-			// TODO (frederic) see if it's necessary to report this failure...
-		}
+		loadVariablesAndContainers(getDefaultPreferences());
+		loadVariablesAndContainers(getInstancePreferences());
 
 		// load variables and containers from saved file into cache
 		File file = getVariableAndContainersFile();
@@ -2208,6 +2172,46 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		// override persisted values for containers which have a registered initializer
 		containersReset(getRegisteredContainerIDs());
+	}
+
+	private void loadVariablesAndContainers(IEclipsePreferences preferences) {
+		try {
+			// only get variable from preferences not set to their default
+			String[] propertyNames = preferences.keys();
+			int variablePrefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
+			for (int i = 0; i < propertyNames.length; i++){
+				String propertyName = propertyNames[i];
+				if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
+					String varName = propertyName.substring(variablePrefixLength);
+					String propertyValue = preferences.get(propertyName, null);
+					if (propertyValue != null) {
+						String pathString = propertyValue.trim();
+						
+						if (CP_ENTRY_IGNORE.equals(pathString)) {
+							// cleanup old preferences
+							preferences.remove(propertyName); 
+							continue;
+						}
+						
+						// add variable to table
+						IPath varPath = new Path(pathString);
+						this.variables.put(varName, varPath); 
+						this.previousSessionVariables.put(varName, varPath);
+					}
+				} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
+					String propertyValue = preferences.get(propertyName, null);
+					if (propertyValue != null) {
+						// cleanup old preferences
+						preferences.remove(propertyName); 
+						
+						// recreate container
+						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
+					}
+				}
+			}
+		} catch (BackingStoreException e1) {
+			// TODO (frederic) see if it's necessary to report this failure...
+		}
 	}
 
 	private static final class PersistedClasspathContainer implements
@@ -2935,7 +2939,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		void save() throws IOException, JavaModelException {
 			saveProjects(JavaModelManager.this.getJavaModel().getJavaProjects());
-			saveVariables(JavaModelManager.this.variables);
+			
+			// don't save classpath variables from the default preferences as there is no delta if they are removed
+			HashMap varsToSave = null;
+			Iterator iterator = JavaModelManager.this.variables.keySet().iterator();
+			IEclipsePreferences defaultPreferences = getDefaultPreferences();
+			while (iterator.hasNext()) {
+				String varName = (String) iterator.next();
+				if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null) {
+					if (varsToSave == null)
+						varsToSave = new HashMap(JavaModelManager.this.variables);
+					varsToSave.remove(varName);
+				}
+					
+			}
+			
+			saveVariables(varsToSave != null ? varsToSave : JavaModelManager.this.variables);
 		}
 
 		private void saveAccessRule(ClasspathAccessRule rule) throws IOException {

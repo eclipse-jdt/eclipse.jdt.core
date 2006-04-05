@@ -16,6 +16,7 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
@@ -600,6 +601,31 @@ public class OptionTests extends ModifyingResourceTests {
 			assertEquals(JavaCore.VERSION_1_3, option);
 		} finally {
 			deleteProject("P");
+		}
+	}
+	
+	/**
+	 * @bug 131707: Cannot add classpath variables when starting with -pluginCustomization option
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=131707"
+	 */
+	public void testBug131707() throws CoreException {
+		IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+		try {
+			defaultPreferences.put("org.eclipse.jdt.core.classpathVariable.MY_DEFAULT_LIB", "c:\\temp\\lib.jar");
+			simulateExitRestart();
+			String[] variableNames = JavaCore.getClasspathVariableNames();
+			for (int i = 0, length = variableNames.length; i < length; i++) {
+				if ("MY_DEFAULT_LIB".equals(variableNames[i])) {
+					assertEquals(
+						"Unexpected value for MY_DEFAULT_LIB", 
+						new Path("c:\\temp\\lib.jar"), 
+						JavaCore.getClasspathVariable("MY_DEFAULT_LIB"));
+					return;
+				}
+			}
+			assertFalse("Variable MY_DEFAULT_LIB not found", true);
+		} finally {
+			defaultPreferences.remove("org.eclipse.jdt.core.classpathVariable.MY_DEFAULT_LIB");
 		}
 	}
 }
