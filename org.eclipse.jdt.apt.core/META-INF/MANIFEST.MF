@@ -3,16 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.core; singleton:=true
 Bundle-Version: 3.2.0.qualifier
-Bundle-ClassPath: aptcore.jar,
- mirrorapi.jar
 Bundle-Localization: plugin
-Export-Package:  com.sun.mirror.apt,
+Export-Package: com.sun.mirror.apt,
  com.sun.mirror.declaration,
  com.sun.mirror.type,
  com.sun.mirror.util,
  org.eclipse.jdt.apt.core.build,
  org.eclipse.jdt.apt.core.env,
  org.eclipse.jdt.apt.core.internal;x-friends:="org.eclipse.jdt.apt.tests",
+ org.eclipse.jdt.apt.core.internal.build;x-friends:="org.eclipse.jdt.apt.tests",
  org.eclipse.jdt.apt.core.internal.declaration;x-friends:="org.eclipse.jdt.apt.tests",
  org.eclipse.jdt.apt.core.internal.env;x-friends:="org.eclipse.jdt.apt.tests",
  org.eclipse.jdt.apt.core.internal.generatedfile;x-friends:="org.eclipse.jdt.apt.tests",
