@@ -35,7 +35,7 @@ public class AptBuilderTests extends APTTestBase
 	{
 		super( name );
 	}
-
+	
 	public static Test suite()
 	{
 		return new TestSuite( AptBuilderTests.class );
@@ -189,7 +189,7 @@ public class AptBuilderTests extends APTTestBase
 	public void testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
-			+  "public class A { B b; D d; }";
+			+  "public class A { B b; }";
 		
 		String codeB1 = "package p1.p2.p3.p4;\n"
 			+  "public class B { }";
@@ -199,6 +199,9 @@ public class AptBuilderTests extends APTTestBase
 		
 		String codeC = "package p1.p2.p3.p4;\n"
 			+  "public class C { }";
+		
+		String codeC2 = "package p1.p2.p3.p4;\n"
+			+  "public class C { public int foo; }";
 		
 		String codeD = "package p1.p2.p3.p4;\n"
 			+  "public class D { }";
@@ -244,19 +247,17 @@ public class AptBuilderTests extends APTTestBase
 		codeA = "package p1.p2.p3.p4;\n"
 			+  "import org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotation;" + "\n" 
 			+  "@ExtraDependencyAnnotation" + "\n" 
-			+  "public class A { B b; D d; }";
+			+  "public class A {  }";
 		
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB1 );
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		// touch B
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB2 );
+		// touch C
+		env.addClass( srcRoot, "p1.p2.p3.p4", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			codeC2 );
 		
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -266,14 +267,14 @@ public class AptBuilderTests extends APTTestBase
 		// parse the source, parsing runs through the compiler, and this registers the 
 		// file a second time with the Compiler#DebugRequestor 
 		//
-		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C"}); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//
 		// now make sure that p1.p2.p3.p4.C is not compiled when A uses NoOp Annotation
 		//
 		
-		// new code for A with an annotation processor that should introduce a dep on C
+		// new code for A with an annotation processor that should remove a dep on C
 		codeA = "package p1.p2.p3.p4;\n"
 			+  "import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;" + "\n" 
 			+  "@NoOpAnnotation" + "\n" 
@@ -281,15 +282,13 @@ public class AptBuilderTests extends APTTestBase
 		
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB1 );
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		// touch B
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB2 );
+		// touch C
+		env.addClass( srcRoot, "p1.p2.p3.p4", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			codeC2 );
 		
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -299,8 +298,8 @@ public class AptBuilderTests extends APTTestBase
 		// parse the source, parsing runs through the compiler, and this registers the 
 		// file a second time with the Compiler#DebugRequestor 
 		//
-		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -330,7 +329,7 @@ public class AptBuilderTests extends APTTestBase
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        generatedfilepackage.GeneratedFileTest.helloWorld();"
+			+ "        "
 			+ "\n" 
 			+ "    }" 
 			+ "\n" 

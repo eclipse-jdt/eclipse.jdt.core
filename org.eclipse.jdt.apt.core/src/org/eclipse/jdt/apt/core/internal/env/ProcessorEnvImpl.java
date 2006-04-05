@@ -42,6 +42,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.APTDispatchRunnable;
+import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
@@ -50,20 +52,12 @@ import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
@@ -73,7 +67,6 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotationProcessorEnvironment
 {
-	
 	/** regex to identify substituted token in path variables */
 	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
 	
@@ -141,22 +134,30 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 */
 	private ICompilationUnit[] _units = null;
 	private List<MarkerInfo> _markerInfos = null;
+	private APTDispatchRunnable _callback;
+	private APTResult _result = APTDispatchRunnable.EMPTY_APT_RESULT;
 
-	public static ProcessorEnvImpl newReconcileEnv(ICompilationUnit compilationUnit, IJavaProject javaProj)
+	public static APTResult newReconcileEnv(ICompilationUnit compilationUnit, IJavaProject javaProj, APTDispatchRunnable r)
     {
-		CompilationUnit domUnit = createDietAST( javaProj, compilationUnit );
-       	return new ProcessorEnvImpl( domUnit, compilationUnit, javaProj);
+		ProcessorEnvImpl env = new ProcessorEnvImpl(javaProj, (IFile)compilationUnit.getResource(), r);
+		
+		// Parse and resolve the AST, then callback to dispatch to processors
+		env.createDietAST(compilationUnit);
+		return env._result;
     }
 	
-    public static ProcessorEnvImpl newBuildEnv(
+    public static APTResult initBuildEnv(
     		IFile[] filesWithAnnotation,
     		IFile[] additionalFiles,
-    		IJavaProject javaProj )
+    		IJavaProject javaProj,
+    		APTDispatchRunnable r)
     {
     	assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$    	
     
-		// note, we are not reading any files.
-		return new ProcessorEnvImpl(filesWithAnnotation, additionalFiles, null, javaProj, Phase.BUILD);
+    	ProcessorEnvImpl env = new ProcessorEnvImpl(filesWithAnnotation, additionalFiles, javaProj, r, Phase.BUILD);
+    	// Parse & resolve all the ASTs, then callback to dispatch to processors
+    	env.createDomASTs();
+    	return env._result;
     }
     
     /** 
@@ -168,15 +169,15 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
      * @param phase
      */
     private ProcessorEnvImpl(
-    		final CompilationUnit astCompilationUnit,
-    		final ICompilationUnit compilationUnit,
-    		final IJavaProject javaProj )
+       		final IJavaProject javaProj,
+       		final IFile file,
+     		final APTDispatchRunnable callback)
     {
-    	super(  astCompilationUnit, (IFile)compilationUnit.getResource(), javaProj, Phase.RECONCILE );
+    	super(javaProj, file, Phase.RECONCILE );
    
-	   _unit = compilationUnit;	
 	   _filer = new FilerImpl(this);
-	   _allProblems = new HashMap<IFile, List<IProblem>>();	   
+	   _allProblems = new HashMap<IFile, List<IProblem>>();
+	   _callback = callback;
 	   initOptions(javaProj);
     }
     
@@ -191,23 +192,20 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     private ProcessorEnvImpl(
 			final IFile[] filesWithAnnotations,
 			final IFile[] additionalFiles, 
-			final ICompilationUnit[] units,
 			final IJavaProject javaProj,
+			final APTDispatchRunnable callback,
 			final Phase phase) {
     	
-    	super(null, null, javaProj, phase);
+    	super(javaProj, null, phase);
     
 		_unit = null;
-		_units = units;
 		_filer = new FilerImpl(this);
 		_filesWithAnnotation = filesWithAnnotations;
 		_additionFiles = additionalFiles;
 		_allProblems = new HashMap<IFile, List<IProblem>>();
 		_markerInfos = new ArrayList<MarkerInfo>();
 		initOptions(javaProj);
-		
-		// Aggressively cache all ASTs
-		createDomASTs();
+		_callback = callback;
 	}
     
     
@@ -336,7 +334,13 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return decl;
     }
 
-    // Called by getTypeDeclaration(). allows the searching of all asts, not just the current one.
+	protected ITypeBinding getTypeDefinitionBindingFromCorrectName(String fullyQualifiedName) {
+       	final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
+		// search for a type using the open pipeline
+		return (ITypeBinding) createBindings(new String[] {key})[0];
+	}
+
+	// Called by getTypeDeclaration(). allows the searching of all asts, not just the current one.
     protected CompilationUnit[] getAsts() {
     	if (_astUnits != null) return _astUnits;
     	return super.getAsts();
@@ -666,7 +670,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	checkValid();
     	if( _filesWithAnnotation == null )  
     		return getAnnotationTypesInFile();
-    	createDomASTs();
     	
 		final List<Annotation> instances = new ArrayList<Annotation>();
 		final Map<String, AnnotationTypeDeclaration> decls = 
@@ -913,13 +916,44 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		
 		if( _batchMode ) return;
 		checkValid();
-		createDomASTs();
 		
 		_batchMode = true;
 		_file = null;
 		_astRoot = null;
 	}
 	
+	
+	public void createDietAST(ICompilationUnit unit) {
+		createDietASTs(new ICompilationUnit[] {unit}, this);
+	}
+
+	/**
+	 * Parse and fully resolve all files. 
+	 * @param javaProject
+	 * @param files the files to be parsed and resolved.
+	 * @return the array of ast units parallel to <code>files</code>
+	 * Any entry in the returned array may be <code>null</code>. 
+	 * This indicates an error while reading the file. 
+	 */
+	private void createDietASTs(
+			final ICompilationUnit[] parseUnits,
+			final ASTRequestor requestor)
+	{
+		// Construct exactly 1 binding key. When acceptBinding is called we know that
+		// All ASTs have been returned. This also means that a pipeline is opened when
+		// there are no asts. This is needed by the batch processors.
+		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object");
+		String[] keys = new String[] {bogusKey};
+		
+		ASTParser p = ASTParser.newParser( AST.JLS3 );
+		p.setResolveBindings( true );
+		p.setProject( _javaProject );
+		p.setFocalPosition( 0 );
+		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		p.createASTs( parseUnits, keys,  requestor, null);
+	}
+	
+
 	private void createDomASTs()
 	{
 		if( _astUnits != null || _filesWithAnnotation == null) return;
@@ -927,8 +961,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		if (AptPlugin.DEBUG) 
 			System.out.println("Preparsing " + _filesWithAnnotation.length + " files.");  //$NON-NLS-1$//$NON-NLS-2$
 		
-		createICompilationUnits();		
-		_astUnits = createDietASTs(_javaProject, _units);
+		createICompilationUnits();
+		_astUnits = new CompilationUnit[_units.length];
+		// Init all units to empty to prevent any NPEs
+		Arrays.fill(this._astUnits, EMPTY_AST_UNIT);
+
+		createDietASTs(_units, this);
 		
 		if (AptPlugin.DEBUG) 
 			System.out.println("Finished with Preparsing");  //$NON-NLS-1$
@@ -950,14 +988,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			for( int i=0, len=_filesWithAnnotation.length; i<len; i++ ){
 				if( file.equals(_filesWithAnnotation[i]) ){
 					_file = file;
-					if( _astUnits != null ){
-						_astRoot = _astUnits[i];		
-						_unit = _units[i];
-					}
-					else{
-						_unit = JavaCore.createCompilationUnitFrom(_filesWithAnnotation[i]);
-						_astRoot = createDietAST(_javaProject, _unit);
-					}
+					_astRoot = _astUnits[i];		
+					_unit = _units[i];
+					break;
 				}
 			}
 		}
@@ -1016,6 +1049,31 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return typeDecls;
     }
 	
+	private static class CompilationUnitsRequestor extends ASTRequestor
+	{	
+		private CompilationUnit[] domUnits;
+		private ICompilationUnit[] parseUnits;
+		
+		CompilationUnitsRequestor(ICompilationUnit[] parseUnits){
+			this.domUnits = new CompilationUnit[parseUnits.length];
+			this.parseUnits = parseUnits;
+			
+			// make sure we will not get any null.
+			// setting it to an empty unit will guarantee that if the 
+			// creation failed, the apt dispatch will do the cleanup work properly.
+			Arrays.fill(this.domUnits, EMPTY_AST_UNIT);
+		}
+		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+			for( int i=0; i<parseUnits.length; i++ ){
+				if( source == parseUnits[i] ){
+					domUnits[i] = ast;
+					break;
+				}
+			}
+		}
+	}
+
+	
 	private void getTypeDeclarationsFromAdditionFiles(List<AbstractTypeDeclaration> typeDecls){
 		if( _additionFiles == null || _additionFiles.length == 0 ) return;
 	
@@ -1036,8 +1094,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			}
 			units = newUnits;
 		}
-		final CompilationUnit[] domUnits = createDietASTs(_javaProject, units);
-		for( CompilationUnit domUnit : domUnits ){
+		CompilationUnitsRequestor r = new CompilationUnitsRequestor(units);
+		createDietASTs(units, r);
+		
+		for( CompilationUnit domUnit : r.domUnits ){
 			if( domUnit != null ){
 				typeDecls.addAll( domUnit.types() );
 			}
@@ -1222,4 +1282,19 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		
 	
 	}
+
+	public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+		for( int i=0; i< _astUnits.length; i++ ){
+			if( source == _units[i] ){
+				_astUnits[i] = ast;
+				break;
+			}
+		}
+	}
+
+	public void acceptBinding(String bindingKey, IBinding binding) {
+		// If we have recieved the last ast we have requested, then begin the dispatch
+		_result = _callback.runAPT(this);
+	}
+	
 }

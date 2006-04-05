@@ -77,7 +77,7 @@ import com.sun.mirror.util.Types;
  *  
  * @author tyeung
  */
-public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
+public class BaseProcessorEnv extends ASTRequestor implements AnnotationProcessorEnvironment 
 {
 	static{
 		final AST ast = AST.newAST(AST.JLS3);
@@ -127,14 +127,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	
 	protected IPackageFragmentRoot[] _packageRootsCache;
 	
-	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
-						    IFile file,
-						    IJavaProject javaProj,
-							Phase phase )
+	public BaseProcessorEnv(IJavaProject javaProj, IFile file, Phase phase)
 	{
-		_astRoot = astCompilationUnit;
-		_file = file;
 		_javaProject = javaProj;
+		_file = file;
 		_phase = phase;
 		
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
@@ -366,45 +362,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     		return null;
     	}
 
-		// first see if it is one of the well known types.
-		// any AST is as good as the other.		
-		ITypeBinding typeBinding = null;
-		CompilationUnit[] asts = getAsts();
-		
-		if( asts != null && asts.length > 0) {
-			typeBinding = asts[0].getAST().resolveWellKnownType(name);
-
-			if(typeBinding == null){
-				// then look into the current compilation units			
-				ASTNode node = null;
-				String typeKey = BindingKey.createTypeBindingKey(name);
-				for (int i=0, len=asts.length;i<len;i++) {
-					node = asts[i].findDeclaringNode(typeKey);
-							
-					if( node != null ){
-						final int nodeType = node.getNodeType();
-						if( nodeType == ASTNode.TYPE_DECLARATION ||
-							nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-							nodeType == ASTNode.ENUM_DECLARATION )
-						typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
-						break;
-					}
-				}
-			}
-		}
-		
 		// finally go search for it in the universe.
-		if (typeBinding == null) {
-			try {
-				typeBinding = getTypeDefinitionBindingFromName(name);
-			}
-			catch (ArrayIndexOutOfBoundsException e) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133947
-				// if the name is invalid, JDT can throw an ArrayIndexOutOfBoundsException
-				// We'll ignore this and return null to the user
-				AptPlugin.log(e, "Unable to get type definition binding for: " + name); //$NON-NLS-1$
-			}
-		}
+		ITypeBinding typeBinding = getTypeDefinitionBindingFromName(name);
 		
 		result = Factory.createReferenceType(typeBinding, this);
     	
@@ -425,7 +384,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * e.g. java.util.Map$Entry, NOT java.util.Map.Entry
      * @return the type binding corresponding to the parameter.
      */
-    private ITypeBinding getTypeDefinitionBindingFromCorrectName(
+    protected ITypeBinding getTypeDefinitionBindingFromCorrectName(
     		final String fullyQualifiedName ){
     	final int dollarIndex = fullyQualifiedName.indexOf('$');
     	final String toplevelTypeName;
@@ -444,7 +403,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	return getTypeBindingFromKey(key, unit);
     }
   
-    private ITypeBinding getTypeDefinitionBindingFromName(String fullyQualifiedName) {
+    protected ITypeBinding getTypeDefinitionBindingFromName(String fullyQualifiedName) {
     	// We don't know for sure that the name we have represents a top-level type,
     	// so we need to loop backwards until we find one, in case we have something
     	// like "java.util.Map.Entry", converting it to "java.util.Map$Entry". --jgarms
@@ -771,64 +730,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	}
 	
 	/**
-	 * Parse and fully resolve all files. 
-	 * @param javaProject
-	 * @param files the files to be parsed and resolved.
-	 * @return the array of ast units parallel to <code>files</code>
-	 * Any entry in the returned array may be <code>null</code>. 
-	 * This indicates an error while reading the file. 
-	 */
-	public static CompilationUnit[] createDietASTs(
-			final IJavaProject javaProject, 
-			final ICompilationUnit[] parseUnits)
-	{
-		if( parseUnits == null ) 
-			return null;
-		final int len = parseUnits.length;
-		if( len == 0 )
-			return NO_AST_UNITs;
-		
-		class CompilationUnitsRequestor extends ASTRequestor
-		{	
-			CompilationUnit[] domUnits = new CompilationUnit[len];
-			CompilationUnitsRequestor(){
-				for( int i=0; i<len; i++ ){
-					// make sure we will not get any null.
-					// setting it to an empty unit will guarantee that if the 
-					// creation failed, the apt dispatch will do the cleanup work properly.
-					domUnits[i] = EMPTY_AST_UNIT;
-				}
-			}
-			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
-				for( int i=0; i<len; i++ ){
-					if( source == parseUnits[i] ){
-						domUnits[i] = ast;
-						break;
-					}
-				}
-			}
-		}
-		
-		CompilationUnitsRequestor requestor = new CompilationUnitsRequestor();
-		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		p.setResolveBindings( true );
-		p.setProject( javaProject );
-		p.setFocalPosition( 0 );
-		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		p.createASTs( parseUnits, NO_KEYS,  requestor, null);
-		
-		return requestor.domUnits;
-	}
-	
-	/**
 	 *  This should create an AST without imports or method-body statements
 	 */
-	public static CompilationUnit createDietAST(
-			IJavaProject javaProject, 
-			final ICompilationUnit compilationUnit)
+	public void createDietAST(final ICompilationUnit compilationUnit)
 	{	
-		if(compilationUnit == null)
-			return null;
+		if(compilationUnit == null) return;
 		
 		class CompilationUnitRequestor extends ASTRequestor
 		{	
@@ -842,14 +748,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );
-		p.setProject( javaProject );		
+		p.setProject( _javaProject );		
 		p.setFocalPosition( 0 );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
 		if( AptPlugin.DEBUG ){
 			AptPlugin.trace("created DOM AST for " + compilationUnit.getElementName() ); //$NON-NLS-1$
 		}
-		return requestor.domUnit;
+		_astRoot =  requestor.domUnit;
 	}
 	
 	/**

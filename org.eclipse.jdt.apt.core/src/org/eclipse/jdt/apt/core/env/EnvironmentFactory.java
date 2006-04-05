@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 
@@ -36,13 +35,8 @@ public class EnvironmentFactory {
 	 */
 	public static AnnotationProcessorEnvironment getEnvironment(ICompilationUnit compilationUnit, IJavaProject javaProject )
 	{	
-		CompilationUnit node = BaseProcessorEnv.createDietAST( javaProject, compilationUnit);
-       	BaseProcessorEnv env = new BaseProcessorEnv(
-       			node,
-       			(IFile)compilationUnit.getResource(),
-       			javaProject,
-       			Phase.OTHER
-       			);
+       	BaseProcessorEnv env = new BaseProcessorEnv(javaProject, (IFile)compilationUnit.getResource(), Phase.OTHER);
+		env.createDietAST(null);
        	return env;
 	}
 }
