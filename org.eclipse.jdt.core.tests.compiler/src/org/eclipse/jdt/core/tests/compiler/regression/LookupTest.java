@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -1978,6 +1979,38 @@ public void test060() {
 		"	     ^^\n" + 
 		"The method bb() is undefined for the type X\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
+public void test061() {
+	Map options = this.getCompilerOptions();
+	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
+		// ensure target is 1.1 for having default abstract methods involved
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+	}
+    this.runConformTest(
+        new String[] {
+        		"X.java", // =================
+    			"interface MyInterface {\n" + 
+    			"        public void writeToStream();\n" + 
+    			"        public void readFromStream();\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"public abstract class X implements MyInterface {\n" + 
+    			"        public void b() {\n" + 
+    			"        }\n" + 
+    			"        public void a() {\n" + 
+    			"                writeTypeToStream();\n" + 
+    			"        }\n" + 
+    			"        private void writeTypeToStream() {\n" + 
+    			"        }\n" + 
+    			"}\n", // =================
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
 }
 public static Class testClass() {
 	return LookupTest.class;

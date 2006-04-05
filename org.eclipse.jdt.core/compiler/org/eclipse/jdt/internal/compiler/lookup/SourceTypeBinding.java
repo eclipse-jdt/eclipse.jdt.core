@@ -88,6 +88,7 @@ public void addDefaultAbstractMethods() {
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 		int lastPosition = 0;
 		interfacesToVisit[lastPosition] = superInterfaces();
+		boolean hasAddedMethods = false;
 		for (int i = 0; i <= lastPosition; i++) {
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {
@@ -96,8 +97,10 @@ public void addDefaultAbstractMethods() {
 					MethodBinding[] superMethods = superType.methods();
 					for (int m = superMethods.length; --m >= 0;) {
 						MethodBinding method = superMethods[m];
-						if (!implementsMethod(method))
+						if (!implementsMethod(method)) {
 							addDefaultAbstractMethod(method);
+							hasAddedMethods = true;
+						}
 					}
 
 					ReferenceBinding[] itsInterfaces = superType.superInterfaces();
@@ -107,6 +110,13 @@ public void addDefaultAbstractMethods() {
 						interfacesToVisit[lastPosition] = itsInterfaces;
 					}
 				}
+			}
+		}
+		if (hasAddedMethods) {
+			// re-sort methods
+			int length = this.methods.length;
+			if (length > 1) {
+				ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 			}
 		}
 	}
