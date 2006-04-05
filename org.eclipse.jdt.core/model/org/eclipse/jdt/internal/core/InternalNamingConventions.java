@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
@@ -199,25 +198,40 @@ public class InternalNamingConventions {
 									prefixName,
 									suffixes[l],
 									excludedNames);
-							if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-								acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - j, requestor);
-								acceptDefaultName = false;
-							} else {
-								suffixName = CharOperation.concat(
-									prefixName,
-									String.valueOf(1).toCharArray(),
-									suffixes[l]
-								);
-								suffixName =
-									excludeNames(
-										suffixName,
-										prefixName,
-										suffixes[l],
-										excludedNames);
-								if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-									acceptName(suffixName, prefixes[k], suffixes[l], k == 0, l == 0, internalPrefix.length - j, requestor);
-									acceptDefaultName = false;
+							try{
+								nameScanner.setSource(suffixName);
+								switch (nameScanner.getNextToken()) {
+									case TerminalTokens.TokenNameIdentifier :
+										int token = nameScanner.getNextToken();
+										if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
+											acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - j, requestor);
+											acceptDefaultName = false;
+										}
+										break;
+									default:
+										suffixName = CharOperation.concat(
+											prefixName,
+											String.valueOf(1).toCharArray(),
+											suffixes[l]
+										);
+										suffixName =
+											excludeNames(
+												suffixName,
+												prefixName,
+												suffixes[l],
+												excludedNames);
+										nameScanner.setSource(suffixName);
+										switch (nameScanner.getNextToken()) {
+											case TerminalTokens.TokenNameIdentifier :
+												token = nameScanner.getNextToken();
+												if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
+													acceptName(suffixName, prefixes[k], suffixes[l], k == 0, l == 0, internalPrefix.length - j, requestor);
+													acceptDefaultName = false;
+												}
+										}
 								}
+							} catch(InvalidInputException e){
+								// ignore
 							}
 						}
 					}

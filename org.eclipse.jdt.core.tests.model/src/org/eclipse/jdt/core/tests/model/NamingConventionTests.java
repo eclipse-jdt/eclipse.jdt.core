@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -671,5 +673,57 @@ public void testSuggestSetterName002() {
 	assertEquals(
 		"setIsSomething", //$NON-NLS-1$
 		new String(suggestion));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=133562
+ */
+public void testSuggestLocalName001() {
+	Map options = this.project.getOptions(true);
+	try {
+		Map newOptions = new HashMap(options);
+		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		this.project.setOptions(newOptions);
+
+		String[] suggestions = NamingConventions.suggestLocalVariableNames(
+			project,
+			"",//$NON-NLS-1$
+			"Enum",//$NON-NLS-1$
+			0,
+			new String[]{"o"});
+		
+		assertEquals(
+			"enum1", //$NON-NLS-1$
+			toString(suggestions));
+	} finally {
+		this.project.setOptions(options);
+	}
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=133562
+ */
+public void testSuggestLocalName002() {
+	Map options = this.project.getOptions(true);
+	try {
+		Map newOptions = new HashMap(options);
+		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		this.project.setOptions(newOptions);
+
+		String[] suggestions = NamingConventions.suggestLocalVariableNames(
+			project,
+			"",//$NON-NLS-1$
+			"Enums",//$NON-NLS-1$
+			0,
+			new String[]{"o"});
+		
+		assertEquals(
+			"enums", //$NON-NLS-1$
+			toString(suggestions));
+	} finally {
+		this.project.setOptions(options);
+	}
 }
 }
