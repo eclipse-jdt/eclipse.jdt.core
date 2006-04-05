@@ -2572,19 +2572,6 @@ public void configure(String[] argv) throws InvalidInputException {
 		if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
 			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
-	} else {
-		if (compliance.equals(CompilerOptions.VERSION_1_3)) {
-			this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-		} else if (compliance.equals(CompilerOptions.VERSION_1_4)
-				|| compliance.equals(CompilerOptions.VERSION_1_5)
-				|| compliance.equals(CompilerOptions.VERSION_1_6)) {
-			if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
-				this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			} else {
-				// for JDK >= 1.4, target == source
-				this.options.put(CompilerOptions.OPTION_TargetPlatform, sourceVersion);
-			}
-		}
 	}
 	this.logger.logCommandLineArguments(newCommandLineArgs);
 	this.logger.logOptions(this.options);
