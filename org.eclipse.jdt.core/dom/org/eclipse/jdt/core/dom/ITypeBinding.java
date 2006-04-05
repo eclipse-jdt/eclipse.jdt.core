@@ -487,10 +487,16 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns the binding for the type declaration corresponding to this type
-	 * binding. For parameterized types ({@link #isParameterizedType()})
-	 * and raw types ({@link #isRawType()}), this method returns the binding
-	 * for the corresponding generic type. For other type bindings, this
-	 * returns the same binding.
+	 * binding.
+	 * <p>For parameterized types ({@link #isParameterizedType()})
+	 * and most raw types ({@link #isRawType()}), this method returns the binding
+	 * for the corresponding generic type.</p>
+	 * <p>For raw member types ({@link #isRawType()}, {@link #isMember()})
+	 * of a raw declaring class, the type declaration is a generic or a non-generic
+	 * type.</p>
+	 * <p>A different non-generic binding will be returned when one of the declaring
+	 * types/methods was parameterized.</p>
+	 * <p>For other type bindings, this returns the same binding.</p>
 	 *
 	 * @return the type binding
 	 * @since 3.1
