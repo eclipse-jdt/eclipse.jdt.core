@@ -2341,7 +2341,7 @@ public class DefaultCodeFormatterOptions {
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 8;
 		this.page_width = 80;
-		this.tab_char = SPACE;
+		this.tab_char = MIXED;
 		this.use_tabs_only_for_leading_indentations = false;
 	}
 }
