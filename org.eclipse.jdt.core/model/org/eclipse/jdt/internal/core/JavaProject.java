@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -768,6 +769,7 @@ public class JavaProject
 					IJavaModelMarker.CLASSPATH_FILE_FORMAT,
 					IJavaModelMarker.ID,
 					IJavaModelMarker.ARGUMENTS ,
+					IJavaModelMarker.CATEGORY_ID,
 				},
 				new Object[] {
 					status.getMessage(),
@@ -777,6 +779,7 @@ public class JavaProject
 					isClasspathFileFormatProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
 					new Integer(status.getCode()),
 					Util.getProblemArgumentsForMarker(arguments) ,
+					new Integer(CategorizedProblem.CAT_BUILDPATH)
 				}
 			);
 		} catch (CoreException e) {

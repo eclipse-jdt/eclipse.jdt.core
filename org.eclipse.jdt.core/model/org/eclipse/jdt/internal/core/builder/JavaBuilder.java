@@ -202,11 +202,13 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 	} catch (MissingClassFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing class files
 		if (DEBUG)
@@ -214,6 +216,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
@@ -605,6 +608,7 @@ private boolean isWorthBuilding() throws CoreException {
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 		return false;
 	}
 
@@ -642,6 +646,7 @@ private boolean isWorthBuilding() throws CoreException {
 					? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName()) 
 					: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName())); 
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 			return false;
 		}
 	}
