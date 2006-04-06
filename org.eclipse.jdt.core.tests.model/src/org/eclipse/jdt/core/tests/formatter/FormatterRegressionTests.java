@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 614, 615, 616 } ;
+//		TESTS_NUMBERS = new int[] { 617 } ;
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -8733,5 +8733,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test616", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=131013
+	public void test617() {
+		String resourcePath = getResource("test617", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "JRK");
+		assertNotNull("No preferences", options);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+					true,
+					DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+					DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test617", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
