@@ -257,6 +257,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 	int offset = reference.sourceStart;
 	match.setOffset(offset);
 	match.setLength(reference.sourceEnd - offset + 1);
+	if (reference instanceof FieldDeclaration) { // enum declaration
+		FieldDeclaration enumConstant  = (FieldDeclaration) reference;
+		if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
+			locator.reportAccurateEnumConstructorReference(match, enumConstant, (QualifiedAllocationExpression) enumConstant.initialization);
+			return;
+		}
+	}
 	locator.report(match);
 }
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding binding, int accuracy, int length, MatchLocator locator) {

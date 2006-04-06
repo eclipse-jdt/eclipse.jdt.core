@@ -1817,6 +1817,52 @@ protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeR
  * reports a reference to this token to the search requestor.
  * A token is valid if it has an accuracy which is not -1.
  */
+protected void reportAccurateEnumConstructorReference(SearchMatch match, FieldDeclaration field, AllocationExpression allocation) throws CoreException {
+	// Verify that field declaration is really an enum constant
+	if (allocation == null || allocation.enumConstant == null) {
+		report(match);
+		return;
+	}
+
+	// Get scan area
+	int sourceStart = match.getOffset()+match.getLength();
+	if (allocation.arguments != null && allocation.arguments.length > 0) {
+		sourceStart = allocation.arguments[allocation.arguments.length-1].sourceEnd+1;
+	}
+	int sourceEnd = field.declarationSourceEnd;
+	if (allocation instanceof QualifiedAllocationExpression) {
+		QualifiedAllocationExpression qualifiedAllocation = (QualifiedAllocationExpression) allocation;
+		if (qualifiedAllocation.anonymousType != null) {
+			sourceEnd = qualifiedAllocation.anonymousType.sourceStart - 1;
+		}
+	}
+	
+	// Scan to find last closing parenthesis
+	Scanner scanner = this.parser.scanner;
+	scanner.setSource(this.currentPossibleMatch.getContents());
+	scanner.resetTo(sourceStart, sourceEnd);
+	try {
+		int token = scanner.getNextToken();
+		while (token != TerminalTokens.TokenNameEOF) {
+			if (token == TerminalTokens.TokenNameRPAREN) {
+				sourceEnd = scanner.getCurrentTokenEndPosition();
+			}
+			token = scanner.getNextToken();
+		}
+	}
+	catch (InvalidInputException iie) {
+		// give up
+	}
+
+	// Report match
+	match.setLength(sourceEnd-match.getOffset()+1);
+	report(match);
+}
+/**
+ * Finds the accurate positions of each valid token in the source and
+ * reports a reference to this token to the search requestor.
+ * A token is valid if it has an accuracy which is not -1.
+ */
 protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedNameReference qNameRef) throws CoreException {
 	if (matches == null) return; // there's nothing to accurate in this case
 	int matchesLength = matches.length;
@@ -2158,7 +2204,11 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 		if (encloses(enclosingElement)) {
 			int offset = field.sourceStart;
 			SearchMatch match = newDeclarationMatch(enclosingElement, field.binding, accuracy, offset, field.sourceEnd-offset+1);
-			report(match);
+			if (field.initialization instanceof AllocationExpression) {
+				reportAccurateEnumConstructorReference(match, field, (AllocationExpression) field.initialization);
+			} else {
+				report(match);
+			}
 		}
 	}
 

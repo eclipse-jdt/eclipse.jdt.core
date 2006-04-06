@@ -49,7 +49,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110060";
 //	TESTS_NAMES = new String[] { "testBug126330" };
-//	TESTS_NUMBERS = new int[] { 127628 };
+//	TESTS_NUMBERS = new int[] { 89686 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -2662,6 +2662,41 @@ public void testBug88300c() throws CoreException {
 	search(type.getMethods()[2], REFERENCES);
 	assertSearchResults(
 		"src/b88300/not/fixed/ConditionalFlowInfo.java void b88300.not.fixed.ConditionalFlowInfo.markAsDefinitelyNull(LocalVariableBinding) [markAsDefinitelyNull(local)] EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 89686: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=89686"
+ */
+public void testBug89686() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b89686/A.java",
+		"package b89686;\n" + 
+		"public enum Color {\n" + 
+		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" + 
+		"    Color() {}\n" + 
+		"    Color(int i) {}\n" + 
+		"}"
+	);
+	IType type = workingCopies[0].getType("Color");
+	IMethod method = type.getMethod("Color", new String[0]);
+	search(method, REFERENCES);
+	this.discard = false;
+	assertSearchResults(
+		"src/b89686/A.java b89686.Color.RED [RED] EXACT_MATCH\n" + 
+		"src/b89686/A.java b89686.Color.GREEN [GREEN()] EXACT_MATCH"
+	);
+}
+public void testBug89686b() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	IType type = workingCopies[0].getType("Color");
+	IMethod method = type.getMethod("Color", new String[] { "I"} );
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/b89686/A.java b89686.Color.BLUE [BLUE(17)] EXACT_MATCH\n" + 
+		"src/b89686/A.java b89686.Color.PINK [PINK((1+(1+1)))] EXACT_MATCH"
 	);
 }
 

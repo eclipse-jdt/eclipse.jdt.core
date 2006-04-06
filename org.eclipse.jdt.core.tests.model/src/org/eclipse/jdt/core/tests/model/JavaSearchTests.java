@@ -3090,11 +3090,11 @@ public void testEnum03() throws CoreException {
 	IMethod method = type.getMethod("Team", new String[] { "I" });
 	search(method, REFERENCES, getJavaSearchScope15("e1", false), this.resultCollector);
 	assertSearchResults(
-		"src/e1/Team.java e1.Team.PHILIPPE [PHILIPPE]\n" + 
-		"src/e1/Team.java e1.Team.DAVID [DAVID]\n" + 
-		"src/e1/Team.java e1.Team.JEROME [JEROME]\n" + 
-		"src/e1/Team.java e1.Team.OLIVIER [OLIVIER]\n" + 
-		"src/e1/Team.java e1.Team.KENT [KENT]",
+		"src/e1/Team.java e1.Team.PHILIPPE [PHILIPPE(37)]\n" + 
+		"src/e1/Team.java e1.Team.DAVID [DAVID(27)]\n" + 
+		"src/e1/Team.java e1.Team.JEROME [JEROME(33)]\n" + 
+		"src/e1/Team.java e1.Team.OLIVIER [OLIVIER(35)]\n" + 
+		"src/e1/Team.java e1.Team.KENT [KENT(40)]",
 		this.resultCollector);
 }
 public void testEnum04() throws CoreException {
