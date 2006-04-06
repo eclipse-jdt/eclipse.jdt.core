@@ -443,7 +443,10 @@ class MethodBinding implements IMethodBinding {
 				LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
 				if (lookupEnvironment == null) return false;
 				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
-				return methodVerifier.doesMethodOverride(this.binding, superMethods[i]);
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
+				return !superMethod.isPrivate() 
+					&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
+					&& methodVerifier.doesMethodOverride(this.binding, superMethod);
 			}
 		}
 		return false;

@@ -730,4 +730,58 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		}
 	}
 	
+	/*
+	 * Ensures that a method in a subtype doesn't override the corresponding private method in the super type.
+	 * (regression test for bug 132191 IMethodBinding.overrides(IMethodBinding) returns true even if the given argument is private.)
+	 */
+	public void test033() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  private void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y extends X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/Y;.foo()V",
+				"Lp1/X;.foo()V"
+			});	
+		assertTrue("Y#foo() should not override X#foo()", !bindings[0].overrides(bindings[1]));
+	}
+	
+	/*
+	 * Ensures that a method in a subtype doesn't override the corresponding default method in the super type in a different package.
+	 * (regression test for bug 132191 IMethodBinding.overrides(IMethodBinding) returns true even if the given argument is private.)
+	 */
+	public void test034() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p2/Y.java",
+				"package p2;\n" +
+				"public class Y extends p1.X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp2/Y;.foo()V",
+				"Lp1/X;.foo()V"
+			});	
+		assertTrue("Y#foo() should not override X#foo()", !bindings[0].overrides(bindings[1]));
+	}
+	
 }
