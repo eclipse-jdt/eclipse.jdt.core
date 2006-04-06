@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -856,7 +857,7 @@ public class JavaProject
 					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
 			}
 			return INVALID_CLASSPATH;
-		} catch (Assert.AssertionFailedException e) { 
+		} catch (AssertionFailedException e) { 
 			// failed creating CP entries from file
 			if (createMarker && this.project.isAccessible()) {
 				this.createClasspathProblemMarker(new JavaModelStatus(
@@ -2138,7 +2139,7 @@ public class JavaProject
 					IClasspathEntry resolvedEntry = null;
 					try {
 						resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
-					} catch (Assert.AssertionFailedException e) {
+					} catch (AssertionFailedException e) {
 						// Catch the assertion failure and throw java model exception instead
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 						// if ignoredUnresolvedEntry is false, status is set by by ClasspathEntry.validateClasspathEntry

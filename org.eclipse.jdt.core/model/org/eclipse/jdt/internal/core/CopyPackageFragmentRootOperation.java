@@ -11,15 +11,10 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 public class CopyPackageFragmentRootOperation extends JavaModelOperation {
@@ -193,7 +188,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_LIBRARY:
 				try {
 					return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
-				} catch (Assert.AssertionFailedException e) {
+				} catch (AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);
 				}
@@ -204,7 +199,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_VARIABLE:
 				try {
 					return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
-				} catch (Assert.AssertionFailedException e) {
+				} catch (AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);
 				}

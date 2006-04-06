@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.text.edits.TextEdit;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DefaultPositionUpdater;
@@ -22,7 +23,6 @@ import org.eclipse.jface.text.Position;
 
 import org.eclipse.jdt.core.ToolFactory;
 
-import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**

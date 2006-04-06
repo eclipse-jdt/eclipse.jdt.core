@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -753,7 +754,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						NO_EXTRA_ATTRIBUTES);
 				break;
 			default :
-				throw new Assert.AssertionFailedException(Messages.bind(Messages.classpath_unknownKind, kindAttr)); 
+				throw new AssertionFailedException(Messages.bind(Messages.classpath_unknownKind, kindAttr)); 
 		}
 		
 		if (unknownAttributes != null || unknownChildren != null) {
@@ -1618,7 +1619,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (path != null && path.segmentCount() >= 1){
 					try {
 						entry = JavaCore.getResolvedClasspathEntry(entry);
-					} catch (Assert.AssertionFailedException e) {
+					} catch (AssertionFailedException e) {
 						// Catch the assertion failure and throw java model exception instead
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());

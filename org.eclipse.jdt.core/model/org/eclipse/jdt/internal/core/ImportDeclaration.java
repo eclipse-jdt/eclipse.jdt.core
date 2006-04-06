@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Handle for an import declaration. Info object is a ImportDeclarationElementInfo.
