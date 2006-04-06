@@ -3818,7 +3818,7 @@ public void testBug55992a() throws CoreException {
 			ClasspathEntry.NO_EXTRA_ATTRIBUTES);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cp, false);
 		assertEquals(
-			"Assertion failed; Source attachment path \'jclMin.zip\' for IClasspathEntry must be absolute",
+			"assertion failed: Source attachment path \'jclMin.zip\' for IClasspathEntry must be absolute",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -3846,7 +3846,7 @@ public void testBug55992b() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Assertion failed; Source attachment path \'tmp.zip\' for IClasspathEntry must be absolute",
+			"assertion failed: Source attachment path \'tmp.zip\' for IClasspathEntry must be absolute",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
