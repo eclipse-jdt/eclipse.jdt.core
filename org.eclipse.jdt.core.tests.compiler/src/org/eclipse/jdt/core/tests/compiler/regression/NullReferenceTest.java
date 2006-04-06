@@ -3628,6 +3628,29 @@ public void test0455_while_nested() {
 		"----------\n");
 } 
 
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=134848
+// false positive after nested loop with break to explicit label
+public void _test0456_while_nested_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    while (true) {\n" + 
+			"      if (o != null) {\n" + 
+			"        o.toString();\n" + 
+			"        loop: while (true) {\n" + 
+			"          break loop;\n" + 
+			"        }\n" + 
+			"        o.toString();\n" + // must not complain here 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+} 
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
