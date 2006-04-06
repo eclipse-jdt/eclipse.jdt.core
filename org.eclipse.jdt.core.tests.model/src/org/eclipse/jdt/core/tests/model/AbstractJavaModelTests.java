@@ -370,6 +370,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
 	}
+	protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
+		waitForAutoBuild();
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+		sortMarkers(markers);
+		assertMarkers(message, expectedMarkers, markers);
+	}
+	protected void sortMarkers(IMarker[] markers) {
+		org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
+			public int compare(Object a, Object b) {
+				IMarker markerA = (IMarker)a;
+				IMarker markerB = (IMarker)b;
+				return markerA.getAttribute(IMarker.MESSAGE, "").compareTo(markerB.getAttribute(IMarker.MESSAGE, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		};
+		org.eclipse.jdt.internal.core.util.Util.sort(markers, comparer);
+	}
 	protected void assertMarkers(String message, String expectedMarkers, IMarker[] markers) throws CoreException {
 		StringBuffer buffer = new StringBuffer();
 		if (markers != null) {

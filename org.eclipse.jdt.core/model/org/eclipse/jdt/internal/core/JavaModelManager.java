@@ -1043,10 +1043,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					}
 				} else {
 					String newValue = (String)event.getNewValue();
+					IPath newPath;
 					if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-						manager.variables.put(varName, new Path(newValue));
+						newPath = new Path(newValue);
 					} else {
-						manager.variables.remove(varName);
+						newPath = null;
+					}
+					try {
+						manager.updateVariableValues(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/, null/*no progress available*/);
+					} catch (JavaModelException e) {
+						Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 			}
@@ -2940,13 +2946,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		void save() throws IOException, JavaModelException {
 			saveProjects(JavaModelManager.this.getJavaModel().getJavaProjects());
 			
-			// don't save classpath variables from the default preferences as there is no delta if they are removed
+			// remove variables that should not be saved
 			HashMap varsToSave = null;
-			Iterator iterator = JavaModelManager.this.variables.keySet().iterator();
+			Iterator iterator = JavaModelManager.this.variables.entrySet().iterator();
 			IEclipsePreferences defaultPreferences = getDefaultPreferences();
 			while (iterator.hasNext()) {
-				String varName = (String) iterator.next();
-				if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				String varName = (String) entry.getKey();
+				if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null // don't save classpath variables from the default preferences as there is no delta if they are removed
+					|| CP_ENTRY_IGNORE_PATH.equals(entry.getValue())) {
+					
 					if (varsToSave == null)
 						varsToSave = new HashMap(JavaModelManager.this.variables);
 					varsToSave.remove(varName);
@@ -3826,6 +3835,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void updateVariableValues(
 		String[] variableNames,
 		IPath[] variablePaths,
+		boolean updatePreferences,
 		IProgressMonitor monitor) throws JavaModelException {
 	
 		if (monitor != null && monitor.isCanceled()) return;
@@ -3921,7 +3931,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		// update variables
 		for (int i = 0; i < varLength; i++){
-			this.variablePut(variableNames[i], variablePaths[i]);
+			variablePut(variableNames[i], variablePaths[i]);
+			if (updatePreferences)
+				variablePreferencesPut(variableNames[i], variablePaths[i]);
 		}
 		final String[] dbgVariableNames = variableNames;
 				
@@ -4024,7 +4036,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			// discard obsoleted information about previous session
 			this.previousSessionVariables.remove(variableName);
 		}
-	
+	}
+
+	private void variablePreferencesPut(String variableName, IPath variablePath) {
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		if (variablePath == null) {
 			this.variablesWithInitializer.remove(variableName);

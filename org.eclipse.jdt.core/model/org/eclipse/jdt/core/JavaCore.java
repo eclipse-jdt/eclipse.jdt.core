@@ -3896,7 +3896,7 @@ public final class JavaCore extends Plugin {
 		IProgressMonitor monitor) {
 
 		try {
-			JavaModelManager.getJavaModelManager().updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, monitor);
+			JavaModelManager.getJavaModelManager().updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, true/*update preferences*/, monitor);
 		} catch (JavaModelException e) {
 			// cannot happen: ignore
 		}
@@ -4320,7 +4320,7 @@ public final class JavaCore extends Plugin {
 		throws JavaModelException {
 
 		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
-		JavaModelManager.getJavaModelManager().updateVariableValues(variableNames, paths, monitor);
+		JavaModelManager.getJavaModelManager().updateVariableValues(variableNames, paths, true/*update preferences*/, monitor);
 	}
 
 	/**

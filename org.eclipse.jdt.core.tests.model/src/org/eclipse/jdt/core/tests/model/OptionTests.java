@@ -506,6 +506,23 @@ public class OptionTests extends ModifyingResourceTests {
 			preferences.get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", "null"));
 	}
 
+	/*
+	 * Ensures that classpath problems are removed when a missing classpath variable is added through the preferences
+	 * (regression test for bug 109691 Importing preferences does not update classpath variables)
+	 */
+	public void test12() throws CoreException {
+		IEclipsePreferences preferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		try {
+			IJavaProject project = createJavaProject("P", new String[0], new String[] {"TEST"}, "");
+			waitForAutoBuild();
+			preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", getExternalJCLPathString());
+			assertMarkers("Unexpected markers", "", project);
+		} finally {
+			deleteProject("P");
+			preferences.remove(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST");
+		}
+	}
+
 	/**
 	 * Bug 68993: [Preferences] IAE when opening project preferences
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68993"

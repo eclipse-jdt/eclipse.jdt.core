@@ -128,12 +128,6 @@ private void assertEncodeDecodeEntry(String projectName, String expectedEncoded,
 		entry,
 		decoded);
 }
-protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
-	waitForAutoBuild();
-	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-	this.sortMarkers(markers);
-	assertMarkers(message, expectedMarkers, markers);
-}
 protected void assertStatus(String expected, IStatus status) {
 	String actual = status.getMessage();
 	if (!expected.equals(actual)) {
@@ -179,16 +173,6 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 	return result;
 }
 
-protected void sortMarkers(IMarker[] markers) {
-	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
-		public int compare(Object a, Object b) {
-			IMarker markerA = (IMarker)a;
-			IMarker markerB = (IMarker)b;
-			return markerA.getAttribute(IMarker.MESSAGE, "").compareTo(markerB.getAttribute(IMarker.MESSAGE, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-	};
-	org.eclipse.jdt.internal.core.util.Util.sort(markers, comparer);
-}
 /**
  * Add an entry to the classpath for a non-existent root. Then create
  * the root and ensure that it comes alive.
