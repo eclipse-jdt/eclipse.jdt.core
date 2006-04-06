@@ -568,16 +568,16 @@ public interface ITypeBinding extends IBinding {
 	public boolean isArray();
 	
 	/**
-	 * Returns whether this type is assigment compatible with the given type,
-	 * as specified in section 5.2 of <em>The Java Language 
+	 * Returns whether an expression of this type can be assigned to a variable
+	 * of the given type, as specified in section 5.2 of <em>The Java Language 
 	 * Specification, Third Edition</em> (JLS3).
 	 * 
-	 * @param type the type to check compatibility against
-	 * @return <code>true</code> if this type is assigment compatible with the
-	 * given type, and <code>false</code> otherwise
+	 * @param variableType the type of a variable to check compatibility against
+	 * @return <code>true</code> if an expression of this type can be assigned to a
+	 *   variable of the given type, and <code>false</code> otherwise
 	 * @since 3.1
 	 */
-	public boolean isAssignmentCompatible(ITypeBinding type);
+	public boolean isAssignmentCompatible(ITypeBinding variableType);
 	
 	/**
 	 * Returns whether this type binding represents a capture binding.
