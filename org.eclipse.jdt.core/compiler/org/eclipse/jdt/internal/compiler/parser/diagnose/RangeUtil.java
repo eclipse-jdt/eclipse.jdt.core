@@ -169,29 +169,7 @@ public class RangeUtil {
 			}
 		}
 	}
-	
-	public static boolean isInInterval(int start, int end, int[] intervalStart, int[] intervalEnd) {
-		int length = intervalStart.length;
-		for (int i = 0; i < length; i++) {
-			if(intervalStart[i] <= start && intervalEnd[i] >= end) {
-				return true;
-			} else if(intervalStart[i] > end) {
-				return false;
-			}
-		}
-		return false;
-	}
-	
-	public static int getPreviousInterval(int start, int end, int[] intervalStart, int[] intervalEnd) {
-		int length = intervalStart.length;
-		for (int i = 0; i < length; i++) {
-			if(intervalStart[i] > end) {
-				return i - 1;
-			}
-		}
-		return length - 1;
-	}
-	
+		
 	public static boolean containsIgnoredBody(AbstractMethodDeclaration method){
 		return !method.isDefaultConstructor()
 			&& !method.isClinit()

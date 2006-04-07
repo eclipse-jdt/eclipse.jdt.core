@@ -48,6 +48,7 @@ public class LexStream implements TerminalTokens {
 	private int[] intervalFlagsToSkip;
 	
 	private int previousInterval = -1;
+	private int currentInterval = -1;
 	
 	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, int firstToken, int init, int eof) {
 		this.tokenCache = new Token[size];
@@ -78,7 +79,11 @@ public class LexStream implements TerminalTokens {
 				if(tokenKind != TokenNameEOF) {
 					int start = scanner.getCurrentTokenStartPosition();
 					int end = scanner.getCurrentTokenEndPosition();
-					if(!RangeUtil.isInInterval(start, end, intervalStartToSkip, intervalEndToSkip)) {
+					
+					int nextInterval = currentInterval + 1;
+					if(intervalStartToSkip.length == 0 ||
+							nextInterval >= intervalStartToSkip.length ||
+							start < intervalStartToSkip[nextInterval]) {
 						Token token = new Token();
 						token.kind = tokenKind;
 						token.name = scanner.getCurrentTokenSource();
@@ -86,18 +91,19 @@ public class LexStream implements TerminalTokens {
 						token.end = end;
 						token.line = scanner.getLineNumber(end);
 						
-						int pInterval = RangeUtil.getPreviousInterval(start, end, intervalStartToSkip, intervalEndToSkip);
-						if(pInterval != previousInterval && (intervalFlagsToSkip[previousInterval + 1] & RangeUtil.IGNORE) == 0){
+						if(currentInterval != previousInterval && (intervalFlagsToSkip[currentInterval] & RangeUtil.IGNORE) == 0){
 							token.flags = IS_AFTER_JUMP;
-							if((intervalFlagsToSkip[pInterval] & RangeUtil.LBRACE_MISSING) != 0){
+							if((intervalFlagsToSkip[currentInterval] & RangeUtil.LBRACE_MISSING) != 0){
 								token.flags |= LBRACE_MISSING;
 							}
 						}
-						previousInterval = pInterval;
+						previousInterval = currentInterval;
 
 						tokenCache[++tokenCacheIndex % length] = token;
 						
 						tokenNotFound = false;
+					} else {
+						scanner.resetTo(intervalEndToSkip[++currentInterval] + 1, scanner.eofPosition - 1);
 					}
 				} else {
 					int start = scanner.getCurrentTokenStartPosition();
