@@ -439,9 +439,7 @@ public class AptConfig {
 	 */
 	private static Map<String, String> getOldStyleRawProcessorOptions(IJavaProject jproj) {
 		Map<String, String> options;
-//		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
-//	temp workaround for codegen bug - WHarley 4/7/06
-		String allOptions = null;
+		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
 		if (null == allOptions) {
     		options = new HashMap<String, String>();
     	}
@@ -496,7 +494,7 @@ public class AptConfig {
     		
     		_hasVal = false;
     		
-    		do {
+    		while (true) {
 	        	_start = _s.indexOf("-A", _start); //$NON-NLS-1$
 	        	if (_start < 0) {
 	        		return null;
@@ -516,7 +514,8 @@ public class AptConfig {
 	    			++_start;
 	    			continue;
 	    		}
-    		} while (false);
+	    		break;
+    		} 
     		
     		// We found a legitimate -A with some text after it.
     		// Where does the key end?
