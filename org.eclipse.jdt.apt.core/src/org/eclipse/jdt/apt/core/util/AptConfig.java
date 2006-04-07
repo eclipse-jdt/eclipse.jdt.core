@@ -439,8 +439,10 @@ public class AptConfig {
 	 */
 	private static Map<String, String> getOldStyleRawProcessorOptions(IJavaProject jproj) {
 		Map<String, String> options;
-		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
-    	if (null == allOptions) {
+//		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
+//	temp workaround for codegen bug - WHarley 4/7/06
+		String allOptions = null;
+		if (null == allOptions) {
     		options = new HashMap<String, String>();
     	}
     	else {
