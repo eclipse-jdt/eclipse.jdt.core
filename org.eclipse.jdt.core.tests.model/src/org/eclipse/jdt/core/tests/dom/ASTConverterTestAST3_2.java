@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 640 };
+//		TESTS_NUMBERS =  new int[] { 642, 643, 644 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -7579,5 +7579,111 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
+	 */
+	public void _test0642() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.awt.Point;\n" +
+				"public class X {\n" +
+				"	public void foo(Point p, int[] a) {\n" + 
+				"	   p.x;\n" + 
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "Syntax error, insert \"AssignmentOperator Expression\" to complete Expression");
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			assertTrue("Not recovered", isRecovered(node));
+			final Expression expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+			assertTrue("Not recovered", isRecovered(expression));
+			checkSourceRange(expression, "p.x", contents);
+			checkSourceRange(node, "p.x;", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
+	 */
+	public void _test0643() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.awt.Point;\n" +
+				"public class X {\n" +
+				"	public void foo(Point p, int[] a) {\n" + 
+				"	   a[0];\n" + 
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "Syntax error, insert \"AssignmentOperator Expression\" to complete Expression");
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			assertTrue("Not recovered", isRecovered(node));
+			final Expression expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not an array access", ASTNode.ARRAY_ACCESS, expression.getNodeType());
+			assertTrue("Not recovered", isRecovered(expression));
+			checkSourceRange(expression, "a[0]", contents);
+			checkSourceRange(node, "a[0];", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
+	 */
+	public void _test0644() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	public void foo() {\n" + 
+				"	   int x =;\n" + 
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "Syntax error on token \"=\", VariableInitializer expected after this token");
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a vaviable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			Expression expression = fragment.getInitializer();
+			assertNull("No initializer", expression);
+			assertTrue("Not recovered", isRecovered(fragment));
+			checkSourceRange(fragment, "x =", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
