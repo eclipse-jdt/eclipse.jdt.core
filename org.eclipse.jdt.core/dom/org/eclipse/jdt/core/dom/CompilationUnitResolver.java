@@ -109,7 +109,7 @@ class CompilationUnitResolver extends Compiler {
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
 	 * 
-	 *	@param settings The settings to use for the resolution.
+	 *	@param compilerOptions The compiler options to use for the resolution.
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
@@ -127,13 +127,12 @@ class CompilationUnitResolver extends Compiler {
 	public CompilationUnitResolver(
 		INameEnvironment environment,
 		IErrorHandlingPolicy policy,
-		Map settings,
+		CompilerOptions compilerOptions,
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
-		boolean statementsRecovery,
 		IProgressMonitor monitor) {
 
-		super(environment, policy, settings, requestor, problemFactory, false, true/*store annotations in the bindings*/, statementsRecovery);
+		super(environment, policy, compilerOptions, requestor, problemFactory);
 		this.hasCompilationAborted = false;
 		this.monitor =monitor;
 	}
@@ -258,6 +257,13 @@ class CompilationUnitResolver extends Compiler {
 		return compilationUnit;
 	}
 	
+	protected static CompilerOptions getCompilerOptions(Map options, boolean statementsRecovery) {
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performStatementsRecovery = statementsRecovery;
+		compilerOptions.parseLiteralExpressionsAsConstants = false;
+		compilerOptions.storeAnnotations = true /*store annotations in the bindings*/;
+		return compilerOptions;
+	}
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -450,10 +456,9 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					options,
+					getCompilerOptions(options, statementsRecovery),
 					getRequestor(),
 					problemFactory, 
-					statementsRecovery,
 					monitor);
 
 			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner);
@@ -494,10 +499,9 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					options,
+					getCompilerOptions(options, statementsRecovery),
 					getRequestor(),
-					problemFactory, 
-					statementsRecovery,
+					problemFactory,
 					monitor);
 
 			unit = 

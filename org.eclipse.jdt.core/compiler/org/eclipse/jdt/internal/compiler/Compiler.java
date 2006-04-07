@@ -82,16 +82,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
+	 *      
+	 *  @deprecated this constructor is keeped to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
-			INameEnvironment environment,
-			IErrorHandlingPolicy policy,
-			Map settings,
-			final ICompilerRequestor requestor,
-			IProblemFactory problemFactory,
-			boolean statementsRecovery) {
-		this(environment, policy, settings,	requestor, problemFactory, 
-				null, false, false, false, statementsRecovery); // all defaults
+		INameEnvironment environment,
+		IErrorHandlingPolicy policy,
+		Map settings,
+		final ICompilerRequestor requestor,
+		IProblemFactory problemFactory) {
+		this(environment, policy, new CompilerOptions(settings), requestor, problemFactory, null); 
 	}
 	
 	/**
@@ -126,22 +126,21 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
-	 *
-	 *  @param out java.io.PrintWriter
-	 *      Used by the compiler to output messages which are not related to problems,
-	 *      e.g. the information issued in verbose mode. If null, defaults to System.out 
-	 *      with automatic flushing. 
+	 *      
+	 *  @param parseLiteralExpressionsAsConstants <code>boolean</code>
+	 *		This parameter is used to optimize the literals or leave them as they are in the source.
+	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
+	 * 
+	 *  @deprecated this constructor is keeped to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
-			INameEnvironment environment,
-			IErrorHandlingPolicy policy,
-			Map settings,
-			final ICompilerRequestor requestor,
-			IProblemFactory problemFactory,
-			PrintWriter out,
-			boolean statementsRecovery) {
-		this(environment, policy, settings,	requestor, problemFactory, out, 
-				false, false, false, statementsRecovery); // all defaults
+		INameEnvironment environment,
+		IErrorHandlingPolicy policy,
+		Map settings,
+		final ICompilerRequestor requestor,
+		IProblemFactory problemFactory,
+		boolean parseLiteralExpressionsAsConstants) {
+		this(environment, policy, new CompilerOptions(settings, parseLiteralExpressionsAsConstants), requestor, problemFactory, null); 
 	}
 	
 	/**
@@ -176,31 +175,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
-	 *
-	 *	@param parseLiteralExpressionsAsConstants <code>boolean</code>
-	 *		This parameter is used to optimize the literals or leave them as they are in the source.
-	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
-	 *
-	 *	@param storeAnnotations <code>boolean</code>
-	 *		This parameter is used to tell the compiler to store annotations on 
-	 *		type bindings, or not.
-	 *
-	 *	@param statementsRecovery <code>boolean</code>
-	 *		This parameter is used to tell the compiler to perform syntax error
-	 *      recovery on statements, or not. 
 	 */
 	public Compiler(
-			INameEnvironment environment,
-			IErrorHandlingPolicy policy,
-			Map settings,
-			final ICompilerRequestor requestor,
-			IProblemFactory problemFactory,
-			boolean parseLiteralExpressionsAsConstants,
-			boolean storeAnnotations,
-			boolean statementsRecovery) {
-		this(environment, policy, settings,	requestor, problemFactory, 
-				null, // default 
-				parseLiteralExpressionsAsConstants, storeAnnotations, true, statementsRecovery);
+		INameEnvironment environment,
+		IErrorHandlingPolicy policy,
+		CompilerOptions options,
+		final ICompilerRequestor requestor,
+		IProblemFactory problemFactory) {
+		this(environment, policy, options, requestor, problemFactory, null); 
 	}
 
 	/**
@@ -235,47 +217,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
-	 *
-	 *  @param out java.io.PrintWriter
-	 *      Used by the compiler to output messages which are not related to problems,
-	 *      e.g. the information issued in verbose mode. If null, defaults to System.out 
-	 *      with automatic flushing. 
-	 *
-	 *	@param parseLiteralExpressionsAsConstants <code>boolean</code>
-	 *		This parameter is used to optimize the literals or leave them as they are in the source.
-	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
-	 *
-	 *	@param storeAnnotations <code>boolean</code>
-	 *		This parameter is used to tell the compiler to store annotations on 
-	 *		type bindings, or not.
-	 *
-	 *  @param flag <code>boolean</code>
-	 *		Set to true if and only if the following boolean parameters are significant:
-	 * 		<code>parseLiteralExpressionsAsConstants</code>, <code>storeAnnotations</code>.
-	 *
-	 * @param statementsRecovery <code>boolean</code>
-	 *		This parameter is used to tell the compiler to perform syntax error
-	 *      recovery on statements, or not. 
 	 */
-	private Compiler(
+	public Compiler(
 			INameEnvironment environment,
 			IErrorHandlingPolicy policy,
-			Map settings,
+			CompilerOptions options,
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory,
-			PrintWriter out,
-			boolean parseLiteralExpressionsAsConstants,
-			boolean storeAnnotations,
-			boolean flag,
-			boolean statementsRecovery) {
-
-		// create a problem handler given a handling policy
-		this.options = new CompilerOptions(settings);
-		this.options.performStatementsRecovery = statementsRecovery;
-		if (flag) { // boolean parameters are significant, pass them down
-			this.options.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
-			this.options.storeAnnotations = storeAnnotations;
-		}
+			PrintWriter out) {
+		
+		this.options = options;
 		
 		// wrap requestor in DebugRequestor if one is specified
 		if(DebugRequestor == null) {

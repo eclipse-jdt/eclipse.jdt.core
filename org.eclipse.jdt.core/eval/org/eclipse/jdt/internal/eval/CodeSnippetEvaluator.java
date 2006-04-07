@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * A code snippet evaluator compiles and returns class file for a code snippet.
@@ -115,11 +116,13 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		// use a regular compiler and feed its lookup environment with 
 		// the code snippet support classes
 
+		CompilerOptions compilerOptions = new CompilerOptions(this.options);
+		compilerOptions.performStatementsRecovery = true;
 		compiler = 
 			new CodeSnippetCompiler(
 				this.environment, 
 				DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-				this.options, 
+				compilerOptions, 
 				compilerRequestor, 
 				this.problemFactory,
 				this.context,
@@ -149,13 +152,14 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		// use a wrapped environment so that if the code snippet classes are not found
 		// then a default implementation is provided.
 
+		CompilerOptions compilerOptions = new CompilerOptions(this.options);
+		compilerOptions.performStatementsRecovery = true;
 		compiler = new Compiler(
 			getWrapperEnvironment(), 
 			DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-			this.options, 
+			compilerOptions, 
 			compilerRequestor, 
-			this.problemFactory,
-			true);
+			this.problemFactory);
 	}
 	return compiler;
 }

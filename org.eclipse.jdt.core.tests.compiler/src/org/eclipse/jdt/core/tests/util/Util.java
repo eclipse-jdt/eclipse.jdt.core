@@ -82,14 +82,15 @@ public static void compile(String[] pathsAndContents, Map options, String output
 					return false;
 				}
 			};
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(
 				nameEnvironment, 
 				errorHandlingPolicy, 
-				options,
+				compilerOptions,
 				requestor, 
-				problemFactory,
-				false);
+				problemFactory);
 		batchCompiler.options.produceReferenceInfo = true;
 		batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
 		System.err.print(requestor.problemLog); // problem log empty if no problems

@@ -418,13 +418,14 @@ protected Compiler newCompiler() {
 	}
 	
 	// called once when the builder is initialized... can override if needed
+	CompilerOptions compilerOptions = new CompilerOptions(projectOptions);
+	compilerOptions.performStatementsRecovery = true;
 	Compiler newCompiler = new Compiler(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		projectOptions,
+		compilerOptions,
 		this,
-		ProblemFactory.getProblemFactory(Locale.getDefault()),
-		true);
+		ProblemFactory.getProblemFactory(Locale.getDefault()));
 	CompilerOptions options = newCompiler.options;
 
 	// enable the compiler reference info support

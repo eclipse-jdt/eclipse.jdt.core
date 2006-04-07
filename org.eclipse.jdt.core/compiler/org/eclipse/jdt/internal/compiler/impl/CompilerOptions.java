@@ -309,6 +309,14 @@ public class CompilerOptions {
 		if (settings == null) return;
 		set(settings);		
 	}
+	
+	/**
+	 * @deprecated used to preserve 3.1 and 3.2M4 compatibility of some Compiler constructors
+	 */
+	public CompilerOptions(Map settings, boolean parseLiteralExpressionsAsConstants){
+		this(settings);
+		this.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
+	}
 
 	public Map getMap() {
 		Map optionsMap = new HashMap(30);

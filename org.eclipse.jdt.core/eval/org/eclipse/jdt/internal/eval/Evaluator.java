@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -158,13 +159,14 @@ protected abstract char[] getClassName();
  * Creates and returns a compiler for this evaluator.
  */
 Compiler getCompiler(ICompilerRequestor compilerRequestor) {
+	CompilerOptions compilerOptions = new CompilerOptions(this.options);
+	compilerOptions.performStatementsRecovery = true;
 	return new Compiler(
 		this.environment, 
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-		this.options, 
+		compilerOptions, 
 		compilerRequestor, 
-		this.problemFactory,
-		true);
+		this.problemFactory);
 }
 /**
  * Builds and returns the source for the current compilation unit.

@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
@@ -55,7 +56,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
 	 * 
-	 *	@param settings The settings to use for the resolution.
+	 *	@param compilerOptions The compiler options to use for the resolution.
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
@@ -73,20 +74,15 @@ public class CompilationUnitProblemFinder extends Compiler {
 	protected CompilationUnitProblemFinder(
 		INameEnvironment environment,
 		IErrorHandlingPolicy policy,
-		Map settings,
+		CompilerOptions compilerOptions,
 		ICompilerRequestor requestor,
-		IProblemFactory problemFactory,
-		boolean creatingAST,
-		boolean statementsRecovery) {
+		IProblemFactory problemFactory) {
 
 		super(environment,
 			policy,
-			settings,
+			compilerOptions,
 			requestor,
-			problemFactory,
-			!creatingAST/*parse literal expressions as constants only if not creating a DOM AST*/,
-			creatingAST/*store annotations in the bindings if creating a DOM AST*/,
-			statementsRecovery/*perform statements recovery during parse if creating a DOM AST*/
+			problemFactory
 		);
 	}
 
@@ -117,6 +113,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 	}
 
+	protected static CompilerOptions getCompilerOptions(Map settings, boolean creatingAST, boolean statementsRecovery) {
+		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.performStatementsRecovery = statementsRecovery;
+		compilerOptions.parseLiteralExpressionsAsConstants = !creatingAST; /*parse literal expressions as constants only if not creating a DOM AST*/
+		compilerOptions.storeAnnotations = creatingAST; /*store annotations in the bindings if creating a DOM AST*/
+		return compilerOptions;
+	}
+	
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -157,11 +161,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 			problemFinder = new CompilationUnitProblemFinder(
 				environment,
 				getHandlingPolicy(),
-				project.getOptions(true),
+				getCompilerOptions(project.getOptions(true), creatingAST, statementsRecovery),
 				getRequestor(),
-				problemFactory,
-				creatingAST,
-				statementsRecovery);
+				problemFactory);
 			if (parser != null) {
 				problemFinder.parser = parser;
 			}

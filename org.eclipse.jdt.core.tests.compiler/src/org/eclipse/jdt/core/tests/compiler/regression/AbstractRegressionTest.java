@@ -388,15 +388,16 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			if (customOptions != null) {
 				options.putAll(customOptions);
 			}
+			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performStatementsRecovery = false;
 			Compiler batchCompiler = 
 				new Compiler(
 					getNameEnvironment(new String[]{}, classLib), 
 					getErrorHandlingPolicy(), 
-					options,
+					compilerOptions,
 					requestor, 
-					problemFactory,
-					false);
-			batchCompiler.options.produceReferenceInfo = true;
+					problemFactory);
+			compilerOptions.produceReferenceInfo = true;
 			try {
 				batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 			} catch(RuntimeException e) {
@@ -496,14 +497,15 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				false, /* show category */
 				false /* show warning token*/);
 		
+		CompilerOptions compilerOptions = new CompilerOptions(getCompilerOptions());
+		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(
 				getNameEnvironment(new String[]{}, classLib), 
 				getErrorHandlingPolicy(),
-				getCompilerOptions(), 
+				compilerOptions, 
 				requestor, 
-				problemFactory,
-				false);
+				problemFactory);
 		batchCompiler.options.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
@@ -649,14 +651,15 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			if (customOptions != null) {
 				options.putAll(customOptions);
 			}
+			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performStatementsRecovery = false;
 			Compiler batchCompiler = 
 				new Compiler(
 					getNameEnvironment(new String[]{}, classLib), 
 					getErrorHandlingPolicy(), 
-					options,
+					compilerOptions,
 					requestor, 
-					problemFactory,
-					false);
+					problemFactory);
 			batchCompiler.options.produceReferenceInfo = true;
 			Throwable exception = null;
 			try {
@@ -719,14 +722,15 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		if (customOptions != null) {
 			options.putAll(customOptions);
 		}
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(
 				getNameEnvironment(new String[]{}, classLib), 
 				getErrorHandlingPolicy(), 
-				options,
+				compilerOptions,
 				requestor, 
-				problemFactory,
-				false);
+				problemFactory);
 		batchCompiler.options.produceReferenceInfo = true;
 		try {
 			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together

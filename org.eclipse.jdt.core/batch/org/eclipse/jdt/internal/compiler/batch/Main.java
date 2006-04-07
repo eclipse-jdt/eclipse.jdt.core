@@ -2806,16 +2806,16 @@ public void performCompilation() throws InvalidInputException {
 	this.startTime = System.currentTimeMillis();
 
 	INameEnvironment environment = getLibraryAccess();
+	this.compilerOptions = new CompilerOptions(this.options);
+	this.compilerOptions.performStatementsRecovery = false;
 	this.batchCompiler =
 		new Compiler(
 			environment,
 			getHandlingPolicy(),
-			this.options,
+			this.compilerOptions,
 			getBatchRequestor(),
 			getProblemFactory(),
-			this.out,
-			false);
-	this.compilerOptions = this.batchCompiler.options;
+			this.out);
 
 	// set the non-externally configurable options.
 	this.compilerOptions.verbose = this.verbose;
