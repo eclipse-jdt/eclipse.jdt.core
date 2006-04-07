@@ -98,6 +98,7 @@ public final class CompletionEngine
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
+	boolean hasJavaLangObjectAsExpectedType = false;
 	int uninterestingBindingsPtr = -1;
 	Binding[] uninterestingBindings = new Binding[1];
 	int forbbidenBindingsPtr = -1;
@@ -4228,6 +4229,9 @@ public final class CompletionEngine
 					return R_EXACT_EXPECTED_TYPE;
 				}
 			}
+			if(this.hasJavaLangObjectAsExpectedType) {
+				return R_EXPECTED_TYPE;
+			}
 		} 
 		return 0;
 	}
@@ -5829,6 +5833,7 @@ public final class CompletionEngine
 		
 		// default filter
 		this.expectedTypesFilter = SUBTYPE;
+		this.hasJavaLangObjectAsExpectedType = false;
 		
 		// find types from parent
 		if(parent instanceof AbstractVariableDeclaration) {
@@ -5836,27 +5841,27 @@ public final class CompletionEngine
 			TypeBinding binding = variable.type.resolvedType;
 			if(binding != null) {
 				if(!(variable.initialization instanceof ArrayInitializer)) {
-					addExpectedType(binding);
+					addExpectedType(binding, scope);
 				}
 			}
 		} else if(parent instanceof Assignment) {
 			TypeBinding binding = ((Assignment)parent).lhs.resolvedType;
 			if(binding != null) {
-				addExpectedType(binding);
+				addExpectedType(binding, scope);
 			}
 		} else if(parent instanceof ReturnStatement) {
 			if(scope.methodScope().referenceContext instanceof AbstractMethodDeclaration) {
 				MethodBinding methodBinding = ((AbstractMethodDeclaration) scope.methodScope().referenceContext).binding;
 				TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
 				if(binding != null) {
-					addExpectedType(binding);
+					addExpectedType(binding, scope);
 				}
 			}
 		} else if(parent instanceof CastExpression) {
 			Expression e = ((CastExpression)parent).type;
 			TypeBinding binding = e.resolvedType;
 			if(binding != null){
-				addExpectedType(binding);
+				addExpectedType(binding, scope);
 				this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
 			}
 		} else if(parent instanceof MessageSend) {
@@ -5906,34 +5911,34 @@ public final class CompletionEngine
 				InstanceOfExpression e = (InstanceOfExpression) parent;
 				TypeBinding binding = e.expression.resolvedType;
 				if(binding != null){
-					addExpectedType(binding);
+					addExpectedType(binding, scope);
 					this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
 				}
 			} else if(parent instanceof BinaryExpression) {
 				switch(operator) {
 					case OperatorIds.PLUS :
-						addExpectedType(TypeBinding.SHORT);
-						addExpectedType(TypeBinding.INT);
-						addExpectedType(TypeBinding.LONG);
-						addExpectedType(TypeBinding.FLOAT);
-						addExpectedType(TypeBinding.DOUBLE);
-						addExpectedType(TypeBinding.CHAR);
-						addExpectedType(TypeBinding.BYTE);
-						addExpectedType(scope.getJavaLangString());
+						addExpectedType(TypeBinding.SHORT, scope);
+						addExpectedType(TypeBinding.INT, scope);
+						addExpectedType(TypeBinding.LONG, scope);
+						addExpectedType(TypeBinding.FLOAT, scope);
+						addExpectedType(TypeBinding.DOUBLE, scope);
+						addExpectedType(TypeBinding.CHAR, scope);
+						addExpectedType(TypeBinding.BYTE, scope);
+						addExpectedType(scope.getJavaLangString(), scope);
 						break;
 					case OperatorIds.AND_AND :
 					case OperatorIds.OR_OR :
 					case OperatorIds.XOR :
-						addExpectedType(TypeBinding.BOOLEAN);
+						addExpectedType(TypeBinding.BOOLEAN, scope);
 						break;
 					default :
-						addExpectedType(TypeBinding.SHORT);
-						addExpectedType(TypeBinding.INT);
-						addExpectedType(TypeBinding.LONG);
-						addExpectedType(TypeBinding.FLOAT);
-						addExpectedType(TypeBinding.DOUBLE);
-						addExpectedType(TypeBinding.CHAR);
-						addExpectedType(TypeBinding.BYTE);
+						addExpectedType(TypeBinding.SHORT, scope);
+						addExpectedType(TypeBinding.INT, scope);
+						addExpectedType(TypeBinding.LONG, scope);
+						addExpectedType(TypeBinding.FLOAT, scope);
+						addExpectedType(TypeBinding.DOUBLE, scope);
+						addExpectedType(TypeBinding.CHAR, scope);
+						addExpectedType(TypeBinding.BYTE, scope);
 						break;
 				}
 				BinaryExpression binaryExpression = (BinaryExpression) parent;
@@ -5944,7 +5949,7 @@ public final class CompletionEngine
 						if(b instanceof ReferenceBinding) {
 							TypeVariableBinding[] typeVariableBindings =((ReferenceBinding)b).typeVariables();
 							if(typeVariableBindings != null && typeVariableBindings.length > 0) {
-								addExpectedType(typeVariableBindings[0].firstBound);
+								addExpectedType(typeVariableBindings[0].firstBound, scope);
 							}
 							
 						}
@@ -5953,33 +5958,33 @@ public final class CompletionEngine
 			} else if(parent instanceof UnaryExpression) {
 				switch(operator) {
 					case OperatorIds.NOT :
-						addExpectedType(TypeBinding.BOOLEAN);
+						addExpectedType(TypeBinding.BOOLEAN, scope);
 						break;
 					case OperatorIds.TWIDDLE :
-						addExpectedType(TypeBinding.SHORT);
-						addExpectedType(TypeBinding.INT);
-						addExpectedType(TypeBinding.LONG);
-						addExpectedType(TypeBinding.CHAR);
-						addExpectedType(TypeBinding.BYTE);
+						addExpectedType(TypeBinding.SHORT, scope);
+						addExpectedType(TypeBinding.INT, scope);
+						addExpectedType(TypeBinding.LONG, scope);
+						addExpectedType(TypeBinding.CHAR, scope);
+						addExpectedType(TypeBinding.BYTE, scope);
 						break;
 					case OperatorIds.PLUS :
 					case OperatorIds.MINUS :
 					case OperatorIds.PLUS_PLUS :
 					case OperatorIds.MINUS_MINUS :
-						addExpectedType(TypeBinding.SHORT);
-						addExpectedType(TypeBinding.INT);
-						addExpectedType(TypeBinding.LONG);
-						addExpectedType(TypeBinding.FLOAT);
-						addExpectedType(TypeBinding.DOUBLE);
-						addExpectedType(TypeBinding.CHAR);
-						addExpectedType(TypeBinding.BYTE);
+						addExpectedType(TypeBinding.SHORT, scope);
+						addExpectedType(TypeBinding.INT, scope);
+						addExpectedType(TypeBinding.LONG, scope);
+						addExpectedType(TypeBinding.FLOAT, scope);
+						addExpectedType(TypeBinding.DOUBLE, scope);
+						addExpectedType(TypeBinding.CHAR, scope);
+						addExpectedType(TypeBinding.BYTE, scope);
 						break;
 				}
 			}
 		} else if(parent instanceof ArrayReference) {
-			addExpectedType(TypeBinding.SHORT);
-			addExpectedType(TypeBinding.INT);
-			addExpectedType(TypeBinding.LONG);
+			addExpectedType(TypeBinding.SHORT, scope);
+			addExpectedType(TypeBinding.INT, scope);
+			addExpectedType(TypeBinding.LONG, scope);
 		} else if(parent instanceof ParameterizedSingleTypeReference) {
 			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
@@ -5987,7 +5992,9 @@ public final class CompletionEngine
 			if(typeVariables != null && typeVariables.length >= length) {
 				int index = length - 1;
 				while(index > -1 && ref.typeArguments[index] != node) index--;
-				addExpectedType(typeVariables[index].firstBound);
+				
+				TypeBinding bound = typeVariables[index].firstBound;
+				addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
 			}
 		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
@@ -5999,7 +6006,8 @@ public final class CompletionEngine
 					int jLength = arguments[i] == null ? 0 : arguments[i].length;
 					for (int j = 0; j < jLength; j++) {
 						if(arguments[i][j] == node && typeVariables.length > j) {
-							addExpectedType(typeVariables[j].firstBound);
+							TypeBinding bound = typeVariables[j].firstBound;
+							addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
 							break done;
 						}
 					}
@@ -6008,7 +6016,7 @@ public final class CompletionEngine
 		} else if(parent instanceof MemberValuePair) {
 			MemberValuePair memberValuePair = (MemberValuePair) parent;
 			if(memberValuePair.binding != null) {
-				addExpectedType(memberValuePair.binding.returnType);
+				addExpectedType(memberValuePair.binding.returnType, scope);
 			}
 		} else if (parent instanceof NormalAnnotation) {
 			NormalAnnotation annotation = (NormalAnnotation) parent;
@@ -6020,7 +6028,7 @@ public final class CompletionEngine
 					if(methodBindings != null &&
 							methodBindings.length == 1 &&
 							CharOperation.equals(methodBindings[0].selector, VALUE)) {
-						addExpectedType(methodBindings[0].returnType);
+						addExpectedType(methodBindings[0].returnType, scope);
 					}
 				}
 			}
@@ -6033,7 +6041,7 @@ public final class CompletionEngine
 					ReferenceBinding[] exceptions = methodDecl.binding.thrownExceptions;
 					if (exceptions != null) {
 						for (int i = 0; i < exceptions.length; i++) {
-							addExpectedType(exceptions[i]);
+							addExpectedType(exceptions[i], scope);
 						}
 					}
 				}
@@ -6076,7 +6084,7 @@ public final class CompletionEngine
 			
 			TypeBinding expectedType = method.parameters[arguments.length - 1];
 			if(expectedType != null) {
-				addExpectedType(expectedType);
+				addExpectedType(expectedType, scope);
 			}
 		}
 	}
@@ -6182,17 +6190,21 @@ public final class CompletionEngine
 				
 			TypeBinding expectedType = method.parameters[arguments.length - 1];
 			if(expectedType != null) {
-				addExpectedType(expectedType);
+				addExpectedType(expectedType, scope);
 			}
 		}
 	}
-	private void addExpectedType(TypeBinding type){
+	private void addExpectedType(TypeBinding type, Scope scope){
 		if (type == null || !type.isValidBinding()) return;
 
 		int length = this.expectedTypes.length;
 		if (++this.expectedTypesPtr >= length)
 			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[length * 2], 0, length);
 		this.expectedTypes[this.expectedTypesPtr] = type;
+		
+		if(type == scope.getJavaLangObject()) {
+			this.hasJavaLangObjectAsExpectedType = true;
+		}
 	}
 	private void addForbiddenBindings(Binding binding){
 		if (binding == null) return;

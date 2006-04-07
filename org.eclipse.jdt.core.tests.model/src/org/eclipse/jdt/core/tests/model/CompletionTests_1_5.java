@@ -19,7 +19,9 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import junit.framework.*;
 
 public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests implements RelevanceConstants {
-
+	static {
+//		TESTS_NAMES = new String[]{"test0040"};
+	}
 public CompletionTests_1_5(String name) {
 	super(name);
 }
@@ -122,7 +124,7 @@ public void test0001() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0002() throws JavaModelException {
@@ -135,7 +137,7 @@ public void test0002() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0003() throws JavaModelException {
@@ -183,12 +185,12 @@ public void test0005() throws JavaModelException {
             "Y<St");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
             result.proposals);
 }
 public void test0006() throws JavaModelException {
@@ -209,12 +211,12 @@ public void test0006() throws JavaModelException {
             "Y<Ob");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
             result.proposals);
 }
 public void test0007() throws JavaModelException {
@@ -642,7 +644,7 @@ public void test0025() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0026() throws JavaModelException {
@@ -669,7 +671,7 @@ public void test0026() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0027() throws JavaModelException {
@@ -696,7 +698,7 @@ public void test0027() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	
 	
@@ -786,7 +788,7 @@ public void test0032() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -802,7 +804,7 @@ public void test0033() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -920,12 +922,12 @@ public void test0040() throws JavaModelException {
             "Stri");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE  + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
             result.proposals);
 }
 /*
@@ -949,12 +951,12 @@ public void test0041() throws JavaModelException {
             "Stri");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED  + R_NON_RESTRICTED) +"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED  + R_NON_RESTRICTED) +"}",
             result.proposals);
 }
 /*
@@ -6001,12 +6003,12 @@ public void test0192() throws JavaModelException {
             "ZZClass1<");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "ZZClass1<X,Y>[TYPE_REF]{, test0192, Ltest0192.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "ZZClass1<X,Y>[TYPE_REF]{, test0192, Ltest0192.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0193() throws JavaModelException {
@@ -6023,12 +6025,12 @@ public void test0193() throws JavaModelException {
             "ZZClass1<");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "ZZClass1<X,Y>[TYPE_REF]{, test0193, Ltest0193.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "ZZClass1<X,Y>[TYPE_REF]{, test0193, Ltest0193.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0194() throws JavaModelException {
@@ -6043,12 +6045,12 @@ public void test0194() throws JavaModelException {
             "ZZClass1<Object,");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "ZZClass1<X,Y>[TYPE_REF]{, test0194, Ltest0194.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "ZZClass1<X,Y>[TYPE_REF]{, test0194, Ltest0194.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0195() throws JavaModelException {
@@ -6065,12 +6067,12 @@ public void test0195() throws JavaModelException {
             "ZZClass1<Object,");
     
     assertResults(
-            "expectedTypesSignatures=null\n" +
-            "expectedTypesKeys=null",
+            "expectedTypesSignatures={Ljava.lang.Object;}\n" +
+            "expectedTypesKeys={Ljava/lang/Object;}",
             result.context);
     
     assertResults(
-            "ZZClass1<X,Y>[TYPE_REF]{, test0195, Ltest0195.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "ZZClass1<X,Y>[TYPE_REF]{, test0195, Ltest0195.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0196() throws JavaModelException {
@@ -8160,6 +8162,38 @@ public void test0269() throws JavaModelException {
 	assertResults(
 			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest.Test;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
 			"foo[METHOD_DECLARATION]{public <T> void foo(), Ltest.SuperTest;, <T:Ljava.lang.Object;>()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0270() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test270_2.java",
+		"package test;\n"+
+		"public class Test270_2 extends SuperTest<Test270> {\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/SuperTest.java",
+		"package test;\n"+
+		"public class SuperTest<T> {\n"+
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/Test270.java",
+		"package test;\n"+
+		"public class Test270 {\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Test270";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Test270_2[TYPE_REF]{Test270_2, test, Ltest.Test270_2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Test270[TYPE_REF]{Test270, test, Ltest.Test270;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }
