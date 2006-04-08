@@ -586,8 +586,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		char[] nextName = compoundName[currentIndex++];
 		invocationSite.setFieldIndex(currentIndex);
 		if ((binding = findFieldForCodeSnippet(typeBinding, nextName, invocationSite)) != null) {
-			if (!binding.isValidBinding())
-				return new ProblemFieldBinding((FieldBinding)binding, CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+			if (!binding.isValidBinding()) {
+				return new ProblemFieldBinding(
+						(FieldBinding)binding, 
+						((FieldBinding)binding).declaringClass, 
+						CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
+						binding.problemId());
+			}
 			break; // binding is now a field
 		}
 		if ((binding = findMemberType(nextName, typeBinding)) == null)
@@ -601,8 +606,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 
 	if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
 		FieldBinding field = (FieldBinding) binding;
-		if (!field.isStatic())
-			return new ProblemFieldBinding(field, CharOperation.subarray(compoundName, 0, currentIndex), ProblemReasons.NonStaticReferenceInStaticContext);
+		if (!field.isStatic()) {
+			return new ProblemFieldBinding(
+					field, 
+					field.declaringClass,
+					CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
+					ProblemReasons.NonStaticReferenceInStaticContext);
+		}
 		return binding;
 	}
 	if ((mask & Binding.TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type

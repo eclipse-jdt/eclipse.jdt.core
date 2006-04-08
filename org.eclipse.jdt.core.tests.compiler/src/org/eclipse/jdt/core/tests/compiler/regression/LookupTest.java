@@ -2012,7 +2012,89 @@ public void test061() {
 		options,
 		null);
 }
-public static Class testClass() {
-	return LookupTest.class;
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
+public void test062() {
+	Map options = this.getCompilerOptions();
+	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
+		// ensure target is 1.1 for having default abstract methods involved
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+	}
+    this.runConformTest(
+        new String[] {
+        		"X.java", // =================
+    			"interface MyInterface {\n" + 
+    			"        public void writeToStream();\n" + 
+    			"        public void readFromStream();\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"public abstract class X implements MyInterface {\n" + 
+    			"        public void b() {\n" + 
+    			"        }\n" + 
+    			"        public void a() {\n" + 
+    			"                writeTypeToStream();\n" + 
+    			"        }\n" + 
+    			"        private void writeTypeToStream() {\n" + 
+    			"        }\n" + 
+    			"}\n", // =================
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=135292
+public void test063() {
+    this.runNegativeTest(
+        new String[] {
+    		"X.java", // =================
+			"class 56 {\n" + 
+			"\n" + 
+			"        private static class B {\n" + 
+			"                public static final String F = \"\";\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        private static class C {\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public void foo() {\n" + 
+			"                System.out.println(B.F);\n" + 
+			"        }\n" + 
+			"}\n", // =================
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 1)\n" + 
+	"	class 56 {\n" + 
+	"	      ^^\n" + 
+	"Syntax error on token \"56\", Identifier expected\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 3)\n" + 
+	"	private static class B {\n" + 
+	"	                     ^\n" + 
+	"Illegal modifier for the class B; only public, abstract & final are permitted\n" + 
+	"----------\n" + 
+	"3. ERROR in X.java (at line 7)\n" + 
+	"	private static class C {\n" + 
+	"	                     ^\n" + 
+	"Illegal modifier for the class C; only public, abstract & final are permitted\n" + 
+	"----------\n" + 
+	"4. ERROR in X.java (at line 8)\n" + 
+	"	}\n" + 
+	"	^\n" + 
+	"Syntax error on token \"}\", delete this token\n" + 
+	"----------\n" + 
+	"5. ERROR in X.java (at line 11)\n" + 
+	"	System.out.println(B.F);\n" + 
+	"	                   ^^^\n" + 
+	"The type B is not visible\n" + 
+	"----------\n" + 
+	"6. ERROR in X.java (at line 13)\n" + 
+	"	}\n" + 
+	"	^\n" + 
+	"Syntax error, insert \"}\" to complete ClassBody\n" + 
+	"----------\n");
+}
+public static Class testClass() {	return LookupTest.class;
 }
 }

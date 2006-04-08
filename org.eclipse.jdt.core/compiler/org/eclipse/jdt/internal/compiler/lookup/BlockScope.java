@@ -481,11 +481,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		invocationSite.setFieldIndex(currentIndex);
 		invocationSite.setActualReceiverType(typeBinding);
 		if ((mask & Binding.FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
-			if (!binding.isValidBinding())
+			if (!binding.isValidBinding()) {
 				return new ProblemFieldBinding(
 					((ProblemFieldBinding)binding).closestMatch,
-					CharOperation.subarray(compoundName, 0, currentIndex),
+					((ProblemFieldBinding)binding).declaringClass,
+					CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 					binding.problemId());
+			}
 			break; // binding is now a field
 		}
 		if ((binding = findMemberType(nextName, typeBinding)) == null) {
@@ -512,7 +514,8 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		if (!field.isStatic())
 			return new ProblemFieldBinding(
 				field,
-				CharOperation.subarray(compoundName, 0, currentIndex),
+				field.declaringClass,
+				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 				ProblemReasons.NonStaticReferenceInStaticContext);
 		return binding;
 	}
@@ -578,15 +581,18 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];
 			if ((binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
-				if (!binding.isValidBinding())
+				if (!binding.isValidBinding()) {
 					return new ProblemFieldBinding(
 						(FieldBinding) binding,
-						CharOperation.subarray(compoundName, 0, currentIndex),
+						((FieldBinding) binding).declaringClass,
+						CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 						binding.problemId());
+				}
 				if (!((FieldBinding) binding).isStatic())
 					return new ProblemFieldBinding(
 						(FieldBinding) binding,
-						CharOperation.subarray(compoundName, 0, currentIndex),
+						((FieldBinding) binding).declaringClass,
+						CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 						ProblemReasons.NonStaticReferenceInStaticContext);
 				break foundField; // binding is now a field
 			}
@@ -607,18 +613,21 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 	VariableBinding variableBinding = (VariableBinding) binding;
 	while (currentIndex < length) {
 		TypeBinding typeBinding = variableBinding.type;
-		if (typeBinding == null)
+		if (typeBinding == null) {
 			return new ProblemFieldBinding(
 				null,
-				CharOperation.subarray(compoundName, 0, currentIndex + 1),
+				null,
+				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 				ProblemReasons.NotFound);
-		variableBinding =
-			findField(typeBinding, compoundName[currentIndex++], invocationSite, true /*resolve*/);
-		if (variableBinding == null)
+		}
+		variableBinding = findField(typeBinding, compoundName[currentIndex++], invocationSite, true /*resolve*/);
+		if (variableBinding == null) {
 			return new ProblemFieldBinding(
 				null,
-				CharOperation.subarray(compoundName, 0, currentIndex),
+				null,
+				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 				ProblemReasons.NotFound);
+		}
 		if (!variableBinding.isValidBinding())
 			return variableBinding;
 	}
