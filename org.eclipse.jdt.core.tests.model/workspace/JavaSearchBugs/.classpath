@@ -4,6 +4,7 @@
     <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
 	<classpathentry kind="lib" path="lib/test81556.jar" sourcepath="/JavaSearchBugs/lib/test81556.jar" rootpath=""/>
 	<classpathentry kind="lib" path="lib/test75816.jar" sourcepath="/JavaSearchBugs/lib/test75816.jar" rootpath=""/>
+	<classpathentry kind="lib" path="lib/b86293.jar"/>
 	<classpathentry kind="lib" path="lib/b87627.jar" sourcepath="/JavaSearchBugs/lib/b87627.jar" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b110422.jar" sourcepath="" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b124469.jar" sourcepath="/JavaSearchBugs/lib/b124469.jar" rootpath=""/>

@@ -1097,7 +1097,7 @@ public void testLocalVariableReference3() throws CoreException {
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"test48725.jar void p.X.foo()",
+		"test48725.jar int p.<anonymous>.bar()",
 		this.resultCollector);
 }
 /**
@@ -2152,7 +2152,7 @@ public void testTypeDeclaration05() throws CoreException { // was testTypeDeclar
 		scope, 
 		this.resultCollector);
 	assertSearchResults(
-		"test20631.jar void X.foo()",
+		"test20631.jar Y",
 		this.resultCollector);
 }
 /**

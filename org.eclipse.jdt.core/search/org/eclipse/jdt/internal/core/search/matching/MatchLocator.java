@@ -2314,10 +2314,11 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		enclosingElement = ((IType) parent).getType(new String(type.name));
 	} else if (enclosingElement instanceof IMember) {
 	    IMember member = (IMember) parent;
-	    if (member.isBinary()) 
-	        enclosingElement = parent;
-	    else
+		if (member.isBinary())  {
+			enclosingElement = this.currentPossibleMatch.openable.getClassFile().getType();
+		} else {
 			enclosingElement = member.getType(new String(type.name), occurrenceCount);
+		}
 	}
 	if (enclosingElement == null) return;
 	boolean enclosesElement = encloses(enclosingElement);

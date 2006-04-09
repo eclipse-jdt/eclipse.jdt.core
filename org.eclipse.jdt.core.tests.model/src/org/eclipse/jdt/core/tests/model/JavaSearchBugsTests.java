@@ -2444,6 +2444,19 @@ public void testBug86642() throws CoreException {
 		"src/b86642/B.java void b86642.B.f(A) [A] EXACT_MATCH"
 	);
 }
+/**
+ * Bug 86293: [search] Search for method declaration with pattern "run()" reports match in binary field instead of anonymous class
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86293"
+ */
+public void testBug86293() throws CoreException {
+    IType type = getClassFile("JavaSearchBugs", "lib/b86293.jar", "", "I86293.class").getType();
+	IMethod method = type.getMethod("m86293", new String[0]);
+	search(method, DECLARATIONS);
+	assertSearchResults(
+		"lib/b86293.jar void <anonymous>.m86293() EXACT_MATCH\n" + 
+		"lib/b86293.jar void I86293.m86293() EXACT_MATCH"
+	);
+}
 
 /**
  * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
