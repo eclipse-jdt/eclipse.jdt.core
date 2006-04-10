@@ -621,6 +621,75 @@ public class ClassScope extends Scope {
 		fieldBinding.modifiers = modifiers;
 	}
 
+	public void checkForErasedCandidateCollisions() {
+		// check for parameterized interface collisions (when different parameterizations occur)
+		SourceTypeBinding sourceType = referenceContext.binding;
+		ReferenceBinding[] interfaces = sourceType.superInterfaces;
+		int count = interfaces.length;
+		Map invocations = new HashMap(2);
+		ReferenceBinding itsSuperclass = sourceType.isInterface() ? null : sourceType.superclass;
+		nextInterface: for (int i = 0, length = count; i < length; i++) {
+			ReferenceBinding one =  interfaces[i];
+			if (one == null) continue nextInterface;
+			if (itsSuperclass != null && hasErasedCandidatesCollisions(itsSuperclass, one, invocations, sourceType, referenceContext)) {
+				interfaces[i] = null;
+				count--;
+				continue nextInterface;
+			}
+			nextOtherInterface: for (int j = 0; j < i; j++) {
+				ReferenceBinding two = interfaces[j];
+				if (two == null) continue nextOtherInterface;
+				if (hasErasedCandidatesCollisions(one, two, invocations, sourceType, referenceContext)) {
+					interfaces[i] = null;
+					count--;
+					continue nextInterface;
+				}
+			}
+		}
+		if (count < interfaces.length) {
+			if (count == 0) {
+				sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
+			} else {
+				ReferenceBinding[] newInterfaceBindings = new ReferenceBinding[count];
+				for (int i = 0, j = 0, l = interfaces.length; i < l; i++)
+					if (interfaces[i] != null)
+						newInterfaceBindings[j++] = interfaces[i];
+				sourceType.superInterfaces = newInterfaceBindings;
+			}
+		}
+
+		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
+		nextVariable : for (int i = 0, paramLength = typeParameters == null ? 0 : typeParameters.length; i < paramLength; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeVariableBinding typeVariable = typeParameter.binding;
+			if (typeVariable == null || !typeVariable.isValidBinding()) continue nextVariable;
+
+			TypeReference[] boundRefs = typeParameter.bounds;
+			if (boundRefs != null) {
+				boolean checkSuperclass = typeVariable.firstBound == typeVariable.superclass;
+				for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
+					TypeReference typeRef = boundRefs[j];
+					TypeBinding superType = typeRef.resolvedType;
+					if (superType == null || !superType.isValidBinding()) continue;
+
+					// check against superclass
+					if (checkSuperclass)
+						if (hasErasedCandidatesCollisions(superType, typeVariable.superclass, invocations, typeVariable, typeRef))
+							continue nextVariable;
+					// check against superinterfaces
+					for (int index = typeVariable.superInterfaces.length; --index >= 0;)
+						if (hasErasedCandidatesCollisions(superType, typeVariable.superInterfaces[index], invocations, typeVariable, typeRef))
+							continue nextVariable;
+				}
+			}
+		}
+
+		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
+		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.checkForErasedCandidateCollisions();
+	}
+
 	private void checkForInheritedMemberTypes(SourceTypeBinding sourceType) {
 		// search up the hierarchy of the sourceType to see if any superType defines a member type
 		// when no member types are defined, tag the sourceType & each superType with the HasNoMemberTypes bit
@@ -683,30 +752,27 @@ public class ClassScope extends Scope {
 			currentType.tagBits |= TagBits.HasNoMemberTypes;
 		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & TagBits.HasNoMemberTypes) == 0);
 	}
+
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
 	public void  checkParameterizedTypeBounds() {
 		TypeReference superclass = referenceContext.superclass;
-		if (superclass != null) {
+		if (superclass != null)
 			superclass.checkBounds(this);
-		}
+
 		TypeReference[] superinterfaces = referenceContext.superInterfaces;
-		if (superinterfaces != null) {
-			for (int i = 0, length = superinterfaces.length; i < length; i++) {
+		if (superinterfaces != null)
+			for (int i = 0, length = superinterfaces.length; i < length; i++)
 				superinterfaces[i].checkBounds(this);
-			}
-		}
+
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
-		if (typeParameters != null) {
-			for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		if (typeParameters != null)
+			for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++)
 				typeParameters[i].checkBounds(this);
-			}
-		}
-		// propagate to member types
+
 		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
-		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
+		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
 			for (int i = 0, size = memberTypes.length; i < size; i++)
 				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
-		}		
 	}
 
 	private void connectMemberTypes() {
@@ -858,61 +924,6 @@ public class ClassScope extends Scope {
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
 		}
-		// check for parameterized interface collisions (when different parameterizations occur)
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			TypeBinding[] types = new TypeBinding[2];
-			Map invocations = new HashMap(2);
-			nextInterface: for (int i = 0; i < count; i++) {
-				ReferenceBinding superInterface =  interfaceBindings[i];
-				// check against superclass
-				if (!sourceType.isInterface()) {
-					types[0] = sourceType.superclass;
-					types[1] = superInterface;
-					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
-					if (mecs != null) {
-						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
-							TypeBinding mec = mecs[k];
-							if (mec == null) continue nextCandidate;
-							Set invalidInvocations = (Set)invocations.get(mec);
-							int invalidSize = invalidInvocations.size();
-							if (invalidSize > 1) {
-								TypeBinding[] collisions;
-								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
-								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
-								sourceType.tagBits |= TagBits.HierarchyHasProblems;
-								noProblems = false;
-								continue nextInterface;
-							}
-						}					
-					}					
-				}
-				// check against other super-interfaces
-				types[0] = superInterface;
-				nextOtherInterface: for (int j = 0; j < i; j++) {
-					ReferenceBinding otherInterface = interfaceBindings[j];
-					if (otherInterface == null) continue nextOtherInterface;
-					types[1] = otherInterface;
-					invocations.clear();
-					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
-					if (mecs != null) {
-						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
-							TypeBinding mec = mecs[k];
-							if (mec == null) continue nextCandidate;
-							Set invalidInvocations = (Set)invocations.get(mec);
-							int invalidSize = invalidInvocations.size();
-							if (invalidSize > 1) {
-								TypeBinding[] collisions;
-								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
-								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
-								sourceType.tagBits |= TagBits.HierarchyHasProblems;
-								noProblems = false;
-								continue nextInterface;
-							}
-						}					
-					}
-				}
-			}
-		}
 		// hold onto all correctly resolved superinterfaces
 		if (count > 0) {
 			if (count != length)
@@ -928,7 +939,7 @@ public class ClassScope extends Scope {
 			sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
-			noProblems &= connectTypeVariables(referenceContext.typeParameters);
+			noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
@@ -960,7 +971,7 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 		boolean noProblems = connectSuperclass();
 		noProblems &= connectSuperInterfaces();
-		noProblems &= connectTypeVariables(referenceContext.typeParameters);
+		noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
 		sourceType.tagBits |= TagBits.EndHierarchyCheck;
 		if (noProblems && sourceType.isHierarchyInconsistent())
 			problemReporter().hierarchyHasProblems(sourceType);
@@ -968,15 +979,6 @@ public class ClassScope extends Scope {
 
 	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
 		if (!(superType instanceof ReferenceBinding)) return false;
-
-		if (argTypes != null) {
-			for (int i = 0, l = argTypes.length; i < l; i++) {
-				TypeBinding argType = argTypes[i].leafComponentType();
-				if ((argType.tagBits & TagBits.BeginHierarchyCheck) == 0 && argType instanceof SourceTypeBinding)
-			    	// ensure if this is a source argument type that it has already been checked
-			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
-			}
-		}
 
 		if (reference == this.superTypeReference) { // see findSuperType()
 			if (superType.isTypeVariable())
@@ -1066,7 +1068,7 @@ public class ClassScope extends Scope {
 
 		if (superType.isHierarchyBeingConnected()) {
 			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
-			if (ref != null && ref.resolvedType != null && ((ReferenceBinding) ref.resolvedType).isHierarchyBeingConnected()) { // if null then its connecting its type variables
+			if (ref != null) {
 				problemReporter().hierarchyCircularity(sourceType, superType, reference);
 				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				superType.tagBits |= TagBits.HierarchyHasProblems;
