@@ -7582,7 +7582,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
 	 */
-	public void _test0642() throws JavaModelException {
+	public void test0642() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -7617,7 +7617,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
 	 */
-	public void _test0643() throws JavaModelException {
+	public void test0643() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -7653,7 +7653,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
 	 */
-	public void _test0644() throws JavaModelException {
+	public void test0644() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =

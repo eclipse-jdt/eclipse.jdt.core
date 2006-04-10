@@ -11,10 +11,13 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToIntArray;
@@ -334,5 +337,43 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 			}
 		}
 		return foundProblems;
+	}
+
+	public void endVisit(ExpressionStatement node) {
+		endVisitNode(node);
+		if ((node.getFlags() & ASTNode.RECOVERED) == 0) return; 
+		Expression expression = node.getExpression();
+		if (expression.getNodeType() == ASTNode.ASSIGNMENT) {
+			Assignment assignment = (Assignment) expression;
+			Expression rightHandSide = assignment.getRightHandSide();
+			if (rightHandSide.getNodeType() == ASTNode.SIMPLE_NAME) {
+				SimpleName simpleName = (SimpleName) rightHandSide;
+				if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
+					Expression expression2 =  assignment.getLeftHandSide();
+					// unparent the expression to add it in the expression stateemnt
+					expression2.setParent(null, null);
+					expression2.setFlags(expression2.getFlags() | ASTNode.RECOVERED);
+					node.setExpression(expression2);
+				}
+			}
+		}
+	}
+	
+	public void endVisit(VariableDeclarationStatement node) {
+		endVisitNode(node);
+		List fragments = node.fragments();
+		for (int i = 0, max = fragments.size(); i <max; i++) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(i);
+			Expression expression = fragment.getInitializer();
+			if (expression == null) continue;
+			if ((expression.getFlags() & ASTNode.RECOVERED) == 0) continue;
+			if (expression.getNodeType() == ASTNode.SIMPLE_NAME) {
+				SimpleName simpleName = (SimpleName) expression;
+				if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
+					fragment.setInitializer(null);
+					fragment.setFlags(node.getFlags() | ASTNode.RECOVERED);
+				}			
+			}
+		}
 	}
 }
