@@ -12382,7 +12382,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Y> and Comparable<X5>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X5> and Comparable<Y>\n" + 
 			"----------\n" + 
 			"2. WARNING in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
@@ -12402,7 +12402,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X6.java (at line 1)\n" + 
 			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Z> and Comparable<X6>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X6> and Comparable<Z>\n" + 
 			"----------\n" + 
 			"2. WARNING in X6.java (at line 1)\n" + 
 			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
@@ -22456,6 +22456,11 @@ public void test0729() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	class Y extends X implements I<X> {}\n" + 
+		"	      ^\n" + 
+		"The interface I cannot be implemented more than once with different arguments: I<Y> and I<X>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	class Y extends X implements I<X> {}\n" + 
 		"	                               ^\n" + 
 		"Bound mismatch: The type X is not a valid substitute for the bounded parameter <T extends I<? super T>> of the type I<T>\n" + 
 		"----------\n");
@@ -23471,7 +23476,7 @@ public void test0768() {
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
 		"	                                    ^\n" + 
-		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
+		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
@@ -23898,7 +23903,7 @@ public void test0778() {
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	class V<U extends D & C> {}\n" + 
 		"	                      ^\n" + 
-		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B and X.B<Integer>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
@@ -30376,5 +30381,30 @@ public void test0965() {
 		"	                  ^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Class<X> to Class<X<?>>\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115918
+public void test0966() {
+	this.runConformTest(
+		new String[] {
+			"Child.java", //================================
+			"public class Child extends Parent implements Comparable<Child> {\n" + 
+			"  public int compareTo(Child o) { return 0; }\n" + 
+			"}\n" + 
+			"class Parent extends Base<Child> {}\n" + 
+			"class Base<T extends Base> {}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81949
+public void test0967() {
+	this.runConformTest(
+		new String[] {
+			"CSS.java", //================================
+			"interface Ac<S extends St<S,A>,A extends Ac<S,A>> {}\n" + 
+			"interface St<S extends St<S,A>,A extends Ac<S,A>> {}\n" + 
+			"class CSN<X, Y> extends CSS<X, Y> implements Ac<CSS<X, Y>, CSN<X, Y>> {}\n" + 
+			"public class CSS<X, Y> implements St<CSS<X, Y>, CSN<X, Y>> {}\n"
+		},
+		"");
 }
 }

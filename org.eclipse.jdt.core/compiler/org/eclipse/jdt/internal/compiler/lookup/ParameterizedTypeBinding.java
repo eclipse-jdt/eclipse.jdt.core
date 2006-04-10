@@ -924,7 +924,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public ReferenceBinding[] superInterfaces() {
 	    if (this.superInterfaces == null) {
-	    	this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
+	    		if (this.type.isHierarchyBeingConnected())
+	    			return Binding.NO_SUPERINTERFACES; // prevent superinterfaces from being assigned before they are connected
+	    		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
 	    }
 		return this.superInterfaces;
 	}

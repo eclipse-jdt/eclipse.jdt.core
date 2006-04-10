@@ -1277,7 +1277,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
 	if (typeParameters != null) {
-		methodDecl.scope.connectTypeVariables(typeParameters);
+		methodDecl.scope.connectTypeVariables(typeParameters, true);
 		// Perform deferred bound checks for type variables (only done after type variable hierarchy is connected)
 		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++)
 			typeParameters[i].checkBounds(methodDecl.scope);

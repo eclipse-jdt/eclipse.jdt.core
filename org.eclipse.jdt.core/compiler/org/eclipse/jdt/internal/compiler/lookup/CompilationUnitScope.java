@@ -193,8 +193,13 @@ void checkAndSetImports() {
 	imports = resolvedImports;
 }
 void checkParameterizedTypeBounds() {
-	for (int i = 0, length = topLevelTypes.length; i < length; i++)
-		topLevelTypes[i].scope.checkParameterizedTypeBounds();
+	if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return;
+
+	for (int i = 0, length = topLevelTypes.length; i < length; i++) {
+		ClassScope scope = topLevelTypes[i].scope;
+		scope.checkParameterizedTypeBounds();
+		scope.checkForErasedCandidateCollisions();
+	}
 }
 /*
  * INTERNAL USE-ONLY

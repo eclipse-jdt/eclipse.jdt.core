@@ -452,10 +452,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return null; // incompatible
 	}
 	
-	protected boolean connectTypeVariables(TypeParameter[] typeParameters) {
+	protected boolean connectTypeVariables(TypeParameter[] typeParameters, boolean checkForErasedCandidateCollisions) {
 		boolean noProblems = true;
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return true;
-		TypeBinding[] types = new TypeBinding[2];
 		Map invocations = new HashMap(2);
 		nextVariable : for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
@@ -515,7 +514,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						continue nextVariable;
 					}
 					typeRef.resolvedType = superType; // hold onto the problem type
-					types[0] = superType;
 					if (isTypeVariableFirstBound && j == 0) {
 						problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);
 					}
@@ -531,24 +529,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						continue nextVariable;
 					}
 					// check against superclass
-					if (typeVariable.firstBound == typeVariable.superclass) {
-						types[1] = typeVariable.superclass;
-						TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
-						if (mecs != null) {
-							nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
-								TypeBinding mec = mecs[k];
-								if (mec == null) continue nextCandidate;
-								Set invalidInvocations = (Set)invocations.get(mec);
-								int invalidSize = invalidInvocations.size();
-								if (invalidSize > 1) {
-									TypeBinding[] collisions;
-									invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
-									problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[1], collisions[0]); // swap collisions since mec types got swapped
-									typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-									noProblems = false;
-									continue nextVariable;
-								}
-							}			
+					if (checkForErasedCandidateCollisions && typeVariable.firstBound == typeVariable.superclass) {
+						if (hasErasedCandidatesCollisions(superType, typeVariable.superclass, invocations, typeVariable, typeRef)) {
+							noProblems = false;
+							continue nextVariable;
 						}
 					}
 					// check against superinterfaces
@@ -560,24 +544,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							noProblems = false;
 							continue nextVariable;
 						}
-						types[1] = previousInterface;
-						invocations.clear();
-						TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
-						if (mecs != null) {
-							nextCandidate: for (int m = 0, max = mecs.length; m < max; m++) {
-								TypeBinding mec = mecs[m];
-								if (mec == null) continue nextCandidate;
-								Set invalidInvocations = (Set)invocations.get(mec);
-								int invalidSize = invalidInvocations.size();
-								if (invalidSize > 1) {
-									TypeBinding[] collisions;
-									invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
-									problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[0], collisions[1]);
-									typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-									noProblems = false;
-									continue nextVariable;
-								}
-							}					
+						if (checkForErasedCandidateCollisions) {
+							if (hasErasedCandidatesCollisions(superType, previousInterface, invocations, typeVariable, typeRef)) {
+								noProblems = false;
+								continue nextVariable;
+							}
 						}
 					}
 					int size = typeVariable.superInterfaces.length;
@@ -2662,6 +2633,27 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 		return qualifiedType;
 	}	
+
+	protected boolean hasErasedCandidatesCollisions(TypeBinding one, TypeBinding two, Map invocations, ReferenceBinding type, ASTNode typeRef) {
+		invocations.clear();
+		TypeBinding[] mecs = minimalErasedCandidates(new TypeBinding[] {one, two}, invocations);
+		if (mecs != null) {
+			nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+				TypeBinding mec = mecs[k];
+				if (mec == null) continue nextCandidate;
+				Set invalidInvocations = (Set) invocations.get(mec);
+				int invalidSize = invalidInvocations.size();
+				if (invalidSize > 1) {
+					TypeBinding[] collisions;
+					invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+					problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[0], collisions[1]);
+					type.tagBits |= TagBits.HierarchyHasProblems;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
