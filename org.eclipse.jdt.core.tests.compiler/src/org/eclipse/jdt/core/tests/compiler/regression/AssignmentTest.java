@@ -31,7 +31,7 @@ protected Map getCompilerOptions() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 38 };
+//	TESTS_NUMBERS = new int[] { 45 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
@@ -886,7 +886,7 @@ public void test044() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	int length2 = length2 = 0; // not detected\n" + 
-		"	    ^^^^^^^\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable length2 has no effect\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 9)\n" + 
@@ -901,11 +901,36 @@ public void test044() {
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	int length2 = length2 = 0; // not detected\n" + 
-		"	    ^^^^^^^\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable length2 has no effect\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 16)\n" + 
 		"	length3 = length3 = 0; // not detected\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length3 has no effect\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133351
+public void test045() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		int length2 = length2 = 0; // first problem\n" + 
+			"		int length3 = 0;\n" + 
+			"		length3 = length3 = 0; // second problem\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int length2 = length2 = 0; // first problem\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable length2 has no effect\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	length3 = length3 = 0; // second problem\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable length3 has no effect\n" + 
 		"----------\n");

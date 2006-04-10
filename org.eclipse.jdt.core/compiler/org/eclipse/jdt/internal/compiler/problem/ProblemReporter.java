@@ -643,7 +643,7 @@ public void arrayConstantsOnlyInArrayInitializers(int sourceStart, int sourceEnd
 		sourceStart,
 		sourceEnd);
 }
-public void assignmentHasNoEffect(ASTNode location, char[] name){
+public void assignmentHasNoEffect(Assignment location, char[] name){
 	int severity = computeSeverity(IProblem.AssignmentHasNoEffect);
 	if (severity == ProblemSeverities.Ignore) return;
 	String[] arguments = new String[] { new String(name) };	
@@ -654,6 +654,23 @@ public void assignmentHasNoEffect(ASTNode location, char[] name){
 			severity,
 			location.sourceStart,
 			location.sourceEnd);
+}
+public void assignmentHasNoEffect(AbstractVariableDeclaration location, char[] name){
+	int severity = computeSeverity(IProblem.AssignmentHasNoEffect);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] { new String(name) };
+	int start = location.sourceStart;
+	int end = location.sourceEnd;
+	if (location.initialization != null) {
+		end = location.initialization.sourceEnd;
+	}
+	this.handle(
+			IProblem.AssignmentHasNoEffect,
+			arguments,
+			arguments,
+			severity,
+			start,
+			end);
 }
 public void attemptToReturnNonVoidExpression(ReturnStatement returnStatement, TypeBinding expectedType) {
 	this.handle(
