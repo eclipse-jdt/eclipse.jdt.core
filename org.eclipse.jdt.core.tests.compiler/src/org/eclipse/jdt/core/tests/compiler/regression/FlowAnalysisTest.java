@@ -689,6 +689,39 @@ public void test024() {
 		"The local variable l may not have been initialized\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=135602
+public void test025() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(\"[starting]\");\n" + 
+			"		X l = new X();\n" + 
+			"		l.testLoop();\n" + 
+			"		System.out.println(\"[finished]\");\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void testLoop() {\n" + 
+			"		int loops = 0;\n" + 
+			"\n" + 
+			"		do {\n" + 
+			"			System.out.print(\"[Loop \" + loops + \"]\");\n" + 
+			"			if (loops > 2) {\n" + 
+			"				return;\n" + 
+			"			}\n" + 
+			"\n" + 
+			"			if (loops < 4) {\n" + 
+			"				++loops;\n" + 
+			"				continue; \n" + 
+			"			}\n" + 
+			"		} while (false);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"[starting][Loop 0][finished]");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
