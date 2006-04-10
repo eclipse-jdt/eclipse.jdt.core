@@ -421,6 +421,17 @@ public void testContains() throws JavaModelException {
 	cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "I.class");
 	assertTrue("I must be included", this.typeHierarchy.contains(type));
 }
+public void testCycle() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy/src/cycle/X.java").getType("X");
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X [in X.java [in cycle [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Y [in Y.java [in cycle [in src [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
+}
 /*
  * Ensures that a hierarchy can be created with a potential subtype in an empty primary working copy
  * (regression test for bug 65677 Creating hierarchy failed. See log for details. 0)
