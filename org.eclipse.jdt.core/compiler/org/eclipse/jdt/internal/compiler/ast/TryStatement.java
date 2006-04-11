@@ -590,6 +590,10 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 		this.reusableJSRSequenceStartLabels[this.reusableJSRTargetsCount++] = reusableJSRSequenceStartLabel;
 	}			
 	if (finallyMode == FINALLY_INLINE) {
+		if (this.preTryInitStateIndex != -1) {
+			// reset initialization state, as for a normal catch block
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+		}
 		// cannot use jsr bytecode, then simply inline the subroutine
 		// inside try block, ensure to deactivate all catch block exception handlers while inlining finally block
 		exitAnyExceptionHandler();

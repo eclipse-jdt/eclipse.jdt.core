@@ -140,18 +140,25 @@ public class LocalVariableBinding extends VariableBinding {
 	public void recordInitializationStartPC(int pc) {
 
 		if (initializationPCs == null) 	return;
-		// optimize cases where reopening a contiguous interval
-		if ((initializationCount > 0) && (initializationPCs[ ((initializationCount - 1) << 1) + 1] == pc)) {
-			initializationPCs[ ((initializationCount - 1) << 1) + 1] = -1; // reuse previous interval (its range will be augmented)
-		} else {
-			int index = initializationCount << 1;
-			if (index == initializationPCs.length) {
-				System.arraycopy(initializationPCs, 0, (initializationPCs = new int[initializationCount << 2]), 0, index);
+		if (initializationCount > 0) {
+			int previousEndPC = initializationPCs[ ((initializationCount - 1) << 1) + 1];
+			 // interval still open, keep using it (108180)
+			if (previousEndPC == -1) {
+				return;
 			}
-			initializationPCs[index] = pc;
-			initializationPCs[index + 1] = -1;
-			initializationCount++;
+			// optimize cases where reopening a contiguous interval
+			if (previousEndPC == pc) {
+				initializationPCs[ ((initializationCount - 1) << 1) + 1] = -1; // reuse previous interval (its range will be augmented)
+				return;
+			}
 		}
+		int index = initializationCount << 1;
+		if (index == initializationPCs.length) {
+			System.arraycopy(initializationPCs, 0, (initializationPCs = new int[initializationCount << 2]), 0, index);
+		}
+		initializationPCs[index] = pc;
+		initializationPCs[index + 1] = -1;
+		initializationCount++;
 	}
 
 	public void setAnnotations(AnnotationBinding[] annotations) {
