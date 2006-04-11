@@ -185,16 +185,34 @@ public static final char[][] arrayConcat(char[][] first, char[][] second) {
  * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
  * names follow the lower CamelCase convention.
  * <br>
- * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
- * 'NullPointerException', but not 'NullPointerExCEPTION'.
- * 
- * For example:
+ * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
+ * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
+ * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
+ * <br><br>
+ * Examples:
  * <ol>
  * <li><pre>
  *    pattern = { 'N', 'P', 'E' }
  *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'P', 'E' }
+ *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    result => false
  * </pre>
  * </li>
  * <li><pre>
@@ -232,11 +250,11 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
  * names follow the lower CamelCase convention.
  * <br>
- * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
- * 'NullPointerException', but not 'NullPointerExCEPTION'.
- * 
- * For example:
+ * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
+ * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
+ * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
+ * <br><br>
+ * Examples:
  * <ol>
  * <li><pre>
  *    pattern = { 'N', 'P', 'E' }
@@ -246,6 +264,36 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  *    nameStart = 0
  *    nameEnd = 20
  *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'P', 'E' }
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    nameStart = 0
+ *    nameEnd = 21
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    nameStart = 0
+ *    nameEnd = 20
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *    nameStart = 0
+ *    nameEnd = 21
+ *    result => false
  * </pre>
  * </li>
  * <li><pre>

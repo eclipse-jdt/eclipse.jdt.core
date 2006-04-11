@@ -141,8 +141,14 @@ public abstract class SearchPattern extends InternalSearchPattern {
 
 	/**
 	 * Match rule: The search pattern contains a Camel Case expression.
-	 * For example, <code>NPE</code> type string pattern will match
-	 * <code>NullPointerException</code> type.
+	 * <br>
+	 * Examples:
+	 * <ul>
+	 * 	<li><code>NPE</code> type string pattern will match
+	 * 		<code>NullPointerException</code> and <code>NpPermissionException</code> types,</li>
+	 * 	<li><code>NuPoEx</code> type string pattern will only match
+	 * 		<code>NullPointerException</code> type.</li>
+	 * </ul>
 	 * @see CharOperation#camelCaseMatch(char[], char[]) for a detailed explanation
 	 * of Camel Case matching.
 	 *<br>
@@ -201,14 +207,20 @@ public SearchPattern(int matchRule) {
  * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
  * names follow the lower CamelCase convention.
  * <br>
- * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
- * 'NullPointerException', but not 'NullPointerExCEPTION'.
- * 
- * For example:
+ * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
+ * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
+ * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
+ * <br><br>
+ * Examples:
  * <ol>
  * <li><pre>
  *    pattern = "NPE"
+ *    name = NullPointerException / NoPermissionException
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = "NuPoEx"
  *    name = NullPointerException
  *    result => true
  * </pre>
@@ -251,11 +263,11 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
  * names follow the lower CamelCase convention.
  * <br>
- * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
- * 'NullPointerException', but not 'NullPointerExCEPTION'.
- * 
- * For example:
+ * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
+ * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
+ * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
+ * <br><br>
+ * Examples:
  * <ol>
  * <li><pre>
  *    pattern = "NPE"
@@ -265,6 +277,36 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  *    nameStart = 0
  *    nameEnd = 20
  *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = "NPE"
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = NoPermissionException
+ *    nameStart = 0
+ *    nameEnd = 21
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = "NuPoEx"
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = NullPointerException
+ *    nameStart = 0
+ *    nameEnd = 20
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    pattern = "NuPoEx"
+ *    patternStart = 1
+ *    patternEnd = 3
+ *    name = NoPermissionException
+ *    nameStart = 0
+ *    nameEnd = 21
+ *    result => false
  * </pre>
  * </li>
  * <li><pre>
