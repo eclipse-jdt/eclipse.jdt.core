@@ -57,6 +57,7 @@ public static Test suite() {
 	standardTests.add(NullReferenceTest.class);
 	standardTests.add(CompilerInvocationTests.class);
 	standardTests.add(InnerEmulationTest.class);
+	standardTests.add(SuperTypeTest.class);
 	
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
