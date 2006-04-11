@@ -2261,7 +2261,7 @@ public void test0101() throws JavaModelException {
  * Ensure that resolving a binary synthetic contructor call in a generic class returns the member type
  * (regression test for bug 131519 JDK with attached source unnavigable.)
  */
-public void test102() throws CoreException, IOException {
+public void test0102() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL15_LIB"}, "", "1.5");
 		String source =
