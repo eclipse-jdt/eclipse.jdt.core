@@ -17,10 +17,12 @@ import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -28,7 +30,9 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.tests.model.CompilationUnitTests;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class AptReconcileTests extends ModifyingResourceTests
 {
@@ -42,7 +46,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 	
 	@SuppressWarnings("nls")
-	public void testGeneratedFile() throws Throwable
+	public void _testGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -205,7 +209,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 
 	@SuppressWarnings("nls")
-	public void testStopGeneratingFileInReconciler() throws Exception
+	public void _testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -297,7 +301,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * GeneratedFileManager.
 	 */
 	@SuppressWarnings("nls")	
-	public void testDiscardParentWorkingCopy()
+	public void _testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -341,56 +345,64 @@ public class AptReconcileTests extends ModifyingResourceTests
 			deleteFile( fname );
 		}	
 	}
+	
+	public void testBasicReconcile() throws Exception {
+		String fname = TEST_FOLDER + "/X.java";
+		try
+		{
+			
+			//
+			//  first make sure errors are present when the annotation
+			// is commented out
+			//
+			String code = "package test;" + "\n" +
+			    "@org.eclipse.jdt.apt.tests.annotations.apitest.Common\n" + 
+				"public class X " +  "\n" +
+				"{" +  "\n" +
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			createFile( fname, code );
+			this._problemRequestor = new ProblemRequestor();
+			
+			setUpWorkingCopy( fname, code );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+				null );
+			
+			assertProblems( "UnexpectedProblems", "----------\n----------\n----------\n----------\n" );
+			
+		}
+		finally
+		{
+			deleteFile( fname );
+		}
+		
+	}
 
 	@SuppressWarnings("nls")
 	public void setUp() throws Exception 
 	{
-		try 
-		{
-			super.setUp();			
-			this._problemRequestor = new ProblemRequestor();
+		super.setUp();			
+		this._problemRequestor = new ProblemRequestor();
 
-			final IJavaProject project = createJavaProject( TEST_PROJECT,
-					new String[] { "src" }, new String[] { "JCL15_LIB" },
-					"bin", "1.5" );
-			project.getProject().refreshLocal( IResource.DEPTH_INFINITE, null );
-			AptConfig.setEnabled(project, true);
-			
-			// make sure generated source folder exists in the project.  This is necessary
-			// for reconcile-time type-generation to work
-			AptPlugin.getAptProject(project).getGeneratedFileManager();
-			
-			_classesJarFile = TestUtil.createAndAddAnnotationJar( project );
-
-			IFolder testFolder = createFolder( TEST_FOLDER );
-			if ( !testFolder.exists() )
-				testFolder.create( true, false, null );
-			
-			// disable auto-build.  We don't want build-time type-generation interfering with
-			// our reconcile tests.
-			String key = ResourcesPlugin.PREF_AUTO_BUILDING;
-			boolean value = false;
-			ResourcesPlugin.getPlugin().getPluginPreferences().setValue(key, value);
-		} 
-		catch ( Exception t ) 
-		{
-			t.printStackTrace();
-			throw t;
-		} 
-		catch ( Throwable t ) 
-		{
-			t.printStackTrace();
-			throw new RuntimeException( t ); 
-		}
+		final IJavaProject project = createJavaProject( TEST_PROJECT,
+				new String[] { "src" }, new String[] { "JCL15_LIB" },
+				"bin", "1.5" );
+		TestUtil.createAndAddAnnotationJar(project);
+		AptConfig.setEnabled(project, true);
+		
+		createFolder( TEST_FOLDER );
+		
+		// disable auto-build.  We don't want build-time type-generation interfering with
+		// our reconcile tests.
+		String key = ResourcesPlugin.PREF_AUTO_BUILDING;
+		boolean value = false;
+		ResourcesPlugin.getPlugin().getPluginPreferences().setValue(key, value);
 	}
-
 	public void tearDown() throws Exception
 	{
-		if( this._workingCopy != null )
-			this._workingCopy.discardWorkingCopy();
-
-		deleteFile( _classesJarFile );
-		deleteFolder( TEST_FOLDER );
 		deleteProject( TEST_PROJECT );
 		super.tearDown();
 	}

@@ -176,6 +176,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	super(javaProj, file, Phase.RECONCILE );
    
 	   _filer = new FilerImpl(this);
+	   _filesWithAnnotation = new IFile[] {file};
 	   _allProblems = new HashMap<IFile, List<IProblem>>();
 	   _callback = callback;
 	   initOptions(javaProj);
@@ -924,6 +925,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	
 	public void createDietAST(ICompilationUnit unit) {
+		_units = new ICompilationUnit[] { unit };
+		_astUnits = new CompilationUnit[] {EMPTY_AST_UNIT}; 
 		createDietASTs(new ICompilationUnit[] {unit}, this);
 	}
 
@@ -976,7 +979,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		if( file == null )
 			throw new IllegalStateException("missing file"); //$NON-NLS-1$
 		_batchMode = false;
-		if( file.equals(_file) ) // this is a no-op
+		if( file.equals(_file) && _astRoot != null) // this is a no-op
 			return;
 		
 		_astRoot = null;

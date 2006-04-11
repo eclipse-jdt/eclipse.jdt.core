@@ -33,8 +33,7 @@ public class TestAll extends TestCase {
 	{
 		TestSuite suite = new TestSuite();
 		
-		// Comment out reconcile tests. No reconcile time codegen.
-		//suite.addTest(AptReconcileTests.suite());
+		suite.addTest(AptReconcileTests.suite());
 		suite.addTest(AptBuilderTests.suite() );
 		suite.addTest(APITests.suite());
 		suite.addTest(MirrorTests.suite());
