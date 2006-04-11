@@ -927,6 +927,42 @@ public void testConstantReference() throws CoreException {
 		deleteFile("/Reconciler/src/p1/OS.java");
 	}
 }
+/*
+ * Ensures that the source type converter doesn't throw an OutOfMemoryError if converting a generic type with a primitive type array as argument
+ * (regression test for bug 135296 opening a special java file results in an "out of memory" message)
+ */
+public void testConvertPrimitiveTypeArrayTypeArgument() throws CoreException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"Reconciler15/src/Y.java", 
+			"public class Y {\n" +
+			"  void foo(Z<int[]> z) {}\n" +
+			"}\n" +
+			"class Z<E> {\n" +
+			"}",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+			"public class X {\n" +
+			"  void bar(Y y) {\n" +
+			"    y.foo(new Z<int[]>());\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
+}
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents, updating the structure of this reconciler's compilation

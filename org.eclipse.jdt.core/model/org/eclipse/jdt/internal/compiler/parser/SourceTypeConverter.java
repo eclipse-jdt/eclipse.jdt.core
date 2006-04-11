@@ -672,6 +672,7 @@ public class SourceTypeConverter {
 			switch (currentChar) {
 				case Signature.C_BOOLEAN :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.BOOLEAN.simpleName, ((long) start << 32) + end);
 						else
@@ -680,6 +681,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_BYTE :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.BYTE.simpleName, ((long) start << 32) + end);
 						else
@@ -688,6 +690,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_CHAR :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.CHAR.simpleName, ((long) start << 32) + end);
 						else
@@ -696,6 +699,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_DOUBLE :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.DOUBLE.simpleName, ((long) start << 32) + end);
 						else
@@ -704,6 +708,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_FLOAT :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.FLOAT.simpleName, ((long) start << 32) + end);
 						else
@@ -712,6 +717,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_INT :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.INT.simpleName, ((long) start << 32) + end);
 						else
@@ -720,6 +726,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_LONG :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.LONG.simpleName, ((long) start << 32) + end);
 						else
@@ -728,6 +735,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_SHORT :
 					if (!nameStarted) {
+						this.namePos++;
 						if (dim == 0)
 							return new SingleTypeReference(TypeBinding.SHORT.simpleName, ((long) start << 32) + end);
 						else
@@ -736,6 +744,7 @@ public class SourceTypeConverter {
 					break;
 				case Signature.C_VOID :
 					if (!nameStarted) {
+						this.namePos++;
 						new SingleTypeReference(TypeBinding.VOID.simpleName, ((long) start << 32) + end);
 					}
 					break;
