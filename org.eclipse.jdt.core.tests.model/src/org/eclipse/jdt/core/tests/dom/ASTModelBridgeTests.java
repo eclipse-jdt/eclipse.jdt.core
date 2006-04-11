@@ -14,6 +14,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests;
 
 import junit.framework.Test;
 
@@ -102,6 +106,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"    /*start*/Member(String s) {\n" +
 				"    }/*end*/\n" +
 				"  }\n" +
+				"}",
+				"p/ABC.java",
+				"package p;\n" +
+				"public class ABC {\n" +
 				"}",
 				"Z.java",
 				"public class Z {\n" +
@@ -284,6 +292,47 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct
+	 * after searching for references to this type.
+	 * (regression test for bug 136016 [refactoring] CCE during Use Supertype refactoring)
+	 */
+	public void testBinaryType2() throws CoreException {
+		IClassFile classFile = getClassFile("P", "lib.jar", "p", "ABC.class"); // class with no references
+		
+		// ensure classfile is open
+		classFile.open(null);
+		
+		//search for references to p.ABC after adding references in exactly 1 file
+		try {
+			createFile(
+				"/P/src/Test.java",
+				"import p.ABC;\n" +
+				"public class Test extends ABC {\n" +
+				"}"
+				);
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getPackageFragmentRoot("/P/src")});
+			search(classFile.getType(), IJavaSearchConstants.REFERENCES, scope, new AbstractJavaSearchTests.JavaSearchResultCollector());
+		} finally {
+			deleteFile("/P/src/Test.java");
+		}
+		
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("public")};
+		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"ABC [in ABC.class [in p [in lib.jar [in P]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());

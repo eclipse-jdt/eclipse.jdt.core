@@ -31,7 +31,7 @@ public static boolean isDeclaringPackageFragment(IPackageFragment packageFragmen
 	char[] fileName = typeBinding.getFileName();
 	if (fileName != null) {
 		// retrieve the actual file name from the full path (sources are generally only containing it already)
-		CharOperation.replace(fileName, '/', '\\');
+		fileName = CharOperation.replaceOnCopy(fileName, '/', '\\'); // ensure to not do any side effect on file name (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=136016)
 		fileName = CharOperation.lastSegment(fileName, '\\');
 		
 		try { 
