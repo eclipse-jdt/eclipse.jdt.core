@@ -945,7 +945,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		// Construct exactly 1 binding key. When acceptBinding is called we know that
 		// All ASTs have been returned. This also means that a pipeline is opened when
 		// there are no asts. This is needed by the batch processors.
-		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object");
+		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object"); //$NON-NLS-1$
 		String[] keys = new String[] {bogusKey};
 		
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
