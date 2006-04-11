@@ -19,13 +19,48 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import junit.framework.Test;
 
 public class UtilTest extends AbstractRegressionTest {
-	
+
+StringBuffer camelCaseErrors;
+
 public UtilTest(String name) {
 	super(name);
+}
+static {
+//	TESTS_RANGE = new int[] { 62, -1 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
+/**
+ * Assert that a pattern and a name matches or not.
+ * If result is invalid then store warning in buffer and display it.
+ */
+void assertCamelCase(String pattern, String name, boolean match) {
+	boolean camelCase = CharOperation.camelCaseMatch(pattern==null?null:pattern.toCharArray(), name==null?null:name.toCharArray());
+	if (match != camelCase) {
+		StringBuffer line = new StringBuffer("'");
+		line.append(name);
+		line.append("' SHOULD");
+		if (!match) line.append(" NOT");
+		line.append(" match pattern '");
+		line.append(pattern);
+		line.append("'");
+		if (this.camelCaseErrors.length() == 0) {
+			System.out.println("Invalid results in test "+getName()+":");
+		}
+		System.out.println("	- "+line);
+		this.camelCaseErrors.append('\n');
+		this.camelCaseErrors.append(line);
+	}
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#setUp()
+ */
+protected void setUp() throws Exception {
+	super.setUp();
+	this.camelCaseErrors = new StringBuffer();
+}
+
 public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {
 	
 	CharOperation.replace(pattern, '/', File.separatorChar);
@@ -430,70 +465,102 @@ public void test61() {
 		checkPathMatch("/P/src/**/CVS/".toCharArray(), "/P/src/CVS".toCharArray(), true));
 }
 public void test62() {
-	assertTrue("Camel pattern matching failure-1",
-			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-2",
-			CharOperation.camelCaseMatch("NPExc".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-3",
-			!CharOperation.camelCaseMatch("NPoE".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-4",
-			!CharOperation.camelCaseMatch("NuPExc".toCharArray(), "NullPointerException".toCharArray()));
+	assertCamelCase("NPE", "NullPointerException", true/* should match */);
+	assertCamelCase("NPExc", "NullPointerException", true/* should match */);
+	assertCamelCase("NPoE", "NullPointerException", true/* should match */);
+	assertCamelCase("NuPExc", "NullPointerException", true/* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 public void test63() {
-	assertTrue("Camel pattern matching failure-1",
-			!CharOperation.camelCaseMatch("NPEX".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-2",
-			!CharOperation.camelCaseMatch("NPex".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-3",
-			!CharOperation.camelCaseMatch("npe".toCharArray(), "NullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-4",
-			!CharOperation.camelCaseMatch("npe".toCharArray(), "NPException".toCharArray()));
-	assertTrue("Camel pattern matching failure-5",
-			CharOperation.camelCaseMatch("NPointerE".toCharArray(), "NullPointerException".toCharArray()));
+	assertCamelCase("NPEX", "NullPointerException", false/* should not match */);
+	assertCamelCase("NPex", "NullPointerException", false/* should not match */);
+	assertCamelCase("npe", "NullPointerException", false/* should not match */);
+	assertCamelCase("npe", "NPException", false/* should not match */);
+	assertCamelCase("NPointerE", "NullPointerException", true/* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 public void test64() {
-	assertTrue("Camel pattern matching failure-1",
-			CharOperation.camelCaseMatch("IAE".toCharArray(), "IgnoreAllErrorHandler".toCharArray()));
-	assertTrue("Camel pattern matching failure-2",
-			CharOperation.camelCaseMatch("IAE".toCharArray(), "IAnchorElement".toCharArray()));
-	assertTrue("Camel pattern matching failure-3",
-			CharOperation.camelCaseMatch("IAnchorEleme".toCharArray(), "IAnchorElement".toCharArray()));
-	assertTrue("Camel pattern matching failure-4",
-			!CharOperation.camelCaseMatch("".toCharArray(), "IAnchorElement".toCharArray()));
-	assertTrue("Camel pattern matching failure-5",
-			CharOperation.camelCaseMatch(null, "IAnchorElement".toCharArray()));
-	assertTrue("Camel pattern matching failure-6",
-			CharOperation.camelCaseMatch("".toCharArray(), "".toCharArray()));
-	assertTrue("Camel pattern matching failure-7",
-			!CharOperation.camelCaseMatch("IAnchor".toCharArray(), null));
+	assertCamelCase("IAE", "IgnoreAllErrorHandler", true/* should match */);
+	assertCamelCase("IAE", "IAnchorElement", true/* should match */);
+	assertCamelCase("IAnchorEleme", "IAnchorElement", true/* should match */);
+	assertCamelCase("", "IAnchorElement", false/* should not match */);
+	assertCamelCase(null, "IAnchorElement", true/* should match */);
+	assertCamelCase("", "", true/* should match */);
+	assertCamelCase("IAnchor", null, false/* should not match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 public void test65() {
-	assertTrue("Camel pattern matching failure-1",
-			CharOperation.camelCaseMatch("iSCDCo".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
-	assertTrue("Camel pattern matching failure-2",
-			!CharOperation.camelCaseMatch("inVOke".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
-	assertTrue("Camel pattern matching failure-3",
-			CharOperation.camelCaseMatch("i".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
-	assertTrue("Camel pattern matching failure-4",
-			!CharOperation.camelCaseMatch("I".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
-	assertTrue("Camel pattern matching failure-5",
-			!CharOperation.camelCaseMatch("iStringCD".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
-	assertTrue("Camel pattern matching failure-6",
-			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException/java.lang".toCharArray()));
-	assertTrue("Camel pattern matching failure-7",
-			!CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointer/lang.Exception".toCharArray()));
-	assertTrue("Camel pattern matching failure-8",
-			CharOperation.camelCaseMatch("NPE".toCharArray(), "Null_Pointer$Exception".toCharArray()));
-	assertTrue("Camel pattern matching failure-9",
-			CharOperation.camelCaseMatch("NPE".toCharArray(), "Null1Pointer2Exception".toCharArray()));
-	assertTrue("Camel pattern matching failure-10",
-			!CharOperation.camelCaseMatch("NPE".toCharArray(), "Null.Pointer.Exception".toCharArray()));
-	assertTrue("Camel pattern matching failure-11",
-			!CharOperation.camelCaseMatch("NPE".toCharArray(), "aNullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-12",
-			CharOperation.camelCaseMatch("nullP".toCharArray(), "nullPointerException".toCharArray()));
-	assertTrue("Camel pattern matching failure-13",
-			CharOperation.camelCaseMatch("nP".toCharArray(), "nullPointerException".toCharArray()));
+	assertCamelCase("iSCDCo", "invokeStringConcatenationDefaultConstructor", true/* should match */);
+	assertCamelCase("inVOke", "invokeStringConcatenationDefaultConstructor", false/* should not match */);
+	assertCamelCase("i", "invokeStringConcatenationDefaultConstructor", true/* should match */);
+	assertCamelCase("I", "invokeStringConcatenationDefaultConstructor", false/* should not match */);
+	assertCamelCase("iStringCD", "invokeStringConcatenationDefaultConstructor", true/* should match */);
+	assertCamelCase("NPE", "NullPointerException/java.lang", true/* should match */);
+	assertCamelCase("NPE", "NullPointer/lang.Exception", false/* should not match */);
+	assertCamelCase("NPE", "Null_Pointer$Exception", true/* should match */);
+	assertCamelCase("NPE", "Null1Pointer2Exception", true/* should match */);
+	assertCamelCase("NPE", "Null.Pointer.Exception", false/* should not match */);
+	assertCamelCase("NPE", "aNullPointerException", false/* should not match */);
+	assertCamelCase("nullP", "nullPointerException", true/* should match */);
+	assertCamelCase("nP", "nullPointerException", true/* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+
+/**
+ * Bug 130390: CamelCase algorithm cleanup and improvement
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130390"
+ *
+ */
+public void test66() {
+    String[][] MATCHES = {
+            {"TZ","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TiZ","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TiZon","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TZon","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TZone","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TimeZone","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TimeZ","TimeZ"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TZ","TimeZ"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"T","TimeZ"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"T","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"TZ","TZ"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aT","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTi","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTiZ","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTZ","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aT","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTi","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTiZ","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTZ","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+    };
+    
+    for (int i = 0; i<MATCHES.length ; i++) {
+        String[] match = MATCHES[i];
+        assertCamelCase(match[0], match[1], true/*should match*/);
+    }
+    
+    String[][] MIS_MATCHES = {
+            {"TZ","Timezone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTZ","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aTZ","TZ"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"arT","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"arTi","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"arTiZ","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"arTZ","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+            {"aT","atimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
+    };
+    
+    for (int i = 0; i<MIS_MATCHES.length ; i++) {
+        String[] match = MIS_MATCHES[i];
+        assertCamelCase(match[0], match[1], false/*should not match*/);
+    }
+
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 public static Class testClass() {
 	return UtilTest.class;

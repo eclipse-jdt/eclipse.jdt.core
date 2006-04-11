@@ -49,7 +49,7 @@ static {
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //	TESTS_PREFIX =  "testBug110060";
 //	TESTS_NAMES = new String[] { "testBug126330" };
-//	TESTS_NUMBERS = new int[] { 89686 };
+//	TESTS_NUMBERS = new int[] { 110060, 130390 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
@@ -4400,6 +4400,9 @@ public void testBug108088() throws CoreException {
 }
 
 /**
+ * To get these tests search matches in a workspace, do NOT forget to modify files
+ * to set them as working copies.
+ *
  * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  */
@@ -5918,4 +5921,104 @@ public void testBug128877c() throws CoreException {
 	);
 }
 
+
+/**
+ * To get these tests search matches in a workspace, do NOT forget to modify files
+ * to set them as working copies.
+ *
+ * @test Bug 130390: CamelCase algorithm cleanup and improvement
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130390"
+ */
+public void testBug130390() throws CoreException {
+	workingCopies = new ICompilationUnit[4];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b130390/TZ.java",
+		"package b130390;\n" + 
+		"public class TZ {\n" +
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b130390/TimeZone.java",
+		"package b130390;\n" + 
+		"public class TimeZone{\n" +
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b130390/Npe.java",
+		"package b130390;\n" + 
+		"public class Npe {\n" +
+		"}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b130390/NullPointerException.java",
+		"package b130390;\n" + 
+		"public class NullPointerException {\n" +
+		"}\n"
+	);
+	search("NuPoEx", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
+	);
+}
+public void testBug130390b() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
+	);
+}
+public void testBug130390c() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
+	);
+}
+public void testBug130390d() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("Npe", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
+	);
+}
+public void testBug130390e() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("Npe", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
+	);
+}
+public void testBug130390f() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("NullPE", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
+	);
+}
+public void testBug130390g() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/TZ.java b130390.TZ [TZ] EXACT_MATCH\n" + 
+		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
+	);
+}
+public void testBug130390h() throws CoreException {
+	assertNotNull("There should be working copies!", workingCopies);
+	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	search("TiZo", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	this.discard = false;
+	assertSearchResults(
+		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
+	);
+}
 }

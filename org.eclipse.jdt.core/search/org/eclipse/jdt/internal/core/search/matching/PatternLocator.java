@@ -270,30 +270,19 @@ protected int matchNameValue(char[] pattern, char[] name) {
 	}
 	boolean matchFirstChar = !this.isCaseSensitive || pattern[0] == name[0];
 	boolean sameLength = pattern.length == name.length;
-	boolean canBePrefix = name.length > pattern.length;
+	boolean canBePrefix = name.length >= pattern.length;
+	if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
+		return POSSIBLE_CAMELCASE_MATCH;
+	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
-			if (sameLength && matchFirstChar && 	CharOperation.equals(pattern, name, this.isCaseSensitive)) {
+			if (!this.isCamelCase && sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_FULL_MATCH;
-			}
-			if (this.isCamelCase) {
-				if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
-					return POSSIBLE_PREFIX_MATCH;
-				}
-				if (matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
-					return POSSIBLE_CAMELCASE_MATCH;
-				}
 			}
 			break;
 		case SearchPattern.R_PREFIX_MATCH:
-			if (sameLength && matchFirstChar && 	CharOperation.equals(pattern, name, this.isCaseSensitive)) {
-				return POSSIBLE_FULL_MATCH;
-			}
 			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_PREFIX_MATCH;
-			}
-			if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
-				return POSSIBLE_CAMELCASE_MATCH;
 			}
 			break;
 		case SearchPattern.R_PATTERN_MATCH:
@@ -701,6 +690,9 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName)) {
 				return ACCURATE_MATCH;
 			}
+		}
+		if (this.matchMode == SearchPattern.R_EXACT_MATCH) {
+			return IMPOSSIBLE_MATCH;
 		}
 	}
 	boolean matchPattern = CharOperation.match(qualifiedPattern, sourceName, this.isCaseSensitive);

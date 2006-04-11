@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Luiz-Otávio Zorzella <zorzella at gmail dot com> - Improve CamelCase algorithm
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -283,59 +284,78 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		// first char must strictly match (upper/lower)
 		return false;
 	}
+
 	char patternChar, nameChar;
-	int iPattern = patternStart+1;
-	int iName = nameStart+1;
-	nextPatternChar: while (iPattern < patternEnd) {
-		// check patternChar, keep camelCasing only if uppercase
-		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS) {
-			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & ScannerHelper.C_UPPER_LETTER) == 0) {
-				// end of camelCase part of pattern
-				break nextPatternChar;
-			}
-			// still uppercase
-		} else if (ScannerHelper.isJavaIdentifierPart(patternChar) 
-						&& !ScannerHelper.isUpperCase(patternChar)) {
-			// end of camelCase part of pattern
-			break nextPatternChar;
-		}
-		nextNameChar: while (iName < nameEnd) {
-			if ((nameChar = name[iName]) != patternChar) {
-				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL | ScannerHelper.C_DIGIT)) != 0) {
-						// lowercase/digit char is ignored
-						iName++;
-						continue nextNameChar;
-					}
-				} else if (ScannerHelper.isJavaIdentifierPart(nameChar) 
-								&& !ScannerHelper.isUpperCase(nameChar)) {
-					// lowercase name char is ignored
-					iName++;
-					continue nextNameChar;
-				}
-				// mismatch, either uppercase in name or non case char ('/' etc)--> reject
-				return false;
-			} else {
-				// pattern char == name char (uppercase)
-				iName++;
-				iPattern++;
-				continue nextPatternChar;
-			}	
-		}
-		if (iPattern == patternEnd) return true;
-		if (iName == nameEnd) return false;
-		continue nextPatternChar;
-	}
-		
-	// check trailing part in case sensitive way
-	while (iPattern < patternEnd && iName < nameEnd) {
-		if (pattern[iPattern] != name[iName]) {
-			return false;
-		}
+	int iPattern = patternStart;
+	int iName = nameStart;
+
+	// Main loop is on pattern characters
+	while (true) {
+
 		iPattern++;
 		iName++;
+
+		if (iPattern == patternEnd) {
+			// We have exhausted pattern, so it's a match
+			return true;
+		}
+
+		if (iName == nameEnd){
+			// We have exhausted name (and not pattern), so it's not a match 
+			return false;
+		}
+
+		// For as long as we're exactly matching, bring it on (even if it's a lower case character)
+		if ((patternChar = pattern[iPattern]) == name[iName]) {
+			continue;
+		}
+
+		// If characters are not equals, then it's not a match if patternChar is lowercase
+		if (patternChar < ScannerHelper.MAX_OBVIOUS) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & ScannerHelper.C_UPPER_LETTER) == 0) {
+				return false;
+			}
+		}
+		else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar)) {
+			return false;
+		}
+
+		// patternChar is uppercase, so let's find the next uppercase in name
+		while (true) {
+			if (iName == nameEnd){
+	            //	We have exhausted name (and not pattern), so it's not a match
+				return false;
+			}
+
+			nameChar = name[iName];
+			if (nameChar < ScannerHelper.MAX_OBVIOUS) {
+				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL | ScannerHelper.C_DIGIT)) != 0) {
+					// nameChar is lowercase    
+					iName++;
+				// nameChar is uppercase...
+				} else  if (patternChar != nameChar) {
+					//.. and it does not match patternChar, so it's not a match
+					return false;
+				} else {
+					//.. and it matched patternChar. Back to the big loop
+					break;
+				}
+			}
+			else if (Character.isJavaIdentifierPart(nameChar) && !Character.isUpperCase(nameChar)) {
+				// nameChar is lowercase    
+				iName++;
+			// nameChar is uppercase...
+			} else  if (patternChar != nameChar) {
+				//.. and it does not match patternChar, so it's not a match
+				return false;
+			} else {
+				//.. and it matched patternChar. Back to the big loop
+				break;
+			}
+		}
+		// At this point, either name has been exhausted, or it is at an uppercase letter.
+		// Since pattern is also at an uppercase letter
 	}
-	return iPattern == patternEnd;
 }	
 
 /**
