@@ -94,24 +94,24 @@ FileSystem(Classpath[] paths, String[] initialFileNames) {
 	initializeKnownFileNames(initialFileNames);
 }
 static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
-	return getClasspath(classpathName, encoding, ClasspathLocation.SOURCE | ClasspathLocation.BINARY, accessRuleSet);
+	return getClasspath(classpathName, encoding, false, accessRuleSet);
 }
-static Classpath getClasspath(String classpathName, String encoding, int mode, AccessRuleSet accessRuleSet) {
+static Classpath getClasspath(String classpathName, String encoding, boolean isSourceOnly, AccessRuleSet accessRuleSet) {
 	Classpath result = null;
 	File file = new File(convertPathSeparators(classpathName));
 	if (file.isDirectory()) {
 		if (file.exists()) {
-			result = new ClasspathDirectory(file, encoding, mode, accessRuleSet);
+			result = new ClasspathDirectory(file, encoding, isSourceOnly ? ClasspathLocation.SOURCE : ClasspathLocation.SOURCE | ClasspathLocation.BINARY, accessRuleSet);
 		}
 	} else {
 		String lowercaseClasspathName = classpathName.toLowerCase();
 		if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
 				|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
-			if (mode == ClasspathLocation.SOURCE) {
-				// will throw an IOException if file does not exist
+			if (isSourceOnly) {
+				// source only mode
 				result = new ClasspathSourceJar(file, true, accessRuleSet, encoding);			
 			} else {
-				// will throw an IOException if file does not exist
+				// class file only mode
 				result = new ClasspathJar(file, true, accessRuleSet);
 			}
 		}

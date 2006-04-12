@@ -1205,7 +1205,7 @@ public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhen
 	}
 }
 
-private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList currentRuleSpecs, String customEncoding, boolean isSource) {
+private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList currentRuleSpecs, String customEncoding, boolean isSourceOnly) {
 	AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
 	boolean rulesOK = true;
 	Iterator i = currentRuleSpecs.iterator();
@@ -1260,7 +1260,7 @@ private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList
 		FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
 				currentClasspathName,
 				customEncoding,
-				isSource ? ClasspathLocation.SOURCE : ClasspathLocation.BINARY | ClasspathLocation.SOURCE,
+				isSourceOnly,
 				accessRuleSet);
 		if (currentClasspath != null) {
 			paths.add(currentClasspath);
@@ -2376,7 +2376,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							FileSystem.Classpath classpath = 
 								FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, null); 
+									null, false, null); 
 							if (classpath != null) {
 								bootclasspaths.add(classpath);
 							}
@@ -2602,10 +2602,13 @@ public String extractDestinationPathFromSourceFile(CompilationResult result) {
 	if (compilationUnit != null) {
 		char[] fileName = compilationUnit.getFileName();
 		int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
-		if (lastIndex == -1) {
-			return System.getProperty("user.dir"); //$NON-NLS-1$
+		if (lastIndex != -1) {
+			final String outputPathName = new String(fileName, 0, lastIndex);
+			final File output = new File(outputPathName);
+			if (output.exists() && output.isDirectory()) {
+				return outputPathName;
+			}
 		}
-		return new String(fileName, 0, lastIndex);
 	}
 	return System.getProperty("user.dir"); //$NON-NLS-1$
 }
@@ -2841,7 +2844,7 @@ public void printUsage() {
 	this.logger.flush();
 }
 
-private void processPathEntries(final int defaultSize, final ArrayList paths, final String currentPath, String customEncoding, boolean isSource) {
+private void processPathEntries(final int defaultSize, final ArrayList paths, final String currentPath, String customEncoding, boolean isSourceOnly) {
 	String currentClasspathName = null;
 	ArrayList currentRuleSpecs = new ArrayList(defaultSize);
 	StringTokenizer tokenizer = new StringTokenizer(currentPath,
@@ -2873,7 +2876,7 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 			case readyToCloseEndingWithRules:
 			case readyToCloseOrOtherEntry:
 				state = readyToCloseOrOtherEntry;
-				addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSource);
+				addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSourceOnly);
 				currentRuleSpecs.clear();
 				break;
 			case rulesReadyToClose:
@@ -2921,7 +2924,7 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 		case readyToClose :
 		case readyToCloseEndingWithRules :
 		case readyToCloseOrOtherEntry :
-			addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSource);
+			addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSourceOnly);
 			break;
 		default :
 			// we go on anyway
