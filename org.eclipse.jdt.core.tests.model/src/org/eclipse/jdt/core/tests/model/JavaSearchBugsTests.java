@@ -5132,7 +5132,7 @@ public void testBug110060_MethodPattern09() throws CoreException {
 }
 
 // Fields search
-public void testONLY_Bug110060_FieldPattern01() throws CoreException {
+public void testBug110060_FieldPattern01() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
 		"package b110060;\n" + 
@@ -5191,7 +5191,7 @@ public void testBug110060_FieldPattern04() throws CoreException {
 	);
 }
 
-public void testONLY_Bug110060_FieldPattern05() throws CoreException {
+public void testBug110060_FieldPattern05() throws CoreException {
 	assertNotNull("There should be working copies!", workingCopies);
 	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
