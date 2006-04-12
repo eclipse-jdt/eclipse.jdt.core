@@ -24,7 +24,6 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	public static final int BINARY = 2;
 	
 	protected AccessRuleSet accessRuleSet;
-	protected String encoding; // only useful if referenced in the source path
 
 	protected ClasspathLocation(AccessRuleSet accessRuleSet) {
 		this.accessRuleSet = accessRuleSet;
