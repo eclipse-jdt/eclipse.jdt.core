@@ -1169,7 +1169,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int endPos= new ModifierRewriter(this.formatter.ANNOTATION_SEPARATION).rewriteList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (isAllInsert) {
-			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
+			RewriteEvent lastChild= children[children.length - 1];
+			String separator;
+			if (lastChild.getNewValue() instanceof Annotation) {
+				separator= this.formatter.ANNOTATION_SEPARATION.getPrefix(getIndent(pos));
+			} else {
+				separator= String.valueOf(' ');
+			}
+			doTextInsert(endPos, separator, getEditGroup(lastChild));
 		} else if (isAllRemove) {
 			try {
 				int nextPos= getScanner().getNextStartOffset(endPos, false); // to the next token

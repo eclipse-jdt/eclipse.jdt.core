@@ -19,7 +19,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -1595,7 +1594,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
-		public void testModifiersAST3WithAnnotations() throws Exception {
+	public void testModifiersAST3WithAnnotations() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1656,6 +1655,47 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    /** javadoc comment */\n");
 		buf.append("    @Deprecated\n");
 		buf.append("    public Object foo4() { return null; }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testModifiersAST3WithAnnotations2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    Object foo1() { return null; }\n");
+		buf.append("    Object foo2() { return null; }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		{ // insert annotation first 
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			MarkerAnnotation annot= ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Override"));
+			listRewrite.insertFirst(annot, null);
+		}
+		{ // insert modifier first
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			Modifier modifier= ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			listRewrite.insertFirst(modifier, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    @Override\n");
+		buf.append("    Object foo1() { return null; }\n");
+		buf.append("    public Object foo2() { return null; }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
 	}
