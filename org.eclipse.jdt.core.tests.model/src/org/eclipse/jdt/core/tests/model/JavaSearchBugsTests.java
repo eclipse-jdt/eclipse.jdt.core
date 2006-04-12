@@ -5654,8 +5654,17 @@ public void testBug124469a() throws CoreException {
 	search(type, REFERENCES);
 	assertSearchResults(
 		"lib/b124469.jar pack.E pack.A1.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E[] pack.A1.list() EXACT_MATCH\n" + 
 		"lib/b124469.jar pack.E pack.A2.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E[] pack.A2.list() EXACT_MATCH\n" + 
 		"lib/b124469.jar pack.E pack.A3.value() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E[] pack.A3.list() EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
 		"lib/b124469.jar test.C EXACT_MATCH\n" + 
 		"lib/b124469.jar test.C EXACT_MATCH\n" + 
 		"lib/b124469.jar test.C EXACT_MATCH\n" + 
@@ -5669,6 +5678,18 @@ public void testBug124469a() throws CoreException {
 		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
 		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
 		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
@@ -5755,31 +5776,43 @@ public void testBug124469i() throws CoreException {
 		"" // expected no result as parameters annotations are not stored in class file
 	);
 }
-// TODO (frederic) enable when bug 130xxx will be fixed
-public void _testBug124469j() throws CoreException {
+public void testBug124469j() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
 	IField field = type.getField("CAC");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"???"
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH"
 	);
 }
-// TODO (frederic) enable when bug 130xxx will be fixed
-public void _testBug124469k() throws CoreException {
+public void testBug124469k() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
 	IField field = type.getField("CAF");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"???"
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH"
 	);
 }
-// TODO (frederic) enable when bug 130xxx will be fixed
-public void _testBug124469l() throws CoreException {
+public void testBug124469l() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
 	IField field = type.getField("CAM");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"???"
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
 public void testBug124469m() throws CoreException {
