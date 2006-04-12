@@ -1853,21 +1853,19 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 	}
 
 	// Verify Pattern match rule
+	int starIndex = stringPattern.indexOf('*');
+	int questionIndex = stringPattern.indexOf('?');
+	if (starIndex < 0 && questionIndex < 0) {
+		// reset pattern match bit if any
+		matchRule &= ~R_PATTERN_MATCH;
+	} else {
+		// force Pattern rule
+		matchRule |= R_PATTERN_MATCH;
+	}
 	if ((matchRule & R_PATTERN_MATCH) != 0) {
-		if ((matchRule & R_PREFIX_MATCH) != 0) {
-			matchRule &= ~R_PREFIX_MATCH;
-		}
-		int starIndex = stringPattern.indexOf('*');
-		int questionIndex = stringPattern.indexOf('?');
-		if (starIndex < 0 && questionIndex < 0) {
-			// No need to have pattern match
-			matchRule &= ~R_PATTERN_MATCH;
-		} else {
-			// Remove Camel Case match when there's '*' or '?' characters
-			if ((matchRule & R_CAMELCASE_MATCH) != 0) {
-				matchRule &= ~R_CAMELCASE_MATCH;
-			}
-		}
+		// remove Camel Case and Prefix match bits if any
+		matchRule &= ~R_CAMELCASE_MATCH;
+		matchRule &= ~R_PREFIX_MATCH;
 	}
 
 	// Verify Camel Case match rule
@@ -1875,10 +1873,15 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 		// Verify sting pattern validity
 		int length = stringPattern.length();
 		boolean validCamelCase = true;
+		boolean uppercase = false;
 		for (int i=0; i<length && validCamelCase; i++) {
-			char ch = stringPattern.charAt(i++);
+			char ch = stringPattern.charAt(i);
 			validCamelCase = ScannerHelper.isJavaIdentifierStart(ch);
+			// at least one uppercase character is need in CamelCase pattern
+			// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=136313)
+			if (!uppercase) uppercase = ScannerHelper.isUpperCase(ch);
 		}
+		validCamelCase = validCamelCase && uppercase;
 		// Verify bits compatibility
 		if (validCamelCase) {
 			if ((matchRule & R_PREFIX_MATCH) != 0) {

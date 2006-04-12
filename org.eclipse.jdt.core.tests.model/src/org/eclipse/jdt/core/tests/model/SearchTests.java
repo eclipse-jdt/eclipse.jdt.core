@@ -18,22 +18,15 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
@@ -181,6 +174,23 @@ protected void assertPattern(String expected, SearchPattern actualPattern) {
 		"Unexpected search pattern",
 		expected,
 		actual);
+}
+protected void assertValidMatchRule(String pattern, int rule) {
+	assertValidMatchRule(pattern, rule, rule);
+}
+protected void assertValidMatchRule(String pattern, int rule, int expected) {
+	int validated = SearchPattern.validateMatchRule(pattern, rule);
+	String validatedRule = BasicSearchEngine.getMatchRuleString(validated);
+	String expectedRule = BasicSearchEngine.getMatchRuleString(expected);
+	if (!validatedRule.equals(expectedRule)) {
+		System.out.println("Test "+getName());
+		System.out.print("	assertValidMatchRule(\"");
+		System.out.print(pattern);
+		System.out.print("\", ");
+		System.out.print(validatedRule);
+		System.out.println(");");
+		assertEquals(pattern+"' does not match expected match rule!", expectedRule, validatedRule);
+	}
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -977,5 +987,39 @@ public void testSearchPatternCreation36() {
 	assertPattern(
 		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive",
 		searchPattern);
+}
+/**
+ * Test CamelCase validation
+ */
+public void testSearchPatternValidMatchRule01() {
+	assertValidMatchRule("foo", SearchPattern.R_EXACT_MATCH, SearchPattern.R_EXACT_MATCH);
+	assertValidMatchRule("foo", SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PREFIX_MATCH);
+	assertValidMatchRule("foo", SearchPattern.R_PATTERN_MATCH, SearchPattern.R_EXACT_MATCH);
+	assertValidMatchRule("foo", SearchPattern.R_PATTERN_MATCH|SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PREFIX_MATCH);
+	assertValidMatchRule("foo", SearchPattern.R_CAMELCASE_MATCH, SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE);
+}
+public void testSearchPatternValidMatchRule02() {
+	assertValidMatchRule("CP*P", SearchPattern.R_EXACT_MATCH, SearchPattern.R_PATTERN_MATCH);
+	assertValidMatchRule("CP*P", SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PATTERN_MATCH);
+	assertValidMatchRule("CP*P", SearchPattern.R_PATTERN_MATCH, SearchPattern.R_PATTERN_MATCH);
+	assertValidMatchRule("CP*P", SearchPattern.R_PATTERN_MATCH|SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PATTERN_MATCH);
+	assertValidMatchRule("CP*P", SearchPattern.R_CAMELCASE_MATCH, SearchPattern.R_PATTERN_MATCH);
+}
+public void testSearchPatternValidMatchRule03() {
+	assertValidMatchRule("NPE", SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMELCASE_MATCH|SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE,
+		SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("nPE", SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("NuPoEx", SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("oF", SearchPattern.R_CAMELCASE_MATCH);
+}
+public void testSearchPatternValidMatchRule04() {
+	assertValidMatchRule("Nu/Po/Ex",
+		SearchPattern.R_CAMELCASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE);
+	assertValidMatchRule("Nu.Po.Ex",
+		SearchPattern.R_CAMELCASE_MATCH|SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
 }
 }

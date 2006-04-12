@@ -237,6 +237,9 @@ public class BasicSearchEngine {
 	 * @param matchRule
 	 */
 	public static String getMatchRuleString(final int matchRule) {
+		if (matchRule == 0) {
+			return "R_EXACT_MATCH"; //$NON-NLS-1$
+		}
 		StringBuffer buffer = new StringBuffer();
 		for (int i=1; i<=8; i++) {
 			int bit = matchRule & (1<<(i-1));
