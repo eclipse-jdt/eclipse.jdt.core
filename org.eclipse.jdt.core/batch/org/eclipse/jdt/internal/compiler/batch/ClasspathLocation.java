@@ -20,9 +20,15 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 public abstract class ClasspathLocation implements FileSystem.Classpath,
 		SuffixConstants {
 
-	private AccessRuleSet accessRuleSet;
+	public static final int SOURCE = 1;
+	public static final int BINARY = 2;
+	
+	protected int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
 
-	public ClasspathLocation(AccessRuleSet accessRuleSet) {
+	protected AccessRuleSet accessRuleSet;
+	protected String encoding; // only useful if referenced in the source path
+
+	protected ClasspathLocation(AccessRuleSet accessRuleSet) {
 		this.accessRuleSet = accessRuleSet;
 	}
 
@@ -38,7 +44,7 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	 * @return the first access rule which is violated when accessing a given
 	 *         type, or null if none applies
 	 */
-	AccessRestriction fetchAccessRestriction(String qualifiedBinaryFileName) {
+	protected AccessRestriction fetchAccessRestriction(String qualifiedBinaryFileName) {
 		if (this.accessRuleSet == null)
 			return null;
 		char [] qualifiedTypeName = qualifiedBinaryFileName.

@@ -26,29 +26,15 @@ private char[] normalizedPath;
 private String path;
 private Hashtable directoryCache;
 private String[] missingPackageHolder = new String[1];
-private String encoding;
-public int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
-
-public static final int SOURCE = 1;
-public static final int BINARY = 2;
 
 ClasspathDirectory(File directory, String encoding, int mode, AccessRuleSet accessRuleSet) {
 	super(accessRuleSet);
-	if (mode == 0){
-		this.mode = SOURCE | BINARY;
-	}
-	else {
-	    this.mode = mode;
-	}
+	this.mode = mode;
 	this.path = directory.getAbsolutePath();
 	if (!this.path.endsWith(File.separator))
 		this.path += File.separator;
 	this.directoryCache = new Hashtable(11);
 	this.encoding = encoding;
-}
-
-ClasspathDirectory(File directory, String encoding) {
-	this(directory, encoding, SOURCE | BINARY, null); // by default consider both sources and binaries
 }
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
@@ -112,8 +98,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	}
 	if (binaryExists) {
 		try {
-			ClassFileReader reader = ClassFileReader.read(this.path
-					+ qualifiedBinaryFileName);
+			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
 			if (reader != null)
 				return new NameEnvironmentAnswer(
 						reader,

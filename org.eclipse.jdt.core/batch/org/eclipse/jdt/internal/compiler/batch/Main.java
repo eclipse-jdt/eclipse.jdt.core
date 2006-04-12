@@ -1257,16 +1257,13 @@ private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList
 			"template.restrictedAccess.field", //$NON-NLS-1$
 			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
 		AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, templates);
-		FileSystem.Classpath currentClasspath = FileSystem
-				.getClasspath(currentClasspathName,
-						customEncoding, 0, accessRuleSet);
+		FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
+				currentClasspathName,
+				customEncoding,
+				isSource ? ClasspathLocation.SOURCE : ClasspathLocation.BINARY | ClasspathLocation.SOURCE,
+				accessRuleSet);
 		if (currentClasspath != null) {
 			paths.add(currentClasspath);
-			if (isSource && currentClasspath instanceof ClasspathDirectory) {
-				((ClasspathDirectory) currentClasspath).mode = 
-					ClasspathDirectory.SOURCE;
-				// TODO may consider adding this attribute to other classpath natures
-			}
 		} else {
 			this.logger.logIncorrectClasspath(currentClasspathName);
 			// we go on anyway
@@ -2378,8 +2375,8 @@ public void configure(String[] argv) throws InvalidInputException {
 						for (int j = 0, max2 = current.length; j < max2; j++) {
 							FileSystem.Classpath classpath = 
 								FileSystem.getClasspath(
-										current[j].getAbsolutePath(),
-										null, 0, null); 
+									current[j].getAbsolutePath(),
+									null, null); 
 							if (classpath != null) {
 								bootclasspaths.add(classpath);
 							}
@@ -2402,14 +2399,14 @@ public void configure(String[] argv) throws InvalidInputException {
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			this.logger.logNoClasspath();
-			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, 0, null));//$NON-NLS-1$
+			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
 			String token;
 			while (tokenizer.hasMoreTokens()) {
 				token = tokenizer.nextToken();
 				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, 0, null);
+						.getClasspath(token, customEncoding, null);
 				if (currentClasspath != null) {
 					classpaths.add(currentClasspath);
 				} else {
@@ -2471,7 +2468,7 @@ public void configure(String[] argv) throws InvalidInputException {
 						FileSystem.Classpath classpath = 
 							FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, 0, null); 
+									null, null); 
 						if (classpath != null) {
 							extdirsClasspaths.add(classpath);
 						}

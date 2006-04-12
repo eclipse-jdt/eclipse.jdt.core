@@ -862,8 +862,8 @@ public void test012(){
 		"    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
 		"                       specify location for system classes. Each directory or file can\n" + 
 		"                       specify access rules for types between ''['' and '']''\n" + 
-		"    -sourcepath <directories separated by " + File.pathSeparator + ">\n" + 
-		"                       specify location for application sources. Each directory can\n" + 
+		"    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
+		"                       specify location for application sources. Each directory or file can\n" + 
 		"                       specify access rules for types between ''['' and '']''\n" + 
 		"    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
 		"                       specify location for extension zip/jar files\n" + 

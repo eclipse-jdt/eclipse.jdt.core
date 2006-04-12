@@ -56,18 +56,12 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 	classPathNames is a collection is Strings representing the full path of each class path
 	initialFileNames is a collection is Strings, the trailing '.java' will be removed if its not already.
 */
-
 public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding) {
-	this(classpathNames, initialFileNames, encoding, null);
-}
-public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding, int[] classpathDirectoryModes) {
 	final int classpathSize = classpathNames.length;
 	this.classpaths = new Classpath[classpathSize];
 	int counter = 0;
 	for (int i = 0; i < classpathSize; i++) {
-		Classpath classpath = getClasspath(classpathNames[i], encoding,
-					classpathDirectoryModes == null ? 0
-							: classpathDirectoryModes[i], null);
+		Classpath classpath = getClasspath(classpathNames[i], encoding, null);
 		try {
 			classpath.initialize();
 			this.classpaths[counter++] = classpath;
@@ -99,21 +93,27 @@ FileSystem(Classpath[] paths, String[] initialFileNames) {
 	}
 	initializeKnownFileNames(initialFileNames);
 }
-static Classpath getClasspath(String classpathName, String encoding,
-		int classpathDirectoryMode, AccessRuleSet accessRuleSet) {
+static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
+	return getClasspath(classpathName, encoding, ClasspathLocation.SOURCE | ClasspathLocation.BINARY, accessRuleSet);
+}
+static Classpath getClasspath(String classpathName, String encoding, int mode, AccessRuleSet accessRuleSet) {
 	Classpath result = null;
 	File file = new File(convertPathSeparators(classpathName));
 	if (file.isDirectory()) {
 		if (file.exists()) {
-			result = new ClasspathDirectory(file, encoding,
-					classpathDirectoryMode, accessRuleSet);
+			result = new ClasspathDirectory(file, encoding, mode, accessRuleSet);
 		}
 	} else {
 		String lowercaseClasspathName = classpathName.toLowerCase();
 		if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
 				|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
-			result = new ClasspathJar(file, true, accessRuleSet);
-			// will throw an IOException if file does not exist
+			if (mode == ClasspathLocation.SOURCE) {
+				// will throw an IOException if file does not exist
+				result = new ClasspathSourceJar(file, true, accessRuleSet, encoding);			
+			} else {
+				// will throw an IOException if file does not exist
+				result = new ClasspathJar(file, true, accessRuleSet);
+			}
 		}
 	}
 	return result;
@@ -210,9 +210,6 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
 			typeName);
 	return null;
-}
-public ClasspathJar getClasspathJar(File file) throws IOException {
-	return new ClasspathJar(file, true, null);
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));

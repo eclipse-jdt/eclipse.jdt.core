@@ -19,26 +19,23 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public class ClasspathJar extends ClasspathLocation {
 	
-private File file;
-private ZipFile zipFile;
-private boolean closeZipFileAtEnd;
-private Hashtable packageCache;
-private char[] normalizedPath;
+protected File file;
+protected ZipFile zipFile;
+protected boolean closeZipFileAtEnd;
+protected Hashtable packageCache;
+protected char[] normalizedPath;
 
-public ClasspathJar(File file) throws IOException {
-	this(file, true, null);
-}
 public ClasspathJar(File file, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet) {
 	super(accessRuleSet);
 	this.file = file;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
-
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!isPackage(qualifiedPackageName)) 
 		return null; // most common case
@@ -47,7 +44,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) return new NameEnvironmentAnswer(reader, 
 				fetchAccessRestriction(qualifiedBinaryFileName));
-	} catch (Exception e) {
+	} catch(ClassFormatException e) {
+		// treat as if class file is missing
+	} catch (IOException e) {
 		// treat as if class file is missing
 	}
 	return null;
