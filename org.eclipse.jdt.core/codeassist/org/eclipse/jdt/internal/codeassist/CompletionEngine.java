@@ -743,7 +743,7 @@ public final class CompletionEngine
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-						findMethods(this.completionToken,null,enclosingType,scope,new ObjectVector(),false,false,true,null,null,false,false,true);
+						findMethods(this.completionToken,null,null,enclosingType,scope,new ObjectVector(),false,false,true,null,null,false,false,true);
 					}
 					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
 						proposeNewMethod(this.completionToken, enclosingType);
@@ -765,7 +765,7 @@ public final class CompletionEngine
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-						findMethods(this.completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true);
+						findMethods(this.completionToken,null,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true);
 					}
 					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
 						proposeNewMethod(this.completionToken, scope.enclosingSourceType());
@@ -928,6 +928,7 @@ public final class CompletionEngine
 					findMethods(
 						this.completionToken,
 						null,
+						null,
 						receiverType,
 						scope,
 						new ObjectVector(),
@@ -1013,6 +1014,7 @@ public final class CompletionEngine
 			} else  if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 				findMethods(
 					this.completionToken,
+					null,
 					argTypes,
 					(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
 					scope,
@@ -1237,6 +1239,43 @@ public final class CompletionEngine
 				
 				this.findLabels(this.completionToken, label.possibleLabels);
 			}
+		} else if(astNode instanceof CompletionOnMessageSendName) {
+			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+				CompletionOnMessageSendName messageSend = (CompletionOnMessageSendName) astNode;
+				
+				this.insideQualifiedReference = true;
+				this.completionToken = messageSend.selector;
+				boolean onlyStatic = false;
+				TypeBinding receiverType = null;
+				if(qualifiedBinding instanceof VariableBinding) {
+					receiverType = ((VariableBinding)qualifiedBinding).type;
+				} else if(qualifiedBinding instanceof MethodBinding) {
+					receiverType = ((MethodBinding)qualifiedBinding).returnType;
+				} else if(qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
+					onlyStatic = true;
+					receiverType = (TypeBinding)qualifiedBinding;
+				}
+				if(receiverType != null && receiverType instanceof ReferenceBinding) {
+					TypeBinding[] typeArgTypes = computeTypesIfCorrect(messageSend.typeArguments);
+					if(typeArgTypes != null) {
+						this.findMethods(
+								this.completionToken,
+								typeArgTypes,
+								null,
+								(ReferenceBinding)receiverType.capture(scope, messageSend.receiver.sourceEnd),
+								scope,
+								new ObjectVector(),
+								onlyStatic,
+								false,
+								false,
+								messageSend,
+								scope,
+								false,
+								false,
+								true);
+					}
+				}
+			}
 		// Completion on Javadoc nodes
 		} else if ((astNode.bits & ASTNode.InsideJavadoc) != 0) {
 			if (astNode instanceof CompletionOnJavadocSingleTypeReference) {
@@ -1312,6 +1351,7 @@ public final class CompletionEngine
 							|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_METHOD_REF)) {
 						findMethods(this.completionToken,
 							null,
+							null,
 							receiverType,
 							scope,
 							new ObjectVector(),
@@ -1357,6 +1397,7 @@ public final class CompletionEngine
 					}
 				} else if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 					findMethods(this.completionToken,
+						null,
 						argTypes,
 						(ReferenceBinding) ((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
 						scope,
@@ -1791,6 +1832,18 @@ public final class CompletionEngine
 		TypeBinding[] argTypes = new TypeBinding[argsLength];
 		for (int a = argsLength; --a >= 0;) {
 			argTypes[a] = arguments[a].resolvedType;
+		}
+		return argTypes;
+	}
+	
+	private TypeBinding[] computeTypesIfCorrect(Expression[] arguments) {
+		if (arguments == null) return null;
+		int argsLength = arguments.length;
+		TypeBinding[] argTypes = new TypeBinding[argsLength];
+		for (int a = argsLength; --a >= 0;) {
+			TypeBinding typeBinding = arguments[a].resolvedType;
+			if(typeBinding == null || !typeBinding.isValidBinding()) return null;
+			argTypes[a] = typeBinding;
 		}
 		return argTypes;
 	}
@@ -2793,6 +2846,7 @@ public final class CompletionEngine
 			findMethods(
 				token,
 				null,
+				null,
 				(ReferenceBinding) receiverType,
 				scope,
 				methodsFound,
@@ -3620,6 +3674,7 @@ public final class CompletionEngine
 
 	private void findInterfacesMethods(
 		char[] selector,
+		TypeBinding[] typeArgTypes,
 		TypeBinding[] argTypes,
 		ReferenceBinding receiverType,
 		ReferenceBinding[] itsInterfaces,
@@ -3668,6 +3723,7 @@ public final class CompletionEngine
 	
 								findLocalMethods(
 									selector,
+									typeArgTypes,
 									argTypes,
 									methods,
 									scope,
@@ -3739,6 +3795,7 @@ public final class CompletionEngine
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
 					findMethods(
 						token,
+						null,
 						argTypes,
 						enclosingType,
 						classScope,
@@ -3764,6 +3821,7 @@ public final class CompletionEngine
 	// Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
 	private void findLocalMethods(
 		char[] methodName,
+		TypeBinding[] typeArgTypes,
 		TypeBinding[] argTypes,
 		MethodBinding[] methods,
 		Scope scope,
@@ -3782,6 +3840,7 @@ public final class CompletionEngine
 		// No visibility checks can be performed without the scope & invocationSite
 
 		int methodLength = methodName.length;
+		int minTypeArgLength = typeArgTypes == null ? 0 : typeArgTypes.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
 		next : for (int f = methods.length; --f >= 0;) {
@@ -3822,6 +3881,14 @@ public final class CompletionEngine
 					continue next;
 				}
 			}
+			
+			if (minTypeArgLength != 0 && minTypeArgLength != method.typeVariables.length)
+				continue next;
+			
+			if (minTypeArgLength != 0) {
+				method = new ParameterizedGenericMethodBinding(method, typeArgTypes, scope.environment());
+			}
+			
 			if (minArgLength > method.parameters.length)
 				continue next;
 
@@ -4586,6 +4653,7 @@ public final class CompletionEngine
 
 	private void findMethods(
 		char[] selector,
+		TypeBinding[] typeArgTypes,
 		TypeBinding[] argTypes,
 		ReferenceBinding receiverType,
 		Scope scope,
@@ -4621,6 +4689,7 @@ public final class CompletionEngine
 				if (isCompletingDeclaration) {
 					findInterfacesMethods(
 						selector,
+						typeArgTypes,
 						argTypes,
 						receiverType,
 						currentType.superInterfaces(),
@@ -4637,6 +4706,7 @@ public final class CompletionEngine
 				} else {
 					findInterfacesMethods(
 						selector,
+						typeArgTypes,
 						argTypes,
 						receiverType,
 						new ReferenceBinding[]{currentType},
@@ -4657,6 +4727,7 @@ public final class CompletionEngine
 				if (isCompletingDeclaration){
 					findInterfacesMethods(
 						selector,
+						typeArgTypes,
 						argTypes,
 						receiverType,
 						currentType.superInterfaces(),
@@ -4691,6 +4762,7 @@ public final class CompletionEngine
 				} else{
 					findLocalMethods(
 						selector,
+						typeArgTypes,
 						argTypes,
 						methods,
 						scope,
@@ -4709,6 +4781,7 @@ public final class CompletionEngine
 			if (notInJavadoc && hasPotentialDefaultAbstractMethods && (currentType.isAbstract() || currentType.isTypeVariable())){
 				findInterfacesMethods(
 					selector,
+					typeArgTypes,
 					argTypes,
 					receiverType,
 					currentType.superInterfaces(),
@@ -5561,6 +5634,7 @@ public final class CompletionEngine
 								findMethods(
 									token,
 									null,
+									null,
 									enclosingType,
 									classScope,
 									methodsFound,
@@ -5609,6 +5683,7 @@ public final class CompletionEngine
 								if(proposeMethod && !insideAnnotationAttribute) {
 									findMethods(
 										token,
+										null,
 										null,
 										(ReferenceBinding)binding,
 										scope,

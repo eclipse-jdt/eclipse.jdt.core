@@ -109,6 +109,8 @@ public class CompletionParser extends AssistParser {
 	static final int LPAREN_NOT_CONSUMED = 1;
 	static final int LPAREN_CONSUMED = 2;
 	
+	// K_PARAMETERIZED_METHOD_INVOCATION arguments
+	static final int INSIDE_NAME = 1;
 
 	// the type of the current invocation (one of the invocation type constants)
 	int invocationType;
@@ -856,8 +858,10 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 						}
 						break nextElement;
 					case K_PARAMETERIZED_METHOD_INVOCATION :
-						currentElement = currentElement.add((TypeReference)node, 0);
-						break nextElement;
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == 0) {
+							currentElement = currentElement.add((TypeReference)node, 0);
+							break nextElement;
+						}
 				}
 				if(info == LESS && node instanceof TypeReference) {
 					if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
@@ -1321,6 +1325,80 @@ private boolean checkNameCompletion() {
 	this.isOrphanCompletionNode = true;
 	return true;
 }
+private boolean checkParemeterizedMethodName() {
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION &&
+			topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == INSIDE_NAME) {
+		if(this.identifierLengthPtr > -1 && this.genericsLengthPtr > -1 && this.genericsIdentifiersLengthPtr == -1) {
+			CompletionOnMessageSendName m = null;
+			switch (this.invocationType) {
+				case EXPLICIT_RECEIVER:
+				case NO_RECEIVER: // this case occurs with 'bar().foo'
+					if(this.expressionPtr > -1 && this.expressionLengthStack[this.expressionLengthPtr] == 1) {
+						char[] selector = this.identifierStack[this.identifierPtr];
+						long position = this.identifierPositionStack[identifierPtr--];
+						this.identifierLengthPtr--;
+						int end = (int) position;
+						int start = (int) (position >>> 32);
+						m = new CompletionOnMessageSendName(selector, start, end);
+						
+						// handle type arguments
+						int length = this.genericsLengthStack[this.genericsLengthPtr--];
+						this.genericsPtr -= length;
+						System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+						intPtr--;
+						
+						m.receiver = this.expressionStack[this.expressionPtr--];
+						this.expressionLengthPtr--;
+					}
+					break;
+				case NAME_RECEIVER:
+					if(this.identifierPtr > 0) {
+						char[] selector = this.identifierStack[this.identifierPtr];
+						long position = this.identifierPositionStack[identifierPtr--];
+						this.identifierLengthPtr--;
+						int end = (int) position;
+						int start = (int) (position >>> 32);
+						m = new CompletionOnMessageSendName(selector, start, end);
+						
+						// handle type arguments
+						int length = this.genericsLengthStack[this.genericsLengthPtr--];
+						this.genericsPtr -= length;
+						System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+						intPtr--;
+						
+						m.receiver = getUnspecifiedReference();
+					}
+					break;
+				case SUPER_RECEIVER:
+					char[] selector = this.identifierStack[this.identifierPtr];
+					long position = this.identifierPositionStack[identifierPtr--];
+					this.identifierLengthPtr--;
+					int end = (int) position;
+					int start = (int) (position >>> 32);
+					m = new CompletionOnMessageSendName(selector, start, end);
+					
+					// handle type arguments
+					int length = this.genericsLengthStack[this.genericsLengthPtr--];
+					this.genericsPtr -= length;
+					System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+					intPtr--;
+					
+					m.receiver = new SuperReference(start, end);
+					break;
+			}
+			
+			if(m != null) {
+				pushOnExpressionStack(m);
+						
+				this.assistNode = m;
+				this.lastCheckPoint = this.assistNode.sourceEnd + 1;
+				this.isOrphanCompletionNode = true;
+				return true;
+			}
+		}
+	}
+	return false;
+}
 private boolean checkParemeterizedType() {
 	if(this.identifierLengthPtr > -1 && this.genericsLengthPtr > -1 && this.genericsIdentifiersLengthPtr > -1) {
 		int length = this.identifierLengthStack[this.identifierLengthPtr];
@@ -1557,6 +1635,7 @@ public void completionIdentifierCheck(){
 	if (checkInvocation()) return;
 
 	if (checkParemeterizedType()) return;
+	if (checkParemeterizedMethodName()) return;
 	if (checkLabelStatement()) return;
 	if (checkNameCompletion()) return;
 }
@@ -2432,7 +2511,12 @@ protected void consumeToken(int token) {
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAnnotation()) {
 		switch(token) {
 			case TokenNameLPAREN:
-				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
+				if(previous == TokenNameIdentifier &&
+						topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
+					popElement(K_PARAMETERIZED_METHOD_INVOCATION);
+				} else {
+					popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
+				}
 				break;
 			case TokenNameLBRACE:
 				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
@@ -2864,6 +2948,7 @@ protected void consumeOnlyTypeArguments() {
 	popElement(K_BINARY_OPERATOR);
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
 		popElement(K_PARAMETERIZED_METHOD_INVOCATION);
+		pushOnElementStack(K_PARAMETERIZED_METHOD_INVOCATION, INSIDE_NAME);
 	} else {
 		popElement(K_PARAMETERIZED_ALLOCATION);
 	}
