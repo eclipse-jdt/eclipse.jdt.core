@@ -42,16 +42,10 @@ public JavaSearchBugsTests(String name) {
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchBugsTests.class);
 }
-// Use this static initializer to specify subset for tests
-// All specified tests which do not belong to the class are skipped...
 static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//	TESTS_PREFIX =  "testBug110060";
-//	TESTS_NAMES = new String[] { "testBug126330" };
-//	TESTS_NUMBERS = new int[] { 110060, 130390 };
-//	TESTS_RANGE = new int[] { 83304, -1 };
-	}
+}
 
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
@@ -5802,6 +5796,52 @@ public void testBug124469n() throws CoreException {
 	search(field, REFERENCES);
 	assertSearchResults(
 		"" // expected no result as parameters annotations are not stored in class file
+	);
+}
+/**
+ * @test Bug 124645: [search] for implementors does not find subclasses of binary classes
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124645"
+ */
+public void testBug124645a() throws CoreException {
+	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "xy", "BE_124645.class");
+	IType type = classFile.getType();
+	search(type, IMPLEMENTORS);
+	assertSearchResults(
+		"src/b124645/xy/X_124645.java b124645.xy.X_124645$Y [BE_124645] EXACT_MATCH\n" + 
+		"src/b124645/xy/Y_124645.java b124645.xy.Y_124645 [BE_124645] EXACT_MATCH\n" + 
+		"lib/b124645.jar xy.BX_124645$Y EXACT_MATCH\n" + 
+		"lib/b124645.jar xy.BY_124645 EXACT_MATCH"
+	);
+}
+public void testBug124645b() throws CoreException {
+	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "test", "BE_124645.class");
+	IType type = classFile.getType();
+	search(type, IMPLEMENTORS);
+	assertSearchResults(
+		"src/b124645/test/A_124645.java b124645.test.A_124645 [BE_124645] EXACT_MATCH\n" + 
+		"src/b124645/test/A_124645.java void b124645.test.A_124645.m():<anonymous>#1 [BE_124645] EXACT_MATCH\n" + 
+		"src/b124645/test/X_124645.java b124645.test.X_124645 [BE_124645] EXACT_MATCH\n" + 
+		"src/b124645/test/X_124645.java void b124645.test.X_124645.m():Y_124645#1 [BE_124645] EXACT_MATCH\n" + 
+		"lib/b124645.jar test.BA_124645 EXACT_MATCH\n" + 
+		"lib/b124645.jar test.<anonymous> EXACT_MATCH\n" + 
+		"lib/b124645.jar test.BX_124645 EXACT_MATCH\n" + 
+		"lib/b124645.jar test.Y EXACT_MATCH"
+	);
+}
+public void testBug124645c() throws CoreException {
+	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BC_124645.class");
+	IType type = classFile.getType();
+	search(type, IMPLEMENTORS);
+	assertSearchResults(
+		"lib/b124645.jar <anonymous> EXACT_MATCH"
+	);
+}
+public void testBug124645d() throws CoreException {
+	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BI_124645.class");
+	IType type = classFile.getType();
+	search(type, IMPLEMENTORS);
+	assertSearchResults(
+		"lib/b124645.jar <anonymous> EXACT_MATCH"
 	);
 }
 

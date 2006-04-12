@@ -963,8 +963,11 @@ public void testInterfaceImplementors1() throws CoreException { // was testInter
 		"src/p/X.java p.X [I]", 
 		this.resultCollector);
 
-	// implementors of a class should give no match
-	// (regression test for 1G5HBQA: ITPJUI:WINNT - Search - search for implementors of a class finds subclasses)
+	/**
+	 * Implementors of a class should now give a match
+	 * Bug 1G5HBQA: "ITPJUI:WINNT - Search - search for implementors of a class finds subclasses" is cancelled
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124645"
+	 */
 	type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	resultCollector = new JavaSearchResultCollector();
 	search(
@@ -973,7 +976,7 @@ public void testInterfaceImplementors1() throws CoreException { // was testInter
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"", 
+		"src/p/Y.java p.Y [X]",
 		this.resultCollector);	
 }
 /**
@@ -1089,7 +1092,7 @@ public void testLocalVariableReference2() throws CoreException {
  * (regression test for bug 48725 Cannot search for local vars in jars.)
  */
 public void testLocalVariableReference3() throws CoreException {
-    IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p", "X.class");
+    IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p48725", "X.class");
 	ILocalVariable localVar = (ILocalVariable) codeSelect(classFile, "local = 1;", "local")[0];
 	search(
 		localVar, 
@@ -1097,7 +1100,7 @@ public void testLocalVariableReference3() throws CoreException {
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"test48725.jar int p.<anonymous>.bar()",
+		"test48725.jar int p48725.<anonymous>.bar()",
 		this.resultCollector);
 }
 /**

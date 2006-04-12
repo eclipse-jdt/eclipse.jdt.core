@@ -231,8 +231,6 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
-	if (this.superRefKind == ONLY_SUPER_INTERFACES)
-		if (pattern.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
 	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != IIndexConstants.ONE_ZERO/*not an anonymous*/) 
 		// consider enumerations as classes, reject interfaces and annotations
 		if (pattern.superClassOrInterface == IIndexConstants.INTERFACE_SUFFIX 
