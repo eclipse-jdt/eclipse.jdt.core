@@ -23,8 +23,6 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	public static final int SOURCE = 1;
 	public static final int BINARY = 2;
 	
-	protected int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
-
 	protected AccessRuleSet accessRuleSet;
 	protected String encoding; // only useful if referenced in the source path
 
