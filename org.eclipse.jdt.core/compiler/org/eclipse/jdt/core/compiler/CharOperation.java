@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Luiz-Otávio Zorzella <zorzella at gmail dot com> - Improve CamelCase algorithm
+ *     Luiz-Otavio Zorzella <zorzella at gmail dot com> - Improve CamelCase algorithm
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
