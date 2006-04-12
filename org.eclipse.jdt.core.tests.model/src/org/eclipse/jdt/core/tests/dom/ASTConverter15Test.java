@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 213 };
+//		TESTS_NUMBERS = new int[] { 108, 214 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6478,4 +6478,58 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding variableBinding = (IVariableBinding) binding;
 		assertEquals("No annotations", 0, variableBinding.getAnnotations().length);
 	}
+	
+	/*
+	 * Check unique instance of generic method bindings 
+	 */
+	public void _test0214() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" + 
+			"	\n" + 
+			"	<T extends A> T foo(T t) {\n" + 
+			"		return t;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().bar();\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		B b1 = foo(new B());\n" + 
+			"		B b2 = foo(new B());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A {}\n" + 
+			"class B extends A {}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 2, 0);
+		assertEquals("Not a compilation unit", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		
+		node = getASTNode(unit, 0, 2, 1);
+		assertEquals("Not a compilation unit", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement = (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment= (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
+		
+		assertTrue("Not equals", methodBinding == methodBinding2);
+	}
+	
 }
