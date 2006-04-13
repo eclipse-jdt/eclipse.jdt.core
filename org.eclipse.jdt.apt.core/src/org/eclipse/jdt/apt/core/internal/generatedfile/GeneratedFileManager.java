@@ -13,7 +13,13 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,10 +34,12 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
@@ -78,6 +86,8 @@ import org.eclipse.jdt.core.dom.AST;
  */
 public class GeneratedFileManager {
 	
+	private static final int SERIALIZATION_VERSION = 1;
+	
 	// disable type generation during reconcile. This can cause deadlock.
 	// See radar bug #238684	
 	public static final boolean GENERATE_TYPE_DURING_RECONCILE = false;
@@ -112,14 +122,20 @@ public class GeneratedFileManager {
 	
 	// This is set when the build starts, and accessed during type generation. 
 	private IPackageFragmentRoot _generatedPackageFragmentRoot;
+	
 	// This is initialized/reset when the build starts, and accessed during type generation.
 	// It has the same life-cycle as _generatedPackageFragmentRoot.
 	// This bit may be set to <code>true</code> during the first type generation to prevent any 
 	// future type generation due to configuration problem.
 	private boolean _skipTypeGeneration = false;
+	
 	// The name of the generated source folder when the _generatedPackageFragmenRoot is 
 	// initialized. Used for problem reporting.
 	private String _snapshotFolderName = null;
+	
+	// During compilation, we need to remember if we've modified the maps 
+	// in memory in order to determine if we need to write our state to disk
+	private boolean _mapsDirty = false;
 	
 	/**
 	 * Clients should not instantiate this class; it is created only by @see AptProject .
@@ -127,6 +143,7 @@ public class GeneratedFileManager {
 	public GeneratedFileManager(final AptProject aptProject, final GeneratedSourceFolderManager gsfm) {
 		_jProject = aptProject.getJavaProject();
 		_gsfm = gsfm;
+		readState();
 	}
 
 	static
@@ -906,7 +923,10 @@ public class GeneratedFileManager {
 				fileSet = new HashSet();
 				_parentFile2GeneratedFiles.put( parentFile, fileSet );
 			}
-			fileSet.add( generatedFile );
+			if (fileSet.add( generatedFile )) {
+				// Mark the maps as dirty, so that we can store them later
+				_mapsDirty = true;
+			}
 
 			// add derived file -> set of parent files
 			fileSet = _generatedFile2ParentFiles.get( generatedFile );
@@ -915,7 +935,9 @@ public class GeneratedFileManager {
 				fileSet = new HashSet();
 				_generatedFile2ParentFiles.put( generatedFile, fileSet );
 			}
-			fileSet.add( parentFile );
+			if (fileSet.add( parentFile )) {
+				_mapsDirty = true;
+			}
 		}
 	}
 	
@@ -941,8 +963,10 @@ public class GeneratedFileManager {
 				throw new RuntimeException(
 					"derivedFiles is null and it shouldn't be"); //$NON-NLS-1$
 
-			derivedFiles.remove(generatedFile);
-		
+			if (derivedFiles.remove(generatedFile)) {
+				_mapsDirty = true;
+			}
+			
 			// update _derivedFile2Parents map
 			Set<IFile> parents = _generatedFile2ParentFiles.get(generatedFile);
 
@@ -952,7 +976,9 @@ public class GeneratedFileManager {
 			if (!parents.contains(parentFile))
 				throw new RuntimeException("parents set does not contain parent. Parent: " + parentFile + ". Child: " + generatedFile); //$NON-NLS-1$ //$NON-NLS-2$
 
-			parents.remove(parentFile);
+			if (parents.remove(parentFile)) {
+				_mapsDirty = true;
+			}
 		}
 	}
 
@@ -1028,6 +1054,16 @@ public class GeneratedFileManager {
 			// now clear file maps
 			_parentFile2GeneratedFiles.clear();
 			_generatedFile2ParentFiles.clear();
+			
+			// Delete any saved build state
+			File state = getSerializationFile(_jProject.getProject());
+			if (state != null) {
+				boolean successfullyDeleted = state.delete();
+				if (!successfullyDeleted && state.exists()) {
+					AptPlugin.log(new IOException("Could not delete apt dependency state file"), //$NON-NLS-1$
+							state.getPath());
+				}
+			}
 		}
 	}
 	
@@ -1063,5 +1099,156 @@ public class GeneratedFileManager {
 		}
 		return false;
 	}
+	
+	/**
+	 * Reads the last serialized build state. This includes dependency
+	 * information so that we do not need to do a clean build in order to recreate
+	 * our dependencies.
+	 * 
+	 * File format:
+	 * 
+	 * int version
+	 * int sizeOfMap
+	 *    String parentIFilePath
+	 *    int numberOfChildren
+	 *      String childIFilePath
+	 * 
+	 * We have two maps (_parentFile2GeneratedFiles and _generatedFile2ParentFiles)
+	 * in order to do bi-directional lookups, but the
+	 * information is redundant, so we only need to deserialize one.
+	 * 
+	 */
+	private synchronized void readState() {
+		File file = getSerializationFile(_jProject.getProject());
+		if (file == null || !file.exists()) {
+			// We'll just start with no dependencies
+			return;
+		}
+		DataInputStream in = null;
+		try {
+			in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+			int version = in.readInt();
+			if (version != SERIALIZATION_VERSION) {
+				throw new IOException("Dependency map file version does not match. Expected "  //$NON-NLS-1$
+						+ SERIALIZATION_VERSION + ", but found " + version); //$NON-NLS-1$
+			}
+			int sizeOfMap = in.readInt();
+			
+			// For each entry, we'll have a parent and a set of children, 
+			// which we can drop into the parent -> child map.
+			for (int parentIndex=0; parentIndex<sizeOfMap; parentIndex++) {
+				String parentPath = in.readUTF();
+				IFile parent = convertPathToIFile(parentPath);
+				Set<IFile> children = new HashSet<IFile>();
+				_parentFile2GeneratedFiles.put(parent, children);
+				
+				int numChildren = in.readInt();
+				for (int childIndex = 0; childIndex<numChildren; childIndex++) {
+					String childPath = in.readUTF();
+					IFile child = convertPathToIFile(childPath);
+					// add the child to the parent->child map
+					children.add(child);
+					
+					// Now we need to update the child -> parents map
+					Set<IFile> parentSet = _generatedFile2ParentFiles.get(child);
+					if (parentSet == null) {
+						parentSet = new HashSet<IFile>();
+						_generatedFile2ParentFiles.put(child, parentSet);
+					}
+					parentSet.add(parent);
+				}
+			}
+		}
+		catch (IOException ioe) {
+			// We can safely continue without having read our dependencies.
+			AptPlugin.log(ioe, "Could not deserialize APT dependencies"); //$NON-NLS-1$
+		}
+		finally {
+			if (in != null) {
+				try {in.close();} catch (IOException ioe) {}
+			}
+		}
+	}
+	
+	/**
+	 * Write our dependencies to disk. 
+	 */
+	public synchronized void writeState() {
+		if (!_mapsDirty) {
+			return;
+		}
+		File file = getSerializationFile(_jProject.getProject());
+		if (file == null) {
+			// Cannot write state, as project has been deleted
+			return;
+		}
+		file.delete();
+		
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+			
+			out.writeInt(SERIALIZATION_VERSION);
+			
+			out.writeInt(_parentFile2GeneratedFiles.size());
+			
+			for (Map.Entry<IFile,Set<IFile>> entry : _parentFile2GeneratedFiles.entrySet()) {
+				
+				IFile parent = entry.getKey();
+				out.writeUTF(convertIFileToPath(parent));
+				
+				Set<IFile> children = entry.getValue();
+				
+				out.writeInt(children.size());
+				
+				for (IFile child : children) {
+					out.writeUTF(convertIFileToPath(child));
+				}
+			}
+			_mapsDirty = false;
+		}
+		catch (IOException ioe) {
+			// We can safely continue without having written our dependencies.
+			AptPlugin.log(ioe, "Could not serialize APT dependencies"); //$NON-NLS-1$
+		}
+		finally {
+			if (out != null) {
+				try {
+					out.flush();
+					out.close();
+				}
+				catch (IOException ioe) {
+					AptPlugin.log(ioe, "Failed to write the APT dependency state to disk"); //$NON-NLS-1$
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Utility method for deserialization
+	 */
+	private IFile convertPathToIFile(String projectRelativeString) {
+		IPath path = new Path(projectRelativeString);
+		return _jProject.getProject().getFile(path);
+	}
+	
+	/**
+	 * Utility method for serialization
+	 */
+	private String convertIFileToPath(IFile file) {
+		IPath path = file.getProjectRelativePath();
+		return path.toOSString();
+	}
+	
+	/**
+	 * Returns the File to use for saving and restoring the last built state for the given project.
+	 * Returns null if the project does not exists (e.g. has been deleted)
+	 */
+	private File getSerializationFile(IProject project) {
+		if (!project.exists()) return null;
+		IPath workingLocation = project.getWorkingLocation(AptPlugin.PLUGIN_ID);
+		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
+	}
+	
 	
 }

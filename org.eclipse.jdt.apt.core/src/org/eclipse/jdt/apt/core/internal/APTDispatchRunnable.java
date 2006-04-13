@@ -579,6 +579,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			}
 			
 			processorEnv.close();
+			gfm.writeState();
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
