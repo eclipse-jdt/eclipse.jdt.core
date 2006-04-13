@@ -528,6 +528,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 											  processorEnv.getProblems(), 
 											  processorEnv.hasGeneratedClassFiles() || processorEnv.hasGeneratedSourceFiles());
 			processorEnv.close();
+			gfm.writeState();
 			return result;
 		
 			// log unclaimed annotations.
