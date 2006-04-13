@@ -5,7 +5,8 @@
 <!-- =================================================================================== -->
 <!-- Extension: Preferences                                                              -->
 <!-- =================================================================================== -->
-   <extension
+   <!-- Disabled: see Bugzilla 136498
+   		extension
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.eclipse.jdt.ui.preferences.CompliancePreferencePage"
@@ -17,7 +18,7 @@
             class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
             id="org.eclipse.jdt.apt.ui.preferences.factoryPathPreferences"
             name="%factoryPathName"/>
-   </extension>
+   </extension -->
    <extension
          point="org.eclipse.ui.propertyPages">
       <page

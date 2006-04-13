@@ -75,6 +75,14 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 		return getConfigurationBlock().hasProjectSpecificOptionsNoCache(project);
 	}
 	
+	/* 
+	 * See bug 136498: don't show workspace preferences.
+	 */
+	@Override
+	protected boolean offerLink() {
+		return false;
+	}
+
 	/*
 	 * @see org.eclipse.jface.preference.IPreferencePage#performApply()
 	 */

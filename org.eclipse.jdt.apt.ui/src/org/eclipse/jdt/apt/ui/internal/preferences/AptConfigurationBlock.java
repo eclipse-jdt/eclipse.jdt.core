@@ -87,6 +87,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private String fOriginalGenSrcDir;
 	private boolean fOriginalAptEnabled;
 	
+	// used to distinguish actual changes from re-setting of same value - see useProjectSpecificSettings()
+	private boolean fPerProjSettingsEnabled; 
+	
 	/**
 	 * Event handler for Processor Options list control.
 	 */
@@ -307,6 +310,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
 		fOriginalGenSrcDir = AptConfig.getGenSrcDir(fJProj);
 		fOriginalAptEnabled = AptConfig.isEnabled(fJProj);
+		fPerProjSettingsEnabled = hasProjectSpecificOptionsNoCache(fProject);
 	}
 
 	protected void initContents() {
@@ -442,6 +446,18 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	/**
+	 * Bugzilla 136498: when project-specific settings are enabled, force APT to be enabled.
+	 */
+	@Override
+	public void useProjectSpecificSettings(boolean enable) {
+		super.useProjectSpecificSettings(enable);
+		if (enable ^ fPerProjSettingsEnabled) {
+			fAptEnabledField.setSelection(enable);
+			fPerProjSettingsEnabled = enable;
+		}
+	}
+
+	/**
 	 * Save the contents of the options list.
 	 */
 	private void saveProcessorOptions(List<ProcessorOption> elements) {
@@ -469,6 +485,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 
 	@Override
 	public void performDefaults() {
+		fPerProjSettingsEnabled = false;
 		if (fJProj != null) {
 			// If project-specific, load workspace settings
 			loadProcessorOptions(null);
