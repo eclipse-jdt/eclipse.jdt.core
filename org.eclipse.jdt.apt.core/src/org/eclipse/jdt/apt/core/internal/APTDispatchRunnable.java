@@ -532,6 +532,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			return result;
 		
 			// log unclaimed annotations.
+		}
+		catch (Error t) {
+			// Don't catch junit exceptions. This prevents one from unit testing a processor
+			if (t.getClass().getName().startsWith("junit.framework")) //$NON-NLS-1$
+				throw t;
+			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		} catch (Throwable t) {
 			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}

@@ -15,11 +15,24 @@ package org.eclipse.jdt.apt.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.env.EnvironmentFactory;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
+import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationCodeExample;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.builder.Problem;
+
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.util.SourcePosition;
 
 public class MirrorDeclarationTests extends APTTestBase {
 
@@ -177,5 +190,61 @@ public class MirrorDeclarationTests extends APTTestBase {
 				new Problem("", "UnknownType cannot be resolved to a type", fooPath),
 				new Problem("", "UnknownType cannot be resolved to a type", fooPath)}
 		);
+	}
+	
+	public void testLocation() {
+		TestLocationProc p = new TestLocationProc();
+		GenericFactory.PROCESSOR = p;
+		
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		String x =
+			"package test;\n" +
+			"import org.eclipse.jdt.apt.tests.annotations.generic.*;\n" +
+			"@GenericAnnotation public class X {}";
+		
+		env.addClass(srcRoot, "test", "X", x);		
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		assertTrue("Processor not invoked", p.called);
+	}
+	
+	class TestLocationProc extends AbstractGenericProcessor {
+		boolean called;
+
+		public void process() {
+			called = true;
+			assertTrue(decls.size() == 1);
+			
+			Declaration d = decls.iterator().next();
+			SourcePosition p = d.getPosition();
+
+			assertTrue(p.column() == 32);
+			assertTrue(p.line() == 3);
+		}
+	}
+	
+	public void testEnvFactory() throws JavaModelException {
+
+		IProject project = env.getProject(getProjectName());
+		IPath srcRoot = getSourcePath();
+		String x = "package test;\n" + "import org.eclipse.jdt.apt.tests.annotations.generic.*;\n"
+				+ "@GenericAnnotation public class X {}";
+
+		IPath path = env.addClass(srcRoot, "test", "X", x);
+		IPath tail = path.removeFirstSegments(2);
+		IJavaProject p = JavaCore.create(project);
+		ICompilationUnit cu = (ICompilationUnit) p.findElement(tail);
+		assertTrue("Could not find cu", cu != null);
+		
+		AnnotationProcessorEnvironment env = EnvironmentFactory.getEnvironment(cu, p);
+		TypeDeclaration t = env.getTypeDeclaration("test.X");
+
+		SourcePosition pos = t.getPosition();
+		
+		assertTrue(pos.column() == 32);
+		assertTrue(pos.line() == 3);
 	}
 }

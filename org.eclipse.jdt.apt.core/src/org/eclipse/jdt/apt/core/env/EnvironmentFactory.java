@@ -36,7 +36,7 @@ public class EnvironmentFactory {
 	public static AnnotationProcessorEnvironment getEnvironment(ICompilationUnit compilationUnit, IJavaProject javaProject )
 	{	
        	BaseProcessorEnv env = new BaseProcessorEnv(javaProject, (IFile)compilationUnit.getResource(), Phase.OTHER);
-		env.createDietAST(null);
+		env.createDietAST(compilationUnit);
        	return env;
 	}
 }
