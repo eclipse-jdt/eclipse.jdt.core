@@ -30407,4 +30407,32 @@ public void test0967() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108045
+public void test0968() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"import java.util.*;\n" + 
+			"public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+			"}\n" + 
+			"interface I<T1> extends Collection {\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"The interface Collection cannot be implemented more than once with different arguments: Collection<T0> and Collection\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	interface I<T1> extends Collection {\n" + 
+		"	                        ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n");
+}
 }
