@@ -1663,10 +1663,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void removeLibraryEntry(IJavaProject project, Path path) throws JavaModelException {
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
-		IClasspathEntry[] newEntries = new IClasspathEntry[length-1];
+		IClasspathEntry[] newEntries = null;
 		for (int i = 0; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			if (entry.getPath().equals(path)) {
+				newEntries = new IClasspathEntry[length-1];
 				if (i > 0)
 					System.arraycopy(entries, 0, newEntries, 0, i);
 				if (i < length-1)
@@ -1674,7 +1675,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				break;
 			}	
 		}
-		project.setRawClasspath(newEntries, null);
+		if (newEntries != null)
+			project.setRawClasspath(newEntries, null);
 	}
 
 	/**

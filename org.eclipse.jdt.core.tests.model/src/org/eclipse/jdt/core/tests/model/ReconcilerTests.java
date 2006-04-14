@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
@@ -19,6 +20,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -804,6 +806,63 @@ public void testCategories4() throws JavaModelException {
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"	f2[*]: {CATEGORIES}"
 	);
+}
+/*
+ * Ensures that changing and external jar and refreshing takes the change into account
+ * (regression test for bug 134110 [regression] Does not pick-up interface changes from classes in the build path)
+ */
+public void testChangeExternalJar() throws CoreException, IOException {
+	IJavaProject project = getJavaProject("Reconciler");
+	String jarPath = getExternalPath() + "lib.jar";
+	try {
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+			"p/Y.java",
+			"package p;\n" +
+			"public class Y {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}"
+		}, jarPath, "1.4");
+		addLibraryEntry(project, jarPath, false);
+		
+		// force Y.class file to be cached during resolution
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.Y {\n" +
+			"  public void bar() {\n" +
+			"    foo();\n" +
+			"  }\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		
+		// change jar and refresh
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+			"p/Y.java",
+			"package p;\n" +
+			"public class Y {\n" +
+			"  public void foo(String s) {\n" +
+			"  }\n" +
+			"}"
+		}, jarPath, "1.4");
+		getJavaModel().refreshExternalArchives(null,null);
+		
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.Y {\n" +
+			"  public void bar() {\n" +
+			"    foo(\"a\");\n" +
+			"  }\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeLibraryEntry(project, new Path(jarPath));
+		deleteFile(new File(jarPath));
+	}
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

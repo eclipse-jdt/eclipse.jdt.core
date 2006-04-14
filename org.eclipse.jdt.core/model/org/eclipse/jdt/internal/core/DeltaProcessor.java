@@ -309,6 +309,10 @@ public class DeltaProcessor {
 			if (hasDelta){
 				// force classpath marker refresh of affected projects
 				JavaModel.flushExternalFileCache();
+				
+				// flush jar type cache
+				JavaModelManager.getJavaModelManager().resetJarTypeCache();
+				
 				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
 				final int length = projectDeltas.length;
 				final IProject[] projectsToTouch = new IProject[length];
