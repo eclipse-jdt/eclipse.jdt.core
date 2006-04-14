@@ -3886,7 +3886,7 @@ public final class CompletionEngine
 				continue next;
 			
 			if (minTypeArgLength != 0) {
-				method = new ParameterizedGenericMethodBinding(method, typeArgTypes, scope.environment());
+				method = scope.environment().createParameterizedGenericMethod(method, typeArgTypes);
 			}
 			
 			if (minArgLength > method.parameters.length)

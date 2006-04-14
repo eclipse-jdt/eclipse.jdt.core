@@ -54,7 +54,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (originalMethod.typeVariables == Binding.NO_TYPE_VARIABLES || originalMethod.isStatic()) {
 			return super.createParameterizedMethod(originalMethod);
 		}
-		return new ParameterizedGenericMethodBinding(originalMethod, this, this.environment);
+		return this.environment.createParameterizedGenericMethod(originalMethod, this);
 	}
 	
 	public int kind() {

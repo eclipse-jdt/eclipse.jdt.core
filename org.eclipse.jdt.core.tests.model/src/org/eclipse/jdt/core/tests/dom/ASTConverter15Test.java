@@ -6481,8 +6481,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	/*
 	 * Check unique instance of generic method bindings 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
 	 */
-	public void _test0214() throws JavaModelException {
+	public void test0214() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 			"public class X {\n" + 
@@ -6529,7 +6530,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
 		
-		assertTrue("Not equals", methodBinding == methodBinding2);
+		assertTrue("Not identical", methodBinding == methodBinding2);
 	}
 	
 }

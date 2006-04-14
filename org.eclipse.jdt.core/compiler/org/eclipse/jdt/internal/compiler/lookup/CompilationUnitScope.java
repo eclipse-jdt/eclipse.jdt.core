@@ -192,13 +192,17 @@ void checkAndSetImports() {
 		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
 	imports = resolvedImports;
 }
-void checkParameterizedTypeBounds() {
+
+/**
+ * Perform deferred check specific to parameterized types: bound checks, supertype collisions
+ */
+void checkParameterizedTypes() {
 	if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return;
 
 	for (int i = 0, length = topLevelTypes.length; i < length; i++) {
 		ClassScope scope = topLevelTypes[i].scope;
 		scope.checkParameterizedTypeBounds();
-		scope.checkForErasedCandidateCollisions();
+		scope.checkParameterizedSuperTypeCollisions();
 	}
 }
 /*

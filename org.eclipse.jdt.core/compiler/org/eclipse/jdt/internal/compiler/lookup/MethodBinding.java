@@ -304,7 +304,7 @@ MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment e
 	// must substitute to detect cases like:
 	//   <T1 extends X<T1>> void dup() {}
 	//   <T2 extends X<T2>> Object dup() {return null;}
-	return new ParameterizedGenericMethodBinding(method, vars, env);
+	return env.createParameterizedGenericMethod(method, vars);
 }
 /*
  * declaringUniqueKey dot selector genericSignature

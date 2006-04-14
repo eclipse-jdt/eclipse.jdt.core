@@ -46,7 +46,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        // incompatible due to wrong arity
 			        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, ProblemReasons.TypeParameterArityMismatch);
 				}
-				methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
+				methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, substitutes);
 				break computeSubstitutes;
 			}
 			
@@ -172,7 +172,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			return null; // incompatible
 		if (substitutes.length == 0) {
 			// raw generic method inferred
-			return new ParameterizedGenericMethodBinding(originalMethod, (RawTypeBinding)null, scope.environment());
+			return scope.environment().createParameterizedGenericMethod(originalMethod, (RawTypeBinding)null);
 		}
 		// apply inferred variable substitutions - replacing unresolved variable with original ones in param method
 		TypeBinding[] resolvedSubstitutes = substitutes;
@@ -186,7 +186,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				resolvedSubstitutes[i] = substitutes[i];
 			}
 		}
-		return new ParameterizedGenericMethodBinding(originalMethod, resolvedSubstitutes, scope.environment());		
+		return scope.environment().createParameterizedGenericMethod(originalMethod, resolvedSubstitutes);		
 	}
 	
 	private static TypeBinding[] resolveSubstituteConstraints(Scope scope, TypeVariableBinding[] typeVariables, TypeBinding[] substitutes, boolean considerEXTENDSConstraints, Map collectedSubstitutes) {
@@ -493,7 +493,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				TypeBinding[] rawArguments = new TypeBinding[length];
 				for (int i = 0; i < length; i++)
 					rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure());
-				this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, rawArguments, this.environment);
+				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, rawArguments);
 //			}
 		} 
 		return this.tiebreakMethod;

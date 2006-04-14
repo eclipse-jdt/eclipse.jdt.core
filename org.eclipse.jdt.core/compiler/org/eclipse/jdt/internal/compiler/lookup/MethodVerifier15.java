@@ -445,7 +445,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 			arguments[i] = inheritedTypeVariables[i].upperBound();
 	}
 	ParameterizedGenericMethodBinding substitute =
-		new ParameterizedGenericMethodBinding(inheritedMethod, arguments, this.environment);
+		this.environment.createParameterizedGenericMethod(inheritedMethod, arguments);
 
 	// interface I { <T> void foo(T t); }
 	// class X implements I { public <T extends I> void foo(T t) {} }

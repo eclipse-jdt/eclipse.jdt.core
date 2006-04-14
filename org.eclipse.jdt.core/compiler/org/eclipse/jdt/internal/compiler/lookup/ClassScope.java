@@ -621,7 +621,7 @@ public class ClassScope extends Scope {
 		fieldBinding.modifiers = modifiers;
 	}
 
-	public void checkForErasedCandidateCollisions() {
+	public void checkParameterizedSuperTypeCollisions() {
 		// check for parameterized interface collisions (when different parameterizations occur)
 		SourceTypeBinding sourceType = referenceContext.binding;
 		ReferenceBinding[] interfaces = sourceType.superInterfaces;
@@ -687,7 +687,7 @@ public class ClassScope extends Scope {
 		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
 			for (int i = 0, size = memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) memberTypes[i]).scope.checkForErasedCandidateCollisions();
+				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedSuperTypeCollisions();
 	}
 
 	private void checkForInheritedMemberTypes(SourceTypeBinding sourceType) {
