@@ -134,6 +134,20 @@ public void setUpSuite() throws Exception {
 		"/TypeHierarchy15/src/D108740.java", 
 		"class D108740 extends B108740<D108740> {}"
 	);
+	createFile(
+		"/TypeHierarchy15/src/CycleParent.java", 
+		"class CycleParent extends CycleBase<CycleChild> {}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/CycleBase.java", 
+		"class CycleBase<T extends CycleBase> {}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/CycleChild.java", 
+		"class CycleChild extends CycleParent implements Comparable<CycleChild> {\n" +
+		"	public int compareTo(CycleChild o) { return 0; }\n" +
+		"}"
+	);
 }
 
 /* (non-Javadoc)
@@ -428,6 +442,18 @@ public void testCycle() throws JavaModelException {
 		"Focus: X [in X.java [in cycle [in src [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
 		"  Y [in Y.java [in cycle [in src [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
+}
+public void testCycle2() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/CycleParent.java").getType("CycleParent");
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: CycleParent [in CycleParent.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  CycleBase [in CycleBase.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n",
 		hierarchy
 	);
