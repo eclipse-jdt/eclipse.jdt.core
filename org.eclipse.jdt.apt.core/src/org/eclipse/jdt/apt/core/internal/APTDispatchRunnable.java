@@ -693,8 +693,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		for (Iterator<String> it = supportedTypes.iterator(); it.hasNext();) {
 			final String typeName = it.next();
 			if (typeName.equals("*")) { //$NON-NLS-1$
+				fDecls.addAll(declarations.values());
 				declarations.clear();
-				return Collections.emptySet();
+				
+				// Warn that * was claimed, which is non-optimal
+				AptPlugin.logWarning(null, "Processor Factory " + factory +  //$NON-NLS-1$
+						" claimed all annotations (*), which prevents any following factories from being dispatched."); //$NON-NLS-1$
+				
 			} else if (typeName.endsWith("*")) { //$NON-NLS-1$
 				final String prefix = typeName.substring(0,
 						typeName.length() - 2);

@@ -83,10 +83,36 @@ public class APITests extends APTTestBase {
 			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName(), jproj);
 		assertEquals(factory.getClass(), HelloWorldAnnotationProcessorFactory.class);
 		
-		// Check getting an annotation with a wildcard
+		// Check getting an annotation with a partial wildcard ("org.eclipse.jdt.apt.tests.*")
 		factory = 
 			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", jproj); //$NON-NLS-1$
+		
 		assertEquals(factory.getClass(), HelloWorldWildcardAnnotationProcessorFactory.class);
+		
+		// Check getting an annotation with a full wildcard ("*")
+		// Note that these tests require that we do not cache what annotations
+		// a factory claims to support. Specifically, the HelloWorldWildcard one
+		// will swap out what it returns based on this static boolean.
+		// If we change to cache the results, this test will need to be modified to work
+		// in that scenario, probably by created a new external jar with 
+		// a processor that claims *.
+		HelloWorldWildcardAnnotationProcessorFactory.CLAIM_ALL_ANNOTATIONS = true;
+		try {
+			factory = 
+				AptUtil.getFactoryForAnnotation("org.eclipse.Foo", jproj); //$NON-NLS-1$
+			
+			assertEquals(factory.getClass(), HelloWorldWildcardAnnotationProcessorFactory.class);
+		}
+		finally {
+			HelloWorldWildcardAnnotationProcessorFactory.CLAIM_ALL_ANNOTATIONS = false;
+		}
+		
+		// Make sure we've unset the wildcard behavior
+		factory = 
+			AptUtil.getFactoryForAnnotation("org.eclipse.Foo", jproj); //$NON-NLS-1$
+		
+		assertNull(factory);
+		
 	}
 	
 	public void testMessagerAPI() throws Exception {

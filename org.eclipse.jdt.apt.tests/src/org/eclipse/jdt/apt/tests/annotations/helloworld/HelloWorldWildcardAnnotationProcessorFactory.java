@@ -20,9 +20,20 @@ import java.util.Collections;
  */
 public class HelloWorldWildcardAnnotationProcessorFactory extends
 		HelloWorldAnnotationProcessorFactory {
+	
+	public static volatile boolean CLAIM_ALL_ANNOTATIONS;
 
 	
 	public Collection<String> supportedAnnotationTypes() {
-		return Collections.singletonList("org.eclipse.jdt.apt.tests.annotations.helloworld.*"); //$NON-NLS-1$
+		
+		// We need to swap behavior because always claiming "*" will cause
+		// other processors normally called after us to be prevented from running,
+		// as we have claimed everything
+		if (CLAIM_ALL_ANNOTATIONS) {
+			return Collections.singletonList("*");
+		}
+		else {
+			return Collections.singletonList("org.eclipse.jdt.apt.tests.annotations.helloworld.*"); //$NON-NLS-1$
+		}
 	}
 }
