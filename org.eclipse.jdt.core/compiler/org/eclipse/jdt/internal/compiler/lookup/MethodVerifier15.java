@@ -168,7 +168,7 @@ void checkForInheritedNameClash(MethodBinding inheritedMethod, MethodBinding oth
 	//		class Y { <T> void foo(T t) {} }
 	//		abstract class X extends Y implements I {}
 
-	if (!inheritedMethod.declaringClass.isInterface())
+	if (!inheritedMethod.declaringClass.isInterface() && !inheritedMethod.isStatic())
 		detectInheritedNameClash(inheritedMethod, otherInheritedMethod);
 }
 void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
@@ -204,7 +204,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 	//		class A implements I<Integer> { public void test(Integer i) {} }
 	//		class B extends A { public void test(Comparable i) {} }
 
-	if (currentMethod.declaringClass.isInterface()) return;
+	if (currentMethod.declaringClass.isInterface() || currentMethod.isStatic()) return;
 
 	if (!detectNameClash(currentMethod, inheritedMethod)) { // check up the hierarchy for skipped inherited methods
 		TypeBinding[] currentParams = currentMethod.parameters;

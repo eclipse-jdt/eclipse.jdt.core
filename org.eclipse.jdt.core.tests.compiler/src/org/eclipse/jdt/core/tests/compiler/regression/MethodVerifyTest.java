@@ -4844,4 +4844,53 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// A is not abstract and does not override abstract method <U>foo4(U,A.M) in I
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543
+	public void test085() {
+		this.runNegativeTest(
+			new String[] {
+				"Parent.java",
+				"import java.util.Collection;\n" +
+				"public class Parent {\n" +
+				"	static void staticCase1(Collection c) {}\n" +
+				"	static void staticCase2(Collection<String> c) {}\n" +
+				"	void instanceCase1(Collection c) {}\n" +
+				"	void instanceCase2(Collection<String> c) {}\n" +
+				"}\n" +
+				"class Child extends Parent {\n" +
+				"	static void staticCase1(Collection<String> c) {}\n" +
+				"	static void staticCase2(Collection c) {}\n" +
+				"	void instanceCase1(Collection<String> c) {}\n" +
+				"	@Override void instanceCase2(Collection c) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in Parent.java (at line 3)\n" + 
+			"	static void staticCase1(Collection c) {}\n" + 
+			"	                        ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Parent.java (at line 5)\n" + 
+			"	void instanceCase1(Collection c) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Parent.java (at line 10)\n" + 
+			"	static void staticCase2(Collection c) {}\n" + 
+			"	                        ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in Parent.java (at line 11)\n" + 
+			"	void instanceCase1(Collection<String> c) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method instanceCase1(Collection<String>) of type Child has the same erasure as instanceCase1(Collection) of type Parent but does not override it\n" + 
+			"----------\n" + 
+			"5. WARNING in Parent.java (at line 12)\n" + 
+			"	@Override void instanceCase2(Collection c) {}\n" + 
+			"	                             ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n"
+			// @Override is an error for instanceCase1
+			// name clash: instanceCase1(Collection<String>) in Child and instanceCase1(Collection) in Parent have the same erasure, yet neither overrides the other
+		);
+	}
 }
