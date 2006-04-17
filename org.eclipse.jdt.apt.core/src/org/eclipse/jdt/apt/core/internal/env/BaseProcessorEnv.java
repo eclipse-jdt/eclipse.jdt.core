@@ -605,6 +605,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
 	{
+		if (_astRoot == null) {
+			throw new IllegalStateException("_astRoot is null. Check that types or environments are not being cached between builds or reconciles by user code"); //$NON-NLS-1$
+		}
+		
 		final ASTNode node = _astRoot.findDeclaringNode(binding);
 		if( node != null )
 			return _astRoot;
@@ -731,6 +735,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	
 	protected IFile searchLocallyForIFile(final IBinding binding)
 	{
+		if (_astRoot == null) {
+			return null;
+		}
+		
 		ASTNode node = _astRoot.findDeclaringNode(binding);
 		if( node != null )
 			return _file;
