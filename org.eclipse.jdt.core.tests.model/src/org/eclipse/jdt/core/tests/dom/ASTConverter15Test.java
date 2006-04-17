@@ -6769,6 +6769,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		MethodInvocation invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
 
 		node = getASTNode(unit, 1, 0, 1);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
@@ -6780,6 +6781,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
+		assertTrue("Not a raw method", methodBinding2.isRawMethod());
 
 		assertTrue("Method bindings are not identical", methodBinding == methodBinding2);
 	}
