@@ -939,8 +939,9 @@ public class ClassScope extends Scope {
 			sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
-			noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
+			noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
+			sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
@@ -971,8 +972,9 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 		boolean noProblems = connectSuperclass();
 		noProblems &= connectSuperInterfaces();
-		noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
 		sourceType.tagBits |= TagBits.EndHierarchyCheck;
+		noProblems &= connectTypeVariables(referenceContext.typeParameters, false);
+		sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 		if (noProblems && sourceType.isHierarchyInconsistent())
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
@@ -1068,7 +1070,9 @@ public class ClassScope extends Scope {
 
 		if (superType.isHierarchyBeingConnected()) {
 			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
-			if (ref != null) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133071
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121734
+			if (ref != null && (ref.resolvedType == null || ((ReferenceBinding) ref.resolvedType).isHierarchyBeingConnected())) {
 				problemReporter().hierarchyCircularity(sourceType, superType, reference);
 				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				superType.tagBits |= TagBits.HierarchyHasProblems;

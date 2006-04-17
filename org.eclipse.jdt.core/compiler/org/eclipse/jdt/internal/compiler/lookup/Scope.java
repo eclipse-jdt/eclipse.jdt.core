@@ -453,8 +453,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	}
 	
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters, boolean checkForErasedCandidateCollisions) {
-		boolean noProblems = true;
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return true;
+		boolean noProblems = true;
 		Map invocations = new HashMap(2);
 		nextVariable : for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
@@ -2377,7 +2377,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						break;
 					case CLASS_SCOPE :
 						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-						if (scope == this && sourceType.isHierarchyBeingConnected()) {
+						if (scope == this && (sourceType.tagBits & TagBits.TypeVariablesAreConnected) == 0) {
 							// type variables take precedence over the source type, ex. class X <X> extends X == class X <Y> extends Y
 							// but not when we step out to the enclosing type
 							TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
@@ -2407,8 +2407,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									return new ProblemReferenceBinding(name, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
 								}
 								if (memberType.isValidBinding()) {
-									if (sourceType == memberType.enclosingType()
-											|| compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+									if (sourceType == memberType.enclosingType() || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 										if (insideStaticContext && !memberType.isStatic() && sourceType.isGenericType())
 											return new ProblemReferenceBinding(name, memberType, ProblemReasons.NonStaticReferenceInStaticContext);
 										// found a valid type in the 'immediate' scope (ie. not inherited)
@@ -3166,18 +3165,20 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 			// inject super interfaces prior to superclass
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			for (int j = 0, count = itsInterfaces.length; j < count; j++) {
-				TypeBinding itsInterface = itsInterfaces[j];
-				TypeBinding superType = dim == 0 ? itsInterface : (TypeBinding)environment().createArrayType(itsInterface, dim); // recreate array if needed
-				if (!typesToVisit.contains(superType)) {
-					typesToVisit.add(superType);
-					max++;
-					TypeBinding superTypeErasure = (itsInterface.isTypeVariable() || itsInterface.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
-					if (superTypeErasure != superType) {
-						Set someInvocations = new HashSet(1);
-						someInvocations.add(superType);
-						allInvocations.put(superTypeErasure, someInvocations);
-					}						
+			if (itsInterfaces != null) { // can be null during code assist operations that use LookupEnvironment.completeTypeBindings(parsedUnit, buildFieldsAndMethods)
+				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
+					TypeBinding itsInterface = itsInterfaces[j];
+					TypeBinding superType = dim == 0 ? itsInterface : (TypeBinding)environment().createArrayType(itsInterface, dim); // recreate array if needed
+					if (!typesToVisit.contains(superType)) {
+						typesToVisit.add(superType);
+						max++;
+						TypeBinding superTypeErasure = (itsInterface.isTypeVariable() || itsInterface.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
+						if (superTypeErasure != superType) {
+							Set someInvocations = new HashSet(1);
+							someInvocations.add(superType);
+							allInvocations.put(superTypeErasure, someInvocations);
+						}						
+					}
 				}
 			}
 			TypeBinding itsSuperclass = currentType.superclass();
