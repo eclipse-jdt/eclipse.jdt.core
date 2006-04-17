@@ -28071,8 +28071,6 @@ public void test0902() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
-// extraneous bound mismatch error
-// this order is OK
 public void test0903() {
 	this.runConformTest(
 		new String[] {
@@ -28094,9 +28092,7 @@ public void test0903() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
-// extraneous bound mismatch error
-// this order is KO (X before Y)
-public void _test0904() {
+public void test0904() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -30434,5 +30430,16 @@ public void test0968() {
 		"	                        ^^^^^^^^^^\n" + 
 		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133071
+public void test0969() {
+	this.runConformTest(
+		new String[] {
+			"B.java", //================================
+			"class B<T extends C> extends A<T> {}\n" + 
+			"class C extends B<C> {}\n" + 
+			"class A<T extends C> {}"
+		},
+		"");
 }
 }
