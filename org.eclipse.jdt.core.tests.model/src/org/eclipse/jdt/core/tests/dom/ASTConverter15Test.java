@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 108, 214 };
+//		TESTS_NUMBERS = new int[] { 216 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6509,7 +6509,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		node = getASTNode(unit, 0, 2, 0);
-		assertEquals("Not a compilation unit", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
 		List fragments = statement.fragments();
 		assertEquals("Wrong size", 1, fragments.size());
@@ -6533,4 +6533,254 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not identical", methodBinding == methodBinding2);
 	}
 	
+	/*
+	 * Check unique instance of generic method bindings 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
+	 */
+	public void test0215() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" + 
+			"	static <T> T identity(T t) { return t; }\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = \"aaa\";\n" + 
+			"		identity(s);\n" + 
+			"		identity(s);\n" + 
+			"		identity(s);\n" + 
+			"\n" + 
+			"		Object o = new Object();\n" + 
+			"		identity(o);\n" + 
+			"		identity(o);\n" + 
+			"		identity(o);\n" + 
+			"\n" + 
+			"		Throwable t = null;\n" + 
+			"		identity(t);\n" + 
+			"		identity(t);\n" + 
+			"		identity(t);\n" + 
+			"\n" + 
+			"		Exception e = null;\n" + 
+			"		identity(e);\n" + 
+			"		identity(e);\n" + 
+			"		identity(e);\n" + 
+			"\n" + 
+			"		NullPointerException npe = null;\n" + 
+			"		identity(npe);\n" + 
+			"		identity(npe);\n" + 
+			"		identity(npe);\n" + 
+			"\n" + 
+			"		Cloneable c = null;\n" + 
+			"		identity(c);\n" + 
+			"		identity(c);\n" + 
+			"		identity(c);\n" + 
+			"	}\n" + 
+			"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1, 1);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		
+		node = getASTNode(unit, 0, 1, 2);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 3);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding3 = invocation.resolveMethodBinding();
+		
+		node = getASTNode(unit, 0, 1, 5);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding4 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 6);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding5 = invocation.resolveMethodBinding();
+		
+		node = getASTNode(unit, 0, 1, 9);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding6 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 10);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding7 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 11);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding8 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 13);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding9 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 14);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding10 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 15);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding11 = invocation.resolveMethodBinding();
+		
+		node = getASTNode(unit, 0, 1, 17);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding12 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 18);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding13 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 19);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding14 = invocation.resolveMethodBinding();		
+
+		node = getASTNode(unit, 0, 1, 21);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding15 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 22);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding16 = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 0, 1, 23);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding17 = invocation.resolveMethodBinding();		
+
+		assertTrue("method bindings are not equals", methodBinding == methodBinding2);
+		assertTrue("method bindings are not equals", methodBinding2 == methodBinding3);
+		assertTrue("method bindings are not equals", methodBinding4 == methodBinding5);
+		assertTrue("method bindings are not equals", methodBinding6 == methodBinding7);
+		assertTrue("method bindings are not equals", methodBinding7 == methodBinding8);
+		assertTrue("method bindings are not equals", methodBinding9 == methodBinding10);
+		assertTrue("method bindings are not equals", methodBinding9 == methodBinding11);
+		assertTrue("method bindings are not equals", methodBinding12 == methodBinding13);
+		assertTrue("method bindings are not equals", methodBinding14 == methodBinding13);
+		assertTrue("method bindings are not equals", methodBinding15 == methodBinding16);
+		assertTrue("method bindings are not equals", methodBinding17 == methodBinding16);
+	}
+	
+	/*
+	 * Check unique instance of generic method bindings 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
+	 */
+	public void test0216() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"class Y<T> {\n" + 
+			"	<T> Class foo(T t) {\n" + 
+			"		return t.getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X { \n" + 
+			"	 \n" + 
+			"	public static void main(String[] args) { \n" + 
+			"		Class c = new Y().foo(null);\n" + 
+			"		Class c2 = new Y().foo(null);\n" + 
+			"	} \n" + 
+			"}\n" + 
+			"";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedOutput = "Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+		"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(unit, 2, expectedOutput);
+		node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+
+		node = getASTNode(unit, 1, 0, 1);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement = (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment= (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
+
+		assertTrue("Method bindings are not identical", methodBinding == methodBinding2);
+	}
 }
