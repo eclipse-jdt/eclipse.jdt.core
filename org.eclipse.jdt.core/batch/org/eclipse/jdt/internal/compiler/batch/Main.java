@@ -356,7 +356,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.parameters.put(Logger.PATH, f.getCanonicalPath());
 					this.printTag(Logger.CLASS_FILE, this.parameters, true, true);
 				} catch (IOException e) {
-					this.logNoClassFileCreated(fileName);
+					this.logNoClassFileCreated(outputPath, relativeFileName);
 				}
 			}	
 		}
@@ -451,17 +451,31 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.printlnErr(Main.bind(
 				"configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
 		}
+		
+		/**
+		 * @param wrongPath
+		 *            the given wrong path entry
+		 */
+		public void logIncorrectEndorsedDirsEntry(String wrongPath) {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.clear();
+				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
+				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(Main.bind(
+				"configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
+		}
 
 		/**
 		 * 
 		 */
-		public void logNoClassFileCreated(String fileName) {
+		public void logNoClassFileCreated(String outputDir, String relativeFileName) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.clear();
-				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", outputDir, relativeFileName)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+			this.printlnErr(Main.bind("output.noClassFileCreated", outputDir, relativeFileName)); //$NON-NLS-1$
 		}
 
 		public void logNoClasspath() {
@@ -1356,14 +1370,15 @@ public void configure(String[] argv) throws InvalidInputException {
 	final int INSIDE_MAX_PROBLEMS = 9;
 	final int INSIDE_EXT_DIRS = 10;
 	final int INSIDE_SOURCE_PATH = 11;
+	final int INSIDE_ENDORSED_DIRS = 12;
 
 	final int DEFAULT = 0;
 	final int DEFAULT_SIZE_CLASSPATH = 4;
-	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
-		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
-		extdirsNames = new ArrayList(DEFAULT_SIZE_CLASSPATH),
-		sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
-		classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList extdirsClasspaths = null;
+	ArrayList endorsedDirClasspath = null;
 	
 	int index = -1, filesCount = 0, argCount = argv.length;
 	int mode = DEFAULT;
@@ -1605,7 +1620,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-					if (extdirsNames.size() > 0) {
+					if (extdirsClasspaths != null) {
 						StringBuffer errorMessage = new StringBuffer();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
@@ -1613,9 +1628,23 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateExtdirs", errorMessage.toString())); //$NON-NLS-1$
+							Main.bind("configure.duplicateExtDirs", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_EXT_DIRS;
+					continue;
+				}
+				if (currentArg.equals("-endorseddirs")) { //$NON-NLS-1$
+					if (endorsedDirClasspath != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							Main.bind("configure.duplicateEndorsedDirs", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_ENDORSED_DIRS;
 					continue;
 				}
 				if (currentArg.equals("-progress")) { //$NON-NLS-1$
@@ -2142,21 +2171,6 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					continue;
 				}
-				
-				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-					if (sourcepathClasspaths.size() > 0)
-						throw new InvalidInputException(
-							Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
-					mode = INSIDE_SOURCE_PATH;
-					continue;
-				}
-				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-					if (extdirsNames.size() > 0)
-						throw new InvalidInputException(
-							Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
-					mode = INSIDE_EXT_DIRS;
-					continue;
-				}
 				break;
 			case INSIDE_TARGET :
 				if (this.didSpecifyTarget) {
@@ -2260,10 +2274,16 @@ public void configure(String[] argv) throws InvalidInputException {
 				continue;
 			case INSIDE_EXT_DIRS :
 				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 				while (tokenizer.hasMoreTokens())
-					extdirsNames.add(tokenizer.nextToken());
-				if (extdirsNames.size() == 0) // empty entry
-					extdirsNames.add(""); //$NON-NLS-1$
+					extdirsClasspaths.add(tokenizer.nextToken());
+				mode = DEFAULT;
+				continue;
+			case INSIDE_ENDORSED_DIRS :
+				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				endorsedDirClasspath = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+				while (tokenizer.hasMoreTokens())
+					endorsedDirClasspath.add(tokenizer.nextToken());
 				mode = DEFAULT;
 				continue;
 		}
@@ -2435,19 +2455,20 @@ public void configure(String[] argv) throws InvalidInputException {
 			filesCount);
 
 	/*
-	 * Feed extdirsNames according to:
+	 * Feed endorsedDirClasspath according to:
 	 * - -extdirs first if present;
 	 * - else java.ext.dirs if defined;
 	 * - else default extensions directory for the platform.
 	 */
-	if (extdirsNames.size() == 0) {
+	if (extdirsClasspaths == null) {
+		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
 		if (extdirsStr == null) {
-			extdirsNames.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) 
-				extdirsNames.add(tokenizer.nextToken());
+				extdirsClasspaths.add(tokenizer.nextToken());
 		}
 	}
 	
@@ -2455,10 +2476,11 @@ public void configure(String[] argv) throws InvalidInputException {
 	 * Feed extdirsClasspath with the entries found into the directories listed by
 	 * extdirsNames.
 	 */
-	if (extdirsNames.size() != 0) {
-		File[] directoriesToCheck = new File[extdirsNames.size()];
+	if (extdirsClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) extdirsNames.get(i));
+			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
+		extdirsClasspaths.clear();
 		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
 		if (extdirsJars != null) {
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
@@ -2480,6 +2502,54 @@ public void configure(String[] argv) throws InvalidInputException {
 		}
 	}
 
+	/*
+	 * Feed endorsedDirClasspath according to:
+	 * - -endorseddirs first if present;
+	 * - else java.endorsed.dirs if defined;
+	 * - else default extensions directory for the platform. (/lib/endorsed)
+	 */
+	if (endorsedDirClasspath == null) {
+		endorsedDirClasspath = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
+		if (endorsedDirsStr == null) {
+			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) 
+				endorsedDirClasspath.add(tokenizer.nextToken());
+		}
+	}
+	
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (endorsedDirClasspath.size() != 0) {
+		File[] directoriesToCheck = new File[endorsedDirClasspath.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++) 
+			directoriesToCheck[i] = new File((String) endorsedDirClasspath.get(i));
+		endorsedDirClasspath.clear();
+		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
+		if (endorsedDirsJars != null) {
+			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
+				File[] current = endorsedDirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath = 
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null); 
+						if (classpath != null) {
+							endorsedDirClasspath.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
+				}
+			}
+		}
+	}
+	
 	/* 
 	 * Concatenate classpath entries
 	 * We put the bootclasspath at the beginning of the classpath
@@ -2488,12 +2558,14 @@ public void configure(String[] argv) throws InvalidInputException {
 	 * entries are searched for both sources and binaries except
 	 * the sourcepath entries which are searched for sources only.
 	 */
+	bootclasspaths.addAll(endorsedDirClasspath);
 	bootclasspaths.addAll(extdirsClasspaths);
 	bootclasspaths.addAll(sourcepathClasspaths);
 	bootclasspaths.addAll(classpaths);
 	classpaths = bootclasspaths;
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
 	classpaths.toArray(this.checkedClasspaths);
+
 	if (this.destinationPath == null) {
 		this.generatePackagesStructure = false;
 	} else if ("none".equals(this.destinationPath)) { //$NON-NLS-1$
@@ -2788,9 +2860,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 						this.destinationPath,
 						relativeStringName);
 				} catch (IOException e) {
-					String fileName = this.destinationPath + relativeStringName;
-					e.printStackTrace();
-					this.logger.logNoClassFileCreated(fileName);
+					this.logger.logNoClassFileCreated(this.destinationPath, relativeStringName);
 				}
 				this.exportedClassFilesCounter++;
 			}

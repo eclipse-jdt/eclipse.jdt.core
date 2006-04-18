@@ -88,8 +88,6 @@ public final class Messages {
 	public static String compilation_unit;
 	public static String compilation_internalError;
 	public static String output_isFile;
-	public static String output_isFileNotDirectory;
-	public static String output_dirName;
 	public static String output_notValidAll;
 	public static String output_fileName;
 	public static String output_notValid;

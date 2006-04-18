@@ -119,14 +119,16 @@ public class ClassFile
 		f = new File(outputPath);
 		if (f.exists()) {
 			if (!f.isDirectory()) {
-				System.out.println(Messages.bind(Messages.output_isFile, f.getAbsolutePath()));
-				throw new IOException(Messages.output_isFileNotDirectory);
+				final String message = Messages.bind(Messages.output_isFile, f.getAbsolutePath());
+				System.out.println(message);
+				throw new IOException(message);
 			}
 		} else {
 			// we have to create that directory
 			if (!f.mkdirs()) {
-				System.out.println(Messages.bind(Messages.output_dirName, f.getAbsolutePath()));
-				throw new IOException(Messages.output_notValidAll);
+				final String message = Messages.bind(Messages.output_notValidAll, f.getAbsolutePath());
+				System.out.println(message);
+				throw new IOException(message);
 			}
 		}
 		StringBuffer outDir = new StringBuffer(outputPath);
