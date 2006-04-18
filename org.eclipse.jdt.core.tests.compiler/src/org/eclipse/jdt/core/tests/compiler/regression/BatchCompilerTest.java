@@ -2903,6 +2903,20 @@ public void test052(){
      "5 problems (5 errors)",
      false);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137053
+public void test053(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {}"
+        },
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -d \"" + OUTPUT_DIR + File.separator + "X.java\"",
+		"", 
+		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER---/X.java because of an IOException: The output directory is a file : ---OUTPUT_DIR_PLACEHOLDER---/X.java\n",
+        true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
