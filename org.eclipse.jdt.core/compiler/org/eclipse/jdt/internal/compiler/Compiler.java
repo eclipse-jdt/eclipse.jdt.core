@@ -69,6 +69,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 *  
+	 *  @param settings java.util.Map
+	 *      The settings that control the compiler behavior.
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
@@ -83,7 +86,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
 	 *      
-	 *  @deprecated this constructor is keeped to preserve 3.1 and 3.2M4 compatibility
+	 *  @deprecated this constructor is kept to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
 		INameEnvironment environment,
@@ -114,6 +117,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
 	 *      
+	 *  @param settings java.util.Map
+	 *      The settings that control the compiler behavior.
+	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
 	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
@@ -131,7 +137,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *		This parameter is used to optimize the literals or leave them as they are in the source.
 	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
 	 * 
-	 *  @deprecated this constructor is keeped to preserve 3.1 and 3.2M4 compatibility
+	 *  @deprecated this constructor is kept to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
 		INameEnvironment environment,
@@ -162,6 +168,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 *      
+	 *  @param options org.eclipse.jdt.internal.compiler.impl.CompilerOptions
+	 *      The options that control the compiler behavior.
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
@@ -204,6 +213,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 *      
+	 *  @param options org.eclipse.jdt.internal.compiler.impl.CompilerOptions
+	 *      The options that control the compiler behavior.
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
