@@ -2859,10 +2859,10 @@ public void outputClassFiles(CompilationResult unitResult) {
 						this.generatePackagesStructure,
 						this.destinationPath,
 						relativeStringName);
+					this.exportedClassFilesCounter++;
 				} catch (IOException e) {
 					this.logger.logNoClassFileCreated(this.destinationPath, relativeStringName);
 				}
-				this.exportedClassFilesCounter++;
 			}
 		}
 	}
