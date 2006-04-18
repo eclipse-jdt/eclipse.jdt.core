@@ -356,7 +356,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.parameters.put(Logger.PATH, f.getCanonicalPath());
 					this.printTag(Logger.CLASS_FILE, this.parameters, true, true);
 				} catch (IOException e) {
-					this.logNoClassFileCreated(outputPath, relativeFileName);
+					this.logNoClassFileCreated(outputPath, relativeFileName, e);
 				}
 			}	
 		}
@@ -469,13 +469,23 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		/**
 		 * 
 		 */
-		public void logNoClassFileCreated(String outputDir, String relativeFileName) {
+		public void logNoClassFileCreated(String outputDir, String relativeFileName, IOException e) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.clear();
-				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", outputDir, relativeFileName)); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", //$NON-NLS-1$
+					new String[] {
+						outputDir,
+						relativeFileName,
+						e.getMessage()
+					}));
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind("output.noClassFileCreated", outputDir, relativeFileName)); //$NON-NLS-1$
+			this.printlnErr(Main.bind("output.noClassFileCreated", //$NON-NLS-1$
+				new String[] {
+					outputDir,
+					relativeFileName,
+					e.getMessage()
+				}));
 		}
 
 		public void logNoClasspath() {
@@ -2190,6 +2200,8 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
@@ -2621,25 +2633,33 @@ public void configure(String[] argv) throws InvalidInputException {
 
 	// check and set compliance/source/target compatibilities
 	if (this.didSpecifyTarget) {
-		// target must be 1.6 if source is 1.6
 		final Object targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform); 
-		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
-				&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
-			throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-		}
-		// target must be 1.5 if source is 1.5
-		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
-				&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){ 
-			throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-		}
-   		 // target must be 1.4 if source is 1.4
-   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){ 
-			throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-   		}
-		// target cannot be greater than compliance level
-		if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
-			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+		// tolerate jsr14 target
+		if (CompilerOptions.VERSION_JSR14.equals(targetVersion)) {
+			// expecting source >= 1.5
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) < ClassFileConstants.JDK1_5) {
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForGenericSource", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
+			}
+		} else {
+			// target must be 1.6 if source is 1.6
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
+			}
+			// target must be 1.5 if source is 1.5
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+			}
+	   		 // target must be 1.4 if source is 1.4
+	   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
+	   		}
+			// target cannot be greater than compliance level
+			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String) targetVersion)); //$NON-NLS-1$
+			}
 		}
 	}
 	this.logger.logCommandLineArguments(newCommandLineArgs);
@@ -2861,7 +2881,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 						relativeStringName);
 					this.exportedClassFilesCounter++;
 				} catch (IOException e) {
-					this.logger.logNoClassFileCreated(this.destinationPath, relativeStringName);
+					this.logger.logNoClassFileCreated(this.destinationPath, relativeStringName, e);
 				}
 			}
 		}

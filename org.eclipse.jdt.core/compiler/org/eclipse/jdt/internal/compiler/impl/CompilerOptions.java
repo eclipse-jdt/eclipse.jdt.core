@@ -122,6 +122,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
+	public static final String VERSION_JSR14 = "jsr14"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$	
 	public static final String ERROR = "error"; //$NON-NLS-1$
@@ -829,7 +830,7 @@ public class CompilerOptions {
 			return ClassFileConstants.JDK1_2;
 		} else if (VERSION_1_3.equals(versionID)) {
 			return ClassFileConstants.JDK1_3;
-		} else if (VERSION_1_4.equals(versionID)) {
+		} else if (VERSION_1_4.equals(versionID) || VERSION_JSR14.equals(versionID)) {
 			return ClassFileConstants.JDK1_4;
 		} else if (VERSION_1_5.equals(versionID)) {
 			return ClassFileConstants.JDK1_5;

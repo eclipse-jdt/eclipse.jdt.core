@@ -89,7 +89,6 @@ public final class Messages {
 	public static String compilation_internalError;
 	public static String output_isFile;
 	public static String output_notValidAll;
-	public static String output_fileName;
 	public static String output_notValid;
 	public static String problem_noSourceInformation;
 	public static String problem_atLine;

@@ -120,14 +120,12 @@ public class ClassFile
 		if (f.exists()) {
 			if (!f.isDirectory()) {
 				final String message = Messages.bind(Messages.output_isFile, f.getAbsolutePath());
-				System.out.println(message);
 				throw new IOException(message);
 			}
 		} else {
 			// we have to create that directory
 			if (!f.mkdirs()) {
 				final String message = Messages.bind(Messages.output_notValidAll, f.getAbsolutePath());
-				System.out.println(message);
 				throw new IOException(message);
 			}
 		}
@@ -144,8 +142,7 @@ public class ClassFile
 			} else {
 				// Need to add the outDir
 				if (!f.mkdir()) {
-					System.out.println(Messages.bind(Messages.output_fileName, f.getName()));
-					throw new IOException(Messages.output_notValid);
+					throw new IOException(Messages.bind(Messages.output_notValid, f.getName()));
 				}
 			}
 			token = tokenizer.nextToken();
