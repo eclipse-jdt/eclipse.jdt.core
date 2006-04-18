@@ -276,7 +276,11 @@ public Block updatedBlock(){
 	}
 
 	if (this.blockDeclaration.sourceEnd == 0) {
-		this.blockDeclaration.sourceEnd = lastEnd;
+		if(lastEnd < bodyEndValue) {
+			this.blockDeclaration.sourceEnd = bodyEndValue;
+		} else {
+			this.blockDeclaration.sourceEnd = lastEnd;
+		}
 	}
 	
 	return this.blockDeclaration;

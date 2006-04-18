@@ -7686,4 +7686,53 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=135997
+	 */
+	public void test0645() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	{\n" + 
+				"	   new Object();\n" + 
+				"	   Object.equ;\n" + 
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(
+					unit,
+					2,
+					"Object.equ cannot be resolved\n" + 
+					"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression");
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a field declaration statement", ASTNode.INITIALIZER, node.getNodeType());
+			Initializer initializer = (Initializer) node;
+			checkSourceRange(
+					initializer,
+					"{\n" + 
+					"	   new Object();\n" + 
+					"	   Object.equ;\n" + 
+					"	}",
+					contents);
+			Block block = initializer.getBody();
+			checkSourceRange(
+					block,
+					"{\n" + 
+					"	   new Object();\n" + 
+					"	   Object.equ;\n" + 
+					"	}",
+					contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
