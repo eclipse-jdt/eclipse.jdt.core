@@ -43,9 +43,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			this.typeArguments.length - 1);
 	}
 	public void checkBounds(ReferenceBinding type, Scope scope, int index) {
-		if (type.enclosingType() != null)
+		// recurse on enclosing type if any, and assuming explictly  part of the reference (index>0)
+		if (index > 0 &&  type.enclosingType() != null) {
 			checkBounds(type.enclosingType(), scope, index - 1);
-
+		}
 		if (type.isParameterizedType()) {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
 			ReferenceBinding currentType = parameterizedType.type;
@@ -201,15 +202,16 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, null))
 						return null;
-				if (currentType.isGenericType()) {
+				ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
+				if (currentErasure.isGenericType()) {
 	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentErasure, null, qualifiedType));
 						typeIsConsistent = false;
 					}
-	   			    qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
+	   			    qualifiedType = scope.environment().createRawType(currentErasure, qualifiedType); // raw type
 				} else {
 					qualifiedType = (qualifiedType != null && qualifiedType.isParameterizedType())
-													? scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
+													? scope.environment().createParameterizedType(currentErasure, null, qualifiedType)
 													: currentType;
 				}
 			}

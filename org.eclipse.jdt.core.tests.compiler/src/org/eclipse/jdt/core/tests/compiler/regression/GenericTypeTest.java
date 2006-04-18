@@ -30434,12 +30434,107 @@ public void test0968() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133071
 public void test0969() {
 	this.runConformTest(
-		new String[] {
-			"B.java", //================================
-			"class B<T extends C> extends A<T> {}\n" + 
-			"class C extends B<C> {}\n" + 
-			"class A<T extends C> {}"
-		},
-		"");
+			new String[] {
+				"B.java", //================================
+				"class B<T extends C> extends A<T> {}\n" + 
+				"class C extends B<C> {}\n" + 
+				"class A<T extends C> {}"
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136946
+public void test0970() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //================================
+				"public interface X<T> { \n" + 
+				"        interface I1<T> extends X<T> {\n" + 
+				"                interface I2<T> extends I1<T> {\n" + 
+				"                }\n" + 
+				"\n" + 
+				"                interface I3<T> extends I1<T> {\n" + 
+				"                }\n" + 
+				"\n" + 
+				"                interface I4<T> extends I1.I2<T>, I1.I3<T> {    \n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}\n" + 
+				"class XSub<E> implements X<E> {\n" + 
+				"    I1<E> i1 = null;\n" + 
+				"    I1.I2<E> i2 = null;\n" + 
+				"    I1<E>.I2<E> i1i2 = null;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	I1<E>.I2<E> i1i2 = null;\n" + 
+			"	^^^^^^^^\n" + 
+			"The member type X.I1<E>.I2 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136946 - variation
+public void test0971() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //================================
+				"public interface X<T> { \n" + 
+				"        interface I1<T> extends X {\n" + 
+				"                interface I2<T> extends I1 {\n" + 
+				"                }\n" + 
+				"\n" + 
+				"                interface I3<T> extends I1 {\n" + 
+				"                }\n" + 
+				"\n" + 
+				"                interface I4<T> extends I1.I2, I1.I3 {    \n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}\n" + 
+				"class XSub<E> implements X<E> {\n" + 
+				"    I1 i1 = null;\n" + 
+				"    I1.I2 i2 = null;\n" + 
+				"    I1<E>.I2 i1i2 = null;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	interface I1<T> extends X {\n" + 
+			"	                        ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	interface I2<T> extends I1 {\n" + 
+			"	                        ^^\n" + 
+			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	interface I3<T> extends I1 {\n" + 
+			"	                        ^^\n" + 
+			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	interface I4<T> extends I1.I2, I1.I3 {    \n" + 
+			"	                        ^^^^^\n" + 
+			"X.I1.I2 is a raw type. References to generic type X<T>.I1<T>.I2<T> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	interface I4<T> extends I1.I2, I1.I3 {    \n" + 
+			"	                               ^^^^^\n" + 
+			"X.I1.I3 is a raw type. References to generic type X<T>.I1<T>.I3<T> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 14)\n" + 
+			"	I1 i1 = null;\n" + 
+			"	^^\n" + 
+			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 15)\n" + 
+			"	I1.I2 i2 = null;\n" + 
+			"	^^^^^\n" + 
+			"X.I1.I2 is a raw type. References to generic type X<T>.I1<T>.I2<T> should be parameterized\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 16)\n" + 
+			"	I1<E>.I2 i1i2 = null;\n" + 
+			"	^^^^^^^^\n" + 
+			"The member type X.I1<E>.I2 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" + 
+			"----------\n");
 }
 }
