@@ -320,7 +320,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	@Override
 	protected void saveSettings() {
 		List<ProcessorOption> elements;
-		if ((fJProj != null) && !fBlockControl.isEnabled()) {
+		boolean isProjSpecificDisabled = (fJProj != null) && !fBlockControl.isEnabled();
+		if (isProjSpecificDisabled) {
 			// We're in a project properties pane but the entire configuration 
 			// block control is disabled.  That means the per-project settings checkbox 
 			// is unchecked.  To save that state, we'll clear the proc options map.
@@ -332,10 +333,20 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		saveProcessorOptions(elements);
 		super.saveSettings();
 		if (null != fAptProject) {
-			if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
-				fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
-			if (fOriginalAptEnabled != fAptEnabledField.isSelected())
-				fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+			if (isProjSpecificDisabled) { // compare against workspace defaults
+				if (!fOriginalGenSrcDir.equals(AptConfig.getGenSrcDir(null))) {
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
+				}
+				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+				}
+			}
+			else { // compare against current settings
+				if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
+				if (fOriginalAptEnabled != fAptEnabledField.isSelected())
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+			}
 		}
 	}
 
