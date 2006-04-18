@@ -276,10 +276,13 @@ protected int matchNameValue(char[] pattern, char[] name) {
 	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
-			if (!this.isCamelCase && sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
-				return POSSIBLE_FULL_MATCH;
+			if (!this.isCamelCase) {
+				if (sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
+					return POSSIBLE_FULL_MATCH;
+				}
+				break;
 			}
-			break;
+			// fall through next case to match as prefix if camel case failed
 		case SearchPattern.R_PREFIX_MATCH:
 			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_PREFIX_MATCH;
@@ -692,7 +695,8 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 			}
 		}
 		if (this.matchMode == SearchPattern.R_EXACT_MATCH) {
-			return IMPOSSIBLE_MATCH;
+			boolean matchPattern = CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive);
+			return matchPattern ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 		}
 	}
 	boolean matchPattern = CharOperation.match(qualifiedPattern, sourceName, this.isCaseSensitive);

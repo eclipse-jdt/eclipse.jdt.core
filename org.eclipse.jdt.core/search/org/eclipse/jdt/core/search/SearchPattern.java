@@ -1786,11 +1786,13 @@ public boolean matchesName(char[] pattern, char[] name) {
 		switch (matchMode) {
 			case R_EXACT_MATCH :
 			case R_FULL_MATCH :
-				if (!isCamelCase && sameLength && matchFirstChar) {
-					return CharOperation.equals(pattern, name, isCaseSensitive);
+				if (!isCamelCase) {
+					if (sameLength && matchFirstChar) {
+						return CharOperation.equals(pattern, name, isCaseSensitive);
+					}
+					break;
 				}
-				break;
-
+				// fall through next case to match as prefix if camel case failed
 			case R_PREFIX_MATCH :
 				if (canBePrefix && matchFirstChar) {
 					return CharOperation.prefixEquals(pattern, name, isCaseSensitive);

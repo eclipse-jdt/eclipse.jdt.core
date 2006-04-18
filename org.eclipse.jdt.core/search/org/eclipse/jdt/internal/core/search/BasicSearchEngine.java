@@ -471,8 +471,10 @@ public class BasicSearchEngine {
 			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
-					if (isCamelCase) return false;
-					return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
+					if (!isCamelCase) {
+						return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
+					}
+					// fall through next case to match as prefix if camel case failed
 				case SearchPattern.R_PREFIX_MATCH :
 					return matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
 				case SearchPattern.R_PATTERN_MATCH :

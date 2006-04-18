@@ -3574,6 +3574,7 @@ public void testStaticImportPackage02() throws CoreException {
 public void testCamelCaseTypePattern01() throws CoreException {
 	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
 	assertSearchResults(
+		"src/a3/References.java a3.References [References]\n" + 
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
@@ -3594,7 +3595,9 @@ public void testCamelCaseTypePattern03() throws CoreException {
 
 public void testCamelCaseTypePattern04() throws CoreException {
 	search("RUNTIMEEXCEPTION", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
-	assertSearchResults("");
+	assertSearchResults(
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+	);
 }
 
 public void testCamelCaseTypePattern05() throws CoreException {
@@ -3659,7 +3662,10 @@ public void testCamelCaseTypePattern08() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"",
+		"AA\n" + 
+		"d8.AA\n" + 
+		"p6.AA\n" + 
+		"q1.AA",
 		requestor);
 }
 

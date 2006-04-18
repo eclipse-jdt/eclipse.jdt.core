@@ -104,7 +104,6 @@ protected int matchLevelForTokens(char[][] tokens) {
 	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
-			if (this.isCamelCase) break;
 		case SearchPattern.R_PREFIX_MATCH:
 			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
 			if (CharOperation.prefixEquals(this.pattern.pkgName, packageName, this.isCaseSensitive)) {

@@ -4574,7 +4574,10 @@ public void testBug110060_TypePattern12() throws CoreException {
 	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
 	search("AxXA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	this.discard = false;
-	assertSearchResults("");
+	assertSearchResults(
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+	);
 }
 
 public void testBug110060_AllTypeNames01() throws CoreException {
@@ -4755,7 +4758,8 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
-		"",
+		"b110060.AA\n" + 
+		"b110060.AAxx",
 		requestor);
 }
 
@@ -5994,7 +5998,6 @@ public void testBug128877c() throws CoreException {
 	);
 }
 
-
 /**
  * To get these tests search matches in a workspace, do NOT forget to modify files
  * to set them as working copies.
@@ -6036,6 +6039,7 @@ public void testBug130390b() throws CoreException {
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	this.discard = false;
 	assertSearchResults(
+		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH\n" + 
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
@@ -6092,6 +6096,256 @@ public void testBug130390h() throws CoreException {
 	this.discard = false;
 	assertSearchResults(
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
+	);
+}
+/**
+ * To get these tests search matches in a workspace, do NOT forget to modify files
+ * to set them as working copies.
+ *
+ * @test Bug 137087: Open Type - missing matches when using mixed case pattern
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137087"
+ */
+public void testBug137087() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "runtimeEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+}
+public void testBug137087b() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "Runtimeex";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+}
+public void testBug137087c() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "runtimeexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // no match expected as this is not a valid camel case
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+}
+public void testBug137087d() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "Runtimexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // no match expected as pattern is missing a 'e'
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // no match expected as pattern is missing a 'e'
+	);
+}
+public void testBug137087e() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "IllegalMSException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.IllegalMonitorStateException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.IllegalMonitorStateException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.IllegalMonitorStateException EXACT_MATCH"
+	);
+}
+public void testBug137087f() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "illegalMsExceptionSException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // expected no result as uppercase characters in pattern do not match any camelcase ones in existing types
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // expected no result as uppercase characters in pattern do not match any camelcase ones in existing types
+	);
+}
+public void testBug137087g() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "clonenotsupportedex";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // no match expected as this is not a valid camel case
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087h() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "CloneNotSupportedEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087i() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "cloneNotsupportedEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087j() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "ClonenotSupportedexc";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087k() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "cloneNotSupportedExcep";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087l() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "Clonenotsupportedexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087m() throws CoreException {
+	// Search CamelCase
+	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "CloneNotSupportedException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+	// Search like UI does (ie. replace it with prefix if it's not a valid CamelCase)
+	int validatedRule = SearchPattern.validateMatchRule(pattern, matchRule);
+	if (validatedRule != matchRule) {
+		matchRule = SearchPattern.R_PREFIX_MATCH;
+	}
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
 }

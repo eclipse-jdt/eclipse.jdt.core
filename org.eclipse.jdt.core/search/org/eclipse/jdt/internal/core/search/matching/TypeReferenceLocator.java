@@ -117,7 +117,6 @@ protected int matchLevel(ImportReference importRef) {
 		}
 		switch (this.matchMode) {
 			case SearchPattern.R_EXACT_MATCH:
-				if (this.isCamelCase) break;
 			case SearchPattern.R_PREFIX_MATCH:
 				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) {
 					return POSSIBLE_PREFIX_MATCH;

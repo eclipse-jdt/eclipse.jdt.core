@@ -44,7 +44,8 @@ void assertCamelCase(String pattern, String name, boolean match) {
 		if (!match) line.append(" NOT");
 		line.append(" match pattern '");
 		line.append(pattern);
-		line.append("'");
+		line.append("', but it DOES");
+		if (!camelCase) line.append(" NOT");
 		if (this.camelCaseErrors.length() == 0) {
 			System.out.println("Invalid results in test "+getName()+":");
 		}
@@ -513,7 +514,6 @@ public void test65() {
 /**
  * Bug 130390: CamelCase algorithm cleanup and improvement
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130390"
- *
  */
 public void test66() {
     String[][] MATCHES = {
@@ -559,6 +559,52 @@ public void test66() {
         assertCamelCase(match[0], match[1], false/*should not match*/);
     }
 
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+
+/**
+ * Bug 137087: Open Type - missing matches when using mixed case pattern
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137087"
+ */
+public void test67() {
+	assertCamelCase("runtimeEx", "RuntimeException", false/* should not match */);
+	assertCamelCase("Runtimeex", "RuntimeException", false/* should not match */);
+	assertCamelCase("runtimeexception", "RuntimeException", false/* should not match */);
+	assertCamelCase("Runtimexception", "RuntimeException", false/* should not match */);
+	assertCamelCase("illegalMSException", "IllegalMonitorStateException", false/* should not match */);
+	assertCamelCase("illegalMsException", "IllegalMonitorStateException", false /* should not match */);
+	assertCamelCase("IllegalMSException", "IllegalMonitorStateException", true/* should match */);
+	assertCamelCase("IllegalMsException", "IllegalMonitorStateException", false /* should not match */);
+	assertCamelCase("clonenotsupportedex", "CloneNotSupportedException", false/* should not match */);
+	assertCamelCase("CloneNotSupportedEx", "CloneNotSupportedException", true/* should match */);
+	assertCamelCase("cloneNotsupportedEx", "CloneNotSupportedException", false/* should not match */);
+	assertCamelCase("ClonenotSupportedexc", "CloneNotSupportedException", false/* should not match */);
+	assertCamelCase("cloneNotSupportedExcep", "CloneNotSupportedException", false/* should not match */);
+	assertCamelCase("Clonenotsupportedexception", "CloneNotSupportedException", false/* should not match */);
+	assertCamelCase("CloneNotSupportedException", "CloneNotSupportedException", true /* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+// lower CamelCase
+public void test68() {
+	assertCamelCase("aMe", "aMethod", true/* should match */);
+	assertCamelCase("ame", "aMethod", false/* should not match */);
+	assertCamelCase("longNOM", "longNameOfMethod", true/* should match */);
+	assertCamelCase("longNOMeth", "longNameOfMethod", true/* should match */);
+	assertCamelCase("longNOMethod", "longNameOfMethod", true/* should match */);
+	assertCamelCase("longNoMethod", "longNameOfMethod", false/* should not match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+// search tests
+public void test69() {
+	assertCamelCase("aa", "AxxAyy", false /* should not match */);
+	assertCamelCase("Aa", "AxxAyy", false /* should not match */);
+	assertCamelCase("aA", "AxxAyy", false /* should not match */);
+	assertCamelCase("AA", "AxxAyy", true /* should match */);
+	assertCamelCase("aa", "AbcdAbcdefAbcAbcdefghAbAAzzzzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnAbcAbcdefghijklm", false /* should not match */);
+	assertCamelCase("AA", "AbcdAbcdefAbcAbcdefghAbAAzzzzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnAbcAbcdefghijklm", true /* should match */);
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }

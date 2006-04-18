@@ -1022,4 +1022,8 @@ public void testSearchPatternValidMatchRule04() {
 		SearchPattern.R_CAMELCASE_MATCH|SearchPattern.R_PREFIX_MATCH,
 		SearchPattern.R_PREFIX_MATCH);
 }
+public void testSearchPatternValidMatchRule05() {
+	assertValidMatchRule("hashMap", SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("Hashmap", SearchPattern.R_CAMELCASE_MATCH);
+}
 }
