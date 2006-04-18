@@ -642,10 +642,21 @@ public abstract class BaseConfigurationBlock {
 	
 	
 	public void performDefaults() {
-		IScopeContext defaultScope= (fProject == null) ? new DefaultScope() : new InstanceScope();
+		IScopeContext[] lookupOrder; // not same as fLookupOrder!  Starts one layer deeper.
+		if (fProject != null) {
+			lookupOrder= new IScopeContext[] {
+				new InstanceScope(),
+				new DefaultScope()
+			};
+		} else {
+			lookupOrder= new IScopeContext[] {
+				new DefaultScope()
+			};
+		}
+
 		for (int i= 0; i < fAllKeys.length; i++) {
 			Key curr= fAllKeys[i];
-			String defValue= curr.getStoredValue(defaultScope, null);
+			String defValue= curr.getStoredValue(lookupOrder, false, null);
 			setValue(curr, defValue);
 		}
 		
