@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 216 };
+//		TESTS_NUMBERS = new int[] { 108 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -3357,7 +3357,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83228
 	 */
-	public void _test0108() throws JavaModelException {
+	public void test0108() throws JavaModelException {
 		String contents =
 			"class X<E> {\n" +
 			"    enum Numbers {\n" +
@@ -3378,29 +3378,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertProblemsSize(compilationUnit, 0);
 		node = getASTNode(compilationUnit, 0, 0);
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
-		SimpleName simpleName = enumDeclaration.getName();
-		ITypeBinding typeBinding = simpleName.resolveTypeBinding();
-		
+
+		List bodyDeclarations = enumDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclarations.get(0);
+		Type returnType = methodDeclaration.getReturnType2();
+		ITypeBinding typeBinding = returnType.resolveBinding();
+	
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("Wrong size", 1, enumConstants.size());
 		EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		AnonymousClassDeclaration anonymousClassDeclaration = constantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous", anonymousClassDeclaration);
-		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("Wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
-		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		Type type = methodDeclaration.getReturnType2();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
-		simpleName = (SimpleName) name;
+		SimpleName simpleName = (SimpleName) name;
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
 		
-		assertTrue("Not identical", typeBinding == typeBinding2);
 		assertTrue("Not equals", typeBinding.isEqualTo(typeBinding2));
+		assertTrue("Not identical", typeBinding == typeBinding2);
 	}
 	
 	/*
