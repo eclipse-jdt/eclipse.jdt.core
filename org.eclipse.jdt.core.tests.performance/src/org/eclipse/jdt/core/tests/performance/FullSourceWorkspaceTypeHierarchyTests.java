@@ -87,7 +87,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	protected JavaSearchResultCollector resultCollector;
 
 	public void testPerfAllTypes() throws CoreException {
-		tagAsSummary("Type Hierarchy>All Types", true); // put in fingerprint
+		tagAsSummary("Type hierarchy", true); // put in fingerprint
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.ast", "ASTNode.java");
 		assertNotNull("ASTNode not found!", unit);
 

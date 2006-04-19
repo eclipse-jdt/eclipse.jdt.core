@@ -580,7 +580,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * @deprecated To reduce deprecated warnings
 	 */
 	public void testDomAstCreationJLS2() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Src>JLS2", true); // put in fingerprint
+		tagAsSummary("DOM AST tree for one file using JLS2", true); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		Hashtable options = JavaCore.getOptions();
@@ -593,7 +593,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * Performance DOM/AST creation on the entire workspace using JLS3.
 	 */
 	public void testDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Src>JLS3", false); // put in fingerprint
+		tagAsSummary("DOM AST tree for one file using JLS3", false); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		createAST(unit, AST.JLS3);
@@ -652,7 +652,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * @deprecated To reduce deprecated warnings
 	 */
 	public void testWkspDomAstCreationJLS2() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Wksp>JLS2", true); // put in fingerprint
+		tagAsSummary("DOM AST tree for workspace files (JLS2)", true); // put in fingerprint
 		runAllProjectsAstCreation(AST.JLS2);
 	}
 
@@ -726,7 +726,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * @throws JavaModelException
 	 */
 	public void testDomAstCreationProjectJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>Project>JLS3", true); // put in fingerprint
+		tagAsSummary("DOM AST tree for project files (JLS3)", true); // put in fingerprint
 		runAstCreation(getProject("org.eclipse.search"));
 	}
 }
