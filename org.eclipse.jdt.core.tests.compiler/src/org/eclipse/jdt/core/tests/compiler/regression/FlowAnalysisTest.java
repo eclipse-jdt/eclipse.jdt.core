@@ -723,7 +723,7 @@ public void test025() {
 		"[starting][Loop 0][finished]");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=137298
-public void _test026() {
+public void test026() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

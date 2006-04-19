@@ -1391,6 +1391,10 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		int i;
 		if (otherHasNulls) {
 			for (i = 0; i < mergeLimit; i++) {
+				this.extra[0][i] &= 
+					otherInits.extra[0][i];
+				this.extra[1][i] |= 
+					otherInits.extra[1][i];
 				this.extra[2][i] =
 					(a1 = this.extra[2][i]) & 
 					(b1 = otherInits.extra[2][i]) & (
