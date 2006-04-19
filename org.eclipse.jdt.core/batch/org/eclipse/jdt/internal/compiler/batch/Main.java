@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -68,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
+		private static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 		private PrintWriter err;
 		private PrintWriter log;
 		private PrintWriter out;
@@ -130,7 +132,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String VALUE = "value"; //$NON-NLS-1$
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
 		public static final int XML = 1;
-		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.001 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_001.dtd\">"; //$NON-NLS-1$
+		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">"; //$NON-NLS-1$
 		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
 		static {
 			try {
@@ -414,14 +416,35 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param e the given exception to log
 		 */
 		public void logException(Exception e) {
-			final String message = e.getMessage();
+			StringWriter writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e.printStackTrace(printWriter);
+			printWriter.flush();
+			printWriter.close();
+			final String stackTrace = writer.getBuffer().toString();
 			if ((this.tagBits & Logger.XML) != 0) {
+				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
+				String line;
+				int i = 0;
+				StringBuffer buffer = new StringBuffer();
+				String message = null;
+				try {
+					while ((line = reader.readLine()) != null && i < 4) {
+						buffer.append(line).append(LINE_SEPARATOR);
+						i++;
+					}
+					reader.close();
+					message = buffer.toString();
+				} catch (IOException e1) {
+					// ignore
+					message = e.getMessage();
+				}
 				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, message);
 				this.parameters.put(Logger.CLASS, e.getClass());
 				this.printTag(Logger.EXCEPTION, this.parameters, true, true);
 			}
-			this.printlnErr(message);
+			this.printlnErr(stackTrace);
 		}
 
 		/**
@@ -1345,6 +1368,7 @@ public boolean compile(String[] argv) {
 		}
 		return false;
 	} catch (RuntimeException e) { // internal compiler failure
+		this.logger.logException(e);
 		if (this.systemExitWhenFinished) {
 			this.logger.flush();
 			this.logger.close();
@@ -2673,7 +2697,6 @@ public void configure(String[] argv) throws InvalidInputException {
 		this.timesCounter = 0;
 	}
 }
-
 private void disableWarnings() {
 	Object[] entries = this.options.entrySet().toArray();
 	for (int i = 0, max = entries.length; i < max; i++) {
