@@ -111,6 +111,7 @@ public final class CompletionEngine
 	boolean assistNodeIsAnnotation;
 	boolean assistNodeIsConstructor;
 	int  assistNodeInJavadoc = 0;
+	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	
 	IJavaProject javaProject;
 	CompletionParser parser;
@@ -253,6 +254,7 @@ public final class CompletionEngine
 			Map settings,
 			IJavaProject javaProject) {
 		super(settings);
+		this.compilerOptions.storeAnnotations = true;
 		this.javaProject = javaProject;
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
@@ -1203,31 +1205,22 @@ public final class CompletionEngine
 					findAnnotationReference(annotation.type, scope);
 				}
 			} else {
-				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
 					this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
 				}
-				if (memberValuePairs == null || memberValuePairs.length == 0) {
-					if (annotation.resolvedType instanceof ReferenceBinding) {
-						MethodBinding[] methodBindings =
-							((ReferenceBinding)annotation.resolvedType).availableMethods();
-						if (methodBindings != null &&
-								methodBindings.length == 1 &&
-								CharOperation.equals(methodBindings[0].selector, VALUE)) {
-							if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-								findTypesAndPackages(this.completionToken, scope);
-							} else {
-								findVariablesAndMethods(
-									this.completionToken,
-									scope,
-									FakeInvocationSite,
-									scope,
-									insideTypeAnnotation,
-									true);
-								// can be the start of a qualified type name
-								findTypesAndPackages(this.completionToken, scope);
-							}
-						}
+				if (this.assistNodeCanBeSingleMemberAnnotation) {
+					if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+						findTypesAndPackages(this.completionToken, scope);
+					} else {
+						findVariablesAndMethods(
+							this.completionToken,
+							scope,
+							FakeInvocationSite,
+							scope,
+							insideTypeAnnotation,
+							true);
+						// can be the start of a qualified type name
+						findTypesAndPackages(this.completionToken, scope);
 					}
 				}
 			}
@@ -5880,6 +5873,12 @@ public final class CompletionEngine
 
 		return this.parser;
 	}
+	
+	protected int getSourceTypeConverterFlag() {
+		return SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+				| SourceTypeConverter.MEMBER_TYPE // need member types
+				| SourceTypeConverter.FIELD_INITIALIZATION; // need field initializer for annotations default value 
+	}
 
 	protected void reset() {
 
@@ -6100,10 +6099,20 @@ public final class CompletionEngine
 				if(annotation.resolvedType instanceof ReferenceBinding) {
 					MethodBinding[] methodBindings =
 						((ReferenceBinding)annotation.resolvedType).availableMethods();
-					if(methodBindings != null &&
-							methodBindings.length == 1 &&
+					if (methodBindings != null &&
+							methodBindings.length > 0 &&
 							CharOperation.equals(methodBindings[0].selector, VALUE)) {
-						addExpectedType(methodBindings[0].returnType, scope);
+						boolean canBeSingleMemberAnnotation = true;
+						done : for (int i = 1; i < methodBindings.length; i++) {
+							if(methodBindings[i].getDefaultValue() == null) {
+								canBeSingleMemberAnnotation = false;
+								break done;
+							}
+						}
+						if (canBeSingleMemberAnnotation) {
+							this.assistNodeCanBeSingleMemberAnnotation = canBeSingleMemberAnnotation;
+							addExpectedType(methodBindings[0].returnType, scope);
+						}
 					}
 				}
 			}
