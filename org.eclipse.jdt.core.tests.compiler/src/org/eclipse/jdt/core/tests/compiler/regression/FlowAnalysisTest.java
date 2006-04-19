@@ -722,6 +722,36 @@ public void test025() {
 		},
 		"[starting][Loop 0][finished]");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=137298
+public void _test026() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o1) {\n" + 
+			"    int a00, a01, a02, a03, a04, a05, a06, a07, a08, a09;\n" + 
+			"    int a10, a11, a12, a13, a14, a15, a16, a17, a18, a19;\n" + 
+			"    int a20, a21, a22, a23, a24, a25, a26, a27, a28, a29;\n" + 
+			"    int a30, a31, a32, a33, a34, a35, a36, a37, a38, a39;\n" + 
+			"    int a40, a41, a42, a43, a44, a45, a46, a47, a48, a49;\n" + 
+			"    int a50, a51, a52, a53, a54, a55, a56, a57, a58, a59;\n" + 
+			"    int a60, a61, a62, a63, a64, a65, a66, a67, a68, a69;\n" + 
+			"    String s;\n" + 
+			"    Object o2 = o1;\n" + 
+			"    if (o2 == null) {\n" + 
+			"      s = \"\";\n" + 
+			"    }\n" + 
+			"    System.out.println(s);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	System.out.println(s);\n" + 
+		"	                   ^\n" + 
+		"The local variable s may not have been initialized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
