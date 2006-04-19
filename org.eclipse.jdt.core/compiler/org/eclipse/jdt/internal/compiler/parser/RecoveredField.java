@@ -121,7 +121,13 @@ public FieldDeclaration updatedFieldDeclaration(){
 					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
 				}
 				if (recoveredType.preserveContent){
-					fieldDeclaration.initialization = recoveredType.updatedTypeDeclaration().allocation;
+					TypeDeclaration anonymousType = recoveredType.updatedTypeDeclaration();
+					fieldDeclaration.initialization = anonymousType.allocation;
+					if(this.fieldDeclaration.declarationSourceEnd == 0) {
+						int end = anonymousType.declarationSourceEnd;
+						this.fieldDeclaration.declarationSourceEnd = end;
+						this.fieldDeclaration.declarationEnd = end;
+					}
 				}
 			}
 			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalType;
