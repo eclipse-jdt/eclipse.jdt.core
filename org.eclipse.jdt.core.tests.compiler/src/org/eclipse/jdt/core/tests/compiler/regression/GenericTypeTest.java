@@ -30537,4 +30537,153 @@ public void test0971() {
 			"The member type X.I1<E>.I2 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203
+// simulate incremental compile
+public void _test0972() {
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {}\n" + 
+				"\n" + 
+				"  public static void method(Outer<?>.Inner x) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    Outer<?>.Inner x = null;\n" +
+				"    method(x);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				"ExtendedOuter.java", //================================
+				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+				"  class ExtendedInner extends Inner {\n" + 
+				"    {\n" + 
+				"      Outer.method(this);\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {}\n" + 
+				"\n" + 
+				"  public static void method(Outer.Inner x) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    Outer.Inner x = null;\n" +
+				"    method(x);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+	this.runConformTest(
+			new String[] {
+					"ExtendedOuter.java", //================================
+					"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+					"  class ExtendedInner extends Inner {\n" + 
+					"    {\n" + 
+					"      Outer.method(this);\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    System.out.println(\"SUCCESS\");\n" +
+					"  }\n" + 
+					"}\n"
+
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203 - variation
+//pure source scenario
+public void test0973() {
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {}\n" + 
+				"\n" + 
+				"  public static void method(Outer.Inner x) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    Outer.Inner x = null;\n" +
+				"    method(x);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				"ExtendedOuter.java", //================================
+				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+				"  class ExtendedInner extends Inner {\n" + 
+				"    {\n" + 
+				"      Outer.method(this);\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203 - variation
+//simulate incremental compile
+public void _test0974() {
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {}\n" + 
+				"\n" + 
+				"  public static void method(Outer.Inner x) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    Outer.Inner x = null;\n" +
+				"    method(x);\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				"ExtendedOuter.java", //================================
+				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+				"  class ExtendedInner extends Inner {\n" + 
+				"    {\n" + 
+				"      Outer.method(this);\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	this.runConformTest(
+			new String[] {
+					"ExtendedOuter.java", //================================
+					"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+					"  class ExtendedInner extends Inner {\n" + 
+					"    {\n" + 
+					"      Outer.method(this);\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    System.out.println(\"SUCCESS\");\n" +
+					"  }\n" + 
+					"}\n"
+
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+}
 }
