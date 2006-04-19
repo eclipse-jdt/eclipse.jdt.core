@@ -56,8 +56,11 @@ public String[] getCategories() throws JavaModelException {
 		// ensure the class file's buffer is open so that categories are computed
 		((ClassFile)getClassFile()).getBuffer();
 		
-		if (mapper.categories != null) 
-			return (String[]) mapper.categories.get(this);
+		if (mapper.categories != null) {
+			String[] categories = (String[]) mapper.categories.get(this);
+			if (categories != null)
+				return categories;
+		}
 	}
 	return CharOperation.NO_STRINGS;	
 }

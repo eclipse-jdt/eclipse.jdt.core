@@ -321,6 +321,27 @@ public void testGetCategories09() throws CoreException, IOException {
 }
 
 /*
+ * Ensure that the categories for a member that has no categories when another member defines some are correct.
+ */
+public void testGetCategories10() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  int field1;\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  int field2;\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getField("field1").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"",
+		categories);
+}
+
+/*
  * Ensures that the children of a type for a given category are correct.
  */
 public void testGetChildrenForCategory01() throws CoreException, IOException {
