@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -243,7 +244,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected ASTNode buildAST(ICompilationUnit cu) throws JavaModelException {
-		return buildAST(null/*use existing contenst*/, cu, true/*report errors*/);
+		return buildAST(null/*use existing contents*/, cu, true/*report errors*/);
 	}
 
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu) throws JavaModelException {
@@ -286,18 +287,20 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		MarkerInfo markerInfo;
 		if (newContents == null) {
 			markerInfo = new MarkerInfo(cu.getSource());
-			newContents = markerInfo.source;
-			cu.getBuffer().setContents(newContents);
-			cu.makeConsistent(null);
 		} else {
 			markerInfo = new MarkerInfo(newContents);
-			newContents = markerInfo.source;
-			cu.getBuffer().setContents(newContents);
 		}
+		newContents = markerInfo.source;
+
 		CompilationUnit unit;
-		if (cu.isWorkingCopy()) 
+		if (cu.isWorkingCopy()) {
+			cu.getBuffer().setContents(newContents);
 			unit = cu.reconcile(AST.JLS3, reportErrors, enableStatementRecovery, null, null);
-		else {
+		} else {
+			IBuffer buffer = cu.getBuffer();
+			buffer.setContents(newContents);
+			buffer.save(null, false);
+			
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
