@@ -453,7 +453,15 @@ public void testGetReturnType() {
 	assertEquals("Signature#getReturnType is not correct3", "Qlist<Qxxx;>;",
 			Signature.getReturnType(methodSig));
 }
-
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=112030
+ * @see Signature
+ */
+public void testGetReturnType2() {
+	String methodSig = "(LObject;)+[I";
+	assertEquals("Signature#getReturnType is not correct", "+[I",
+			Signature.getReturnType(methodSig));
+}
 /**
  * @see Signature
  */

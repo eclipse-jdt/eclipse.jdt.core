@@ -2664,8 +2664,8 @@ public class Util {
 				return start;
 			case Signature.C_SUPER :
 			case Signature.C_EXTENDS :
-				// need a minimum 4 chars "+Lx;"
-				if (start >= string.length - 3) {
+				// need a minimum 3 chars "+[I"
+				if (start >= string.length - 2) {
 					throw new IllegalArgumentException();
 				}
 				break;
