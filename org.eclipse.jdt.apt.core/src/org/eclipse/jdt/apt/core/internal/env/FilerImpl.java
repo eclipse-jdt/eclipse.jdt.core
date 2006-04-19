@@ -31,10 +31,10 @@ import com.sun.mirror.apt.Filer;
 
 public class FilerImpl implements Filer {
 
-	private ProcessorEnvImpl _env;
+	private BuildEnv _env;
 	private boolean _generatedClassFiles = false;
 	
-    public FilerImpl( ProcessorEnvImpl env )
+    public FilerImpl( BuildEnv env )
     {
         _env = env;
     }

@@ -11,12 +11,7 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -358,66 +353,20 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		if( index != -1 )
 			name = name.substring(0, index);
 		
-    	//First check cache
-    	TypeDeclaration result = _typeCache.get(name);
-    	if (result != null) return result;
-    	if (_typeCache.containsKey(name)) {
-    		// We've seen this before, and it doesn't exist
-    		return null;
-    	}
-
-		// first see if it is one of the well known types.
-		// any AST is as good as the other.		
 		ITypeBinding typeBinding = null;
-		CompilationUnit[] asts = getAsts();
-		
-		if( asts != null && asts.length > 0) {
-			typeBinding = asts[0].getAST().resolveWellKnownType(name);
-
-			if(typeBinding == null){
-				// then look into the current compilation units			
-				ASTNode node = null;
-				String typeKey = BindingKey.createTypeBindingKey(name);
-				for (int i=0, len=asts.length;i<len;i++) {
-					node = asts[i].findDeclaringNode(typeKey);
-							
-					if( node != null ){
-						final int nodeType = node.getNodeType();
-						if( nodeType == ASTNode.TYPE_DECLARATION ||
-							nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-							nodeType == ASTNode.ENUM_DECLARATION )
-						typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
-						break;
-					}
-				}
-			}
+		try {
+			typeBinding = getTypeDefinitionBindingFromName(name);
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133947
+			// if the name is invalid, JDT can throw an ArrayIndexOutOfBoundsException
+			// We'll ignore this and return null to the user
+			AptPlugin.log(e, "Unable to get type definition binding for: " + name); //$NON-NLS-1$
 		}
 		
-		// finally go search for it in the universe.
-		if (typeBinding == null) {
-			try {
-				typeBinding = getTypeDefinitionBindingFromName(name);
-			}
-			catch (ArrayIndexOutOfBoundsException e) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133947
-				// if the name is invalid, JDT can throw an ArrayIndexOutOfBoundsException
-				// We'll ignore this and return null to the user
-				AptPlugin.log(e, "Unable to get type definition binding for: " + name); //$NON-NLS-1$
-			}
-		}
-		
-		result = Factory.createReferenceType(typeBinding, this);
-    	
-    	// update cache, nulls included
-    	_typeCache.put(name, result);
-    	return result;
+    	return Factory.createReferenceType(typeBinding, this);
     }
     
-    protected CompilationUnit[] getAsts() {
-    	if (_astRoot == null) return null;
-    	return new CompilationUnit[] {_astRoot};
-	}
-
     /**
      * @param fullyQualifiedName the fully qualified name of a type.
      * The name cannot contain type argument or array signature.
@@ -425,7 +374,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * e.g. java.util.Map$Entry, NOT java.util.Map.Entry
      * @return the type binding corresponding to the parameter.
      */
-    private ITypeBinding getTypeDefinitionBindingFromCorrectName(
+    protected ITypeBinding getTypeDefinitionBindingFromCorrectName(
     		final String fullyQualifiedName ){
     	final int dollarIndex = fullyQualifiedName.indexOf('$');
     	final String toplevelTypeName;
@@ -778,53 +727,50 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 	}
 	
-	/**
-	 * Parse and fully resolve all files. 
-	 * @param javaProject
-	 * @param parseUnits the files to be parsed and resolved.
-	 * @return the array of ast units parallel to <code>files</code>
-	 * Any entry in the returned array may be <code>null</code>. 
-	 * This indicates an error while reading the file. 
-	 */
-	public static CompilationUnit[] createASTs(
-			final IJavaProject javaProject, 
-			final ICompilationUnit[] parseUnits)
-	{
-		if( parseUnits == null ) 
-			return null;
-		final int len = parseUnits.length;
-		if( len == 0 )
-			return NO_AST_UNITs;
+	static class BaseRequestor extends ASTRequestor
+	{	
+		ICompilationUnit[] parseUnits;
+		CompilationUnit[] asts;
+		BaseRequestor(ICompilationUnit[] parseUnits)
+		{
+			asts = new CompilationUnit[parseUnits.length];
+			// Init all units to empty to prevent any NPEs
+			Arrays.fill(asts, EMPTY_AST_UNIT);
+			this.parseUnits = parseUnits;
+		}
 		
-		class CompilationUnitsRequestor extends ASTRequestor
-		{	
-			CompilationUnit[] domUnits = new CompilationUnit[len];
-			CompilationUnitsRequestor(){
-				for( int i=0; i<len; i++ ){
-					// make sure we will not get any null.
-					// setting it to an empty unit will guarantee that if the 
-					// creation failed, the apt dispatch will do the cleanup work properly.
-					domUnits[i] = EMPTY_AST_UNIT;
-				}
-			}
-			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
-				for( int i=0; i<len; i++ ){
-					if( source == parseUnits[i] ){
-						domUnits[i] = ast;
-						break;
-					}
+		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+			for( int i=0, len = asts.length; i<len; i++ ){
+				if( source == parseUnits[i] ){
+					asts[i] = ast;
+					break;
 				}
 			}
 		}
 		
-		CompilationUnitsRequestor requestor = new CompilationUnitsRequestor();
+	}
+	
+	/**
+	 * Parse and fully resolve all files. 
+	 * @param javaProject
+	 * @param parseUnits the files to be parsed and resolved.
+	 */
+	static void createASTs(
+			final IJavaProject javaProject, 
+			final ICompilationUnit[] parseUnits,
+			ASTRequestor requestor)
+	{
+		// Construct exactly 1 binding key. When acceptBinding is called we know that
+		// All ASTs have been returned. This also means that a pipeline is opened when
+		// there are no asts. This is needed by the batch processors.
+		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object"); //$NON-NLS-1$
+		String[] keys = new String[] {bogusKey};
+
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		p.createASTs( parseUnits, NO_KEYS,  requestor, null);
-		
-		return requestor.domUnits;
+		p.createASTs( parseUnits, keys,  requestor, null);
 	}
 	
 	/**

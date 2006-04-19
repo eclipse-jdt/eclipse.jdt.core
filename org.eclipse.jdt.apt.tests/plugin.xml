@@ -68,6 +68,7 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.exceptionhandling.ExceptionHandlingProcessorFactory">
 	      </factory>  
+	      <factory class="org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory"/>
 	   </factories>
    </extension>
 

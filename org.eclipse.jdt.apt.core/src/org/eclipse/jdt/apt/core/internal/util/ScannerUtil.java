@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BuildEnv;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -44,11 +44,11 @@ public class ScannerUtil {
 			// If this is a single byte encoding, we can deal directly 
 			// with the bytes, which is *much* faster
 			if (SINGLE_BYTE_ENCODINGS.contains(f.getCharset())) {
-				input = ProcessorEnvImpl.getInputStream(f);
+				input = BuildEnv.getInputStream(f);
 				scanner = new InputStreamAnnotationScanner(input);
 			}
 			else {
-				reader = ProcessorEnvImpl.getFileReader( f );
+				reader = BuildEnv.getFileReader( f );
 				scanner = new ReaderAnnotationScanner(reader);
 			}
 			return scanner.containsAnnotations();

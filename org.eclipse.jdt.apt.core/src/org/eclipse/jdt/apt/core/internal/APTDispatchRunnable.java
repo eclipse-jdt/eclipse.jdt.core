@@ -30,10 +30,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.env.Phase;
-import org.eclipse.jdt.apt.core.internal.env.CompilationProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
-import org.eclipse.jdt.apt.core.internal.env.ReconcileProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.env.BuildEnv;
+import org.eclipse.jdt.apt.core.internal.env.ReconcileEnv;
+import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
@@ -132,7 +133,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		_dispatchedBatchFactories = Collections.emptySet();
 	}
 	
-	private void reconcile(ReconcileContext reconcileContext,
+	private void reconcile(final ReconcileContext reconcileContext,
 			   IJavaProject javaProject)
 	{
 		if (_factories.size() == 0) {
@@ -141,20 +142,27 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						null);
 			return;
 		}
-		ReconcileProcessorEnv processorEnv = CompilationProcessorEnv
-				.newReconcileEnv(reconcileContext, javaProject);
-		dispatchToFileBasedProcessor(processorEnv);
 
-		final List<? extends CategorizedProblem> problemList = processorEnv
-				.getProblems();
-		final int numProblems = problemList.size();
-		if (numProblems > 0) {
-			final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
-			reconcileContext.putProblems(
+		EnvCallback callback = new EnvCallback() {
+			public void run(AbstractCompilationEnv env) {
+				
+				dispatchToFileBasedProcessor(env);
+				final List<? extends CategorizedProblem> problemList = env.getProblems();
+				final int numProblems = problemList.size();
+				if (numProblems > 0) {
+					final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
+					reconcileContext.putProblems(
 					AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
 							.toArray(aptCatProblems));
-		}
-		processorEnv.close();
+				}
+				env.close();
+			}
+		};
+		
+		// Construct a reconcile time environment. This will do invoke
+		// dispatch from inside the callback.
+		AbstractCompilationEnv.newReconcileEnv(reconcileContext, callback);
+
 	}	
 	
 	public void run(IProgressMonitor monitor) 
@@ -203,11 +211,20 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		{
 			assert _filesWithAnnotation != null :
 				   "should never be invoked unless we are in build mode!"; //$NON-NLS-1$
-			ProcessorEnvImpl processorEnv = ProcessorEnvImpl.newBuildEnv( 
+			
+			EnvCallback buildCallback = new EnvCallback() {
+				public void run(AbstractCompilationEnv env) {
+					build((BuildEnv)env);
+				}
+			};
+			
+			// Construct build environment, this invokes the build inside a callback
+			// in order to keep open the DOM AST pipeline
+			BuildEnv.newBuildEnv( 
 					_filesWithAnnotation, 
 					_filesWithoutAnnotation, 
-					_aptProject.getJavaProject());
-			build(processorEnv); 
+					_aptProject.getJavaProject(),
+					buildCallback);
 		}
 	}
 	
@@ -233,12 +250,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * Return <code>false</code> otherwise. Return <code>false</code> if
 	 * there are no batch processors.
 	 */
-	private boolean shouldDispatchToBatchProcessor(final CompilationProcessorEnv processorEnv )
+	private boolean shouldDispatchToBatchProcessor(final AbstractCompilationEnv processorEnv )
 	{	
 		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory() );
 	}
 	
-	private void runAPTInFileBasedMode(final ProcessorEnvImpl processorEnv,
+	private void runAPTInFileBasedMode(final BuildEnv processorEnv,
 									   final Map<IFile, Set<IFile>> lastGeneratedFiles)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
@@ -279,7 +296,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			List<? extends CategorizedProblem> problems,
 			Set<String> deps,
 			GeneratedFileManager gfm, 
-			ProcessorEnvImpl processorEnv){
+			BuildEnv processorEnv){
 		
 		
 		if (lastGeneratedFiles == null)
@@ -333,7 +350,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 */
 	private void runAPTInMixedMode(
 			final Map<IFile, Set<IFile>> lastGeneratedFiles,
-			final ProcessorEnvImpl processorEnv)
+			final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
@@ -503,7 +520,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 	
 	private void dispatchToFileBasedProcessor(
-			final CompilationProcessorEnv processorEnv){
+			final AbstractCompilationEnv processorEnv){
 		
 		Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypes();
 		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
@@ -543,7 +560,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * @param internalRound
 	 * @param result output parameter
 	 */
-	private Set<AnnotationProcessorFactory> build(final ProcessorEnvImpl processorEnv)
+	private Set<AnnotationProcessorFactory> build(final BuildEnv processorEnv)
 	{
 		try {
 			final BuildContext[] results = processorEnv.getFilesWithAnnotation();
@@ -582,7 +599,15 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			gfm.writeState();
 
 			// log unclaimed annotations.
-		} catch (Throwable t) {
+		}
+		catch (Error t) {
+			// Don't catch junit exceptions. This prevents one from unit
+			// testing a processor
+			if (t.getClass().getName().startsWith("junit.framework")) //$NON-NLS-1$
+				throw t;
+			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+		} 
+		catch (Throwable t) {
 			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
 		
@@ -641,7 +666,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			Set<IFile> lastGeneratedFiles, 
 			Set<IFile> newGeneratedFiles,
 			GeneratedFileManager gfm,		
-			ProcessorEnvImpl processorEnv,
+			BuildEnv processorEnv,
 			Collection<IFile> deleted)
 	{	
 		final int numLastGeneratedFiles = lastGeneratedFiles.size();
@@ -725,7 +750,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		return fDecls.isEmpty() ? null : fDecls;
 	}
 	
-	private static void trace( String s, CompilationProcessorEnv processorEnv )
+	private static void trace( String s, AbstractCompilationEnv processorEnv )
 	{
 		if (AptPlugin.DEBUG)
 		{
@@ -736,12 +761,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 	}
 	
-	private static String getFileNamesForPrinting(final CompilationProcessorEnv env){
-		if( env instanceof ReconcileProcessorEnv ){
+	private static String getFileNamesForPrinting(final AbstractCompilationEnv env){
+		if( env instanceof ReconcileEnv ){
 			return env.getFile().getName();
 		}
 		else{
-			return getFileNamesForPrinting((ProcessorEnvImpl)env);
+			return getFileNamesForPrinting((BuildEnv)env);
 		}
 	}
 	
@@ -749,7 +774,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * For debugging statements only!!
 	 * @return the names of the files that we are currently processing. 
 	 */
-	private static String getFileNamesForPrinting(final ProcessorEnvImpl processorEnv){
+	private static String getFileNamesForPrinting(final BuildEnv processorEnv){
 		final IFile file = processorEnv.getFile();
 		if( file != null )
 			return file.getName();

@@ -15,12 +15,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -42,20 +37,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.*;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
-public class ProcessorEnvImpl extends CompilationProcessorEnv
+public class BuildEnv extends AbstractCompilationEnv
 {	
 	private boolean _hasRaisedErrors = false;
 
@@ -105,7 +93,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
      * @param javaProj
      * @param phase
      */
-    ProcessorEnvImpl(
+    BuildEnv(
 			final BuildContext[] filesWithAnnotations,
 			final BuildContext[] additionalFiles,
 			final IJavaProject javaProj) {
@@ -116,8 +104,6 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		_additionFiles = additionalFiles;
 		_problems = new ArrayList<APTProblem>();
 		_markerInfos = new ArrayList<MarkerInfo>();
-		// Aggressively cache all ASTs
-		// createDomASTs();
 	}
 
     public Filer getFiler()
@@ -142,13 +128,6 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		return decl;
     }
 
-    // Called by getTypeDeclaration(). allows the searching of all asts, not just the current one.
-    protected CompilationUnit[] getAsts() {
-    	if (_astRoots != null) return _astRoots;
-    	return super.getAsts();
-    }
-    
-  
 	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {
 		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
 			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
@@ -332,7 +311,6 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
     	checkValid();
     	if( _filesWithAnnotation == null )  
     		return getAnnotationTypes();
-    	_astRoots = createASTsFrom(_filesWithAnnotation);
     	
 		final List<Annotation> instances = new ArrayList<Annotation>();
 		final Map<String, AnnotationTypeDeclaration> decls = 
@@ -381,7 +359,6 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		
 		if( _batchMode ) return;
 		checkValid();
-		_astRoots = createASTsFrom(_filesWithAnnotation);
 		
 		_batchMode = true;
 		_file = null;
@@ -393,54 +370,17 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 		completedProcessing();
 	}
 	
-/*	private void createDomASTs()
-	{
-		if( _astRoots != null || _filesWithAnnotation == null) return;
-		
-		if (AptPlugin.DEBUG) 
-			System.out.println("Preparsing " + _filesWithAnnotation.length + " files.");  //$NON-NLS-1$//$NON-NLS-2$
-		
-		createICompilationUnits();		
-		_astRoots = createDietASTs(_javaProject, _astRoots);
-		
-		if (AptPlugin.DEBUG) 
-			System.out.println("Finished with Preparsing");  //$NON-NLS-1$
-	}
-*/	
-	private CompilationUnit[] createASTsFrom(BuildContext[] cpResults){
-		final int size = cpResults.length;
-		final IFile[] files = new IFile[size];
-		int i=0;
-		for( BuildContext cpResult : cpResults )
-			files[i++] = cpResult.getFile();
-		return createASTsFrom(files);
-	}
-	
-	private CompilationUnit[] createASTsFrom(IFile[] files){
-		if( files == null || files.length == 0 )
-			return NO_AST_UNITs;
-		final int len = files.length;
+	void createASTs(BuildContext[] cpResults){
+		final int len = cpResults.length;
 		final ICompilationUnit[] units = new ICompilationUnit[len];
 		for( int i=0; i<len; i++ ){
 			// may return null if creation failed. this may occur if
 			// the file does not exists.
-			units[i] = JavaCore.createCompilationUnitFrom(files[i]);
+			units[i] = JavaCore.createCompilationUnitFrom(cpResults[i].getFile());
 		}
-		return createASTs(_javaProject, units);
+		createASTs(_javaProject, units, _requestor = new CallbackRequestor(units));
 	}
 
-	private CompilationUnit createASTFrom(BuildContext result){
-		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		p.setSource(result.getContents());		
-		p.setResolveBindings( true );
-		p.setProject( _javaProject );
-		// TODO: double check that the ".java" extension is there.
-		p.setUnitName( result.getFile().getName() );
-		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		ASTNode node = p.createAST( null );
-		return node == null ? EMPTY_AST_UNIT : (CompilationUnit)node;	
-	}
-	
 	public void beginFileProcessing(BuildContext result){		
 		if( result == null )
 			throw new IllegalStateException("missing compilation result"); //$NON-NLS-1$
@@ -457,12 +397,7 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 			for( int i=0, len=_filesWithAnnotation.length; i<len; i++ ){
 				if( file.equals(_filesWithAnnotation[i].getFile()) ){
 					_file = file;
-					if( _astRoots != null ){
-						_astRoot = _astRoots[i];
-					}
-					else{
-						_astRoot = createASTFrom(_filesWithAnnotation[i]);
-					}
+					_astRoot = _astRoots[i];
 				}
 			}
 		}
@@ -527,7 +462,17 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	private void getTypeDeclarationsFromAdditionFiles(List<AbstractTypeDeclaration> typeDecls){
 		if( _additionFiles == null || _additionFiles.length == 0 ) return;
 	
-		CompilationUnit[] asts = createASTsFrom(_additionFiles);
+		final int len = _additionFiles.length;
+		final ICompilationUnit[] units = new ICompilationUnit[len];
+		for( int i=0; i<len; i++ ){
+			// may return null if creation failed. this may occur if
+			// the file does not exists.
+			units[i] = JavaCore.createCompilationUnitFrom(_additionFiles[i].getFile());
+		}
+		BaseRequestor r = new BaseRequestor(units);
+		createASTs(_javaProject, units, r);
+		
+		CompilationUnit[] asts = r.asts;
 		for( CompilationUnit ast : asts ){
 			if( ast != null ){
 				typeDecls.addAll( ast.types() );
@@ -676,4 +621,17 @@ public class ProcessorEnvImpl extends CompilationProcessorEnv
 	{
 		return _additionFiles;
 	}
+	
+	private class CallbackRequestor extends BaseRequestor {
+		CallbackRequestor(ICompilationUnit[] parseUnits) {
+			super(parseUnits);
+		}
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			// If we have recieved the last ast we have requested,
+			// then assign the asts, then begin dispatch
+			_astRoots = asts;
+			_callback.run(BuildEnv.this);
+		}		
+	}
+	
 }

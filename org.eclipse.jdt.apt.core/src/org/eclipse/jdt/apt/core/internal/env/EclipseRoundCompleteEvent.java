@@ -18,15 +18,15 @@ public class EclipseRoundCompleteEvent extends RoundCompleteEvent
 {
 	static final long serialVersionUID = 0;
 	
-	public EclipseRoundCompleteEvent(final ProcessorEnvImpl env)
+	public EclipseRoundCompleteEvent(final BuildEnv env)
 	{
 		super( env, new State(env) );	
 	}
 	
 	private static class State implements RoundState 
 	{	
-		private final ProcessorEnvImpl _env;
-		State(ProcessorEnvImpl env){ _env = env; }
+		private final BuildEnv _env;
+		State(BuildEnv env){ _env = env; }
 		public boolean classFilesCreated() { return _env.hasGeneratedClassFiles(); }		
 		public boolean errorRaised() {  return _env.hasRaisedErrors(); }			
 		public boolean sourceFilesCreated() {  return _env.hasGeneratedSourceFiles(); }			

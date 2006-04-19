@@ -216,10 +216,10 @@ public class AptBuilderTests extends APTTestBase
 	 */
 
 	@SuppressWarnings("nls")	
-	public void testExtraDependencies()
+	public void _testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
-			+  "public class A { B b; D d; }";
+			+  "public class A { B b; }";
 		
 		String codeB1 = "package p1.p2.p3.p4;\n"
 			+  "public class B { }";
@@ -229,6 +229,9 @@ public class AptBuilderTests extends APTTestBase
 		
 		String codeC = "package p1.p2.p3.p4;\n"
 			+  "public class C { }";
+		
+		String codeC2 = "package p1.p2.p3.p4;\n"
+			+  "public class C { public int foo; }";
 		
 		String codeD = "package p1.p2.p3.p4;\n"
 			+  "public class D { }";
@@ -274,19 +277,17 @@ public class AptBuilderTests extends APTTestBase
 		codeA = "package p1.p2.p3.p4;\n"
 			+  "import org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotation;" + "\n" 
 			+  "@ExtraDependencyAnnotation" + "\n" 
-			+  "public class A { B b; D d; }";
+			+  "public class A {  }";
 		
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB1 );
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		// touch B
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB2 );
+		// touch C
+		env.addClass( srcRoot, "p1.p2.p3.p4", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			codeC2 );
 		
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -296,19 +297,14 @@ public class AptBuilderTests extends APTTestBase
 		// parse the source, parsing runs through the compiler, and this registers the 
 		// file a second time with the Compiler#DebugRequestor 
 		//
-		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C"}); //$NON-NLS-1$ //$NON-NLS-2$
-		// compile order explanation
-		// 1) B compiled by jdt incremental builder
-		// 2) A gets compiled by jdt because of dependency on B
-		// 3) A gets compiled by APT 
-		// 4) C gets compiled because it is requested by the processor while processing A
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A", "p1.p2.p3.p4.C"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//
 		// now make sure that p1.p2.p3.p4.C is not compiled when A uses NoOp Annotation
 		//
 		
-		// new code for A with an annotation processor that should introduce a dep on C
+		// new code for A with an annotation processor that should remove a dep on C
 		codeA = "package p1.p2.p3.p4;\n"
 			+  "import org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotation;" + "\n" 
 			+  "@NoOpAnnotation" + "\n" 
@@ -316,15 +312,13 @@ public class AptBuilderTests extends APTTestBase
 		
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB1 );
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		// touch B
-		env.addClass( srcRoot, "p1.p2.p3.p4", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			codeB2 );
+		// touch C
+		env.addClass( srcRoot, "p1.p2.p3.p4", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			codeC2 );
 		
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -334,8 +328,8 @@ public class AptBuilderTests extends APTTestBase
 		// parse the source, parsing runs through the compiler, and this registers the 
 		// file a second time with the Compiler#DebugRequestor 
 		//
-		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -347,27 +341,23 @@ public class AptBuilderTests extends APTTestBase
 	public void testCaching()
 	{
 		String code = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
-			+ "import generatedfilepackage.GeneratedFileTest;"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
-			+ "\n" 
 			+ "    }" 
 			+ "\n" 
 			+ "}" 
 			+ "\n";
 		
 		String modifiedCode = "package p1;\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
-			+ "import generatedfilepackage.GeneratedFileTest;"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
 			+ "\n" + "public class A " + "\n" + "{"
 			+ "    @HelloWorldAnnotation" + "\n"
 			+ "    public static void main( String[] argv )" + "\n" + "    {"
 			+ "\n"
-			+ "        GeneratedFileTest.helloWorld();"
+			+ "        "
 			+ "\n" 
 			+ "    }" 
 			+ "\n" 
@@ -385,13 +375,7 @@ public class AptBuilderTests extends APTTestBase
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		// Compilation count
-		// - A gets compiled by jdt
-		// - A get compiled by APT through DOM ast creation
-		// - GeneratedFileTest get compiled by jdt.core
-		//   (APT does nothing with it since it doesn't contain annotations
-		// - A get compiled by jdt because of dependencies on GeneratedFileTest.
-		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
+		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
 		
 		// touch A - make sure its public shape changes.
 		env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$

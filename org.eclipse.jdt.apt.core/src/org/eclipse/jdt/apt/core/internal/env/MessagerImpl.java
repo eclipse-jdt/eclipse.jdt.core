@@ -28,9 +28,9 @@ public class MessagerImpl implements Messager, EclipseMessager
 		WARNING, 
 		INFO
 	}
-    private final CompilationProcessorEnv _env;
+    private final AbstractCompilationEnv _env;
 
-    MessagerImpl(CompilationProcessorEnv env){
+    MessagerImpl(AbstractCompilationEnv env){
         _env = env;
     }
     

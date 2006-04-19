@@ -34,11 +34,13 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -48,7 +50,7 @@ import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 /** Base environment to be used during reconcile or build */ 
-public abstract class CompilationProcessorEnv 
+public abstract class AbstractCompilationEnv 
 	extends BaseProcessorEnv 
 	implements EclipseAnnotationProcessorEnvironment{
 	
@@ -69,26 +71,40 @@ public abstract class CompilationProcessorEnv
 	private Map<String, String> _options;
 	private boolean _isClosed = false;
 	
-	public static ReconcileProcessorEnv newReconcileEnv(
-			ReconcileContext reconcileContext,
-			final IJavaProject javaProj ){
-		
+	EnvCallback _callback;
+
+	/**
+	 * Currently open dom pipeline, used to request type bindings.
+	 */
+	protected ASTRequestor _requestor;
+	
+	public static interface EnvCallback {
+		public void run(AbstractCompilationEnv env);
+	}
+	
+	public static void newReconcileEnv(ReconcileContext reconcileContext,  EnvCallback callback)
+	{
 		assert reconcileContext != null : "reconcile context is null"; //$NON-NLS-1$
-		return ReconcileProcessorEnv.newEnv(reconcileContext);
+		ReconcileEnv env = ReconcileEnv.newEnv(reconcileContext);
+		env._callback = callback;
+		env.openPipeline();
 	}
     
-    public static ProcessorEnvImpl newBuildEnv(
-    		BuildContext[] filesWithAnnotation,
+    public static void newBuildEnv(
+    		BuildContext[] filesWithAnnotations,
     		final BuildContext[] additionalFiles,
-    		IJavaProject javaProj )
+    		IJavaProject javaProj,
+    		EnvCallback callback)
     {
-    	assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$    	
+    	assert filesWithAnnotations != null : "missing files"; //$NON-NLS-1$    	
     
 		// note, we are not reading any files.
-		return new ProcessorEnvImpl(filesWithAnnotation, additionalFiles, javaProj);
+		BuildEnv env = new BuildEnv(filesWithAnnotations, additionalFiles, javaProj);
+		env._callback = callback;
+		env.createASTs(filesWithAnnotations);
     }
 	
-	CompilationProcessorEnv(
+	AbstractCompilationEnv(
 			CompilationUnit compilationUnit,
 			IFile file,
 			IJavaProject javaProj,
@@ -98,6 +114,13 @@ public abstract class CompilationProcessorEnv
 		initOptions(javaProj);
 	}
 	
+	@Override
+	protected ITypeBinding getTypeDefinitionBindingFromCorrectName(String fullyQualifiedName) {
+		checkValid();
+		final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
+		return (ITypeBinding)_requestor.createBindings(new String[] {key})[0];
+	}
+
 	public void addListener(AnnotationProcessorListener listener)
     {
 		checkValid();
@@ -304,6 +327,8 @@ public abstract class CompilationProcessorEnv
 		_typeCache.clear();
 		_packageRootsCache = null;
 		_isClosed = true;
+		_callback = null;
+		_requestor = null;
 	}
 	
 	boolean isClosed(){ return _isClosed; }

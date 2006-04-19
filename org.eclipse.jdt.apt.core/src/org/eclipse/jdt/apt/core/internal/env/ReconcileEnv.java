@@ -24,34 +24,37 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 
 import com.sun.mirror.apt.Filer;
 
-public class ReconcileProcessorEnv extends CompilationProcessorEnv implements EclipseAnnotationProcessorEnvironment{
+public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnotationProcessorEnvironment{
 	
 	/**
 	 * Create a reconcile environment from the given context. 
 	 * @param reconcileContext
 	 * @return the reconcile environment or null if creation failed.
 	 */
-	static ReconcileProcessorEnv newEnv(ReconcileContext reconcileContext)
+	static ReconcileEnv newEnv(ReconcileContext reconcileContext)
     {	
 		CompilationUnit compilationUnit = null;
 		try{
 			compilationUnit = reconcileContext.getAST3();
-		}catch( JavaModelException e){
-			// TODO: log error
-			compilationUnit = EMPTY_AST_UNIT;
 		}
+		catch( JavaModelException e){ /* TODO: log error */ }
+		
+		if (compilationUnit == null)
+			compilationUnit = EMPTY_AST_UNIT;
 		
 		final ICompilationUnit workingCopy = reconcileContext.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
-       	return new ReconcileProcessorEnv(compilationUnit, file, javaProject);
+       	return new ReconcileEnv(compilationUnit, file, javaProject);
     }
 	
-	private ReconcileProcessorEnv(
+	private ReconcileEnv(
 			CompilationUnit astCompilationUnit,
 		    IFile file,
 		    IJavaProject javaProj)
@@ -91,7 +94,7 @@ public class ReconcileProcessorEnv extends CompilationProcessorEnv implements Ec
 	}
 	
 	public void addTypeDependency(String fullyQualifiedTypeName) {
-		// do not sotre type dependency during reconcile.
+		// do not store type dependency during reconcile.
 		return;
 	}
 	
@@ -135,6 +138,19 @@ public class ReconcileProcessorEnv extends CompilationProcessorEnv implements Ec
 		}		
 		public void close() throws IOException {
 			return;
+		}
+	}
+
+	void openPipeline() {
+		createASTs(_javaProject, NO_UNIT, _requestor = new CallbackRequestor());
+	}
+	
+	class CallbackRequestor extends ASTRequestor {
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			// This is called when the only binding has been passed, hence it is time
+			// to dispatch
+			_callback.run(ReconcileEnv.this);
+
 		}
 	}
 }

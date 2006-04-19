@@ -23,7 +23,7 @@ public class EncodedFileOutputStream extends BinaryFileOutputStream {
 
 	private final String _charsetName;
 	
-	public EncodedFileOutputStream(IFile file, ProcessorEnvImpl env, String charsetName) {
+	public EncodedFileOutputStream(IFile file, BuildEnv env, String charsetName) {
 		super(file, env);
 		_charsetName = charsetName;
 	}

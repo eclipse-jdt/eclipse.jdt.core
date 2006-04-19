@@ -24,9 +24,9 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 
 	private final StringWriter _sw;
     private final String _typeName;
-    private final ProcessorEnvImpl _env;
+    private final BuildEnv _env;
 	
-    public JavaSourceFilePrintWriter( String typeName, StringWriter sw, ProcessorEnvImpl env )
+    public JavaSourceFilePrintWriter( String typeName, StringWriter sw, BuildEnv env )
     {
         super( sw );
         _sw = sw;
