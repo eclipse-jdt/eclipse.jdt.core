@@ -1412,7 +1412,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
-	ArrayList endorsedDirClasspath = null;
+	ArrayList endorsedDirClasspaths = null;
 	
 	int index = -1, filesCount = 0, argCount = argv.length;
 	int mode = DEFAULT;
@@ -1668,7 +1668,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if (currentArg.equals("-endorseddirs")) { //$NON-NLS-1$
-					if (endorsedDirClasspath != null) {
+					if (endorsedDirClasspaths != null) {
 						StringBuffer errorMessage = new StringBuffer();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
@@ -2317,9 +2317,9 @@ public void configure(String[] argv) throws InvalidInputException {
 				continue;
 			case INSIDE_ENDORSED_DIRS :
 				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
-				endorsedDirClasspath = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+				endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 				while (tokenizer.hasMoreTokens())
-					endorsedDirClasspath.add(tokenizer.nextToken());
+					endorsedDirClasspaths.add(tokenizer.nextToken());
 				mode = DEFAULT;
 				continue;
 		}
@@ -2544,15 +2544,15 @@ public void configure(String[] argv) throws InvalidInputException {
 	 * - else java.endorsed.dirs if defined;
 	 * - else default extensions directory for the platform. (/lib/endorsed)
 	 */
-	if (endorsedDirClasspath == null) {
-		endorsedDirClasspath = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	if (endorsedDirClasspaths == null) {
+		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
 		if (endorsedDirsStr == null) {
-			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) 
-				endorsedDirClasspath.add(tokenizer.nextToken());
+				endorsedDirClasspaths.add(tokenizer.nextToken());
 		}
 	}
 	
@@ -2560,11 +2560,11 @@ public void configure(String[] argv) throws InvalidInputException {
 	 * Feed extdirsClasspath with the entries found into the directories listed by
 	 * extdirsNames.
 	 */
-	if (endorsedDirClasspath.size() != 0) {
-		File[] directoriesToCheck = new File[endorsedDirClasspath.size()];
+	if (endorsedDirClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) endorsedDirClasspath.get(i));
-		endorsedDirClasspath.clear();
+			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
+		endorsedDirClasspaths.clear();
 		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
 		if (endorsedDirsJars != null) {
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
@@ -2576,7 +2576,7 @@ public void configure(String[] argv) throws InvalidInputException {
 									current[j].getAbsolutePath(),
 									null, null); 
 						if (classpath != null) {
-							endorsedDirClasspath.add(classpath);
+							endorsedDirClasspaths.add(classpath);
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
@@ -2594,7 +2594,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	 * entries are searched for both sources and binaries except
 	 * the sourcepath entries which are searched for sources only.
 	 */
-	bootclasspaths.addAll(endorsedDirClasspath);
+	bootclasspaths.addAll(endorsedDirClasspaths);
 	bootclasspaths.addAll(extdirsClasspaths);
 	bootclasspaths.addAll(sourcepathClasspaths);
 	bootclasspaths.addAll(classpaths);
