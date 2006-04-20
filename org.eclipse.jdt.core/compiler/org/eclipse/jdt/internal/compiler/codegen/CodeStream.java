@@ -5808,7 +5808,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 				if (insertionIndex != -1) {
 					// there is no existing entry starting with startPC.
 					int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
-					/* the existingEntryIndex corresponds to en entry with the same line and a PC >= startPC.
+					/* the existingEntryIndex corresponds to an entry with the same line and a PC >= startPC.
 						in this case it is relevant to widen this entry instead of creating a new one.
 						line1: this(a,
 						  b,

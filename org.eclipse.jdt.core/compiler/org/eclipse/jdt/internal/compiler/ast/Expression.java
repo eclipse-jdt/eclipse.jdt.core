@@ -205,11 +205,7 @@ public abstract class Expression extends Statement {
 	/**
 	 * Returns false if cast is not legal. 
 	 */
-	public final boolean checkCastTypesCompatibility(
-		Scope scope,
-		TypeBinding castType,
-		TypeBinding expressionType,
-		Expression expression) {
+	public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castType, TypeBinding expressionType, Expression expression) {
 	
 		// see specifications 5.5
 		// handle errors and process constant when needed
