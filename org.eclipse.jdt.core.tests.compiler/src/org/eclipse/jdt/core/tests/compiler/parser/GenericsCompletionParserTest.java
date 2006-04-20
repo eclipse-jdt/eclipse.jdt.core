@@ -9363,4 +9363,34 @@ public void test0210(){
 			expectedReplacedSource,
 			"full ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83685
+public void test0211(){
+	String str =
+		"public class Test{\n" + 
+		"  Test.\n" + 
+		"}\n";
+
+	String completeBehind = "Test";
+	int cursorLocation = str.indexOf("Test.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Test>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Test";
+	String expectedReplacedSource = "Test";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  <CompleteOnType:Test>;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

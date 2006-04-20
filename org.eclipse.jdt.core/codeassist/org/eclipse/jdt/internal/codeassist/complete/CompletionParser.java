@@ -1499,7 +1499,8 @@ private boolean checkRecoveredType() {
 		/* filter out cases where scanner is still inside type header */
 		if (recoveredType.foundOpeningBrace) {
 			// complete generics stack if necessary
-			if(this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] <= this.identifierPtr) {
+			if((this.genericsIdentifiersLengthPtr < 0 && this.identifierPtr > -1)
+					|| (this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] <= this.identifierPtr)) {
 				pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 				pushOnGenericsLengthStack(0); // handle type arguments
 			}
