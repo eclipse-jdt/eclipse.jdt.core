@@ -160,7 +160,34 @@ public void addUnknownRef(NameReference nameRef) {
 	}
 }
 public void checkComment() {
-	super.checkComment();
+	// discard obsolete comments while inside methods or fields initializer (see bug 74369)
+	if (!(this.diet && this.dietInt==0) && this.scanner.commentPtr >= 0) {
+		flushCommentsDefinedPriorTo(this.endStatementPosition);
+	}
+	
+	int lastComment = this.scanner.commentPtr;
+	
+	if (this.modifiersSourceStart >= 0) {
+		// eliminate comments located after modifierSourceStart if positionned
+		while (lastComment >= 0 && Math.abs(this.scanner.commentStarts[lastComment]) > this.modifiersSourceStart) lastComment--;
+	}
+	if (lastComment >= 0) {
+		// consider all remaining leading comments to be part of current declaration
+		this.modifiersSourceStart = Math.abs(this.scanner.commentStarts[0]); 
+	
+		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
+		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
+		if (lastComment >= 0 && this.javadocParser != null) {
+			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
+			// do not report problem before last parsed comment while recovering code...
+			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
+			if (this.javadocParser.checkDeprecation(lastComment)) {
+				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
+			}
+			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
+			if (currentElement == null) this.lastJavadocEnd = commentEnd;
+		}
+	}
 
 	if (this.reportReferenceInfo && this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
