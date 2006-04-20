@@ -444,7 +444,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.parameters.put(Logger.CLASS, e.getClass());
 				this.printTag(Logger.EXCEPTION, this.parameters, true, true);
 			}
-			this.printlnErr(stackTrace);
+			String message = e.getMessage();
+			if (message == null) {
+				this.printlnErr(stackTrace);
+			} else {
+				this.printlnErr(message);
+			}
 		}
 
 		/**
