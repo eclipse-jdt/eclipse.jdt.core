@@ -5413,6 +5413,30 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 	}
 
+	/*
+	 * Ensures that the start position of an argument that has a previous sibbling with a comment is correct
+	 * (regression test for bug 80904 Quick Fix "Assign parameter to new field" doesn't appear with commented type)
+	 */
+	public void test0579() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  /*start*/void foo(Object/*first arg*/ arg1, Object arg2) {\n" +
+				"  }/*end*/\n" +
+				"}",
+				true/*resolve*/);
+			MethodDeclaration method = (MethodDeclaration) buildAST(workingCopy);
+			SingleVariableDeclaration arg2 = (SingleVariableDeclaration) method.parameters().get(1);
+			int start = arg2.getStartPosition();
+			assertEquals("Unexpected range for arg2", "Object arg2", workingCopy.getSource().substring(start, start+arg2.getLength()));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
 	public void test0606() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0606", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
