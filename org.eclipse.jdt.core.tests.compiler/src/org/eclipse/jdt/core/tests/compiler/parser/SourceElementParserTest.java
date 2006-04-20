@@ -1202,7 +1202,7 @@ public void test12() {
 	assertEquals("Invalid declaration source start for method baz", 131, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method baz", 142, methods[1].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for method bar", 183, methods[2].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source start for method bar", 199, methods[2].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 212, methods[2].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method truc", 215, methods[3].getDeclarationSourceStart());
@@ -5131,7 +5131,7 @@ public void test76() {
 	assertEquals("Invalid declaration source start for field j", 12, fields[0].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field j", 35, fields[0].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for initializer", 39, fields[1].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source start for initializer", 52, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for initializer", 56, fields[1].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field i", 59, fields[2].getDeclarationSourceStart());
