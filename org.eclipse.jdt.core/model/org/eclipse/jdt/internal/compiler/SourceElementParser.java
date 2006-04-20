@@ -394,6 +394,10 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}
 }
+protected void consumeFormalParameter(boolean isVarArgs) {
+	super.consumeFormalParameter(isVarArgs);
+	flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+}
 protected void consumeInterfaceHeaderName1() {
 	int currentAstPtr = this.astPtr;
 	super.consumeInterfaceHeaderName1();
