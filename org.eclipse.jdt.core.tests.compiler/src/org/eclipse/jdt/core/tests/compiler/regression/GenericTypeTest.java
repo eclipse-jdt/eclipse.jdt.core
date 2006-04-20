@@ -30539,7 +30539,7 @@ public void test0971() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203
 // simulate incremental compile
-public void _test0972() {
+public void test0972() {
 	this.runConformTest(
 			new String[] {
 				"Outer.java", //================================
@@ -30639,7 +30639,7 @@ public void test0973() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203 - variation
 //simulate incremental compile
-public void _test0974() {
+public void test0974() {
 	this.runConformTest(
 			new String[] {
 				"Outer.java", //================================
@@ -30672,6 +30672,7 @@ public void _test0974() {
 					"public class ExtendedOuter<E> extends Outer<E> {\n" + 
 					"  class ExtendedInner extends Inner {\n" + 
 					"    {\n" + 
+					"		Outer.Inner in;\n" +
 					"      Outer.method(this);\n" + 
 					"    }\n" + 
 					"  }\n" + 

@@ -575,7 +575,7 @@ public class WildcardBinding extends ReferenceBinding {
 			this.genericType = resolvedType; // no raw conversion
 			affected = true;
 		} else if (this.bound == unresolvedType) {
-			this.bound = env.convertToRawType(resolvedType);
+			this.bound = env.convertUnresolvedBinaryToRawType(resolvedType);
 			affected = true;
 		}
 		if (affected) 

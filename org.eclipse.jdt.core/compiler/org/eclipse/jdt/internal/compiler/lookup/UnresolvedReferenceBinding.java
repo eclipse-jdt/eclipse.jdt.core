@@ -49,7 +49,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		}
 	}
 	if (convertGenericToRawType) {
-		targetType = (ReferenceBinding) environment.convertToRawType(targetType);
+		targetType = (ReferenceBinding) environment.convertUnresolvedBinaryToRawType(targetType);
 	}
 	return targetType;
 }

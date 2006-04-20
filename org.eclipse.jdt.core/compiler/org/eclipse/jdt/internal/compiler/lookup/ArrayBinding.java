@@ -240,7 +240,7 @@ public char[] sourceName() {
 }
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
-		this.leafComponentType = env.convertToRawType(resolvedType);
+		this.leafComponentType = env.convertUnresolvedBinaryToRawType(resolvedType);
 		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
 	}
 }
