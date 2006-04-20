@@ -1022,7 +1022,7 @@ public void test012(){
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.001 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_001.dtd\">\n" + 
+			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">\n" + 
 			"<compiler name=\"{1}\" copyright=\"{2}\" version=\"{3}\">\n" + 
 			"	<command_line>\n" + 
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" + 

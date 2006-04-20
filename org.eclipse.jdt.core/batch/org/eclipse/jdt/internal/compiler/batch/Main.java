@@ -427,18 +427,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				String line;
 				int i = 0;
 				StringBuffer buffer = new StringBuffer();
-				String message = null;
+				String message = e.getMessage();
+				if (message != null) {
+					buffer.append(message).append(LINE_SEPARATOR);
+				}
 				try {
 					while ((line = reader.readLine()) != null && i < 4) {
 						buffer.append(line).append(LINE_SEPARATOR);
 						i++;
 					}
 					reader.close();
-					message = buffer.toString();
 				} catch (IOException e1) {
 					// ignore
-					message = e.getMessage();
 				}
+				message = buffer.toString();
 				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, message);
 				this.parameters.put(Logger.CLASS, e.getClass());
