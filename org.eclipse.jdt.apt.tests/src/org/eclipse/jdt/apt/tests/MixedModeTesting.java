@@ -94,7 +94,7 @@ public class MixedModeTesting extends APTTestBase{
 	 * This makes sure the internal apt rounding occurs correctly in batch mode.
 	 * @throws CoreException
 	 */
-	public void testAPTRoundingInMixedMode0() throws CoreException
+	public void testAPTRoundingInMixedMode0()
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -160,7 +160,7 @@ public class MixedModeTesting extends APTTestBase{
 	 *  This is a no-op round.
 	 */
 
-	public void testAPTRoundingInMixedMode1() throws CoreException
+	public void testAPTRoundingInMixedMode1() 
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();

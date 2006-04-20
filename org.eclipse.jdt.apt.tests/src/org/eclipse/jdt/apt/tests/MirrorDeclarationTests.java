@@ -12,18 +12,12 @@
 
 package org.eclipse.jdt.apt.tests;
 
-import java.util.Collection;
-import java.util.Set;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
-import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorFactory;
 import org.eclipse.jdt.apt.core.env.EnvironmentFactory;
-import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
 import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
@@ -33,9 +27,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.SourcePosition;

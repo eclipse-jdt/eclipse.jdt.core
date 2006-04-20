@@ -12,14 +12,10 @@
 
 package org.eclipse.jdt.apt.tests;
 
-import java.io.File;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
@@ -441,7 +437,5 @@ public class AptReconcileTests extends ModifyingResourceTests
 	
 	public static final String	TEST_FOLDER		= "/" + TEST_PROJECT //$NON-NLS-1$
 													+ "/src/test"; //$NON-NLS-1$
-	
-	private File				_classesJarFile;
 
 }

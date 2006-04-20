@@ -55,7 +55,9 @@ public class AptPlugin extends Plugin {
 		super.start(context);
 		initDebugTracing();
 		AptConfig.initialize();
-		AnnotationProcessorFactoryLoader.getLoader();
+		// DO NOT load extensions from the start() method. This can cause cycles in class loading
+		// Not to mention it is bad form to load stuff early.
+		// AnnotationProcessorFactoryLoader.getLoader();
 		// register resource-changed listener
 		// TODO: can move this into AptProject.
 		int mask = 
