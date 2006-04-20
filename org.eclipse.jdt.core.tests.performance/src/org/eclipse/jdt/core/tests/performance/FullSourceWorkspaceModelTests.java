@@ -293,7 +293,6 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>KnownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -333,7 +332,6 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>SecondaryType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -375,7 +373,6 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfNameLookupFindUnknownType() throws CoreException {
-	tagAsSummary("Model>NameLookup>Find>UnknownType", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -415,7 +412,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>KnownType", false); // do NOT put in fingerprint
+	tagAsSummary("Find known type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -453,7 +450,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownMemberType() throws CoreException {
-	tagAsSummary("Model>Project>Find>MemberType", false); // do NOT put in fingerprint
+	tagAsSummary("Find known member type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -494,7 +491,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindKnownSecondaryType() throws CoreException {
-	tagAsSummary("Model>Project>Find>SecondaryType", false); // do NOT put in fingerprint
+	tagAsSummary("Find known secondary type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -531,7 +528,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
  * Perform one find before measure performance for warm-up.
  */
 public void testPerfProjectFindUnknownType() throws CoreException {
-	tagAsSummary("Model>Project>Find>UnknownType", false); // do NOT put in fingerprint
+	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -567,7 +564,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
  * to reconcile with is the same as the current contents.
  */
 public void testPerfReconcile() throws CoreException {
-	tagAsSummary("Model>Reconcile>Parser", true); // put in fingerprint
+	tagAsGlobalSummary("Reconcile editor change", true); // put in global fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();
@@ -612,7 +609,7 @@ public void testPerfReconcile() throws CoreException {
  * to reconcile with is the same as the current contents.
  */
 public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
-	tagAsSummary("Model>Completion+Reconcile>Parser", true); // put in fingerprint
+	tagAsSummary("Reconcile editor change and complete", true); // put in fingerprint
 
 	// Wait for indexing end
 	waitUntilIndexesReady();

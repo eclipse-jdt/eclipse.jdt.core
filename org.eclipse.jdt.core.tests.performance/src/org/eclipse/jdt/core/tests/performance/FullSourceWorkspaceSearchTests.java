@@ -173,7 +173,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Consider this initial indexing jobs as warm-up for this test.
 	 */
 	public void testIndexing() throws CoreException {
-		tagAsSummary("Search>Indexing", true); // put in fingerprint
+		tagAsSummary("Search indexes building", true); // put in fingerprint
 	
 		// Wait for indexing end (we use initial indexing as warm-up)
 		waitUntilIndexesReady();
@@ -207,10 +207,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * 
 	 * @deprecated As we use deprecated API
 	 * 
-	 * TODO (frederic) Rename after M6 as reference has changed
+	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
-		tagAsSummary("Search>Names>Workspace", true); // put in fingerprint
+		tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
@@ -267,10 +267,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 *		- ""IResource":	5886 macthes
 	 *		- "JavaCore":		2145 matches
 	 *
-	 * TODO (frederic) Rename after M6 as reference has changed
+	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchType() throws CoreException {
-		tagAsSummary("Search>Occurences>Types", true); // put in fingerprint
+		tagAsSummary("Search type occurences", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -303,10 +303,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 * 
-	 * TODO (frederic) Rename after M6 as reference has changed
+	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchField() throws CoreException {
-		tagAsSummary("Search>Occurences>Fields", true); // put in fingerprint
+		tagAsSummary("Search field occurences", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -337,10 +337,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: All occurences of a method.
 	 * This search do NOT use binding resolution.
 	 * 
-	 * TODO (frederic) Rename after M6 as reference has changed
+	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchMethod() throws CoreException {
-		tagAsSummary("Search>Occurences>Methods", false); // do NOT put in fingerprint
+		tagAsSummary("Search method occurences (no resolution)", false); // do NOT put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
 	
 		// Wait for indexing end
@@ -376,10 +376,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * This search use binding resolution.
 	 * 
 	 * @since 3.2 M6
-	 * TODO (frederic) Rename after M6
+	 * TODO (frederic) Rename after 3.2
 	 */
 	public void testSearchBinaryMethod() throws CoreException {
-		tagAsSummary("Search>Occurences>Methods>Resolved", true); // put in fingerprint
+		tagAsSummary("Search method occurences", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -415,10 +415,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 * 
-	 * TODO (frederic) Rename after M6 as reference has changed
+	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchConstructor() throws CoreException {
-		tagAsSummary("Search>Occurences>Constructors", true); // put in fingerprint
+		tagAsSummary("Search constructor occurences", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -452,7 +452,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Perform one search before measure performance for warm-up.
 	 */
 	public void testSearchPackageDeclarations() throws CoreException {
-		tagAsSummary("Search>Declarations>Packages", true); // put in fingerprint
+		tagAsSummary("Search package declarations", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
