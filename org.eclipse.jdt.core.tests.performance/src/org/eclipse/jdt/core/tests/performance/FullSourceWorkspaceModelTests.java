@@ -604,6 +604,78 @@ public void testPerfReconcile() throws CoreException {
 
 }
 
+/*
+ * Ensures that the performance of reconcile on a big CU when there are syntax errors is acceptable.
+ * (regression test for bug 135083 RangeUtil#isInInterval(...) takes significant amount of time while editing)
+ */
+public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException {
+	tagAsSummary("Reconcile editor change on big file with syntax error", false); // do NOT put in fingerprint
+	
+	// build big file contents
+	String method =
+		"() {\n" +
+		"  bar(\n" +
+		"    \"public class X <E extends Exception> {\\n\" + \r\n" + 
+		"	 \"    void foo(E e) throws E {\\n\" + \r\n" + 
+		"	 \"        throw e;\\n\" + \r\n" + 
+		"	 \"    }\\n\" + \r\n" + 
+		"	 \"    void bar(E e) {\\n\" + \r\n" + 
+		"	 \"        try {\\n\" + \r\n" + 
+		"	 \"            foo(e);\\n\" + \r\n" + 
+		"	 \"        } catch(Exception ex) {\\n\" + \r\n" + 
+		"	 \"	        System.out.println(\\\"SUCCESS\\\");\\n\" + \r\n" + 
+		"	 \"        }\\n\" + \r\n" + 
+		"	 \"    }\\n\" + \r\n" + 
+		"	 \"    public static void main(String[] args) {\\n\" + \r\n" + 
+		"	 \"        new X<Exception>().bar(new Exception());\\n\" + \r\n" + 
+		"	 \"    }\\n\" + \r\n" + 
+		"	 \"}\\n\"" +
+		"  );\n" +
+		"}\n";
+	StringBuffer bigContents = new StringBuffer();
+	bigContents.append("public class BigCU {\n");
+	int fooIndex = 0;
+	while (fooIndex < 2000) { // add 2000 methods (so that source is close to 1MB)
+		bigContents.append("public void foo");
+		bigContents.append(fooIndex++);
+		bigContents.append(method);
+	}
+	// don't add closing } for class def so as to have a syntax error
+	
+	ICompilationUnit workingCopy = null;
+	try {
+		// Setup
+		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/org/eclipse/jdt/core/tests/BigCu.java")));
+		workingCopy.becomeWorkingCopy(null, null);
+		
+		// Warm up
+		if (WARMUP_COUNT > 0) {
+			for (int i=0; i<WARMUP_COUNT; i++) {
+				workingCopy.getBuffer().setContents(bigContents.append("a").toString());
+				workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			}
+		}
+	
+		// Measures
+		resetCounters();
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
+			runGc();
+			startMeasuring();
+			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();		
+		
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
