@@ -89,8 +89,7 @@ public FlowInfo analyseCode(
 
 		if (!checkedType.isReifiable()) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
-		}
-		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+		} else if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
