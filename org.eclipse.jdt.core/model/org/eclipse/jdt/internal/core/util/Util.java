@@ -1386,7 +1386,7 @@ public class Util {
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
 		InputStream in = null;
 		try {
-			in = ((IFile) resource).getContents();
+			in = ((IFile) resource).getContents(true);
 			return ClassFileReader.read(in, resource.getFullPath().toString());
 		} finally {
 			if (in != null)
