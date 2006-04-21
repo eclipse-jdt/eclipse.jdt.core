@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!ELEMENT compiler (exceptions*,error*,command_line?,options?,classpaths?,error*,sources*,stats?,exception*)>
+<!ELEMENT compiler (error*,command_line?,options?,classpaths?,error*,sources*,stats?,exception*)>
 <!ELEMENT command_line (argument*)>
 <!ELEMENT options (option*)>
 <!ELEMENT classpaths (classpath+)>
