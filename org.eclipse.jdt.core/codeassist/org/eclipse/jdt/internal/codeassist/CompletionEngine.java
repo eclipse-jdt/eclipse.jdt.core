@@ -3903,7 +3903,7 @@ public final class CompletionEngine
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
-					&& method.areParametersEqual(otherMethod)) {
+					&& lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
 
 					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
 						continue next;
@@ -4404,7 +4404,7 @@ public final class CompletionEngine
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
-					&& method.areParametersEqual(otherMethod)) {
+						&& lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
 					continue next;
 				}
 			}

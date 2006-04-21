@@ -8659,4 +8659,77 @@ public void test0285() throws JavaModelException {
 			"ZZZNeedsImportEnum[TYPE_REF]{ZZZNeedsImportEnum, pack, Lpack.ZZZNeedsImportEnum;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95829
+public void test0286() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"  void bar(Test2<Object> t) {\n"+
+		"    t.fo\n"+
+		"  }\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/Test1.java",
+		"package test;\n"+
+		"public interface Test1<U> {\n"+
+		"  <T> T[] foo(T[] t);\n"+
+		"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/Test2.java",
+		"package test;\n"+
+		"public interface Test2<U> extends Test1<U> {\n"+
+		"  <T> T[] foo(T[] t);\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "t.fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ltest.Test2<Ljava.lang.Object;>;, <T:Ljava.lang.Object;>([TT;)[TT;, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95829
+public void test0287() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test implements Test2<Object>{\n"+
+		"  fo\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/Test1.java",
+		"package test;\n"+
+		"public interface Test1<U> {\n"+
+		"  <T> T[] foo(T[] t);\n"+
+		"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/Test2.java",
+		"package test;\n"+
+		"public interface Test2<U> extends Test1<U> {\n"+
+		"  <T> T[] foo(T[] t);\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.Test;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public <T> T[] foo(T[] t), Ltest.Test2<Ljava.lang.Object;>;, <T:Ljava.lang.Object;>([TT;)[TT;, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_ABSTRACT_METHOD + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
