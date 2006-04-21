@@ -5024,7 +5024,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
-	public void testONLY_087() {
+	public void test087() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
