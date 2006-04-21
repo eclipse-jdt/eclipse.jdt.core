@@ -216,7 +216,7 @@ public class AptBuilderTests extends APTTestBase
 	 */
 
 	@SuppressWarnings("nls")	
-	public void _testExtraDependencies()
+	public void testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
 			+  "public class A { B b; }";
