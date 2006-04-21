@@ -64,7 +64,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	computeId();
 }
 
-public void addDefaultAbstractMethods() {
+private void addDefaultAbstractMethods() {
 	if ((this.tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
 	this.tagBits |= TagBits.KnowsDefaultAbstractMethods;
@@ -132,6 +132,7 @@ public void addDefaultAbstractMethods() {
 			if (length > 1) {
 				ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 			}
+			// this.tagBits |= TagBits.AreMethodsSorted; -- already set in #methods()
 		}
 	}
 }
