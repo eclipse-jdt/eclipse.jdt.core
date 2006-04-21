@@ -9272,4 +9272,64 @@ public void test0165() {
 			expectedReplacedSource,
 			"full ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=137623
+public void test0166() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      if(this.equals(null))\n" +
+		"      {\n" +
+		"         (zzz==int.\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "int.";
+	int cursorLocation = str.lastIndexOf("int.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:int.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "int.";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    <CompleteOnClassLiteralAccess:int.>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

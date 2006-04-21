@@ -1299,6 +1299,11 @@ private boolean checkLabelStatement() {
  */
 private boolean checkMemberAccess() {
 	if (this.previousToken == TokenNameDOT && this.qualifier > -1 && this.expressionPtr == this.qualifier) {
+		if (this.identifierLengthPtr > 1 && this.identifierLengthStack[this.identifierLengthPtr - 1] < 0) {
+			// its not a  member access because the receiver is a base type
+			// fix for bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=137623
+			return false;
+		}
 		// the receiver is an expression
 		pushCompletionOnMemberAccessOnExpressionStack(false);
 		return true;
