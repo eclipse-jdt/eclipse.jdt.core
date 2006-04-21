@@ -4960,7 +4960,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543 - case 3
-	public void test85c() {
+	public void test085c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4995,7 +4995,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438
-	public void test86() {
+	public void test086() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5013,7 +5013,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438 - case 2
-	public void test86b() {
+	public void test086b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5024,4 +5024,37 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	public void testONLY_087() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collection;\n" + 
+				"\n" + 
+				"interface Interface1 {\n" + 
+				"}\n" + 
+				"interface Interface2 extends Interface1 {\n" + 
+				"}\n" + 
+				"interface Interface3 {\n" + 
+				"    <P extends Interface1> Collection<P> doStuff();\n" + 
+				"}\n" + 
+				"interface Interface4 extends Interface3 {\n" + 
+				"    Collection<Interface2> doStuff();\n" + 
+				"}\n" +
+				"public class X {\n" + 
+				"    Zork z;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\r\n" + 
+			"	Collection<Interface2> doStuff();\r\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Type safety: The return type Collection<Interface2> for doStuff() from the type Interface4 needs unchecked conversion to conform to Collection<Interface1> from the type Interface3\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\r\n" + 
+			"	Zork z;\r\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}	
 }
