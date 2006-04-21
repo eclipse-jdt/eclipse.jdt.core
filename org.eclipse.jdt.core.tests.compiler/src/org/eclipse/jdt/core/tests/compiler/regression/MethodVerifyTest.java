@@ -4893,4 +4893,135 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: instanceCase1(Collection<String>) in Child and instanceCase1(Collection) in Parent have the same erasure, yet neither overrides the other
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543 - case 2
+	public void test085b() {
+		this.runNegativeTest(
+			new String[] {
+				"Parent.java",
+				"import java.util.Collection;\n" +
+				"public class Parent {\n" +
+				"	static void staticMismatchCase1(Collection c) {}\n" +
+				"	static void staticMismatchCase2(Collection<String> c) {}\n" +
+				"	void mismatchCase1(Collection c) {}\n" +
+				"	void mismatchCase2(Collection<String> c) {}\n" +
+				"}\n" +
+				"class Child extends Parent {\n" +
+				"	void staticMismatchCase1(Collection c) {}\n" +
+				"	void staticMismatchCase2(Collection<String> c) {}\n" +
+				"	static void mismatchCase1(Collection c) {}\n" +
+				"	static void mismatchCase2(Collection<String> c) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in Parent.java (at line 3)\r\n" + 
+			"	static void staticMismatchCase1(Collection c) {}\r\n" + 
+			"	                                ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Parent.java (at line 5)\r\n" + 
+			"	void mismatchCase1(Collection c) {}\r\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in Parent.java (at line 9)\r\n" + 
+			"	void staticMismatchCase1(Collection c) {}\r\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This instance method cannot override the static method from Parent\n" + 
+			"----------\n" + 
+			"4. WARNING in Parent.java (at line 9)\r\n" + 
+			"	void staticMismatchCase1(Collection c) {}\r\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. ERROR in Parent.java (at line 10)\r\n" + 
+			"	void staticMismatchCase2(Collection<String> c) {}\r\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This instance method cannot override the static method from Parent\n" + 
+			"----------\n" + 
+			"6. ERROR in Parent.java (at line 11)\r\n" + 
+			"	static void mismatchCase1(Collection c) {}\r\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This static method cannot hide the instance method from Parent\n" + 
+			"----------\n" + 
+			"7. WARNING in Parent.java (at line 11)\r\n" + 
+			"	static void mismatchCase1(Collection c) {}\r\n" + 
+			"	                          ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. ERROR in Parent.java (at line 12)\r\n" + 
+			"	static void mismatchCase2(Collection<String> c) {}\r\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This static method cannot hide the instance method from Parent\n" + 
+			"----------\n"
+			// staticMismatchCase1(java.util.Collection) in Child cannot override staticMismatchCase1(java.util.Collection) in Parent; overridden method is static
+			// staticMismatchCase2(java.util.Collection<java.lang.String>) in Child cannot override staticMismatchCase2(java.util.Collection<java.lang.String>) in Parent; overridden method is static
+			// mismatchCase1(java.util.Collection) in Child cannot override mismatchCase1(java.util.Collection) in Parent; overriding method is static
+			// mismatchCase2(java.util.Collection<java.lang.String>) in Child cannot override mismatchCase2(java.util.Collection<java.lang.String>) in Parent; overriding method is static
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543 - case 3
+	public void test85c() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X<V> extends CX<V> implements IX<V> {}\n" +
+				"class CX<T> { public static void foo(Object o) {} }\n" +
+				"abstract class X2 extends CX implements IX {}\n" +
+				"interface IX<U> { void foo(U u); }"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public abstract class X<V> extends CX<V> implements IX<V> {}\n" + 
+			"	                      ^\n" + 
+			"The static method foo(Object) conflicts with the abstract method in IX<V>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	abstract class X2 extends CX implements IX {}\r\n" + 
+			"	               ^^\n" + 
+			"The static method foo(Object) conflicts with the abstract method in IX\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\r\n" + 
+			"	abstract class X2 extends CX implements IX {}\r\n" + 
+			"	                          ^^\n" + 
+			"CX is a raw type. References to generic type CX<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 3)\r\n" + 
+			"	abstract class X2 extends CX implements IX {}\r\n" + 
+			"	                                        ^^\n" + 
+			"IX is a raw type. References to generic type IX<U> should be parameterized\n" + 
+			"----------\n"
+			// line 1: foo(java.lang.Object) in CX cannot implement foo(U) in IX; overriding method is static
+			// line 3: foo(java.lang.Object) in CX cannot implement foo(U) in IX; overriding method is static
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438
+	public void test86() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements I { public <T extends Object & Data> void copyData(T data) {} }\n" +
+				"interface I { <A extends Data> void copyData(A data); }\n" +
+				"interface Data {}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X implements I { public <T extends Object & Data> void copyData(T data) {} }\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method I.copyData(A)\n" + 
+			"----------\n"
+			// X is not abstract and does not override abstract method <A>copyData(A) in I
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438 - case 2
+	public void test86b() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements I { public <T> G<T> foo(Class<T> stuffClass) { return null; } }\n" +
+				"interface I { <T extends Object> G<T> foo(Class<T> stuffClass); }\n" +
+				"class G<T> {}"
+			},
+			""
+		);
+	}
 }

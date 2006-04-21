@@ -168,8 +168,9 @@ void checkForInheritedNameClash(MethodBinding inheritedMethod, MethodBinding oth
 	//		class Y { <T> void foo(T t) {} }
 	//		abstract class X extends Y implements I {}
 
-	if (!inheritedMethod.declaringClass.isInterface() && !inheritedMethod.isStatic())
-		detectInheritedNameClash(inheritedMethod, otherInheritedMethod);
+	if (inheritedMethod.declaringClass.isInterface() || inheritedMethod.isStatic()) return;
+
+	detectInheritedNameClash(inheritedMethod, otherInheritedMethod);
 }
 void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// sent from checkMethods() to compare a current method and an inherited method that are not 'equal'
@@ -455,7 +456,14 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 		TypeBinding argument = arguments[i];
 		if (argument instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariable = (TypeVariableBinding) argument;
-			if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)  
+			if (typeVariable.firstBound == inheritedTypeVariable.firstBound) {
+				if (typeVariable.firstBound == null)
+					continue; // both are null
+			} else if (typeVariable.firstBound != null && inheritedTypeVariable.firstBound != null) {
+				if (typeVariable.firstBound.isClass() != inheritedTypeVariable.firstBound.isClass())
+					return inheritedMethod; // not a match
+			}
+			if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)
 				return inheritedMethod; // not a match
 			int interfaceLength = inheritedTypeVariable.superInterfaces.length;
 			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
@@ -505,8 +513,6 @@ boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substit
 
 	// also allow a method such as Number foo(Number) to override <U> T foo(T) where T extends Number
 	if (method.typeVariables != Binding.NO_TYPE_VARIABLES || !substituteMethod.hasSubstitutedParameters())
-		return false;
-	if (method.declaringClass.findSuperTypeWithSameErasure(substituteMethod.declaringClass) == null)
 		return false;
 
 	for (int i = 0; i < length; i++) {
