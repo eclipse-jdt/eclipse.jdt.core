@@ -870,7 +870,7 @@ public void test012(){
 		"    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
 		"                       specify location for extension zip/jar files\n" + 
 		"    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" + 
-		"                       specify location for extension zip/jar files\n" + 
+		"                       specify location for endorsed zip/jar files\n" + 
 		"    -d <dir>           destination directory (if omitted, no directory is created)\n" + 
 		"    -d none            generate no .class files\n" + 
 		"    -encoding <enc>    specify custom encoding for all sources. Each file/directory can override it\n" + 
