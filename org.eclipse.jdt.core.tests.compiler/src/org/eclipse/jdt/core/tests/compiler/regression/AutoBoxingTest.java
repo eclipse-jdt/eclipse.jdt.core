@@ -3544,4 +3544,35 @@ public void test119() {
 		},
 		"1");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137918
+public void test120() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int a = 100;\n" + 
+			"		boolean c = a instanceof Integer;\n" + 
+			"		Integer i = (Integer) a;\n" + 
+			"		System.out.println(c);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	boolean c = a instanceof Integer;\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Incompatible conditional operand types int and Integer\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Integer i = (Integer) a;\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	Integer i = (Integer) a;\n" + 
+		"	                      ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n");
+}
 }

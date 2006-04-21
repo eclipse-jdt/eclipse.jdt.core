@@ -89,11 +89,10 @@ public FlowInfo analyseCode(
 
 		if (!checkedType.isReifiable()) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
-		} else {
-			boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, null);
-			if (!isLegal) {
-				scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
-			}
+		}
+		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
 		return this.resolvedType = TypeBinding.BOOLEAN;
 	}
