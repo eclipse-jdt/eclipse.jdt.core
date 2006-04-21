@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Tim Hanson <thanson@bea.com> - fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=137634
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -35,24 +36,20 @@ void addDependencies(String[] typeNameDependencies) {
 	next : for (int i = qNames.length; --i >= 0;) {
 		char[][] qualifiedTypeName = qNames[i];
 		while (!includes(qualifiedTypeName)) {
-			if (qualifiedTypeName.length == 1) {
-				if (!includes(qualifiedTypeName[0])) {
-					int length = this.simpleNameReferences.length;
-					System.arraycopy(this.simpleNameReferences, 0, this.simpleNameReferences = new char[length + 1][], 0, length);
-					this.simpleNameReferences[length] = qualifiedTypeName[0];
-				}
-				continue next;
-			} else {
-				int length = this.qualifiedNameReferences.length;
-				System.arraycopy(this.qualifiedNameReferences, 0, this.qualifiedNameReferences = new char[length + 1][][], 0, length);
-				this.qualifiedNameReferences[length] = qualifiedTypeName;
-
-				qualifiedTypeName = CharOperation.subarray(qualifiedTypeName, 0, qualifiedTypeName.length - 1);
-				char[][][] temp = internQualifiedNames(new char[][][] {qualifiedTypeName});
-				if (temp == EmptyQualifiedNames)
-					continue next; // qualifiedTypeName is a well known name
-				qualifiedTypeName = temp[0];
+			if (!includes(qualifiedTypeName[qualifiedTypeName.length - 1])) {
+				int length = this.simpleNameReferences.length;
+				System.arraycopy(this.simpleNameReferences, 0, this.simpleNameReferences = new char[length + 1][], 0, length);
+				this.simpleNameReferences[length] = qualifiedTypeName[qualifiedTypeName.length - 1];				
 			}
+			int length = this.qualifiedNameReferences.length;
+			System.arraycopy(this.qualifiedNameReferences, 0, this.qualifiedNameReferences = new char[length + 1][][], 0, length);
+			this.qualifiedNameReferences[length] = qualifiedTypeName;
+
+			qualifiedTypeName = CharOperation.subarray(qualifiedTypeName, 0, qualifiedTypeName.length - 1);
+			char[][][] temp = internQualifiedNames(new char[][][] {qualifiedTypeName});
+			if (temp == EmptyQualifiedNames)
+				continue next; // qualifiedTypeName is a well known name
+			qualifiedTypeName = temp[0];
 		}
 	}
 }
