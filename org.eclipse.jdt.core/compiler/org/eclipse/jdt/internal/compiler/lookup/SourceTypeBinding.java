@@ -63,20 +63,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 
 	computeId();
 }
-private void addDefaultAbstractMethod(MethodBinding abstractMethod) {
-	MethodBinding defaultAbstract = new MethodBinding(
-		abstractMethod.modifiers | ExtraCompilerModifiers.AccDefaultAbstract,
-		abstractMethod.selector,
-		abstractMethod.returnType,
-		abstractMethod.parameters,
-		abstractMethod.thrownExceptions,
-		this);
 
-	MethodBinding[] temp = new MethodBinding[this.methods.length + 1];
-	System.arraycopy(this.methods, 0, temp, 0, this.methods.length);
-	temp[this.methods.length] = defaultAbstract;
-	this.methods = temp;
-}
 public void addDefaultAbstractMethods() {
 	if ((this.tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
@@ -88,19 +75,43 @@ public void addDefaultAbstractMethods() {
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 		int lastPosition = 0;
 		interfacesToVisit[lastPosition] = superInterfaces();
-		boolean hasAddedMethods = false;
+		MethodBinding[] defaultAbstracts = null;
+		int defaultAbstractsCount = 0;
 		for (int i = 0; i <= lastPosition; i++) {
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {
 				ReferenceBinding superType = interfaces[j];
 				if (superType.isValidBinding()) {
 					MethodBinding[] superMethods = superType.methods();
-					for (int m = superMethods.length; --m >= 0;) {
+					nextAbstractMethod: for (int m = superMethods.length; --m >= 0;) {
 						MethodBinding method = superMethods[m];
-						if (!implementsMethod(method)) {
-							addDefaultAbstractMethod(method);
-							hasAddedMethods = true;
+						// explicitly implemented ?
+						if (implementsMethod(method)) {
+							continue nextAbstractMethod;
 						}
+						if (defaultAbstractsCount == 0) {
+							defaultAbstracts = new MethodBinding[5];
+						} else {
+							// already added as default abstract ?
+							for(int k = 0; k < defaultAbstractsCount; k++) {
+								MethodBinding alreadyAddedMethod = 	defaultAbstracts[k];
+								if (CharOperation.equals(alreadyAddedMethod.selector, method.selector)
+										&& alreadyAddedMethod.areParametersEqual(method)) {
+									continue nextAbstractMethod;
+								}
+							}
+						}
+						MethodBinding defaultAbstract = new MethodBinding(
+								method.modifiers | ExtraCompilerModifiers.AccDefaultAbstract,
+								method.selector,
+								method.returnType,
+								method.parameters,
+								method.thrownExceptions,
+								this);
+						if (defaultAbstractsCount == defaultAbstracts.length) {
+							System.arraycopy(defaultAbstracts, 0, defaultAbstracts = new MethodBinding[2*defaultAbstractsCount], 0, defaultAbstractsCount);
+						}
+						defaultAbstracts[defaultAbstractsCount++] = defaultAbstract;
 					}
 
 					ReferenceBinding[] itsInterfaces = superType.superInterfaces();
@@ -112,9 +123,12 @@ public void addDefaultAbstractMethods() {
 				}
 			}
 		}
-		if (hasAddedMethods) {
-			// re-sort methods
+		if (defaultAbstractsCount > 0) {
 			int length = this.methods.length;
+			System.arraycopy(this.methods, 0, this.methods = new MethodBinding[length+defaultAbstractsCount], 0, length);
+			System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
+			// re-sort methods
+			length = length+defaultAbstractsCount;
 			if (length > 1) {
 				ReferenceBinding.sortMethods(this.methods, 0, length - 1);
 			}

@@ -2095,6 +2095,74 @@ public void test063() {
 	"Syntax error, insert \"}\" to complete ClassBody\n" + 
 	"----------\n");
 }
+//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=137744
+public void test064() {
+	Map options = this.getCompilerOptions();
+	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
+		// ensure target is 1.1 for having default abstract methods involved
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"		B a = new C();\n" + 
+				"		\n" + 
+				"		a.hasKursAt(1);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}",
+				"A.java",
+				"abstract public class A implements IA0 {\n" + 
+				"	int t;\n" + 
+				"	public A() {\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"abstract public class B extends A implements IA3, IA1 {\n" + 
+				"	int a;\n" + 
+				"	public B() {\n" + 
+				"	}\n" + 
+				"	public void test() {	\n" + 
+				"	}\n" + 
+				"}",
+				"C.java",
+				"public class C extends B implements IA4, IA2{\n" + 
+				"	int c;\n" + 
+				"	public C() {\n" + 
+				"	}\n" + 
+				"	public boolean hasKursAt(int zeitpunkt) {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"}",
+				"IA0.java",
+				"public interface IA0 {\n" + 
+				"	public void test();\n" + 
+				"}",
+				"IA1.java",
+				"public interface IA1 extends IA0 {\n" + 
+				"	public boolean hasKursAt(int zeitpunkt);\n" + 
+				"}",
+				"IA2.java",
+				"public interface IA2 extends IA0 {\n" + 
+				"	public boolean hasKursAt(int zeitpunkt);\n" + 
+				"}",
+				"IA3.java",
+				"public interface IA3 extends IA2 {\n" + 
+				"}",
+				"IA4.java",
+				"public interface IA4 extends IA3 {\n" + 
+				"}"
+			},
+			"SUCCESS",
+			null,
+			true,
+			null,
+			options,
+			null);
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
