@@ -150,74 +150,14 @@ static int compare(char[] str1, char[] str2, int len1, int len2) {
  * Sort the field array using a quicksort
  */
 public static void sortFields(FieldBinding[] sortedFields, int left, int right) {
-	if (true) {
-		Arrays.sort(sortedFields, left, right+1, FIELD_COMPARATOR);
-		return;
-	}
-	int original_left = left;
-	int original_right = right;
-	FieldBinding mid = sortedFields[ (left + right) / 2];
-	char[] midName = mid.name;
-	int midLength = midName.length;
-	char[] leftName, rightName;
-	do {
-		while (compare(leftName = sortedFields[left].name, midName, leftName.length, midLength) < 0) {
-			left++;
-		}
-		while (compare(midName, rightName = sortedFields[right].name, midLength, rightName.length) < 0) {
-			right--;
-		}
-		if (left <= right) {
-			FieldBinding tmp = sortedFields[left];
-			sortedFields[left] = sortedFields[right];
-			sortedFields[right] = tmp;
-			left++;
-			right--;
-		}
-	} while (left <= right);
-	if (original_left < right) {
-		sortFields(sortedFields, original_left, right);
-	}
-	if (left < original_right) {
-		sortFields(sortedFields, left, original_right);
-	}
+	Arrays.sort(sortedFields, left, right+1, FIELD_COMPARATOR);
 }
 
 /**
  * Sort the field array using a quicksort
  */
 public static void sortMethods(MethodBinding[] sortedMethods, int left, int right) {
-	if (true) {
-		Arrays.sort(sortedMethods, left, right+1, METHOD_COMPARATOR);
-		return;
-	}
-	int original_left = left;
-	int original_right = right;
-	MethodBinding mid = sortedMethods[ (left + right) / 2];
-	char[] midSelector = mid.selector;
-	int midLength = midSelector.length;
-	char[] leftSelector, rightSelector;
-	do {
-		while (compare(leftSelector = sortedMethods[left].selector, midSelector, leftSelector.length, midLength) < 0) {
-			left++;
-		}
-		while (compare(midSelector, rightSelector = sortedMethods[right].selector, midLength, rightSelector.length) < 0) {
-			right--;
-		}
-		if (left <= right) {
-			MethodBinding tmp = sortedMethods[left];
-			sortedMethods[left] = sortedMethods[right];
-			sortedMethods[right] = tmp;
-			left++;
-			right--;
-		}
-	} while (left <= right);
-	if (original_left < right) {
-		sortMethods(sortedMethods, original_left, right);
-	}
-	if (left < original_right) {
-		sortMethods(sortedMethods, left, original_right);
-	}
+	Arrays.sort(sortedMethods, left, right+1, METHOD_COMPARATOR);
 }
 
 public FieldBinding[] availableFields() {
