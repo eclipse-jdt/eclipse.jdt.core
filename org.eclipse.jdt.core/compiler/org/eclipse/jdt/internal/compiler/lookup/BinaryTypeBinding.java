@@ -191,7 +191,7 @@ public FieldBinding[] availableFields() {
 	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
 		int length = this.fields.length;
 		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length - 1);
+			ReferenceBinding.sortFields(this.fields, 0, length);
 		this.tagBits |= TagBits.AreFieldsSorted;
 	}
 	FieldBinding[] availableFields = new FieldBinding[fields.length];
@@ -216,7 +216,7 @@ public MethodBinding[] availableMethods() {
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
 		if (length > 1)
-			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	MethodBinding[] availableMethods = new MethodBinding[methods.length];
@@ -615,7 +615,7 @@ public FieldBinding[] fields() {
 	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
 		int length = this.fields.length;
 		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length - 1);
+			ReferenceBinding.sortFields(this.fields, 0, length);
 		this.tagBits |= TagBits.AreFieldsSorted;
 	}
 	for (int i = fields.length; --i >= 0;)
@@ -636,7 +636,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
 		if (length > 1)
-			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	int argCount = argumentTypes.length;
@@ -666,7 +666,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
 		if (length > 1)
-			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 
@@ -709,7 +709,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
 		int length = this.fields.length;
 		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length - 1);
+			ReferenceBinding.sortFields(this.fields, 0, length);
 		this.tagBits |= TagBits.AreFieldsSorted;
 	}
 	FieldBinding field = ReferenceBinding.binarySearch(fieldName, this.fields);
@@ -753,7 +753,7 @@ public MethodBinding[] getMethods(char[] selector) {
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
 		if (length > 1)
-			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	long range;
@@ -858,7 +858,7 @@ public MethodBinding[] methods() {
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
 		if (length > 1)
-			ReferenceBinding.sortMethods(this.methods, 0, length - 1);
+			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	for (int i = methods.length; --i >= 0;)

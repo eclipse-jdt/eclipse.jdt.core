@@ -539,7 +539,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				System.arraycopy(parameterizedMethods, 0, temp, 0, length);
 				System.arraycopy(this.methods, 0, temp, length, this.methods.length);
 				if (total > 1)
-					ReferenceBinding.sortMethods(temp, 0, total-1); // resort to ensure order is good
+					ReferenceBinding.sortMethods(temp, 0, total); // resort to ensure order is good
 				this.methods = temp;
 			}
 		    return parameterizedMethods;

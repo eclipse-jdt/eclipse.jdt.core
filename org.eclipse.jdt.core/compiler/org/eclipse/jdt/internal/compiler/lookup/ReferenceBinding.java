@@ -150,14 +150,14 @@ static int compare(char[] str1, char[] str2, int len1, int len2) {
  * Sort the field array using a quicksort
  */
 public static void sortFields(FieldBinding[] sortedFields, int left, int right) {
-	Arrays.sort(sortedFields, left, right+1, FIELD_COMPARATOR);
+	Arrays.sort(sortedFields, left, right, FIELD_COMPARATOR);
 }
 
 /**
  * Sort the field array using a quicksort
  */
 public static void sortMethods(MethodBinding[] sortedMethods, int left, int right) {
-	Arrays.sort(sortedMethods, left, right+1, METHOD_COMPARATOR);
+	Arrays.sort(sortedMethods, left, right, METHOD_COMPARATOR);
 }
 
 public FieldBinding[] availableFields() {
