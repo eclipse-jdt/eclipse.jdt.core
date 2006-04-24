@@ -457,7 +457,7 @@ public interface ITypeBinding extends IBinding {
 	 * </p> 
 	 *
 	 * @return the list of type bindings for the type arguments used to
-	 * instantiate the corrresponding generic type, or otherwise the empty list
+	 * instantiate the corresponding generic type, or otherwise the empty list
 	 * @see #getTypeDeclaration()
 	 * @see #isGenericType()
 	 * @see #isParameterizedType()
