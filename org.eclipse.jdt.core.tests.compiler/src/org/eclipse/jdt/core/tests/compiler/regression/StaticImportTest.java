@@ -1543,4 +1543,90 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133737
+	public void test042() {
+		this.runNegativeTest(
+			new String[] {
+				"ImportTest.java",
+				"import static p.ArrayTest.toString2;\n" + 
+				"public class ImportTest extends SuperTest {\n" + 
+				"	public static void main(String[] args) { printArgs(1, 2, 3, 4, 5); }\n" +
+				"	static void printArgs(Object... args) { toString2(args); }\n" + 
+				"}\n" +
+				"class SuperTest {\n" + 
+				"	static void toString2() {}\n" +
+				"}\n",
+				"p/ArrayTest.java",
+				"package p;\n" + 
+				"public class ArrayTest {\n" + 
+				"	public static void toString2(String[] args) {}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in ImportTest.java (at line 4)\r\n" + 
+			"	static void printArgs(Object... args) { toString2(args); }\r\n" + 
+			"	                                        ^^^^^^^^^\n" + 
+			"The method toString2() in the type SuperTest is not applicable for the arguments (Object[])\n" + 
+			"----------\n"
+			// toString2() in SuperTest cannot be applied to (java.lang.Object[])
+		);
+		this.runNegativeTest(
+			new String[] {
+				"ImportTest.java",
+				"import static java.util.Arrays.toString;\n" + 
+				"public class ImportTest {\n" + 
+				"	public static void main(String[] args) { printArgs(1, 2, 3, 4, 5); }\n" +
+				"	static void printArgs(Object... args) { toString(args); }\n" + 
+				"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in ImportTest.java (at line 4)\n" + 
+			"	static void printArgs(Object... args) { toString(args); }\n" + 
+			"	                                        ^^^^^^^^\n" + 
+			"The method toString() in the type Object is not applicable for the arguments (Object[])\n" + 
+			"----------\n"
+			// toString() in java.lang.Object cannot be applied to (java.lang.Object[])
+		);
+	}
+	public void test042b() {
+		this.runConformTest(
+			new String[] {
+				"ImportTest.java",
+				"import static p.DefinesFoo.foo;\n" + 
+				"public class ImportTest extends SuperImportTest {\n" + 
+				"	void test() { foo(\"fails?\"); }\n" + 
+				"}\n" +
+				"class SuperImportTest {\n" + 
+				"	private void foo() {}\n" +
+				"}\n",
+				"p/DefinesFoo.java",
+				"package p;\n" + 
+				"public class DefinesFoo {\n" + 
+				"	public static void foo(String s) {}\n" +
+				"}\n",
+			},
+			""
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129388
+	public void test043() {
+		this.runConformTest(
+			new String[] {
+				"B.java",
+				"import static java.lang.String.format;\n" + 
+				"public class B extends p.A {\n" + 
+				"	void test() { format(\"fails?\"); }\n" + 
+				"	void test2() { format(\"fails?\", null); }\n" + 
+				"	void test3() { format(\"fails?\", null, null); }\n" + 
+				"	void test4() { format(\"fails?\", null, null, null); }\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A {\n" + 
+				"	static String format(String message, Object expected, Object actual) { return null; }\n" +
+				"}\n",
+			},
+			""
+		);
+	}
 }

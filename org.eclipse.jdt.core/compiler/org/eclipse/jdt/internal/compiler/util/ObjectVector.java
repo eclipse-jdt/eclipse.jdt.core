@@ -19,8 +19,11 @@ public final class ObjectVector {
 	Object[] elements;
 	
 	public ObjectVector() {
-
-		this.maxSize = INITIAL_SIZE;
+		this(INITIAL_SIZE);
+	}
+	
+	public ObjectVector(int initialSize) {
+		this.maxSize = initialSize > 0 ? initialSize : INITIAL_SIZE;
 		this.size = 0;
 		this.elements = new Object[this.maxSize];
 	}

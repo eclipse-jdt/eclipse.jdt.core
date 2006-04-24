@@ -208,39 +208,20 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+ 		if (methodBinding != null && !methodBinding.isValidBinding()) {
+			org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding problemMethodBinding =
+				(org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding) methodBinding;
+			methodBinding = problemMethodBinding.closestMatch;
+ 		}
+
 		if (methodBinding != null) {
-			if (methodBinding.isValidBinding()) {
-				IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(methodBinding);
-				if (binding != null) {
-					return binding;
-				}
-				binding = new MethodBinding(this, methodBinding);
-				this.bindingTables.compilerBindingsToASTBindings.put(methodBinding, binding);
+			IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(methodBinding);
+			if (binding != null) {
 				return binding;
-			} else {
-				/*
-				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
-				 */
-				switch(methodBinding.problemId()) {
-					case ProblemReasons.NotVisible : 
-					case ProblemReasons.NonStaticReferenceInStaticContext :
-					case ProblemReasons.NonStaticReferenceInConstructorInvocation :
-						ReferenceBinding declaringClass = methodBinding.declaringClass;
-						if (declaringClass != null) {
-							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters, null);
-							if (exactBinding != null) {
-								IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
-								if (binding != null) {
-									return binding;
-								}
-								binding = new MethodBinding(this, exactBinding);
-								this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, binding);
-								return binding;
-							}
-						}
-						break;
-				}
 			}
+			binding = new MethodBinding(this, methodBinding);
+			this.bindingTables.compilerBindingsToASTBindings.put(methodBinding, binding);
+			return binding;
 		}
 		return null;
 	}
