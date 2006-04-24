@@ -308,16 +308,19 @@ public class SourceTypeConverter {
 				AnnotationMethodDeclaration annotationMethodDeclaration = new AnnotationMethodDeclaration(compilationResult);
 
 				/* conversion of default value */
+				SourceAnnotationMethodInfo annotationMethodInfo = (SourceAnnotationMethodInfo) methodInfo;
+				boolean hasDefaultValue = annotationMethodInfo.defaultValueStart != -1 || annotationMethodInfo.defaultValueEnd != -1;
 				if ((this.flags & FIELD_INITIALIZATION) != 0) {
-					char[] defaultValueSource = ((SourceAnnotationMethodInfo) methodInfo).getDefaultValueSource(getSource());
-					if (defaultValueSource != null) {
+					if (hasDefaultValue) {
+						char[] defaultValueSource = CharOperation.subarray(getSource(), annotationMethodInfo.defaultValueStart, annotationMethodInfo.defaultValueEnd+1);
 						Expression expression =  parseMemberValue(defaultValueSource);
 						if (expression != null) {
 							annotationMethodDeclaration.defaultValue = expression;
-							modifiers |= ClassFileConstants.AccAnnotationDefault;
 						}
 					}
 				}
+				if (hasDefaultValue)
+					modifiers |= ClassFileConstants.AccAnnotationDefault;
 				decl = annotationMethodDeclaration;
 			} else {
 				decl = new MethodDeclaration(compilationResult);

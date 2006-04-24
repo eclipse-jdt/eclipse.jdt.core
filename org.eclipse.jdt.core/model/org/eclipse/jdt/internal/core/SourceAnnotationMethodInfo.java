@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
-
 /*
  * Element info for annotation method from source.
  */
@@ -22,16 +20,11 @@ public class SourceAnnotationMethodInfo extends SourceMethodInfo {
 	 * These are {-1, -1} if the method is an annotation method with no default value.
 	 * Otherwise these are the start and end (inclusive) of the expression representing the default value.
 	 */
-	protected int defaultValueStart;
-	protected int defaultValueEnd;
+ public int defaultValueStart;
+ public int defaultValueEnd;
 
 	public boolean isAnnotationMethod() {
 		return true;
 	}
 	
-	public char[] getDefaultValueSource(char[] cuSource) {
-		if (this.defaultValueStart == -1 && this.defaultValueEnd == -1) 
-			return null;
-		return CharOperation.subarray(cuSource, this.defaultValueStart, this.defaultValueEnd+1);
-	}
 }

@@ -254,7 +254,6 @@ public final class CompletionEngine
 			Map settings,
 			IJavaProject javaProject) {
 		super(settings);
-		this.compilerOptions.storeAnnotations = true;
 		this.javaProject = javaProject;
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
@@ -5873,12 +5872,6 @@ public final class CompletionEngine
 
 		return this.parser;
 	}
-	
-	protected int getSourceTypeConverterFlag() {
-		return SourceTypeConverter.FIELD_AND_METHOD // need field and methods
-				| SourceTypeConverter.MEMBER_TYPE // need member types
-				| SourceTypeConverter.FIELD_INITIALIZATION; // need field initializer for annotations default value 
-	}
 
 	protected void reset() {
 
@@ -6104,7 +6097,7 @@ public final class CompletionEngine
 							CharOperation.equals(methodBindings[0].selector, VALUE)) {
 						boolean canBeSingleMemberAnnotation = true;
 						done : for (int i = 1; i < methodBindings.length; i++) {
-							if(methodBindings[i].getDefaultValue() == null) {
+							if((methodBindings[i].modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
 								canBeSingleMemberAnnotation = false;
 								break done;
 							}

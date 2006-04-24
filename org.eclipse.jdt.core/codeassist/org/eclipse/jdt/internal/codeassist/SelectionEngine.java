@@ -532,11 +532,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public AssistParser getParser() {
 		return this.parser;
 	}
-	
-	protected int getSourceTypeConverterFlag() {
-		return SourceTypeConverter.FIELD_AND_METHOD // need field and methods
-				| SourceTypeConverter.MEMBER_TYPE; // need member types
-	}
 
 	/*
 	 * Returns whether the given binding is a local/anonymous reference binding, or if its declaring class is

@@ -82,7 +82,9 @@ public abstract class Engine implements ITypeRequestor {
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,//sourceTypes[0] is always toplevel here
-				getSourceTypeConverterFlag(),
+				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+				| SourceTypeConverter.MEMBER_TYPE, // need member types
+				// no need for field initialization
 				lookupEnvironment.problemReporter,
 				result);
 
@@ -93,8 +95,6 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	public abstract AssistParser getParser();
-	
-	protected abstract int getSourceTypeConverterFlag();
 	
 	public void initializeImportCaches() {
 		ImportBinding[] importBindings = this.unitScope.imports;
