@@ -396,6 +396,11 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 protected void consumeFormalParameter(boolean isVarArgs) {
 	super.consumeFormalParameter(isVarArgs);
+	
+	// Flush comments prior to this formal parameter so the declarationSourceStart of the following parameter
+	// is correctly set (see bug 80904)
+	// Note that this could be done in the Parser itself, but this would slow down all parsers, when they don't need 
+	// the declarationSourceStart to be set
 	flushCommentsDefinedPriorTo(this.scanner.currentPosition);
 }
 protected void consumeInterfaceHeaderName1() {
