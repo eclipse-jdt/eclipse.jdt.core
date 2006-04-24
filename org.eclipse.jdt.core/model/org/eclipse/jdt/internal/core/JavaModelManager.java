@@ -1477,6 +1477,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
+
+		// enable external javadoc attachment
+		defaultOptionsMap.put(JavaCore.ENABLE_JAVADOC_ATTACHMENTS, JavaCore.ENABLED);
 		
 		return new Hashtable(defaultOptionsMap);
 	}

@@ -935,7 +935,12 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
 
-	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String ENABLE_JAVADOC_ATTACHMENTS = PLUGIN_ID + ".enable.external.javadoc.attachments"; //$NON-NLS-1$
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -2385,6 +2390,12 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
 	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
 	 *     - default:           "50"
+	 * 
+	 *	JAVACORE / Enabling the javadoc attachments.
+	 *    When disabled, javadoc attachments are not used to retrieve the javadoc of java elements.
+	 *     - option id:         "org.eclipse.jdt.core.enable.javadoc.attachments"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
