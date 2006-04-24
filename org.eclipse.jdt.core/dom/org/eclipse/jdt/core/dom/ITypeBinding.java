@@ -449,8 +449,7 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * Note that type arguments only occur on a type binding that represents
 	 * an instance of a generic type corresponding to a parameterized type
-	 * reference (e.g., <code>Collection&lt;String&gt;</code>) or to a raw
-	 * type reference (e.g., <code>Collection</code>) to a generic type.
+	 * reference (e.g., <code>Collection&lt;String&gt;</code>).
 	 * Do not confuse these with type parameters which only occur on the
 	 * type binding corresponding directly to the declaration of the 
 	 * generic class or interface (e.g., <code>Collection&lt;T&gt;</code>).

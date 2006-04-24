@@ -879,6 +879,11 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
+		switch(this.binding.kind()) {
+			case Binding.RAW_TYPE :
+			case Binding.PARAMETERIZED_TYPE :
+				return NO_TYPE_BINDINGS;
+		}
 		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
 		if (typeVariableBindings != null) {
 			int typeVariableBindingsLength = typeVariableBindings.length;

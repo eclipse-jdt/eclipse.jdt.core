@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 108 };
+//		TESTS_NUMBERS = new int[] { 217 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6788,5 +6788,51 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a raw method", methodBinding2.isRawMethod());
 
 		assertTrue("Method bindings are not identical", methodBinding == methodBinding2);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110799
+	 */
+	public void test0217() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"class Generic<E> {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    Generic raw;\n" + 
+			"    java.util.Collection rawCollection;\n" + 
+			"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("isRaw", typeBinding.isRawType());
+		
+		node = getASTNode(unit, 1, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		type = fieldDeclaration.getType();
+		ITypeBinding typeBinding2 = type.resolveBinding();
+		assertTrue("isRaw", typeBinding2.isRawType());
+		
+		ITypeBinding[] typeParameters = typeBinding.getTypeParameters();
+		assertEquals("Wrong size", 0, typeParameters.length);
+		
+		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
+		assertEquals("Wrong size", 0, typeArguments.length);
+
+		typeParameters = typeBinding2.getTypeParameters();
+		assertEquals("Wrong size", 0, typeParameters.length);
+		
+		typeArguments = typeBinding2.getTypeArguments();
+		assertEquals("Wrong size", 0, typeArguments.length);
 	}
 }
