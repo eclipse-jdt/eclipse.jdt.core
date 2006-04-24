@@ -940,7 +940,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.2
 	 */
-	public static final String ENABLE_JAVADOC_ATTACHMENTS = PLUGIN_ID + ".enable.external.javadoc.attachments"; //$NON-NLS-1$
+	public static final String ENABLE_JAVADOC_ATTACHMENTS_ACCESSES = PLUGIN_ID + ".enable.external.javadoc.attachments.acccesses"; //$NON-NLS-1$
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -2384,40 +2384,41 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
-	 *	JAVACORE / Set the timeout value for retrieving the method's parameter names from javadoc
+	 * JAVACORE / Set the timeout value for retrieving the method's parameter names from javadoc
 	 *    Timeout in milliseconds to retrieve the method's parameter names from javadoc.
 	 *    If the value is 0, the parameter names are not fetched and the raw names are returned.
 	 *     - option id:         "org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc"
 	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
 	 *     - default:           "50"
 	 * 
-	 *	JAVACORE / Enabling the javadoc attachments.
-	 *    When disabled, javadoc attachments are not used to retrieve the javadoc of java elements.
-	 *     - option id:         "org.eclipse.jdt.core.enable.javadoc.attachments"
+	 * JAVACORE / Enabling the javadoc attachments accesses.
+	 *    When disabled, javadoc attachments are not used to retrieve
+	 *    the javadoc of java elements in {@link IJavaElement#getAttachedJavadoc(IProgressMonitor) IJavaElement.getAttachedJavadoc}.
+	 *     - option id:         "org.eclipse.jdt.core.enable.javadoc.attachments.accesses"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
-	 *	FORMATTER / Inserting New Line Before Opening Brace
+	 * FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.openingBrace"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 *	FORMATTER / Inserting New Line Inside Control Statement
+	 * FORMATTER / Inserting New Line Inside Control Statement
 	 *    When Insert, a new line is inserted between } and following else, catch, finally
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.controlStatement"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 *	FORMATTER / Clearing Blank Lines
+	 * FORMATTER / Clearing Blank Lines
 	 *    When Clear all, all blank lines are removed. When Preserve one, only one is kept
 	 *    and all others removed.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.clearAll"
 	 *     - possible values:   { "clear all", "preserve one" }
 	 *     - default:           "preserve one"
 	 * 
-	 *	FORMATTER / Inserting New Line Between Else/If 
+	 * FORMATTER / Inserting New Line Between Else/If 
 	 *    When Insert, a blank line is inserted between an else and an if when they are 
 	 *    contiguous. When choosing to not insert, else-if will be kept on the same
 	 *    line when possible.
@@ -2425,135 +2426,135 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 *	FORMATTER / Inserting New Line In Empty Block
+	 * FORMATTER / Inserting New Line In Empty Block
 	 *    When insert, a line break is inserted between contiguous { and }, if } is not followed
 	 *    by a keyword.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.emptyBlock"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "insert"
 	 * 
-	 *	FORMATTER / Splitting Lines Exceeding Length
+	 * FORMATTER / Splitting Lines Exceeding Length
 	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
 	 *    disable line splitting
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
 	 *     - possible values:	"&lt;n&gt;", where n is zero or a positive integer
 	 *     - default:           "80"
 	 * 
-	 *	FORMATTER / Compacting Assignment
+	 * FORMATTER / Compacting Assignment
 	 *    Assignments can be formatted asymmetrically, for example 'int x= 2;', when Normal, a space
 	 *    is inserted before the assignment operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.style.assignment"
 	 *     - possible values:   { "compact", "normal" }
 	 *     - default:           "normal"
 	 * 
-	 *	FORMATTER / Defining Indentation Character
+	 * FORMATTER / Defining Indentation Character
 	 *    Either choose to indent with tab characters or spaces
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.char"
 	 *     - possible values:   { "tab", "space" }
 	 *     - default:           "tab"
 	 * 
-	 *	FORMATTER / Defining Space Indentation Length
+	 * FORMATTER / Defining Space Indentation Length
 	 *    When using spaces, set the amount of space characters to use for each 
 	 *    indentation mark.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:	"&lt;n&gt;", where n is a positive integer
 	 *     - default:           "4"
 	 * 
-	 *	FORMATTER / Inserting space in cast expression
+	 * FORMATTER / Inserting space in cast expression
 	 *    When Insert, a space is added between the type and the expression in a cast expression.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.space.castexpression"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "insert"
 	 * 
-	 *	CODEASSIST / Activate Visibility Sensitive Completion
+	 * CODEASSIST / Activate Visibility Sensitive Completion
 	 *    When active, completion doesn't show that you can not see
 	 *    (for example, you can not see private methods of a super class).
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
-	 *  CODEASSIST / Activate Deprecation Sensitive Completion
+	 * CODEASSIST / Activate Deprecation Sensitive Completion
 	 *    When active, completion doesn't show deprecated members and types.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.deprecationCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disable"
 	 * 
-	 *	CODEASSIST / Automatic Qualification of Implicit Members
+	 * CODEASSIST / Automatic Qualification of Implicit Members
 	 *    When active, completion automatically qualifies completion on implicit
 	 *    field references and message expressions.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
-	 *  CODEASSIST / Define the Prefixes for Field Name
+	 * CODEASSIST / Define the Prefixes for Field Name
 	 *    When the prefixes is non empty, completion for field name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefixes"
 	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Prefixes for Static Field Name
+	 * CODEASSIST / Define the Prefixes for Static Field Name
 	 *    When the prefixes is non empty, completion for static field name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"
 	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Prefixes for Local Variable Name
+	 * CODEASSIST / Define the Prefixes for Local Variable Name
 	 *    When the prefixes is non empty, completion for local variable name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefixes"
 	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Prefixes for Argument Name
+	 * CODEASSIST / Define the Prefixes for Argument Name
 	 *    When the prefixes is non empty, completion for argument name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefixes"
 	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Suffixes for Field Name
+	 * CODEASSIST / Define the Suffixes for Field Name
 	 *    When the suffixes is non empty, completion for field name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldSuffixes"
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Suffixes for Static Field Name
+	 * CODEASSIST / Define the Suffixes for Static Field Name
 	 *    When the suffixes is non empty, completion for static field name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Suffixes for Local Variable Name
+	 * CODEASSIST / Define the Suffixes for Local Variable Name
 	 *    When the suffixes is non empty, completion for local variable name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localSuffixes"
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Define the Suffixes for Argument Name
+	 * CODEASSIST / Define the Suffixes for Argument Name
 	 *    When the suffixes is non empty, completion for argument name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentSuffixes"
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
-	 *  CODEASSIST / Activate Forbidden Reference Sensitive Completion
+	 * CODEASSIST / Activate Forbidden Reference Sensitive Completion
 	 *    When active, completion doesn't show that have forbidden reference.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
-	 *  CODEASSIST / Activate Discouraged Reference Sensitive Completion
+	 * CODEASSIST / Activate Discouraged Reference Sensitive Completion
 	 *    When active, completion doesn't show that have discouraged reference.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 *     
-	 *	CODEASSIST / Activate Camel Case Sensitive Completion
+	 * CODEASSIST / Activate Camel Case Sensitive Completion
 	 *    When active, completion show proposals whose name match to the CamelCase pattern.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
