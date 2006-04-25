@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.index;
 
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class EntryResult {
 

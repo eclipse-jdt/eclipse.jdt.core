@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class WorkQueue {
 

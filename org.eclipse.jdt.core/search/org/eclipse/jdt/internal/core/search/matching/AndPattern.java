@@ -15,9 +15,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
-import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 /**
  * Query the index multiple times and do an 'and' on the results.

@@ -322,7 +322,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	// walk all visible interfaces to find ambiguous references
 	if (interfacesToVisit != null) {
 		ProblemFieldBinding ambiguous = null;
-		org.eclipse.jdt.internal.core.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.core.util.SimpleSet(lastPosition * 2);
+		org.eclipse.jdt.internal.compiler.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.compiler.util.SimpleSet(lastPosition * 2);
 		done : for (int i = 0; i <= lastPosition; i++) {
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {

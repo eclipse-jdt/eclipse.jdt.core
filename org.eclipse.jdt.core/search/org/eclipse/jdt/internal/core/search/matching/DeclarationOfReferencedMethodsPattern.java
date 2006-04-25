@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 //import java.util.HashSet;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodPattern {
 

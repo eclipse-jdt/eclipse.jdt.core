@@ -451,7 +451,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		superType = superType.superclass();
 	}
 
-	org.eclipse.jdt.internal.core.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.core.util.SimpleSet(lastPosition * 2);
+	org.eclipse.jdt.internal.compiler.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.compiler.util.SimpleSet(lastPosition * 2);
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, l = interfaces.length; j < l; j++) {

@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
