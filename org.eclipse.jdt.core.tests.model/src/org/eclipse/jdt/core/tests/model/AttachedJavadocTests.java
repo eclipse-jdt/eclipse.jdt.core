@@ -34,7 +34,7 @@ import org.eclipse.jdt.core.JavaModelException;
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	static {
 //		TESTS_NAMES = new String[] { "test010" };
-//		TESTS_NUMBERS = new int[] { 4 };
+//		TESTS_NUMBERS = new int[] { 18 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -382,5 +382,22 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name2", javadoc.indexOf("name2") == -1);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
+	public void _test018() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		IType type = classFile.getType();
+		IMethod[] methods = type.getMethods();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		for (int i = 0, max = methods.length; i < max; i++) {
+			IMethod method = methods[i];
+			String javadoc = method.getAttachedJavadoc(monitor);
+			assertNotNull("Should have a javadoc", javadoc);
+			assertTrue("Wrong doc", javadoc.indexOf(method.getElementName()) != -1);
+		}
 	}
 }
