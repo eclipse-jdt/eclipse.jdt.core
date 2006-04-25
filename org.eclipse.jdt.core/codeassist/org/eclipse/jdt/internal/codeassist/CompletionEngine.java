@@ -57,6 +57,7 @@ import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 /**
  * This class is the entry point for source completions.
@@ -2672,14 +2673,15 @@ public final class CompletionEngine
 		} while (notInJavadoc && currentType != null);
 
 		if (notInJavadoc && interfacesToVisit != null) {
+			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(anInterface)) {
 						// if interface as not already been visited
-						anInterface.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(anInterface);
 
 						FieldBinding[] fields = anInterface.availableFields();
 						if(fields !=  null) {
@@ -2710,13 +2712,6 @@ public final class CompletionEngine
 						}
 					}
 				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 			}
 		}
 	}
@@ -3543,15 +3538,16 @@ public final class CompletionEngine
 		}
 
 		if (interfacesToVisit != null) {
+			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(anInterface)) {
 						// if interface as not already been visited
-						anInterface.tagBits |= TagBits.InterfaceVisited;
-						
+						interfacesSeen.add(anInterface);
+
 						findMemberTypes(
 							typeName,
 							anInterface.memberTypes(),
@@ -3577,13 +3573,6 @@ public final class CompletionEngine
 						}
 					}
 				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 			}
 		}
 	}
@@ -3696,16 +3685,17 @@ public final class CompletionEngine
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
-			
+			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
+
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding currentType = interfaces[j];
 
-					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(currentType)) {
 						// if interface as not already been visited
-						currentType.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(currentType);
 
 						MethodBinding[] methods = currentType.availableMethods();
 						if(methods != null) {
@@ -3752,15 +3742,6 @@ public final class CompletionEngine
 							interfacesToVisit[lastPosition] = itsInterfaces;
 						}
 					}
-				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-				for (int j = 0, length = interfaces.length; j < length; j++){
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 				}
 			}
 		}
@@ -6188,17 +6169,18 @@ public final class CompletionEngine
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
-			
+			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
+
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding currentType = interfaces[j];
 
-					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(currentType)) {
 						// if interface as not already been visited
-						currentType.tagBits |= TagBits.InterfaceVisited;
-	
+						interfacesSeen.add(currentType);
+
 						computeExpectedTypesForMessageSend(
 							currentType,
 							selector,
@@ -6221,15 +6203,6 @@ public final class CompletionEngine
 							interfacesToVisit[lastPosition] = itsInterfaces;
 						}
 					}
-				}
-			}
-			
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-				for (int j = 0, length = interfaces.length; j < length; j++){
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 				}
 			}
 		}

@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -323,12 +322,14 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	// walk all visible interfaces to find ambiguous references
 	if (interfacesToVisit != null) {
 		ProblemFieldBinding ambiguous = null;
+		org.eclipse.jdt.internal.core.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.core.util.SimpleSet(lastPosition * 2);
 		done : for (int i = 0; i <= lastPosition; i++) {
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {
 				ReferenceBinding anInterface = interfaces[j];
-				if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) { // if interface as not already been visited
-					anInterface.tagBits |= TagBits.InterfaceVisited;
+				if (!interfacesSeen.includes(anInterface)) {
+					// if interface as not already been visited
+					interfacesSeen.add(anInterface);
 					if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 						if (visibleField == null) {
 							visibleField = field;
@@ -346,13 +347,6 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 					}
 				}
 			}
-		}
-
-		// bit reinitialization
-		for (int i = 0; i <= lastPosition; i++) {
-			ReferenceBinding[] interfaces = interfacesToVisit[i];
-			for (int j = 0, length = interfaces.length; j < length; j++)
-				interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 		}
 		if (ambiguous != null) return ambiguous;
 	}

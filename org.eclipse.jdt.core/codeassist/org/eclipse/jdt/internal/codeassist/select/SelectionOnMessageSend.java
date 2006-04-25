@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnMessageSend extends MessageSend {
@@ -51,16 +50,17 @@ public class SelectionOnMessageSend extends MessageSend {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
-			
+			org.eclipse.jdt.internal.core.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.core.util.SimpleSet(itsInterfaces.length * 2);
+
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding currentType = interfaces[j];
 
-					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(currentType)) {
 						// if interface as not already been visited
-						currentType.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(currentType);
 
 						MethodBinding[] methods = currentType.getMethods(methodBinding.selector);
 						if(methods != null) {

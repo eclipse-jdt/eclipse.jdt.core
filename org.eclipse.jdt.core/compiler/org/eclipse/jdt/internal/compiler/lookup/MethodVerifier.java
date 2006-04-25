@@ -451,12 +451,13 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		superType = superType.superclass();
 	}
 
+	org.eclipse.jdt.internal.core.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.core.util.SimpleSet(lastPosition * 2);
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, l = interfaces.length; j < l; j++) {
 			superType = interfaces[j];
-			if ((superType.tagBits & TagBits.InterfaceVisited) == 0) {
-				superType.tagBits |= TagBits.InterfaceVisited;
+			if (!interfacesSeen.includes(superType)) {
+				interfacesSeen.add(superType);
 				if (superType.isValidBinding()) {
 					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 						if (++lastPosition == interfacesToVisit.length)
@@ -484,13 +485,6 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				}
 			}
 		}
-	}
-
-	// bit reinitialization
-	for (int i = 0; i <= lastPosition; i++) {
-		ReferenceBinding[] interfaces = interfacesToVisit[i];
-		for (int j = 0, length = interfaces.length; j < length; j++)
-			interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 	}
 }
 void computeMethods() {

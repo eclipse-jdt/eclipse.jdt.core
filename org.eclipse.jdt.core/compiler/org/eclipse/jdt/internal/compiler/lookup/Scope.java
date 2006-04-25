@@ -10,13 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -27,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public abstract class Scope implements TypeConstants, TypeIds {
 	
@@ -877,13 +872,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemFieldBinding ambiguous = null;
+			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
 			done : for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(anInterface)) {
 						// if interface as not already been visited
-						anInterface.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(anInterface);
 						unitScope.recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
@@ -902,13 +898,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 					}
 				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 			}
 			if (ambiguous != null)
 				return ambiguous;
@@ -990,13 +979,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemReferenceBinding ambiguous = null;
+			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
 			done : for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(anInterface)) {
 						// if interface as not already been visited
-						anInterface.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(anInterface);
 						unitScope.recordReference(anInterface, typeName);
 						if ((memberType = anInterface.getMemberType(typeName)) != null) {
 							unitScope.recordTypeReference(memberType);
@@ -1016,13 +1006,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 					}
 				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 			}
 			if (ambiguous != null)
 				return ambiguous;
@@ -1290,21 +1273,17 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = -1;
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(
-					interfacesToVisit, 0,
-					interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0,
-					lastPosition);
+			int lastPosition = 0;
 			interfacesToVisit[lastPosition] = itsInterfaces;
+			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
 
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					currentType = interfaces[j];
-					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+					if (!interfacesSeen.includes(currentType)) {
 						// if interface as not already been visited
-						currentType.tagBits |= TagBits.InterfaceVisited;
+						interfacesSeen.add(currentType);
 
 						compilationUnitScope().recordTypeReference(currentType);
 						MethodBinding[] currentMethods = currentType.getMethods(selector);
@@ -1321,13 +1300,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 					}
 				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
 			}
 		}
 	}

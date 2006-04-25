@@ -38,9 +38,6 @@ public interface TagBits {
 
 	long IsArgument = ASTNode.Bit11; // local
 	long ClearPrivateModifier = ASTNode.Bit11; // constructor binding
-	
-	// Reusable bit currently used by Scopes
-	long InterfaceVisited = ASTNode.Bit12;
 
 	// test bits to see if parts of binary types are faulted
 	long AreFieldsSorted = ASTNode.Bit13;
