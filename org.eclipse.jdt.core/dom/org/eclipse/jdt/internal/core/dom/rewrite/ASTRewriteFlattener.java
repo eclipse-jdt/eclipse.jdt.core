@@ -455,14 +455,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ForStatement node) {
 		this.result.append("for ("); //$NON-NLS-1$
-		visitList(node, ForStatement.INITIALIZERS_PROPERTY, null);
+		visitList(node, ForStatement.INITIALIZERS_PROPERTY, String.valueOf(','));
 		this.result.append(';');
 		ASTNode expression= getChildNode(node, ForStatement.EXPRESSION_PROPERTY);
 		if (expression != null) {
 			expression.accept(this);
 		}
 		this.result.append(';');
-		visitList(node, ForStatement.UPDATERS_PROPERTY, null);
+		visitList(node, ForStatement.UPDATERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
 		getChildNode(node, ForStatement.BODY_PROPERTY).accept(this);
 		return false;

@@ -1195,6 +1195,80 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}		
 	
+	public void testForStatement2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        for (;;) {\n");
+		buf.append("        }\n");	
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		assertTrue("Parse errors", (block.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size() == 1);
+
+		{ // replace for statement
+			ForStatement forStatement= (ForStatement) statements.get(0);
+			
+			ForStatement newForStatement= ast.newForStatement();
+			List initializers= newForStatement.initializers();
+			
+			Assignment init1= ast.newAssignment();
+			init1.setLeftHandSide(ast.newSimpleName("x"));
+			init1.setRightHandSide(ast.newNumberLiteral("1"));
+			initializers.add(init1);
+			
+			Assignment init2= ast.newAssignment();
+			init2.setLeftHandSide(ast.newSimpleName("y"));
+			init2.setRightHandSide(ast.newNumberLiteral("10"));
+			initializers.add(init2);
+			
+			InfixExpression expression= ast.newInfixExpression();
+			expression.setOperator(InfixExpression.Operator.LESS);
+			expression.setRightOperand(ast.newSimpleName("y"));
+			expression.setLeftOperand(ast.newSimpleName("x"));
+			newForStatement.setExpression(expression);
+			
+			List updaters= newForStatement.updaters();
+			PrefixExpression upd1= ast.newPrefixExpression();
+			upd1.setOperator(PrefixExpression.Operator.INCREMENT);
+			upd1.setOperand(ast.newSimpleName("x"));
+			updaters.add(upd1);
+			
+			PrefixExpression upd2= ast.newPrefixExpression();
+			upd2.setOperator(PrefixExpression.Operator.DECREMENT);
+			upd2.setOperand(ast.newSimpleName("y"));
+			updaters.add(upd2);
+			
+			newForStatement.setBody(ast.newBlock());
+			rewrite.replace(forStatement, newForStatement, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        for (x = 1, y = 10; x < y; ++x, --y) {\n");
+		buf.append("        }\n");	
+		buf.append("    }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
 	
 	public void testIfStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
