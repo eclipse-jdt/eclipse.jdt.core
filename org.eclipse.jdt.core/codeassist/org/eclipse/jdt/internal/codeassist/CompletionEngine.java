@@ -626,6 +626,17 @@ public final class CompletionEngine
 
 		this.knownPkgs.put(packageName, this);
 		
+		char[] completion;
+		if(this.resolvingImports) {
+			if(this.resolvingStaticImports) {
+				completion = CharOperation.concat(packageName, new char[] { '.' });
+			} else {
+				completion = CharOperation.concat(packageName, new char[] { '.', '*', ';' });
+			}
+		} else {
+			completion = packageName;
+		}
+								
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, packageName);
@@ -639,10 +650,7 @@ public final class CompletionEngine
 			CompletionProposal proposal = this.createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
 			proposal.setDeclarationSignature(packageName);
 			proposal.setPackageName(packageName);
-			proposal.setCompletion(
-					this.resolvingImports
-					? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
-					: packageName);
+			proposal.setCompletion(completion);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
