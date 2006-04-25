@@ -12,6 +12,7 @@
 	<classpathentry kind="lib" path="lib/b125178.jar" sourcepath="" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b126330.jar"/>
 	<classpathentry kind="lib" path="lib/b128877.jar" sourcepath="/JavaSearchBugs/lib/b128877.jar" rootpath=""/>
+	<classpathentry kind="lib" path="lib/b137984.jar"/>
 	<classpathentry kind="lib" path="lib/JavaSearch15.jar" sourcepath="/JavaSearchBugs/lib/JavaSearch15.jar" rootpath=""/>
 	<classpathentry sourcepath="lib" kind="lib" path="lib"/>
     <classpathentry kind="output" path="bin"/>

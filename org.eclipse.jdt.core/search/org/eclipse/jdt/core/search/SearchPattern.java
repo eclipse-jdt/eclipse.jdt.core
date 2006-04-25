@@ -1247,7 +1247,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 						typeQualification = CharOperation.subarray(typeErasure, 0, lastDot);
 						if (!field.isBinary()) {
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							CharOperation.concat(IIndexConstants.ONE_STAR, typeQualification);
+							typeQualification = CharOperation.concat(IIndexConstants.ONE_STAR, typeQualification);
 						}
 					}
 				} catch (JavaModelException e) {

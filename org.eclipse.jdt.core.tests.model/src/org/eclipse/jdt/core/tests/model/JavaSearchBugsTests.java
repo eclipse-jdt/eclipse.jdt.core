@@ -6348,4 +6348,48 @@ public void testBug137087m() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
+/**
+ * Bug 137984: [search] Field references not found when type is a qualified member type [regression]
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137984"
+ */
+public void testBug137984_jar() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b137984.jar", "").getClassFile("CJ.class").getType();
+	IField field = type.getField("c3");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"lib/b137984.jar CJ(int) EXACT_MATCH"
+	);
+}
+public void testBug137984_cu() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b137984", "C.java");
+	IField field = unit.getType("C").getField("c3");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/b137984/C.java b137984.C(int) [c3] EXACT_MATCH"
+	);
+}
+public void testBug137984_wc() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/CW.java",
+		"public class CW {\n" + 
+		"	CW2 c2;\n" + 
+		"	CW2.CW3 c3;\n" + 
+		"	CW(int c) {\n" + 
+		"		c2 = new CW2(c);\n" + 
+		"		c3 = c2.new CW3(c);\n" + 
+		"	}\n" + 
+		"	class CW2 {\n" + 
+		"		CW2(int x) {}\n" + 
+		"		class CW3 {\n" + 
+		"			CW3(int x) {}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IField field = workingCopies[0].getType("CW").getField("c3");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/CW.java CW(int) [c3] EXACT_MATCH"
+	);
+}
 }
