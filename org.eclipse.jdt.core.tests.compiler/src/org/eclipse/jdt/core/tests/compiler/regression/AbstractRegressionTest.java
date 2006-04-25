@@ -846,12 +846,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					//        this as ez to use (too many changes in logs)
 					javacCommandLineHeader = cmdLineHeader.toString();
 
-					// open output log
-					String javacFullLogFileName = 
-							Util.getOutputDirectory() +	File.separatorChar + 
-							version.replace(' ', '_') + "_" + 
-					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
-					    ".txt";
+					javacFullLogFileName = Util.getOutputDirectory() +	File.separatorChar + 
+                    							version.replace(' ', '_') + "_" + 
+                    					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
+                    					    ".txt";
 					javacFullLog = 
 					  	new PrintWriter(new FileOutputStream(javacFullLogFileName));
 					javacFullLog.println(version); // so that the contents is self sufficient
@@ -971,6 +969,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected static String javacTestName; 
 	  // needed for multiple test calls within a single test method
 	protected static boolean javacTestErrorFlag;
+	  private static String javacFullLogFileName;
 	  // flags errors so that any error in a test case prevents
 	  // java execution
 	 
@@ -1239,6 +1238,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					System.out.println("\n");
 				}
 			}
+			dualPrintln("\n\nFull results sent to " + javacFullLogFileName);
 			javacFullLog.flush();
 		}
 	}
