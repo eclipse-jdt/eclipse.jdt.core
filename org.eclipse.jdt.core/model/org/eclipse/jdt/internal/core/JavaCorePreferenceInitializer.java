@@ -89,9 +89,6 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
-		
-		// enable external javadoc attachment
-		defaultOptionsMap.put(JavaCore.ENABLE_JAVADOC_ATTACHMENTS_ACCESSES, JavaCore.ENABLED);
 
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);

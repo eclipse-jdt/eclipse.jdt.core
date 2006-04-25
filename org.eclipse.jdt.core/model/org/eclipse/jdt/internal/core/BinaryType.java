@@ -1054,11 +1054,6 @@ public String getJavadocContents(IProgressMonitor monitor) throws JavaModelExcep
 	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
 		return cachedJavadoc;
 	}
-	String option = this.getJavaProject().getOption(JavaCore.ENABLE_JAVADOC_ATTACHMENTS_ACCESSES, true);
-	if (JavaCore.DISABLED.equals(option)) {
-		return null;
-	}
-	
 	URL baseLocation= getJavadocBaseLocation();
 	if (baseLocation == null) {
 		return null;
