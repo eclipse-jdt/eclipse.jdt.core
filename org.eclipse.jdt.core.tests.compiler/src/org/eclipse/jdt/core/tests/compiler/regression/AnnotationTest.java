@@ -6531,5 +6531,28 @@ public void test198() {
 		"	            ^\n" + 
 		"Type mismatch: cannot convert from int to String\n" + 
 		"----------\n");
-}    
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138443
+public void test199() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@interface AttributeOverrides {\n" + 
+			"	AttributeOverride[] value();\n" + 
+			"}\n" + 
+			"@interface AttributeOverride {\n" + 
+			"	String name();\n" + 
+			"	Column column();\n" + 
+			"}\n" + 
+			"@interface Column {\n" + 
+			"	String name();\n" + 
+			"}\n" + 
+			"@AttributeOverrides({\n" + 
+			"    @AttributeOverride( name=\"city\", column=@Column( name=\"DIAB99C_TXCTY\" )),\n" + 
+			"    @AttributeOverride( name=\"state\", column=@Column( name=\"DIAB99C_TXSTAT\" )),\n" + 
+			"    @AttributeOverride( name=\"zipCode\", column=@Column( name=\"DIAB99C_TXZIP\")),\n" + 
+			"}) public class X {}"
+		},
+		"");
+}
 }
