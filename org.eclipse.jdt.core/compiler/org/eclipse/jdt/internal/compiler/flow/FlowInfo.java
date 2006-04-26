@@ -141,6 +141,15 @@ public abstract boolean isDefinitelyUnknown(LocalVariableBinding local);
 
 /**
  * Check status of potential null assignment for a local. Return true if there 
+ * is a reasonable expectation that the variable be non null at this point.
+ * @param local LocalVariableBinding - the binding for the checked local
+ * @return true if there is a reasonable expectation that local be non null at 
+ * this point
+ */
+public abstract boolean isPotentiallyNonNull(LocalVariableBinding local);
+	
+/**
+ * Check status of potential null assignment for a local. Return true if there 
  * is a reasonable expectation that the variable be null at this point. This 
  * includes the protected null case, so as to augment diagnostics, but does not
  * really check that someone deliberately assigned to null on any specific

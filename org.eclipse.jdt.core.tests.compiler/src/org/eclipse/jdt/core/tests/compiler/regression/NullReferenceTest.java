@@ -11,16 +11,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo.AssertionFailedException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-
-import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
+/* See also NullReferenceImplTests for low level, implementation dependent 
+ * tests. */
 public class NullReferenceTest extends AbstractRegressionTest {
 
 public NullReferenceTest(String name) { 
@@ -1730,15 +1725,6 @@ public void test0311_if_else() {
 }
 
 // null analysis - if/else
-// PMT: exactly the case we talked about; what happens is that the first
-// if shade doubts upon o; what we could do is to avoid marking in case
-// of error? not sure this is appropriate though, because of inner code
-// into the if itself; I believe I somewhat did that on purpose: the latest
-// wins; completed with o.toString()...
-// basically, the choice is about what we should do in case of error:
-// neglect the effect of the error, or propagate this effect; the second
-//  tends to produce less repeated errors (I believe) than the first...
-// PREMATURE could refine adding a null-dependent reachable mark... not urgent
 public void test0312_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -1748,8 +1734,8 @@ public void test0312_if_else() {
 			"  void foo() {\n" + 
 			"    Object o = new Object();\n" + 
 			"    if (o == null) { /* */ }\n" + // complain 
-			"    if (o != null) { /* */ }\n" + // quiet
-			"    o.toString();\n" + // complain
+			"    if (o != null) { /* */ }\n" +
+			"    o.toString();\n" +
 			"  }\n" + 
 			"}\n"},
 		"----------\n" + 
@@ -2374,6 +2360,100 @@ public void test0338_if_else_nested() {
 			"}\n" + 
 			"\n"},
 		"");
+}
+
+// null analysis - if/else nested with unknown protection: unknown cannot protect
+public void test0339_if_else_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, boolean b) {\n" + 
+			"    if (o == null || b) {\n" + 
+			"      if (bar() == o) {\n" + 
+			"        o.toString();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  Object bar() {\n" + 
+			"    return new Object();\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else nested
+public void test0340_if_else_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    if (o == null) {\n" + 
+			"      if (bar() == o) {\n" + 
+			"        o.toString();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  Object bar() {\n" + 
+			"    return new Object();\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else nested
+public void test0341_if_else_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o1, Object o2, boolean b) {\n" + 
+			"    if (o1 == null || b) {\n" + 
+			"      if (o1 == o2) {\n" + 
+			"        o1.toString();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o1.toString();\n" + 
+		"	^^\n" + 
+		"The variable o1 may be null\n" + 
+		"----------\n");
+}
+
+// null analysis - if/else nested
+public void test0342_if_else_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o1, Object o2, boolean b) {\n" + 
+			"    if (o1 == null || b) {\n" + 
+			"      if (o2 == o1) {\n" + 
+			"        o1.toString();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o1.toString();\n" + 
+		"	^^\n" + 
+		"The variable o1 may be null\n" + 
+		"----------\n");
 }
 
 // null analysis -- while
@@ -3511,7 +3591,8 @@ public void test0450_while() {
 
 // null analysis - while
 // TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
-public void _test0451_while_nested() {
+// fixed along 127570, do the reporting
+public void test0451_while_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3526,7 +3607,12 @@ public void _test0451_while_nested() {
 			"    if (o != null) { /* */ }\n" + 
 			"  }\n" + 
 			"}"},
-		"ERR");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	if (o != null) { /* */ }\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
 } 
 
 // TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
@@ -5357,9 +5443,10 @@ public void test0725_for_with_assignment() {
 }
 
 // null analysis -- for
-// contrast this with #311
+// changed with https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+// we are now able to see that x2 is reinitialized with x1, which is unknown
 public void test0726_for() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -5373,12 +5460,7 @@ public void test0726_for() {
 			"    }\n" + 
 			"  }\n" +  
 			"}\n"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	x2.toString();\n" + 
-		"	^^\n" + 
-		"The variable x2 may be null\n" + 
-		"----------\n");
+		"");
 }
 
 // null analysis -- for
@@ -5585,6 +5667,89 @@ public void test0735_for_nested_break() {
 				"\n"},
 			"");
 	}
+}
+
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+public void test0736_for_embedded_lazy_init() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public boolean foo() {\n" + 
+			"    Boolean b = null;\n" + 
+			"    for (int i = 0; i < 1; i++) {\n" + 
+			"      if (b == null) {\n" + 
+			"        b = Boolean.TRUE;\n" + 
+			"      }\n" + 
+			"      if (b.booleanValue()) {\n" + // quiet
+			"        return b.booleanValue();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+// null analysis - for with unknown protection: unknown cannot protect anything
+// suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+public void test0737_for_unknown_protection() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public boolean foo(Boolean p) {\n" + 
+			"    Boolean b = null;\n" + 
+			"    for (int i = 0; i < 1; i++) {\n" + 
+			"      if (b == p) {\n" + // tells us that p is null as well
+			"        // empty\n" + 
+			"      }\n" +
+			"      else {\n" +
+			"        continue;\n" +
+			"      }\n" + 
+			"      if (b.booleanValue()) {\n" + // complain b can only be null
+			"        return b.booleanValue();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	if (b.booleanValue()) {\n" + 
+		"	    ^\n" + 
+		"The variable b can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis - for with unknown protection
+// suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+// the issue is that we cannot do less than full aliasing analysis to
+// catch this one
+// TODO (maxime) reconsider when/if we bring full aliasing in
+public void _test0738_for_unknown_protection() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public boolean foo(Boolean p) {\n" + 
+			"    Boolean b = null;\n" + 
+			"    for (int i = 0; i < 1; i++) {\n" + 
+			"      if (b == p) {\n" + 
+			"        // empty\n" + 
+			"      }\n" +
+			"      else {\n" +
+			"        b = p;\n" +
+			"      }\n" + 
+			"      if (b.booleanValue()) {\n" + // quiet because b is an alias for p, unknown
+			"        return b.booleanValue();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
 }
 
 // null analysis -- switch
@@ -7035,6 +7200,109 @@ public void test1036() {
 		"----------\n");
 }
 
+// encoding validation
+public void test1500() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, int i, boolean b, Object u) {\n" +
+			"    o.toString();\n" + 
+			"    switch (i) {\n" + 
+			"      case 0:\n" +
+			"        if (b) {\n" +
+			"          o = u;\n" +
+			"        } else {\n" +
+			"          o = new Object();\n" +
+			"        }\n" +
+			"        break;\n" + 
+			"    }\n" +
+			"    if (o == null) { /* empty */ }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// encoding validation
+public void test1501() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, int i, boolean b, Object u) {\n" +
+			"    if (b) {\n" +
+			"      o = new Object();\n" +
+			"    }\n" + 
+			"    o.toString();\n" + 
+			"    switch (i) {\n" + 
+			"      case 0:\n" +
+			"        if (b) {\n" +
+			"          o = u;\n" +
+			"        } else {\n" +
+			"          o = new Object();\n" +
+			"        }\n" +
+			"        break;\n" + 
+			"    }\n" +
+			"    if (o == null) { /* empty */ }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// encoding validation
+public void test1502() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, int i, boolean b, Object u) {\n" +
+			"    if (b) {\n" +
+			"      o = u;\n" +
+			"    }\n" + 
+			"    o.toString();\n" + 
+			"    switch (i) {\n" + 
+			"      case 0:\n" +
+			"        if (b) {\n" +
+			"          o = u;\n" +
+			"        } else {\n" +
+			"          o = new Object();\n" +
+			"        }\n" +
+			"        break;\n" + 
+			"    }\n" +
+			"    if (o == null) { /* empty */ }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
+// encoding validation
+public void test1503() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o, int i, boolean b, Object u) {\n" +
+			"    if (b) {\n" +
+			"      o = u;\n" +
+			"    } else {\n" +
+			"      o = new Object();\n" +
+			"    }\n" + 
+			"    o.toString();\n" + 
+			"    switch (i) {\n" + 
+			"      case 0:\n" +
+			"        if (b) {\n" +
+			"          o = u;\n" +
+			"        } else {\n" +
+			"          o = new Object();\n" +
+			"        }\n" +
+			"        break;\n" + 
+			"    }\n" +
+			"    if (o == null) { /* empty */ }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
 // flow info low-level validation
 public void test2000_flow_info() {
 	this.runNegativeTest(
@@ -7058,7 +7326,7 @@ public void test2000_flow_info() {
 			"      o60 = o0, o61 = o0, o62 = o0, o63 = o0, o64 = o0,\n" + 
 			"      o65 = o0, o66 = o0, o67 = o0, o68 = o0, o69 = o0;\n" + 
 			"    if (o65 == null) { /* */ }\n" + // complain 
-			"    if (o65 != null) { /* */ }\n" + // quiet (already reported)
+			"    if (o65 != null) { /* */ }\n" +
 			"  }\n" + 
 			"}\n"},
 		"----------\n" + 
@@ -7781,2198 +8049,5 @@ public void test2020_flow_info() {
 		"	^^\n" + 
 		"The variable o1 may be null\n" + 
 		"----------\n");
-}
-
-// Technical tests -- only available with patched sources
-static final boolean 
-	printTablesAsNames = false, 
-	printTablesAsCodes = false, 
-	printTruthMaps = false;
-static final int
-	combinationTestsloopsNb = 1; // define to 10000s to measure performances
-
-
-public void test2050_markAsComparedEqualToNonNull() {
-	long [][][] testData = {
-		{{0,0,0,0},{1,1,0,0}},
-		{{0,0,0,1},{1,1,0,1}},
-		{{0,0,1,0},{1,1,0,0}},
-		{{0,0,1,1},{1,1,0,1}},
-		{{0,1,0,0},{1,1,0,0}},
-		{{0,1,0,1},{1,1,0,1}},
-		{{0,1,1,0},{1,1,0,0}},
-		{{0,1,1,1},{1,1,0,1}},
-		{{1,0,0,0},{1,1,0,0}},
-		{{1,0,0,1},{1,0,0,1}},
-		{{1,0,1,0},{1,1,0,0}},
-		{{1,0,1,1},{1,1,0,1}},
-		{{1,1,0,0},{1,1,0,0}},
-		{{1,1,0,1},{1,1,0,1}},
-		{{1,1,1,0},{1,1,0,0}},
-		{{1,1,1,1},{1,1,0,1}},
-	};
-	int failures = 0;
-	LocalVariableBinding local = new TestLocalVariableBinding(0);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0]);
-		result.markAsComparedEqualToNonNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1])))) {
-			if (failures == 0) {
-				System.out.println("markAsComparedEqualToNonNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	local = new TestLocalVariableBinding(64);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64),
-			expected = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64);
-		result.markAsComparedEqualToNonNull(local);
-		if (!(result.testEquals(expected))) {
-			if (failures == 0) {
-				System.out.println("markAsComparedEqualToNonNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, //  (64) instead of: " + testStringValueOf(testData[i][1]));
-		}
-		if (testData[i][0][0] == 0 &&
-				testData[i][0][1] == 0 &&
-				testData[i][0][2] == 0 &&				
-				testData[i][0][3] == 0) {
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1]);
-			result.markAsComparedEqualToNonNull(local);
-			if (!result.testEquals(expected, 64)) {
-				if (failures == 0) {
-					System.out.println("markAsComparedEqualToNonNull failures: ");
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-						',' + result.testString() + 
-						"}, //  (zero 64) instead of: " + testStringValueOf(testData[i][1]));
-			}
-		}
-	}
-	local = new TestLocalVariableBinding(128);
-	for (int i = 0; i < testData.length; i++) {
-		if (testData[i][0][0] == 0 &&
-				testData[i][0][1] == 0 &&
-				testData[i][0][2] == 0 &&				
-				testData[i][0][3] == 0) {
-			UnconditionalFlowInfoTestHarness 
-				result = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 64),
-				expected = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 128);
-			result.markAsComparedEqualToNonNull(local);
-			if (!result.testEquals(expected, 128)) {
-				if (failures == 0) {
-					System.out.println("markAsComparedEqualToNonNull failures: ");
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-						',' + result.testString() + 
-						"}, //  (zero 128) instead of: " + testStringValueOf(testData[i][1]));
-			}
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MARK COMPARED NON NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " -> " +
-				testSymbolicValueOf(testData[i][1]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MARK COMPARED NON NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]));
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2051_markAsComparedEqualToNull() {
-	long [][][] testData = {
-		{{0,0,0,0},{0,1,0,0}},
-		{{0,0,0,1},{0,1,0,0}},
-		{{0,0,1,0},{0,1,1,0}},
-		{{0,0,1,1},{0,1,1,0}},
-		{{0,1,0,0},{0,1,0,0}},
-		{{0,1,0,1},{0,1,0,0}},
-		{{0,1,1,0},{0,1,1,0}},
-		{{0,1,1,1},{0,1,1,0}},
-		{{1,0,0,0},{0,1,0,0}},
-		{{1,0,0,1},{0,1,0,0}},
-		{{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,1},{0,1,0,0}},
-		{{1,1,0,0},{0,1,0,0}},
-		{{1,1,0,1},{0,1,0,0}},
-		{{1,1,1,0},{0,1,1,0}},
-		{{1,1,1,1},{0,1,1,0}},
-	};
-	int failures = 0;
-	LocalVariableBinding local = new TestLocalVariableBinding(0);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0]);
-		result.markAsComparedEqualToNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1])))) {
-			if (failures == 0) {
-				System.out.println("markAsComparedEqualToNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	local = new TestLocalVariableBinding(64);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64),
-			expected = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64);
-		result.markAsComparedEqualToNull(local);
-		if (!(result.testEquals(expected))) {
-			if (failures == 0) {
-				System.out.println("markAsComparedEqualToNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // (64) instead of: " + testStringValueOf(testData[i][1]));
-		}
-		if (testData[i][0][0] == 0 &&
-				testData[i][0][1] == 0 &&
-				testData[i][0][2] == 0 &&				
-				testData[i][0][3] == 0) {
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1]);
-			result.markAsComparedEqualToNull(local);
-			if (!result.testEquals(expected, 64)) {
-				if (failures == 0) {
-					System.out.println("markAsComparedEqualToNull failures: ");
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-						',' + result.testString() + 
-						"}, //  (zero 64) instead of: " + testStringValueOf(testData[i][1]));
-			}
-		}		
-	}
-	local = new TestLocalVariableBinding(128);
-	for (int i = 0; i < testData.length; i++) {
-		if (testData[i][0][0] == 0 &&
-				testData[i][0][1] == 0 &&
-				testData[i][0][2] == 0 &&				
-				testData[i][0][3] == 0) {
-			UnconditionalFlowInfoTestHarness 
-				result = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 64),
-				expected = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 128);
-			result.markAsComparedEqualToNull(local);
-			if (!result.testEquals(expected, 128)) {
-				if (failures == 0) {
-					System.out.println("markAsComparedEqualToNull failures: ");
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-						',' + result.testString() + 
-						"}, //  (zero 128) instead of: " + testStringValueOf(testData[i][1]));
-			}
-		}
-	}	
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MARK COMPARED NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " -> " +
-				testSymbolicValueOf(testData[i][1]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MARK COMPARED NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]));
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2052_markAsDefinitelyNonNull() {
-	long [][][] testData = {
-		{{0,0,0,0},{1,0,0,1}},
-		{{0,0,0,1},{1,0,0,1}},
-		{{0,0,1,0},{1,0,0,1}},
-		{{0,0,1,1},{1,0,0,1}},
-		{{0,1,0,0},{1,0,0,1}},
-		{{0,1,0,1},{1,0,0,1}},
-		{{0,1,1,0},{1,0,0,1}},
-		{{0,1,1,1},{1,0,0,1}},
-		{{1,0,0,0},{1,0,0,1}},
-		{{1,0,0,1},{1,0,0,1}},
-		{{1,0,1,0},{1,0,0,1}},
-		{{1,0,1,1},{1,0,0,1}},
-		{{1,1,0,0},{1,0,0,1}},
-		{{1,1,0,1},{1,0,0,1}},
-		{{1,1,1,0},{1,0,0,1}},
-		{{1,1,1,1},{1,0,0,1}},
-	};
-	int failures = 0;
-	LocalVariableBinding local = new TestLocalVariableBinding(0);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0]);
-		result.markAsDefinitelyNonNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1])))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyNonNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	local = new TestLocalVariableBinding(64);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64);
-		result.markAsDefinitelyNonNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64)))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyNonNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // (64) instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY NON NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " -> " +
-				testSymbolicValueOf(testData[i][1]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY NON NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]));
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2053_markAsDefinitelyNull() {
-	long [][][] testData = {
-		{{0,0,0,0},{1,0,1,0}},
-		{{0,0,0,1},{1,0,1,0}},
-		{{0,0,1,0},{1,0,1,0}},
-		{{0,0,1,1},{1,0,1,0}},
-		{{0,1,0,0},{1,0,1,0}},
-		{{0,1,0,1},{1,0,1,0}},
-		{{0,1,1,0},{1,0,1,0}},
-		{{0,1,1,1},{1,0,1,0}},
-		{{1,0,0,0},{1,0,1,0}},
-		{{1,0,0,1},{1,0,1,0}},
-		{{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,1},{1,0,1,0}},
-		{{1,1,0,0},{1,0,1,0}},
-		{{1,1,0,1},{1,0,1,0}},
-		{{1,1,1,0},{1,0,1,0}},
-		{{1,1,1,1},{1,0,1,0}},
-	};
-	int failures = 0;
-	LocalVariableBinding local = new TestLocalVariableBinding(0);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0]);
-		result.markAsDefinitelyNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1])))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	local = new TestLocalVariableBinding(64);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64);
-		result.markAsDefinitelyNull(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64)))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyNull failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // (64) instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " -> " +
-				testSymbolicValueOf(testData[i][1]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY NULL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]));
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2054_markAsDefinitelyUnknown() {
-	long [][][] testData = {
-		{{0,0,0,0},{1,0,1,1}},
-		{{0,0,0,1},{1,0,1,1}},
-		{{0,0,1,0},{1,0,1,1}},
-		{{0,0,1,1},{1,0,1,1}},
-		{{0,1,0,0},{1,0,1,1}},
-		{{0,1,0,1},{1,0,1,1}},
-		{{0,1,1,0},{1,0,1,1}},
-		{{0,1,1,1},{1,0,1,1}},
-		{{1,0,0,0},{1,0,1,1}},
-		{{1,0,0,1},{1,0,1,1}},
-		{{1,0,1,0},{1,0,1,1}},
-		{{1,0,1,1},{1,0,1,1}},
-		{{1,1,0,0},{1,0,1,1}},
-		{{1,1,0,1},{1,0,1,1}},
-		{{1,1,1,0},{1,0,1,1}},
-		{{1,1,1,1},{1,0,1,1}},
-	};
-	int failures = 0;
-	LocalVariableBinding local = new TestLocalVariableBinding(0);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0]);
-		result.markAsDefinitelyUnknown(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1])))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyUnknown failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	local = new TestLocalVariableBinding(64);
-	for (int i = 0; i < testData.length; i++) {
-		UnconditionalFlowInfoTestHarness 
-			result = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64);
-		result.markAsDefinitelyUnknown(local);
-		if (!(result.testEquals(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64)))) {
-			if (failures == 0) {
-				System.out.println("markAsDefinitelyUnknown failures: ");
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + result.testString() + 
-				"}, // (64) instead of: " + testStringValueOf(testData[i][1]));
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY UNKNOWN");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " -> " +
-				testSymbolicValueOf(testData[i][1]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MARK DEFINITELY UNKNOWN");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]));
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2055_addInitializationsFrom() {
-	long [][][] testData = {
-		{{0,0,0,0},{0,0,0,0},{0,0,0,0}},
-		{{0,0,0,0},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,0},{0,1,0,0},{0,1,0,0}},
-		{{0,0,0,0},{0,1,1,0},{0,1,1,0}},
-		{{0,0,0,0},{1,0,0,1},{1,0,0,1}},
-		{{0,0,0,0},{1,0,1,0},{1,0,1,0}},
-		{{0,0,0,0},{1,0,1,1},{1,0,1,1}},
-		{{0,0,0,0},{1,1,0,0},{1,1,0,0}},
-		{{0,0,0,0},{1,1,0,1},{1,1,0,1}},
-		{{0,0,0,1},{0,0,0,0},{0,0,0,1}},
-		{{0,0,0,1},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,1},{0,1,0,0},{0,1,0,0}},
-		{{0,0,0,1},{0,1,1,0},{0,1,0,0}},
-		{{0,0,0,1},{1,0,0,1},{1,0,0,1}},
-		{{0,0,0,1},{1,0,1,0},{1,0,1,0}},
-		{{0,0,0,1},{1,0,1,1},{1,0,1,1}},
-		{{0,0,0,1},{1,1,0,0},{1,1,0,1}},
-		{{0,0,0,1},{1,1,0,1},{1,1,0,1}},
-		{{0,0,1,0},{0,0,0,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,0},{0,1,0,0},{0,1,1,0}},
-		{{0,0,1,0},{0,1,1,0},{0,1,1,0}},
-		{{0,0,1,0},{1,0,0,1},{1,0,0,1}},
-		{{0,0,1,0},{1,0,1,0},{1,0,1,0}},
-		{{0,0,1,0},{1,0,1,1},{1,0,1,1}},
-		{{0,0,1,0},{1,1,0,0},{1,1,0,0}},
-		{{0,0,1,0},{1,1,0,1},{1,1,0,1}},
-		{{0,0,1,1},{0,0,0,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,1},{0,1,0,0},{0,1,1,0}},
-		{{0,0,1,1},{0,1,1,0},{0,1,1,0}},
-		{{0,0,1,1},{1,0,0,1},{1,0,0,1}},
-		{{0,0,1,1},{1,0,1,0},{1,0,1,0}},
-		{{0,0,1,1},{1,0,1,1},{1,0,1,1}},
-		{{0,0,1,1},{1,1,0,0},{1,1,0,1}},
-		{{0,0,1,1},{1,1,0,1},{1,1,0,1}},
-		{{0,1,0,0},{0,0,0,0},{0,1,0,0}},
-		{{0,1,0,0},{0,0,0,1},{0,0,0,1}},
-		{{0,1,0,0},{0,0,1,0},{0,1,1,0}},
-		{{0,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,0,0},{0,1,0,0},{0,1,0,0}},
-		{{0,1,0,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,0,1},{1,0,0,1}},
-		{{0,1,0,0},{1,0,1,0},{1,0,1,0}},
-		{{0,1,0,0},{1,0,1,1},{1,0,1,1}},
-		{{0,1,0,0},{1,1,0,0},{1,1,0,0}},
-		{{0,1,0,0},{1,1,0,1},{1,1,0,1}},
-		{{0,1,1,0},{0,0,0,0},{0,1,1,0}},
-		{{0,1,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,1,1,0},{0,0,1,0},{0,1,1,0}},
-		{{0,1,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,1,0},{0,1,0,0},{0,1,1,0}},
-		{{0,1,1,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,1,0},{1,0,0,1},{1,0,0,1}},
-		{{0,1,1,0},{1,0,1,0},{1,0,1,0}},
-		{{0,1,1,0},{1,0,1,1},{1,0,1,1}},
-		{{0,1,1,0},{1,1,0,0},{1,1,0,0}},
-		{{0,1,1,0},{1,1,0,1},{1,1,0,1}},
-		{{1,0,0,1},{0,0,0,0},{1,0,0,1}},
-		{{1,0,0,1},{0,0,0,1},{1,0,0,1}},
-		{{1,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,0,1},{0,1,0,0},{0,1,0,0}},
-		{{1,0,0,1},{0,1,1,0},{0,1,1,0}},
-		{{1,0,0,1},{1,0,0,1},{1,0,0,1}},
-		{{1,0,0,1},{1,0,1,0},{1,0,1,0}},
-		{{1,0,0,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,0,1},{1,1,0,0},{1,1,0,1}},
-		{{1,0,0,1},{1,1,0,1},{1,1,0,1}},
-		{{1,0,1,0},{0,0,0,0},{1,0,1,0}},
-		{{1,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{1,0,1,0},{0,0,1,0},{1,0,1,0}},
-		{{1,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,0},{0,1,0,0},{1,0,1,0}},
-		{{1,0,1,0},{0,1,1,0},{1,0,1,0}},
-		{{1,0,1,0},{1,0,0,1},{1,0,0,1}},
-		{{1,0,1,0},{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,0},{1,0,1,1},{1,0,1,1}},
-		{{1,0,1,0},{1,1,0,0},{1,1,0,0}},
-		{{1,0,1,0},{1,1,0,1},{1,1,0,1}},
-		{{1,0,1,1},{0,0,0,0},{1,0,1,1}},
-		{{1,0,1,1},{0,0,0,1},{1,0,1,1}},
-		{{1,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,1},{0,1,0,0},{0,1,0,0}},
-		{{1,0,1,1},{0,1,1,0},{0,1,1,0}},
-		{{1,0,1,1},{1,0,0,1},{1,0,0,1}},
-		{{1,0,1,1},{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,1,1},{1,1,0,0},{1,1,0,1}},
-		{{1,0,1,1},{1,1,0,1},{1,1,0,1}},
-		{{1,1,0,0},{0,0,0,0},{1,1,0,0}},
-		{{1,1,0,0},{0,0,0,1},{1,1,0,1}},
-		{{1,1,0,0},{0,0,1,0},{0,0,1,0}},
-		{{1,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,0},{0,1,0,0},{0,1,0,0}},
-		{{1,1,0,0},{0,1,1,0},{0,1,1,0}},
-		{{1,1,0,0},{1,0,0,1},{1,0,0,1}},
-		{{1,1,0,0},{1,0,1,0},{1,0,1,0}},
-		{{1,1,0,0},{1,0,1,1},{1,0,1,1}},
-		{{1,1,0,0},{1,1,0,0},{1,1,0,0}},
-		{{1,1,0,0},{1,1,0,1},{1,1,0,1}},
-		{{1,1,0,1},{0,0,0,0},{1,1,0,1}},
-		{{1,1,0,1},{0,0,0,1},{0,0,0,1}},
-		{{1,1,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,1,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,1},{0,1,0,0},{0,1,0,0}},
-		{{1,1,0,1},{0,1,1,0},{0,1,1,0}},
-		{{1,1,0,1},{1,0,0,1},{1,0,0,1}},
-		{{1,1,0,1},{1,0,1,0},{1,0,1,0}},
-		{{1,1,0,1},{1,0,1,1},{1,0,1,1}},
-		{{1,1,0,1},{1,1,0,0},{1,1,0,1}},
-		{{1,1,0,1},{1,1,0,1},{1,1,0,1}},
-	};
-	int failures = 0;
-	long start;
-	if (combinationTestsloopsNb > 1) {
-		start = System.currentTimeMillis();
-	}
-	String header = "addInitializationsFrom failures: "; //$NON-NLS-1$
-	for (int l = 0; l < combinationTestsloopsNb ; l++) {
-		for (int i = 0; i < testData.length; i++) {
-			UnconditionalFlowInfoTestHarness result;
-			if (!(result = (UnconditionalFlowInfoTestHarness)(
-					UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0])).
-						addInitializationsFrom(
-								UnconditionalFlowInfoTestHarness.
-								testUnconditionalFlowInfo(testData[i][1]))).
-					testEquals(UnconditionalFlowInfoTestHarness.
-								testUnconditionalFlowInfo(testData[i][2]))) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-	}
-	if (combinationTestsloopsNb > 1) {
-		System.out.println("addInitial...\t\t" + combinationTestsloopsNb + "\t" + 
-				(System.currentTimeMillis() - start));
-	}
-	// PREMATURE optimize test (extraneous allocations and copies)
-	// PREMATURE optimize test (extraneous iterations - undup)
-	UnconditionalFlowInfoTestHarness 
-		zero = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(new long[] {0,0,0,0}),
-		left0, left1, right1, left2, right2, 
-		expected0, expected1, expected2, result;
-	for (int i = 0; i < testData.length; i++) {
-			left0 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][0]);
-			left1 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][0], 64);
-			left2 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 128);
-			right1 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 64);
-			right2 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][1], 128);
-			expected0 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][2]);
-			expected1 = UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(testData[i][2], 64);
-			expected2 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][2], 128);
-		if (!(result = (UnconditionalFlowInfoTestHarness) 
-				left1.copy().addInitializationsFrom(right1)).
-					testEquals(expected1)) {
-			if (failures == 0) {
-				System.out.println(header);
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + testStringValueOf(testData[i][1]) +
-				',' + result.testString() + 
-				"}, // (64, 64) - instead of: " + testStringValueOf(testData[i][2]));
-		}
-		if ((testData[i][0][0] | testData[i][0][1] | 
-				testData[i][0][2] | testData[i][0][3]) == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					zero.copy().addInitializationsFrom(right1)).
-						testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) right2.copy().
-					addInitializationsFrom(right1)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero 128, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					 zero.copy().addInitializationsFrom(right2)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString(128) + 
-					"}, // (zero, 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					 right1.copy().addInitializationsFrom(right2)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString(128) + 
-					"}, // (zero 64, 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-		if ((testData[i][1][0] | testData[i][1][1] | 
-				testData[i][1][2] | testData[i][1][3]) == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left0.copy().addInitializationsFrom(left2)).
-						testEquals(expected0, 0)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (1, zero 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left1.copy().addInitializationsFrom(zero)).
-						testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left1.copy().addInitializationsFrom(left2)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left2.copy().addInitializationsFrom(zero)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left2.addInitializationsFrom(left1)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR ADD");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " + " +
-				testSymbolicValueOf(testData[i][1]) + " -> " +
-				testSymbolicValueOf(testData[i][2]));
-		}	
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR ADD");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]) + " " +
-				testCodedValueOf(testData[i][2]));
-		}
-	}
-	if (printTruthMaps) {
-		for (int i = 0; i < 4; i++) {
-			System.out.println("======================================================");
-			System.out.println("Truth map for addInitializationsFrom null bit " + (i + 1));
-			System.out.println();
-			printTruthMap(testData, i);
-		}
-	}	
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2056_addPotentialInitializationsFrom() {
-	long [][][] testData = {
-		{{0,0,0,0},{0,0,0,0},{0,0,0,0}},
-		{{0,0,0,0},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,0},{0,1,0,0},{0,0,0,0}},
-		{{0,0,0,0},{0,1,1,0},{0,0,1,0}},
-		{{0,0,0,0},{1,0,0,1},{0,0,0,1}},
-		{{0,0,0,0},{1,0,1,0},{0,0,1,0}},
-		{{0,0,0,0},{1,0,1,1},{0,0,0,1}},
-		{{0,0,0,0},{1,1,0,0},{0,0,0,0}},
-		{{0,0,0,0},{1,1,0,1},{0,0,0,1}},
-		{{0,0,0,1},{0,0,0,0},{0,0,0,1}},
-		{{0,0,0,1},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,1},{0,1,0,0},{0,0,0,1}},
-		{{0,0,0,1},{0,1,1,0},{0,0,1,1}},
-		{{0,0,0,1},{1,0,0,1},{0,0,0,1}},
-		{{0,0,0,1},{1,0,1,0},{0,0,1,1}},
-		{{0,0,0,1},{1,0,1,1},{0,0,0,1}},
-		{{0,0,0,1},{1,1,0,0},{0,0,0,1}},
-		{{0,0,0,1},{1,1,0,1},{0,0,0,1}},
-		{{0,0,1,0},{0,0,0,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,0},{0,1,0,0},{0,0,1,0}},
-		{{0,0,1,0},{0,1,1,0},{0,0,1,0}},
-		{{0,0,1,0},{1,0,0,1},{0,0,1,1}},
-		{{0,0,1,0},{1,0,1,0},{0,0,1,0}},
-		{{0,0,1,0},{1,0,1,1},{0,0,1,1}},
-		{{0,0,1,0},{1,1,0,0},{0,0,1,0}},
-		{{0,0,1,0},{1,1,0,1},{0,0,1,1}},
-		{{0,0,1,1},{0,0,0,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,1},{0,1,0,0},{0,0,1,1}},
-		{{0,0,1,1},{0,1,1,0},{0,0,1,1}},
-		{{0,0,1,1},{1,0,0,1},{0,0,1,1}},
-		{{0,0,1,1},{1,0,1,0},{0,0,1,1}},
-		{{0,0,1,1},{1,0,1,1},{0,0,1,1}},
-		{{0,0,1,1},{1,1,0,0},{0,0,1,1}},
-		{{0,0,1,1},{1,1,0,1},{0,0,1,1}},
-		{{0,1,0,0},{0,0,0,0},{0,1,0,0}},
-		{{0,1,0,0},{0,0,0,1},{0,0,0,1}},
-		{{0,1,0,0},{0,0,1,0},{0,1,1,0}},
-		{{0,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,0,0},{0,1,0,0},{0,1,0,0}},
-		{{0,1,0,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,0,1},{0,0,0,1}},
-		{{0,1,0,0},{1,0,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,1,1},{0,0,0,1}},
-		{{0,1,0,0},{1,1,0,0},{0,1,0,0}},
-		{{0,1,0,0},{1,1,0,1},{0,0,0,1}},
-		{{0,1,1,0},{0,0,0,0},{0,1,1,0}},
-		{{0,1,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,1,1,0},{0,0,1,0},{0,1,1,0}},
-		{{0,1,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,1,0},{0,1,0,0},{0,1,1,0}},
-		{{0,1,1,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,1,0},{1,0,0,1},{0,0,1,1}},
-		{{0,1,1,0},{1,0,1,0},{0,1,1,0}},
-		{{0,1,1,0},{1,0,1,1},{0,0,1,1}},
-		{{0,1,1,0},{1,1,0,0},{0,1,1,0}},
-		{{0,1,1,0},{1,1,0,1},{0,0,1,1}},
-		{{1,0,0,1},{0,0,0,0},{1,0,0,1}},
-		{{1,0,0,1},{0,0,0,1},{1,0,1,1}},
-		{{1,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,0,1},{0,1,0,0},{1,0,0,1}},
-		{{1,0,0,1},{0,1,1,0},{0,0,1,1}},
-		{{1,0,0,1},{1,0,0,1},{1,0,0,1}},
-		{{1,0,0,1},{1,0,1,0},{0,0,1,1}},
-		{{1,0,0,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,0,1},{1,1,0,0},{1,0,0,1}},
-		{{1,0,0,1},{1,1,0,1},{1,0,0,1}},
-		{{1,0,1,0},{0,0,0,0},{1,0,1,0}},
-		{{1,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{1,0,1,0},{0,0,1,0},{1,0,1,0}},
-		{{1,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,0},{0,1,0,0},{1,0,1,0}},
-		{{1,0,1,0},{0,1,1,0},{1,0,1,0}},
-		{{1,0,1,0},{1,0,0,1},{0,0,1,1}},
-		{{1,0,1,0},{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,0},{1,0,1,1},{0,0,1,1}},
-		{{1,0,1,0},{1,1,0,0},{1,0,1,0}},
-		{{1,0,1,0},{1,1,0,1},{0,0,1,1}},
-		{{1,0,1,1},{0,0,0,0},{1,0,1,1}},
-		{{1,0,1,1},{0,0,0,1},{1,0,1,1}},
-		{{1,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,1},{0,1,0,0},{1,0,1,1}},
-		{{1,0,1,1},{0,1,1,0},{0,0,1,1}},
-		{{1,0,1,1},{1,0,0,1},{1,0,1,1}},
-		{{1,0,1,1},{1,0,1,0},{0,0,1,1}},
-		{{1,0,1,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,1,1},{1,1,0,0},{1,0,1,1}},
-		{{1,0,1,1},{1,1,0,1},{1,0,1,1}},
-		{{1,1,0,0},{0,0,0,0},{1,1,0,0}},
-		{{1,1,0,0},{0,0,0,1},{0,0,0,1}},
-		{{1,1,0,0},{0,0,1,0},{0,0,1,0}},
-		{{1,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,0},{0,1,0,0},{1,1,0,0}},
-		{{1,1,0,0},{0,1,1,0},{0,0,1,0}},
-		{{1,1,0,0},{1,0,0,1},{0,0,0,1}},
-		{{1,1,0,0},{1,0,1,0},{0,0,1,0}},
-		{{1,1,0,0},{1,0,1,1},{0,0,0,1}},
-		{{1,1,0,0},{1,1,0,0},{1,1,0,0}},
-		{{1,1,0,0},{1,1,0,1},{1,1,0,1}},
-		{{1,1,0,1},{0,0,0,0},{1,1,0,1}},
-		{{1,1,0,1},{0,0,0,1},{0,0,0,1}},
-		{{1,1,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,1,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,1},{0,1,0,0},{1,1,0,1}},
-		{{1,1,0,1},{0,1,1,0},{0,0,1,1}},
-		{{1,1,0,1},{1,0,0,1},{0,0,0,1}},
-		{{1,1,0,1},{1,0,1,0},{0,0,1,1}},
-		{{1,1,0,1},{1,0,1,1},{0,0,0,1}},
-		{{1,1,0,1},{1,1,0,0},{1,1,0,1}},
-		{{1,1,0,1},{1,1,0,1},{1,1,0,1}},
-	};
-	int failures = 0;
-	long start;
-	if (combinationTestsloopsNb > 1) {
-		start = System.currentTimeMillis();
-	}
-	String header = "addPotentialInitializationsFrom failures: "; //$NON-NLS-1$
-	for (int l = 0; l < combinationTestsloopsNb ; l++) {
-		for (int i = 0; i < testData.length; i++) {
-			UnconditionalFlowInfoTestHarness result;
-			if (!(result = (UnconditionalFlowInfoTestHarness)(
-					UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0])).
-							addPotentialInitializationsFrom(
-								UnconditionalFlowInfoTestHarness.
-									testUnconditionalFlowInfo(testData[i][1]))).
-					testEquals(UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][2]))) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (combinationTestsloopsNb < 2 && 
-					!(result = (UnconditionalFlowInfoTestHarness)(
-							UnconditionalFlowInfoTestHarness.
-							testUnconditionalFlowInfo(testData[i][0])).
-								addPotentialNullInfoFrom(
-										UnconditionalFlowInfoTestHarness.
-											testUnconditionalFlowInfo(testData[i][1], 128))).
-					testEquals(UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[14][0], 65), 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString(64) + 
-					"}, // bit 64 only, instead of: {0,0,0,0}");
-			}
-		}
-	}
-	if (combinationTestsloopsNb > 1) {
-		System.out.println("addPotential...\t" + combinationTestsloopsNb + "\t" + 
-				(System.currentTimeMillis() - start));
-	}
-	UnconditionalFlowInfoTestHarness 
-		zero = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(new long[] {0,0,0,0}),
-		left0, left1, right1, left2, right2, 
-		expected0, expected1, expected2, result;
-	for (int i = 0; i < testData.length; i++) {
-			left0 = UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0]);
-			left1 = UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0], 64);
-			left2 = UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0], 128);
-			right1 = UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][1], 64);
-			right2 = UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][1], 128);
-			expected0 = UnconditionalFlowInfoTestHarness.
-							testUnconditionalFlowInfo(testData[i][2]);
-			expected1 = UnconditionalFlowInfoTestHarness.
-							testUnconditionalFlowInfo(testData[i][2], 64);
-			expected2 = UnconditionalFlowInfoTestHarness.
-							testUnconditionalFlowInfo(testData[i][2], 128);
-		if (!(result = (UnconditionalFlowInfoTestHarness) 
-				left1.copy().addPotentialInitializationsFrom(right1)).
-					testEquals(expected1)) {
-			if (failures == 0) {
-				System.out.println(header);
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + testStringValueOf(testData[i][1]) +
-				',' + result.testString() + 
-				"}, // (64, 64) - instead of: " + testStringValueOf(testData[i][2]));
-		}
-		if (testData[i][0][0] + testData[i][0][1] + 
-				testData[i][0][2] + testData[i][0][3] == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					zero.copy().addPotentialInitializationsFrom(right1)).
-						testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					right2.copy().addPotentialInitializationsFrom(right1)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero 128, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					(UnconditionalFlowInfoTestHarness.
-							testUnconditionalFlowInfo(new long[] {0,0,0,0}, 64)).
-								// make just in time to get the needed structure
-								addPotentialNullInfoFrom(right2)).
-									testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero extra, 128) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					((UnconditionalFlowInfo)right2.copy()).
-						addPotentialNullInfoFrom(right1)).
-							testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero 128, 64) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					 ((UnconditionalFlowInfo)zero.copy()).
-					 	addPotentialNullInfoFrom(right2)).
-					 		testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString(128) + 
-					"}, // (zero, 128) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					 ((UnconditionalFlowInfo)right1.copy()).
-					 	addPotentialNullInfoFrom(right2)).
-					 		testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString(128) + 
-					"}, // (zero 64, 128) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}		}
-		if (testData[i][1][0] + testData[i][1][1] + 
-				testData[i][1][2] + testData[i][1][3] == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					((UnconditionalFlowInfoTestHarness)left0.copy()).
-						addPotentialNullInfoFrom(left2)).
-							testEquals(expected0, 1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (1, zero 128) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					left1.copy().addPotentialInitializationsFrom(zero)).
-						testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					left1.copy().addPotentialInitializationsFrom(left2)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					((UnconditionalFlowInfo)left1.copy()).
-						addPotentialNullInfoFrom(left2)).
-							testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero 128) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					((UnconditionalFlowInfo)left2.copy()).
-						addPotentialNullInfoFrom(zero)).
-							testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left2.addPotentialNullInfoFrom(left1)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero 64) null only - instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR ADD POTENTIAL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " + " +
-				testSymbolicValueOf(testData[i][1]) + " -> " +
-				testSymbolicValueOf(testData[i][2]));
-		}
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR ADD POTENTIAL");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]) + " " +
-				testCodedValueOf(testData[i][2]));
-		}
-	}
-	if (printTruthMaps) {
-		for (int i = 0; i < 4; i++) {
-			System.out.println("======================================================");
-			System.out.println("Truth map for addPotentialInitializationsFrom null bit " + (i + 1));
-			System.out.println();
-		}
-	}	
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2057_mergedWith() {
-	long [][][] testData = {
-		{{0,0,0,0},{0,0,0,0},{0,0,0,0}},
-		{{0,0,0,0},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,0},{0,1,0,0},{0,0,1,0}},
-		{{0,0,0,0},{0,1,1,0},{0,0,1,0}},
-		{{0,0,0,0},{1,0,0,1},{0,0,0,1}},
-		{{0,0,0,0},{1,0,1,0},{0,0,1,0}},
-		{{0,0,0,0},{1,0,1,1},{0,0,0,1}},
-		{{0,0,0,0},{1,1,0,0},{0,0,0,0}},
-		{{0,0,0,0},{1,1,0,1},{0,0,0,1}},
-		{{0,0,0,1},{0,0,0,0},{0,0,0,1}},
-		{{0,0,0,1},{0,0,0,1},{0,0,0,1}},
-		{{0,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,0,1},{0,1,0,0},{0,0,1,1}},
-		{{0,0,0,1},{0,1,1,0},{0,0,1,1}},
-		{{0,0,0,1},{1,0,0,1},{0,0,0,1}},
-		{{0,0,0,1},{1,0,1,0},{0,0,1,1}},
-		{{0,0,0,1},{1,0,1,1},{0,0,0,1}},
-		{{0,0,0,1},{1,1,0,0},{0,0,0,1}},
-		{{0,0,0,1},{1,1,0,1},{0,0,0,1}},
-		{{0,0,1,0},{0,0,0,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,0},{0,0,1,0},{0,0,1,0}},
-		{{0,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,0},{0,1,0,0},{0,0,1,0}},
-		{{0,0,1,0},{0,1,1,0},{0,0,1,0}},
-		{{0,0,1,0},{1,0,0,1},{0,0,1,1}},
-		{{0,0,1,0},{1,0,1,0},{0,0,1,0}},
-		{{0,0,1,0},{1,0,1,1},{0,0,1,1}},
-		{{0,0,1,0},{1,1,0,0},{0,0,1,0}},
-		{{0,0,1,0},{1,1,0,1},{0,0,1,1}},
-		{{0,0,1,1},{0,0,0,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,0,1},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{0,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{0,0,1,1},{0,1,0,0},{0,0,1,1}},
-		{{0,0,1,1},{0,1,1,0},{0,0,1,1}},
-		{{0,0,1,1},{1,0,0,1},{0,0,1,1}},
-		{{0,0,1,1},{1,0,1,0},{0,0,1,1}},
-		{{0,0,1,1},{1,0,1,1},{0,0,1,1}},
-		{{0,0,1,1},{1,1,0,0},{0,0,1,1}},
-		{{0,0,1,1},{1,1,0,1},{0,0,1,1}},
-		{{0,1,0,0},{0,0,0,0},{0,0,1,0}},
-		{{0,1,0,0},{0,0,0,1},{0,0,1,1}},
-		{{0,1,0,0},{0,0,1,0},{0,0,1,0}},
-		{{0,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,0,0},{0,1,0,0},{0,1,0,0}},
-		{{0,1,0,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,0,1},{0,0,0,1}},
-		{{0,1,0,0},{1,0,1,0},{0,1,1,0}},
-		{{0,1,0,0},{1,0,1,1},{0,0,1,1}},
-		{{0,1,0,0},{1,1,0,0},{0,0,1,0}},
-		{{0,1,0,0},{1,1,0,1},{0,0,1,1}},
-		{{0,1,1,0},{0,0,0,0},{0,0,1,0}},
-		{{0,1,1,0},{0,0,0,1},{0,0,1,1}},
-		{{0,1,1,0},{0,0,1,0},{0,0,1,0}},
-		{{0,1,1,0},{0,0,1,1},{0,0,1,1}},
-		{{0,1,1,0},{0,1,0,0},{0,1,1,0}},
-		{{0,1,1,0},{0,1,1,0},{0,1,1,0}},
-		{{0,1,1,0},{1,0,0,1},{0,0,1,1}},
-		{{0,1,1,0},{1,0,1,0},{0,1,1,0}},
-		{{0,1,1,0},{1,0,1,1},{0,0,1,1}},
-		{{0,1,1,0},{1,1,0,0},{0,0,1,0}},
-		{{0,1,1,0},{1,1,0,1},{0,0,1,1}},
-		{{1,0,0,1},{0,0,0,0},{0,0,0,1}},
-		{{1,0,0,1},{0,0,0,1},{0,0,0,1}},
-		{{1,0,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,0,1},{0,1,0,0},{0,0,0,1}},
-		{{1,0,0,1},{0,1,1,0},{0,0,1,1}},
-		{{1,0,0,1},{1,0,0,1},{1,0,0,1}},
-		{{1,0,0,1},{1,0,1,0},{0,0,1,1}},
-		{{1,0,0,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,0,1},{1,1,0,0},{1,1,0,1}},
-		{{1,0,0,1},{1,1,0,1},{1,1,0,1}},
-		{{1,0,1,0},{0,0,0,0},{0,0,1,0}},
-		{{1,0,1,0},{0,0,0,1},{0,0,1,1}},
-		{{1,0,1,0},{0,0,1,0},{0,0,1,0}},
-		{{1,0,1,0},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,0},{0,1,0,0},{0,1,1,0}},
-		{{1,0,1,0},{0,1,1,0},{0,1,1,0}},
-		{{1,0,1,0},{1,0,0,1},{0,0,1,1}},
-		{{1,0,1,0},{1,0,1,0},{1,0,1,0}},
-		{{1,0,1,0},{1,0,1,1},{0,0,1,1}},
-		{{1,0,1,0},{1,1,0,0},{0,0,1,0}},
-		{{1,0,1,0},{1,1,0,1},{0,0,1,1}},
-		{{1,0,1,1},{0,0,0,0},{0,0,0,1}},
-		{{1,0,1,1},{0,0,0,1},{0,0,0,1}},
-		{{1,0,1,1},{0,0,1,0},{0,0,1,1}},
-		{{1,0,1,1},{0,0,1,1},{0,0,1,1}},
-		{{1,0,1,1},{0,1,0,0},{0,0,1,1}},
-		{{1,0,1,1},{0,1,1,0},{0,0,1,1}},
-		{{1,0,1,1},{1,0,0,1},{1,0,1,1}},
-		{{1,0,1,1},{1,0,1,0},{0,0,1,1}},
-		{{1,0,1,1},{1,0,1,1},{1,0,1,1}},
-		{{1,0,1,1},{1,1,0,0},{0,0,0,1}},
-		{{1,0,1,1},{1,1,0,1},{0,0,0,1}},
-		{{1,1,0,0},{0,0,0,0},{0,0,0,0}},
-		{{1,1,0,0},{0,0,0,1},{0,0,0,1}},
-		{{1,1,0,0},{0,0,1,0},{0,0,1,0}},
-		{{1,1,0,0},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,0},{0,1,0,0},{0,0,1,0}},
-		{{1,1,0,0},{0,1,1,0},{0,0,1,0}},
-		{{1,1,0,0},{1,0,0,1},{1,1,0,1}},
-		{{1,1,0,0},{1,0,1,0},{0,0,1,0}},
-		{{1,1,0,0},{1,0,1,1},{0,0,0,1}},
-		{{1,1,0,0},{1,1,0,0},{1,1,0,0}},
-		{{1,1,0,0},{1,1,0,1},{1,1,0,1}},
-		{{1,1,0,1},{0,0,0,0},{0,0,0,1}},
-		{{1,1,0,1},{0,0,0,1},{0,0,0,1}},
-		{{1,1,0,1},{0,0,1,0},{0,0,1,1}},
-		{{1,1,0,1},{0,0,1,1},{0,0,1,1}},
-		{{1,1,0,1},{0,1,0,0},{0,0,1,1}},
-		{{1,1,0,1},{0,1,1,0},{0,0,1,1}},
-		{{1,1,0,1},{1,0,0,1},{1,1,0,1}},
-		{{1,1,0,1},{1,0,1,0},{0,0,1,1}},
-		{{1,1,0,1},{1,0,1,1},{0,0,0,1}},
-		{{1,1,0,1},{1,1,0,0},{1,1,0,1}},
-		{{1,1,0,1},{1,1,0,1},{1,1,0,1}}
-	};
-	int failures = 0;
-	long start;
-	if (combinationTestsloopsNb > 1) {
-		start = System.currentTimeMillis();
-	}
-	String header = "mergedWith failures: ";
-	for (int l = 0; l < combinationTestsloopsNb ; l++) {
-		for (int i = 0; i < testData.length; i++) {
-			UnconditionalFlowInfoTestHarness result;
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][0]).
-							mergedWith(
-								UnconditionalFlowInfoTestHarness.
-									testUnconditionalFlowInfo(testData[i][1]))).
-					testEquals(UnconditionalFlowInfoTestHarness.
-						testUnconditionalFlowInfo(testData[i][2]))) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-	}
-	if (combinationTestsloopsNb > 1) {
-		System.out.println("mergedWith\t\t\t" + combinationTestsloopsNb + "\t" + 
-				(System.currentTimeMillis() - start));
-	}
-	UnconditionalFlowInfoTestHarness 
-		zero = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(new long[] {0,0,0,0}),
-		left1, right1, left2, right2, 
-		expected1, expected2, result;
-	for (int i = 0; i < testData.length; i++) {
-		left1 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][0], 64);
-		left2 = UnconditionalFlowInfoTestHarness.
-			testUnconditionalFlowInfo(testData[i][0], 128);
-		right1 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 64);
-		right2 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][1], 128);
-		expected1 = UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(testData[i][2], 64);
-		expected2 = UnconditionalFlowInfoTestHarness.
-			testUnconditionalFlowInfo(testData[i][2], 128);
-		if (!(result = (UnconditionalFlowInfoTestHarness) 
-				left1.copy().mergedWith(right1)).testEquals(expected1)) {
-			if (failures == 0) {
-				System.out.println(header);
-			}
-			failures++;
-			System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-				',' + testStringValueOf(testData[i][1]) +
-				',' + result.testString() + 
-				"}, // (64, 64) - instead of: " + testStringValueOf(testData[i][2]));
-		}
-		if (testData[i][0][0] + testData[i][0][1] + 
-				testData[i][0][2] + testData[i][0][3] == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					zero.copy().mergedWith(right1)).testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					right2.copy().mergedWith(right1)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero 128, 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					zero.copy().mergedWith(right2)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero, 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					right1.copy().mergedWith(right2)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (zero 64, 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-		if (testData[i][1][0] + testData[i][1][1] + 
-				testData[i][1][2] + testData[i][1][3] == 0) {
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left1.copy().mergedWith(zero)).testEquals(expected1)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness)
-					left1.mergedWith(left2)).
-						testEquals(expected1, 64)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (64, zero 128) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left2.copy().mergedWith(zero)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-			if (!(result = (UnconditionalFlowInfoTestHarness) 
-					left2.mergedWith(left1)).
-						testEquals(expected2, 128)) {
-				if (failures == 0) {
-					System.out.println(header);
-				}
-				failures++;
-				System.out.println("\t\t{" + testStringValueOf(testData[i][0]) + 
-					',' + testStringValueOf(testData[i][1]) +
-					',' + result.testString() + 
-					"}, // (128, zero 64) - instead of: " + testStringValueOf(testData[i][2]));
-			}
-		}
-	}
-	if (printTablesAsNames) {
-		System.out.println("RECAP TABLE FOR MERGE");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testSymbolicValueOf(testData[i][0]) + " + " +
-				testSymbolicValueOf(testData[i][1]) + " -> " +
-				testSymbolicValueOf(testData[i][2]));
-		}
-		
-	}
-	if (printTablesAsCodes) {
-		System.out.println("RECAP TABLE FOR MERGE");
-		for (int i = 0; i < testData.length; i++) {
-			System.out.println(testCodedValueOf(testData[i][0]) + " " +
-				testCodedValueOf(testData[i][1]) + " " +
-				testCodedValueOf(testData[i][2]));
-		}
-	}
-	if (printTruthMaps) {
-		for (int i = 0; i < 4; i++) {
-			System.out.println("======================================================");
-			System.out.println("Truth map for mergedWith null bit " + (i + 1));
-			System.out.println();
-		}
-	}
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-// Use for coverage tests only. Needs specific instrumentation of code,
-// that is controled by UnconditionalFlowInfo#coverageTestFlag.
-// Note: coverage tests tend to fill the console with messages, and the
-//       instrumented code is slower, so never release code with active
-//       coverage tests.
-private static int coveragePointsNb = 46;
-
-// Coverage by state transition tables methods.
-public void test2998_coverage() {
-	if (UnconditionalFlowInfo.coverageTestFlag) {
-		// sanity check: need to be sure that the tests execute properly when not
-		// trying to check coverage
-		UnconditionalFlowInfo.coverageTestId = 0;
-		test0053_array();
-		test0070_type_reference();
-		test2050_markAsComparedEqualToNonNull();
-		test2051_markAsComparedEqualToNull();
-		test2052_markAsDefinitelyNonNull();
-		test2053_markAsDefinitelyNull();
-		test2054_markAsDefinitelyUnknown();
-		test2055_addInitializationsFrom();
-		test2056_addPotentialInitializationsFrom();
-		test2057_mergedWith();
-		// coverage check
-		int failuresNb = 0;
-		for (int i = 1; i <= coveragePointsNb; i++) {
-			try {
-				UnconditionalFlowInfo.coverageTestId = i;
-				test0053_array();
-				test0070_type_reference();
-				test2050_markAsComparedEqualToNonNull();
-				test2051_markAsComparedEqualToNull();
-				test2052_markAsDefinitelyNonNull();
-				test2053_markAsDefinitelyNull();
-				test2054_markAsDefinitelyUnknown();
-				test2055_addInitializationsFrom();
-				test2056_addPotentialInitializationsFrom();
-				test2057_mergedWith();
-			}
-			catch (AssertionFailedError e) {
-				continue;
-			}
-			catch (AssertionFailedException e) {
-				continue;
-			}
-			failuresNb++;
-			System.out.println("Missing coverage point: " + i);
-		}
-		UnconditionalFlowInfo.coverageTestId = 0; // reset for other tests
-		assertEquals(failuresNb + " missing coverage point(s)", failuresNb, 0);
-	}
-}
-
-// Coverage by code samples.
-public void test2999_coverage() {
-	if (UnconditionalFlowInfo.coverageTestFlag) {
-		// sanity check: need to be sure that the tests execute properly when not
-		// trying to check coverage
-		UnconditionalFlowInfo.coverageTestId = 0;
-		test0001_simple_local();
-		test0053_array();
-		test0070_type_reference();
-		test0327_if_else();
-		test0401_while();
-		test0420_while();
-		test0509_try_finally_embedded();
-		test2000_flow_info();
-		test2004_flow_info();
-		test2008_flow_info();
-		test2011_flow_info();
-		test2013_flow_info();
-		test2018_flow_info();
-		test2019_flow_info();
-		test2020_flow_info();
-		// coverage check
-		int failuresNb = 0;
-		for (int i = 1; i <= coveragePointsNb; i++) {
-			if (i > 4 && i < 15 ||
-				i > 15 && i < 19 ||
-				i == 22 ||
-				i == 23 ||
-				i == 27 ||
-				i == 28 ||
-				i == 30 ||
-				i == 33 ||
-				i == 34 ||
-				i == 38 ||
-				i >= 43
-				) { // TODO (maxime) complete coverage tests
-				continue;
-			}
-			try {
-				UnconditionalFlowInfo.coverageTestId = i;
-				test0001_simple_local();
-				test0053_array();
-				test0070_type_reference();
-				test0327_if_else();
-				test0401_while();
-				test0420_while();
-				test0509_try_finally_embedded();
-				test2000_flow_info();
-				test2004_flow_info();
-				test2008_flow_info();
-				test2011_flow_info();
-				test2013_flow_info();
-				test2018_flow_info();
-				test2019_flow_info();
-				test2020_flow_info();
-			}
-			catch (AssertionFailedError e) {
-				continue;
-			}
-			catch (AssertionFailedException e) {
-				continue;
-			}
-			failuresNb++;
-			System.out.println("Missing coverage point: " + i);
-		}
-		UnconditionalFlowInfo.coverageTestId = 0; // reset for other tests
-		assertEquals(failuresNb + " missing coverage point(s)", failuresNb, 0);
-	}
-}
-
-// only works for info coded on bit 0 - least significant
-String testCodedValueOf(long[] data) {
-	StringBuffer result = new StringBuffer(4);
-	for (int i = 0; i < data.length; i++) {
-		result.append(data[i] == 0 ? '0' : '1');
-	}
-	return result.toString();
-}
-
-String testStringValueOf(long[] data) {
-	StringBuffer result = new StringBuffer(9);
-	result.append('{');
-	for (int j = 0; j < 4; j++) {
-		if (j > 0) {
-			result.append(',');
-		}
-		result.append(data[j]);
-	}
-	result.append('}');
-	return result.toString();
-}
-
-String testStringValueOf(long[][] data) {
-	StringBuffer result = new StringBuffer(25);
-	result.append('{');
-	for (int i = 0; i < 3; i++) {
-		if (i > 0) {
-			result.append(',');
-		}
-		result.append('{');
-		for (int j = 0; j < 4; j++) {
-			if (j > 0) {
-				result.append(',');
-			}
-			result.append(data[i][j]);
-		}
-		result.append('}');
-	}
-	result.append('}');
-	return result.toString();
-}
-
-// only works for info coded on bit 0 - least significant
-String testSymbolicValueOf(long[] data) {
-	if (data[0] == 0) {
-		if (data[1] == 0) {
-			if (data[2] == 0) {
-				if (data[3] == 0) {
-					return "start                 "; //$NON-NLS1$
-				}
-				else {
-					return "pot. nn/unknown       "; //$NON-NLS1$
-				}
-			}
-			else {
-				if (data[3] == 0) {
-					return "pot. null             "; //$NON-NLS1$
-				}
-				else {
-					return "pot. n/nn/unkn.       "; //$NON-NLS1$
-				}
-			}
-		}
-		else {
-			if (data[2] == 0) {
-				if (data[3] == 0) {
-					return "prot. null            "; //$NON-NLS1$
-				}
-				else {
-					return "0101                  "; //$NON-NLS1$
-				}
-			}
-			else {
-				if (data[3] == 0) {
-					return "prot. null + pot. null"; //$NON-NLS1$
-				}
-				else {
-					return "0111                  "; //$NON-NLS1$
-				}
-			}
-		}
-	}
-	else {
-		if (data[1] == 0) {
-			if (data[2] == 0) {
-				if (data[3] == 0) {
-					return "1000                  "; //$NON-NLS1$
-				}
-				else {
-					return "assigned non null     "; //$NON-NLS1$
-				}
-			}
-			else {
-				if (data[3] == 0) {
-					return "assigned null         "; //$NON-NLS1$
-				}
-				else {
-					return "assigned unknown      "; //$NON-NLS1$
-				}
-			}
-		}
-		else {
-			if (data[2] == 0) {
-				if (data[3] == 0) {
-					return "protected non null    "; //$NON-NLS1$
-				}
-				else {
-					return "prot. nn + pot. nn/unknown"; //$NON-NLS1$
-				}
-			}
-			else {
-				if (data[3] == 0) {
-					return "1110                  "; //$NON-NLS1$
-				}
-				else {
-					return "1111                  "; //$NON-NLS1$
-				}
-			}
-		}
-	}
-}
-
-private void printTruthMap(long data[][][], int bit) {
-	final int dimension = 16;
-	printTruthMapHeader();
-	char truthValues[][] = new char[dimension][dimension];
-	int row, column;
-	for (row = 0; row < dimension; row++) {
-		for (column = 0; column < dimension; column++) {
-			truthValues[row][column] = '.';
-		}
-	}
-	String rows[] = {
-		"0000",
-		"0001",
-		"0011",
-		"0111",
-		"1111",
-		"1110",
-		"1100",
-		"1000",
-		"1010",
-		"1011",
-		"1001",
-		"1101",
-		"0101",
-		"0100",
-		"0110",
-		"0010"
-	};
-	if (false) { // checking row names
-		for (row = 0; row < dimension; row++) {
-			long [] state = new long [4];
-			for (int i = 0; i < 4; i++) {
-				state[i] = rows[row].charAt(i) - '0';
-			}
-			System.out.println(row + " " + rows[row] + " " + rankForState(state));
-		}
-	}
-	for (int i = 0; i < data.length; i++) {
-		truthValues[rankForState(data[i][0])][rankForState(data[i][1])] =
-			(char) ('0' + data[i][2][bit]);
-	}
-	for (row = 0; row < dimension; row++) {
-		StringBuffer line = new StringBuffer(120);
-		line.append(rows[row]);
-		line.append(" | ");
-		for (column = 0; column < dimension; column++) {
-			line.append(truthValues[row][column]);
-			line.append(' ');
-		}
-		System.out.println(line);
-	}
-}
-
-private void printTruthMapHeader() {
-	System.out.println("       0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0");
-	System.out.println("       0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0");
-	System.out.println("       0 0 1 1 1 1 0 0 1 1 0 0 0 0 1 1");
-	System.out.println("       0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0");
-	System.out.println("      --------------------------------");
-}
-
-private int rankForState(long [] state) {
-	if (state[0] == 0) {
-		if (state[1] == 0) {
-			if (state[2] == 0) {
-				if (state[3] == 0) {
-					return 0; 	// 0000
-				}
-				else {
-					return 1; 	// 0001
-				}
-			}
-			else {
-				if (state[3] == 0) {
-					return 15;	// 0010
-				}
-				else {
-					return 2;	// 0011
-				}
-			}
-		}
-		else {
-			if (state[2] == 0) {
-				if (state[3] == 0) {
-					return 13;	// 0100
-				}
-				else {
-					return 12;	// 0101
-				}
-			}
-			else {
-				if (state[3] == 0) {
-					return 14;	// 0110
-				}
-				else {
-					return 3;	// 0111
-				}
-			}
-		}
-	}
-	else {
-		if (state[1] == 0) {
-			if (state[2] == 0) {
-				if (state[3] == 0) {
-					return 7;	// 1000
-				}
-				else {
-					return 10;	// 1001
-				}
-			}
-			else {
-				if (state[3] == 0) {
-					return 8;	// 1010
-				}
-				else {
-					return 9;	// 1011
-				}
-			}
-		}
-		else {
-			if (state[2] == 0) {
-				if (state[3] == 0) {
-					return 6;	// 1100
-				}
-				else {
-					return 11;	// 1101
-				}
-			}
-			else {
-				if (state[3] == 0) {
-					return 5;	// 1110
-				}
-				else {
-					return 4;	// 1111
-				}
-			}
-		}
-	}
-}
-}
-
-class TestLocalVariableBinding extends LocalVariableBinding {
-	final static char [] testName = {'t', 'e', 's', 't'};
-	TestLocalVariableBinding(int id) {
-		super(testName, null, 0, false);
-		this.id = id;
-	}
-}
-
-/**
- * A class meant to augment 
- * @link{org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo} with
- * capabilities in the test domain. It especially provides factories to build
- * fake flow info instances for use in state transition tables validation.
- */
-class UnconditionalFlowInfoTestHarness extends UnconditionalFlowInfo {
-	private int testPosition;
-	
-/**
- * Return a fake unconditional flow info which bit fields represent the given
- * null bits for a local variable of id 0 within a class that would have no
- * field.
- * @param nullBits the bits that must be set, given in the same order as the
- *        nullAssignment* fields in UnconditionalFlowInfo definition; use 0
- *        for a bit that is not set, 1 else
- * @return a fake unconditional flow info which bit fields represent the
- *         null bits given in parameter
- */
-public static UnconditionalFlowInfoTestHarness testUnconditionalFlowInfo(
-		long [] nullBits) {
-	return testUnconditionalFlowInfo(nullBits, 0);
-}
-
-public FlowInfo copy() {
-	UnconditionalFlowInfoTestHarness copy = 
-		new UnconditionalFlowInfoTestHarness();
-	copy.testPosition = this.testPosition;
-	copy.definiteInits = this.definiteInits;
-	copy.potentialInits = this.potentialInits;
-	boolean hasNullInfo = (this.tagBits & NULL_FLAG_MASK) != 0;
-	if (hasNullInfo) { 
-		copy.nullAssignmentStatusBit1 = this.nullAssignmentStatusBit1;
-		copy.nullAssignmentStatusBit2 = this.nullAssignmentStatusBit2;
-		copy.nullAssignmentValueBit1 = this.nullAssignmentValueBit1;
-		copy.nullAssignmentValueBit2 = this.nullAssignmentValueBit2;
-	}
-	copy.tagBits = this.tagBits;
-	copy.maxFieldCount = this.maxFieldCount;
-	if (this.extra != null) {
-		int length;
-        copy.extra = new long[extraLength][];
-		System.arraycopy(this.extra[0], 0, 
-			(copy.extra[0] = new long[length = extra[0].length]), 0, length);
-		System.arraycopy(this.extra[1], 0, 
-			(copy.extra[1] = new long[length]), 0, length);
-		if (hasNullInfo) {
-            for (int j = 0; j < extraLength; j++) {
-			    System.arraycopy(this.extra[j], 0, 
-				    (copy.extra[j] = new long[length]), 0, length);
-            }
-		}
-		else {
-            for (int j = 0; j < extraLength; j++) {
-			    copy.extra[j] = new long[length];
-            }
-		}
-	}
-	return copy;
-}
-
-/**
- * Return a fake unconditional flow info which bit fields represent the given
- * null bits for a local variable of id position within a class that would have 
- * no field.
- * @param nullBits the bits that must be set, given in the same order as the
- *        nullAssignment* fields in UnconditionalFlowInfo definition; use 0
- *        for a bit that is not set, 1 else
- * @param position the position of the variable within the bit fields; use
- *        various values to test different parts of the bit fields, within
- *        or beyond BitCacheSize
- * @return a fake unconditional flow info which bit fields represent the
- *         null bits given in parameter
- */
-public static UnconditionalFlowInfoTestHarness testUnconditionalFlowInfo(
-		long [] nullBits, int position) {
- 	UnconditionalFlowInfoTestHarness result = 
- 		new UnconditionalFlowInfoTestHarness();
-	result.testPosition = position;
-	if (position < BitCacheSize) {
-		result.nullAssignmentStatusBit1 = nullBits[0] << position;
-		result.nullAssignmentStatusBit2 = nullBits[1] << position;
-		result.nullAssignmentValueBit1 = nullBits[2] << position;
-		result.nullAssignmentValueBit2 = nullBits[3] << position;
-	} 
- 	else {
-		int vectorIndex = (position / BitCacheSize) - 1,
-			length = vectorIndex + 1;
-        position %= BitCacheSize;
-        result.extra = new long[extraLength][];
-		result.extra[0] = new long[length];
-		result.extra[1] = new long[length];
-        for (int j = 2; j < extraLength; j++) {
-		    result.extra[j] = new long[length];
-		    result.extra[j][vectorIndex] = nullBits[j - 2] << 
-		        position;
-        }
-	}
-	if ((nullBits[0] | nullBits[1] | nullBits[2] | nullBits[3]) != 0) {
-		result.tagBits |= NULL_FLAG_MASK;
-	}
-	result.maxFieldCount = 0;
-	return result;
-}
-
-/**
- * Return a fake unconditional flow info which bit fields represent the given
- * null bits for a pair of local variables of id position and position +
- * extra * BitCacheSize within a class that would have no field.
- * @param nullBits the bits that must be set, given in the same order as the
- *        nullAssignment* fields in UnconditionalFlowInfo definition; use 0
- *        for a bit that is not set, 1 else
- * @param position the position of the variable within the bit fields; use
- *        various values to test different parts of the bit fields, within
- *        or beyond BitCacheSize
- * @param extra the length of the allocated extra bit fields, if position is 
- *        beyond BitCacheSize; unused otherwise; make sure it is big enough to
- *        match position (that is, extra > position - BitCacheSize)
- * @return a fake unconditional flow info which bit fields represent the
- *         null bits given in parameter
- */
-public static UnconditionalFlowInfoTestHarness testUnconditionalFlowInfo(
-		long [] nullBits, int position, int extra) {
- 	UnconditionalFlowInfoTestHarness result = 
- 		new UnconditionalFlowInfoTestHarness();
-	result.testPosition = position;
-	if (position < BitCacheSize) {
-		result.nullAssignmentStatusBit1 = nullBits[0] << position;
-		result.nullAssignmentStatusBit2 = nullBits[1] << position;
-		result.nullAssignmentValueBit1 = nullBits[2] << position;
-		result.nullAssignmentValueBit2 = nullBits[3] << position;
-	} 
- 	else {
-		int vectorIndex = (position / BitCacheSize) - 1,
-			length = extra / BitCacheSize;
-		position %= BitCacheSize;
-        result.extra = new long[extraLength][];
-		result.extra[0] = new long[length];
-		result.extra[1] = new long[length];
-        for (int j = 2; j < extraLength; j++) {
-		    result.extra[j] = new long[length];
-		    result.extra[j] [vectorIndex]= nullBits[j - 2] << position;
-        }
-	}
-	if (nullBits[1] != 0 || nullBits[3] != 0 || nullBits[0] != 0 || nullBits[2] != 0 ) {
-		// cascade better than nullBits[0] | nullBits[1] | nullBits[2] | nullBits[3]
-		// by 10%+
-		// TODO (maxime) run stats to determine which is the better order
-		result.tagBits |= NULL_FLAG_MASK;
-	}
-	result.maxFieldCount = 0;
-	return result;
-}
-
-/**
- * Return true iff this flow info can be considered as equal to the one passed
- * in parameter.
- * @param other the flow info to compare to
- * @return true iff this flow info compares equal to other
- */
-public boolean testEquals(UnconditionalFlowInfo other) {
-	if (this.tagBits != other.tagBits) {
-		return false;
-	}
-	if (this.nullAssignmentStatusBit1 != other.nullAssignmentStatusBit1 ||
-		this.nullAssignmentStatusBit2 != other.nullAssignmentStatusBit2 ||
-		this.nullAssignmentValueBit1 != other.nullAssignmentValueBit1 ||
-		this.nullAssignmentValueBit2 != other.nullAssignmentValueBit2) {
-		return false;
-	}
-	int left = this.extra == null ? 0 : this.extra[0].length,
-			right = other.extra == null ? 0 : other.extra[0].length,
-			both = 0, i;
-	if (left > right) {
-		both = right;
-	}
-	else {
-		both = left;
-	}
-	for (i = 0; i < both ; i++) {
-		if (this.extra[2][i] != 
-				other.extra[2][i] ||
-			this.extra[3][i] != 
-				other.extra[3][i] ||
-			this.extra[4][i] != 
-				other.extra[4][i] ||
-			this.extra[5][i] != 
-				other.extra[5][i]) {
-			return false;
-		}
-	}
-	for (; i < left; i++) {
-		if (this.extra[2][i] != 0 ||
-				this.extra[3][i] != 0 ||
-				this.extra[4][i] != 0 ||
-				this.extra[5][i] != 0) {
-			return false;
-		}
-	}
-	for (; i < right; i++) {
-		if (other.extra[2][i] != 0 ||
-				other.extra[3][i] != 0 ||
-				other.extra[4][i] != 0 ||
-				other.extra[5][i] != 0) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/**
- * Return true iff this flow info can be considered as equal to the one passed
- * in parameter in respect with a single local variable which id would be
- * position in a class with no field.
- * @param other the flow info to compare to
- * @param position the position of the local to consider
- * @return true iff this flow info compares equal to other for a given local
- */
-public boolean testEquals(UnconditionalFlowInfo other, int position) {
-	int vectorIndex = position / BitCacheSize - 1;
-	if ((this.tagBits & other.tagBits & NULL_FLAG_MASK) == 0) {
-		return true;
-	}
-	long mask;
-	if (vectorIndex < 0) {
-		return ((this.nullAssignmentStatusBit1 & (mask = (1L << position))) ^
-				(other.nullAssignmentStatusBit1 & mask)) == 0 &&
-				((this.nullAssignmentStatusBit2 & mask) ^
-				(other.nullAssignmentStatusBit2 & mask)) == 0 &&
-				((this.nullAssignmentValueBit1 & mask) ^
-				(other.nullAssignmentValueBit1 & mask)) == 0 &&
-				((this.nullAssignmentValueBit2 & mask) ^
-				(other.nullAssignmentValueBit2 & mask)) == 0;
-	}
-	else {
-		int left = this.extra == null ?
-				0 :
-				this.extra[0].length;
-		int right = other.extra == null ?
-				0 :
-				other.extra[0].length;
-		int both = left < right ? left : right;
-		if (vectorIndex < both) {
-			return ((this.extra[2][vectorIndex] & 
-					(mask = (1L << (position % BitCacheSize)))) ^
-				(other.extra[2][vectorIndex] & mask)) == 0 &&
-				((this.extra[3][vectorIndex] & mask) ^
-				(other.extra[3][vectorIndex] & mask)) == 0 &&
-				((this.extra[4][vectorIndex] & mask) ^
-				(other.extra[4][vectorIndex] & mask)) == 0 &&
-				((this.extra[5][vectorIndex] & mask) ^
-				(other.extra[5][vectorIndex] & mask)) == 0;
-		}
-		if (vectorIndex < left) {
-			return ((this.extra[2][vectorIndex] |
-					this.extra[3][vectorIndex] |
-					this.extra[4][vectorIndex] |
-					this.extra[5][vectorIndex]) &
-					(1L << (position % BitCacheSize))) == 0;
-		}
-		return ((other.extra[2][vectorIndex] |
-				other.extra[3][vectorIndex] |
-				other.extra[4][vectorIndex] |
-				other.extra[5][vectorIndex]) &
-				(1L << (position % BitCacheSize))) == 0;
-	}
-}
-
-/**
- * Return a string suitable for use as a representation of this flow info
- * within test series.
- * @return a string suitable for use as a representation of this flow info
- */
-public String testString() {
-	if (this == DEAD_END) {
-		return "FlowInfo.DEAD_END"; //$NON-NLS-1$
-	}
-	return testString(this.testPosition);
-}
-
-/**
- * Return a string suitable for use as a representation of this flow info
- * within test series.
- * @param position a position to consider instead of this flow info default
- *                 test position
- * @return a string suitable for use as a representation of this flow info
- */
-public String testString(int position) {
-	if (this == DEAD_END) {
-		return "FlowInfo.DEAD_END"; //$NON-NLS-1$
-	}
-	if (position < BitCacheSize) {
-		return "{" + (this.nullAssignmentStatusBit1 >> position) //$NON-NLS-1$
-					+ "," + (this.nullAssignmentStatusBit2 >> position) //$NON-NLS-1$
-					+ "," + (this.nullAssignmentValueBit1 >> position) //$NON-NLS-1$
-					+ "," + (this.nullAssignmentValueBit2 >> position) //$NON-NLS-1$
-					+ "}"; //$NON-NLS-1$
-	}
-	else {
-		int vectorIndex = position / BitCacheSize - 1,
-			shift = position % BitCacheSize;
-			return "{" + (this.extra[2][vectorIndex] //$NON-NLS-1$
-			               >> shift) 
-						+ "," + (this.extra[3][vectorIndex] //$NON-NLS-1$
-						   >> shift)
-						+ "," + (this.extra[4][vectorIndex] //$NON-NLS-1$
-						   >> shift)
-						+ "," + (this.extra[5][vectorIndex] //$NON-NLS-1$
-						   >> shift)
-						+ "}"; //$NON-NLS-1$
-	}
 }
 }

@@ -24,15 +24,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
  * flow info presented in input of finally blocks.
  */
 public class NullInfoRegistry extends UnconditionalFlowInfo {
-	// encoding of null status at this level:
-//	public long nullAssignmentStatusBit1;
-	// assigned null
-//	public long nullAssignmentStatusBit2;
-	// assigned non null
-//	public long nullAssignmentValueBit1;
-	// assigned unknown
-//	public long nullAssignmentValueBit2;
-	// message send (no NPE)
+	// significant states at this level:
+  	// def. non null, def. null, def. unknown, prot. non null
 
 // PREMATURE implement coverage and low level tests
 
@@ -46,38 +39,32 @@ public class NullInfoRegistry extends UnconditionalFlowInfo {
  */
 public NullInfoRegistry(UnconditionalFlowInfo upstream) {
 	if ((upstream.tagBits & NULL_FLAG_MASK) != 0) {
-		long a1, a2, a3, b1nb2, b3, b4;
-		a1 = this.nullAssignmentStatusBit1 = 
-			(b1nb2 = upstream.nullAssignmentStatusBit1 
-					&  ~upstream.nullAssignmentStatusBit2)
-				& (b3 = upstream.nullAssignmentValueBit1)
-				& ~(b4 = upstream.nullAssignmentValueBit2);
-		a2 = this.nullAssignmentStatusBit2 =
-			b1nb2 & ~b3 & b4;
-		a3 = this.nullAssignmentValueBit1 =
-			b1nb2 & b3 & b4;
-		if ((a1 | a2 | a3) != 0) {
+		long u1, u2, u3, u4, nu2, nu3, nu4;
+		this.nullBit2 = (u1 = upstream.nullBit1)
+			& (u2 = upstream.nullBit2)
+			& (nu3 = ~(u3 = upstream.nullBit3))
+			& (nu4 = ~(u4 = upstream.nullBit4));
+		this.nullBit3 =	u1 & (nu2 = ~u2) & u3 & nu4;
+		this.nullBit4 =	u1 & nu2 &nu3 & u4;
+		if ((this.nullBit2 | this.nullBit3 | this.nullBit4) != 0) {
 			this.tagBits |= NULL_FLAG_MASK;
 		}
 		if (upstream.extra != null) {
 			this.extra = new long[extraLength][];
-			int length= upstream.extra[2].length;
+			int length = upstream.extra[2].length;
 			for (int i = 2; i < extraLength; i++) {
 				this.extra[i] = new long[length];
 			}
 			for (int i = 0; i < length; i++) {
-				a1 = this.extra[2][i] = 
-					(b1nb2 = upstream.extra[2][i] 
-							& ~upstream.extra[3][i])
-						& (b3 = upstream.extra[4][i])
-						& ~(b4 = upstream.extra[5][i]);
-				a2 = this.extra[3][i] =
-					b1nb2 & ~b3 & b4;
-				a3 = this.extra[4][i] =
-					b1nb2 & b3 & b4;
-				if ((a1 | a2 | a3) != 0) {
-					this.tagBits |= NULL_FLAG_MASK;
-				}
+        		this.extra[2 + 1][i] = (u1 = upstream.extra[1 + 1][i])
+        			& (u2 = upstream.extra[2 + 1][i])
+        			& (nu3 = ~(u3 = upstream.extra[3 + 1][i]))
+        			& (nu4 = ~(u4 = upstream.extra[4 + 1][i]));
+        		this.extra[3 + 1][i] =	u1 & (nu2 = ~u2) & u3 & nu4;
+        		this.extra[4 + 1][i] =	u1 & nu2 &nu3 & u4;
+        		if ((this.extra[2 + 1][i] | this.extra[3 + 1][i] | this.extra[4 + 1][i]) != 0) {
+        			this.tagBits |= NULL_FLAG_MASK;
+        		}
 			}
 		}
 	}
@@ -94,10 +81,10 @@ public NullInfoRegistry add(NullInfoRegistry other) {
 		return this;
 	}
 	this.tagBits |= NULL_FLAG_MASK;
-	this.nullAssignmentStatusBit1 |= other.nullAssignmentStatusBit1;
-	this.nullAssignmentStatusBit2 |= other.nullAssignmentStatusBit2;
-	this.nullAssignmentValueBit1 |= other.nullAssignmentValueBit1;
-	this.nullAssignmentValueBit2 |= other.nullAssignmentValueBit2;
+	this.nullBit1 |= other.nullBit1;
+	this.nullBit2 |= other.nullBit2;
+	this.nullBit3 |= other.nullBit3;
+	this.nullBit4 |= other.nullBit4;
 	if (other.extra != null) {
 		if (this.extra == null) {
 			this.extra = new long[extraLength][];
@@ -128,142 +115,167 @@ public NullInfoRegistry add(NullInfoRegistry other) {
 }
 
 public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
-	this.tagBits |= NULL_FLAG_MASK;
-	int position;
-	// position is zero-based
-	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
-		// use bits
-		this.nullAssignmentValueBit2 |= (1L << position);
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		if (this.extra == null) {
-			int length = vectorIndex + 1;
-			this.extra = new long[extraLength][];
-			for (int j = 2 /* do not care about non null info */;
-					j < extraLength; j++) {
-				this.extra[j] = new long[length];
-			}
-		}
-		else {
-			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[2].length)) {
-				int newLength = vectorIndex + 1;
-				for (int j = 2 /* do not care about non null info */; 
-						j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0, 
-						(this.extra[j] = new long[newLength]), 0, 
-						oldLength);
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+    	this.tagBits |= NULL_FLAG_MASK;
+    	int position;
+    	// position is zero-based
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
+    		// set protected non null
+    		this.nullBit1 |= (1L << position);
+    		if (coverageTestFlag && coverageTestId == 290) {
+    		  	this.nullBit1 = 0;
+    		}
+    	} 
+    	else {
+    		// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 2; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			} 
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[2].length)) {
+					for (int j = 2; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0, 
+							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+							oldLength);
+					}
 				}
 			}
-		}
-		this.extra[5][vectorIndex] |= (1L << (position % BitCacheSize));
+    		this.extra[2][vectorIndex] |= (1L << (position % BitCacheSize));
+    		if (coverageTestFlag && coverageTestId == 300) {
+    		  	this.extra[5][vectorIndex] = ~0;
+    		}
+    	}
 	}
 }
 
 public void markAsDefinitelyNonNull(LocalVariableBinding local) {
-	this.tagBits |= NULL_FLAG_MASK;
-	int position;
-	// position is zero-based
-	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
-		// use bits
-		this.nullAssignmentStatusBit2 |= (1L << position);
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		if (this.extra == null) {
-			int length = vectorIndex + 1;
-			this.extra = new long[extraLength][];
-			for (int j = 2 /* do not care about non null info */; 
-					j < extraLength; j++) {
-				this.extra[j] = new long[length];
-			}
-		}
-		else {
-			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[2].length)) {
-				int newLength = vectorIndex + 1;
-				for (int j = 2 /* do not care about non null info */; 
-						j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0, 
-						(this.extra[j] = new long[newLength]), 0, 
-						oldLength);
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+    	this.tagBits |= NULL_FLAG_MASK;
+    	int position;
+    	// position is zero-based
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
+    		// set assigned non null
+    		this.nullBit3 |= (1L << position);
+    		if (coverageTestFlag && coverageTestId == 290) {
+    		  	this.nullBit1 = 0;
+    		}
+    	} 
+    	else {
+    		// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 2; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			} 
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[2].length)) {
+					for (int j = 2; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0, 
+							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+							oldLength);
+					}
 				}
 			}
-		}
-		this.extra[3][vectorIndex] |= (1L << (position % BitCacheSize));
+    		this.extra[4][vectorIndex] |= (1L << (position % BitCacheSize));
+    		if (coverageTestFlag && coverageTestId == 300) {
+    		  	this.extra[5][vectorIndex] = ~0;
+    		}
+    	}
 	}
 }
-
+// PREMATURE consider ignoring extra 0 to 2 included - means a1 should not be used either
+// PREMATURE project protected non null onto something else
 public void markAsDefinitelyNull(LocalVariableBinding local) {
-	this.tagBits |= NULL_FLAG_MASK;
-	int position;
-	// position is zero-based
-	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
-		// use bits
-		this.nullAssignmentStatusBit1 |= (1L << position);
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		if (this.extra == null) {
-			int length = vectorIndex + 1;
-			this.extra = new long[extraLength][];
-			for (int j = 2 /* do not care about non null info */;
-					j < extraLength; j++) {
-				this.extra[j] = new long[length];
-			}
-		}
-		else {
-			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[2].length)) {
-				int newLength = vectorIndex + 1;
-				for (int j = 2 /* do not care about non null info */; 
-						j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0, 
-						(this.extra[j] = new long[newLength]), 0, 
-						oldLength);
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+    	this.tagBits |= NULL_FLAG_MASK;
+    	int position;
+    	// position is zero-based
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
+    		// set assigned null
+    		this.nullBit2 |= (1L << position);
+    		if (coverageTestFlag && coverageTestId == 290) {
+    		  	this.nullBit1 = 0;
+    		}
+    	} 
+    	else {
+    		// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 2; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			} 
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[2].length)) {
+					for (int j = 2; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0, 
+							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+							oldLength);
+					}
 				}
 			}
-		}
-		this.extra[2][vectorIndex] |= (1L << (position % BitCacheSize));
+    		this.extra[3][vectorIndex] |= (1L << (position % BitCacheSize));
+    		if (coverageTestFlag && coverageTestId == 300) {
+    		  	this.extra[5][vectorIndex] = ~0;
+    		}
+    	}
 	}
 }
 
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
-	this.tagBits |= NULL_FLAG_MASK;
-	int position;
-	// position is zero-based
-	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
-		// use bits
-		this.nullAssignmentValueBit1 |= (1L << position);
-	} 
-	else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		if (this.extra == null) {
-			int length = vectorIndex + 1;
-			this.extra = new long[extraLength][];
-			for (int j = 2 /* do not care about non null info */;
-					j < extraLength; j++) {
-				this.extra[j] = new long[length];
-			}
-		}
-		else {
-			int oldLength;
-			if (vectorIndex >= (oldLength = this.extra[2].length)) {
-				int newLength = vectorIndex + 1;
-				for (int j = 2 /* do not care about non null info */; 
-						j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0, 
-						(this.extra[j] = new long[newLength]), 0, 
-						oldLength);
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+    	this.tagBits |= NULL_FLAG_MASK;
+    	int position;
+    	// position is zero-based
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
+    		// set assigned unknown
+    		this.nullBit4 |= (1L << position);
+    		if (coverageTestFlag && coverageTestId == 290) {
+    		  	this.nullBit1 = 0;
+    		}
+    	} 
+    	else {
+    		// use extra vector
+			int vectorIndex = (position / BitCacheSize) - 1;
+			if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 2; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			} 
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[2].length)) {
+					for (int j = 2; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0, 
+							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+							oldLength);
+					}
 				}
 			}
-		}
-		this.extra[4][vectorIndex] |= (1L << (position % BitCacheSize));
+    		this.extra[5][vectorIndex] |= (1L << (position % BitCacheSize));
+    		if (coverageTestFlag && coverageTestId == 300) {
+    		  	this.extra[5][vectorIndex] = ~0;
+    		}
+    	}
 	}
 }
 
@@ -281,58 +293,32 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0) {
 		return flowInfo.unconditionalInits();
 	}
-//	// Reference implementation
-//	UnconditionalFlowInfo source = flowInfo.unconditionalCopy();
-//	long mask;
-//	// clear uncompatible protections
-//	mask = source.nullAssignmentStatusBit1 & source.nullAssignmentStatusBit2
-//			// prot. non null
-//		& (this.nullAssignmentStatusBit1 | this.nullAssignmentValueBit1);
-//			// null or unknown
-//	source.nullAssignmentStatusBit1 &= ~mask;
-//	source.nullAssignmentStatusBit2 &= ~mask;
-//	mask = ~source.nullAssignmentStatusBit1 & source.nullAssignmentStatusBit2
-//			// prot. null
-//		& (this.nullAssignmentStatusBit2 | this.nullAssignmentValueBit1
-//				| this.nullAssignmentValueBit2);
-//			// non null or unknown
-//	source.nullAssignmentStatusBit2 &= ~mask;
-//	// clear uncompatible assignments
-//	mask = source.nullAssignmentStatusBit1 & ~source.nullAssignmentStatusBit2
-//		& (source.nullAssignmentValueBit1 & ~source.nullAssignmentValueBit2 
-//				& (this.nullAssignmentStatusBit2 | this.nullAssignmentValueBit1
-//						| this.nullAssignmentValueBit2)
-//			| ~source.nullAssignmentValueBit1 & source.nullAssignmentValueBit2
-//				& (this.nullAssignmentStatusBit1 | this.nullAssignmentValueBit1)
-//			| source.nullAssignmentValueBit1 & source.nullAssignmentValueBit2
-//				& (this.nullAssignmentStatusBit1));
-//	source.nullAssignmentStatusBit1 &= ~mask;
-	long m1, m2, m3, a1, a2, a3, a4, s1, s2, s3, s4;
+	long m, m1, nm1, m2, nm2, m3, a2, a3, a4, s1, s2, ns2, s3, ns3, s4, ns4;
 	boolean newCopy = false;
 	UnconditionalFlowInfo source = flowInfo.unconditionalInits();
-	// clear uncompatible protections
-	m1 = (s1 = source.nullAssignmentStatusBit1) 
-			& (s2 = source.nullAssignmentStatusBit2)
+	// clear incompatible protections
+	m1 = (s1 = source.nullBit1) & (s3 = source.nullBit3) 
+				& (s4 = source.nullBit4)
 			// prot. non null
-		& ((a1 = this.nullAssignmentStatusBit1)
-				| (a3 = this.nullAssignmentValueBit1));
+		& ((a2 = this.nullBit2) | (a4 = this.nullBit4));
 			// null or unknown
-	m2 = ~s1 & s2
+	m2 = s1 & (s2 = this.nullBit2) & (s3 ^ s4)
 			// prot. null
-		& ((a2 = this.nullAssignmentStatusBit2) | a3
-				| (a4 = this.nullAssignmentValueBit2));
+		& ((a3 = this.nullBit3) | a4);
 			// non null or unknown
-	// clear uncompatible assignments
-	m3 = s1 & ~s2
-		& ((s3 = source.nullAssignmentValueBit1) 
-				& ~(s4 = source.nullAssignmentValueBit2) 
-				& (a2 | a3 | a4)
-					| s4 & (~s3 & a3 | a1));
-	if ((m1 | m2 | m3) != 0) {
+	// clear incompatible assignments
+	// PREMATURE check effect of protected non null (no NPE on call)
+	// TODO (maxime) code extensive implementation tests
+	m3 = s1	& (s2 & (ns3 = ~s3) & (ns4 = ~s4) & (a3 | a4)
+				| (ns2 = ~s2) & s3 & ns4 & (a2 | a4)
+				| ns2 & ns3 & s4 & (a2 | a3)); 
+	if ((m = (m1 | m2 | m3)) != 0) {
 		newCopy = true;
 		source = source.unconditionalCopy();
-		source.nullAssignmentStatusBit1 &= ~(m1 | m3);
-		source.nullAssignmentStatusBit2 &= ~(m1 | m2);
+		source.nullBit1 &= ~m;
+		source.nullBit2 &= (nm1 = ~m1) & ((nm2 = ~m2) | a4);
+		source.nullBit3 &= (nm1 | a2) & nm2;
+		source.nullBit4 &= nm1 & nm2;
 	}
 	if (this.extra != null && source.extra != null) {
 		int length = this.extra[2].length, sourceLength = source.extra[0].length;
@@ -340,29 +326,24 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 			length = sourceLength;
 		}
 		for (int i = 0; i < length; i++) {
-			// clear uncompatible protections
-			m1 = (s1 = source.extra[2][i]) & (s2 = source.extra[3][i])
-					// prot. non null
-				& ((a1 = this.extra[2][i]) | (a3 = this.extra[4][i]));
-					// null or unknown
-			m2 = ~s1 & s2
-					// prot. null
-				& ((a2 = this.extra[3][i]) | a3
-						| (a4 = this.extra[5][i]));
-					// non null or unknown
-			// clear uncompatible assignments
-			m3 = s1 & ~s2
-				& ((s3 = source.extra[4][i]) & ~(s4 = source.extra[5][i]) 
-						& (a2 | a3 | a4)
-					| s4 & (~s3 & a3 | a1));
-			if ((m1 | m2 | m3) != 0) {
-				if (!newCopy) {
-					newCopy = true;
-					source = source.unconditionalCopy();
-				}
-				source.extra[2][i] &= ~(m1 | m3);
-				source.extra[3][i] &= ~(m1 | m2);
-			}
+        	m1 = (s1 = source.extra[1 + 1][i]) & (s3 = source.extra[3 + 1][i]) 
+        				& (s4 = source.extra[4 + 1][i])
+        		& ((a2 = this.extra[2 + 1][i]) | (a4 = this.extra[4 + 1][i]));
+        	m2 = s1 & (s2 = this.extra[2 + 1][i]) & (s3 ^ s4)
+        		& ((a3 = this.extra[3 + 1][i]) | a4);
+        	m3 = s1	& (s2 & (ns3 = ~s3) & (ns4 = ~s4) & (a3 | a4)
+        				| (ns2 = ~s2) & s3 & ns4 & (a2 | a4)
+        				| ns2 & ns3 & s4 & (a2 | a3)); 
+        	if ((m = (m1 | m2 | m3)) != 0) {
+        	  	if (! newCopy) {
+            		newCopy = true;
+            		source = source.unconditionalCopy();
+        	  	}
+        		source.extra[1 + 1][i] &= ~m;
+        		source.extra[2 + 1][i] &= (nm1 = ~m1) & ((nm2 = ~m2) | a4);
+        		source.extra[3 + 1][i] &= (nm1 | a2) & nm2;
+        		source.extra[4 + 1][i] &= nm1 & nm2;
+        	}
 		}
 	}
 	return source;
@@ -370,35 +351,25 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 
 public String toString(){
 	if (this.extra == null) {
-		return "NullInfoRegistry<nullS1: " + this.nullAssignmentStatusBit1 //$NON-NLS-1$
-			+", nullS2: " + this.nullAssignmentStatusBit2 //$NON-NLS-1$
-			+", nullV1: " + this.nullAssignmentValueBit1 //$NON-NLS-1$
-			+", nullV2: " + this.nullAssignmentValueBit2 //$NON-NLS-1$
-			+">"; //$NON-NLS-1$
+		return "NullInfoRegistry<" + this.nullBit1 //$NON-NLS-1$
+			+ this.nullBit2 + this.nullBit3 + this.nullBit4
+			+ ">"; //$NON-NLS-1$
 	}
 	else {
-		String nullS1 = "NullInfoRegistry<nullS1:[" + this.nullAssignmentStatusBit1, //$NON-NLS-1$
-			nullS2 = "], nullS2:[" + this.nullAssignmentStatusBit2, //$NON-NLS-1$
-			nullV1 = "], nullV1:[" + this.nullAssignmentValueBit1, //$NON-NLS-1$
-			nullV2 = "], nullV2:[" + this.nullAssignmentValueBit2; //$NON-NLS-1$
-		int i, ceil;
-		for (i = 0, ceil = this.extra[0].length > 3 ? 
-							3 : 
-							this.extra[0].length;
-			i < ceil; i++) {
-			nullS1 += "," + this.extra[2][i]; //$NON-NLS-1$
-			nullS2 += "," + this.extra[3][i]; //$NON-NLS-1$
-			nullV1 += "," + this.extra[4][i]; //$NON-NLS-1$
-			nullV2 += "," + this.extra[5][i]; //$NON-NLS-1$
-		}
-		if (ceil < this.extra[0].length) {
-			nullS1 += ",..."; //$NON-NLS-1$
-			nullS2 += ",..."; //$NON-NLS-1$
-			nullV1 += ",..."; //$NON-NLS-1$
-			nullV2 += ",..."; //$NON-NLS-1$
-		}
-		return nullS1 + nullS2 + nullV1 + nullV2
-			+ "]>"; //$NON-NLS-1$
+		String nullS = "NullInfoRegistry<[" + this.nullBit1 //$NON-NLS-1$
+			+ this.nullBit2 + this.nullBit3 + this.nullBit4;
+			int i, ceil;
+			for (i = 0, ceil = this.extra[0].length > 3 ? 
+								3 : 
+								this.extra[0].length;
+				i < ceil; i++) {
+				nullS += "," + this.extra[2][i] //$NON-NLS-1$
+				    + this.extra[3][i] + this.extra[4][i] + this.extra[5][i];
+			}
+			if (ceil < this.extra[0].length) {
+				nullS += ",..."; //$NON-NLS-1$
+			}
+			return nullS + "]>"; //$NON-NLS-1$
 	}
 }
 }

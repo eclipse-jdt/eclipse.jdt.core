@@ -102,6 +102,11 @@ public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 			|| initsWhenFalse.isPotentiallyAssigned(local);
 }
 	
+public boolean isPotentiallyNonNull(LocalVariableBinding local) {
+	return initsWhenTrue.isPotentiallyNonNull(local) 
+		|| initsWhenFalse.isPotentiallyNonNull(local);
+}	
+	
 public boolean isPotentiallyNull(LocalVariableBinding local) {
 	return initsWhenTrue.isPotentiallyNull(local) 
 		|| initsWhenFalse.isPotentiallyNull(local);

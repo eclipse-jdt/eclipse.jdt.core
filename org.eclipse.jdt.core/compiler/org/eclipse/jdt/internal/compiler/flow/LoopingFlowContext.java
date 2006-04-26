@@ -121,12 +121,25 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 			Expression expression = this.nullReferences[i];
 			// final local variable
 			switch (this.nullCheckTypes[i]) {
+				case CAN_ONLY_NON_NULL :
+					if (flowInfo.isDefinitelyNonNull(local)) {
+						this.nullReferences[i] = null;
+						scope.problemReporter().localVariableCannotBeNull(local, expression);
+						continue;
+					}
+					break;
 				case CAN_ONLY_NULL_NON_NULL :
 					if (flowInfo.isDefinitelyNonNull(local)) {
 						this.nullReferences[i] = null;
 						scope.problemReporter().localVariableCannotBeNull(local, expression);
 						continue;
 					}
+					if (flowInfo.isDefinitelyNull(local)) {
+						this.nullReferences[i] = null;
+						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						continue;
+					}
+					break;
 				case CAN_ONLY_NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
 						this.nullReferences[i] = null;
@@ -311,11 +324,8 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 	}
 	switch (checkType) {
 		case CAN_ONLY_NULL_NON_NULL :
-		case CAN_ONLY_NULL:
 			if (flowInfo.isDefinitelyNonNull(local)) {
-				if (checkType == CAN_ONLY_NULL_NON_NULL) {
-					scope.problemReporter().localVariableCannotBeNull(local, reference);
-				}
+				scope.problemReporter().localVariableCannotBeNull(local, reference);
 				return;
 			}
 			if (flowInfo.isDefinitelyNull(local)) {
@@ -323,6 +333,21 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				return;
 			}
 			if (flowInfo.isPotentiallyUnknown(local)) {
+				return;
+			}
+			if (flowInfo.isPotentiallyNonNull(local)) {
+			  recordNullReference(local, reference,CAN_ONLY_NON_NULL);
+			} else {
+			  recordNullReference(local, reference, checkType);
+			}
+			return;
+		case CAN_ONLY_NULL:
+			if (flowInfo.isPotentiallyNonNull(local)
+					|| flowInfo.isPotentiallyUnknown(local)) {
+				return;
+			}
+			if (flowInfo.isDefinitelyNull(local)) {
+				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
 				return;
 			}
 			recordNullReference(local, reference, checkType);

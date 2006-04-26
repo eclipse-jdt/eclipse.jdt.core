@@ -41,10 +41,10 @@ public FlowInfo analyseCode(
 			this.expression, FlowContext.CAN_ONLY_NULL, flowInfo);
 		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
-		FlowInfo initsWhenFalse = flowInfo.copy();
-		flowInfo.markAsComparedEqualToNonNull(local);
+		FlowInfo initsWhenTrue = flowInfo.copy();
+		initsWhenTrue.markAsComparedEqualToNonNull(local);
 		// no impact upon enclosing try context
-		return FlowInfo.conditional(flowInfo, initsWhenFalse);
+		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 	}
 	return expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();

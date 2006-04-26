@@ -36,13 +36,6 @@ public class FlowContext implements TypeConstants {
 	
 	// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
-	public static final int 
-	  CAN_ONLY_NULL_NON_NULL = 20, 
-	  	// check against null and non null, with definite values -- comparisons
-	  CAN_ONLY_NULL = 21,
-	  	// check against null, with definite values -- assignment to null
-	  MAY_NULL = 22;
-			// check against null, with potential values -- NPE guard
 	public ASTNode associatedNode; 
 		public FlowContext parent;
 	public NullInfoRegistry initsOnFinally; 
@@ -467,6 +460,17 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
 	}
 	}
 }
+
+public static final int 
+  CAN_ONLY_NULL_NON_NULL = 20, 
+  	// check against null and non null, with definite values -- comparisons
+  CAN_ONLY_NULL = 21,
+  	// check against null, with definite values -- assignment to null
+  MAY_NULL = 22,
+	// check against null, with potential values -- NPE guard
+  CAN_ONLY_NON_NULL = 23;
+	// subcase of CAN_ONLY_NULL_NON_NULL, in which we know that the local
+	// may be non null
 
 /**
  * Record a null reference for use by deferred checks. Only looping or 

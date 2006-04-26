@@ -832,7 +832,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					  // start with the current directory which contains the source files
 					Process compileProcess = Runtime.getRuntime().exec(
 						cmdLineHeader.toString() + " -version", null, null);
-	        Logger versionLogger = new Logger(compileProcess.getErrorStream(), ""); // WORK            
+	        Logger versionLogger = new Logger(compileProcess.getErrorStream(), "");
+	        // PREMATURE implement consistent error policy
 	        versionLogger.start();
 	        compileProcess.waitFor();
 					versionLogger.join(); // make sure we get the whole output
@@ -969,9 +970,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected static String javacTestName; 
 	  // needed for multiple test calls within a single test method
 	protected static boolean javacTestErrorFlag;
-	  private static String javacFullLogFileName;
 	  // flags errors so that any error in a test case prevents
 	  // java execution
+	private static String javacFullLogFileName;
 	 
 	/*######################################
 	 * Specific method to let tests Sun javac compilation available...
@@ -1147,8 +1148,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
 							// assume executable class is name of first test file - PREMATURE check if this is also the case in other test fwk classes
 						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), null, this.outputTestDirectoryPath.toFile());
-						Logger logger = new Logger(execProcess.getInputStream(), ""); // WORK
-						logger.start();
+						Logger logger = new Logger(execProcess.getInputStream(), "");
+						// PREMATURE implement consistent error policy
+	     				logger.start();
 						exitValue = execProcess.waitFor();
 						logger.join(); // make sure we get the whole output
 						String javaOutput = logger.buffer.toString().trim();
