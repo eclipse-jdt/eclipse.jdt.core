@@ -147,6 +147,10 @@ public interface ICodeAssist {
 	 * Returns the Java elements corresponding to the given selected text in this compilation unit. 
 	 * The <code>offset</code> is the 0-based index of the first selected character. 
 	 * The <code>length</code> is the number of selected characters.
+	 * <p>
+	 * Note that if the <code>length</code> is 0 and the <code>offset</code> is inside an identifier 
+	 * or the index just after an identifier then this identifier is considered as the selection.
+	 * </p>
 	 * 
 	 * @param offset the given offset position
 	 * @param length the number of selected characters
@@ -167,6 +171,10 @@ public interface ICodeAssist {
 	 * It considers types in the working copies with the given owner first. In other words, 
 	 * the owner's working copies will take precedence over their original compilation units
 	 * in the workspace.
+	 * <p>
+	 * Note that if the <code>length</code> is 0 and the <code>offset</code> is inside an identifier 
+	 * or the index just after an identifier then this identifier is considered as the selection.
+	 * </p>
 	 * <p>
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
