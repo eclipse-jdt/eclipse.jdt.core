@@ -155,6 +155,20 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
  */
 private IType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 	ReferenceBinding superBinding = typeBinding.superclass();
+	
+	// check if the super binding was replaced with the java.lang.Object binding (because of a visibility problem for example)
+	ClassScope scope;
+	if (typeBinding instanceof SourceTypeBinding && (scope = ((SourceTypeBinding) typeBinding).scope) != null) {
+		TypeDeclaration typeDeclaration = scope.referenceContext;
+		TypeReference superclassRef = typeDeclaration == null ? null : typeDeclaration.superclass;
+		TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
+		if (superclass instanceof ProblemReferenceBinding) {
+			superclass = ((ProblemReferenceBinding) superclass).closestMatch;
+			if (superclass != null) 
+				((SourceTypeBinding) typeBinding).superclass = superBinding = (ReferenceBinding) superclass;
+		}
+	}
+	
 	if (superBinding != null) {
 		superBinding = (ReferenceBinding) superBinding.erasure();
 		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
@@ -233,6 +247,30 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 	}
 	
 	ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
+	
+	// check if bindings were removed while resolving (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=136095)
+	ClassScope scope;
+	if (typeBinding instanceof SourceTypeBinding && (scope = ((SourceTypeBinding) typeBinding).scope) != null) {
+		TypeDeclaration typeDeclaration = scope.referenceContext;
+		TypeReference[] superInterfaces = typeDeclaration == null ? null : typeDeclaration.superInterfaces;
+		int length;
+		if (superInterfaces != null && (length = superInterfaces.length) > interfaceBindings.length) {
+			
+			interfaceBindings = new ReferenceBinding[length];
+			int index = 0;
+			for (int i = 0; i < length; i++) {
+				ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
+				if (superInterface instanceof ProblemReferenceBinding)
+					superInterface = ((ProblemReferenceBinding) superInterface).closestMatch;
+				if (superInterface != null)
+					interfaceBindings[index++] = superInterface;
+			}
+			if (index < length)
+				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[index], 0 , index);
+			((SourceTypeBinding) typeBinding).superInterfaces = interfaceBindings;
+		}
+	}
+	
 	int bindingIndex = 0;
 	int bindingLength = interfaceBindings == null ? 0 : interfaceBindings.length;
 	int length = superInterfaceNames == null ? 0 : superInterfaceNames.length;

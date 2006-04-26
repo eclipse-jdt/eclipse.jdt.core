@@ -1000,7 +1000,7 @@ public void testCancel() throws JavaModelException {
 /*
  * Ensures that a hierarchy on a generic type can be opened
  */
-public void testGeneric1() throws JavaModelException {
+public void testGeneric01() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/X.java").getType("X");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1018,7 +1018,7 @@ public void testGeneric1() throws JavaModelException {
 /*
  * Ensures that a hierarchy on a generic type can be opened
  */
-public void testGeneric2() throws JavaModelException {
+public void testGeneric02() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util").getClassFile("ArrayList.class").getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1036,7 +1036,7 @@ public void testGeneric2() throws JavaModelException {
 /*
  * Ensures that a hierarchy on a generic type can be opened
  */
-public void testGeneric3() throws JavaModelException {
+public void testGeneric03() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/Y.java").getType("Y");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1055,7 +1055,7 @@ public void testGeneric3() throws JavaModelException {
  * Ensures that a super type hierarchy on a generic type can be opened
  * (regression test for bug 72348 [1.5][Type Hierarchy] Super type hierarchy of class extending generic type is empty)
  */
-public void testGeneric4() throws JavaModelException {
+public void testGeneric04() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/X.java").getType("X");
 	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1075,7 +1075,7 @@ public void testGeneric4() throws JavaModelException {
  * Ensures that a hierarchy on a generic interface can be opened
  * (regression test for bug 82004 [model][5.0] 3.1M4 type hierarchy for generic interface)
  */
-public void testGeneric5() throws JavaModelException {
+public void testGeneric05() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/I.java").getType("I");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1090,7 +1090,7 @@ public void testGeneric5() throws JavaModelException {
  * Ensure that the key of a binary type in a hierarchy is correct when this type is not part of the Java model cache.
  * (regression test for bug 93854 IAE in Util.scanTypeSignature when scanning a signature retrieved from a binding key)
  */
-public void testGeneric6() throws CoreException {
+public void testGeneric06() throws CoreException {
 	getJavaProject("TypeHierarcht15").close();
 	IType type = getClassFile("TypeHierarchy15","lib15.jar", "util", "AbstractList.class").getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -1101,7 +1101,7 @@ public void testGeneric6() throws CoreException {
  * Ensures that a hierarchy on a generic type that is extended using a member as a type parameter can be opened
  * (regression test for bug 99606 Subtype not found if parameterized on inner class)
  */
-public void testGeneric7() throws JavaModelException {
+public void testGeneric07() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/Y99606.java").getType("Y99606");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1114,7 +1114,7 @@ public void testGeneric7() throws JavaModelException {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108740
-public void testGeneric8() throws JavaModelException {
+public void testGeneric08() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/D108740.java").getType("D108740");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -1126,6 +1126,45 @@ public void testGeneric8() throws JavaModelException {
 		"Sub types:\n",
 		hierarchy
 	);
+}
+/*
+ * Ensures that a hierarchy is where a type inherits conflicting paratemerized types is still correctly reported
+ * (regression test for bug 136095 Type Hierarchy incomplete with illegally parameterized superinterfaces)
+ */
+public void testGeneric09() throws CoreException {
+	try {
+		createFile(
+			"/TypeHierarchy15/src/I1_136095.java", 
+			"public interface I1_136095<E> {\n" + 
+			"}"
+		);
+		createFile(
+			"/TypeHierarchy15/src/I2_136095.java", 
+			"public interface I2_136095 extends I1_136095<String>{\n" + 
+			"}"
+		);
+		createFile(
+			"/TypeHierarchy15/src/X_136095.java", 
+			"public abstract class X_136095 implements I1_136095<Integer>, I2_136095 {\n" + 
+			"}"
+		);
+		IType type = getCompilationUnit("/TypeHierarchy15/src/X_136095.java").getType("X_136095");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X_136095 [in X_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"Super types:\n" + 
+			"  I1_136095 [in I1_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"  I2_136095 [in I2_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"    I1_136095 [in I1_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
+			"Sub types:\n",
+			hierarchy
+		);
+	} finally {
+		deleteFile("/TypeHierarchy15/src/I1_136095.java");
+		deleteFile("/TypeHierarchy15/src/I2_136095.java");
+		deleteFile("/TypeHierarchy15/src/X_136095.java");
+	}
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
@@ -1521,5 +1560,35 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 	} finally {
 		project.setRawClasspath(originalClasspath, null);
 	}
+}
+/*
+ * Ensures that a hierarchy where the super type is not visible can still be constructed.
+ */
+public void testVisibility1() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy/src/q6/Y.java").getType("Y");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y [in Y.java [in q6 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  NonVisibleClass [in X.java [in q5 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
+}
+/*
+ * Ensures that a hierarchy where the super interface is not visible can still be constructed.
+ */
+public void testVisibility2() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy/src/q6/Z.java").getType("Z");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Z [in Z.java [in q6 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  NonVisibleInterface [in X.java [in q5 [in src [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
 }
 }
