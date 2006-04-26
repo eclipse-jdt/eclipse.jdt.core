@@ -906,8 +906,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (visibleField != null)
 			return visibleField;
 		if (notVisibleField != null) {
-			if (!notVisibleField.declaringClass.canBeSeenBy(this))
-				return new ProblemFieldBinding(notVisibleField, notVisibleField.declaringClass, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 			return new ProblemFieldBinding(notVisibleField, currentType, fieldName, ProblemReasons.NotVisible);
 		}
 		return null;

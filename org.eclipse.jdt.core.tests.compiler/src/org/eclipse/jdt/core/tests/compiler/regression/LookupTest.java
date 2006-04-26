@@ -2163,6 +2163,141 @@ public void test064() {
 			options,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323
+public void test065() {
+	this.runConformTest(
+			new String[] {
+				"com/internap/other/ScopeExample.java",//===================
+				"package com.internap.other;\n" + 
+				"import com.internap.*;\n" + 
+				"public class ScopeExample {\n" + 
+				"	private static final String LOGGER = \"SUCCESS\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		PublicAccessSubclass sub = new PublicAccessSubclass() {\n" + 
+				"			public void implementMe() {\n" + 
+				"				System.out.println(LOGGER);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		sub.implementMe();\n" + 
+				"	}\n" + 
+				"}",
+				"com/internap/PublicAccessSubclass.java",//===================
+				"package com.internap;\n" + 
+				"public abstract class PublicAccessSubclass extends DefaultAccessSuperclass {\n" + 
+				"	public abstract void implementMe();				\n" + 
+				"}",
+				"com/internap/DefaultAccessSuperclass.java",//===================
+				"package com.internap;\n" + 
+				"class DefaultAccessSuperclass {\n" + 
+				"	private static final String LOGGER = \"FAILED\";\n" + 
+				"}",
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323 - variation
+public void test066() {
+	this.runConformTest(
+			new String[] {
+				"com/internap/other/ScopeExample.java",//===================
+				"package com.internap.other;\n" + 
+				"import com.internap.*;\n" + 
+				"public class ScopeExample {\n" + 
+				"	private static final String LOGGER() { return \"SUCCESS\"; }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		PublicAccessSubclass sub = new PublicAccessSubclass() {\n" + 
+				"			public void implementMe() {\n" + 
+				"				System.out.println(LOGGER());\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		sub.implementMe();\n" + 
+				"	}\n" + 
+				"}",
+				"com/internap/PublicAccessSubclass.java",//===================
+				"package com.internap;\n" + 
+				"public abstract class PublicAccessSubclass extends DefaultAccessSuperclass {\n" + 
+				"	public abstract void implementMe();				\n" + 
+				"}",
+				"com/internap/DefaultAccessSuperclass.java",//===================
+				"package com.internap;\n" + 
+				"class DefaultAccessSuperclass {\n" + 
+				"	private static final String LOGGER() { return \"FAILED\"; }\n" + 
+				"}",
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323 - variation
+public void test067() {
+	Map options = this.getCompilerOptions();
+	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
+		this.runNegativeTest(
+				new String[] {
+					"com/internap/other/ScopeExample.java",//===================
+					"package com.internap.other;\n" + 
+					"import com.internap.*;\n" + 
+					"public class ScopeExample {\n" + 
+					"	private static final String LOGGER = \"FAILED\";\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		PublicAccessSubclass sub = new PublicAccessSubclass() {\n" + 
+					"			public void implementMe() {\n" + 
+					"				System.out.println(LOGGER);\n" + 
+					"			}\n" + 
+					"		};\n" + 
+					"		sub.implementMe();\n" + 
+					"	}\n" + 
+					"}",
+					"com/internap/PublicAccessSubclass.java",//===================
+					"package com.internap;\n" + 
+					"public abstract class PublicAccessSubclass extends DefaultAccessSuperclass {\n" + 
+					"	public abstract void implementMe();				\n" + 
+					"}",
+					"com/internap/DefaultAccessSuperclass.java",//===================
+					"package com.internap;\n" + 
+					"class DefaultAccessSuperclass {\n" + 
+					"	public static final String LOGGER = \"SUCCESS\";\n" + 
+					"}",
+				},
+				"----------\n" + 
+				"1. WARNING in com\\internap\\other\\ScopeExample.java (at line 4)\r\n" + 
+				"	private static final String LOGGER = \"FAILED\";\r\n" + 
+				"	                            ^^^^^^\n" + 
+				"The field ScopeExample.LOGGER is never read locally\n" + 
+				"----------\n" + 
+				"2. ERROR in com\\internap\\other\\ScopeExample.java (at line 8)\r\n" + 
+				"	System.out.println(LOGGER);\r\n" + 
+				"	                   ^^^^^^\n" + 
+				"The field LOGGER is defined in an inherited type and an enclosing scope \n" + 
+				"----------\n");
+		return;
+	}	
+	this.runConformTest(
+			new String[] {
+				"com/internap/other/ScopeExample.java",//===================
+				"package com.internap.other;\n" + 
+				"import com.internap.*;\n" + 
+				"public class ScopeExample {\n" + 
+				"	private static final String LOGGER = \"FAILED\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		PublicAccessSubclass sub = new PublicAccessSubclass() {\n" + 
+				"			public void implementMe() {\n" + 
+				"				System.out.println(LOGGER);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		sub.implementMe();\n" + 
+				"	}\n" + 
+				"}",
+				"com/internap/PublicAccessSubclass.java",//===================
+				"package com.internap;\n" + 
+				"public abstract class PublicAccessSubclass extends DefaultAccessSuperclass {\n" + 
+				"	public abstract void implementMe();				\n" + 
+				"}",
+				"com/internap/DefaultAccessSuperclass.java",//===================
+				"package com.internap;\n" + 
+				"class DefaultAccessSuperclass {\n" + 
+				"	public static final String LOGGER = \"SUCCESS\";\n" + 
+				"}",
+			},
+			"SUCCESS");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

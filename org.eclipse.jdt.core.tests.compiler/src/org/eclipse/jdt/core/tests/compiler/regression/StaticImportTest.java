@@ -1359,12 +1359,12 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	import static p.A.CONSTANT_B;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"The type B is not visible\n" + 
+			"The field B.p.A.CONSTANT_B is not visible\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	static int j = p.A.CONSTANT_B;\n" + 
-			"	               ^^^^^^^^^^^^^^\n" + 
-			"The type B is not visible\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The field B.CONSTANT_B is not visible\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	static int n = CONSTANT_B;\n" + 
