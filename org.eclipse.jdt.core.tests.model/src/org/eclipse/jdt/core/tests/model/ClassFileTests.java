@@ -609,8 +609,8 @@ public void testReturnType2() throws JavaModelException {
 }
 
 /*
- * Ensures that asking for a IClassFile in a non-Java project throws a JavaModelException
- * (regression test for bug 132494 JavaModelException opening up class file in non java project
+ * Ensures that asking for the source range of a IClassFile in a non-Java project throws a JavaModelException
+ * (regression test for bug 132494 JavaModelException opening up class file in non java project)
  */
 public void testSourceRangeNonJavaProject() throws CoreException {
 	try {
@@ -626,6 +626,21 @@ public void testSourceRangeNonJavaProject() throws CoreException {
 		assertExceptionEquals("Unexpected exception", "Simple does not exist", exception);
 	} finally {
 		deleteProject("Simple");
+	}
+}
+
+/*
+ * Ensures that asking for the source range of a IClassFile not on the classpath of a Java project doesn't throw a JavaModelException
+ * (regression test for bug 138507 exception in .class file editor for classes imported via plug-in import)
+ */
+public void testSourceRangeNotOnClasspath() throws CoreException {
+	try {
+		createJavaProject("P2", new String[] {"src"}, "bin");
+		createFile("/P2/bin/X.class", "");
+		IClassFile classX = getClassFile("/P2/bin/X.class");
+		assertNull("Unxepected source range", classX.getSourceRange());
+	} finally {
+		deleteProject("P2");
 	}
 }
 

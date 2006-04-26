@@ -310,6 +310,8 @@ public IBuffer getBuffer() throws JavaModelException {
 		IBuffer buffer = openBuffer(null, info);
 		if (buffer != null)
 			return buffer;
+		if (status.getCode() == IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH)
+			return null; // don't throw a JavaModelException to be able to open .class file outside the classpath (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138507)
 		throw new JavaModelException((IJavaModelStatus) status);
 	}
 }
