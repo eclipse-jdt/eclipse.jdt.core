@@ -30687,4 +30687,22 @@ public void test0974() {
 			false,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122999
+public void test0975() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //================================
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X extends ArrayList<Bean> {\n" + 
+				"   public static class Bean {}\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	public class X extends ArrayList<Bean> {\n" + 
+			"	                                 ^^^^\n" + 
+			"Bean cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
