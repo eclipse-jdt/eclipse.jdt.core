@@ -125,8 +125,10 @@ private String getSourceFileName() {
 	if (this.openable.getSourceMapper() != null) {
 		BinaryType type = (BinaryType) ((ClassFile) this.openable).getType();
 		ClassFileReader reader = MatchLocator.classFileReader(type);
-		if (reader != null)
-			this.sourceFileName = type.sourceFileName(reader);
+		if (reader != null) {
+			String fileName = type.sourceFileName(reader);
+			this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;
+		}
 	}
 	return this.sourceFileName;
 }	
