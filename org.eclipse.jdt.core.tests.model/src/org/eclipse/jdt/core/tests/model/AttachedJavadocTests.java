@@ -385,7 +385,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
-	public void _test018() throws JavaModelException {
+	public void test018() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$

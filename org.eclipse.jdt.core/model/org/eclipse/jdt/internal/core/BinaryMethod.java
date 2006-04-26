@@ -491,7 +491,16 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 	if (this.isConstructor()) {
 		methodName = typeQualifiedName;
 	}
-	String anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	char[] genericSignature = info.getGenericSignature();
+	String anchor = null;
+	if (genericSignature != null) {
+		CharOperation.replace(genericSignature, '/', '.');
+		anchor = Util.toAnchor(genericSignature, methodName, Flags.isVarargs(this.getFlags()));
+		if (anchor == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	} else {
+		anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
+	}
 	if (declaringTypeIsMember) {
 
 		int depth = 0;

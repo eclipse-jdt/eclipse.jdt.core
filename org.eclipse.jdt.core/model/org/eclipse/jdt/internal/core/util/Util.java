@@ -2879,4 +2879,256 @@ public class Util {
 		}
 		return typeSignatures;
 	}
+	
+	/*
+	 * Can throw IllegalArgumentException or ArrayIndexOutOfBoundsException 
+	 */
+	public static String toAnchor(char[] methodSignature, String methodName, boolean isVarArgs) {
+		try {
+			return new String(toAnchor(methodSignature, methodName.toCharArray(), isVarArgs));
+		} catch(IllegalArgumentException e) {
+			return null;
+		}
+	}
+	private static char[] toAnchor(char[] methodSignature, char[] methodName, boolean isVargArgs) {
+		int firstParen = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
+		if (firstParen == -1) {
+			throw new IllegalArgumentException();
+		}
+		
+		StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
+
+		// selector
+		if (methodName != null) {
+			buffer.append(methodName);
+		}
+		
+		// parameters
+		buffer.append('(');
+		char[][] pts = Signature.getParameterTypes(methodSignature);
+		for (int i = 0, max = pts.length; i < max; i++) {
+			if (i == max - 1) {
+				appendTypeSignatureForAnchor(pts[i], 0 , buffer, isVargArgs);
+			} else {
+				appendTypeSignatureForAnchor(pts[i], 0 , buffer, false);
+			}
+			if (i != pts.length - 1) {
+				buffer.append(',');
+				buffer.append(' ');
+			}
+		}
+		buffer.append(')');
+		char[] result = new char[buffer.length()];
+		buffer.getChars(0, buffer.length(), result, 0);
+		return result;
+	}
+
+	private static int appendTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer, boolean isVarArgs) {
+		// need a minimum 1 char
+		if (start >= string.length) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (isVarArgs) {
+			switch (c) {
+				case Signature.C_ARRAY :
+					return appendArrayTypeSignatureForAnchor(string, start, buffer, true);
+				case Signature.C_RESOLVED :
+				case Signature.C_TYPE_VARIABLE :
+				case Signature.C_BOOLEAN :
+				case Signature.C_BYTE :
+				case Signature.C_CHAR :
+				case Signature.C_DOUBLE :
+				case Signature.C_FLOAT :
+				case Signature.C_INT :
+				case Signature.C_LONG :
+				case Signature.C_SHORT :
+				case Signature.C_VOID :
+				case Signature.C_STAR:
+				case Signature.C_EXTENDS:
+				case Signature.C_SUPER:
+				case Signature.C_CAPTURE:
+				default:
+					throw new IllegalArgumentException(); // a var args is an array type
+			}
+		} else {
+			switch (c) {
+				case Signature.C_ARRAY :
+					return appendArrayTypeSignatureForAnchor(string, start, buffer, false);
+				case Signature.C_RESOLVED :
+					return appendClassTypeSignatureForAnchor(string, start, buffer);
+				case Signature.C_TYPE_VARIABLE :
+					int e = Util.scanTypeVariableSignature(string, start);
+					buffer.append(string, start + 1, e - start - 1);
+					return e;
+				case Signature.C_BOOLEAN :
+					buffer.append(BOOLEAN);
+					return start;
+				case Signature.C_BYTE :
+					buffer.append(BYTE);
+					return start;
+				case Signature.C_CHAR :
+					buffer.append(CHAR);
+					return start;
+				case Signature.C_DOUBLE :
+					buffer.append(DOUBLE);
+					return start;
+				case Signature.C_FLOAT :
+					buffer.append(FLOAT);
+					return start;
+				case Signature.C_INT :
+					buffer.append(INT);
+					return start;
+				case Signature.C_LONG :
+					buffer.append(LONG);
+					return start;
+				case Signature.C_SHORT :
+					buffer.append(SHORT);
+					return start;
+				case Signature.C_VOID :
+					buffer.append(VOID);
+					return start;
+				case Signature.C_CAPTURE :
+					return appendCaptureTypeSignatureForAnchor(string, start, buffer);
+				case Signature.C_STAR:
+				case Signature.C_EXTENDS:
+				case Signature.C_SUPER:
+					return appendTypeArgumentSignatureForAnchor(string, start, buffer);
+				default :
+					throw new IllegalArgumentException();
+			}
+		}
+	}
+	private static int appendTypeArgumentSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+		// need a minimum 1 char
+		if (start >= string.length) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		switch(c) {
+			case Signature.C_STAR :
+				return start;
+			case Signature.C_EXTENDS :
+				return appendTypeSignatureForAnchor(string, start + 1, buffer, false);
+			case Signature.C_SUPER :
+				return appendTypeSignatureForAnchor(string, start + 1, buffer, false);
+			default :
+				return appendTypeSignatureForAnchor(string, start, buffer, false);
+		}
+	}
+	private static int appendCaptureTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+		// need a minimum 2 char
+		if (start >= string.length - 1) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (c != Signature.C_CAPTURE) {
+			throw new IllegalArgumentException();
+		}
+		return appendTypeArgumentSignatureForAnchor(string, start + 1, buffer);
+	}
+	private static int appendArrayTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer, boolean isVarArgs) {
+		int length = string.length;
+		// need a minimum 2 char
+		if (start >= length - 1) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (c != Signature.C_ARRAY) {
+			throw new IllegalArgumentException();
+		}
+		
+		int index = start;
+		c = string[++index];
+		while(c == Signature.C_ARRAY) {
+			// need a minimum 2 char
+			if (index >= length - 1) {
+				throw new IllegalArgumentException();
+			}
+			c = string[++index];
+		}
+		
+		int e = appendTypeSignatureForAnchor(string, index, buffer, false);
+		
+		for(int i = 1, dims = index - start; i < dims; i++) {
+			buffer.append('[').append(']');
+		}
+		
+		if (isVarArgs) {
+			buffer.append('.').append('.').append('.');
+		} else {
+			buffer.append('[').append(']');
+		}
+		return e;
+	}
+	private static int appendClassTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+		// need a minimum 3 chars "Lx;"
+		if (start >= string.length - 2) { 
+			throw new IllegalArgumentException();
+		}
+		// must start in "L" or "Q"
+		char c = string[start];
+		if (c != Signature.C_RESOLVED && c != Signature.C_UNRESOLVED) {
+			throw new IllegalArgumentException();
+		}
+		int p = start + 1;
+		while (true) {
+			if (p >= string.length) {
+				throw new IllegalArgumentException();
+			}
+			c = string[p];
+			switch(c) {
+				case Signature.C_SEMICOLON :
+					// all done
+					return p;
+				case Signature.C_GENERIC_START :
+					int e = scanGenericEnd(string, p + 1);
+					// once we hit type arguments there are no more package prefixes
+					p = e;
+					break;
+				case Signature.C_DOT :
+					buffer.append('.');
+					break;
+				 case '/' :
+					buffer.append('/');
+					break;
+				 case Signature.C_DOLLAR :
+					// once we hit "$" there are no more package prefixes
+					/**
+					 * Convert '$' in resolved type signatures into '.'.
+					 * NOTE: This assumes that the type signature is an inner type
+					 * signature. This is true in most cases, but someone can define a
+					 * non-inner type name containing a '$'.
+					 */
+					buffer.append('.');
+				 	break;
+				 default :
+					buffer.append(c);
+			}
+			p++;
+		}
+	}
+	private static int scanGenericEnd(char[] string, int start) {
+		if (string[start] == Signature.C_GENERIC_END) {
+			return start;
+		}
+		int length = string.length;
+		int balance = 1;
+		start++;
+		while (start <= length) {
+			switch(string[start]) {
+				case Signature.C_GENERIC_END :
+					balance--;
+					if (balance == 0) {
+						return start;
+					}
+					break;
+				case Signature.C_GENERIC_START :
+					balance++;
+					break;
+			}
+			start++;
+		}
+		return start;
+	}
 }
