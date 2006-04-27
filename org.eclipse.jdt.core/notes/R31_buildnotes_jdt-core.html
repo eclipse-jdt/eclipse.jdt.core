@@ -327,11 +327,11 @@ What's new in this drop</h2>
 </li>
 <li><b>synthetic-access</b> : synthetic access for innerclass (<i>syntheticAccess</i>)</li>
 </ul>
-<p>NOTE: <blockquote>All other warning tokens are not longer supported by @SuppressWarnings;
+<p>NOTE:</p><blockquote>All other warning tokens are not longer supported by @SuppressWarnings;
 considering that for some diagnosis, it is simpler to just fix the code than silence some warning.
 In <i>Italic</i> the old warning token is specified.
 <br>Warning tokens also supported by javac are in <font color="red">red</font> (also see <a href="http://www.javac.info/doc?n=JavaCompiler.WarningTokens">declared warning tokens</a>).
-</blockquote></p>
+</blockquote>
 </li>
 <li>CodeAssist: added a new API CompletionProposal#isConstructor() to distinguish method and constructor proposal</li>
 <li>Access rules file patterns have been changed to ignore the file extension. This allow easy switching from a source project
@@ -4408,7 +4408,7 @@ Searching for references to default constructors reports questionable results
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69800">69800</a>
 [1.5] eclipse fails to report incompatible types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70295">70295</a>
-[1.5] method(Class<?>) is not applicable for Class<? extends Object>
+[1.5] method(Class&lt;?>) is not applicable for Class&lt;? extends Object>
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70247">70247</a>
 [1.5] NPE in TypeVariableBinding
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
@@ -4525,7 +4525,7 @@ Missing entry in local variable attribute
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68440">68440</a>
 [1.5] VerifyError with new for loop
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64159">64159</a>
-[1.5] call to addAll(Collection<? extends T>) incorrectly dissalowed
+[1.5] call to addAll(Collection&lt;? extends T>) incorrectly dissalowed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68602">68602</a>
 [1.5] AST converter fails on local types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66424">66424</a>

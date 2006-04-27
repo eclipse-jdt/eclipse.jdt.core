@@ -310,14 +310,13 @@ we recommend dealing with both at the same time. The detail</p>
 <p>[JDT only] Java search participants (package org.eclipse.jdt.core.search)</p>
 </b>
 <p>Languages close to Java (such as JSP, SQLJ, JWS, etc.) should be able to participate in Java searching. 
-In particular implementors of such languages should be able to:
+In particular implementors of such languages should be able to:</p>
 <ul>
 <li>index their source by converting it into Java equivalent, and feeding it to the Java indexer</li>
 <li>index their source by parsing it themselves, but record Java index entries</li>
 <li>locate matches in their source by converting it into Java equivalent, and feeding it to the Java match locator</li>
 <li>locate matches in their source by matching themselves, and return Java matches</li>
 </ul>
-</p>
 <p>Such an implementor is called a search participant. It extends the SearchParticipant 
 class. Search participants are passed to search queries 
 (see SearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor).</p>
