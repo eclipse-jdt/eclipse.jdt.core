@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.dom.rewrite;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -182,7 +183,9 @@ public class ASTRewrite {
 		LineInformation lineInfo= LineInformation.create(document);
 		String lineDelim= TextUtilities.getDefaultLineDelimiter(document);
 		
-		return internalRewriteAST(content, lineInfo, lineDelim, options, rootNode);
+		ASTNode astRoot= rootNode.getRoot();
+		List commentNodes= astRoot instanceof CompilationUnit ? ((CompilationUnit) astRoot).getCommentList() : null;
+		return internalRewriteAST(content, lineInfo, lineDelim, commentNodes, options, rootNode);
 	}
 	
 	/**
@@ -238,17 +241,17 @@ public class ASTRewrite {
 		String lineDelim= cu.findRecommendedLineSeparator();
 		Map options= cu.getJavaProject().getOptions(true);
 		
-		return internalRewriteAST(content, lineInfo, lineDelim, options, rootNode);
+		return internalRewriteAST(content, lineInfo, lineDelim, astRoot.getCommentList(), options, rootNode);
 	}
 	
-	private TextEdit internalRewriteAST(char[] content, LineInformation lineInfo, String lineDelim, Map options, ASTNode rootNode) {
+	private TextEdit internalRewriteAST(char[] content, LineInformation lineInfo, String lineDelim, List commentNodes, Map options, ASTNode rootNode) {
 		TextEdit result= new MultiTextEdit();
 		//validateASTNotModified(rootNode);
 		
 		TargetSourceRangeComputer sourceRangeComputer= getExtendedSourceRangeComputer();
 		this.eventStore.prepareMovedNodes(sourceRangeComputer);
 		
-		ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, options, sourceRangeComputer);
+		ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, commentNodes, options, sourceRangeComputer);
 		rootNode.accept(visitor); // throws IllegalArgumentException
 		
 		this.eventStore.revertMovedNodes();

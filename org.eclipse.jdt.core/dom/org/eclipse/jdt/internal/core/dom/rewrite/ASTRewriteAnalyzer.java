@@ -67,11 +67,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private final ASTRewriteFormatter formatter;
 	private final NodeInfoStore nodeInfos;
 	private final TargetSourceRangeComputer extendedSourceRangeComputer;
+	private final LineCommentEndOffsets lineCommentEndOffsets;
 	
-	/*
+	/**
 	 * Constructor for ASTRewriteAnalyzer.
+	 * @param content the content of the compilation unit to rewrite.
+	 * @param lineInfo line information for the content of the compilation unit to rewrite.
+	 * @param rootEdit the edit to add all generated edits to
+	 * @param eventStore the event store containing the description of changes
+	 * @param nodeInfos annotations to nodes, such as if a node is a string placeholder or a copy target
+	 * @param comments list of comments of the compilation unit to rewrite (elements of type <code>Comment</code>) or <code>null</code>.
+	 * 	@param options the current jdt.core options (formatting/compliance) or <code>null</code>.
+	 * 	@param extendedSourceRangeComputer the source range computer to use
 	 */
-	public ASTRewriteAnalyzer(char[] content, LineInformation lineInfo, String lineDelim, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, Map options, TargetSourceRangeComputer extendedSourceRangeComputer) {
+	public ASTRewriteAnalyzer(char[] content, LineInformation lineInfo, String lineDelim, TextEdit rootEdit, RewriteEventStore eventStore, NodeInfoStore nodeInfos, List comments, Map options, TargetSourceRangeComputer extendedSourceRangeComputer) {
 		this.eventStore= eventStore;
 		this.content= content;
 		this.lineInfo= lineInfo;
@@ -84,6 +93,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, lineDelim);
 		
 		this.extendedSourceRangeComputer = extendedSourceRangeComputer;
+		this.lineCommentEndOffsets= new LineCommentEndOffsets(comments);
 	}
 		
 	final TokenScanner getScanner() {
@@ -230,6 +240,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 	final void doTextInsert(int offset, String insertString, TextEditGroup editGroup) {
 		if (insertString.length() > 0) {
+			// bug fix for 95839: problem with inserting at the end of a line comment
+			if (this.lineCommentEndOffsets.isEndOfLineComment(offset, this.content)) {
+				if (!insertString.startsWith(getLineDelimiter())) {
+					TextEdit edit= new InsertEdit(offset, getLineDelimiter());  // add a line delimiter
+					addEdit(edit);
+					if (editGroup != null) {
+						addEditGroup(editGroup, edit);
+					}
+				}
+				this.lineCommentEndOffsets.remove(offset); // only one line delimiter per line comment required
+			}
 			TextEdit edit= new InsertEdit(offset, insertString);
 			addEdit(edit);
 			if (editGroup != null) {
