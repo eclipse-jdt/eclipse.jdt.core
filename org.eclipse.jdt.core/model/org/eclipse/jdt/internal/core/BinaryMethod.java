@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 /* package */ class BinaryMethod extends BinaryMember implements IMethod {
-
 	/**
 	 * The parameter type signatures of the method - stored locally
 	 * to perform equality test. <code>null</code> indicates no
@@ -243,7 +242,7 @@ public String[] getParameterNames() throws JavaModelException {
 							javadocContents.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
 							"&nbsp;".toCharArray(), //$NON-NLS-1$
 							new char[] {' '});
-					final char[][] params = CharOperation.splitOn(',', paramsSource);
+					final char[][] params = splitParameters(paramsSource, paramCount);
 					final int paramsLength = params.length;
 					this.parameterNames = new String[paramsLength];
 					for (int i = 0; i < paramsLength; i++) {
@@ -262,6 +261,66 @@ public String[] getParameterNames() throws JavaModelException {
 	}
 	// if still no parameter names, produce fake ones
 	return this.parameterNames = getRawParameterNames(paramCount);
+}
+private char[][] splitParameters(char[] parametersSource, int paramCount) {
+	// we have generic types as one of the parameter types
+	char[][] params = new char[paramCount][];
+	int paramIndex = 0;
+	int index = 0;
+	int balance = 0;
+	int length = parametersSource.length;
+	int start = 0;
+	while(index < length) {
+		switch (parametersSource[index]) {
+			case '<':
+				balance++;
+				index++;
+				while(index < length && parametersSource[index] != '>') {
+					index++;
+				}
+				break;
+			case '>' :
+				balance--;
+				index++;
+				break;
+			case ',' :
+				if (balance == 0 && paramIndex < paramCount) {
+					params[paramIndex++] = CharOperation.subarray(parametersSource, start, index);
+					start = index + 1;
+				}
+				index++;
+				break;
+			case '&' :
+				if ((index + 4) < length) {
+					if (parametersSource[index + 1] == 'l'
+							&& parametersSource[index + 2] == 't'
+							&& parametersSource[index + 3] == ';') {
+						balance++;
+						index += 4;
+					} else if (parametersSource[index + 1] == 'g'
+							&& parametersSource[index + 2] == 't'
+							&& parametersSource[index + 3] == ';') {
+						balance--;
+						index += 4;
+					} else {
+						index++;
+					}
+				} else {
+					index++;
+				}
+				break;
+			default:
+				index++;
+		}
+	}
+	if (paramIndex < paramCount) {
+		params[paramIndex++] = CharOperation.subarray(parametersSource, start, index);
+	}
+	if (paramIndex != paramCount) {
+		// happens only for constructors with synthetic enclosing type in the signature
+		System.arraycopy(params, 0, (params = new char[paramIndex][]), 0, paramIndex);
+	}
+	return params;
 }
 /*
  * @see IMethod

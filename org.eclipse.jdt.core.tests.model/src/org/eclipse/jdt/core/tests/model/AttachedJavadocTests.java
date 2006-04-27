@@ -386,7 +386,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
 	public void test018() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2/p3"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -397,7 +397,27 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IMethod method = methods[i];
 			String javadoc = method.getAttachedJavadoc(monitor);
 			assertNotNull("Should have a javadoc", javadoc);
-			assertTrue("Wrong doc", javadoc.indexOf(method.getElementName()) != -1);
+			final String selector = method.getElementName();
+			assertTrue("Wrong doc", javadoc.indexOf(selector) != -1);
 		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
+	public void test019() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2/p3"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		IType type = classFile.getType();
+		IMethod method = type.getMethod("bar5", new String[] {"Ljava.util.Map<TK;TV;>;", "I", "Ljava.util.Map<TK;TV;>;"}); //$NON-NLS-1$
+		assertTrue(method.exists());
+		String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+		String[] names = method.getParameterNames();
+		assertNotNull("No names", names);
+		assertEquals("Wrong size", 3, names.length);
+		assertEquals("Wrong parameter name", "m", names[0]);
+		assertEquals("Wrong parameter name", "j", names[1]);
+		assertEquals("Wrong parameter name", "m2", names[2]);
 	}
 }
