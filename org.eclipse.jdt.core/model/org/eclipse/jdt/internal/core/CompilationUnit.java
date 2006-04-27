@@ -599,7 +599,10 @@ public char[] getContents() {
 			return CharOperation.NO_CHAR;
 		}
 	}
-	return buffer.getCharacters();
+	char[] contents = buffer.getCharacters();
+	if (contents == null) // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=129814
+		return CharOperation.NO_CHAR;
+	return contents;
 }
 /**
  * A compilation unit has a corresponding resource unless it is contained
