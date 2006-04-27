@@ -609,7 +609,7 @@ public void testPerfReconcile() throws CoreException {
  * (regression test for bug 135083 RangeUtil#isInInterval(...) takes significant amount of time while editing)
  */
 public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException {
-	tagAsSummary("Reconcile editor change on big file with syntax error", false); // do NOT put in fingerprint
+	tagAsSummary("Reconcile editor change on big file with syntax error", true); // put in fingerprint
 	
 	// build big file contents
 	String method =
