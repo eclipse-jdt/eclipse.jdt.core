@@ -437,7 +437,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
-		tagAsSummary("Build one project (no warning)", true); // put in fingerprint
+		tagAsSummary("Build JDT/Core project (no warning)", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(-1/*no warning*/), true);
 	}
 
@@ -449,7 +449,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectDefault() throws CoreException, IOException {
-		tagAsGlobalSummary("Build one project", true); // put in global fingerprint
+		tagAsGlobalSummary("Build JDT/Core project", true); // put in global fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(0/*default warnings*/), false);
 	}
 
@@ -461,7 +461,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectAllWarnings() throws CoreException, IOException {
-		tagAsSummary("Build one project (all warnings)", true); // put in fingerprint
+		tagAsSummary("Build JDT/Core project (all warnings)", true); // put in fingerprint
 		build(JDT_CORE_PROJECT, warningOptions(1/*all warnings*/), false);
 	}
 
@@ -485,7 +485,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
-		tagAsSummary("Compile project using cmd line (no warn)", true); // put in fingerprint
+		tagAsSummary("Compile JDT/Core with cmd line (no warn)", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
@@ -495,7 +495,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile project using command line", true); // put in fingerprint
+		tagAsSummary("Compile JDT/Core with command line", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
@@ -505,7 +505,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
-		tagAsSummary("Compile project using cmd line (javadoc)", true); // put in fingerprint
+		tagAsSummary("Compile JDT/Core with cmd line (javadoc)", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
@@ -516,7 +516,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
-		tagAsSummary("Compile project using cmd line (all)", true); // put in fingerprint
+		tagAsSummary("Compile JDT/Core with cmd line (all)", true); // put in fingerprint
 		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
@@ -527,7 +527,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @since 3.2 M6
 	 */
 	public void testCompileSWTProjectDefault() throws IOException, CoreException {
-		tagAsSummary("Compile specific project using cmd line", true); // put in fingerprint
+		tagAsSummary("Compile SWT with command line", true); // put in fingerprint
 		String[] sourcePaths = {
 				"Eclipse SWT/win32",
 				"Eclipse SWT/common",
