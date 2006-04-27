@@ -69,11 +69,28 @@ public final class FactoryPathUtil {
 	// four spaces for indent
 	private static final String INDENT = "    "; //$NON-NLS-1$
 
-	/** map of plugin names -> factories */
+	/** 
+	 * Map of factory names -> factories.  A single plugin factory container may 
+	 * contain multiple annotation processor factories, each with a unique name.
+	 * To support lazy initialization, this should only be accessed by calling
+	 * @see #getPluginFactoryMap() . 
+	 */
 	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
 	
-	/** map of plugin names -> plugin factory containers, sorted by plugin name */
+	/** 
+	 * Map of plugin names -> plugin factory containers, sorted by plugin name.
+	 * A plugin that contains annotation processor factories (and extends the
+	 * corresponding extension point) is a "plugin factory container".  
+	 * To support lazy initialization, this should only be accessed by calling
+	 * @see #getPluginFactoryContainerMap() . 
+	 */
 	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<String, PluginFactoryContainer>();
+	
+	/** 
+	 * true if PLUGIN_FACTORY_MAP and PLUGIN_CONTAINER_MAP have been initialized,
+	 * by calling @see #loadPluginFactories() .
+	 */
+	private static boolean mapsInitialized = false;
 	
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
@@ -462,9 +479,9 @@ public final class FactoryPathUtil {
 	 */
 	private static synchronized Map<FactoryContainer, FactoryPath.Attributes> getAllPluginFactoryContainers()
 	{
-		Map<FactoryContainer, FactoryPath.Attributes> map = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(PLUGIN_CONTAINER_MAP.size());
-		// The PLUGIN_CONTAINER_MAP is alphabetically ordered.
-		for (PluginFactoryContainer pfc : PLUGIN_CONTAINER_MAP.values()) {
+		Map<FactoryContainer, FactoryPath.Attributes> map = 
+			new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(getPluginContainerMap().size());
+		for (PluginFactoryContainer pfc : getPluginContainerMap().values()) {
 			FactoryPath.Attributes a = new FactoryPath.Attributes(pfc.getEnableDefault(), false);
 			map.put(pfc, a);
 		}
@@ -473,7 +490,7 @@ public final class FactoryPathUtil {
 	
 	public static synchronized AnnotationProcessorFactory getFactoryFromPlugin( String factoryName )
 	{
-		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
+		AnnotationProcessorFactory apf = getPluginFactoryMap().get( factoryName );
 		if ( apf == null ) 
 		{
 			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
@@ -491,17 +508,37 @@ public final class FactoryPathUtil {
      * identify an annotation processor plugin.
      */
 	public static synchronized FactoryContainer getPluginFactoryContainer(String pluginId) {
-		return PLUGIN_CONTAINER_MAP.get(pluginId);
-	}    
+		return getPluginContainerMap().get(pluginId);
+	}
+	
+	/**
+	 * Get the alphabetically sorted map of plugin names to plugin factory containers.
+	 * Load plugins if the map has not yet been initialized.
+	 */
+	private static TreeMap<String, PluginFactoryContainer> getPluginContainerMap() {
+		loadPluginFactories();
+		return PLUGIN_CONTAINER_MAP;
+	}
+	
+	/**
+	 * Get the map of plugin factory names to plugin factories.
+	 * Load plugins if the map has not yet been initialized.
+	 */
+	private static HashMap<String, AnnotationProcessorFactory> getPluginFactoryMap() {
+		loadPluginFactories();
+		return PLUGIN_FACTORY_MAP;
+	}
 
 	/**
 	 * Discover and instantiate annotation processor factories by searching for plugins
 	 * which contribute to org.eclipse.jdt.apt.core.annotationProcessorFactory.
-	 * This method should only be called once, at startup.
+	 * The first time this method is called, it will load all the plugin factories.
+	 * Subsequent calls will be ignored.
 	 */
-	public static synchronized void loadPluginFactories() {
-		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() was called more than once"; //$NON-NLS-1$
-
+	private static synchronized void loadPluginFactories() {
+		if (mapsInitialized) {
+			return;
+		}
 		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
 				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
@@ -547,6 +584,7 @@ public final class FactoryPathUtil {
 				}
 			}
 		}
+		mapsInitialized = true;
 	}
 
 }

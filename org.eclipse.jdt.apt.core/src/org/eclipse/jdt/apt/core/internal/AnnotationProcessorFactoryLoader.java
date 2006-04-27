@@ -283,10 +283,6 @@ public class AnnotationProcessorFactoryLoader {
 			| IResourceChangeEvent.PRE_BUILD);
 	}
 
-	private AnnotationProcessorFactoryLoader() {
-    	FactoryPathUtil.loadPluginFactories();
-    }
-    
     /**
      * Called when workspace preferences change.  Resource changes, including
      * changes to project-specific factory paths, are picked up through the
