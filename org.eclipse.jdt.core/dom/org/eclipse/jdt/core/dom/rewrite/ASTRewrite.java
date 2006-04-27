@@ -608,7 +608,7 @@ public class ASTRewrite {
 
 	/**
 	 * Returns the extended source range computer for this AST rewriter.
-	 * The default value is a <code>new ExtendedSourceRangeComputer()</code>.
+	 * The default value is a <code>new TargetSourceRangeComputer()</code>.
 	 * 
 	 * @return an extended source range computer
 	 * @since 3.1
