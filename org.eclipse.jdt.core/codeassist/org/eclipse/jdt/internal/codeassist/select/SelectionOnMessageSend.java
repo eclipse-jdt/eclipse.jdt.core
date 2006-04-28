@@ -47,42 +47,28 @@ public class SelectionOnMessageSend extends MessageSend {
 
 		ReferenceBinding[] itsInterfaces = methodBinding.declaringClass.superInterfaces();
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = 0;
-			interfacesToVisit[lastPosition] = itsInterfaces;
-			org.eclipse.jdt.internal.compiler.util.SimpleSet interfacesSeen = new org.eclipse.jdt.internal.compiler.util.SimpleSet(itsInterfaces.length * 2);
+			ReferenceBinding[] interfacesToVisit = itsInterfaces;
+			int nextPosition = interfacesToVisit.length;
 
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding currentType = interfacesToVisit[i];
+				MethodBinding[] methods = currentType.getMethods(methodBinding.selector);
+				if(methods != null) {
+					for (int k = 0; k < methods.length; k++) {
+						if(methodBinding.areParametersEqual(methods[k]))
+							return methods[k];
+					}
+				}
 
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding currentType = interfaces[j];
-
-					if (!interfacesSeen.includes(currentType)) {
-						// if interface as not already been visited
-						interfacesSeen.add(currentType);
-
-						MethodBinding[] methods = currentType.getMethods(methodBinding.selector);
-						if(methods != null) {
-							for (int k = 0; k < methods.length; k++) {
-								if(methodBinding.areParametersEqual(methods[k])) {
-									return methods[k];
-								}
-							}
-						}
-
-						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}

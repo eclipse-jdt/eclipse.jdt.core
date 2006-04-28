@@ -218,14 +218,13 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 				if (currentParams[i].isBaseType() != inheritedParams[i].isBaseType() || !inheritedParams[i].isCompatibleWith(currentParams[i]))
 					return; // no chance that another inherited method's bridge method can collide
 
-		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
-		int lastPosition = -1;
-		ReferenceBinding[] itsInterfaces = null;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 		ReferenceBinding superType = inheritedMethod.declaringClass;
-		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-			interfacesToVisit[lastPosition] = itsInterfaces;
+		ReferenceBinding[] itsInterfaces = superType.superInterfaces();
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			nextPosition = itsInterfaces.length;
+			interfacesToVisit = itsInterfaces;
 		}
 		superType = superType.superclass(); // now start with its superclass
 		while (superType != null && superType.isValidBinding()) {
@@ -236,28 +235,42 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 					return;
 			}
 			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 			superType = superType.superclass();
 		}
 
-		for (int i = 0; i <= lastPosition; i++) {
-			ReferenceBinding[] interfaces = interfacesToVisit[i];
-			for (int j = 0, l = interfaces.length; j < l; j++) {
-				superType = interfaces[j];
-				if (superType.isValidBinding()) {
-					MethodBinding[] methods = superType.getMethods(currentMethod.selector);
-					for (int m = 0, n = methods.length; m < n; m++){
-						MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
-						if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
-							return;
-					}
-					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-						if (++lastPosition == interfacesToVisit.length)
-							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-						interfacesToVisit[lastPosition] = itsInterfaces;
+		for (int i = 0; i < nextPosition; i++) {
+			superType = interfacesToVisit[i];
+			if (superType.isValidBinding()) {
+				MethodBinding[] methods = superType.getMethods(currentMethod.selector);
+				for (int m = 0, n = methods.length; m < n; m++){
+					MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
+					if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
+						return;
+				}
+				if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}

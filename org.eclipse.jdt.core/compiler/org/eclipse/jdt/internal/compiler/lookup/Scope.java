@@ -832,8 +832,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return new ProblemFieldBinding(field /* closest match*/, field.declaringClass, fieldName, ProblemReasons.NotVisible);
 		}
 		// collect all superinterfaces of receiverType until the field is found in a supertype
-		ReferenceBinding[][] interfacesToVisit = null;
-		int lastPosition = -1;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 		FieldBinding visibleField = null;
 		boolean keepLooking = true;
 		FieldBinding notVisibleField = null;
@@ -845,11 +845,20 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				itsInterfaces = currentType.superInterfaces();
 			}
 			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				if (interfacesToVisit == null)
-					interfacesToVisit = new ReferenceBinding[5][];
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 			if ((currentType = currentType.superclass()) == null)
 				break;
@@ -872,29 +881,27 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemFieldBinding ambiguous = null;
-			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
-			done : for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding anInterface = interfaces[j];
-					if (!interfacesSeen.includes(anInterface)) {
-						// if interface as not already been visited
-						interfacesSeen.add(anInterface);
-						unitScope.recordTypeReference(anInterface);
-						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
-							if (visibleField == null) {
-								visibleField = field;
-							} else {
-								ambiguous = new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
-								break done;
-							}
-						} else {
-							ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-							if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-								if (++lastPosition == interfacesToVisit.length)
-									System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-								interfacesToVisit[lastPosition] = itsInterfaces;
-							}
+			done : for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				unitScope.recordTypeReference(anInterface);
+				if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
+					if (visibleField == null) {
+						visibleField = field;
+					} else {
+						ambiguous = new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
+						break done;
+					}
+				} else {
+					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+						int itsLength = itsInterfaces.length;
+						if (nextPosition + itsLength >= interfacesToVisit.length)
+							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+						nextInterface : for (int a = 0; a < itsLength; a++) {
+							ReferenceBinding next = itsInterfaces[a];
+							for (int b = 0; b < nextPosition; b++)
+								if (next == interfacesToVisit[b]) continue nextInterface;
+							interfacesToVisit[nextPosition++] = next;
 						}
 					}
 				}
@@ -934,8 +941,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		// collect all superinterfaces of receiverType until the memberType is found in a supertype
 		ReferenceBinding currentType = enclosingType;
-		ReferenceBinding[][] interfacesToVisit = null;
-		int lastPosition = -1;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 		ReferenceBinding visibleMemberType = null;
 		boolean keepLooking = true;
 		ReferenceBinding notVisible = null;
@@ -949,11 +956,20 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				itsInterfaces = currentType.superInterfaces();
 			}
 			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				if (interfacesToVisit == null)
-					interfacesToVisit = new ReferenceBinding[5][];
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 			if ((currentType = currentType.superclass()) == null)
 				break;
@@ -977,30 +993,28 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemReferenceBinding ambiguous = null;
-			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
-			done : for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding anInterface = interfaces[j];
-					if (!interfacesSeen.includes(anInterface)) {
-						// if interface as not already been visited
-						interfacesSeen.add(anInterface);
-						unitScope.recordReference(anInterface, typeName);
-						if ((memberType = anInterface.getMemberType(typeName)) != null) {
-							unitScope.recordTypeReference(memberType);
-							if (visibleMemberType == null) {
-								visibleMemberType = memberType;
-							} else {
-								ambiguous = new ProblemReferenceBinding(typeName, null, ProblemReasons.Ambiguous);
-								break done;
-							}
-						} else {
-							ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-							if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-								if (++lastPosition == interfacesToVisit.length)
-									System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-								interfacesToVisit[lastPosition] = itsInterfaces;
-							}
+			done : for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				unitScope.recordReference(anInterface, typeName);
+				if ((memberType = anInterface.getMemberType(typeName)) != null) {
+					unitScope.recordTypeReference(memberType);
+					if (visibleMemberType == null) {
+						visibleMemberType = memberType;
+					} else {
+						ambiguous = new ProblemReferenceBinding(typeName, null, ProblemReasons.Ambiguous);
+						break done;
+					}
+				} else {
+					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+						int itsLength = itsInterfaces.length;
+						if (nextPosition + itsLength >= interfacesToVisit.length)
+							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+						nextInterface : for (int a = 0; a < itsLength; a++) {
+							ReferenceBinding next = itsInterfaces[a];
+							for (int b = 0; b < nextPosition; b++)
+								if (next == interfacesToVisit[b]) continue nextInterface;
+							interfacesToVisit[nextPosition++] = next;
 						}
 					}
 				}
@@ -1101,6 +1115,19 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
+						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
+							// return the single visible match now
+							if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable())) {
+								MethodBinding interfaceMethod =
+									findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
+								if (interfaceMethod != null) {
+									candidates = new MethodBinding[] {compatibleMethod, interfaceMethod};
+									return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
+								}
+							}
+							unitScope.recordTypeReferences(compatibleMethod.thrownExceptions);
+							return compatibleMethod;
+						}
 						if (candidatesCount == 0)
 							candidates = new MethodBinding[foundSize];
 						candidates[candidatesCount++] = compatibleMethod;
@@ -1270,32 +1297,23 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	protected void findMethodInSuperInterfaces(ReferenceBinding currentType, char[] selector, ObjectVector found) {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = 0;
-			interfacesToVisit[lastPosition] = itsInterfaces;
-			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
-
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					currentType = interfaces[j];
-					if (!interfacesSeen.includes(currentType)) {
-						// if interface as not already been visited
-						interfacesSeen.add(currentType);
-
-						compilationUnitScope().recordTypeReference(currentType);
-						MethodBinding[] currentMethods = currentType.getMethods(selector);
-						if (currentMethods.length > 0)
-							found.addAll(currentMethods);
-						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit, 0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+			ReferenceBinding[] interfacesToVisit = itsInterfaces;
+			int nextPosition = interfacesToVisit.length;
+			for (int i = 0; i < nextPosition; i++) {
+				currentType = interfacesToVisit[i];
+				compilationUnitScope().recordTypeReference(currentType);
+				MethodBinding[] currentMethods = currentType.getMethods(selector);
+				if (currentMethods.length > 0)
+					found.addAll(currentMethods);
+				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}
@@ -3262,6 +3280,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		nextSpecific : for (int i = 0; i < visibleSize; i++) {
 			MethodBinding current = moreSpecific[i];
 			if (current != null) {
+				ReferenceBinding[] mostSpecificExceptions = null;
+				SimpleSet possibleMethods = null;
 				MethodBinding original = current.original();
 				for (int j = 0; j < visibleSize; j++) {
 					MethodBinding next = moreSpecific[j];
@@ -3321,9 +3341,63 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 						if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
 							original2 = original.computeSubstitutedMethod(original2, environment());
-						if (original2 == null || !original.areParameterErasuresEqual(original2) || !original.returnType.isCompatibleWith(original2.returnType)) // 15.2.2
+						if (original2 == null || !original.areParameterErasuresEqual(original2))
 							continue nextSpecific; // current does not override next
+						if (!original.returnType.isCompatibleWith(original2.returnType)) // 15.12.2
+							continue nextSpecific; // choose original2 instead
+						if (original.thrownExceptions != original2.thrownExceptions) {
+							if (mostSpecificExceptions == null)
+								mostSpecificExceptions = original.thrownExceptions;
+							if (possibleMethods == null)
+								possibleMethods = new SimpleSet(3);
+							int mostSpecificLength = mostSpecificExceptions.length;
+							int original2Length = original2.thrownExceptions.length;
+							SimpleSet temp = new SimpleSet(mostSpecificLength);
+							nextException : for (int t = 0; t < mostSpecificLength; t++) {
+								ReferenceBinding exception = mostSpecificExceptions[t];
+								for (int s = 0; s < original2Length; s++) {
+									if (exception.isCompatibleWith(original2.thrownExceptions[s])) {
+										possibleMethods.add(current);
+										temp.add(exception);
+										continue nextException;
+									} else if (original2.thrownExceptions[s].isCompatibleWith(exception)) {
+										possibleMethods.add(next);
+										temp.add(original2.thrownExceptions[s]);
+										continue nextException;
+									}
+								}
+							}
+							mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
+							temp.asArray(mostSpecificExceptions);
+						}
 					}
+				}
+				if (mostSpecificExceptions != null) {
+					Object[] values = possibleMethods.values;
+					int exceptionLength = mostSpecificExceptions.length;
+					nextMethod : for (int p = 0, vLength = values.length; p < vLength; p++) {
+						MethodBinding possible = (MethodBinding) values[p];
+						if (possible == null) continue nextMethod;
+						ReferenceBinding[] itsExceptions = possible.thrownExceptions;
+						if (itsExceptions.length == exceptionLength) {
+							nextException : for (int e = 0; e < exceptionLength; e++) {
+								ReferenceBinding exception = itsExceptions[e];
+								for (int f = 0; f < exceptionLength; f++)
+									if (exception == mostSpecificExceptions[f]) continue nextException;
+								continue nextMethod;
+							}
+							return possible;
+						}
+					}
+// do not return a new methodBinding until we know that it does not cause problems
+//					return new MethodBinding(
+//						current.modifiers,
+//						current.selector,
+//						current.returnType,
+//						current.parameters,
+//						mostSpecificExceptions,
+//						current.declaringClass
+//					);
 				}
 				return current;
 			}

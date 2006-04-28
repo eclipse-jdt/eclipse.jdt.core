@@ -45,7 +45,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -2634,24 +2633,25 @@ public final class CompletionEngine
 			return;
 
 		ReferenceBinding currentType = receiverType;
-		ReferenceBinding[][] interfacesToVisit = null;
-		int lastPosition = -1;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 		do {
-
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (notInJavadoc && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-				if (interfacesToVisit == null)
-					interfacesToVisit = new ReferenceBinding[5][];
-
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(
-						interfacesToVisit,
-						0,
-						interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-						0,
-						lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 
 			FieldBinding[] fields = currentType.availableFields();
@@ -2673,43 +2673,34 @@ public final class CompletionEngine
 		} while (notInJavadoc && currentType != null);
 
 		if (notInJavadoc && interfacesToVisit != null) {
-			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				FieldBinding[] fields = anInterface.availableFields();
+				if(fields !=  null) {
+					findFields(
+						fieldName,
+						fields,
+						scope,
+						fieldsFound,
+						localsFound,
+						onlyStaticFields,
+						receiverType,
+						invocationSite,
+						invocationScope,
+						implicitCall,
+						canBePrefixed);
+				}
 
-					ReferenceBinding anInterface = interfaces[j];
-					if (!interfacesSeen.includes(anInterface)) {
-						// if interface as not already been visited
-						interfacesSeen.add(anInterface);
-
-						FieldBinding[] fields = anInterface.availableFields();
-						if(fields !=  null) {
-							findFields(
-								fieldName,
-								fields,
-								scope,
-								fieldsFound,
-								localsFound,
-								onlyStaticFields,
-								receiverType,
-								invocationSite,
-								invocationScope,
-								implicitCall,
-								canBePrefixed);
-						}
-
-						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}
@@ -3484,25 +3475,26 @@ public final class CompletionEngine
 			return;
 		}
 
-		ReferenceBinding[][] interfacesToVisit = null;
-		int lastPosition = -1;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 
 		do {
-
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-				if (interfacesToVisit == null)
-					interfacesToVisit = new ReferenceBinding[5][];
-
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(
-						interfacesToVisit,
-						0,
-						interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-						0,
-						lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 			
 			findMemberTypes(
@@ -3517,10 +3509,8 @@ public final class CompletionEngine
 				scope);
 			
 			currentType = currentType.superclass();
-
 		} while (currentType != null);
-		
-		
+
 		if(proposeAllMemberTypes) {
 			ReferenceBinding[] memberTypes = receiverType.memberTypes();
 			for (int i = 0; i < memberTypes.length; i++) {
@@ -3538,39 +3528,29 @@ public final class CompletionEngine
 		}
 
 		if (interfacesToVisit != null) {
-			SimpleSet interfacesSeen = new SimpleSet(lastPosition * 2);
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-
-					ReferenceBinding anInterface = interfaces[j];
-					if (!interfacesSeen.includes(anInterface)) {
-						// if interface as not already been visited
-						interfacesSeen.add(anInterface);
-
-						findMemberTypes(
-							typeName,
-							anInterface.memberTypes(),
-							typesFound,
-							receiverType,
-							typeInvocation,
-							staticOnly,
-							fromStaticImport,
-							checkQualification,
-							scope);
-								
-						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				findMemberTypes(
+					typeName,
+					anInterface.memberTypes(),
+					typesFound,
+					receiverType,
+					typeInvocation,
+					staticOnly,
+					fromStaticImport,
+					checkQualification,
+					scope);
+						
+				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}
@@ -3682,65 +3662,49 @@ public final class CompletionEngine
 			return;
 
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = 0;
-			interfacesToVisit[lastPosition] = itsInterfaces;
-			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
+			ReferenceBinding[] interfacesToVisit = itsInterfaces;
+			int nextPosition = interfacesToVisit.length;
 
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding currentType = interfacesToVisit[i];
+				MethodBinding[] methods = currentType.availableMethods();
+				if(methods != null) {
+					if(isCompletingDeclaration) {
+						findLocalMethodDeclarations(
+							selector,
+							methods,
+							scope,
+							methodsFound,
+							exactMatch,
+							receiverType);
+					} else {
+						findLocalMethods(
+							selector,
+							typeArgTypes,
+							argTypes,
+							methods,
+							scope,
+							methodsFound,
+							onlyStaticMethods,
+							exactMatch,
+							receiverType,
+							invocationSite,
+							invocationScope,
+							implicitCall,
+							superCall,
+							canBePrefixed);
+					}
+				}
 
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding currentType = interfaces[j];
-
-					if (!interfacesSeen.includes(currentType)) {
-						// if interface as not already been visited
-						interfacesSeen.add(currentType);
-
-						MethodBinding[] methods = currentType.availableMethods();
-						if(methods != null) {
-							if(isCompletingDeclaration){
-	
-								findLocalMethodDeclarations(
-									selector,
-									methods,
-									scope,
-									methodsFound,
-									exactMatch,
-									receiverType);
-	
-							} else {
-	
-								findLocalMethods(
-									selector,
-									typeArgTypes,
-									argTypes,
-									methods,
-									scope,
-									methodsFound,
-									onlyStaticMethods,
-									exactMatch,
-									receiverType,
-									invocationSite,
-									invocationScope,
-									implicitCall,
-									superCall,
-									canBePrefixed);
-							}
-						}
-
-						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}
@@ -6166,42 +6130,29 @@ public final class CompletionEngine
 
 		ReferenceBinding[] itsInterfaces = binding.superInterfaces();
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = 0;
-			interfacesToVisit[lastPosition] = itsInterfaces;
-			SimpleSet interfacesSeen = new SimpleSet(itsInterfaces.length * 2);
+			ReferenceBinding[] interfacesToVisit = itsInterfaces;
+			int nextPosition = interfacesToVisit.length;
 
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding currentType = interfacesToVisit[i];
+				computeExpectedTypesForMessageSend(
+					currentType,
+					selector,
+					arguments,
+					receiverType,
+					scope,
+					invocationSite,
+					isStatic);
 
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding currentType = interfaces[j];
-
-					if (!interfacesSeen.includes(currentType)) {
-						// if interface as not already been visited
-						interfacesSeen.add(currentType);
-
-						computeExpectedTypesForMessageSend(
-							currentType,
-							selector,
-							arguments,
-							receiverType,
-							scope,
-							invocationSite,
-							isStatic);
-
-						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
+				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
 					}
 				}
 			}

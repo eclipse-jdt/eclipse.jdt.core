@@ -750,4 +750,86 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"135"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+	public void test015() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"public class E {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		IJ ij = new K();\n" + 
+				"		try { ij.m(); } catch(E11 e) {}\n" +
+				"	}\n" +
+				"}\n" + 
+				"interface I { void m() throws E1; }\n" + 
+				"interface J { void m() throws E11; }\n" +
+				"interface IJ extends I, J {}\n" + 
+				"class K implements IJ { public void m() {} }\n" + 
+				"class E1 extends Exception { static final long serialVersionUID = 1; }\n" +
+				"class E11 extends E1 { static final long serialVersionUID = 2; }\n" + 
+				"class E2 extends Exception { static final long serialVersionUID = 3; }"
+			},
+			""
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+	public void _test016() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"public class E {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		IJ ij = new K();\n" + 
+				"		try { ij.m(); } catch(E11 e) {}\n" +
+				"	}\n" +
+				"}\n" + 
+				"interface I { void m() throws E1; }\n" + 
+				"interface J { void m() throws E2, E11; }\n" +
+				"interface IJ extends I, J {}\n" + 
+				"class K implements IJ { public void m() {} }\n" + 
+				"class E1 extends Exception { static final long serialVersionUID = 1; }\n" +
+				"class E11 extends E1 { static final long serialVersionUID = 2; }\n" + 
+				"class E2 extends Exception { static final long serialVersionUID = 3; }"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public class E {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		IJ ij = new K();\n" + 
+				"		ij.m();\n" + 
+				"		try { ij.m(); } catch(E2 e) {}\n" +
+				"	}\n" +
+				"}\n" + 
+				"interface I { void m() throws E1; }\n" + 
+				"interface J { void m() throws E2, E11; }\n" +
+				"interface IJ extends I, J {}\n" + 
+				"class K implements IJ { public void m() {} }\n" + 
+				"class E1 extends Exception { static final long serialVersionUID = 1; }\n" +
+				"class E11 extends E1 { static final long serialVersionUID = 2; }\n" + 
+				"class E2 extends Exception { static final long serialVersionUID = 3; }"
+			},
+			"----------\n" + 
+			"1. ERROR in E.java (at line 4)\r\n" + 
+			"	ij.m();\r\n" + 
+			"	^^^^^^\n" + 
+			"Unhandled exception type E11\n" + 
+			"----------\n" + 
+			"2. ERROR in E.java (at line 5)\r\n" + 
+			"	try { ij.m(); } catch(E2 e) {}\r\n" + 
+			"	      ^^^^^^\n" + 
+			"Unhandled exception type E11\n" + 
+			"----------\n" + 
+			"3. ERROR in E.java (at line 5)\r\n" + 
+			"	try { ij.m(); } catch(E2 e) {}\r\n" + 
+			"	                      ^^\n" + 
+			"Unreachable catch block for E2. This exception is never thrown from the try statement body\n" + 
+			"----------\n"
+			// 4: unreported exception E11; must be caught or declared to be thrown
+			// 5: exception E2 is never thrown in body of corresponding try statement
+			// 5: unreported exception E11; must be caught or declared to be thrown
+		);
+	}
 }

@@ -695,8 +695,8 @@ public class ClassScope extends Scope {
 		// when no member types are defined, tag the sourceType & each superType with the HasNoMemberTypes bit
 		// assumes super types have already been checked & tagged
 		ReferenceBinding currentType = sourceType;
-		ReferenceBinding[][] interfacesToVisit = null;
-		int lastPosition = -1;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
 		do {
 			if (currentType.hasMemberTypes()) // avoid resolving member types eagerly
 				return;
@@ -705,44 +705,51 @@ public class ClassScope extends Scope {
 			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (itsInterfaces == null)
 					return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
-				if (interfacesToVisit == null)
-					interfacesToVisit = new ReferenceBinding[5][];
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
 			}
 		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & TagBits.HasNoMemberTypes) == 0);
 
 		if (interfacesToVisit != null) {
 			// contains the interfaces between the sourceType and any superclass, which was tagged as having no member types
 			boolean needToTag = false;
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & TagBits.HasNoMemberTypes) == 0) { // skip interface if it already knows it has no member types
-						if (anInterface.hasMemberTypes()) // avoid resolving member types eagerly
-							return;
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				if ((anInterface.tagBits & TagBits.HasNoMemberTypes) == 0) { // skip interface if it already knows it has no member types
+					if (anInterface.hasMemberTypes()) // avoid resolving member types eagerly
+						return;
 
-						needToTag = true;
-						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-						if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-							if (itsInterfaces == null)
-								return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
+					needToTag = true;
+					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+						int itsLength = itsInterfaces.length;
+						if (nextPosition + itsLength >= interfacesToVisit.length)
+							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+						nextInterface : for (int a = 0; a < itsLength; a++) {
+							ReferenceBinding next = itsInterfaces[a];
+							for (int b = 0; b < nextPosition; b++)
+								if (next == interfacesToVisit[b]) continue nextInterface;
+							interfacesToVisit[nextPosition++] = next;
 						}
 					}
 				}
 			}
 
 			if (needToTag) {
-				for (int i = 0; i <= lastPosition; i++) {
-					ReferenceBinding[] interfaces = interfacesToVisit[i];
-					for (int j = 0, length = interfaces.length; j < length; j++)
-						interfaces[j].tagBits |= TagBits.HasNoMemberTypes;
-				}
+				for (int i = 0; i < nextPosition; i++)
+					interfacesToVisit[i].tagBits |= TagBits.HasNoMemberTypes;
 			}
 		}
 

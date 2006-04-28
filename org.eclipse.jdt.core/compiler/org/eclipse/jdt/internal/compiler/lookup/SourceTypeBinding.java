@@ -72,33 +72,29 @@ private void addDefaultAbstractMethods() {
 		if (this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_2)
 			return; // no longer added for post 1.2 targets
 
-		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-		int lastPosition = 0;
-		interfacesToVisit[lastPosition] = superInterfaces();
-		MethodBinding[] defaultAbstracts = null;
-		int defaultAbstractsCount = 0;
-		for (int i = 0; i <= lastPosition; i++) {
-			ReferenceBinding[] interfaces = interfacesToVisit[i];
-			for (int j = 0, length = interfaces.length; j < length; j++) {
-				ReferenceBinding superType = interfaces[j];
+		ReferenceBinding[] itsInterfaces = superInterfaces();
+		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			MethodBinding[] defaultAbstracts = null;
+			int defaultAbstractsCount = 0;
+			ReferenceBinding[] interfacesToVisit = itsInterfaces;
+			int nextPosition = interfacesToVisit.length;
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding superType = interfacesToVisit[i];
 				if (superType.isValidBinding()) {
 					MethodBinding[] superMethods = superType.methods();
 					nextAbstractMethod: for (int m = superMethods.length; --m >= 0;) {
 						MethodBinding method = superMethods[m];
 						// explicitly implemented ?
-						if (implementsMethod(method)) {
+						if (implementsMethod(method))
 							continue nextAbstractMethod;
-						}
 						if (defaultAbstractsCount == 0) {
 							defaultAbstracts = new MethodBinding[5];
 						} else {
 							// already added as default abstract ?
-							for(int k = 0; k < defaultAbstractsCount; k++) {
-								MethodBinding alreadyAddedMethod = 	defaultAbstracts[k];
-								if (CharOperation.equals(alreadyAddedMethod.selector, method.selector)
-										&& alreadyAddedMethod.areParametersEqual(method)) {
+							for (int k = 0; k < defaultAbstractsCount; k++) {
+								MethodBinding alreadyAdded = defaultAbstracts[k];
+								if (CharOperation.equals(alreadyAdded.selector, method.selector) && alreadyAdded.areParametersEqual(method))
 									continue nextAbstractMethod;
-								}
 							}
 						}
 						MethodBinding defaultAbstract = new MethodBinding(
@@ -108,31 +104,34 @@ private void addDefaultAbstractMethods() {
 								method.parameters,
 								method.thrownExceptions,
 								this);
-						if (defaultAbstractsCount == defaultAbstracts.length) {
-							System.arraycopy(defaultAbstracts, 0, defaultAbstracts = new MethodBinding[2*defaultAbstractsCount], 0, defaultAbstractsCount);
-						}
+						if (defaultAbstractsCount == defaultAbstracts.length)
+							System.arraycopy(defaultAbstracts, 0, defaultAbstracts = new MethodBinding[2 * defaultAbstractsCount], 0, defaultAbstractsCount);
 						defaultAbstracts[defaultAbstractsCount++] = defaultAbstract;
 					}
 
-					ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-						if (++lastPosition == interfacesToVisit.length)
-							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-						interfacesToVisit[lastPosition] = itsInterfaces;
+					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+						int itsLength = itsInterfaces.length;
+						if (nextPosition + itsLength >= interfacesToVisit.length)
+							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+						nextInterface : for (int a = 0; a < itsLength; a++) {
+							ReferenceBinding next = itsInterfaces[a];
+							for (int b = 0; b < nextPosition; b++)
+								if (next == interfacesToVisit[b]) continue nextInterface;
+							interfacesToVisit[nextPosition++] = next;
+						}
 					}
 				}
 			}
-		}
-		if (defaultAbstractsCount > 0) {
-			int length = this.methods.length;
-			System.arraycopy(this.methods, 0, this.methods = new MethodBinding[length+defaultAbstractsCount], 0, length);
-			System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
-			// re-sort methods
-			length = length+defaultAbstractsCount;
-			if (length > 1) {
-				ReferenceBinding.sortMethods(this.methods, 0, length);
+			if (defaultAbstractsCount > 0) {
+				int length = this.methods.length;
+				System.arraycopy(this.methods, 0, this.methods = new MethodBinding[length + defaultAbstractsCount], 0, length);
+				System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
+				// re-sort methods
+				length = length + defaultAbstractsCount;
+				if (length > 1)
+					ReferenceBinding.sortMethods(this.methods, 0, length);
+				// this.tagBits |= TagBits.AreMethodsSorted; -- already set in #methods()
 			}
-			// this.tagBits |= TagBits.AreMethodsSorted; -- already set in #methods()
 		}
 	}
 }
