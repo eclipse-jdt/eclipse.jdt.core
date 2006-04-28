@@ -378,6 +378,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		LayoutUtil.setHorizontalGrabbing(fFactoryPathList.getListControl(null));
 
 		fFactoryPathList.enableButton(IDX_ADDJAR, (fJProj != null));
+		// bugzilla 139101: only enable Advanced and Edit buttons if there is a selection
+		fFactoryPathList.enableButton(IDX_ADVANCED, false);
+		fFactoryPathList.enableButton(IDX_EDIT, false);
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
 		
