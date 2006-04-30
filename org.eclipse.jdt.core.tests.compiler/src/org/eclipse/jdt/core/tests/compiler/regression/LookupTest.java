@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
@@ -2299,7 +2300,33 @@ public void test067() {
 			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
-public void test068() {
+public void _test068() {
+	Map options = this.getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"    public X() {\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X l = new X();\n" + 
+				"        StringBuffer sb = new StringBuffer();\n" + 
+				"        sb.append(l);\n" + 
+				"    }\n" + 
+				"}", // =================,
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099 - variation
+public void test069() {
 	this.runConformTest(
 			new String[] {
 				"X.java",//===================
