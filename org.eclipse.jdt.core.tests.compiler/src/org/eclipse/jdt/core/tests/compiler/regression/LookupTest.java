@@ -2298,6 +2298,23 @@ public void test067() {
 			},
 			"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
+public void test068() {
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"    public X() {\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X l = new X();\n" + 
+				"        StringBuffer sb = new StringBuffer();\n" + 
+				"        sb.append(l);\n" + 
+				"    }\n" + 
+				"}", // =================,
+			},
+			"");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
