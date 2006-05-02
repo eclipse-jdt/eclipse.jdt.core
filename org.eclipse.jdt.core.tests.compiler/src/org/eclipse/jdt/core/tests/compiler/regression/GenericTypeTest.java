@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 957 };
+//		TESTS_NUMBERS = new int[] { 979 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -30791,6 +30791,63 @@ public void test0977() {
 					"public abstract class MMTPProtocol extends AbstractProtocol<InputStream, String> {\n" + 
 					"    public void connect(ConnectType type) {}\n" + 
 					"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139669
+public void test0978() {
+	this.runConformTest(
+			new String[] {
+					"B.java", // =================
+					"public class B<T> implements A<T> {\n" + 
+					"  public void foo(A.C c) {}\n" + 
+					"}", // =================
+					"A.java", // =================
+					"public interface A<T> {\n" + 
+					"  void foo(A.C c);\n" + 
+					"  class C {}\n" + 
+					"}", // =================
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+					"A.java", // =================
+					"public interface A<T> {\n" + 
+					"  void foo(A.C c);\n" + 
+					"  class C {}\n" + 
+					"}", // =================
+			},
+			"",
+			null,
+			false,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139669
+public void test0979() {
+	this.runConformTest(
+			new String[] {
+					"B.java", // =================
+					"public class B<T> extends A<T> {\n" + 
+					"  @Override\n" +
+					"  public void foo(A.C c) {}\n" + 
+					"}", // =================
+					"A.java", // =================
+					"public class A<T> {\n" + 
+					"  public void foo(A.C c) {}\n" + 
+					"  public static class C {}\n" + 
+					"}", // =================
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+					"A.java", // =================
+					"public class A<T> {\n" + 
+					"  public void foo(A.C c) {}\n" + 
+					"  public static class C {}\n" + 
+					"}", // =================
 			},
 			"",
 			null,
