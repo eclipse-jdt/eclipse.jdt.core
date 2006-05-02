@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -23,7 +24,7 @@ public class MethodVerifier {
 	ReferenceBinding runtimeException;
 	ReferenceBinding errorException;
 	LookupEnvironment environment;
-	boolean allowCompatibleReturnTypes;
+	private boolean allowCompatibleReturnTypes;
 /*
 Binding creation is responsible for reporting all problems with types:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations - abstract/final)
@@ -49,8 +50,8 @@ MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 	this.allowCompatibleReturnTypes =
-		environment.globalOptions.complianceLevel >= org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5
-			&& environment.globalOptions.sourceLevel < org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5;
+		environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5
+			&& environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
 }
 boolean areMethodsEqual(MethodBinding one, MethodBinding two) {
 	return doesMethodOverride(one, two) && areReturnTypesEqual(one, two);
