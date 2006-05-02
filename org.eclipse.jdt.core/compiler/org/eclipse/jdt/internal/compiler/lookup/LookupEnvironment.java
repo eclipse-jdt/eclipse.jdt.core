@@ -408,6 +408,8 @@ public TypeBinding convertToRawType(TypeBinding type) {
 			originalType = type.leafComponentType();
 			break;
 		default:
+			if (type.id == TypeIds.T_JavaLangObject) 
+				return type; // Object is not generic
 			dimension = 0;
 			originalType = type;
 	}
@@ -440,11 +442,10 @@ public TypeBinding convertToRawType(TypeBinding type) {
 		} else {
 			convertedEnclosing = convertToParameterizedType(originalEnclosing);
 		}
-		ReferenceBinding originalGeneric = (ReferenceBinding) originalType.erasure();
 		if (needToConvert) {
-			convertedType = createRawType(originalGeneric, convertedEnclosing);
+			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
 		} else if (originalEnclosing != convertedEnclosing) {
-			convertedType = createParameterizedType(originalGeneric, null, convertedEnclosing);
+			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}
@@ -470,6 +471,8 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 			originalType = type.leafComponentType();
 			break;
 		default:
+			if (type.id == TypeIds.T_JavaLangObject) 
+				return type; // Object is not generic
 			dimension = 0;
 			originalType = type;
 	}
@@ -494,12 +497,16 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
 		ReferenceBinding convertedEnclosing = (ReferenceBinding) convertUnresolvedBinaryToRawType(originalEnclosing);
-		ReferenceBinding originalGeneric = (ReferenceBinding) originalType.erasure();
-		if (needToConvert || originalEnclosing != convertedEnclosing) {
-			convertedType = createRawType(originalGeneric, convertedEnclosing);
+		if (convertedEnclosing != originalEnclosing) {
+			needToConvert |= !((ReferenceBinding)originalType).isStatic();
+		}
+		if (needToConvert) {
+			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
+		} else if (originalEnclosing != convertedEnclosing) {
+			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
-		}
+		}		
 	}
 	if (originalType != convertedType) {
 		return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
