@@ -30705,4 +30705,96 @@ public void test0975() {
 			"Bean cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139525
+public void _test0976() {
+	this.runConformTest(
+			new String[] {
+					"S.java", // =================
+					"import java.util.Collection;\n" + 
+					"public class S {\n" + 
+					"        public static void cow(IDA<?, ?, ?, ?, ?, ?> s) {\n" + 
+					"                Collection<IDA.Enum1> ids = s.getIds();  // Error here\n" + 
+					"        }\n" + 
+					"		public static void main(String[] args) {\n" +
+					"			System.out.println(\"SUCCESS\");\n" +
+					"        }\n" + 
+					"}\n", // =================
+					"ID.java", // =================
+					"import java.util.Collection;\n" + 
+					"public interface ID {\n" + 
+					"        Collection<? extends Comparable<?>> getIds();\n" + 
+					"}\n", // =================
+					"IDA.java", // =================
+					"import java.util.Collection;\n" + 
+					"public interface IDA<T1, C1, E1, E2, C2, T2> extends ID {\n" + 
+					"        enum Enum1 {\n" + 
+					"                ONE, TWO\n" + 
+					"        }\n" + 
+					"        Collection<IDA.Enum1> getIds();\n" + 
+					"}\n", // =================
+			},
+			"SUCCESS");
+	this.runConformTest(
+			new String[] {
+					"S.java", // =================
+					"import java.util.Collection;\n" + 
+					"public class S {\n" + 
+					"        public static void cow(IDA<?, ?, ?, ?, ?, ?> s) {\n" + 
+					"                Collection<IDA.Enum1> ids = s.getIds();  // Error here\n" + 
+					"        }\n" + 
+					"		public static void main(String[] args) {\n" +
+					"			System.out.println(\"SUCCESS2\");\n" +
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"SUCCESS2",
+			null,
+			false,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139619
+public void _test0977() {
+	this.runConformTest(
+			new String[] {
+					"MMTPProtocol.java", // =================
+					"import java.io.InputStream;\n" + 
+					"import java.util.HashSet;\n" + 
+					"import bug.ProtocolManager;\n" + 
+					"abstract class AbstractProtocol<R, O> implements ProtocolManager<R, O> {\n" + 
+					"    public AbstractProtocol(HashSet<O> manager, String group) {}\n" + 
+					"    AbstractProtocol(){} \n" + 
+					"     public void connect(ConnectType type) { }\n" + 
+					"}\n" +
+					"public abstract class MMTPProtocol extends AbstractProtocol<InputStream, String> {\n" + 
+					"    public void connect(ConnectType type) {}\n" + 
+					"}\n", // =================
+					"bug/ProtocolManager.java", // =================
+					"package bug;\n" + 
+					"public interface ProtocolManager<R, O>{\n" + 
+					"    public enum ConnectType {Client,Server}\n" + 
+					"    public void connect(ConnectType type) ;\n" + 
+					"    public boolean receive(R input) throws Exception;\n" + 
+					"}", // =================
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+					"MMTPProtocol.java", // =================
+					"import java.io.InputStream;\n" + 
+					"import java.util.HashSet;\n" + 
+					"import bug.ProtocolManager;\n" + 
+					"abstract class AbstractProtocol<R, O> implements ProtocolManager<R, O> {\n" + 
+					"    public AbstractProtocol(HashSet<O> manager, String group) {}\n" + 
+					"    AbstractProtocol(){} \n" + 
+					"     public void connect(ConnectType type) { }\n" + 
+					"}\n" +
+					"public abstract class MMTPProtocol extends AbstractProtocol<InputStream, String> {\n" + 
+					"    public void connect(ConnectType type) {}\n" + 
+					"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);
+}
 }
