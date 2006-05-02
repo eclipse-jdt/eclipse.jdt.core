@@ -458,16 +458,37 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
 		//access rules are expected in the same order as the classpath, but there could
 		//be elements in the classpath not in the access rules or access rules not in the classpath
-		for (int i = 0; i < pathElements.length; i++) {
+		for (int i = 0, max = pathElements.length; i < max; i++) {
 			if (i > 0)
 				result.append(File.pathSeparatorChar);
-			result.append(pathElements[i]);
+			String pathElement = pathElements[i];
+			result.append(pathElement);
 			//the rules list is [path, rule, path, rule, ...]
 			for (int j = nextRule; j < rulesLength; j += 2) {
-				if (pathElements[i].endsWith(rules[j])) {
+				String rule = rules[j];
+				if (pathElement.endsWith(rule)) {
 					result.append(rules[j + 1]);
 					nextRule = j + 2;
 					break;
+				}
+				// if the path doesn't match, it could be due to a trailing file separatorChar in the rule
+				if (rule.endsWith(File.separator)) {
+					// rule ends with the File.separator, but pathElement might not
+					// otherwise it would match on the first endsWith
+					int ruleLength = rule.length();
+					if (pathElement.regionMatches(false, pathElement.length() - ruleLength + 1, rule, 0, ruleLength - 1)) {
+						result.append(rules[j + 1]);
+						nextRule = j + 2;
+						break;
+					}
+				} else if (pathElement.endsWith(File.separator)) {
+					// rule doesn't end with the File.separator, but pathElement might
+					int ruleLength = rule.length();
+					if (pathElement.regionMatches(false, pathElement.length() - ruleLength - 1, rule, 0, ruleLength)) {
+						result.append(rules[j + 1]);
+						nextRule = j + 2;
+						break;
+					}
 				}
 			}
 		}
