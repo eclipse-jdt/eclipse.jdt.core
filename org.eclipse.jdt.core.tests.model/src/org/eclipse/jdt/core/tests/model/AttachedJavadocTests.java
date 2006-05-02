@@ -34,7 +34,7 @@ import org.eclipse.jdt.core.JavaModelException;
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	static {
 //		TESTS_NAMES = new String[] { "test010" };
-//		TESTS_NUMBERS = new int[] { 18 };
+//		TESTS_NUMBERS = new int[] { 20 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -419,5 +419,28 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong parameter name", "m", names[0]);
 		assertEquals("Wrong parameter name", "j", names[1]);
 		assertEquals("Wrong parameter name", "m2", names[2]);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=139160
+	public void test020() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		IType type = classFile.getType();
+		IMethod method = type.getMethod("foo", new String[] {"I", "I"}); //$NON-NLS-1$
+		assertTrue(method.exists());
+		String javadoc = null;
+		try {
+			javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+		} catch(JavaModelException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
+		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
 	}
 }

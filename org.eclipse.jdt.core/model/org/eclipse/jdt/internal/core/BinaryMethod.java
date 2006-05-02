@@ -227,7 +227,11 @@ public String[] getParameterNames() throws JavaModelException {
 			javadocContents = nameCollector.getJavadoc();
  		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
  			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
- 			javadocContents = extractJavadoc(declaringType, javadocContents);
+ 			try {
+ 				javadocContents = extractJavadoc(declaringType, javadocContents);
+ 			} catch(JavaModelException e) {
+ 				// ignore
+ 			}
  		} else {
  			// we don't want to set the parameter names
  			return getRawParameterNames(paramCount);
@@ -561,7 +565,6 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 		anchor = Signature.toString(this.getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(this.getFlags()));
 	}
 	if (declaringTypeIsMember) {
-
 		int depth = 0;
 		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
 		// might need to remove a part of the signature corresponding to the synthetic argument
@@ -593,7 +596,9 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 		}
 	}
 	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
-	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	if (indexAnchor == -1) {
+		return null; // method without javadoc
+	}
 	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
 	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextMethod = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
