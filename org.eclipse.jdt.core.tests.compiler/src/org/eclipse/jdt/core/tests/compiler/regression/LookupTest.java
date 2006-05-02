@@ -2300,7 +2300,7 @@ public void test067() {
 			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
-public void _test068() {
+public void test068() {
 	Map options = this.getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;

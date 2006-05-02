@@ -23,6 +23,7 @@ public class MethodVerifier {
 	ReferenceBinding runtimeException;
 	ReferenceBinding errorException;
 	LookupEnvironment environment;
+	boolean allowCompatibleReturnTypes;
 /*
 Binding creation is responsible for reporting all problems with types:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations - abstract/final)
@@ -47,6 +48,9 @@ MethodVerifier(LookupEnvironment environment) {
 	this.runtimeException = null;
 	this.errorException = null;
 	this.environment = environment;
+	this.allowCompatibleReturnTypes =
+		environment.globalOptions.complianceLevel >= org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5
+			&& environment.globalOptions.sourceLevel < org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5;
 }
 boolean areMethodsEqual(MethodBinding one, MethodBinding two) {
 	return doesMethodOverride(one, two) && areReturnTypesEqual(one, two);
@@ -63,8 +67,41 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 		if (!areTypesEqual(oneArgs[i], twoArgs[i])) return false;
 	return true;
 }
+boolean areReturnTypesCompatible(MethodBinding one, MethodBinding substituteTwo) {
+	if (one.returnType == substituteTwo.returnType) return true;
+
+	// short is compatible with int, but as far as covariance is concerned, its not
+	if (one.returnType.isBaseType()) return false;
+
+	if (!one.declaringClass.isInterface()) {
+		if (one.declaringClass.id == TypeIds.T_JavaLangObject)
+			return substituteTwo.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
+	}
+
+	// check for methods from Object, every interface inherits from Object
+	if (substituteTwo.declaringClass.id == TypeIds.T_JavaLangObject)
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
+
+	// both are interfaces, see if they're related
+	if (one.declaringClass.implementsInterface(substituteTwo.declaringClass, true))
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
+	if (substituteTwo.declaringClass.implementsInterface(one.declaringClass, true))
+		return substituteTwo.returnType.isCompatibleWith(one.returnType);
+
+	// unrelated interfaces... one must be a subtype of the other
+	return one.returnType.isCompatibleWith(substituteTwo.returnType)
+		|| substituteTwo.returnType.isCompatibleWith(one.returnType);
+}
 boolean areReturnTypesEqual(MethodBinding one, MethodBinding two) {
-	return areTypesEqual(one.returnType, two.returnType);
+	if (areTypesEqual(one.returnType, two.returnType)) return true;
+
+	// when sourceLevel < 1.5 but compliance >= 1.5, allow return types in binaries to be compatible instead of just equal
+	if (this.allowCompatibleReturnTypes)
+		if (one.declaringClass instanceof BinaryTypeBinding && two.declaringClass instanceof BinaryTypeBinding)
+			if (areReturnTypesCompatible(one, two))
+				return true;
+	return false;
 }
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
