@@ -30706,7 +30706,7 @@ public void test0975() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139525
-public void _test0976() {
+public void test0976() {
 	this.runConformTest(
 			new String[] {
 					"S.java", // =================
@@ -30753,7 +30753,7 @@ public void _test0976() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139619
-public void _test0977() {
+public void test0977() {
 	this.runConformTest(
 			new String[] {
 					"MMTPProtocol.java", // =================
