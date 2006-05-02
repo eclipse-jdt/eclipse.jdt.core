@@ -2507,7 +2507,9 @@ public void configure(String[] argv) throws InvalidInputException {
 		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
 		if (extdirsStr == null) {
-			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+			if (javaHome != null) {
+				extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+			}
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) 
@@ -2555,7 +2557,9 @@ public void configure(String[] argv) throws InvalidInputException {
 		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
 		if (endorsedDirsStr == null) {
-			endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			if (javaHome != null) {
+				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			}
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) 
