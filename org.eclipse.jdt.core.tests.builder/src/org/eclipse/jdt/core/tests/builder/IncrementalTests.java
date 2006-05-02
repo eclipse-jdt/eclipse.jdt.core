@@ -711,4 +711,31 @@ public class IncrementalTests extends BuilderTests {
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingNoProblemsFor(xPath);
 	}
+
+	public void testSecondaryType() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "", "AB", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class AB extends AZ {}"); //$NON-NLS-1$
+
+		env.addClass(root, "", "AA", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class AA {} \n"+ //$NON-NLS-1$
+			"class AZ {}"); //$NON-NLS-1$
+
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
+			fullBuild(projectPath);
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+		}
+		expectingNoProblems();
+	}
 }

@@ -175,7 +175,7 @@ protected void addAffectedSourceFiles(char[] secondaryTypeName) {
 	// the secondary type search can have too many false hits if we addAffectedSource files using all the qualified type names
 	// of each secondary type... so look for the dependents 1 file at a time
 	int index = CharOperation.lastIndexOf('/', secondaryTypeName);
-	String packageName = index == -1 ? null : new String(CharOperation.subarray(secondaryTypeName, 0, index));
+	String packageName = index == -1 ? "" : new String(CharOperation.subarray(secondaryTypeName, 0, index)); //$NON-NLS-1$
 	StringSet packageNames = new StringSet(1);
 	packageNames.add(packageName);
 	String typeName = new String(index == -1 ? secondaryTypeName : CharOperation.subarray(secondaryTypeName, index + 1, secondaryTypeName.length));
