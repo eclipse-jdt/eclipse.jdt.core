@@ -1009,7 +1009,12 @@ public class JavaProject
 	}
 
 	public boolean exists() {
-		return hasJavaNature(this.project);
+		try {
+			return this.project.hasNature(JavaCore.NATURE_ID);
+		} catch (CoreException e) {
+			// project does not exist or is not open
+		}
+		return false;
 	}	
 
 	/**

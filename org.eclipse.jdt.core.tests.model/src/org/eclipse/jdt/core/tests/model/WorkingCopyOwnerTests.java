@@ -984,6 +984,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		this.workingCopy.commitWorkingCopy(true, null);
 		assertFalse("Should not have unsaved changes", this.workingCopy.hasUnsavedChanges());
 	}
+	
+	/*
+	 * Ensures that a Java project named " " doesn't exist if a working copy with no resource is created.
+	 * (regression test for bug 138999 Regression: Fix for 128258 introduces regression in JavaProject.exists())
+	 */
+	public void testNewWorkingCopy09() throws CoreException {
+		this.workingCopy = newExternalWorkingCopy(
+			"X.java",
+			"public class X {\n" +
+			"}"
+		);
+		assertFalse("Java project named \" \" should not exist", getJavaProject(ExternalJavaProject.EXTERNAL_PROJECT_NAME).exists());
+	}
 
 	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
