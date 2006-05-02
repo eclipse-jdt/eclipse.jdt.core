@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
@@ -397,6 +398,34 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 			new File(externalJar1).delete();
 		if (externalJar2 != null)
 			new File(externalJar2).delete();
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the hierarchy lookup mechanism get the right binary if it is missplaced.
+ * (regression test for bug 139279 Fup of bug 134110, got CCE changing an external jar contents and refreshing the project)
+ */
+public void testBinaryInWrongPackage() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			"pakage p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
+		getFile("/P/bin/p/X.class").copy(new Path("/P/lib/X.class"), false, null);
+		ITypeHierarchy hierarchy = getClassFile("P", "/P/lib", "", "X.class").getType().newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n" + 
+			"Root classes:\n",
+			hierarchy);
+	} finally {
 		deleteProject("P");
 	}
 }

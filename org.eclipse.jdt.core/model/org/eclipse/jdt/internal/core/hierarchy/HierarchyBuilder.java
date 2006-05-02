@@ -243,7 +243,7 @@ public abstract class HierarchyBuilder {
 			false/* do NOT wait for indexes */,
 			false/*don't check restrictions*/,
 			null);
-		return answer == null ? null : answer.type;
+		return answer == null || answer.type == null || !answer.type.isBinary() ? null : answer.type;
 		
 	}
 	protected void worked(IProgressMonitor monitor, int work) {
