@@ -43,9 +43,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
 import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.CheckStateChangedEvent;
-import org.eclipse.jface.viewers.CheckboxTableViewer;
-import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
@@ -110,14 +107,18 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
         /**
          * This method gets called when, among other things, a checkbox is
          * clicked.  However, it doesn't get any information about which
-         * item it was whose checkbox was clicked, so it's pretty useless.
-         * Instead of maintaining the FactoryPathEntry states here, we
-         * hook into the list control's CheckboxTableViewer event listener.
+         * item it was whose checkbox was clicked.  We could hook into the 
+         * list control's CheckboxTableViewer event listener for changes to 
+         * individual checkboxes; but that does not get called for enableAll 
+         * and disableAll events.
          */
 		public void dialogFieldChanged(DialogField field) {
+			if (!fSettingListContents) {
+				updateFactoryPathEntries();
+			}
         }
 
-        public void doubleClicked(ListDialogField field) {
+		public void doubleClicked(ListDialogField field) {
         	if (canEdit()) {
         		editSelectedItem();
         	}
@@ -206,6 +207,13 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * are of type FactoryPathEntry. 
 	 */
 	private CheckedListDialogField fFactoryPathList;
+	
+	/**
+	 * True while inside setListContents().  Used in order to efficiently
+	 * and correctly add new elements to the factory list: short-circuits
+	 * the factory list field listener code.
+	 */
+	private boolean fSettingListContents = false;
 
 	public FactoryPathConfigurationBlock(IStatusChangeListener context,
 			IProject project, IWorkbenchPreferenceContainer container) {
@@ -230,15 +238,18 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * Respond to the user checking the "enabled" checkbox of an entry
 	 * in the factory path control, by replacing the FactoryPathEntry
 	 * with a new one with the correct "enabled" value.
+	 * We don't have information about which entry was changed, so we
+	 * have to look at all of them.  This is inefficient - somewhere
+	 * around O(n log n) depending on how the list is implemented - but 
+	 * hopefully the list is not so huge that it's a problem.
 	 */
-	protected void doCheckStateChanged(CheckStateChangedEvent e) {
-		Object o = e.getElement();
-		if (o == null || !(o instanceof FactoryPathEntry)) {
-			return;  // shouldn't ever happen
+	private void updateFactoryPathEntries() {
+		for (FactoryPathEntry fpe : getListContents()) {
+			boolean checked = fFactoryPathList.isChecked(fpe);
+			if (checked != fpe._attr.isEnabled()) {
+				fpe._attr.setEnabled(checked);
+			}
 		}
-		FactoryPathEntry fpe = (FactoryPathEntry)o;
-		boolean isChecked = e.getChecked();
-		fpe._attr.setEnabled(isChecked);
 	}
 
 	/**
@@ -313,23 +324,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		return (selected.size() == 1);
 	}
 
-	private void addEntries(FactoryPathEntry[] entries) {
-		if (null == entries) {
-			return;
-		}
-		int insertAt;
-		List<FactoryPathEntry> selectedElements= getSelectedListContents();
-		if (selectedElements.size() == 1) {
-			insertAt= fFactoryPathList.getIndexOfElement(selectedElements.get(0)) + 1;
-		} else {
-			insertAt= fFactoryPathList.getSize();
-		}
-		for (int i = 0; i < entries.length; ++i) {
-			fFactoryPathList.addElement(entries[i], insertAt + i);
-			fFactoryPathList.setChecked(entries[i], entries[i]._attr.isEnabled());
-		}
-	}
-	
 	/**
 	 * Edit the item selected.
 	 * Precondition: exactly one item is selected in the list,
@@ -384,14 +378,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
 		
-		// Register a change listener on the checkboxes
-		CheckboxTableViewer tableViewer = (CheckboxTableViewer)fFactoryPathList.getTableViewer();
-		tableViewer.addCheckStateListener(new ICheckStateListener() {
-			public void checkStateChanged(CheckStateChangedEvent e) {
-				doCheckStateChanged(e);
-			}
-		});
-
 		return fBlockControl;
 	}
 	
@@ -400,15 +386,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		return (project == null) ? false : AptConfig.hasProjectSpecificFactoryPath(JavaCore.create(project));
 	}
 
+	/**
+	 * Initialize the user interface based on the cached original settings.
+	 */
 	@Override
 	protected void initContents() {
-		fFactoryPathList.removeAllElements();
-		for (FactoryPathEntry originalFpe : fOriginalPath) {
-			// clone, because we may later modify it and we want to compare with the original.
-			FactoryPathEntry fpe = new FactoryPathEntry(originalFpe._fc, new Attributes(originalFpe._attr));
-			fFactoryPathList.addElement(fpe);
-			fFactoryPathList.setChecked(fpe, fpe._attr.isEnabled());
-		}
+		setListContents(fOriginalPath);
 	}
 
 	/**
@@ -444,6 +427,61 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		return contents;
 	}
 	
+	/**
+	 * Add new entries to the list control.  Differs from setListContents()
+	 * in that the list is not cleared first, and the entries are not copied
+	 * before being added to the list.
+	 * @param entries can be null.
+	 */
+	private void addEntries(FactoryPathEntry[] entries) {
+		if (null == entries) {
+			return;
+		}
+		int insertAt;
+		List<FactoryPathEntry> selectedElements= getSelectedListContents();
+		if (selectedElements.size() == 1) {
+			insertAt= fFactoryPathList.getIndexOfElement(selectedElements.get(0)) + 1;
+		} else {
+			insertAt= fFactoryPathList.getSize();
+		}
+		try {
+			fSettingListContents = true;
+			for (int i = 0; i < entries.length; ++i) {
+				fFactoryPathList.addElement(entries[i], insertAt + i);
+				fFactoryPathList.setChecked(entries[i], entries[i]._attr.isEnabled());
+			}
+		}
+		finally {
+			fSettingListContents = false;
+		}
+	}
+	
+	/**
+	 * Set the contents of the list control.  The FPEs in the input list
+	 * will be copied; the originals are left untouched, so that if the
+	 * list control's contents are modified they can be compared with the
+	 * original.
+	 * @param fpeList can be null.
+	 */
+	private void setListContents(List<FactoryPathEntry> fpeList) {
+		try {
+			fSettingListContents = true;
+			fFactoryPathList.removeAllElements();
+			if (fpeList == null) {
+				return;
+			}
+			for (FactoryPathEntry originalFpe : fpeList) {
+				// clone, because we may later want to compare with the original.
+				FactoryPathEntry fpe = new FactoryPathEntry(originalFpe._fc, new Attributes(originalFpe._attr));
+				fFactoryPathList.addElement(fpe);
+				fFactoryPathList.setChecked(fpe, fpe._attr.isEnabled());
+			}
+		}
+		finally {
+			fSettingListContents = false;
+		}
+	}
+
 	/**
 	 * Get all the containers of a certain type currently on the list.
 	 * The format of the returned paths will depend on the container type:
@@ -681,11 +719,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		FactoryPath fp = (FactoryPath)ifp;
 		Map<FactoryContainer, FactoryPath.Attributes> map = fp.getAllContainers();
 		List<FactoryPathEntry> defaults = FactoryPathEntry.pathListFromMap(map);
-		fFactoryPathList.removeAllElements();
-		for (FactoryPathEntry fpe : defaults) {
-			fFactoryPathList.addElement(fpe);
-			fFactoryPathList.setChecked(fpe, fpe._attr.isEnabled());
-		}
+		setListContents(defaults);
 		super.performDefaults();
 	}
 	
