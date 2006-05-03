@@ -254,7 +254,7 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 		TypeDeclaration typeDeclaration = scope.referenceContext;
 		TypeReference[] superInterfaces = typeDeclaration == null ? null : typeDeclaration.superInterfaces;
 		int length;
-		if (superInterfaces != null && (length = superInterfaces.length) > interfaceBindings.length) {
+		if (superInterfaces != null && (length = superInterfaces.length) > (interfaceBindings == null ? 0 : interfaceBindings.length)) { // check for interfaceBindings being null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139689)
 			
 			interfaceBindings = new ReferenceBinding[length];
 			int index = 0;
