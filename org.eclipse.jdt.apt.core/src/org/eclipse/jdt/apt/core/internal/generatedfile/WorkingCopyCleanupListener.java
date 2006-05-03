@@ -54,16 +54,9 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 			
 			ICompilationUnit cu = (ICompilationUnit) delta.getElement();	
 
-			//
-			// cu.isWorkingCopy() doesn't work here.  For back-compat reasons, that always returns 
-			// true for non-primary working copies, so we use the following test to see if a working copy
-			// has been discarded.
-			//
-			// TODO:  remove reference to jdt-internal class
-			//
-			org.eclipse.jdt.internal.core.CompilationUnit cu2 = (org.eclipse.jdt.internal.core.CompilationUnit)cu;			
-			boolean workingCopyDiscarded = cu2.isPrimary() ? !cu.isWorkingCopy() : cu2.getPerWorkingCopyInfo() == null;
-
+			boolean workingCopyDiscarded = 
+				cu.getOwner() == null ? !cu.isWorkingCopy() : !cu.exists();
+			
 			if ( workingCopyDiscarded )
 			{
 				IJavaProject jp = cu.getJavaProject();
