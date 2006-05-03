@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
@@ -187,6 +188,10 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 			problem.setSourceEnd(problem.getSourceEnd() - CodeSnippetToCuMapper.this.startPosOffset);
 			problem.setSourceLineNumber(problem.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);
 			originalRequestor.completionFailure(problem);
+		}
+		
+		public void acceptContext(CompletionContext context) {
+			originalRequestor.acceptContext(context);
 		}
 	};
 }

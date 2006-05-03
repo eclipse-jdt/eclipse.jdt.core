@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
@@ -12368,5 +12369,24 @@ public void testDeprecationCheck17() throws JavaModelException {
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
 		COMPLETION_PROJECT.setOptions(options);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
+public void testEvaluationContextCompletion() throws JavaModelException {
+	class EvaluationContextCompletionRequestor extends CompletionRequestor {
+		public boolean acceptContext;
+		public void acceptContext(CompletionContext context) {
+			this.acceptContext = context != null;
+		}
+		public void accept(CompletionProposal proposal) {
+			// Do nothing
+		}
+	}
+	String start = "";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+    EvaluationContextCompletionRequestor rc = new EvaluationContextCompletionRequestor();
+	context.codeComplete(start, start.length(), rc);
+	
+	assertTrue("acceptContext() method isn't call", rc.acceptContext);
 }
 }
