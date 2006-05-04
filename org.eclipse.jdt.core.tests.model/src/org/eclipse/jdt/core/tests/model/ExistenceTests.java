@@ -245,6 +245,28 @@ public void testNonExistingPackageFragment2() throws CoreException {
 	}
 }
 /*
+ * Ensure that an excluded package fragment doesn't exist.
+ * (regression test for bug 138577 Package content disapear in package explorer)
+ */
+public void testNonExistingPackageFragment3() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/pack");
+		IPackageFragment pkg = getPackage("/P/pack");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>"
+		);
+		assertFalse(	"pack should not exist", pkg.exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
  * Ensure that a non-Java project doesn't exist.
  * (regression test for bug 28545 JavaProject.exists() returns true if project doesn't have Java nature)
  */

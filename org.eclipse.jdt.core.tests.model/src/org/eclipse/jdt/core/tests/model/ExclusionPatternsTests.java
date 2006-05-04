@@ -622,7 +622,7 @@ public void testRenameExcludedPackage() throws CoreException {
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
 	
 	clearDeltas();
-	pkg.rename("q", false, null);
+	pkg.getResource().move(new Path("/P/src/q"), false, null);
 	
 	assertDeltas(
 		"Unexpected deltas",

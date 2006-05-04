@@ -65,8 +65,12 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 
 	// check whether this pkg can be opened
 	if (!underlyingResource.isAccessible()) throw newNotPresentException();
-
+	
+	// check that it is not excluded (https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
 	int kind = getKind();
+	if (kind == IPackageFragmentRoot.K_SOURCE && Util.isExcluded(this)) 
+		throw newNotPresentException();
+
 
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
@@ -161,6 +165,11 @@ public boolean equals(Object o) {
 	PackageFragment other = (PackageFragment) o;		
 	return Util.equalArraysOrNull(this.names, other.names) &&
 			this.parent.equals(other.parent);
+}
+public boolean exists() {
+	// super.exist() only checks for the parent and the resource existence
+	// so also ensure that the package is not exceluded (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
+	return super.exists() && !Util.isExcluded(this); 
 }
 /**
  * @see IPackageFragment#getClassFile(String)

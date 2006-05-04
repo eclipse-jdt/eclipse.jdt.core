@@ -620,6 +620,44 @@ public void testPackageFragmentHasSubpackages() throws JavaModelException {
 	assertTrue("java should have subpackages",					java.hasSubpackages());
 	assertTrue("java.lang  should NOT have subpackages",			!lang.hasSubpackages());
 }
+/*
+ * Ensures that the structure is known for a package fragment on the classpath.
+ */
+public void testPackageFragmentIsStructureKnown1() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "x");
+	assertTrue("Structure of package 'x' should be known", pkg.isStructureKnown());
+}
+/*
+ * Ensures that asking if the structure is known for a package fragment outside the classpath throws a JavaModelException.
+ * (regression test for bug 138577 Package content disapear in package explorer)
+ */
+public void testPackageFragmentIsStructureKnown2() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/pack");
+		IPackageFragment pkg = getPackage("/P/pack");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>"
+		);
+		JavaModelException exception = null;
+		try {
+			pkg.isStructureKnown();
+		} catch (JavaModelException e) {
+			exception = e;
+		}
+		assertExceptionEquals(
+			"Unexpected exception", 
+			"pack [in <project root> [in P]] does not exist",
+			exception);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Test getting the non-java resources from a package fragment.
  */
