@@ -1035,7 +1035,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		ObjectVector found = new ObjectVector(3);
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
-		long complianceLevel = compilerOptions().complianceLevel;
 
 		if (currentType.isInterface()) {
 			unitScope.recordTypeReference(currentType);
@@ -1047,7 +1046,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 
 		// superclass lookup
-		boolean isCompliant14 = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
+		long complianceLevel = compilerOptions().complianceLevel;
+		boolean isCompliant14 = complianceLevel >= ClassFileConstants.JDK1_4;
+		boolean isCompliant15 = complianceLevel >= ClassFileConstants.JDK1_5;
 		ReferenceBinding classHierarchyStart = currentType;
 		boolean mustBePublic = receiverType.isInterface();
 		while (currentType != null) {
@@ -1073,7 +1074,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						for (int j = 0, max = found.size; j < max; j++) {
 							MethodBinding matchingMethod = (MethodBinding) found.elementAt(j);
 							if (currentMethod.areParametersEqual(matchingMethod)) {
-								if (complianceLevel >= ClassFileConstants.JDK1_5) {
+								if (isCompliant15) {
 									if (matchingMethod.typeVariables != Binding.NO_TYPE_VARIABLES && invocationSite.genericTypeArguments() == null)
 										continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 									if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
@@ -1236,7 +1237,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 
 		MethodBinding mostSpecificMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
-		if (complianceLevel >= ClassFileConstants.JDK1_5
+		if (isCompliant15
 			&& mostSpecificMethod.isValidBinding()
 			&& parameterCompatibilityLevel(mostSpecificMethod, argumentTypes) > COMPATIBLE) {
 				// see if there is a better match in the interfaces - see AutoBoxingTest 99
@@ -2544,12 +2545,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return true;
 		}
 
-		if (one.isVarargs() && two.isVarargs() && oneParamsLength > twoParamsLength) {
-			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
-			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
-				return false;
+		if (one.isVarargs() && two.isVarargs()) {
+			if (oneParamsLength > twoParamsLength) {
+				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
+				if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
+					return false;
+			}
 			// check that each parameter before the vararg parameters are compatible (no autoboxing allowed here)
-			for (int i = twoParamsLength - 2; i >= 0; i--)
+			for (int i = (oneParamsLength > twoParamsLength ? twoParamsLength : oneParamsLength) - 2; i >= 0; i--)
 				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
 					return false;
 			if (parameterCompatibilityLevel(one, twoParams) == NOT_COMPATIBLE

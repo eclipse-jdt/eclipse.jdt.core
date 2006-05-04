@@ -1639,5 +1639,41 @@ public class VarargsTest extends AbstractComparableTest {
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140168
+	public void test047() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Object id, Object value, String... groups) {}\n" + 
+				"	void foo(Y y, String... groups) {System.out.println(true);}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(new Y(), \"a\", \"b\");\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Y {}",
+			},
+			"true");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Y y, Object value, String... groups) {}\n" + 
+				"	void foo(Object id, String... groups) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(new Y(), \"a\", \"b\");\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Y {}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\r\n" + 
+			"	new X().foo(new Y(), \"a\", \"b\");\r\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Y, Object, String[]) is ambiguous for the type X\n" + 
+			"----------\n"
+			//reference to foo is ambiguous, both method foo(Y,java.lang.Object,java.lang.String...) in X and method foo(java.lang.Object,java.lang.String...) in X match
+		);
+	}
 }
