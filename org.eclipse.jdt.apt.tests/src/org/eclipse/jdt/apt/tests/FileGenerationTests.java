@@ -18,8 +18,11 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotationProcessor;
@@ -177,5 +180,35 @@ public class FileGenerationTests extends APTTestBase {
 		
 		// Look for the file -- it should be gone
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
+	}
+	
+	public void testIsGeneratedOrParentFile() throws Exception
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		
+		String code = 
+				"package test;" + "\n" +
+				"import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;" + "\n" +
+				"@FileGenLocationAnnotation" + "\n" +
+				"public class Test" + "\n" +
+				"{" + "\n" +
+				"}";
+
+		env.addClass(srcRoot, "test", "Test", code);
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+
+		AptProject aptProj = new AptProject(env.getJavaProject(getProjectName()));
+		GeneratedFileManager gfm = aptProj.getGeneratedFileManager();
+		String genSrcDir = AptConfig.getGenSrcDir(env.getJavaProject(getProjectName()));
+		String P = File.separator;
+
+		IFile parentFile = project.getFile("src" + P + "test" + P + "Test.java");
+		IFile generatedFile = project.getFile(genSrcDir + P + "test" + P + "A.java");
+
+		assertTrue("expected src/test/Test.java to be designated as parent file", gfm.isParentFile(parentFile));
+		assertTrue("expected .apt_generated/test/A.java to be designated as generated file", gfm.isGeneratedFile(generatedFile));
 	}
 }
