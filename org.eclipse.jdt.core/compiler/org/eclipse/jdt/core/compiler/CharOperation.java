@@ -258,7 +258,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * <ol>
  * <li><pre>
  *    pattern = { 'N', 'P', 'E' }
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    nameStart = 0
@@ -268,7 +268,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * </li>
  * <li><pre>
  *    pattern = { 'N', 'P', 'E' }
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    nameStart = 0
@@ -278,8 +278,8 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * </li>
  * <li><pre>
  *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    patternStart = 1
- *    patternEnd = 3
+ *    patternStart = 0
+ *    patternEnd = 6
  *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    nameStart = 0
  *    nameEnd = 20
@@ -288,8 +288,8 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * </li>
  * <li><pre>
  *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    patternStart = 1
- *    patternEnd = 3
+ *    patternStart = 0
+ *    patternEnd = 6
  *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    nameStart = 0
  *    nameEnd = 21
@@ -298,7 +298,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * </li>
  * <li><pre>
  *    pattern = { 'n', p', 'e' }
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *    nameStart = 0
@@ -309,11 +309,11 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * </ol>
  * 
  * @param pattern the given pattern
- * @param patternStart the given pattern start
- * @param patternEnd the given pattern end
+ * @param patternStart the start index of the pattern, inclusive
+ * @param patternEnd the end index of the pattern, exclusive
  * @param name the given name
- * @param nameStart the given name start
- * @param nameEnd the given name end
+ * @param nameStart the start index of the name, inclusive
+ * @param nameEnd the end index of the name, exclusive
  * @return true if a sub-pattern matches the subpart of the given name, false otherwise
  * @since 3.2
  */

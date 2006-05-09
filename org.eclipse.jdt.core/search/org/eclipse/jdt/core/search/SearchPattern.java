@@ -271,7 +271,7 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * <ol>
  * <li><pre>
  *    pattern = "NPE"
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = NullPointerException
  *    nameStart = 0
@@ -281,7 +281,7 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * </li>
  * <li><pre>
  *    pattern = "NPE"
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = NoPermissionException
  *    nameStart = 0
@@ -291,8 +291,8 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * </li>
  * <li><pre>
  *    pattern = "NuPoEx"
- *    patternStart = 1
- *    patternEnd = 3
+ *    patternStart = 0
+ *    patternEnd = 6
  *    name = NullPointerException
  *    nameStart = 0
  *    nameEnd = 20
@@ -301,8 +301,8 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * </li>
  * <li><pre>
  *    pattern = "NuPoEx"
- *    patternStart = 1
- *    patternEnd = 3
+ *    patternStart = 0
+ *    patternEnd = 6
  *    name = NoPermissionException
  *    nameStart = 0
  *    nameEnd = 21
@@ -311,7 +311,7 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * </li>
  * <li><pre>
  *    pattern = "npe"
- *    patternStart = 1
+ *    patternStart = 0
  *    patternEnd = 3
  *    name = NullPointerException
  *    nameStart = 0
@@ -326,11 +326,11 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * 	for array direct access which were replaced with calls to {@link String#charAt(int)}.
  * 
  * @param pattern the given pattern
- * @param patternStart the given pattern start
- * @param patternEnd the given pattern end
+ * @param patternStart the start index of the pattern, inclusive
+ * @param patternEnd the end index of the pattern, exclusive
  * @param name the given name
- * @param nameStart the given name start
- * @param nameEnd the given name end
+ * @param nameStart the start index of the name, inclusive
+ * @param nameEnd the end index of the name, exclusive
  * @return true if a sub-pattern matches the subpart of the given name, false otherwise
  * @since 3.2
  */
