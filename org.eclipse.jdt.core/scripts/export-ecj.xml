@@ -4,20 +4,19 @@
 <project name="Eclipse Batch Compiler" default="export" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="destdir" value="../../batchcompiler-export" />
+		<property name="destdir" value="../../ecj-export" />
 		<property name="dest"  value="${destdir}" />
 	</target>
 
 	<target name="export" depends="init">
-
 		<echo message="TARGET: ${destdir}" />
 		<mkdir dir="${destdir}" />
 		<delete dir="${dest}" />
 		<mkdir dir="${dest}" />
 
-		<echo message="UPDATE jdtcom.jar" />
-		<zip zipfile="${dest}/jdtcom.jar">
-			<fileset dir=".">
+		<echo message="UPDATE ecj.jar" />
+		<zip zipfile="${dest}/ecj.jar">
+			<fileset dir="./scripts">
 			  <include name="META-INF/**" />
 	        </fileset>
 	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
@@ -35,8 +34,8 @@
 	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
         	</fileset>
 		</zip>
-		<echo message="UPDATE jdtcomsrc.zip" />
-		<zip zipfile="${dest}/jdtcomsrc.zip">
+		<echo message="UPDATE ecjsrc.zip" />
+		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
   		</zip>		
