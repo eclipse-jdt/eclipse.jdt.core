@@ -52,7 +52,7 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.formatter.old;x-internal:=true
 Require-Bundle: org.eclipse.core.resources;bundle-version="[3.2.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.1.0,4.0.0)",
- org.eclipse.core.filesystem,
+ org.eclipse.core.filesystem;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.text;bundle-version="[3.1.0,4.0.0)",
  org.eclipse.team.core;bundle-version="[3.1.0,4.0.0)";resolution:=optional
 Eclipse-LazyStart: true
