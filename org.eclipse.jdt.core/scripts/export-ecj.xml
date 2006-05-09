@@ -33,11 +33,17 @@
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
         	</fileset>
+			<fileset dir="./scripts">
+			  <include name="about.html" />
+	        </fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
 		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
+			<zipfileset dir="./scripts">
+			  <include name="about.html" />
+			</zipfileset>			
   		</zip>		
 	
 	</target>
