@@ -30854,4 +30854,20 @@ public void test0979() {
 			false,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140772
+public void test0980() {
+	this.runConformTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.Collections;\n" + 
+					"import java.util.Set;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"        public Set<Object> keySet() {\n" + 
+					"                return Collections.<Object> emptySet();\n" + 
+					"        }\n" + 
+					"}", // =================
+			},
+			"");
+}
 }
