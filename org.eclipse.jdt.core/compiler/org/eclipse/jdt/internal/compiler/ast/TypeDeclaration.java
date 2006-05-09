@@ -328,7 +328,7 @@ public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitCons
 		constructor.constructorCall.sourceEnd = this.sourceEnd;
 	}
 
-	//adding the constructor in the methods list
+	//adding the constructor in the methods list: rank is not critical since bindings will be sorted
 	if (needToInsert) {
 		if (this.methods == null) {
 			this.methods = new AbstractMethodDeclaration[] { constructor };
@@ -347,7 +347,7 @@ public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitCons
 	return constructor;
 }
 
-// anonymous type constructor creation
+// anonymous type constructor creation: rank is important since bindings already got sorted
 public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with the same arguments
@@ -390,37 +390,29 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 		this.methods = new AbstractMethodDeclaration[] { constructor };
 	} else {
 		AbstractMethodDeclaration[] newMethods;
-		System.arraycopy(
-			this.methods,
-			0,
-			newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
-			1,
-			this.methods.length);
+		System.arraycopy(this.methods, 0, newMethods = new AbstractMethodDeclaration[this.methods.length + 1], 1, this.methods.length);
 		newMethods[0] = constructor;
 		this.methods = newMethods;
 	}
 
 	//============BINDING UPDATE==========================
+	SourceTypeBinding sourceType = this.binding;
 	constructor.binding = new MethodBinding(
 			constructor.modifiers, //methodDeclaration
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
 			inheritedConstructorBinding.thrownExceptions, //exceptions
-			this.binding); //declaringClass
+			sourceType); //declaringClass
 			
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();
 	constructor.constructorCall.resolve(constructor.scope);
 
-	MethodBinding[] oldMethods = this.binding.methods(); // trigger sorting
+	MethodBinding[] oldMethods = sourceType.methods(); // trigger sorting
 	MethodBinding[] newMethods;
-	System.arraycopy(
-		this.binding.methods(),
-		0,
-		newMethods = new MethodBinding[oldMethods.length + 1],
-		1,
-		oldMethods.length);
-	newMethods[0] = constructor.binding; // position 0 is important, since if sorted, constructor will still be ahead
-	this.binding.setMethods(newMethods);
+	System.arraycopy(oldMethods, 0, newMethods = new MethodBinding[oldMethods.length + 1], 1, oldMethods.length);
+	newMethods[0] = constructor.binding; 
+	sourceType.tagBits &= ~(TagBits.AreMethodsComplete|TagBits.AreMethodsSorted); // still need to resort, since could be valid methods ahead (140643)
+	sourceType.setMethods(newMethods);
 	//===================================================
 
 	return constructor.binding;

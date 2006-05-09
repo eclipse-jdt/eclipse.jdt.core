@@ -2342,6 +2342,29 @@ public void test069() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
+public void test070() {
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"	interface I {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test() {\n" + 
+				"		new I() {\n" + 
+				"			void foo() {\n" + 
+				"			}\n" + 
+				"		}.foo(); // compiles OK.\n" + 
+				"		new I() {\n" + 
+				"			void $foo() {\n" + 
+				"			}\n" + 
+				"		}.$foo(); // The method $foo() is undefined for the type new T.I(){}\n" + 
+				"	}\n" + 
+				"}", // =================
+			},
+			"");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
