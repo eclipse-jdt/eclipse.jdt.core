@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 642, 643, 644 };
+//		TESTS_NUMBERS =  new int[] { 647 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -7764,4 +7764,43 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=141043
+	 */
+	public void test0647() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"    public void run(int i) {\n" + 
+				"    }\n" + 
+				"    public void foo() {\n" + 
+				"        new Runnable() {\n" + 
+				"            public void run() {\n" + 
+				"                run(1);    \n" + 
+				"            }\n" + 
+				"        };\n" + 
+				"    }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "The method run() in the type new Runnable(){} is not applicable for the arguments (int)");
+			node = getASTNode(unit, 0, 1, 0);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			Expression expression = ((ExpressionStatement) node).getExpression();
+			ITypeBinding typeBinding = expression.resolveTypeBinding();
+			IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
+			assertEquals("Wrong size", 2, methodBindings.length);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }
