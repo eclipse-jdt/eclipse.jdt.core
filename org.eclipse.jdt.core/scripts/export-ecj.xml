@@ -13,6 +13,7 @@
 		<mkdir dir="${dest}" />
 
 		<echo message="UPDATE ecj.jar" />
+		<delete file="${dest}/ecj.jar" failonerror="false"/>
 		<zip zipfile="${dest}/ecj.jar">
 			<fileset dir="scripts">
 			  <include name="META-INF/**" />
@@ -34,6 +35,7 @@
         	</fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
+		<delete file="${dest}/ecjsrc.zip" failonerror="false"/>
 		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
