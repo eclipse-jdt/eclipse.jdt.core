@@ -4,22 +4,21 @@
 <project name="Eclipse Batch Compiler" default="export" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="destdir" value="../../ecj-export" />
-		<property name="dest"  value="${destdir}" />
+		<property name="bin" value="bin" />
+		<property name="dest" value="../../ecj-export" />
 	</target>
 
 	<target name="export" depends="init">
-		<echo message="TARGET: ${destdir}" />
-		<mkdir dir="${destdir}" />
-		<delete dir="${dest}" />
+		<echo message="TARGET: ${dest}" />
 		<mkdir dir="${dest}" />
 
 		<echo message="UPDATE ecj.jar" />
 		<zip zipfile="${dest}/ecj.jar">
-			<fileset dir="${basedir}/scripts">
+			<fileset dir="scripts">
 			  <include name="META-INF/**" />
+			  <include name="about.html" />
 	        </fileset>
-	        <fileset dir="${basedir}/bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
+	        <fileset dir="${bin}" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
 	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
@@ -33,15 +32,12 @@
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
         	</fileset>
-			<fileset dir="${basedir}/scripts">
-			  <include name="about.html" />
-	        </fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
 		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
-			<zipfileset dir="${basedir}/scripts">
+			<zipfileset dir="scripts">
 			  <include name="about.html" />
 			</zipfileset>			
   		</zip>		
