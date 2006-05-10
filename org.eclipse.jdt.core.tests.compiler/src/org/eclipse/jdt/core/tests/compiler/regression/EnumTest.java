@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 127 };
+//		TESTS_NUMBERS = new int[] { 128 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -411,13 +411,13 @@ public class EnumTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\r\n" + 
-			"	case BLEU :\r\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	case BLEU :\n" + 
 			"	^^^^^^^^^\n" + 
 			"Duplicate case\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\r\n" + 
-			"	case BLEU :\r\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	case BLEU :\n" + 
 			"	^^^^^^^^^\n" + 
 			"Duplicate case\n" + 
 			"----------\n");
@@ -552,8 +552,8 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\r\n" + 
-			"	BLANC(),\r\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	BLANC(),\n" + 
 			"	^^^^^\n" + 
 			"The constructor X() is undefined\n" + 
 			"----------\n");
@@ -1946,10 +1946,10 @@ public class EnumTest extends AbstractComparableTest {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-                "public enum X {\r\n" + 
-                "    ONE, TWO, THREE;\r\n" + 
-                "    abstract int getSquare();\r\n" + 
-                "    abstract int getSquare();\r\n" + 
+                "public enum X {\n" + 
+                "    ONE, TWO, THREE;\n" + 
+                "    abstract int getSquare();\n" + 
+                "    abstract int getSquare();\n" + 
                 "}",
             },
             "----------\n" + 
@@ -2149,8 +2149,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X3.java (at line 3)\r\n" + 
-			"	public abstract void test();\r\n" + 
+			"1. ERROR in X3.java (at line 3)\n" + 
+			"	public abstract void test();\n" + 
 			"	                     ^^^^^^\n" + 
 			"The enum X3 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
 			"----------\n"
@@ -2166,8 +2166,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X3a.java (at line 3)\r\n" + 
-			"	public abstract void test();\r\n" + 
+			"1. ERROR in X3a.java (at line 3)\n" + 
+			"	public abstract void test();\n" + 
 			"	                     ^^^^^^\n" + 
 			"The enum X3a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
 			"----------\n"
@@ -2194,8 +2194,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X3c.java (at line 2)\r\n" + 
-			"	A() { void random() {} };\r\n" + 
+			"1. ERROR in X3c.java (at line 2)\n" + 
+			"	A() { void random() {} };\n" + 
 			"	    ^\n" + 
 			"The type new X3c(){} must implement the inherited abstract method X3c.test()\n" + 
 			"----------\n"
@@ -2214,8 +2214,8 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X4.java (at line 3)\r\n" + 
-			"	public abstract void test();\r\n" + 
+			"1. ERROR in X4.java (at line 3)\n" + 
+			"	public abstract void test();\n" + 
 			"	                     ^^^^^^\n" + 
 			"The enum X4 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
 			"----------\n"
@@ -2230,8 +2230,8 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X4a.java (at line 3)\r\n" + 
-			"	public abstract void test();\r\n" + 
+			"1. ERROR in X4a.java (at line 3)\n" + 
+			"	public abstract void test();\n" + 
 			"	                     ^^^^^^\n" + 
 			"The enum X4a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
 			"----------\n"
@@ -2256,8 +2256,8 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X4c.java (at line 2)\r\n" + 
-			"	A() { void random() {} };\r\n" + 
+			"1. ERROR in X4c.java (at line 2)\n" + 
+			"	A() { void random() {} };\n" + 
 			"	    ^\n" + 
 			"The type new X4c(){} must implement the inherited abstract method X4c.test()\n" + 
 			"----------\n"
@@ -2276,8 +2276,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X5.java (at line 1)\r\n" + 
-			"	public enum X5 implements I {\r\n" + 
+			"1. ERROR in X5.java (at line 1)\n" + 
+			"	public enum X5 implements I {\n" + 
 			"	            ^^\n" + 
 			"The type X5 must implement the inherited abstract method I.test()\n" + 
 			"----------\n"
@@ -2292,8 +2292,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X5a.java (at line 1)\r\n" + 
-			"	public enum X5a implements I {\r\n" + 
+			"1. ERROR in X5a.java (at line 1)\n" + 
+			"	public enum X5a implements I {\n" + 
 			"	            ^^^\n" + 
 			"The type X5a must implement the inherited abstract method I.test()\n" + 
 			"----------\n"
@@ -2321,8 +2321,8 @@ public class EnumTest extends AbstractComparableTest {
 				"interface I { void test(); }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X5c.java (at line 2)\r\n" + 
-			"	A() { void random() {} };\r\n" + 
+			"1. ERROR in X5c.java (at line 2)\n" + 
+			"	A() { void random() {} };\n" + 
 			"	    ^\n" + 
 			"The type new X5c(){} must implement the inherited abstract method I.test()\n" + 
 			"----------\n"
@@ -3730,8 +3730,8 @@ the right of e1."
 		this.runConformTest(
 			new String[] {
 				"com/annot/Foo.java",
-				"package com.annot;\r\n" + 
-				"\r\n" + 
+				"package com.annot;\n" + 
+				"\n" + 
 				"import static com.annot.TestType.*;\n" +
 				"\n" +
 				"public class Foo {\n" +
@@ -4281,12 +4281,12 @@ the right of e1."
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public enum X {\r\n" + 
-				"	VALUE {\r\n" + 
-				"		void foo() {\r\n" + 
-				"		};\r\n" + 
-				"	};\r\n" + 
-				"	abstract void foo();\r\n" + 
+				"public enum X {\n" + 
+				"	VALUE {\n" + 
+				"		void foo() {\n" + 
+				"		};\n" + 
+				"	};\n" + 
+				"	abstract void foo();\n" + 
 				"    public static void main(String[] args) {\n" + 
 				"      System.out.println(\"[\"+X.values().length+\"]\");\n" + 
 				"    }\n" + 
@@ -4346,4 +4346,34 @@ the right of e1."
 			assertTrue("Must not have field ENUM$VALUES", false);
 		}
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127766
+	public void test128() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
+
+		this.runNegativeTest(
+	         new String[] {
+	        		 "X.java",
+	        		 "public class X {\n" + 
+	        		 "	public static void main( String[] args) {\n" + 
+	        		 "		Enum e = new Enum(\"foo\", 2) {\n" + 
+	        		 "			public int compareTo( Object o) {\n" + 
+	        		 "				return 0;\n" + 
+	        		 "			}\n" + 
+	        		 "		};\n" + 
+	        		 "		System.out.println(e);\n" + 
+	        		 "	}\n" + 
+	        		 "}",
+	         },
+	         "----------\n" + 
+	         "1. ERROR in X.java (at line 3)\n" + 
+	         "	Enum e = new Enum(\"foo\", 2) {\n" + 
+	         "	             ^^^^\n" + 
+	         "The type new Enum(){} may not subclass Enum explicitly\n" + 
+	         "----------\n",
+	         null,
+	         true,
+	         options);
+ 	}
 }

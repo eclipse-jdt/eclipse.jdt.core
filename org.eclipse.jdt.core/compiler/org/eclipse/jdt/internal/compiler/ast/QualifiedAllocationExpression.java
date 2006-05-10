@@ -342,6 +342,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// insert anonymous type in scope
 		scope.addAnonymousType(this.anonymousType, (ReferenceBinding) receiverType);
 		this.anonymousType.resolve(scope);		
+		if (this.superTypeBinding.erasure().id == T_JavaLangEnum) {
+			scope.problemReporter().cannotExtendEnum(this.anonymousType.binding, this.type, this.superTypeBinding);
+		}
 		
 		if ((receiverType.tagBits & TagBits.HasDirectWildcard) != 0) {
 			scope.problemReporter().superTypeCannotUseWildcard(anonymousType.binding, this.type, receiverType);
