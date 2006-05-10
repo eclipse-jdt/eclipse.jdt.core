@@ -61,7 +61,6 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
     
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitParameterDeclaration(this);
     }  
  

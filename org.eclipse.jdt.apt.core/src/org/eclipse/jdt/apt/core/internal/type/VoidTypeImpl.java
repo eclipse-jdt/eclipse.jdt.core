@@ -30,7 +30,6 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorType
     
     public void accept(TypeVisitor visitor)
     {
-        visitor.visitTypeMirror(this);
         visitor.visitVoidType(this);
     }
 

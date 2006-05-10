@@ -29,7 +29,6 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
     }
     public void accept(TypeVisitor visitor)
     {
-        visitor.visitTypeMirror(this);
         visitor.visitPrimitiveType(this);
     }
 

@@ -34,7 +34,6 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
 
     public void accept(TypeVisitor visitor)
     {
-        visitor.visitTypeMirror(this);
         visitor.visitArrayType(this);
     }
 

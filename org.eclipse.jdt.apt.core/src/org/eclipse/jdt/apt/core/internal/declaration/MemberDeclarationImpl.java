@@ -31,7 +31,6 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitMemberDeclaration(this);
     }
     

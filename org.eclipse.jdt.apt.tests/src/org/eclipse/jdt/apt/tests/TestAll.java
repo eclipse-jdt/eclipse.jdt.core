@@ -49,6 +49,7 @@ public class TestAll extends TestCase {
 		suite.addTest(MixedModeTesting.suite());
 		suite.addTest(ExceptionHandlingTests.suite());
 		suite.addTest(ScannerTests.suite());
+		suite.addTest(DeclarationVisitorTests.suite());
 	
 		return suite;
 		

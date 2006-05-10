@@ -20,7 +20,6 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitFieldDeclaration(this);
     }
 

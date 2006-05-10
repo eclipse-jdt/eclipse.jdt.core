@@ -31,7 +31,6 @@ public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements Int
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitInterfaceDeclaration(this);
     }
 
@@ -43,7 +42,6 @@ public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements Int
     // start of implementation of InterfaceType API
     public void accept(TypeVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitInterfaceType(this);
     }
 

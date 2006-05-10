@@ -37,7 +37,6 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitEnumDeclaration(this);
     }
 
@@ -61,7 +60,6 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
     // end of implementation of EnumType API
     public void accept(TypeVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitEnumType(this);
     }
 

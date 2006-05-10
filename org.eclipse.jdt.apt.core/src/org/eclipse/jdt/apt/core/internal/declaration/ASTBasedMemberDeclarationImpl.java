@@ -33,7 +33,6 @@ public abstract class ASTBasedMemberDeclarationImpl
 	}
 	
 	public void accept(DeclarationVisitor visitor) {
-		super.accept(visitor);
         visitor.visitMemberDeclaration(this);
 	}
     

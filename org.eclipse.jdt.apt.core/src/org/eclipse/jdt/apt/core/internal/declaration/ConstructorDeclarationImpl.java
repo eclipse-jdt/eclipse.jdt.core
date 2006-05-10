@@ -28,7 +28,6 @@ public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implem
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitConstructorDeclaration(this);
     }
 

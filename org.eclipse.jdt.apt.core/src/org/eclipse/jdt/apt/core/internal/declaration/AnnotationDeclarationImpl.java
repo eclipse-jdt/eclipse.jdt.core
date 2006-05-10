@@ -31,7 +31,6 @@ public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implemen
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitAnnotationTypeDeclaration(this);
     }
 
@@ -43,7 +42,6 @@ public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implemen
     // start of implementation of AnnotationType API
     public void accept(TypeVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitAnnotationType(this);
     }
 

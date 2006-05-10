@@ -41,7 +41,6 @@ public class ASTBasedAnnotationElementDeclarationImpl
 	}
 
 	public void accept(DeclarationVisitor visitor) {
-		super.accept(visitor);
 		visitor.visitAnnotationTypeElementDeclaration(this);
 	}
 

@@ -37,7 +37,6 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
     
     public void accept(TypeVisitor visitor)
     {
-        visitor.visitTypeMirror(this);
         visitor.visitWildcardType(this);
     }
 

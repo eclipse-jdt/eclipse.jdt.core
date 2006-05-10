@@ -49,7 +49,6 @@ public class ASTBasedFieldDeclarationImpl
 	
 	public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitFieldDeclaration(this);
     }
 

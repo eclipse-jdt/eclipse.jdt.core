@@ -51,8 +51,6 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     public void accept(TypeVisitor visitor)
     {
         visitor.visitTypeMirror(this);
-        visitor.visitDeclaredType(this);
-        visitor.visitReferenceType(this);
     }
 
     public Collection<InterfaceType> getSuperinterfaces(){ return Collections.emptyList(); }
@@ -67,7 +65,6 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
 
         public void accept(TypeVisitor visitor)
         {
-            super.accept(visitor);
             visitor.visitClassType(this);
         }
 
@@ -86,7 +83,6 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
 
         public void accept(TypeVisitor visitor)
         {
-            super.accept(visitor);
             visitor.visitInterfaceType(this);
         }
 
@@ -99,7 +95,6 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
 
         public void accept(TypeVisitor visitor)
         {
-            super.accept(visitor);
             visitor.visitAnnotationType(this);
         }
 
@@ -117,7 +112,6 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     	
     	public void accept(TypeVisitor visitor)
         {
-            super.accept(visitor);
             visitor.visitArrayType(this);
         }
     	

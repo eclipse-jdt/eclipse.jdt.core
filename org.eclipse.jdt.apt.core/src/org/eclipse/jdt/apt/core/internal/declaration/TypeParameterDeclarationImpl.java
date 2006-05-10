@@ -46,7 +46,6 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitTypeParameterDeclaration(this);
     }
 
@@ -128,8 +127,6 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
     // Start of implementation of TypeVariable API
     public void accept(TypeVisitor visitor)
     {
-        visitor.visitTypeMirror(this);
-        visitor.visitReferenceType(this);
         visitor.visitTypeVariable(this);
     }
 

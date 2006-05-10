@@ -42,7 +42,6 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitMethodDeclaration(this);
     }
 

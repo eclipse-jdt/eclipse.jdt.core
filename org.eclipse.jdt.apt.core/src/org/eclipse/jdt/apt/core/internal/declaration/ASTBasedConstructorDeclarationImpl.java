@@ -30,7 +30,6 @@ public class ASTBasedConstructorDeclarationImpl
 	
 	public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitConstructorDeclaration(this);
     }
     

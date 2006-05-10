@@ -35,7 +35,6 @@ public abstract class ExecutableDeclarationImpl
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitExecutableDeclaration(this);
     }
 

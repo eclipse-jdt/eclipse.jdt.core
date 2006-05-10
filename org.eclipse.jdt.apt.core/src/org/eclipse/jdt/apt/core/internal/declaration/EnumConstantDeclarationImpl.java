@@ -28,7 +28,7 @@ public class EnumConstantDeclarationImpl extends FieldDeclarationImpl implements
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
+        visitor.visitEnumConstantDeclaration(this);
     }
 
     public EnumDeclaration getDeclaringType()

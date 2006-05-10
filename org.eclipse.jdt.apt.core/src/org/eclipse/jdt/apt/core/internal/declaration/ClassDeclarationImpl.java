@@ -43,7 +43,6 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitClassDeclaration(this);
     }
     
@@ -126,7 +125,6 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     // Start of implementation of ClassType API
     public void accept(TypeVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitClassType(this);
     }
 

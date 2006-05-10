@@ -35,7 +35,6 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitAnnotationTypeElementDeclaration(this);
     }
 

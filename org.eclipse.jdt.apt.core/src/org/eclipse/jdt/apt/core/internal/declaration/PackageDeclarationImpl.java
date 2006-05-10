@@ -83,7 +83,6 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 
     public void accept(DeclarationVisitor visitor)
     {
-        super.accept(visitor);
         visitor.visitPackageDeclaration(this);
     }
     
