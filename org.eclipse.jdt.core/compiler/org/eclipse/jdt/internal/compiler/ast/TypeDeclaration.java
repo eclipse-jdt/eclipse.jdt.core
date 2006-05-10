@@ -407,12 +407,13 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	constructor.bindArguments();
 	constructor.constructorCall.resolve(constructor.scope);
 
-	MethodBinding[] oldMethods = sourceType.methods(); // trigger sorting
-	MethodBinding[] newMethods;
-	System.arraycopy(oldMethods, 0, newMethods = new MethodBinding[oldMethods.length + 1], 1, oldMethods.length);
-	newMethods[0] = constructor.binding; 
-	sourceType.tagBits &= ~(TagBits.AreMethodsComplete|TagBits.AreMethodsSorted); // still need to resort, since could be valid methods ahead (140643)
-	sourceType.setMethods(newMethods);
+	MethodBinding[] methodBindings = sourceType.methods(); // trigger sorting
+	int length;
+	System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[(length = methodBindings.length) + 1], 1, length);
+	methodBindings[0] = constructor.binding; 
+	if (++length > 1)
+		ReferenceBinding.sortMethods(methodBindings, 0, length);	// need to resort, since could be valid methods ahead (140643) - DOM needs eager sorting
+	sourceType.setMethods(methodBindings);
 	//===================================================
 
 	return constructor.binding;
