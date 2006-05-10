@@ -792,6 +792,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 					connection2.getJarFile().close();
 				} catch(IOException e) {
 					// ignore
+				} catch(IllegalStateException e) {
+					/*
+					 * ignore. Can happen in case the stream.close() did close the jar file
+					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=140750
+					 */
 				}
  			}
 		}
