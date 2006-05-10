@@ -16,10 +16,10 @@
 
 		<echo message="UPDATE ecj.jar" />
 		<zip zipfile="${dest}/ecj.jar">
-			<fileset dir="./scripts">
+			<fileset dir="${basedir}/scripts">
 			  <include name="META-INF/**" />
 	        </fileset>
-	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
+	        <fileset dir="${basedir}/bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
 	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
@@ -33,7 +33,7 @@
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
         	</fileset>
-			<fileset dir="./scripts">
+			<fileset dir="${basedir}/scripts">
 			  <include name="about.html" />
 	        </fileset>
 		</zip>
@@ -41,7 +41,7 @@
 		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
-			<zipfileset dir="./scripts">
+			<zipfileset dir="${basedir}/scripts">
 			  <include name="about.html" />
 			</zipfileset>			
   		</zip>		
