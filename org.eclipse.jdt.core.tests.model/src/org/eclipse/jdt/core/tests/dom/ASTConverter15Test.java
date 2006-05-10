@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 217 };
+//		TESTS_NUMBERS = new int[] { 218 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6287,7 +6287,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=125807
-	 * disable for now. Enable once 125807 is fixed.
 	 */
 	public void test0208() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -6834,5 +6833,81 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		
 		typeArguments = typeBinding2.getTypeArguments();
 		assertEquals("Wrong size", 0, typeArguments.length);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
+	 */
+	public void test0218() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * @category fo\n" + 
+			"	 */\n" + 
+			"	@Test private int fXoo;\n" + 
+			"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Test cannot be resolved to a type");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration declaration = (FieldDeclaration) node;
+		List modifiers = declaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		assertEquals("Not a marker annotation", ASTNode.MARKER_ANNOTATION, ((ASTNode) modifiers.get(0)).getNodeType());
+		MarkerAnnotation annotation = (MarkerAnnotation) modifiers.get(0);
+		Name name = annotation.getTypeName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding = name.resolveTypeBinding();
+		assertNull("Got a binding", binding);
+		IBinding binding2 = name.resolveBinding();
+		assertNull("Got a binding", binding2);
+		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
+		assertNull("Got a binding", annotationBinding);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
+	 */
+	public void test0219() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * @category fo\n" + 
+			"	 */\n" + 
+			"	@Test private int fXoo;\n" + 
+			"}\n" +
+			"class Test {}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Type mismatch: cannot convert from Test to Annotation");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration declaration = (FieldDeclaration) node;
+		List modifiers = declaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		assertEquals("Not a marker annotation", ASTNode.MARKER_ANNOTATION, ((ASTNode) modifiers.get(0)).getNodeType());
+		MarkerAnnotation annotation = (MarkerAnnotation) modifiers.get(0);
+		Name name = annotation.getTypeName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding = name.resolveTypeBinding();
+		assertNotNull("No binding", binding);
+		IBinding binding2 = name.resolveBinding();
+		assertNotNull("No binding", binding2);
+		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
+		assertNull("Got a binding", annotationBinding);
 	}
 }

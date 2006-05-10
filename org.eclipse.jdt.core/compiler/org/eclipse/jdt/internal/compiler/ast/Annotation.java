@@ -224,21 +224,16 @@ public abstract class Annotation extends Expression {
 
 		if (this.compilerAnnotation != null)
 			return this.resolvedType;
-		boolean initializeCompilerAnnotation = true; // scope.compilerOptions().storeAnnotations;
 		this.constant = Constant.NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
 		if (typeBinding == null) {
-			if (initializeCompilerAnnotation)
-				this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
 		}
 		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
 		if (!typeBinding.isAnnotationType()) {
 			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type);
-			if (initializeCompilerAnnotation)
-				this.compilerAnnotation = new AnnotationBinding(this);
 			return null;
 		}
 
@@ -302,8 +297,8 @@ public abstract class Annotation extends Expression {
 				pairs[i].resolveTypeExpecting(scope, null); // resilient
 			}
 		}
-		if (initializeCompilerAnnotation)
-			this.compilerAnnotation = new AnnotationBinding(this);
+//		if (scope.compilerOptions().storeAnnotations)
+		this.compilerAnnotation = new AnnotationBinding(this);
 		// recognize standard annotations ?
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 
