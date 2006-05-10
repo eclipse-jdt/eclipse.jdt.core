@@ -30870,4 +30870,52 @@ public void test0980() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140569
+//simulate incremental compile
+public void _test0981() {
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {}\n" + 
+				"\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				"ExtendedOuter.java", //================================
+				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+				"  class ExtendedInner extends Inner {\n" + 
+				"    public void method(){\n" + 
+				"      Worker.method(this);\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n",
+				"Worker.java", //================================
+				"public class Worker {\n" + 
+				"  public static void method(Outer.Inner i) {}\n" + 
+				"}\n", //================================
+			},
+			"SUCCESS");
+	this.runConformTest(
+			new String[] {
+					"ExtendedOuter.java", //================================
+					"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+					"  class ExtendedInner extends Inner {\n" + 
+					"    public void method(){\n" + 
+					"      Worker.method(this);\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    System.out.println(\"SUCCESS\");\n" +
+					"  }\n" + 
+					"}\n", //================================
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+}
 }
