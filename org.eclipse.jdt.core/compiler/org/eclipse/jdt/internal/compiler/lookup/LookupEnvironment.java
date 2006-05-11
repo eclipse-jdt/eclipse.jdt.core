@@ -961,7 +961,7 @@ ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParame
 		return null; // will not get here since the above error aborts the compilation
 	} else if (!isParameterized) {
 	    // check raw type, only for resolved types
-        binding = (ReferenceBinding)convertToRawType(binding);
+        binding = (ReferenceBinding)convertUnresolvedBinaryToRawType(binding);
 	}
 	return binding;
 }

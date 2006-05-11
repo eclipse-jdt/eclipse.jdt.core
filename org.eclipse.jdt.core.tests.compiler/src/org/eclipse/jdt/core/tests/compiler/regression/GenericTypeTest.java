@@ -14856,7 +14856,6 @@ public void test0500(){
 			},
 			"SUCCESSSUCCESS");		
 		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
 			"public class X {\n" + 
 			"  \n" + 
@@ -14913,8 +14912,7 @@ public void test0500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n" + 
-			"}";
+			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -14958,7 +14956,6 @@ public void test0500(){
 			},
 			"SUCCESSSUCCESS");		
 		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
 			"public class X {\n" + 
 			"  \n" + 
@@ -15027,8 +15024,7 @@ public void test0500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n" + 
-			"}";
+			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -15076,7 +15072,6 @@ public void test0500(){
 			},
 			"SUCCESSSUCCESS");		
 		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
 			"public class X {\n" + 
 			"  \n" + 
@@ -15135,8 +15130,7 @@ public void test0500(){
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #28 X$1, outer class info: #0\n" + 
-			"     inner name: #0, accessflags: 18 private final ]\n" + 
-			"}";
+			"     inner name: #0, accessflags: 18 private final ]\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -30872,7 +30866,7 @@ public void test0980() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140569
 //simulate incremental compile
-public void _test0981() {
+public void test0981() {
 	this.runConformTest(
 			new String[] {
 				"Outer.java", //================================
@@ -30906,6 +30900,60 @@ public void _test0981() {
 					"  class ExtendedInner extends Inner {\n" + 
 					"    public void method(){\n" + 
 					"      Worker.method(this);\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    System.out.println(\"SUCCESS\");\n" +
+					"  }\n" + 
+					"}\n", //================================
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140569
+//simulate incremental compile
+public void test0982() {
+	this.runConformTest(
+			new String[] {
+				"Outer.java", //================================
+				"//Outer.java\n" + 
+				"public class Outer<O> {\n" + 
+				"  public class Inner {\n" + 
+				"  		public class Inner2 {}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    System.out.println(\"SUCCESS\");\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				"ExtendedOuter.java", //================================
+				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+				"  class ExtendedInner extends Inner {\n" + 
+				"    class ExtendedInner2 extends Inner2 {\n" + 
+				"      public void method(){\n" + 
+				"        Worker.method(this);\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n",
+				"Worker.java", //================================
+				"public class Worker {\n" + 
+				"  public static void method(Outer.Inner.Inner2 i) {}\n" + 
+				"}\n", //================================
+			},
+			"SUCCESS");
+	this.runConformTest(
+			new String[] {
+					"ExtendedOuter.java", //================================
+					"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+					"  class ExtendedInner extends Inner {\n" + 
+					"    class ExtendedInner2 extends Inner2 {\n" + 
+					"      public void method(){\n" + 
+					"        Worker.method(this);\n" + 
+					"      }\n" + 
 					"    }\n" + 
 					"  }\n" + 
 					"  public static void main(String[] args) {\n" + 
