@@ -2241,7 +2241,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
 			"  // Method descriptor #8 ()[LColor;\n" + 
@@ -2275,8 +2274,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract double[] doubles() default {1.7976931348623157E308};\n" + 
 			"  \n" + 
 			"  // Method descriptor #41 ()[Ljava/lang/Class;\n" + 
-			"  public abstract java.lang.Class[] classes() default {I};\n" + 
-			"}"; 
+			"  public abstract java.lang.Class[] classes() default {I};\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -2345,7 +2343,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
 			"  // Method descriptor #8 ()LColor;\n" + 
@@ -2379,8 +2376,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract double _double() default 1.7976931348623157E308;\n" + 
 			"  \n" + 
 			"  // Method descriptor #41 ()Ljava/lang/Class;\n" + 
-			"  public abstract java.lang.Class _class() default I;\n" + 
-			"}"; 
+			"  public abstract java.lang.Class _class() default I;\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
