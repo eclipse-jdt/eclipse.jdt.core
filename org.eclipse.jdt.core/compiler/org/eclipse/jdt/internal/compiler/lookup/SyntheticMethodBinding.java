@@ -241,7 +241,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
 	    this.declaringClass = declaringEnum;
 	    this.selector = selector;
-	    this.modifiers = ClassFileConstants.AccFinal | ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
+	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
 		this.tagBits |= TagBits.AnnotationResolved;
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
