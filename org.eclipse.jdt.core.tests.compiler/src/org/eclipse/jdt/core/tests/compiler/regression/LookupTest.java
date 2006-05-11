@@ -2365,6 +2365,36 @@ public void test070() {
 			},
 			"");
 }
+// using $ in the name of a class defined within another package
+public void test071() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" + 
+			"}",
+			"p/X$X.java",
+			"package p;\n" +
+			"public class X$X {\n" + 
+			"}",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"import p.*;\n" +
+			"public class Y {\n" +
+			"  X$X f = new X$X();\n" + 
+			"}",
+		},
+		"", 
+		null /* no extra class libraries */, 
+		false /* do not flush output directory */, 
+		null /* no vm arguments */,
+		null /* no custom options*/,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
