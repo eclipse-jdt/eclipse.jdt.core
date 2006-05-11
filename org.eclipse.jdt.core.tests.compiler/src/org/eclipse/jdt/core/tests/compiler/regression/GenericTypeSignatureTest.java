@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 import junit.framework.Test;
 
@@ -93,17 +92,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 	}
 
-	/*
-	 * Toggle compiler in mode -1.5
-	 */
-	protected Map getCompilerOptions() {
-		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-		return options;
-	}
-	
 	protected String[] getFileNames(String[] testFiles) {
 		int length = testFiles.length;
 		int max = length / 2;

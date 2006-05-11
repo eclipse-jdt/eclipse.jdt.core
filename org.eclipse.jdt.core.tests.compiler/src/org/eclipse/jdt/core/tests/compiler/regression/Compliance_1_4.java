@@ -32,10 +32,7 @@ public Compliance_1_4(String name) {
  * Toggle compiler in mode -1.4
  */
 protected Map getCompilerOptions() {
-	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);	
+	Map options = super.getCompilerOptions();	
 	if (docSupport) {
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);

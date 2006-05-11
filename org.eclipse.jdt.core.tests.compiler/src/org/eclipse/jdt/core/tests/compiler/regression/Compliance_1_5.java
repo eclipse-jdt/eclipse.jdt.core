@@ -3507,7 +3507,6 @@ public void test103() {
 	}
 	
 	String expectedOutput = 
-		"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 		"public class X {\n" + 
 		"  \n" + 
 		"  // Method descriptor #6 ()V\n" + 
@@ -3532,8 +3531,7 @@ public void test103() {
 		"        [pc: 0, line: 3]\n" + 
 		"        [pc: 8, line: 4]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
-		"}";
+		"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n";
 		
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
