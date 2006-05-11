@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -22,32 +22,27 @@ import junit.framework.TestSuite;
 public class RunCompletionParserTests extends junit.framework.TestCase {
 
 	public final static List TEST_CLASSES = new ArrayList();
+	public final static List TEST_CLASSES_1_5 = new ArrayList();
 	static {
 		TEST_CLASSES.add(AllocationExpressionCompletionTest.class);
-		TEST_CLASSES.add(AnnotationCompletionParserTest.class);
 		TEST_CLASSES.add(ClassLiteralAccessCompletionTest.class);
 		TEST_CLASSES.add(CompletionParserTest.class);
 		TEST_CLASSES.add(CompletionParserTest2.class);
 		TEST_CLASSES.add(CompletionParserTestKeyword.class);
 		TEST_CLASSES.add(CompletionRecoveryTest.class);
 		TEST_CLASSES.add(DietCompletionTest.class);
-		TEST_CLASSES.add(EnumCompletionParserTest.class);
 		TEST_CLASSES.add(ExplicitConstructorInvocationCompletionTest.class);
 		TEST_CLASSES.add(FieldAccessCompletionTest.class);
-		TEST_CLASSES.add(GenericsCompletionParserTest.class);
 		TEST_CLASSES.add(InnerTypeCompletionTest.class);
 		TEST_CLASSES.add(JavadocCompletionParserTest.class);
 		TEST_CLASSES.add(LabelStatementCompletionTest.class);
 		TEST_CLASSES.add(MethodInvocationCompletionTest.class);
 		TEST_CLASSES.add(NameReferenceCompletionTest.class);
 		TEST_CLASSES.add(ReferenceTypeCompletionTest.class);
-	}
-
-	public static Class[] getTestClasses() {
-		int size = TEST_CLASSES.size();
-		Class[] testClasses = new Class[size];
-		TEST_CLASSES.toArray(testClasses);
-		return testClasses;
+		
+		TEST_CLASSES_1_5.add(GenericsCompletionParserTest.class);
+		TEST_CLASSES_1_5.add(EnumCompletionParserTest.class);
+		TEST_CLASSES_1_5.add(AnnotationCompletionParserTest.class);
 	}
 
 	public RunCompletionParserTests(String name) {
@@ -55,35 +50,55 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunCompletionParserTests.class.getName());
+		ArrayList testClasses = new ArrayList();
 
-		// Get all classes
-		Class[] allClasses = getTestClasses();
-
-		// Reset forgotten subsets of tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS = null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-
-		// Add all tests suite of tests
-		for (int i = 0, length = allClasses.length; i < length; i++) {
-			Class testClass = allClasses[i];
-
-			// call the suite() method and add the resulting suite to the suite
-			try {
-				Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
-				Test suite = (Test) suiteMethod.invoke(null, new Object[0]);
-				ts.addTest(suite);
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.getTargetException().printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
+		testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
+		
+		TestSuite all = new TestSuite(TestAll.class.getName());
+		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			ArrayList tests_1_3 = (ArrayList)testClasses.clone();
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_3, tests_1_3));
 		}
-		return ts;
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			ArrayList tests_1_4 = (ArrayList)testClasses.clone();
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_4, tests_1_4));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			ArrayList tests_1_5 = (ArrayList)testClasses.clone();
+			tests_1_5.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_5, tests_1_5));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+			ArrayList tests_1_6 = (ArrayList)testClasses.clone();
+			tests_1_6.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
+		}
+
+		return all;
 	}
 }
