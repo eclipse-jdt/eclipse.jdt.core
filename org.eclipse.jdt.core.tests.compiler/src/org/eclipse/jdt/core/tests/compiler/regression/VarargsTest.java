@@ -1402,9 +1402,14 @@ public class VarargsTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n",
 			},
-			// ensure no varargs warning
+			// check no varargs warning
 			"----------\n" + 
-			"1. ERROR in X.java (at line 16)\n" + 
+			"1. WARNING in X.java (at line 13)\n" + 
+			"	varargs((Serializable[])new Object[] {1, 2}); //warns \"Varargs argument Object[] \n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Object[] to Serializable[]\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -1547,7 +1552,12 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 15)\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	varargs((Serializable) new Object[] {1, 2});\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Object[] to Serializable\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -1603,13 +1613,18 @@ public class VarargsTest extends AbstractComparableTest {
 					"}\n",
 				},
 				"----------\n" + 
-				"1. WARNING in X.java (at line 10)\r\n" + 
-				"	array((Serializable[]) new Serializable[] {3, 4}); //warns about unnecessary cast\r\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	array((Serializable[]) new Serializable[] {3, 4}); //warns about unnecessary cast\n" + 
 				"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Unnecessary cast from Serializable[] to Serializable[]\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 14)\r\n" + 
-				"	Zork z;\r\n" + 
+				"2. WARNING in X.java (at line 13)\n" + 
+				"	array((Serializable[]) new Object[] {1, 2}); // CCE at run time\n" + 
+				"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Object[] to Serializable[]\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 14)\n" + 
+				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
@@ -1675,5 +1690,37 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"
 			//reference to foo is ambiguous, both method foo(Y,java.lang.Object,java.lang.String...) in X and method foo(java.lang.Object,java.lang.String...) in X match
 		);
-	}
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139931
+	public void test048() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"        Y<String> [] foo() {\n" + 
+					"                return null;\n" + 
+					"        }\n" + 
+					"        void bar(Y... y) {\n" + 
+					"        }\n" + 
+					"        void fred() {\n" + 
+					"                bar(foo());\n" + 
+					"                bar((Y[])foo());\n" + 
+					"                Zork z;\n" +
+					"        }\n" + 
+					"}\n" + 
+					"class Y<E> {\n" + 
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	bar((Y[])foo());\n" + 
+				"	    ^^^^^^^^^^\n" + 
+				"Unnecessary cast from Y<String>[] to Y[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 10)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}		
 }
