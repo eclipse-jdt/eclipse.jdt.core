@@ -31024,4 +31024,28 @@ public void test0984() {
 		null /* no custom requestor*/,
 		false /* do not skip javac for this peculiar test */);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
+public void _test0985() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.*;\n" + 
+					"public class X {\n" + 
+					"    public void testBreak() {\n" + 
+					"        List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" + 
+			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Class<? extends Object&Comparable<?>&Serializable> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" + 
+			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Class<? extends Object&Comparable<?>&Serializable>> to List<Class<Object>>\n" + 
+			"----------\n");
+}
 }
