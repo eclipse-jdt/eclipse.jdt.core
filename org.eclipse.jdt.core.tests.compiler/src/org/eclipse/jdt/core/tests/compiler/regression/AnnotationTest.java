@@ -21,6 +21,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -3035,13 +3036,26 @@ public class AnnotationTest extends AbstractComparableTest {
 			e.printStackTrace();
 			assertTrue("IOException", false);
 		}
-		
-		String expectedOutput = 
-			"  Inner classes:\n" + 
-			"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
-			"     inner name: #66 MyAnon, accessflags: 9737 public abstract static ],\n" + 
-			"    [inner class info: #67 X$I, outer class info: #1 X\n" + 
-			"     inner name: #69 I, accessflags: 1545 public abstract static ]\n"; 
+
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		String expectedOutput = null; 
+		if (options.targetJDK == ClassFileConstants.JDK1_5) {
+			expectedOutput = 
+				"  Inner classes:\n" + 
+				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
+				"     inner name: #66 MyAnon, accessflags: 9737 public abstract static ],\n" + 
+				"    [inner class info: #67 X$I, outer class info: #1 X\n" + 
+				"     inner name: #69 I, accessflags: 1545 public abstract static ]\n"; 
+		} else if (options.targetJDK == ClassFileConstants.JDK1_6) {
+			expectedOutput = 
+				"  Inner classes:\n" + 
+				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
+				"     inner name: #70 MyAnon, accessflags: 9737 public abstract static ],\n" + 
+				"    [inner class info: #71 X$I, outer class info: #1 X\n" + 
+				"     inner name: #73 I, accessflags: 1545 public abstract static ]\n";			
+		} else {
+			return;
+		}
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
