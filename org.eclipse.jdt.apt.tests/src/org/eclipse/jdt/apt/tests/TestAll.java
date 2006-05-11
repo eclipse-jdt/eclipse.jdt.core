@@ -50,6 +50,7 @@ public class TestAll extends TestCase {
 		suite.addTest(ExceptionHandlingTests.suite());
 		suite.addTest(ScannerTests.suite());
 		suite.addTest(DeclarationVisitorTests.suite());
+		suite.addTest(TypeVisitorTests.suite());
 	
 		return suite;
 		
