@@ -30966,4 +30966,25 @@ public void test0982() {
 			false,
 			null);
 }
+public void test0983() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"    public static void main(String[] args) throws Throwable {\n" + 
+					"	List<?> l1 = new ArrayList<Integer>();\n" + 
+					"	List<?> l2 = new ArrayList<Integer>();\n" + 
+					"	l1.addAll(l2);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	l1.addAll(l2);\n" + 
+			"	   ^^^^^^\n" + 
+			"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
+			"----------\n");
+}
 }
