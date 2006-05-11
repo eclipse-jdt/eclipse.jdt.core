@@ -30987,4 +30987,41 @@ public void test0983() {
 			"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
 			"----------\n");
 }
+// generic inner class within a non generic one
+public void test0984() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public class XX<T> {}\n" + 
+			"}",
+			"I.java",
+			"public interface I {\n" + 
+			"    X.XX<String> foo();\n" + 
+			"}",
+			"Y.java",
+			"public class Y extends X implements I {\n" + 
+			"  public XX<String> foo() {\n" +
+			"    return null;\n" + 
+			"  }\n" + 
+			"}",
+			},
+		"");
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y extends X implements I {\n" + 
+			"  public XX<String> foo() {\n" +
+			"    return null;\n" + 
+			"  }\n" + 
+			"}",
+			},
+		"",
+		null /* no extra class libraries */, 
+		false /* do not flush output directory */, 
+		null /* no vm arguments */,
+		null /* no custom options*/,
+		null /* no custom requestor*/,
+		false /* do not skip javac for this peculiar test */);
+}
 }
