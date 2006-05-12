@@ -10,8 +10,8 @@
    <type name="BufferChangedEvent" subclass="false" instantiate="false"/>
    <type name="ClasspathContainerInitializer" instantiate="false"/>
    <type name="ClasspathVariableInitializer" instantiate="false"/>
-   <type name="CompletionContext" subclass="false" instantiate="false"/>
-   <type name="CompletionProposal" subclass="false" instantiate="false"/>
+   <type name="CompletionContext" subclass="false"/>
+   <type name="CompletionProposal" subclass="false"/>
    <type name="CompletionRequestor" instantiate="false"/>
    <type name="CompletionRequestorAdapter"/>
    <type name="CorrectionEngine" subclass="false"/>
@@ -22,15 +22,15 @@
    <type name="IBufferChangedListener"/>
    <type name="IBufferFactory"/>
    <type name="IClassFile" implement="false"/>
-   <type name="IClasspathAttribute" implement="false"/>
-   <type name="IClasspathContainer" implement="false"/>
+   <type name="IClasspathAttribute"/>
+   <type name="IClasspathContainer"/>
    <type name="IClasspathEntry" implement="false"/>
    <type name="ICodeAssist" implement="false"/>
    <type name="ICodeCompletionRequestor"/>
-   <type name="ICodeFormatter" implement="false"/>
+   <type name="ICodeFormatter"/>
    <type name="ICompilationUnit" implement="false"/>
    <type name="ICompletionRequestor"/>
-   <type name="ICorrectionRequestor" implement="false"/>
+   <type name="ICorrectionRequestor"/>
    <type name="IElementChangedListener"/>
    <type name="IField" implement="false"/>
    <type name="IImportContainer" implement="false"/>
@@ -59,7 +59,7 @@
    <type name="IType" implement="false"/>
    <type name="ITypeHierarchy" implement="false"/>
    <type name="ITypeHierarchyChangedListener"/>
-   <type name="ITypeParameter" implement="false"/>
+   <type name="ITypeParameter"/>
    <type name="IWorkingCopy" implement="false"/>
    <type name="JavaConventions" subclass="false" instantiate="false"/>
    <type name="JavaCore" subclass="false" instantiate="false"/>
@@ -72,12 +72,12 @@
  <package name="org.eclipse.jdt.core.compiler">
    <type name="BuildContext" subclass="false" instantiate="false"/>
    <type name="CategorizedProblem" instantiate="false"/>
-   <type name="CharOperation" subclass="false" instantiate="false"/>
+   <type name="CharOperation" subclass="false"/>
    <type name="CompilationParticipant" instantiate="false"/>
-   <type name="InvalidInputException" subclass="false" instantiate="false"/>
+   <type name="InvalidInputException"/>
    <type name="IProblem" implement="false"/>
-   <type name="IScanner" implement="false"/>
-   <type name="ITerminalSymbols" implement="false"/>
+   <type name="IScanner"/>
+   <type name="ITerminalSymbols"/>
    <type name="ReconcileContext" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.dom">
@@ -93,7 +93,7 @@
    <type name="ArrayType" instantiate="false"/>
    <type name="AssertStatement" instantiate="false"/>
    <type name="Assignment" instantiate="false"/>
-   <type name="AST" subclass="false" instantiate="false"/>
+   <type name="AST" subclass="false"/>
    <type name="ASTConverter" reference="false"/>
    <type name="ASTMatcher"/>
    <type name="ASTNode" instantiate="false"/>
@@ -158,7 +158,7 @@
    <type name="MemberRef" instantiate="false"/>
    <type name="MemberValuePair" instantiate="false"/>
    <type name="MemberValuePairBinding" reference="false"/>
-   <type name="Message" instantiate="false"/>
+   <type name="Message"/>
    <type name="MethodBinding" reference="false"/>
    <type name="MethodDeclaration" instantiate="false"/>
    <type name="MethodInvocation" instantiate="false"/>
@@ -166,7 +166,7 @@
    <type name="MethodRefParameter" instantiate="false"/>
    <type name="Modifier" instantiate="false" subclass="false"/>
    <type name="NaiveASTFlattener" reference="false"/>
-   <type name="Name" instantiate="false"/>
+   <type name="Name" instantiate="false" subclass="false"/>
    <type name="NodeEventHandler" reference="false"/>
    <type name="NodeSearcher" reference="false"/>
    <type name="NormalAnnotation" instantiate="false"/>
@@ -229,8 +229,8 @@
  </package>
  <package name="org.eclipse.jdt.core.formatter">
    <type name="CodeFormatter"/>
-   <type name="CodeFormatterApplication" subclass="false" instantiate="false"/>
-   <type name="DefaultCodeFormatterConstants" subclass="false" instantiate="false"/>
+   <type name="CodeFormatterApplication"/>
+   <type name="DefaultCodeFormatterConstants"/>
    <type name="IndentManipulation" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.jdom">
