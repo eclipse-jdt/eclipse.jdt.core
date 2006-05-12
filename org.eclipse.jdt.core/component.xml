@@ -39,9 +39,9 @@
    <type name="IJavaElement" implement="false"/>
    <type name="IJavaElementDelta" implement="false"/>
    <type name="IJavaModel" implement="false"/>
-   <type name="IJavaModelMarker" implement="false" extend="false"/>
+   <type name="IJavaModelMarker" implement="false"/>
    <type name="IJavaModelStatus" implement="false"/>
-   <type name="IJavaModelStatusConstants" implement="false" extends="false"/>
+   <type name="IJavaModelStatusConstants" implement="false"/>
    <type name="IJavaProject" implement="false"/>
    <type name="ILocalVariable" implement="false"/>
    <type name="IMember" implement="false"/>
