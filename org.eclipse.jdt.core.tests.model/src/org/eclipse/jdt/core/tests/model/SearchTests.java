@@ -429,10 +429,10 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
  	}
  }
  /*
-  * Ensures that types are found if the project is a ib folder
+  * Ensures that types are found if the project is a lib folder
   * (regression test for bug 83822 Classes at root of project not found in Open Type dialog)
   */
- public void _testProjectLib() throws CoreException {
+ public void _testProjectLib() throws CoreException { // TODO disabled due to transcient failures (see bug 84164)
  	try {
  		IJavaProject javaProject = createJavaProject("P1", new String[0], new String[] {"/P1"}, "bin");
  		createClassFile("/P1", "X.class", "public class X {}");
