@@ -31048,4 +31048,72 @@ public void _test0985() {
 			"Type mismatch: cannot convert from List<Class<? extends Object&Comparable<?>&Serializable>> to List<Class<Object>>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91709
+public void test0986() {
+	this.runConformTest(
+			new String[] {
+					"T.java", // =================
+					"public class T {\n" + 
+					"	public T() {\n" + 
+					"		S<String> s = new S<String>();\n" + 
+					"		s.setObj(\"S\");\n" + 
+					"		System.out.print(s.getObj());\n" + 
+					"		S<Integer> i = new S<Integer>();\n" + 
+					"		i.setObj(new Integer(100));\n" + 
+					"		System.out.print(i.getObj());\n" + 
+					"		S<MyClass> m = new S<MyClass>();\n" + 
+					"		m.setObj(new MyClass(\"[Terry]\"));\n" + 
+					"		System.out.print(m.getObj());\n" + 
+					"		S<MyClass> x = new S<MyClass>(new MyClass(\"[Corbet]\"));\n" + 
+					"		System.out.print(x.getObj());\n" + 
+					"	} // End of Constructor for T.\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		try {\n" + 
+					"			new T();\n" + 
+					"			System.out.println(\"SUCCESS\");\n" +
+					"		} catch (Exception ex) {\n" + 
+					"			ex.printStackTrace();\n" + 
+					"		}\n" + 
+					"	} // End of main().\n" + 
+					"\n" + 
+					"	class MyClass {\n" + 
+					"		private String str;\n" + 
+					"		public MyClass(String str) {\n" + 
+					"			this.str = str;\n" + 
+					"		} // End of Constructor for MyClass.\n" + 
+					"		@Override\n" + 
+					"		public String toString() {\n" + 
+					"			return (\"MyClass = \" + str);\n" + 
+					"		} // End of toString().\n" + 
+					"	} // End of Embedded MyClass Class.\n" + 
+					"} // End of T Class.\n",  // =================
+					"S.java", // =================
+					"public class S<$T> extends B<$T> {\n" + 
+					"	public S() {\n" + 
+					"		super();\n" + 
+					"	} // End of Constructor for S.\n" + 
+					"	public S($T obj) {\n" + 
+					"		super(obj);\n" + 
+					"	} // End of Constructor for S.\n" + 
+					"} // End of S Class.\n",  // =================
+					"B.java", // =================
+					"public abstract class B<$T> {\n" + 
+					"	$T obj;\n" + 
+					"	public B() {\n" + 
+					"		;\n" + 
+					"	} // End of Constructor for B.\n" + 
+					"	public B($T obj) {\n" + 
+					"		this.obj = obj;\n" + 
+					"	} // End ofg Constructor of B.\n" + 
+					"	public $T getObj() {\n" + 
+					"		return (obj);\n" + 
+					"	} // End of getObj().\n" + 
+					"	public void setObj($T obj) {\n" + 
+					"		this.obj = obj;\n" + 
+					"	} // End of setObj().\n" + 
+					"} // End of B Class.", // =================
+
+			},
+			"S100MyClass = [Terry]MyClass = [Corbet]SUCCESS");
+}
 }
