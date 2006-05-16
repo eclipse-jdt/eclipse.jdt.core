@@ -4179,7 +4179,7 @@ the right of e1."
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	case (NORMAL) :\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Enum contants cannot be surrounded by parenthesis\n" + 
+			"Enum constants cannot be surrounded by parenthesis\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110403
