@@ -972,7 +972,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.1
+	 * @since 3.2
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANNOTATION_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_empty_annotation_declaration";	//$NON-NLS-1$
 	/**
