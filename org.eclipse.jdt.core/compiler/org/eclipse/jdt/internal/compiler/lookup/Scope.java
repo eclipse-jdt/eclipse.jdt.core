@@ -1243,7 +1243,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				// see if there is a better match in the interfaces - see AutoBoxingTest 99
 				MethodBinding interfaceMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-				if (interfaceMethod != null) return interfaceMethod;
+				if (interfaceMethod != null) {
+					candidates = new MethodBinding[] {mostSpecificMethod, interfaceMethod};
+					return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
+				}
 		}
 		return mostSpecificMethod;
 	}

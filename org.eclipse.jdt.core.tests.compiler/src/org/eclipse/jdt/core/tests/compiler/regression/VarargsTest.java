@@ -1690,7 +1690,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"
 			//reference to foo is ambiguous, both method foo(Y,java.lang.Object,java.lang.String...) in X and method foo(java.lang.Object,java.lang.String...) in X match
 		);
-	}	
+	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139931
 	public void test048() {
 		this.runNegativeTest(
@@ -1722,5 +1722,34 @@ public class VarargsTest extends AbstractComparableTest {
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
-	}		
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141704
+	public void test049() {
+		this.runConformTest(
+				new String[] {
+					"Y.java",
+					"public class Y extends X {\n" +
+					"	public static void main(String[] args) {\n" + 
+					"		Y y = new Y();\n" + 
+					"		y.a(null, \"\");\n" + 
+					"		y.a(null);\n" +
+					"		y.a(y, \"\");\n" + 
+					"		y.a(y);\n" +
+					"		y.a(y, \"\", y, y);\n" + 
+					"		y.a(y, y, y);\n" +
+					"	}\n" + 
+					"	@Override public void a(Object anObject, String aString, Object... args) { super.a(anObject, aString, this, args); }\n" + 
+					"	@Override public void a(Object anObject, Object... args) { super.a(anObject, this, args); }\n" + 
+					"}\n" + 
+					"class X implements I {\n" + 
+					"	public void a(Object anObject, String aString, Object... args) { System.out.print(1); }\n" + 
+					"	public void a(Object anObject, Object... args) { System.out.print(2); }\n" + 
+					"}\n" + 
+					"interface I {\n" + 
+					"	void a(Object anObject, String aString, Object... args);\n" + 
+					"	void a(Object anObject, Object... args);\n" + 
+					"}\n",
+				},
+				"121212");
+	}
 }
