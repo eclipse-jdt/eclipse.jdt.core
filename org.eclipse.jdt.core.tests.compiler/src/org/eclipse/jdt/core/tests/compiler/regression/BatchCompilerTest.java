@@ -935,7 +935,7 @@ public void test012(){
 		"      typeHiding         + type parameter hiding another type\n" + 
 		"      unchecked          + unchecked type operation\n" + 
 		"      unnecessaryElse      unnecessary else clause\n" + 
-		"      unqualified-field-access same as unQualifiedField\n" + 
+		"      unqualified-field-access same as unqualifiedField\n" + 
 		"      unqualifiedField     unqualified reference to field\n" + 
 		"      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" + 
 		"                               unusedLocal, unusedPrivate and unusedThrown\n" + 
