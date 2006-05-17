@@ -5,6 +5,7 @@
 	<target name="init">
 		<tstamp/>
 		<property name="bin" value="bin" />
+		<property name="antbin" value="antbin" />		
 		<property name="dest" value="../../ecj-export" />
 	</target>
 
@@ -19,7 +20,12 @@
 			  <include name="META-INF/**" />
 			  <include name="about.html" />
 	        </fileset>
-	        <fileset dir="${bin}" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**">
+	        <fileset dir="${antbin}">
+	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
+        	</fileset>
+	        <fileset dir="${bin}">
+	        	<include name="org/eclipse/jdt/internal/compiler/**"/>
+	        	<include name="org/eclipse/jdt/core/compiler/**"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
@@ -39,6 +45,9 @@
 		<zip zipfile="${dest}/ecjsrc.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
+		    <zipfileset dir="antadapter">
+	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
+		    </zipfileset>
 			<zipfileset dir="scripts">
 			  <include name="about.html" />
 			</zipfileset>			

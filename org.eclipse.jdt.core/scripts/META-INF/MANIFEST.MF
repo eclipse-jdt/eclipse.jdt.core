@@ -7,7 +7,9 @@ Bundle-Version: 3.2.0
 Bundle-ClassPath: .
 Bundle-Vendor: Eclipse.org
 Bundle-Localization: plugin
-Export-Package: org.eclipse.jdt.core.compiler,
+Export-Package: org.eclipse.jdt.core,
+ org.eclipse.jdt.core.compiler,
+ org.eclipse.jdt.internal.antadapter;x-friends:="org.eclipse.jdt.core",
  org.eclipse.jdt.internal.compiler;x-friends:="org.eclipse.jdt.core",
  org.eclipse.jdt.internal.compiler.ast;x-friends:="org.eclipse.jdt.core",
  org.eclipse.jdt.internal.compiler.batch;x-friends:="org.eclipse.jdt.core",
