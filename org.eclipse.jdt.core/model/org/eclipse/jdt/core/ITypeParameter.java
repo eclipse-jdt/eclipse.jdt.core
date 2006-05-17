@@ -22,6 +22,9 @@ package org.eclipse.jdt.core;
  * of the type parameters use {@link IType#getTypeParameters()} for a type and use
  * {@link IMethod#getTypeParameters()} for a method.
  * </p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
  *
  * @since 3.1
  */

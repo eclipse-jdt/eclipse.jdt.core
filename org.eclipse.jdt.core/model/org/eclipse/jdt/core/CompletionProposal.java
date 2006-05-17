@@ -43,8 +43,8 @@ import org.eclipse.jdt.internal.codeassist.InternalCompletionProposal;
  * competing proposals.
  * </p>
  * <p>
- * The completion engine creates instances of this class; it is not
- * intended to be used by other clients.
+ * The completion engine creates instances of this class; it is not intended 
+ * to be instantiated or subclassed by clients.
  * </p>
  * 
  * @see ICodeAssist#codeComplete(int, CompletionRequestor)

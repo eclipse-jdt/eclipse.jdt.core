@@ -18,6 +18,9 @@ import org.eclipse.jdt.internal.formatter.align.Alignment;
 
 /**
  * Constants used to set up the options of the code formatter.
+ * <p>
+ * This class is not intended to be instantiated or subclassed by clients.
+ * </p>
  * 
  * @since 3.0
  */

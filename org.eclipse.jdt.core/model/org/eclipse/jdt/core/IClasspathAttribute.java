@@ -13,6 +13,9 @@ package org.eclipse.jdt.core;
 /**
  * A classpath attribute defines a name/value pair that can be persisted with a classpath entry. Such an attribute
  * can be created using the factory method {@link JavaCore#newClasspathAttribute(String, String) newClasspathAttribute(String name, String value)}.
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
  * 
  * @see JavaCore#newContainerEntry(
  *			org.eclipse.core.runtime.IPath containerPath, 

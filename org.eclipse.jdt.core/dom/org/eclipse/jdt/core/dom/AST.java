@@ -84,8 +84,8 @@ import org.eclipse.text.edits.TextEdit;
  * read-only AST.
  * </p>
  * <p>
- * Clients may create instances of this class, which is not intended to be
- * subclassed.
+ * Clients may create instances of this class using {@link #newAST(int)}, 
+ * but this class is not intended to be subclassed.
  * </p>
  * 
  * @see ASTParser

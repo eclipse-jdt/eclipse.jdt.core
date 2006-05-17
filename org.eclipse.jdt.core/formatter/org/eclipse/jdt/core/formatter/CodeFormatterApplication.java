@@ -38,6 +38,9 @@ import org.eclipse.text.edits.TextEdit;
  * There are a couple improvments that could be made: 1. Make a list of all the
  * files first so that a file does not get formatted twice. 2. Use a text based
  * progress monitor for output.
+ * <p>
+ * This class is not intended to be instantiated or subclassed by clients.
+ * </p>
  * 
  * @author Ben Konrath <bkonrath@redhat.com>
  * @since 3.2

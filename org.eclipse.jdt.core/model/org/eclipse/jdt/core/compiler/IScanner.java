@@ -17,11 +17,14 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
   * Definition of a Java scanner, as returned by the <code>ToolFactory</code>.
   * The scanner is responsible for tokenizing a given source, providing information about
   * the nature of the token read, its positions and source equivalent.
-  * 
+  * <p>
   * When the scanner has finished tokenizing, it answers an EOF token (<code>
   * ITerminalSymbols#TokenNameEOF</code>.
-  * 
+  * </p><p>
   * When encountering lexical errors, an <code>InvalidInputException</code> is thrown.
+ * </p><p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
   * 
   * @see org.eclipse.jdt.core.ToolFactory
   * @see ITerminalSymbols

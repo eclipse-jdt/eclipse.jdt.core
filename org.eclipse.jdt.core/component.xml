@@ -10,8 +10,8 @@
    <type name="BufferChangedEvent" subclass="false" instantiate="false"/>
    <type name="ClasspathContainerInitializer" instantiate="false"/>
    <type name="ClasspathVariableInitializer" instantiate="false"/>
-   <type name="CompletionContext" subclass="false"/>
-   <type name="CompletionProposal" subclass="false"/>
+   <type name="CompletionContext" subclass="false" instantiate="false"/>
+   <type name="CompletionProposal" subclass="false" instantiate="false"/>
    <type name="CompletionRequestor" instantiate="false"/>
    <type name="CompletionRequestorAdapter"/>
    <type name="CorrectionEngine" subclass="false"/>
@@ -22,7 +22,7 @@
    <type name="IBufferChangedListener"/>
    <type name="IBufferFactory"/>
    <type name="IClassFile" implement="false"/>
-   <type name="IClasspathAttribute"/>
+   <type name="IClasspathAttribute" implement="false"/>
    <type name="IClasspathContainer"/>
    <type name="IClasspathEntry" implement="false"/>
    <type name="ICodeAssist" implement="false"/>
@@ -59,7 +59,7 @@
    <type name="IType" implement="false"/>
    <type name="ITypeHierarchy" implement="false"/>
    <type name="ITypeHierarchyChangedListener"/>
-   <type name="ITypeParameter"/>
+   <type name="ITypeParameter" implement="false"/>
    <type name="IWorkingCopy" implement="false"/>
    <type name="JavaConventions" subclass="false" instantiate="false"/>
    <type name="JavaCore" subclass="false" instantiate="false"/>
@@ -72,12 +72,12 @@
  <package name="org.eclipse.jdt.core.compiler">
    <type name="BuildContext" subclass="false" instantiate="false"/>
    <type name="CategorizedProblem" instantiate="false"/>
-   <type name="CharOperation" subclass="false"/>
+   <type name="CharOperation" subclass="false" instantiate="false"/>
    <type name="CompilationParticipant" instantiate="false"/>
-   <type name="InvalidInputException"/>
+   <type name="InvalidInputException" subclass="false" instantiate="false"/>
    <type name="IProblem" implement="false"/>
-   <type name="IScanner"/>
-   <type name="ITerminalSymbols"/>
+   <type name="IScanner" implement="false"/>
+   <type name="ITerminalSymbols" implement="false"/>
    <type name="ReconcileContext" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.dom">
@@ -93,7 +93,7 @@
    <type name="ArrayType" instantiate="false"/>
    <type name="AssertStatement" instantiate="false"/>
    <type name="Assignment" instantiate="false"/>
-   <type name="AST" subclass="false"/>
+   <type name="AST" subclass="false" instantiate="false"/>
    <type name="ASTConverter" reference="false"/>
    <type name="ASTMatcher"/>
    <type name="ASTNode" instantiate="false"/>
@@ -229,8 +229,8 @@
  </package>
  <package name="org.eclipse.jdt.core.formatter">
    <type name="CodeFormatter"/>
-   <type name="CodeFormatterApplication"/>
-   <type name="DefaultCodeFormatterConstants"/>
+   <type name="CodeFormatterApplication" subclass="false" instantiate="false"/>
+   <type name="DefaultCodeFormatterConstants" subclass="false" instantiate="false"/>
    <type name="IndentManipulation" subclass="false" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.jdom">

@@ -15,6 +15,9 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
  * This class is a collection of helper methods to manipulate char arrays.
+ * <p>
+ * This class is not intended to be instantiated or subclassed by clients.
+ * </p>
  * 
  * @since 2.1
  */
