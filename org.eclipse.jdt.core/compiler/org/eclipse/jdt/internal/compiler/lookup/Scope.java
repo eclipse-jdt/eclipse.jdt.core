@@ -681,7 +681,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite,
 		ReferenceBinding classHierarchyStart,
-		ObjectVector found) {
+		ObjectVector found,
+		MethodBinding concreteMatch) {
 
 		int startFoundSize = found.size;
 		ReferenceBinding currentType = classHierarchyStart;
@@ -692,7 +693,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		int foundSize = found.size;
 		if (foundSize == startFoundSize)
-			return null;
+			return concreteMatch;
 		MethodBinding[] candidates = null;
 		int candidatesCount = 0;
 		MethodBinding problemMethod = null;
@@ -702,8 +703,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 			if (compatibleMethod != null) {
 				if (compatibleMethod.isValidBinding()) {
-					if (candidatesCount == 0)
-						candidates = new MethodBinding[foundSize - startFoundSize];
+					if (candidatesCount == 0) {
+						candidates = new MethodBinding[foundSize - startFoundSize + 1];
+						if (concreteMatch != null)
+							candidates[candidatesCount++] = concreteMatch;
+					}
 					candidates[candidatesCount++] = compatibleMethod;
 				} else if (problemMethod == null) {
 					problemMethod = compatibleMethod;
@@ -711,12 +715,15 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 		}
 
+		if (candidatesCount == 0) {
+			if (concreteMatch == null)
+				return problemMethod; // can be null
+			return concreteMatch;
+		}
 		if (candidatesCount == 1) {
 			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0]; 
 		}
-		if (candidatesCount == 0)
-			return problemMethod; // can be null
 		// no need to check for visibility - interface methods are public
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return mostSpecificMethodBinding(candidates, candidatesCount, argumentTypes, invocationSite, receiverType);
@@ -1118,14 +1125,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (compatibleMethod.isValidBinding()) {
 						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 							// return the single visible match now
-							if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable())) {
-								MethodBinding interfaceMethod =
-									findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-								if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
-									candidates = new MethodBinding[] {compatibleMethod, interfaceMethod};
-									return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
-								}
-							}
+							if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable()))
+								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, compatibleMethod);
 							unitScope.recordTypeReferences(compatibleMethod.thrownExceptions);
 							return compatibleMethod;
 						}
@@ -1143,7 +1144,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (candidatesCount == 0) {
 			// reduces secondary errors since missing interface method error is already reported
 			MethodBinding interfaceMethod =
-				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
 			if (interfaceMethod != null) return interfaceMethod;
 			if (found.size == 0) return null;
 			if (problemMethod != null) return problemMethod;
@@ -1198,20 +1199,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 		}
 		if (visiblesCount == 1) {
-			if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable())) {
-				MethodBinding interfaceMethod =
-					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-				if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
-					candidates = new MethodBinding[] {candidates[0], interfaceMethod};
-					return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
-				}
-			}
+			if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable()))
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
 			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0];
 		}
 		if (visiblesCount == 0) {
 			MethodBinding interfaceMethod =
-				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
 			if (interfaceMethod != null) return interfaceMethod;
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
 		}
@@ -1241,12 +1236,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			&& mostSpecificMethod.isValidBinding()
 			&& parameterCompatibilityLevel(mostSpecificMethod, argumentTypes) > COMPATIBLE) {
 				// see if there is a better match in the interfaces - see AutoBoxingTest 99
-				MethodBinding interfaceMethod =
-					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-				if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
-					candidates = new MethodBinding[] {mostSpecificMethod, interfaceMethod};
-					return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
-				}
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, mostSpecificMethod);
 		}
 		return mostSpecificMethod;
 	}

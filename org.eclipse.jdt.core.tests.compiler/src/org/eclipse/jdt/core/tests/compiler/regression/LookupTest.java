@@ -2395,7 +2395,7 @@ public void test071() {
 		null /* no custom requestor*/,
 	  	false /* do not skip javac for this peculiar test */);
 }
-public void _test072() {
+public void test072() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",//===================
