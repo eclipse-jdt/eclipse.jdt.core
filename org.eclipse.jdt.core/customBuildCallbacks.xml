@@ -28,8 +28,7 @@
 	<target name="post.build.jars">
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
 		<mkdir dir="${dest}/checksum" />
-		<ant antfile="${basedir}/scripts/export-ecj.xml">
-			<property name="bin" value="@dot" />
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export">
 			<property name="dest" value="${dest}" />
 		</ant>
     	<checksum file="${dest}/ecj.jar" property="md5" /> 
@@ -83,6 +82,9 @@
 	</target>
 
 	<target name="post.compile.@dot">
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-batch-compiler">
+			<property name="target.folder" value="${target.folder}" />
+		</ant>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -177,6 +179,9 @@
 	<!-- Steps to do after the target compile.jdtCompilerAdapter.jar           -->
 	<!-- ===================================================================== -->
 	<target name="post.compile.jdtCompilerAdapter.jar">
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-ant-adapter-compiler">
+			<property name="target.folder" value="${target.folder}" />
+		</ant>
 	</target>
 	
 	<!-- ===================================================================== -->

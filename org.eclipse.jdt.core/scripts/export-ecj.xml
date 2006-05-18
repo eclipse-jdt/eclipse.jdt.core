@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a batch compiler from org.eclipse.jdt.core -->
-<project name="Eclipse Batch Compiler" default="export" basedir="..">
+<project name="Eclipse Batch Compiler" default="export-all" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="bin" value="bin" />
-		<property name="antbin" value="antbin" />		
 		<property name="dest" value="../../ecj-export" />
+		<property name="ecj-temp-folder" value="${basedir}/ecj-temp-folder" />
 	</target>
-
-	<target name="export" depends="init">
-		<echo message="TARGET: ${dest}" />
-		<mkdir dir="${dest}" />
-
-		<echo message="UPDATE ecj.jar" />
-		<delete file="${dest}/ecj.jar" failonerror="false"/>
-		<zip zipfile="${dest}/ecj.jar">
+	
+	<target name="extract-batch-compiler" depends="init">
+		<property name="target.folder" value="bin"/>
+		<echo message="Extract .class file and properties for the batch compiler" />
+		<mkdir dir="${ecj-temp-folder}"/>
+		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts">
 			  <include name="META-INF/**" />
 			  <include name="about.html" />
 	        </fileset>
-	        <fileset dir="${antbin}">
-	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
-        	</fileset>
-	        <fileset dir="${bin}">
+	        <fileset dir="${target.folder}">
 	        	<include name="org/eclipse/jdt/internal/compiler/**"/>
 	        	<include name="org/eclipse/jdt/core/compiler/**"/>
+	        	<exclude name="**/package.htm*"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
 	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
@@ -39,6 +34,30 @@
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
         	</fileset>
+		</copy>		
+	</target>
+
+	<target name="extract-ant-adapter-compiler" depends="init">
+		<property name="target.folder" value="antbin"/>
+		<echo message="Extract .class file and properties for the ant adapter" />
+		<mkdir dir="${ecj-temp-folder}"/>
+		<copy todir="${ecj-temp-folder}">
+	        <fileset dir="${target.folder}">
+	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
+        	</fileset>
+		</copy>
+	</target>
+
+	<target name="export" depends="init">
+		<mkdir dir="${dest}" />
+
+		<echo message="UPDATE ecj.jar" />
+		<delete file="${dest}/ecj.jar" failonerror="false"/>
+		<zip zipfile="${dest}/ecj.jar">
+			<fileset dir="${ecj-temp-folder}">
+				<include name="**/*"/>
+				<include name="about.html"/>
+	        </fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
 		<delete file="${dest}/ecjsrc.zip" failonerror="false"/>
@@ -51,7 +70,13 @@
 			<zipfileset dir="scripts">
 			  <include name="about.html" />
 			</zipfileset>			
-  		</zip>		
-	
+  		</zip>
+		<delete dir="${ecj-temp-folder}" failonerror="false"/>
+	</target>
+		
+	<target name="export-all" depends="init">
+		<antcall target="extract-batch-compiler"/>
+		<antcall target="extract-ant-adapter-compiler"/>
+		<antcall target="export"/>
 	</target>
 </project>
