@@ -2214,14 +2214,17 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * COMPILER / Defining the Automatic Task Tags
 	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters
-	 *    one of the corresponding tag inside any comment in Java source code.
-	 *    Generated task messages will include the tag, and range until the next line separator or comment ending.
+	 *    one of the corresponding tags inside any comment in Java source code.
+	 *    Generated task messages will start with the tag, and range until the next line separator, 
+	 *    comment ending, or tag.
+	 *    When a given line of code bears multiple tags, each tag will be reported separately.
+	 *    Moreover, a tag immediately followed by another tag will be reported using the contents of the 
+	 *    next non-empty tag of the line, if any.
 	 *    Note that tasks messages are trimmed. If a tag is starting with a letter or digit, then it cannot be leaded by
 	 *    another letter or digit to be recognized ("fooToDo" will not be recognized as a task for tag "ToDo", but "foo#ToDo"
 	 *    will be detected for either tag "ToDo" or "#ToDo"). Respectively, a tag ending with a letter or digit cannot be followed
 	 *    by a letter or digit to be recognized ("ToDofoo" will not be recognized as a task for tag "ToDo", but "ToDo:foo" will
 	 *    be detected either for tag "ToDo" or "ToDo:").
-	 *    Note: the tasks are ordered, and the first matching tag will be selected; e.g. "TODO,TODO!" will match "TODO!" against "TODO" first.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskTags"
 	 *     - possible values:   { "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card or leading/trailing spaces 
 	 *     - default:           "TODO,FIXME,XXX"
