@@ -3256,7 +3256,7 @@ public final class JavaCore extends Plugin {
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *   and will be automatically converted to <code>null</code>.
-	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
+	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @return a new library classpath entry
 	 */
@@ -3286,7 +3286,7 @@ public final class JavaCore extends Plugin {
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *   and will be automatically converted to <code>null</code>.
-	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
+	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -3321,13 +3321,19 @@ public final class JavaCore extends Plugin {
 	 * linked (see IFolder#createLink(...)).
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
-	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
-	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
+	 *	<li><code> "c:\jdk1.2.2\jre\lib\rt.jar" </code> - reference to an external JAR on Windows</li>
+	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR on Windows or Linux</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder on Windows or Linux</li>
 	 * </ul>
-	 * Note that this operation does not attempt to validate or access the 
+	 * Note that on non-Windows platform, a path <code>"/some/lib.jar"</code> is ambiguous. 
+	 * It can be a path to an external JAR (its file system path being <code>"/some/lib.jar"</code>) 
+	 * or it can be a path to an internal JAR (<code>"some"</code> being a project in the workspace).
+	 * Such an ambiguity is solved when the classpath entry is used (e.g. in {@link IJavaProject#getPackageFragmentRoots()}).
+	 * If the resource <code>"lib.jar"</code> exists in project <code>"some"</code>, then it is considered an
+	 * internal JAR. Otherwise it is an external JAR.
+	 * <p>Also note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
-	 * <p>
+	 * </p><p>
 	 * The access rules determine the set of accessible class files
 	 * in the library. If the list of access rules is empty then all files
 	 * in this library are accessible.
@@ -3351,7 +3357,7 @@ public final class JavaCore extends Plugin {
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *   and will be automatically converted to <code>null</code>.
-	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
+	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param accessRules the possibly empty list of access rules for this entry
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
@@ -3722,8 +3728,8 @@ public final class JavaCore extends Plugin {
 	 *    or <code>null</code> if none; if present, the first segment is the
 	 *    name of a classpath variable (not necessarily the same variable
 	 *    as the one that begins <code>variablePath</code>)
-	 * @param sourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive
+	 *    or <code>null</code> if <code>variableSourceAttachmentPath</code> is also <code>null</code>
 	 * @return a new library classpath entry
 	 */
 	public static IClasspathEntry newVariableEntry(
@@ -3746,8 +3752,8 @@ public final class JavaCore extends Plugin {
 	 *    or <code>null</code> if none; if present, the first segment is the
 	 *    name of a classpath variable (not necessarily the same variable
 	 *    as the one that begins <code>variablePath</code>)
-	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param variableSourceAttachmentRootPath the location of the root of the source files within the source archive
+	 *    or <code>null</code> if <code>variableSourceAttachmentPath</code> is also <code>null</code>
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
 	 * @return a new variable classpath entry
@@ -3769,7 +3775,7 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
+	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
 	 * for the given path. The first segment of the path is the name of a classpath variable.
 	 * The trailing segments of the path will be appended to resolved variable path.
 	 * <p>
@@ -3786,7 +3792,7 @@ public final class JavaCore extends Plugin {
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
 	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
-	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:\eclipse\plugins\com.example\example.jar"</li>
 	 * </ul>
 	 * <p>
 	 * The access rules determine the set of accessible class files
@@ -3817,8 +3823,8 @@ public final class JavaCore extends Plugin {
 	 *    or <code>null</code> if none; if present, the first segment is the
 	 *    name of a classpath variable (not necessarily the same variable
 	 *    as the one that begins <code>variablePath</code>)
-	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param variableSourceAttachmentRootPath the location of the root of the source files within the source archive
+	 *    or <code>null</code> if <code>variableSourceAttachmentPath</code> is also <code>null</code>
 	 * @param accessRules the possibly empty list of access rules for this entry
 	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
 	 * @param isExported indicates whether this entry is contributed to dependent
