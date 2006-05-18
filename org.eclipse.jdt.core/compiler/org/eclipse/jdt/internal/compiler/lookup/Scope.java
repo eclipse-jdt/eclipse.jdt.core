@@ -1121,7 +1121,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable())) {
 								MethodBinding interfaceMethod =
 									findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-								if (interfaceMethod != null) {
+								if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
 									candidates = new MethodBinding[] {compatibleMethod, interfaceMethod};
 									return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
 								}
@@ -1201,7 +1201,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable())) {
 				MethodBinding interfaceMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-				if (interfaceMethod != null) {
+				if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
 					candidates = new MethodBinding[] {candidates[0], interfaceMethod};
 					return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
 				}
@@ -1243,7 +1243,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				// see if there is a better match in the interfaces - see AutoBoxingTest 99
 				MethodBinding interfaceMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found);
-				if (interfaceMethod != null) {
+				if (interfaceMethod != null && interfaceMethod.isValidBinding()) {
 					candidates = new MethodBinding[] {mostSpecificMethod, interfaceMethod};
 					return mostSpecificMethodBinding(candidates, 2, argumentTypes, invocationSite, receiverType);
 				}

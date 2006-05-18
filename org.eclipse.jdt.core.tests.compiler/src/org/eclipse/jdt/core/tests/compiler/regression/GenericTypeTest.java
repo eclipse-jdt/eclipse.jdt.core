@@ -31116,4 +31116,116 @@ public void test0986() {
 			},
 			"S100MyClass = [Terry]MyClass = [Corbet]SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
+public void test0987() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"	void bar(GLinkElementView<?,?> g) {\n" + 
+				"		g.getViewer();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+				"\n" + 
+				"abstract class AbstractLinkView<M> extends AbstractConnectionEditPart implements ILinkViewElement {\n" + 
+				"	@Override\n" + 
+				"	public ISheetViewer getViewer() { return null; }	\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class AbstractConnectionEditPart implements EditPart {}\n" + 
+				"\n" + 
+				"abstract class AbstractEditPart implements EditPart {\n" + 
+				"	public EditPartViewer getViewer() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface ILinkViewElement {\n" + 
+				"	public ISheetViewer getViewer();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface ISheetViewer {}\n" + 
+				"\n" + 
+				"interface EditPart {\n" + 
+				"	EditPartViewer getViewer();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface EditPartViewer {}\n", // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+			"	               ^^^^^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	public ISheetViewer getViewer() { return null; }	\n" + 
+			"	                    ^^^^^^^^^^^\n" + 
+			"The return type is incompatible with EditPart.getViewer()\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
+			"	public ISheetViewer getViewer() { return null; }	\n" + 
+			"	                    ^^^^^^^^^^^\n" + 
+			"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643 - variation
+public void test0988() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"	void bar(GLinkElementView<?,?> g) {\n" + 
+				"		g.getViewer();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+				"\n" + 
+				"abstract class AbstractLinkView<M> extends AbstractConnectionEditPart implements ILinkViewElement, IModelChangeListener {\n" + 
+				"	@Override\n" + 
+				"	public SheetViewer getViewer() { return null; }	\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class AbstractConnectionEditPart extends AbstractGraphicalEditPart implements ConnectionEditPart {}\n" + 
+				"\n" + 
+				"abstract class AbstractGraphicalEditPart extends AbstractEditPart implements GraphicalEditPart {}\n" + 
+				"\n" + 
+				"abstract class AbstractEditPart implements EditPart {\n" + 
+				"	public EditPartViewer getViewer() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface ILinkViewElement extends INodeViewElement {\n" + 
+				"	public ISheetViewer getViewer();\n" + 
+				"}\n" + 
+				"\n" + 
+				"class SheetViewer implements ISheetViewer {}\n" + 
+				"\n" + 
+				"interface ISheetViewer {}\n" + 
+				"\n" + 
+				"interface EditPart {\n" + 
+				"	EditPartViewer getViewer();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface ConnectionEditPart extends GraphicalEditPart {}\n" + 
+				"interface GraphicalEditPart extends EditPart {}\n" + 
+				"interface EditPartViewer {}\n" + 
+				"interface IModelChangeListener {}\n" + 
+				"\n" + 
+				"interface INodeViewElement {\n" + 
+				"	public ISheetViewer getViewer();\n" + 
+				"}", // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+			"	               ^^^^^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with ILinkViewElement.getViewer(), AbstractEditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	public SheetViewer getViewer() { return null; }	\n" + 
+			"	                   ^^^^^^^^^^^\n" + 
+			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
+			"----------\n");
+}
 }

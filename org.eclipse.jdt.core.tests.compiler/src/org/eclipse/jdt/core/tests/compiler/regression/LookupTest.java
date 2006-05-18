@@ -2395,6 +2395,33 @@ public void test071() {
 		null /* no custom requestor*/,
 	  	false /* do not skip javac for this peculiar test */);
 }
+public void test072() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"	void bar(AX ax) {\n" + 
+				"		ax.foo(null);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"}\n" + 
+				"interface IX {\n" + 
+				"	void foo(String s);\n" + 
+				"}\n" + 
+				"interface JX {\n" + 
+				"	void foo(Thread t);\n" + 
+				"}\n" + 
+				"abstract class AX implements IX, JX {\n" + 
+				"	public void foo(String s) {}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	ax.foo(null);\n" + 
+			"	   ^^^\n" + 
+			"The method foo(String) is ambiguous for the type AX\n" + 
+			"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
