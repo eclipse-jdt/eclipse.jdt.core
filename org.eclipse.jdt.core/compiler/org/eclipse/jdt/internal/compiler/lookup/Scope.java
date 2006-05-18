@@ -692,8 +692,13 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 		CompilationUnitScope unitScope = compilationUnitScope();
 		int foundSize = found.size;
-		if (foundSize == startFoundSize)
-			return concreteMatch;
+		if (foundSize == startFoundSize) {
+			if (concreteMatch != null) {
+				unitScope.recordTypeReferences(concreteMatch.thrownExceptions);
+				return concreteMatch;
+			}
+			return null;
+		}
 		MethodBinding[] candidates = null;
 		int candidatesCount = 0;
 		MethodBinding problemMethod = null;
@@ -716,9 +721,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 
 		if (candidatesCount == 0) {
-			if (concreteMatch == null)
-				return problemMethod; // can be null
-			return concreteMatch;
+			if (concreteMatch != null) {
+				unitScope.recordTypeReferences(concreteMatch.thrownExceptions);
+				return concreteMatch;
+			}
+			return problemMethod; // can be null
 		}
 		if (candidatesCount == 1) {
 			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
