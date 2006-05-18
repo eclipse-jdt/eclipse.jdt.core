@@ -1752,4 +1752,43 @@ public class VarargsTest extends AbstractComparableTest {
 				},
 				"121212");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141800
+	public void test050() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					" import java.util.Arrays;\n" + 
+					" public class X {\n" + 
+					"   public static void main( String args[] ) {\n" + 
+					"      Object test = new Object[] { \"Hello\", \"World\" };\n" + 
+					"      System.out.println(Arrays.asList(test));\n" + 
+					"      System.out.println(Arrays.asList((Object[])test)); // Warning here\n" + 
+					"	   Zork z;\n" +
+					"   }\n" + 
+					"}",
+				},
+				// ensure no complaint about unnecessary cast
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141800 - variation
+	public void test051() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					" import java.util.Arrays;\n" + 
+					" public class X {\n" + 
+					"   public static void main( String args[] ) {\n" + 
+					"      Object test = new Object[] { \"Hello\", \"World\" };\n" + 
+					"      System.out.print(Arrays.asList(test).size());\n" + 
+					"      System.out.println(Arrays.asList((Object[])test).size()); // Warning here\n" + 
+					"   }\n" + 
+					"}",
+				},
+				"12");
+	}	
 }
