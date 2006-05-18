@@ -690,46 +690,38 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			findMethodInSuperInterfaces(currentType, selector, found);
 			currentType = currentType.superclass();
 		}
-		CompilationUnitScope unitScope = compilationUnitScope();
-		int foundSize = found.size;
-		if (foundSize == startFoundSize) {
-			if (concreteMatch != null) {
-				unitScope.recordTypeReferences(concreteMatch.thrownExceptions);
-				return concreteMatch;
-			}
-			return null;
-		}
 		MethodBinding[] candidates = null;
 		int candidatesCount = 0;
 		MethodBinding problemMethod = null;
-		// argument type compatibility check
-		for (int i = startFoundSize; i < foundSize; i++) {
-			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
-			if (compatibleMethod != null) {
-				if (compatibleMethod.isValidBinding()) {
-					if (candidatesCount == 0) {
-						candidates = new MethodBinding[foundSize - startFoundSize + 1];
-						if (concreteMatch != null)
-							candidates[candidatesCount++] = concreteMatch;
+		int foundSize = found.size;
+		if (foundSize > startFoundSize) {
+			// argument type compatibility check
+			for (int i = startFoundSize; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
+				if (compatibleMethod != null) {
+					if (compatibleMethod.isValidBinding()) {
+						if (candidatesCount == 0) {
+							candidates = new MethodBinding[foundSize - startFoundSize + 1];
+							if (concreteMatch != null)
+								candidates[candidatesCount++] = concreteMatch;
+						}
+						candidates[candidatesCount++] = compatibleMethod;
+					} else if (problemMethod == null) {
+						problemMethod = compatibleMethod;
 					}
-					candidates[candidatesCount++] = compatibleMethod;
-				} else if (problemMethod == null) {
-					problemMethod = compatibleMethod;
 				}
 			}
 		}
 
-		if (candidatesCount == 0) {
-			if (concreteMatch != null) {
-				unitScope.recordTypeReferences(concreteMatch.thrownExceptions);
-				return concreteMatch;
+		if (candidatesCount < 2) {
+			if (concreteMatch == null) {
+				if (candidatesCount == 0)
+					return problemMethod; // can be null
+				concreteMatch = candidates[0];
 			}
-			return problemMethod; // can be null
-		}
-		if (candidatesCount == 1) {
-			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
-			return candidates[0]; 
+			compilationUnitScope().recordTypeReferences(concreteMatch.thrownExceptions);
+			return concreteMatch;
 		}
 		// no need to check for visibility - interface methods are public
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
