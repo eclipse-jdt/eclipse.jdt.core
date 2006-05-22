@@ -2093,15 +2093,15 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * COMPILER / Reporting Missing @Deprecated Annotation
 	 *    When enabled, the compiler will issue an error or a warning whenever encountering a declaration
-	 *    carrying a @deprecated doc tag but has no corresponding @Deprecated annotation.
+	 *    carrying a @deprecated doc tag but having no corresponding @Deprecated annotation.
 	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"                               
 	 * 
 	 * COMPILER / Reporting Incomplete Enum Switch
-	 *    When enabled, the compiler will issue an error or a warning whenever an enum constant has
-	 *    no corresponding case label in an enum switch statement
-	 *    type has no case label matching an enum constant.
+	 *    When enabled, the compiler will issue an error or a warning whenever
+	 *    an enum constant has no corresponding case label in an enum switch 
+	 *    statement.
 	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"                               
