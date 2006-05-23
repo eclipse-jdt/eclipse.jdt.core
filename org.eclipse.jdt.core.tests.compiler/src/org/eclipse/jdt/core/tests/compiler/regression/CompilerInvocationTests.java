@@ -606,5 +606,15 @@ public void test002_problem_categories() {
 		fail("could not access members");
 	}
 }
-  
+public void _test003_task_tags_options() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // TODO nothing\n" + 
+			"  }\n" + 
+			"}\n"},
+		"WORK");
+} 
 }
