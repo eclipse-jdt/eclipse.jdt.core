@@ -14,8 +14,11 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -43,6 +46,7 @@ public CompilerInvocationTests(String name) {
 //  	TESTS_RANGE = new int[] { 1, 2049 }; 
 //  	TESTS_RANGE = new int[] { 449, 451 }; 
 //    	TESTS_RANGE = new int[] { 900, 999 }; 
+    	TESTS_RANGE = new int[] { 3, -1 }; 
   	}
 
 public static Test suite() {
@@ -606,15 +610,160 @@ public void test002_problem_categories() {
 		fail("could not access members");
 	}
 }
-public void _test003_task_tags_options() {
-	this.runNegativeTest(
+class TasksReader implements ICompilerRequestor {
+	CompilationResult result;
+	public void acceptResult(CompilationResult compilationResult) {
+		this.result = compilationResult;
+	}
+}
+static String taskTagsAsCutAndPaste(CategorizedProblem tasks[]) {
+	StringBuffer result = new StringBuffer();
+	String arguments[];
+	for (int i = 0; i < tasks.length - 1; i++) {
+		arguments = tasks[i].getArguments();
+		System.out.print("\t\t\"[");
+		System.out.print(arguments[0]);
+		System.out.print(',');
+		System.out.print(arguments[1]);
+		System.out.print(',');
+		System.out.print(arguments[2]);
+		System.out.println("]\\n\" +");
+	}
+	arguments = tasks[tasks.length - 1].getArguments();
+	System.out.print("\t\t\"[");
+	System.out.print(arguments[0]);
+	System.out.print(',');
+	System.out.print(arguments[1]);
+	System.out.print(',');
+	System.out.print(arguments[2]);
+	System.out.println("]\\n\"");
+	return result.toString();
+}
+static String taskTagsAsStrings(CategorizedProblem tasks[]) {
+	StringBuffer result = new StringBuffer();
+	String arguments[];
+	for (int i = 0; i < tasks.length; i++) {
+		arguments = tasks[i].getArguments();
+		result.append('[');
+		result.append(arguments[0]);
+		result.append(',');
+		result.append(arguments[1]);
+		result.append(',');
+		result.append(arguments[2]);
+		result.append(']');
+		result.append("\n");
+	}
+	return result.toString();
+}
+public void runTaskTagsOptionsTest(
+		String[] testFiles,
+		Map customOptions,
+		String expectedTags) {
+	TasksReader reader = new TasksReader();
+	Map options = JavaCore.getDefaultOptions();
+	if (customOptions != null) {
+		options.putAll(customOptions);
+	}
+	this.runConformTest(
+		testFiles,
+		"",
+		null /* no extra class libraries */, 
+		true /* flush output directory */,
+		null, /* no VM args */
+		options,
+		reader, 
+		true /* skip javac */);
+	String tags = taskTagsAsStrings(reader.result.tasks);
+	if (! tags.equals(expectedTags)) {
+		System.out.println(getClass().getName() + '#' + getName());
+		System.out.println("Effective results:");
+		System.out.println(tags);
+		System.out.println("Cut and paste:");
+		taskTagsAsCutAndPaste(reader.result.tasks);
+		assertEquals(expectedTags, tags);
+	}
+} 
+// Basic test on task tags: watch default behavior
+public void test003_task_tags_options() {
+	this.runTaskTagsOptionsTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
 			"  void foo(X x) {\n" + 
-			"    // TODO nothing\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
 			"  }\n" + 
 			"}\n"},
-		"WORK");
+		null,
+		"[FIXME,message contents,HIGH]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
+} 
+// effect of cancelling priorities
+public void test004_task_tags_options() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "");
+	this.runTaskTagsOptionsTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
+			"  }\n" + 
+			"}\n"},
+		customOptions,
+		"[FIXME,message contents,null]\n" +
+		"[TODO,message contents,null]\n" +
+		"[XXX,message contents,null]\n");
+} 
+//effect of cancelling priorities
+public void test005_task_tags_options() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, ",,");
+	this.runTaskTagsOptionsTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
+			"  }\n" + 
+			"}\n"},
+		customOptions,
+		"[FIXME,message contents,]\n" +
+		"[TODO,message contents,]\n" +
+		"[XXX,message contents,]\n");
+} 
+//effect of changing priorities
+public void test006_task_tags_options() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "A,B,C,D,E");
+	this.runTaskTagsOptionsTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
+			"  }\n" + 
+			"}\n"},
+		customOptions,
+		"[FIXME,message contents,B]\n" +
+		"[TODO,message contents,A]\n" +
+		"[XXX,message contents,C]\n");
+} 
+//effect of changing priorities
+public void test007_task_tags_options() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
+	this.runTaskTagsOptionsTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
+			"  }\n" + 
+			"}\n"},
+		customOptions,
+		"[FIXME,message contents,NORMAL]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
 } 
 }
