@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 218 };
+//		TESTS_NUMBERS = new int[] { 220 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6909,5 +6909,37 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding2);
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
 		assertNull("Got a binding", annotationBinding);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=142793
+	 */
+	public void test0220() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" + 
+			"        void bar(String[] c) {\n" + 
+			"                for(String s: c) {\n" + 
+			"                        try {\n" + 
+			"                        }\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false,
+    			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Syntax error, insert \"Finally\" to complete BlockStatements");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block body = methodDeclaration.getBody();
+		assertNotNull("No body", body);
+		assertEquals("Wrong size", 0, body.statements().size());
+		assertTrue("Not recovered", isRecovered(body));
+		assertFalse("Malformed", isMalformed(body));
 	}
 }

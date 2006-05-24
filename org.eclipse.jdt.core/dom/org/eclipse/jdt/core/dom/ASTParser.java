@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
@@ -978,14 +977,17 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (constructorDeclaration != null) {
 					Block block = ast.newBlock();
-					Statement[] statements = constructorDeclaration.statements;
+					org.eclipse.jdt.internal.compiler.ast.Statement[] statements = constructorDeclaration.statements;
 					if (statements != null) {
 						int statementsLength = statements.length;
 						for (int i = 0; i < statementsLength; i++) {
 							if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 								converter.checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
 							} else {
-								block.statements().add(converter.convert(statements[i]));
+								Statement statement = converter.convert(statements[i]);
+								if (statement != null) {
+									block.statements().add(statement);
+								}
 							}
 						}
 					}

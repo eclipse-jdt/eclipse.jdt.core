@@ -508,7 +508,10 @@ class ASTConverter {
 					if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
 					} else {
-						block.statements().add(convert(statements[i]));
+						final Statement statement = convert(statements[i]);
+						if (statement != null) {
+							block.statements().add(statement);
+						}
 					}
 				}
 			}
@@ -1118,7 +1121,10 @@ class ASTConverter {
 				if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 					checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
 				} else {
-					block.statements().add(convert(statements[i]));
+					Statement statement2 = convert(statements[i]);
+					if (statement2 != null) {
+						block.statements().add(statement2);
+					}
 				}				
 			}
 		}
@@ -1344,7 +1350,9 @@ class ASTConverter {
 		DoStatement doStatement = new DoStatement(this.ast);
 		doStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		doStatement.setExpression(convert(statement.condition));
-		doStatement.setBody(convert(statement.action));
+		final Statement action = convert(statement.action);
+		if (action == null) return null;
+		doStatement.setBody(action);
 		retrieveSemiColonPosition(doStatement);
 		return doStatement;
 	}
@@ -1705,7 +1713,9 @@ class ASTConverter {
 				EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
 				enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
 				enhancedForStatement.setExpression(convert(statement.collection));
-				enhancedForStatement.setBody(convert(statement.action));
+				final Statement action = convert(statement.action);
+				if (action == null) return null;
+				enhancedForStatement.setBody(action);
 				int start = statement.sourceStart;
 				int end = statement.sourceEnd;
 				enhancedForStatement.setSourceRange(start, end - start + 1);
@@ -1755,7 +1765,9 @@ class ASTConverter {
 				forStatement.updaters().add(convertToExpression(increments[i]));				
 			}
 		}
-		forStatement.setBody(convert(statement.action));
+		final Statement action = convert(statement.action);
+		if (action == null) return null;
+		forStatement.setBody(action);
 		return forStatement;
 	}
 	
@@ -1763,9 +1775,15 @@ class ASTConverter {
 		IfStatement ifStatement = new IfStatement(this.ast);
 		ifStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		ifStatement.setExpression(convert(statement.condition));
-		ifStatement.setThenStatement(convert(statement.thenStatement));
-		if (statement.elseStatement != null) {
-			ifStatement.setElseStatement(convert(statement.elseStatement));
+		final Statement thenStatement = convert(statement.thenStatement);
+		if (thenStatement == null) return null;
+		ifStatement.setThenStatement(thenStatement);
+		org.eclipse.jdt.internal.compiler.ast.Statement statement2 = statement.elseStatement;
+		if (statement2 != null) {
+			final Statement elseStatement = convert(statement2);
+			if (elseStatement != null) {
+				ifStatement.setElseStatement(elseStatement);
+			}
 		}
 		return ifStatement;
 	}
@@ -1860,9 +1878,10 @@ class ASTConverter {
 	public LabeledStatement convert(org.eclipse.jdt.internal.compiler.ast.LabeledStatement statement) {
 		LabeledStatement labeledStatement = new LabeledStatement(this.ast);
 		final int sourceStart = statement.sourceStart;
-		labeledStatement.setSourceRange(sourceStart, statement.sourceEnd - sourceStart + 1);	
-		org.eclipse.jdt.internal.compiler.ast.Statement body = statement.statement;
-		labeledStatement.setBody(convert(body));
+		labeledStatement.setSourceRange(sourceStart, statement.sourceEnd - sourceStart + 1);
+		Statement body = convert(statement.statement);
+		if (body == null) return null;
+		labeledStatement.setBody(body);
 		final SimpleName name = new SimpleName(this.ast);
 		name.internalSetIdentifier(new String(statement.label));
 		name.setSourceRange(sourceStart, statement.labelEnd - sourceStart + 1);
@@ -2488,7 +2507,10 @@ class ASTConverter {
 				if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 					checkAndAddMultipleLocalDeclaration(statements, i, switchStatement.statements());
 				} else {
-					switchStatement.statements().add(convert(statements[i]));
+					final Statement currentStatement = convert(statements[i]);
+					if (currentStatement != null) {
+						switchStatement.statements().add(currentStatement);
+					}
 				}
 			}
 		}
@@ -2725,8 +2747,9 @@ class ASTConverter {
 		final WhileStatement whileStatement = new WhileStatement(this.ast);
 		whileStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		whileStatement.setExpression(convert(statement.condition));
-		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
-		whileStatement.setBody(convert(action));
+		final Statement action = convert(statement.action);
+		if (action == null) return null;
+		whileStatement.setBody(action);
 		return whileStatement;
 	}
 	
@@ -3314,6 +3337,7 @@ class ASTConverter {
 	}
 	
 	protected Statement createFakeEmptyStatement(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
+		if (statement == null) return null;
 		EmptyStatement emptyStatement = new EmptyStatement(this.ast);
 		emptyStatement.setFlags(emptyStatement.getFlags() | ASTNode.MALFORMED);
 		int start = statement.sourceStart;
