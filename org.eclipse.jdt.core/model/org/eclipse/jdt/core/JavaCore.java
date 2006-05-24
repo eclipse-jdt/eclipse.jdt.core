@@ -2465,7 +2465,7 @@ public final class JavaCore extends Plugin {
 	 *    When active, completion doesn't show deprecated members and types.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.deprecationCheck"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disable"
+	 *     - default:           "disabled"
 	 * 
 	 * CODEASSIST / Automatic Qualification of Implicit Members
 	 *    When active, completion automatically qualifies completion on implicit
