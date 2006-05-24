@@ -46,7 +46,6 @@ public CompilerInvocationTests(String name) {
 //  	TESTS_RANGE = new int[] { 1, 2049 }; 
 //  	TESTS_RANGE = new int[] { 449, 451 }; 
 //    	TESTS_RANGE = new int[] { 900, 999 }; 
-    	TESTS_RANGE = new int[] { 3, -1 }; 
   	}
 
 public static Test suite() {
@@ -699,7 +698,8 @@ public void test003_task_tags_options() {
 		"[XXX,message contents,NORMAL]\n");
 } 
 // effect of cancelling priorities
-public void test004_task_tags_options() {
+// reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
+public void _test004_task_tags_options() {
 	Map customOptions = new HashMap();
 	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "");
 	this.runTaskTagsOptionsTest(
@@ -711,12 +711,13 @@ public void test004_task_tags_options() {
 			"  }\n" + 
 			"}\n"},
 		customOptions,
-		"[FIXME,message contents,null]\n" +
-		"[TODO,message contents,null]\n" +
-		"[XXX,message contents,null]\n");
+		"[FIXME,message contents,NORMAL]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
 } 
-//effect of cancelling priorities
-public void test005_task_tags_options() {
+// effect of cancelling priorities
+// reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
+public void _test005_task_tags_options() {
 	Map customOptions = new HashMap();
 	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, ",,");
 	this.runTaskTagsOptionsTest(
@@ -728,12 +729,14 @@ public void test005_task_tags_options() {
 			"  }\n" + 
 			"}\n"},
 		customOptions,
-		"[FIXME,message contents,]\n" +
-		"[TODO,message contents,]\n" +
-		"[XXX,message contents,]\n");
+		"[FIXME,message contents,NORMAL]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
+	// would expect an exception of some sort
 } 
-//effect of changing priorities
-public void test006_task_tags_options() {
+// effect of changing priorities
+// reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
+public void _test006_task_tags_options() {
 	Map customOptions = new HashMap();
 	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "A,B,C,D,E");
 	this.runTaskTagsOptionsTest(
@@ -745,14 +748,33 @@ public void test006_task_tags_options() {
 			"  }\n" + 
 			"}\n"},
 		customOptions,
-		"[FIXME,message contents,B]\n" +
-		"[TODO,message contents,A]\n" +
-		"[XXX,message contents,C]\n");
+		"[FIXME,message contents,NORMAL]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
+	// would expect an exception of some sort	
 } 
-//effect of changing priorities
+// effect of changing priorities
 public void test007_task_tags_options() {
 	Map customOptions = new HashMap();
 	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
+	this.runTaskTagsOptionsTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    // FIXME TODO XXX message contents\n" + 
+			"  }\n" + 
+			"}\n"},
+		customOptions,
+		"[FIXME,message contents,NORMAL]\n" +
+		"[TODO,message contents,NORMAL]\n" +
+		"[XXX,message contents,NORMAL]\n");
+} 
+// effect of changing priorities
+// reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
+public void _test008_task_tags_options() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL"); // one less than the number of tags
 	this.runTaskTagsOptionsTest(
 		new String[] {
 			"X.java",
