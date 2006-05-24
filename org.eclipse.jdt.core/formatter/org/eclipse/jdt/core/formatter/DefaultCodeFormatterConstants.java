@@ -43,7 +43,7 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to set an option to true.
+	 * FORMATTER / Value to set an option to false.
 	 * </pre>
 	 * @since 3.0
 	 */
@@ -52,11 +52,12 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to align type members of a type declaration on column
-	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_method_declaration"
-	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
-	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.align_type_members_on_columns"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
 	 * </pre>
-	 * @see #createAlignmentValue(boolean, int, int)
+	 * @see #TRUE
+	 * @see #FALSE
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_type_members_on_columns";	 //$NON-NLS-1$
@@ -771,7 +772,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES = JavaCore.PLUGIN_ID + ".formatter.indent_breaks_compare_to_cases";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to ident empty lines
+	 * FORMATTER / Option to indent empty lines
 	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_empty_lines"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
@@ -944,6 +945,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_before_while_in_do_statement";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a new line in an empty annotation declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_empty_annotation_declaration"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANNOTATION_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_empty_annotation_declaration";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line in an empty anonymous type declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_empty_anonymous_type_declaration"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -966,18 +979,6 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_empty_block";	//$NON-NLS-1$
-	/**
-	 * <pre>
-	 * FORMATTER / Option to insert a new line in an empty annotation declaration
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_empty_annotation_declaration"
-	 *     - possible values:   { INSERT, DO_NOT_INSERT }
-	 *     - default:           INSERT
-	 * </pre>
-	 * @see JavaCore#INSERT
-	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.2
-	 */
-	public static final String FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANNOTATION_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_empty_annotation_declaration";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a new line in an empty enum constant
@@ -3077,7 +3078,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String NEXT_LINE_SHIFTED = "next_line_shifted";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Value to set an option to false.
+	 * FORMATTER / Value to set an option to true.
 	 * </pre>
 	 * @since 3.0
 	 */
