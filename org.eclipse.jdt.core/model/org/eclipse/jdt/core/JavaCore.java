@@ -2338,12 +2338,12 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "compute", "ignore" }
 	 *     - default:           "ignore"	 
 	 * 
-	 * JAVACORE / Specify Default Source Encoding Format
-	 *    Get the encoding format for compiled sources. This setting is read-only, it is equivalent
-	 *    to 'ResourcesPlugin.getEncoding()'.
+	 * JAVACORE / Default Source Encoding Format
+	 *    Get the default encoding format of source files. This value is
+	 *    immutable and preset to the result of ResourcesPlugin.getEncoding(). 
+	 *    It is offered as a convenience shortcut only.
 	 *     - option id:         "org.eclipse.jdt.core.encoding"
-	 *     - possible values:   { any of the supported encoding name}.
-	 *     - default:           &lt;platform default&gt;
+	 *     - value:           &lt;immutable, platform default value&gt;
 	 * 
 	 * JAVACORE / Reporting Incomplete Classpath
 	 *    Indicate the severity of the problem reported when an entry on the classpath does not exist, 
