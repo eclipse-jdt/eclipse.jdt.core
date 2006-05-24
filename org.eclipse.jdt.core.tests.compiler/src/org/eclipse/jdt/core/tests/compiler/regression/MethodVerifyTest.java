@@ -5057,4 +5057,63 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}	
+	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+	public void test088() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"import java.util.*;\n" +
+				"public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+				"	\n" + 
+				"	void foo() {\n" + 
+				"		this.add(new Object());\n" + 
+				"		this.add(null);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T1> extends Collection<String> {\n" + 
+				"}\n" , // =================, // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The interface Collection cannot be implemented more than once with different arguments: Collection<T0> and Collection<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"Name clash: The method addAll(Collection<? extends E>) of type ArrayList<T0> has the same erasure as addAll(Collection<? extends E>) of type Collection<String> but does not override it\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The type X<T0> must implement the inherited abstract method Collection<String>.addAll(Collection<? extends String>)\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The type X<T0> must implement the inherited abstract method Runnable.run()\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The type X<T0> must implement the inherited abstract method Collection<String>.add(String)\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The return type is incompatible with Iterable<String>.iterator(), Collection<String>.iterator(), AbstractList<T0>.iterator()\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 2)\n" + 
+			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 5)\n" + 
+			"	this.add(new Object());\n" + 
+			"	     ^^^\n" + 
+			"The method add(T0) in the type ArrayList<T0> is not applicable for the arguments (Object)\n" + 
+			"----------\n"
+		);
+	}
 }

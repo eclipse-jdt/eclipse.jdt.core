@@ -625,36 +625,18 @@ public class ClassScope extends Scope {
 		// check for parameterized interface collisions (when different parameterizations occur)
 		SourceTypeBinding sourceType = referenceContext.binding;
 		ReferenceBinding[] interfaces = sourceType.superInterfaces;
-		int count = interfaces.length;
 		Map invocations = new HashMap(2);
 		ReferenceBinding itsSuperclass = sourceType.isInterface() ? null : sourceType.superclass;
-		nextInterface: for (int i = 0, length = count; i < length; i++) {
+		nextInterface: for (int i = 0, length = interfaces.length; i < length; i++) {
 			ReferenceBinding one =  interfaces[i];
 			if (one == null) continue nextInterface;
-			if (itsSuperclass != null && hasErasedCandidatesCollisions(itsSuperclass, one, invocations, sourceType, referenceContext)) {
-				interfaces[i] = null;
-				count--;
+			if (itsSuperclass != null && hasErasedCandidatesCollisions(itsSuperclass, one, invocations, sourceType, referenceContext))
 				continue nextInterface;
-			}
 			nextOtherInterface: for (int j = 0; j < i; j++) {
 				ReferenceBinding two = interfaces[j];
 				if (two == null) continue nextOtherInterface;
-				if (hasErasedCandidatesCollisions(one, two, invocations, sourceType, referenceContext)) {
-					interfaces[i] = null;
-					count--;
+				if (hasErasedCandidatesCollisions(one, two, invocations, sourceType, referenceContext))
 					continue nextInterface;
-				}
-			}
-		}
-		if (count < interfaces.length) {
-			if (count == 0) {
-				sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
-			} else {
-				ReferenceBinding[] newInterfaceBindings = new ReferenceBinding[count];
-				for (int i = 0, j = 0, l = interfaces.length; i < l; i++)
-					if (interfaces[i] != null)
-						newInterfaceBindings[j++] = interfaces[i];
-				sourceType.superInterfaces = newInterfaceBindings;
 			}
 		}
 

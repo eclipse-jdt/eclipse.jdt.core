@@ -30414,12 +30414,42 @@ public void test0968() {
 		"	             ^\n" + 
 		"The interface Collection cannot be implemented more than once with different arguments: Collection<T0> and Collection\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method addAll(Collection<? extends E>) of type ArrayList<T0> has the same erasure as addAll(Collection<? extends E>) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method retainAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as retainAll(Collection<?>) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method toArray(T[]) of type ArrayList<T0> has the same erasure as toArray(T[]) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method add(E) of type ArrayList<T0> has the same erasure as add(E) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method containsAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as containsAll(Collection<?>) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
+		"	             ^\n" + 
+		"Name clash: The method removeAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as removeAll(Collection<?>) of type Collection but does not override it\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 2)\n" + 
 		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 4)\n" + 
+		"9. WARNING in X.java (at line 4)\n" + 
 		"	interface I<T1> extends Collection {\n" + 
 		"	                        ^^^^^^^^^^\n" + 
 		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
@@ -31226,6 +31256,112 @@ public void test0988() {
 			"	public SheetViewer getViewer() { return null; }	\n" + 
 			"	                   ^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
+			"----------\n");
+}
+//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653
+public void test0989() {
+	this.runNegativeTest(
+			new String[] {
+				"Child.java",//===================
+				"public class Child extends Parent<Object> {}\n" + 
+				"abstract class Parent<T> extends Grandparent<T> implements IParent {}\n" + 
+				"interface IParent<T> extends IGrandparent<T> {}\n" + 
+				"abstract class Grandparent<T> implements IGrandparent<T> {}\n" + 
+				"interface IGrandparent<T> {}", // =================, // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in Child.java (at line 2)\n" + 
+			"	abstract class Parent<T> extends Grandparent<T> implements IParent {}\n" + 
+			"	               ^^^^^^\n" + 
+			"The interface IGrandparent cannot be implemented more than once with different arguments: IGrandparent<T> and IGrandparent\n" + 
+			"----------\n" + 
+			"2. WARNING in Child.java (at line 2)\n" + 
+			"	abstract class Parent<T> extends Grandparent<T> implements IParent {}\n" + 
+			"	                                                           ^^^^^^^\n" + 
+			"IParent is a raw type. References to generic type IParent<T> should be parameterized\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+public void test0990() {
+	this.runNegativeTest(
+			new String[] {
+				"Child.java",//===================
+				"public class Child extends Parent<Object> {}\n" + 
+				"abstract class Parent<T> extends Grandparent<T> implements IParent<?> {}\n" + 
+				"interface IParent<T> extends IGrandparent<T> {}\n" + 
+				"abstract class Grandparent<T> implements IGrandparent<T> {}\n" + 
+				"interface IGrandparent<T> {}", // =================, // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in Child.java (at line 1)\n" + 
+			"	public class Child extends Parent<Object> {}\n" + 
+			"	             ^^^^^\n" + 
+			"The hierarchy of the type Child is inconsistent\n" + 
+			"----------\n" + 
+			"2. ERROR in Child.java (at line 2)\n" + 
+			"	abstract class Parent<T> extends Grandparent<T> implements IParent<?> {}\n" + 
+			"	                                                           ^^^^^^^\n" + 
+			"The type Parent cannot extend or implement IParent<?>. A supertype may not specify any wildcard\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+public void test0991() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"public class X extends SX<String> implements IX<Object> {}\n" + 
+				"class SX<T> extends TX<Thread> implements IX<T> {}\n" + 
+				"class TX<U> implements IX<U> {}\n" + 
+				"interface IX<V> {}\n", // =================, // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends SX<String> implements IX<Object> {}\n" + 
+			"	             ^\n" + 
+			"The interface IX cannot be implemented more than once with different arguments: IX<Thread> and IX<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	class SX<T> extends TX<Thread> implements IX<T> {}\n" + 
+			"	      ^^\n" + 
+			"The interface IX cannot be implemented more than once with different arguments: IX<Thread> and IX<T>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+public void test0992() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"import java.util.*;\n" + 
+				"public abstract class X<T0> implements Collection, I<T0> {\n" + 
+				"	\n" + 
+				"	void foo() {\n" + 
+				"		this.add(new Object());\n" + 
+				"		this.add(null);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T1> extends Collection<String> {\n" + 
+				"}\n", // =================, // =================			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public abstract class X<T0> implements Collection, I<T0> {\n" + 
+			"	                      ^\n" + 
+			"The interface Collection cannot be implemented more than once with different arguments: Collection<String> and Collection\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\n" + 
+			"	public abstract class X<T0> implements Collection, I<T0> {\n" + 
+			"	                                       ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	this.add(new Object());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
+			"	this.add(null);\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n");
 }
 }
