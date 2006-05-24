@@ -2386,27 +2386,27 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:	"&lt;n&gt;", where n is an integer greater than or equal to 0
 	 *     - default:           "50"
 	 * 
-	 * FORMATTER / Inserting New Line Before Opening Brace
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.openingBrace"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 * FORMATTER / Inserting New Line Inside Control Statement
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: FORMATTER / Inserting New Line Inside Control Statement
 	 *    When Insert, a new line is inserted between } and following else, catch, finally
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.controlStatement"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 * FORMATTER / Clearing Blank Lines
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Clearing Blank Lines
 	 *    When Clear all, all blank lines are removed. When Preserve one, only one is kept
 	 *    and all others removed.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.clearAll"
 	 *     - possible values:   { "clear all", "preserve one" }
 	 *     - default:           "preserve one"
 	 * 
-	 * FORMATTER / Inserting New Line Between Else/If 
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Inserting New Line Between Else/If 
 	 *    When Insert, a blank line is inserted between an else and an if when they are 
 	 *    contiguous. When choosing to not insert, else-if will be kept on the same
 	 *    line when possible.
@@ -2414,41 +2414,41 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "do not insert"
 	 * 
-	 * FORMATTER / Inserting New Line In Empty Block
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Inserting New Line In Empty Block
 	 *    When insert, a line break is inserted between contiguous { and }, if } is not followed
 	 *    by a keyword.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.newline.emptyBlock"
 	 *     - possible values:   { "insert", "do not insert" }
 	 *     - default:           "insert"
 	 * 
-	 * FORMATTER / Splitting Lines Exceeding Length
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Splitting Lines Exceeding Length
 	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
 	 *    disable line splitting
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
 	 *     - possible values:	"&lt;n&gt;", where n is zero or a positive integer
 	 *     - default:           "80"
 	 * 
-	 * FORMATTER / Compacting Assignment
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Compacting Assignment
 	 *    Assignments can be formatted asymmetrically, for example 'int x= 2;', when Normal, a space
 	 *    is inserted before the assignment operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.style.assignment"
 	 *     - possible values:   { "compact", "normal" }
 	 *     - default:           "normal"
 	 * 
-	 * FORMATTER / Defining Indentation Character
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Defining Indentation Character
 	 *    Either choose to indent with tab characters or spaces
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.char"
 	 *     - possible values:   { "tab", "space" }
 	 *     - default:           "tab"
 	 * 
-	 * FORMATTER / Defining Space Indentation Length
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Defining Space Indentation Length
 	 *    When using spaces, set the amount of space characters to use for each 
 	 *    indentation mark.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:	"&lt;n&gt;", where n is a positive integer
 	 *     - default:           "4"
 	 * 
-	 * FORMATTER / Inserting space in cast expression
+	 * DEPRECATED SEE DefaultCodeFormatterOptions: Inserting space in cast expression
 	 *    When Insert, a space is added between the type and the expression in a cast expression.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.space.castexpression"
 	 *     - possible values:   { "insert", "do not insert" }
@@ -2462,7 +2462,7 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "disabled"
 	 * 
 	 * CODEASSIST / Activate Deprecation Sensitive Completion
-	 *    When active, completion doesn't show deprecated members and types.
+	 *    When enabled, completion doesn't propose deprecated members and types.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.deprecationCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
@@ -2531,19 +2531,22 @@ public final class JavaCore extends Plugin {
 	 *     - default:           ""
 	 * 
 	 * CODEASSIST / Activate Forbidden Reference Sensitive Completion
-	 *    When active, completion doesn't show that have forbidden reference.
+	 *    When enabled, completion doesn't propose elements which match a
+  	 *    forbidden reference rule.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
 	 * CODEASSIST / Activate Discouraged Reference Sensitive Completion
-	 *    When active, completion doesn't show that have discouraged reference.
+	 *    When enabled, completion doesn't propose elements which match a
+  	 *    discouraged reference rule.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 *     
 	 * CODEASSIST / Activate Camel Case Sensitive Completion
-	 *    When active, completion show proposals whose name match to the CamelCase pattern.
+	 *    When enabled, completion shows proposals whose name match the CamelCase 
+	 *    pattern.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
