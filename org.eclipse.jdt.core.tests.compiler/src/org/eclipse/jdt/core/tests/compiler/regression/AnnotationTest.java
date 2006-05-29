@@ -6565,4 +6565,83 @@ public void test199() {
 		},
 		"");
 }
+// JLS 3 - 9.6: cannot override Object's methods
+public void test200() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"@interface X {\n" + 
+			"  int clone();\n" + 
+			"  String finalize();\n" + 
+			"  boolean getClass();\n" + 
+			"  long notify();\n" + 
+			"  double notifyAll();\n" + 
+			"  float wait();\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int clone();\n" + 
+		"	    ^^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.clone()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	String finalize();\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.finalize()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	boolean getClass();\n" + 
+		"	        ^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.getClass()\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	long notify();\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.notify()\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	double notifyAll();\n" + 
+		"	       ^^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.notifyAll()\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	float wait();\n" + 
+		"	      ^^^^^^\n" + 
+		"The annotation type X cannot override the method Object.wait()\n" + 
+		"----------\n");
+}
+//JLS 3 - 9.6: cannot override Annotation's methods
+public void test201() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"@interface X {\n" + 
+			"  char hashCode();\n" + 
+			"  int annotationType();\n" + 
+			"  Class toString();\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	char hashCode();\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Annotation.hashCode()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	int annotationType();\n" + 
+		"	    ^^^^^^^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Annotation.annotationType()\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	Class toString();\n" + 
+		"	^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	Class toString();\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The annotation type X cannot override the method Annotation.toString()\n" + 
+		"----------\n");
+}
 }
