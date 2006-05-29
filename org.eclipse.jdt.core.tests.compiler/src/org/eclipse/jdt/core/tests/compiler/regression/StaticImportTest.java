@@ -1629,4 +1629,30 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+	// names potential confusion
+	public void test044() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static p.X.B.E;\n" + 
+				"import static p.X.B.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static class Y {\n" + 
+				"    public enum E { FOO; }\n" + 
+				"    public static Object E() { return null; }\n" + 
+				"    public enum F { FOO; }\n" + 
+				"    public static Object F() { return null; }\n" + 
+				"  }\n" + 
+				"  public static class B extends Y {}\n" + 
+				"  Object f1 = E.FOO;\n" + 
+				"  Object f2 = E();\n" + 
+				"  Object f3 = F.FOO;\n" + 
+				"  Object f4 = F();\n" + 
+				"}\n",
+			},
+			""
+		);
+	}
 }
