@@ -228,6 +228,33 @@ public void test010() {
 	options,
 	null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144413
+public void test011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    public void test() {\n" + 
+			"        int ch;\n" + 
+			"        if (ch == -1);\n" +
+			"    }\n" + 
+			"    public void test2() {\n" + 
+			"        int ch;\n" + 
+			"        ch++;\n" +
+			"    }\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (ch == -1);\n" + 
+			"	    ^^\n" + 
+			"The local variable ch may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	ch++;\n" + 
+			"	^^\n" + 
+			"The local variable ch may not have been initialized\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return LocalVariableTest.class;
 }
