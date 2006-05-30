@@ -208,7 +208,10 @@ public int numberOfDifferentLocals() {
 						return result;
 					}
 				} else {
-					result++;
+					// locals at the same location are not equals - this has to be a full frame
+					result = Integer.MAX_VALUE;
+					this.numberOfDifferentLocals = result;
+					return result;						
 				}
 				indexInPrevLocals++;
 				continue currentLocalsLoop;

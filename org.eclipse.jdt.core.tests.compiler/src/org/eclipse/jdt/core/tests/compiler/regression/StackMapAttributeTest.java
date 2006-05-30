@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 7 };
+//		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -816,6 +816,95 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"      Stack map table: number of frames 2\n" + 
 				"        [pc: 21, full, stack: {uninitialized(8), uninitialized(8)}, locals: {X, int}]\n" + 
 				"        [pc: 23, full, stack: {uninitialized(8), uninitialized(8), java.lang.String}, locals: {X, int}]\n";
+			
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	
+	public void test008() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	String s;\n" + 
+					"	X() {\n" + 
+					"        int i = 0;\n" + 
+					"        if (s == null) {\n" + 
+					"        	System.out.print(\"PASSED\");\n" + 
+					"        } else {\n" + 
+					"        	System.out.print(\"FAILED\");\n" + 
+					"        }\n" + 
+					"        System.out.print(\"DONE\" + i);\n" + 
+					"	}\n" + 
+					"    public static void main(String argv[]) {\n" + 
+					"    	new X();\n" + 
+					"    }\n" + 
+					"}",
+				},
+				"PASSEDDONE0");
+				
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String actualOutput = null;
+			try {
+				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+				actualOutput =
+					disassembler.disassemble(
+						classFileBytes,
+						"\n",
+						ClassFileBytesDisassembler.DETAILED); 
+			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e) {
+				assertTrue("IOException", false);
+			}
+			
+			String expectedOutput = 
+				"  // Method descriptor #8 ()V\n" + 
+				"  // Stack: 4, Locals: 2\n" + 
+				"  X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [10]\n" + 
+				"     4  iconst_0\n" + 
+				"     5  istore_1 [i]\n" + 
+				"     6  aload_0 [this]\n" + 
+				"     7  getfield X.s : java.lang.String [12]\n" + 
+				"    10  ifnonnull 24\n" + 
+				"    13  getstatic java.lang.System.out : java.io.PrintStream [14]\n" + 
+				"    16  ldc <String \"PASSED\"> [20]\n" + 
+				"    18  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" + 
+				"    21  goto 32\n" + 
+				"    24  getstatic java.lang.System.out : java.io.PrintStream [14]\n" + 
+				"    27  ldc <String \"FAILED\"> [28]\n" + 
+				"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" + 
+				"    32  getstatic java.lang.System.out : java.io.PrintStream [14]\n" + 
+				"    35  new java.lang.StringBuilder [30]\n" + 
+				"    38  dup\n" + 
+				"    39  ldc <String \"DONE\"> [32]\n" + 
+				"    41  invokespecial java.lang.StringBuilder(java.lang.String) [34]\n" + 
+				"    44  iload_1 [i]\n" + 
+				"    45  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [36]\n" + 
+				"    48  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [40]\n" + 
+				"    51  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" + 
+				"    54  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"        [pc: 4, line: 4]\n" + 
+				"        [pc: 6, line: 5]\n" + 
+				"        [pc: 13, line: 6]\n" + 
+				"        [pc: 24, line: 8]\n" + 
+				"        [pc: 32, line: 10]\n" + 
+				"        [pc: 54, line: 11]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 55] local: this index: 0 type: X\n" + 
+				"        [pc: 6, pc: 55] local: i index: 1 type: int\n" + 
+				"      Stack map table: number of frames 2\n" + 
+				"        [pc: 24, full, stack: {}, locals: {X, int}]\n" + 
+				"        [pc: 32, same]\n";
 			
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
