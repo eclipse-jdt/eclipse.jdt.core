@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
 import org.eclipse.jdt.core.compiler.PreReconcileCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreReconcileCompilationResult;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -204,6 +205,11 @@ public class AptCompilationParticipant extends CompilationParticipant
 		if (!AptConfig.isEnabled(project)) {
 			return;
 		}		
+		
+		// There is a race condition in the JDT that allows
+		// stale data to occasionally show up in the project cache
+		((JavaProject)project).resetCaches();
+		
 		// setup the classpath and make sure the generated source folder is on disk.
 		AptPlugin.getAptProject(project).compilationStarted();
 	}

@@ -213,7 +213,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 	class TestLocationProc extends AbstractGenericProcessor {
 		boolean called;
 
-		public void process() {
+		public void _process() {
 			called = true;
 			assertTrue(decls.size() == 1);
 			
