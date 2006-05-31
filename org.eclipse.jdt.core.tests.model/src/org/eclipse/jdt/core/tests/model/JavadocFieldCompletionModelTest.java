@@ -35,11 +35,18 @@ public static Test suite() {
 	return buildModelTestSuite(JavadocFieldCompletionModelTest.class);
 }
 
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelCompletionTests#setUp()
+ */
+protected void setUp() throws Exception {
+	super.setUp();
+	setUpProjectOptions(CompilerOptions.VERSION_1_4); // default compliance
+}
+
 /**
  * @category Tests for tag names completion
  */
 public void test001() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields;\n" +
 		"public class Test {\n" +
@@ -183,7 +190,6 @@ public void test007() throws JavaModelException {
  * @category Tests for types completion
  */
 public void test010() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 
@@ -200,7 +206,6 @@ public void test010() throws JavaModelException {
 }
 
 public void test011() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 
@@ -218,7 +223,6 @@ public void test011() throws JavaModelException {
 }
 
 public void test012() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 
@@ -236,7 +240,6 @@ public void test012() throws JavaModelException {
 }
 
 public void test013() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 
@@ -254,7 +257,6 @@ public void test013() throws JavaModelException {
 }
 
 public void test014() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 
@@ -273,7 +275,6 @@ public void test014() throws JavaModelException {
 }
 
 public void test015() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
 		"package javadoc.fields.tags;\n" + 
 		"public class BasicTestFields {\n" + 

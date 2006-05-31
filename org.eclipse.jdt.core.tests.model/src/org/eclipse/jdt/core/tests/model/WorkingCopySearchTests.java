@@ -316,7 +316,6 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null
 			);
-			this.discard = false;
 			assertSearchResults(
 				"Unexpected all type names",
 				"p2.A2\n" + 

@@ -582,7 +582,7 @@ public void testBug75816() throws CoreException {
  * Bug 77093: [search] No references found to method with member type argument
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=77093"
  */
-public void testBug77093constructor() throws CoreException {
+private void setUpBug77093() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b77093/X.java",
 		"package b77093;\n" + 
@@ -602,25 +602,26 @@ public void testBug77093constructor() throws CoreException {
 		"		for (int i=0; i<z_arrays.length; i++)\n" + 
 		"			foo(z_arrays[i]);\n" + 
 		"	}\n" + 
-		"}");
+		"}"
+	);
+}
+public void testBug77093constructor() throws CoreException {
+	setUpBug77093();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("X", new String[] {"[[QZ;"});
 	// Search for constructor declarations and references
 	search(method, ALL_OCCURRENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b77093/X.java b77093.X() [this(new Z[10][])] EXACT_MATCH\n"+
 		"src/b77093/X.java b77093.X(Z[][]) [X] EXACT_MATCH"
 	);
 }
 public void testBug77093field() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug77093();
 	IType type = workingCopies[0].getType("X");
 	IField field = type.getField("z_arrays");
 	// Search for field declarations and references
 	search(field, ALL_OCCURRENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b77093/X.java b77093.X.z_arrays [z_arrays] EXACT_MATCH\n" +
 		"src/b77093/X.java b77093.X(Z[][]) [z_arrays] EXACT_MATCH\n" + 
@@ -629,8 +630,7 @@ public void testBug77093field() throws CoreException {
 	);
 }
 public void testBug77093method() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug77093();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"[QZ;"});
 	search(method, ALL_OCCURRENCES);
@@ -662,6 +662,7 @@ public void testBug77388() throws CoreException {
 		"src/b77388/Test.java void b77388.Test.run() [new Test(1, 2)] EXACT_MATCH"
 	);
 }
+
 /**
  * Bug 78082: [1.5][search] FieldReferenceMatch in static import should not include qualifier
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=78082"
@@ -762,15 +763,25 @@ public void testBug79378() throws CoreException {
 	IMethod[] methods = workingCopies[0].getType("Test").getMethods();
 	assertEquals("Invalid number of methods", 3, methods.length);
 	search(methods[0], REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b79378/A.java void b79378.Test.call() [foo79378(s, exceptions)] POTENTIAL_MATCH"
 	);
 }
 public void testBug79378b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79378/A.java",
+		"package b79378;\n" + 
+		"public class Test {\n" + 
+		"	void foo79378(String s, RuntimeException[] exceptions) {}\n" + 
+		"	void foo79378(RuntimeException[] exceptions) {}\n" + 
+		"	void call() {\n" + 
+		"		String s= null; \n" + 
+		"		Exception[] exceptions= null;\n" + 
+		"		foo79378(s, exceptions);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 	IMethod[] methods = workingCopies[0].getType("Test").getMethods();
 	assertEquals("Invalid number of methods", 3, methods.length);
 	search(methods[1], REFERENCES);
@@ -788,18 +799,24 @@ public void testBug79803() throws CoreException {
 		"class A<A> {\n" + 
 		"    A a;\n" + 
 		"    b79803.A pa= new b79803.A();\n" + 
-		"}\n"	);
+		"}\n"	
+	);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES, ERASURE_RULE);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH\n" + 
 		"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH"
 	);
 }
 public void testBug79803string() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79803/A.java",
+		"package b79803;\n" + 
+		"class A<A> {\n" + 
+		"    A a;\n" + 
+		"    b79803.A pa= new b79803.A();\n" + 
+		"}\n"	
+	);
 	search("A", TYPE, REFERENCES);
 	assertSearchResults(
 		"src/b79803/A.java b79803.A.a [A] EXACT_MATCH\n" + 
@@ -832,14 +849,28 @@ public void testBug79860() throws CoreException {
 		true);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b79860/X.java b79860.X [A] EXACT_MATCH"
 	);
 }
 public void testBug79860string() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	workingCopies = new ICompilationUnit[2];
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79860/X.java",
+		"package b79860;\n" + 
+		"public class X<T extends A> { }\n" + 
+		"class A { }",
+		owner,
+		true);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b79860/Y.java",
+		"package b79860;\n" + 
+		"public class Y<T extends B&I1&I2&I3> { }\n" + 
+		"class B { }\n" + 
+		"interface I1 {}\n" + 
+		"interface I2 {}\n" + 
+		"interface I3 {}\n",
+		owner,
+		true);
 	search("I?", TYPE, REFERENCES);
 	assertSearchResults(
 		"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" + 
@@ -852,7 +883,7 @@ public void testBug79860string() throws CoreException {
  * Bug 79990: [1.5][search] Search doesn't find type reference in type parameter bound
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79990"
  */
-public void testBug79990() throws CoreException {
+private void setUpBug79990() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79990/Test.java",
 		"package b79990;\n" + 
@@ -864,29 +895,27 @@ public void testBug79990() throws CoreException {
 		"    public void first(Exception num) {}\n" + 
 		"    public void second(Exception t) {}\n" + 
 		"}\n"
-	);
+	);}
+public void testBug79990() throws CoreException {
+	setUpBug79990();
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b79990/Test.java void b79990.Test.first(Exception) [first] EXACT_MATCH\n" + 
 		"src/b79990/Test.java void b79990.Sub.first(Exception) [first] EXACT_MATCH"
 	);
 }
 public void testBug79990b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug79990();
 	IMethod method = workingCopies[0].getType("Test").getMethods()[1];
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" + 
 		"src/b79990/Test.java void b79990.Sub.second(Exception) [second] EXACT_MATCH"
 	);
 }
 public void testBug79990c() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug79990();
 	IMethod method = workingCopies[0].getType("Test").getMethods()[1];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
@@ -942,7 +971,7 @@ public void testBug80084() throws CoreException, JavaModelException {
  * Bug 80194: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80194"
  */
-public void testBug80194() throws CoreException, JavaModelException {
+private void setUpBug80194() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80194/Test.java",
 		"package b80194;\n" + 
@@ -960,30 +989,28 @@ public void testBug80194() throws CoreException, JavaModelException {
 		"	void doSomething(final boolean flag) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug80194() throws CoreException, JavaModelException {
+	setUpBug80194();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("doSomething", new String[] { "QMap<QString;QObject;>;" } );
 	search(method, REFERENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH"
 	);
 }
 public void testBug80194b() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80194();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("doSomething", new String[] { "QMap<QString;QObject;>;", "Z" } );
 	search(method, REFERENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH"
 	);
 }
 public void testBug80194string1() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80194();
 	search("doSomething(boolean)", METHOD, ALL_OCCURRENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
@@ -991,10 +1018,8 @@ public void testBug80194string1() throws CoreException, JavaModelException {
 	);
 }
 public void testBug80194string2() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80194();
 	search("doSomething(Map<String,Object>)", METHOD, ALL_OCCURRENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
@@ -1002,8 +1027,7 @@ public void testBug80194string2() throws CoreException, JavaModelException {
 	);
 }
 public void testBug80194string3() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80194();
 	search("doSomething(Map<String,Object>,boolean)", METHOD, ALL_OCCURRENCES);
 	assertSearchResults(
 		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH\n" + 
@@ -1050,7 +1074,7 @@ public void testBug80223() throws CoreException {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778"
  */
 // Methods
-public void testBug80264_Methods() throws CoreException {
+private void setUpBug80264_Methods() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Methods.java",
 		"package b80264;\n" + 
@@ -1067,11 +1091,13 @@ public void testBug80264_Methods() throws CoreException {
 		"    Methods covariant() { return null; }\n" + 
 		"}\n"
 	);
+}
+public void testBug80264_Methods() throws CoreException {
+	setUpBug80264_Methods();
 	IType type = workingCopies[0].getType("Methods");
 	IMethod[] methods = type.getMethods();
 	search(methods[0], DECLARATIONS);
 	search(methods[1], DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
 		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
@@ -1080,13 +1106,11 @@ public void testBug80264_Methods() throws CoreException {
 	);
 }
 public void testBug80264_MethodsIgnoreDeclaringType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Methods();
 	IType type = workingCopies[0].getType("Methods");
 	IMethod[] methods = type.getMethods();
 	search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	search(methods[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
 		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
@@ -1096,13 +1120,11 @@ public void testBug80264_MethodsIgnoreDeclaringType() throws CoreException, Java
 	);
 }
 public void testBug80264_MethodsIgnoreReturnType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Methods();
 	IType type = workingCopies[0].getType("Methods");
 	IMethod[] methods = type.getMethods();
 	search(methods[0], DECLARATIONS|IGNORE_RETURN_TYPE);
 	search(methods[1], DECLARATIONS|IGNORE_RETURN_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
 		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
@@ -1111,8 +1133,7 @@ public void testBug80264_MethodsIgnoreReturnType() throws CoreException, JavaMod
 	);
 }
 public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Methods();
 	IType type = workingCopies[0].getType("Methods");
 	IMethod[] methods = type.getMethods();
 	search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
@@ -1127,7 +1148,7 @@ public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaMode
 	);
 }
 // Classes
-public void testBug80264_Classes() throws CoreException {
+private void setUpBug80264_Classes() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Classes.java",
 		"package b80264;\n" + 
@@ -1141,19 +1162,19 @@ public void testBug80264_Classes() throws CoreException {
 		"    class Inner {}\n" + 
 		"}\n"
 	);
+}
+public void testBug80264_Classes() throws CoreException {
+	setUpBug80264_Classes();
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH"
 	);
 }
 public void testBug80264_ClassesIgnoreDeclaringType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Classes();
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS|IGNORE_DECLARING_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" + 
 		"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" + 
@@ -1161,18 +1182,15 @@ public void testBug80264_ClassesIgnoreDeclaringType() throws CoreException, Java
 	);
 }
 public void testBug80264_ClassesIgnoreReturnType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Classes();
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS|IGNORE_RETURN_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH"
 	);
 }
 public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Classes();
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
@@ -1182,7 +1200,7 @@ public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelExc
 	);
 }
 // Fields
-public void testBug80264_Fields() throws CoreException {
+private void setUpBug80264_Fields() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Fields.java",
 		"package b80264;\n" + 
@@ -1199,24 +1217,24 @@ public void testBug80264_Fields() throws CoreException {
 		"    Fields field2;\n" + 
 		"}\n"
 	);
+}
+public void testBug80264_Fields() throws CoreException {
+	setUpBug80264_Fields();
 	IType type = workingCopies[0].getType("Fields");
 	IField[] fields = type.getFields();
 	search(fields[0], DECLARATIONS);
 	search(fields[1], DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
 		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
 	);
 }
 public void testBug80264_FieldsIgnoreDeclaringType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Fields();
 	IType type = workingCopies[0].getType("Fields");
 	IField[] fields = type.getFields();
 	search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	search(fields[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
 		"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" + 
@@ -1226,21 +1244,18 @@ public void testBug80264_FieldsIgnoreDeclaringType() throws CoreException, JavaM
 	);
 }
 public void testBug80264_FieldsIgnoreReturnType() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Fields();
 	IType type = workingCopies[0].getType("Fields");
 	IField[] fields = type.getFields();
 	search(fields[0], DECLARATIONS|IGNORE_RETURN_TYPE);
 	search(fields[1], DECLARATIONS|IGNORE_RETURN_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
 		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
 	);
 }
 public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug80264_Fields();
 	IType type = workingCopies[0].getType("Fields");
 	IField[] fields = type.getFields();
 	search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
@@ -1325,21 +1340,34 @@ public void testBug81084a() throws CoreException, JavaModelException {
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
-		);
+	);
 	IType type = workingCopies[0].getType("Test").getType("Inner");
 	IField field1 = type.getField("fList1");
 	search(field1, REFERENCES);
 	IField field2 = type.getField("fList2");
 	search(field2, REFERENCES);
-	discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 	assertSearchResults(
 		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
 		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH"
 	);
 }
 public void testBug81084string() throws CoreException, JavaModelException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b81084a/Test.java",
+		"package b81084a;\n" + 
+		"class List<E> {}\n" + 
+		"public class Test {\n" + 
+		"	class Element{}\n" + 
+		"	static class Inner {\n" + 
+		"		private final List<Element> fList1;\n" + 
+		"		private final List<Test.Element> fList2;\n" + 
+		"		public Inner(List<Element> list) {\n" + 
+		"			fList1 = list;\n" + 
+		"			fList2 = list;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 	search("fList1", FIELD, REFERENCES);
 	search("fList2", FIELD, REFERENCES);
 	assertSearchResults(
@@ -1445,8 +1473,7 @@ public void testBug82088constructor() throws CoreException {
  * Bug 82208: [1.5][search][annot] Search for annotations misses references in default and values constructs
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=82208"
  */
-public void testBug82208_TYPE() throws CoreException {
-	resultCollector.showRule = true;
+private void setUpBug82208() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82208/Test.java",
 		"package b82208;\n" + 
@@ -1455,8 +1482,11 @@ public void testBug82208_TYPE() throws CoreException {
 		"@interface B82208_A {}\n" + 
 		"public class B82208 {}\n"
 	);
+}
+public void testBug82208_TYPE() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug82208();
 	search("B82208*", TYPE, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
 		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
@@ -1466,50 +1496,40 @@ public void testBug82208_TYPE() throws CoreException {
 }
 public void testBug82208_CLASS() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", CLASS, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
 	);
 }
 public void testBug82208_INTERFACE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", INTERFACE, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH"
 	);
 }
 public void testBug82208_ENUM() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", ENUM, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH"
 	);
 }
 public void testBug82208_ANNOTATION_TYPE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", ANNOTATION_TYPE, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH"
 	);
 }
 public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", CLASS_AND_INTERFACE, ALL_OCCURRENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
 		"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
@@ -1517,8 +1537,7 @@ public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
 }
 public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug82208();
 	search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
 	assertSearchResults(
 		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
@@ -1595,7 +1614,7 @@ public void testBug83012() throws CoreException {
  * Bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
  */
-public void testBug83230_Explicit() throws CoreException {
+private void setUpBug83230_Explicit() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
@@ -1633,9 +1652,12 @@ public void testBug83230_Explicit() throws CoreException {
 		"	int min = Author.ageMin;\n" + 
 		"}\n"
 	);
+}
+public void testBug83230_Explicit() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug83230_Explicit();
 	IMethod method = selectMethod(workingCopies[0], "authorName");
 	search(method, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b83230/Test.java b83230.Test [authorName] EXACT_MATCH\n" + 
 		"src/b83230/Test.java b83230.Test.min [authorName] EXACT_MATCH\n" + 
@@ -1648,22 +1670,18 @@ public void testBug83230_Explicit() throws CoreException {
 }
 public void testBug83230_Explicit01() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83230_Explicit();
 	IMethod method = selectMethod(workingCopies[0], "authorName");
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b83230/Test.java String[] b83230.Author.authorName() [authorName] EXACT_MATCH"
 	);
 }
 public void testBug83230_Explicit02() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83230_Explicit();
 	IType type = selectType(workingCopies[0], "Address");
 	search(type, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH\n" + 
 		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH"
@@ -1671,30 +1689,25 @@ public void testBug83230_Explicit02() throws CoreException {
 }
 public void testBug83230_Explicit03() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83230_Explicit();
 	IMethod method = selectMethod(workingCopies[0], "foo");
 	search(method, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [foo(obj)] EXACT_MATCH"
 	);
 }
 public void testBug83230_Explicit04() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83230_Explicit();
 	IField field = selectField(workingCopies[0], "city");
 	search(field, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [city] EXACT_MATCH"
 	);
 }
 public void testBug83230_Explicit05() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83230_Explicit();
 	IField field = selectField(workingCopies[0], "ageMin");
 	search(field, REFERENCES);
 	assertSearchResults(
@@ -1779,7 +1792,7 @@ public void testBug83304() throws CoreException {
 		"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH"
 	);
 }
-public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
+private void setUpBug83304_TypeParameterizedElementPattern() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Types.java",
@@ -1793,10 +1806,13 @@ public void testBug83304_TypeParameterizedElementPattern() throws CoreException 
 		"	public Generic<? extends Throwable> gen_thr;\n" + 
 		"	public Generic<? super RuntimeException> gen_run;\n" + 
 		"}\n"
-		);
+	);
+}
+public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug83304_TypeParameterizedElementPattern();
 	IType type = selectType(workingCopies[0], "Generic", 4);
 	search(type, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 		"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
@@ -1810,11 +1826,9 @@ public void testBug83304_TypeParameterizedElementPattern() throws CoreException 
 }
 public void testBug83304_TypeGenericElementPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_TypeParameterizedElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g1.t.s.def", "Generic.class").getType();
 	search(type, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 		"src/b83304/Types.java b83304.Types.gen [Generic] ERASURE_RAW_MATCH\n" + 
@@ -1828,8 +1842,7 @@ public void testBug83304_TypeGenericElementPattern() throws CoreException {
 }
 public void testBug83304_TypeStringPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_TypeParameterizedElementPattern();
 	search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
 		"src/b83304/Types.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
@@ -1842,7 +1855,7 @@ public void testBug83304_TypeStringPattern() throws CoreException {
 		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
 	);
 }
-public void testBug83304_MethodParameterizedElementPattern() throws CoreException {
+private void setUpBug83304_MethodParameterizedElementPattern() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Methods.java",
@@ -1857,10 +1870,13 @@ public void testBug83304_MethodParameterizedElementPattern() throws CoreExceptio
 		"		gs.<String>generic(\"\");\n" + 
 		"	}\n" + 
 		"}\n"
-		);
+	);
+}
+public void testBug83304_MethodParameterizedElementPattern() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug83304_MethodParameterizedElementPattern();
 	IMethod method = selectMethod(workingCopies[0], "generic", 2);
 	search(method, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
@@ -1869,12 +1885,10 @@ public void testBug83304_MethodParameterizedElementPattern() throws CoreExceptio
 }
 public void testBug83304_MethodGenericElementPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_MethodParameterizedElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.m.def", "Single.class").getType();
 	IMethod method = type.getMethod("generic", new String[] { "TU;" });
 	search(method, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
@@ -1883,8 +1897,7 @@ public void testBug83304_MethodGenericElementPattern() throws CoreException {
 }
 public void testBug83304_MethodStringPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_MethodParameterizedElementPattern();
 	search("<Exception>generic", METHOD, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
@@ -1892,7 +1905,7 @@ public void testBug83304_MethodStringPattern() throws CoreException {
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
 	);
 }
-public void testBug83304_ConstructorGenericElementPattern() throws CoreException {
+private void setUpBug83304_ConstructorGenericElementPattern() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Constructors.java",
@@ -1906,10 +1919,13 @@ public void testBug83304_ConstructorGenericElementPattern() throws CoreException
 		"		new <String>Single<String>(\"\", \"\");\n" + 
 		"	}\n" + 
 		"}\n"
-		);
+	);
+}
+public void testBug83304_ConstructorGenericElementPattern() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug83304_ConstructorGenericElementPattern();
 	IMethod method = selectMethod(workingCopies[0], "Single", 3);
 	search(method, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
@@ -1918,12 +1934,10 @@ public void testBug83304_ConstructorGenericElementPattern() throws CoreException
 }
 public void testBug83304_ConstructorParameterizedElementPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_ConstructorGenericElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.c.def", "Single.class").getType();
 	IMethod method = type.getMethod("Single", new String[] { "TT;", "TU;" });
 	search(method, REFERENCES, ERASURE_RULE);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
@@ -1932,8 +1946,7 @@ public void testBug83304_ConstructorParameterizedElementPattern() throws CoreExc
 }
 public void testBug83304_ConstructorStringPattern() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug83304_ConstructorGenericElementPattern();
 	search("<Exception>Single", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
@@ -1948,8 +1961,7 @@ public void testBug83304_ConstructorStringPattern() throws CoreException {
  * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
  */
-public void testBug83804_Type() throws CoreException {
-	resultCollector.showInsideDoc = true;
+private void setUpBug83804_Type() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83804/package-info.java",
 		"/**\n" + 
@@ -1976,8 +1988,11 @@ public void testBug83804_Type() throws CoreException {
 		"	public void foo() {}\n" + 
 		"}\n"
 	);
+}
+public void testBug83804_Type() throws CoreException {
+	resultCollector.showInsideDoc = true;
+	setUpBug83804_Type();
 	IType type = workingCopies[1].getType("Test");
-	this.discard = false;
 	search(type, REFERENCES);
 	assertSearchResults(
 		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
@@ -1989,11 +2004,9 @@ public void testBug83804_Type() throws CoreException {
 }
 public void testBug83804_Method() throws CoreException {
 	resultCollector.showInsideDoc = true;
-	assertNotNull("Problem in tests processing", workingCopies);
-	assertEquals("Problem in tests processing", 2, workingCopies.length);
+	setUpBug83804_Type();
 	IMethod[] methods = workingCopies[1].getType("Test").getMethods();
 	assertEquals("Invalid number of methods", 1, methods.length);
-	this.discard = false;
 	search(methods[0], REFERENCES);
 	assertSearchResults(
 		"src/b83804/package-info.java [foo()] EXACT_MATCH INSIDE_JAVADOC"
@@ -2001,8 +2014,7 @@ public void testBug83804_Method() throws CoreException {
 }
 public void testBug83804_Field() throws CoreException {
 	resultCollector.showInsideDoc = true;
-	assertNotNull("Problem in tests processing", workingCopies);
-	assertEquals("Problem in tests processing", 2, workingCopies.length);
+	setUpBug83804_Type();
 	IField[] fields = workingCopies[1].getType("Test").getFields();
 	assertEquals("Invalid number of fields", 1, fields.length);
 	search(fields[0], REFERENCES);
@@ -2039,15 +2051,18 @@ public void testBug83388() throws CoreException {
 		resultCollector,
 		null
 	);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b83388/R.java b83388 [No source] EXACT_MATCH"
 	);
 }
 public void testBug83388b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
+		"package b83388;\n" + 
+		"import b83388.*;\n" + 
+		"public class R {}\n"
+	);
 	IPackageDeclaration packageDeclaration = workingCopies[0].getPackageDeclaration("pack");
 	assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), packageDeclaration);
 	SearchPattern pattern = SearchPattern.createPattern(
@@ -2130,7 +2145,7 @@ public void testBug83716() throws CoreException {
  * Bug 84100: [1.5][search] Search for varargs method not finding match
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84100"
  */
-public void testBug84100() throws CoreException {
+private void setUpBug84100() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84100/X.java",
@@ -2156,32 +2171,31 @@ public void testBug84100() throws CoreException {
 		"		x.foo(\"\", 3, \"\", \"\");\n" + 
 		"	}\n" + 
 		"}\n"
-		);
+	);
+}
+public void testBug84100() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug84100();
 	IMethod method = selectMethod(workingCopies[0], "foo", 1);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84100/Z.java void b84100.Z.foo() [foo()] EXACT_MATCH"
 	);
 }
 public void testBug84100b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84100();
 	IMethod method = selectMethod(workingCopies[0], "foo", 2);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\")] EXACT_MATCH"
 	);
 }
 public void testBug84100c() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84100();
 	IMethod method = selectMethod(workingCopies[0], "foo", 3);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\")] EXACT_MATCH\n" + 
 		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\", null)] EXACT_MATCH"
@@ -2189,19 +2203,16 @@ public void testBug84100c() throws CoreException {
 }
 public void testBug84100d() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84100();
 	IMethod method = selectMethod(workingCopies[0], "foo", 4);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84100/Z.java void b84100.Z.foo() [foo(3, \"\", \"\")] EXACT_MATCH"
 	);
 }
 public void testBug84100e() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84100();
 	IMethod method = selectMethod(workingCopies[0], "foo", 5);
 	search(method, REFERENCES);
 	assertSearchResults(
@@ -2238,7 +2249,7 @@ public void testBug84121() throws CoreException {
  * Bug 84724: [1.5][search] Search for varargs method not finding match
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84724"
  */
-public void testBug84724() throws CoreException {
+private void setUpBug84724() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84724/X.java",
@@ -2262,21 +2273,22 @@ public void testBug84724() throws CoreException {
 		"		new X(\"\", 3, \"\", \"\");\n" + 
 		"	}\n" + 
 		"}\n"
-		);
+	);
+}
+public void testBug84724() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug84724();
 	IMethod method = selectMethod(workingCopies[0], "X", 2);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84724/Z.java void b84724.Z.foo() [new X(\"\")] EXACT_MATCH"
 	);
 }
 public void testBug84724b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84724();
 	IMethod method = selectMethod(workingCopies[0], "X", 3);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84724/Z.java void b84724.Z.foo() [new X()] EXACT_MATCH\n" + 
 		"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\")] EXACT_MATCH\n" + 
@@ -2285,19 +2297,16 @@ public void testBug84724b() throws CoreException {
 }
 public void testBug84724c() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84724();
 	IMethod method = selectMethod(workingCopies[0], "X", 4);
 	search(method, REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84724/Z.java void b84724.Z.foo() [new X(3, \"\", \"\")] EXACT_MATCH"
 	);
 }
 public void testBug84724d() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug84724();
 	IMethod method = selectMethod(workingCopies[0], "X", 5);
 	search(method, REFERENCES);
 	assertSearchResults(
@@ -2309,7 +2318,7 @@ public void testBug84724d() throws CoreException {
  * Bug 84727: [1.5][search] String pattern search does not work with multiply nested types
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84727"
  */
-public void testBug84727() throws CoreException {
+private void setUpBug84727() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84727/A.java",
@@ -2334,19 +2343,21 @@ public void testBug84727() throws CoreException {
 		"public interface List<E> {}\n" + 
 		"interface Set<E> {}\n" + 
 		"class ArrayList<E> implements List<E> {}"
-		);
+	);
+}
+public void testBug84727() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug84727();
 	IMethod[] methods = workingCopies[0].getType("A").getMethods();
 	assertEquals("Invalid number of methods", 2, methods.length);
 	search(methods[0], REFERENCES);
-	discard = false; // use working copy for next test
 	assertSearchResults(
 		"src/b84727/X.java void b84727.X.foo() [getXYZ(new ArrayList())] EXACT_MATCH"
 	);
 }
 public void testBug84727b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug84727();
 	IMethod[] methods = workingCopies[0].getType("A").getMethods();
 	assertEquals("Invalid number of methods", 2, methods.length);
 	search(methods[1], REFERENCES);
@@ -2456,7 +2467,7 @@ public void testBug86293() throws CoreException {
  * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
  */
-public void testBug86380_Type() throws CoreException {
+private void setUpBug86380() throws CoreException {
 	resultCollector.showInsideDoc = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
@@ -2473,9 +2484,12 @@ public void testBug86380_Type() throws CoreException {
 		"	public void foo() {}\n" + 
 		"}\n"
 	);
+}
+public void testBug86380_Type() throws CoreException {
+	resultCollector.showInsideDoc = true;
+	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IType type = unit.getType("Annot");
-	this.discard = false;
 	search(type, REFERENCES);
 	assertSearchResults(
 		"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
@@ -2486,12 +2500,10 @@ public void testBug86380_Type() throws CoreException {
 }
 public void testBug86380_Method() throws CoreException {
 	resultCollector.showInsideDoc = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IMethod[] methods = unit.getType("Annot").getMethods();
 	assertEquals("Invalid number of methods", 1, methods.length);
-	this.discard = false;
 	search(methods[0], REFERENCES);
 	assertSearchResults(
 		"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
@@ -2500,8 +2512,7 @@ public void testBug86380_Method() throws CoreException {
 }
 public void testBug86380_Field() throws CoreException {
 	resultCollector.showInsideDoc = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IField[] fields = unit.getType("Annot").getFields();
 	assertEquals("Invalid number of fields", 1, fields.length);
@@ -2597,17 +2608,15 @@ public void testBug88300() throws CoreException {
 		"        user.aMethod(new Object());\n" + 
 		"    }\n" + 
 		"}\n"
-		);
+	);
 	IType type = workingCopies[0].getType("SubClass");
 	search(type.getMethods()[1], REFERENCES);
-	discard = false; // keep working copies for next test
 	assertSearchResults(
 		"src/b88300/User.java void b88300.User.methodUsingSubClassMethod() [aMethod(new Object())] EXACT_MATCH"
 	);
 }
 public void testBug88300b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
 		"package b88300;\n" + 
 		"public class SubClass extends SuperClass {\n" + 
@@ -2615,6 +2624,22 @@ public void testBug88300b() throws CoreException {
 		"	}\n" + 
 		"	private void aMethod(String x) {\n" + 
 		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/SuperClass.java",
+		"package b88300;\n" + 
+		"public class SuperClass {\n" + 
+		"    public void aMethod(Object x) {\n" + 
+		"    }\n" + 
+		"}\n"
+		);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/User.java",
+		"package b88300;\n" + 
+		"public class User {\n" + 
+		"    public void methodUsingSubClassMethod() {\n" + 
+		"        SuperClass user = new SubClass();\n" + 
+		"        user.aMethod(new Object());\n" + 
+		"    }\n" + 
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("SubClass");
@@ -2689,15 +2714,21 @@ public void testBug89686() throws CoreException {
 	IType type = workingCopies[0].getType("Color");
 	IMethod method = type.getMethod("Color", new String[0]);
 	search(method, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b89686/A.java b89686.Color.RED [RED] EXACT_MATCH\n" + 
 		"src/b89686/A.java b89686.Color.GREEN [GREEN()] EXACT_MATCH"
 	);
 }
 public void testBug89686b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b89686/A.java",
+		"package b89686;\n" + 
+		"public enum Color {\n" + 
+		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" + 
+		"    Color() {}\n" + 
+		"    Color(int i) {}\n" + 
+		"}"
+	);
 	IType type = workingCopies[0].getType("Color");
 	IMethod method = type.getMethod("Color", new String[] { "I"} );
 	search(method, REFERENCES);
@@ -2862,7 +2893,7 @@ public void testBug91078() throws CoreException {
  * Bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
  */
-public void testBug92944_TYPE() throws CoreException {
+private void setUpBug92944() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b92944/Test.java",
@@ -2872,7 +2903,10 @@ public void testBug92944_TYPE() throws CoreException {
 		"@interface B92944_A {}\n" + 
 		"public class B92944 {}\n"
 	);
-	this.discard = false;
+}
+public void testBug92944_TYPE() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -2894,9 +2928,7 @@ public void testBug92944_TYPE() throws CoreException {
 }
 public void testBug92944_CLASS() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -2916,9 +2948,7 @@ public void testBug92944_CLASS() throws CoreException {
 }
 public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -2939,9 +2969,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 }
 public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -2962,9 +2990,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 }
 public void testBug92944_INTERFACE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -2983,9 +3009,7 @@ public void testBug92944_INTERFACE() throws CoreException {
 }
 public void testBug92944_ENUM() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -3004,9 +3028,7 @@ public void testBug92944_ENUM() throws CoreException {
 }
 public void testBug92944_ANNOTATION_TYPE() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
+	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -3178,10 +3200,8 @@ public void testBug94718() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95794"
  */
 public void testBug95794() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
-	IType type = workingCopies[0].getType("Test");
-	this.discard = false;
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
+	IType type = unit.getType("Test");
 	
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
@@ -3202,11 +3222,8 @@ public void testBug95794() throws CoreException {
 }
 public void testBug95794b() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
-	IType type = workingCopies[0].getType("Test").getType("Color");
-	this.discard = false;
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
+	IType type = unit.getType("Test").getType("Color");
 	
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
@@ -3227,10 +3244,8 @@ public void testBug95794b() throws CoreException {
 }
 public void testBug95794c() throws CoreException {
 	resultCollector.showRule = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
-	this.discard = false;
-	IField field = workingCopies[0].getType("Test").getType("Color").getField("WHITE");
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
+	IField field = unit.getType("Test").getType("Color").getField("WHITE");
 	
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
@@ -3293,15 +3308,24 @@ public void testBug96763() throws CoreException {
 	);
 	IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b96763/Test.java void b96763.Test.first(Exception) [first] EXACT_MATCH\n" + 
 		"src/b96763/Test.java void b96763.Sub.first(Exception) [first] EXACT_MATCH"
 	);
 }
 public void testBug96763b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
+		"package b96763;\n" + 
+		"class Test<T> {\n" + 
+		"    public void first(Exception num) {}\n" + 
+		"    public void second(T t) {}\n" + 
+		"}\n" + 
+		"class Sub extends Test<Exception> {\n" + 
+		"    public void first(Exception num) {}\n" + 
+		"    public void second(Exception t) {}\n" + 
+		"}\n"
+	);
 	IMethod method = workingCopies[0].getType("Sub").getMethods()[1];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
@@ -3610,15 +3634,29 @@ public void testBug98378() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
 	IMethod method = type.getMethod("length", new String[] {});
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type, this.wcOwner));
-	this.discard = false;
 	assertSearchResults(
 		jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
 		jclPath + " int java.lang.String.length() EXACT_MATCH"
 	);
 }
 public void testBug98378b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b98378/X.java",
+		"package b98378;\n" + 
+		"public class  X implements java.lang.CharSequence {\n" + 
+		"	public int length() {\n" + 
+		"		return 1;\n" + 
+		"	}\n" + 
+		"}"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b98378/Y.java",
+		"package b98378;\n" + 
+		"public class Y {\n" + 
+		"	public int length() {\n" + 
+		"		return -1;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 	String jclPath = getExternalJCLPathString("1.5");
 	IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
 	IMethod method = type.getMethod("length", new String[] {});
@@ -3682,14 +3720,29 @@ public void testBug99903_annotation() throws CoreException {
 	);
 	IType type = workingCopies[2].getType("Annot");
 	search(type, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b99903/package-info.java [Annot] EXACT_MATCH"
 	);
 }
 public void testBug99903_javadoc() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	workingCopies = new ICompilationUnit[3];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99903/package-info.java",
+		"/**\n" + 
+		" * @see Test\n" + 
+		" */\n" + 
+		"@Annot\n" + 
+		"package b99903;\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b99903/Test.java",
+		"package b99903;\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b99903/Annot.java",
+		"package b99903;\n" + 
+		"public @interface Annot {\n" + 
+		"}\n"
+	);
 	resultCollector.showInsideDoc = true;
 	IType type = workingCopies[1].getType("Test");
 	search(type, REFERENCES);
@@ -3716,15 +3769,23 @@ public void testBug100695() throws CoreException {
 	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, REFERENCES);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" + 
 		"src/b100695/Test.java b100695.Test() [foo] EXACT_MATCH"
 	);
 }
 public void testBug100695a() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
+		"package b100695;\n" + 
+		"public class Test {\n" + 
+		"	Class<Class>[] foo;\n" + 
+		"	Class<Class>[] bar = foo;\n" + 
+		"	Test() {\n" + 
+		"		foo = null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -3838,7 +3899,7 @@ public void testBug100695f() throws CoreException {
  * Bug 100772: [1.5][search] Search for declarations in hierarchy reports to many matches
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100772"
  */
-public void testBug100772_HierarchyScope_ClassAndSubclass01() throws CoreException {
+private void setUpBug100772_HierarchyScope_ClassAndSubclass() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 		"package b100772;\n" + 
@@ -3851,54 +3912,48 @@ public void testBug100772_HierarchyScope_ClassAndSubclass01() throws CoreExcepti
 		"    public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_HierarchyScope_ClassAndSubclass01() throws CoreException {
+	setUpBug100772_HierarchyScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_ClassAndSubclass02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_ClassAndSubclass03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_ClassAndSubclass04() throws CoreException {
-//	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_ClassAndSubclass05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
@@ -3906,7 +3961,7 @@ public void testBug100772_HierarchyScope_ClassAndSubclass05() throws CoreExcepti
 		"src/b100772/Test.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
-public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreException {
+private void setUpBug100772_HierarchyScope_InterfacesAndClass() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 		"package b100772;\n" + 
@@ -3924,10 +3979,12 @@ public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreExcep
 		"    public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreException {
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
@@ -3935,12 +3992,10 @@ public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreExcep
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
@@ -3948,67 +4003,56 @@ public void testBug100772_HierarchyScope_InterfacesAndClass02() throws CoreExcep
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass07() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_HierarchyScope_InterfacesAndClass08() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
@@ -4016,7 +4060,7 @@ public void testBug100772_HierarchyScope_InterfacesAndClass08() throws CoreExcep
 		"src/b100772/Test.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
-public void testBug100772_HierarchyScope_Complex01() throws CoreException {
+private void setUpBug100772_HierarchyScope_Complex() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 		"package b100772;\n" + 
@@ -4042,10 +4086,12 @@ public void testBug100772_HierarchyScope_Complex01() throws CoreException {
 		"	public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_HierarchyScope_Complex01() throws CoreException {
+	setUpBug100772_HierarchyScope_Complex();
 	IType type = workingCopies[0].getType("IX");
 	IMethod method = type.getMethod("foo", new String[] { "QU;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
@@ -4055,12 +4101,10 @@ public void testBug100772_HierarchyScope_Complex01() throws CoreException {
 	);
 }
 public void testBug100772_HierarchyScope_Complex02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_Complex();
 	IType type = workingCopies[0].getType("Z");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
@@ -4068,12 +4112,10 @@ public void testBug100772_HierarchyScope_Complex02() throws CoreException {
 	);
 }
 public void testBug100772_HierarchyScope_Complex03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_Complex();
 	IType type = workingCopies[0].getType("Z");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
@@ -4081,8 +4123,7 @@ public void testBug100772_HierarchyScope_Complex03() throws CoreException {
 	);
 }
 public void testBug100772_HierarchyScope_Complex04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug100772_HierarchyScope_Complex();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
@@ -4092,7 +4133,7 @@ public void testBug100772_HierarchyScope_Complex04() throws CoreException {
 		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH"
 	);
 }
-public void testBug100772_ProjectScope_ClassAndSubclass01() throws CoreException {
+private void setUpBug100772_ProjectScope_ClassAndSubclass() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 		"package b100772;\n" + 
@@ -4108,54 +4149,48 @@ public void testBug100772_ProjectScope_ClassAndSubclass01() throws CoreException
 		"    public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_ProjectScope_ClassAndSubclass01() throws CoreException {
+	setUpBug100772_ProjectScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_ClassAndSubclass02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug100772_ProjectScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_ClassAndSubclass03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug100772_ProjectScope_ClassAndSubclass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_ClassAndSubclass04() throws CoreException {
-//	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug100772_ProjectScope_ClassAndSubclass();
 	IType type = workingCopies[1].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_ClassAndSubclass05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+	setUpBug100772_ProjectScope_ClassAndSubclass();
 	IType type = workingCopies[1].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
@@ -4163,7 +4198,7 @@ public void testBug100772_ProjectScope_ClassAndSubclass05() throws CoreException
 		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
-public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreException {
+private void setUpBug100772_ProjectScope_InterfacesAndClass() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 		"package b100772;\n" + 
@@ -4187,10 +4222,12 @@ public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreExcepti
 		"    public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreException {
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
@@ -4198,12 +4235,10 @@ public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreExcepti
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
@@ -4211,24 +4246,20 @@ public void testBug100772_ProjectScope_InterfacesAndClass02() throws CoreExcepti
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
 		"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[1].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
@@ -4236,24 +4267,20 @@ public void testBug100772_ProjectScope_InterfacesAndClass04() throws CoreExcepti
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[1].getType("Sub");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" + 
 		"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[2].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
@@ -4261,20 +4288,17 @@ public void testBug100772_ProjectScope_InterfacesAndClass06() throws CoreExcepti
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass07() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[2].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
 		"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
 public void testBug100772_ProjectScope_InterfacesAndClass08() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug100772_ProjectScope_InterfacesAndClass();
 	IType type = workingCopies[2].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
@@ -4283,7 +4307,7 @@ public void testBug100772_ProjectScope_InterfacesAndClass08() throws CoreExcepti
 		"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
-public void testBug100772_ProjectScope_Complex01() throws CoreException {
+private void setUpBug100772_ProjectScope_Complex() throws CoreException {
 	workingCopies = new ICompilationUnit[6];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/X.java",
 		"package b100772;\n" + 
@@ -4324,10 +4348,12 @@ public void testBug100772_ProjectScope_Complex01() throws CoreException {
 		"	public void foo(Exception e) {}\n" + 
 		"}\n"
 	);
+}
+public void testBug100772_ProjectScope_Complex01() throws CoreException {
+	setUpBug100772_ProjectScope_Complex();
 	IType type = workingCopies[2].getType("IX");
 	IMethod method = type.getMethod("foo", new String[] { "QU;" });
 	search(method, DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
@@ -4337,12 +4363,10 @@ public void testBug100772_ProjectScope_Complex01() throws CoreException {
 	);
 }
 public void testBug100772_ProjectScope_Complex02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+	setUpBug100772_ProjectScope_Complex();
 	IType type = workingCopies[5].getType("Z");
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
@@ -4351,12 +4375,10 @@ public void testBug100772_ProjectScope_Complex02() throws CoreException {
 	);
 }
 public void testBug100772_ProjectScope_Complex03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+	setUpBug100772_ProjectScope_Complex();
 	IType type = workingCopies[5].getType("Z");
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b100772/IXX.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
 		"src/b100772/XX.java void b100772.XX.foo(Exception) [foo] EXACT_MATCH\n" + 
@@ -4365,8 +4387,7 @@ public void testBug100772_ProjectScope_Complex03() throws CoreException {
 	);
 }
 public void testBug100772_ProjectScope_Complex04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+	setUpBug100772_ProjectScope_Complex();
 	IType type = workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
@@ -4401,7 +4422,7 @@ public void testBug108088() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  */
 // Types search
-public void testBug110060_TypePattern01() throws CoreException {
+private void setUpBug110060_TypePattern() throws CoreException {
 	workingCopies = new ICompilationUnit[5];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
 		"package b110060;\n" + 
@@ -4432,8 +4453,10 @@ public void testBug110060_TypePattern01() throws CoreException {
 		"	AxxAyy axxayy;\n" + 
 		"}\n"
 	);
+}
+public void testBug110060_TypePattern01() throws CoreException {
+	setUpBug110060_TypePattern();
 	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
@@ -4443,10 +4466,8 @@ public void testBug110060_TypePattern01() throws CoreException {
 }
 
 public void testBug110060_TypePattern02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
 		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
@@ -4460,10 +4481,8 @@ public void testBug110060_TypePattern02() throws CoreException {
 }
 
 public void testBug110060_TypePattern03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AAx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH"
@@ -4471,10 +4490,8 @@ public void testBug110060_TypePattern03() throws CoreException {
 }
 
 public void testBug110060_TypePattern04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("Axx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
@@ -4482,10 +4499,8 @@ public void testBug110060_TypePattern04() throws CoreException {
 }
 
 public void testBug110060_TypePattern05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("Ax", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
 		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
@@ -4495,10 +4510,8 @@ public void testBug110060_TypePattern05() throws CoreException {
 }
 
 public void testBug110060_TypePattern06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("A*A*", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
 		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
@@ -4513,18 +4526,14 @@ public void testBug110060_TypePattern06() throws CoreException {
 }
 
 public void testBug110060_TypePattern07() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("aa", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_TypePattern08() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("aa", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
 		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
@@ -4534,10 +4543,8 @@ public void testBug110060_TypePattern08() throws CoreException {
 }
 
 public void testBug110060_TypePattern09() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
 		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
@@ -4551,18 +4558,14 @@ public void testBug110060_TypePattern09() throws CoreException {
 }
 
 public void testBug110060_TypePattern10() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AxAx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_TypePattern11() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AxxA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
@@ -4570,10 +4573,8 @@ public void testBug110060_TypePattern11() throws CoreException {
 }
 
 public void testBug110060_TypePattern12() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	search("AxXA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
@@ -4581,8 +4582,7 @@ public void testBug110060_TypePattern12() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames01() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4594,7 +4594,6 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4605,8 +4604,7 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4618,7 +4616,6 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4629,8 +4626,7 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4642,7 +4638,6 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4653,8 +4648,7 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4666,7 +4660,6 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4677,8 +4670,7 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4690,7 +4682,6 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4699,8 +4690,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4712,7 +4702,6 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA",
@@ -4720,8 +4709,7 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames07() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4733,7 +4721,6 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4742,8 +4729,7 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames08() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4755,7 +4741,6 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4764,8 +4749,7 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames09() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4777,7 +4761,6 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4786,8 +4769,7 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames10() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4799,7 +4781,6 @@ public void testBug110060_AllTypeNames10() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"",
@@ -4807,8 +4788,7 @@ public void testBug110060_AllTypeNames10() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames11() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4820,7 +4800,6 @@ public void testBug110060_AllTypeNames11() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"",
@@ -4828,8 +4807,7 @@ public void testBug110060_AllTypeNames11() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames12() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4841,7 +4819,6 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AA\n" + 
@@ -4850,8 +4827,7 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames13() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4863,7 +4839,6 @@ public void testBug110060_AllTypeNames13() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"",
@@ -4871,8 +4846,7 @@ public void testBug110060_AllTypeNames13() throws CoreException {
 }
 
 public void testBug110060_AllTypeNames14() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
@@ -4884,7 +4858,6 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
 	);
-	this.discard = false;
 	assertSearchResults(
 		"Unexpected all type names",
 		"",
@@ -4892,7 +4865,7 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 }
 
 // Constructor search
-public void testBug110060_ConstructorPattern01() throws CoreException {
+private void setUpBug110060_ConstructorPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[5];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
 		"package b110060;\n" + 
@@ -4927,8 +4900,10 @@ public void testBug110060_ConstructorPattern01() throws CoreException {
 		"	AxxAyy axxayy = new AxxAyy();\n" + 
 		"}\n"
 	);
+}
+public void testBug110060_ConstructorPattern01() throws CoreException {
+	setUpBug110060_ConstructorPattern();
 	search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
@@ -4938,10 +4913,8 @@ public void testBug110060_ConstructorPattern01() throws CoreException {
 }
 
 public void testBug110060_ConstructorPattern02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_ConstructorPattern();
 	search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
 		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
@@ -4955,10 +4928,8 @@ public void testBug110060_ConstructorPattern02() throws CoreException {
 }
 
 public void testBug110060_ConstructorPattern03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_ConstructorPattern();
 	search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH"
@@ -4966,10 +4937,8 @@ public void testBug110060_ConstructorPattern03() throws CoreException {
 }
 
 public void testBug110060_ConstructorPattern04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_ConstructorPattern();
 	search("Axx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
@@ -4977,10 +4946,8 @@ public void testBug110060_ConstructorPattern04() throws CoreException {
 }
 
 public void testBug110060_ConstructorPattern05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_ConstructorPattern();
 	search("Ax", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
 		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
@@ -4990,8 +4957,7 @@ public void testBug110060_ConstructorPattern05() throws CoreException {
 }
 
 public void testBug110060_ConstructorPattern06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+	setUpBug110060_ConstructorPattern();
 	search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
@@ -5006,7 +4972,7 @@ public void testBug110060_ConstructorPattern06() throws CoreException {
 }
 
 // Methods search
-public void testBug110060_MethodPattern01() throws CoreException {
+private void setUpBug110060_MethodPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
 		"package b110060;\n" + 
@@ -5025,24 +4991,22 @@ public void testBug110060_MethodPattern01() throws CoreException {
 		"	}\n" + 
 		"}\n"
 	);
+}
+public void testBug110060_MethodPattern01() throws CoreException {
+	setUpBug110060_MethodPattern();
 	search("MWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_MethodPattern02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("AMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_MethodPattern03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
@@ -5052,10 +5016,8 @@ public void testBug110060_MethodPattern03() throws CoreException {
 }
 
 public void testBug110060_MethodPattern04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
@@ -5069,10 +5031,8 @@ public void testBug110060_MethodPattern04() throws CoreException {
 }
 
 public void testBug110060_MethodPattern05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
@@ -5086,10 +5046,8 @@ public void testBug110060_MethodPattern05() throws CoreException {
 }
 
 public void testBug110060_MethodPattern06() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
@@ -5101,10 +5059,8 @@ public void testBug110060_MethodPattern06() throws CoreException {
 }
 
 public void testBug110060_MethodPattern07() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
@@ -5118,16 +5074,13 @@ public void testBug110060_MethodPattern07() throws CoreException {
 }
 
 public void testBug110060_MethodPattern08() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_MethodPattern09() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_MethodPattern();
 	search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
@@ -5136,7 +5089,7 @@ public void testBug110060_MethodPattern09() throws CoreException {
 }
 
 // Fields search
-public void testBug110060_FieldPattern01() throws CoreException {
+private void setUpBug110060_FieldPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
 		"package b110060;\n" + 
@@ -5155,8 +5108,10 @@ public void testBug110060_FieldPattern01() throws CoreException {
 		"	Object oF = otherFieldWhichStartsWithAnotherLetter;\n" + 
 		"}\n"
 	);
+}
+public void testBug110060_FieldPattern01() throws CoreException {
+	setUpBug110060_FieldPattern();
 	search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH\n" + 
@@ -5166,18 +5121,14 @@ public void testBug110060_FieldPattern01() throws CoreException {
 }
 
 public void testBug110060_FieldPattern02() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_FieldPattern();
 	search("afwsd", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults("");
 }
 
 public void testBug110060_FieldPattern03() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_FieldPattern();
 	search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH"
@@ -5185,10 +5136,8 @@ public void testBug110060_FieldPattern03() throws CoreException {
 }
 
 public void testBug110060_FieldPattern04() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_FieldPattern();
 	search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.testReferences() [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH"
@@ -5196,10 +5145,8 @@ public void testBug110060_FieldPattern04() throws CoreException {
 }
 
 public void testBug110060_FieldPattern05() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug110060_FieldPattern();
 	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" + 
@@ -5544,7 +5491,7 @@ public void testBug120816b() throws CoreException {
  * @test Bug 122442: [search] API inconsistency with IJavaSearchConstants.IMPLEMENTORS and SearchPattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=122442"
  */
-public void testBug122442a() throws CoreException {
+private void setUpBug122442a() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/I.java",
 		"package b122442;\n" + 
@@ -5558,31 +5505,30 @@ public void testBug122442a() throws CoreException {
 		"package b122442;\n" + 
 		"public class X implements I {}\n"
 	);
+}
+public void testBug122442a() throws CoreException {
+	setUpBug122442a();
 	search("I", TYPE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/II.java b122442.II [I] EXACT_MATCH\n" + 
 		"src/b122442/X.java b122442.X [I] EXACT_MATCH"
 	);
 }
 public void testBug122442b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug122442a();
 	search("I", INTERFACE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/II.java b122442.II [I] EXACT_MATCH"
 	);
 }
 public void testBug122442c() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+	setUpBug122442a();
 	search("I", CLASS, IMPLEMENTORS);
 	assertSearchResults(
 		"src/b122442/X.java b122442.X [I] EXACT_MATCH"
 	);
 }
-public void testBug122442d() throws CoreException {
+private void setUpBug122442d() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/User.java",
 		"class Klass {}\n" + 
@@ -5595,54 +5541,46 @@ public void testBug122442d() throws CoreException {
 		"}\n" + 
 		"class Sub extends Klass {}"
 	);
+}
+public void testBug122442d() throws CoreException {
+	setUpBug122442d();
 	search("Interface", TYPE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#2 [Interface] EXACT_MATCH"
 	);
 }
 public void testBug122442e() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug122442d();
 	search("Interface", INTERFACE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"" // expected no result
 	);
 }
 public void testBug122442f() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug122442d();
 	search("Interface", CLASS, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#2 [Interface] EXACT_MATCH"
 	);
 }
 public void testBug122442g() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug122442d();
 	search("Klass", TYPE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
 	);
 }
 public void testBug122442h() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug122442d();
 	search("Klass", INTERFACE, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"" // expected no result
 	);
 }
 public void testBug122442i() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+	setUpBug122442d();
 	search("Klass", CLASS, IMPLEMENTORS);
-	this.discard = false;
 	assertSearchResults(
 		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
@@ -6005,7 +5943,7 @@ public void testBug128877c() throws CoreException {
  * @test Bug 130390: CamelCase algorithm cleanup and improvement
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130390"
  */
-public void testBug130390() throws CoreException {
+private void setUpBug130390() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b130390/TZ.java",
 		"package b130390;\n" + 
@@ -6027,73 +5965,61 @@ public void testBug130390() throws CoreException {
 		"public class NullPointerException {\n" +
 		"}\n"
 	);
+}
+public void testBug130390() throws CoreException {
+	setUpBug130390();
 	search("NuPoEx", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
 public void testBug130390b() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH\n" + 
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
 public void testBug130390c() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
 public void testBug130390d() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("Npe", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
 public void testBug130390e() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("Npe", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
 public void testBug130390f() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("NullPE", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
 public void testBug130390g() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/TZ.java b130390.TZ [TZ] EXACT_MATCH\n" + 
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);
 }
 public void testBug130390h() throws CoreException {
-	assertNotNull("There should be working copies!", workingCopies);
-	assertEquals("Invalid number of working copies kept between tests!", 4, workingCopies.length);
+	setUpBug130390();
 	search("TiZo", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	this.discard = false;
 	assertSearchResults(
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);

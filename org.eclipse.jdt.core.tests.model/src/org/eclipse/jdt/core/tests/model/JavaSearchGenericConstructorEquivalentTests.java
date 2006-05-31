@@ -31,7 +31,7 @@ public class JavaSearchGenericConstructorEquivalentTests extends JavaSearchGener
 
 	public static Test suite() {
 		TestSuite suite = new Suite(JavaSearchGenericConstructorEquivalentTests.class.getName());
-		List tests = buildTestsList(JavaSearchGenericConstructorEquivalentTests.class, 1);
+		List tests = buildTestsList(JavaSearchGenericConstructorEquivalentTests.class, 1, 0/* do not sort*/);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}

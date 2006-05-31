@@ -2797,7 +2797,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0500() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0500", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IJavaProject project = sourceUnit.getJavaProject();
-		Map originalOptions = project.getOptions(true);
+		Map originalOptions = project.getOptions(false);
 		try {
 			project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
 			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);

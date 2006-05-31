@@ -43,7 +43,8 @@ static {
 //	TESTS_NAMES = new String[] { "testDeprecationCheck17"};
 }
 public static Test suite() {
-	return buildModelTestSuite(CompletionTests.class);
+	// TODO (david) make execution independant from tests order
+	return buildModelTestSuite(CompletionTests.class, 1/*sort ascending order*/);
 }
 
 /**

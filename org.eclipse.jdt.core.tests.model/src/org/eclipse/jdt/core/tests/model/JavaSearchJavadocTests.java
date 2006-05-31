@@ -588,7 +588,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				this.resultCollector);
 		assertSearchResults("");
 	}
-	public void testJavadocTypeParameterReferences01() throws CoreException {
+	private void setUpJavadocTypeParameterReferences() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/b81190/Test.java",
 			"package b81190;\n" + 
@@ -607,10 +607,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			"		o.toString();\n" + 
 			"	}\n" + 
 			"}\n"
-			);
+		);
+	}
+	public void testJavadocTypeParameterReferences01() throws CoreException {
+		setUpJavadocTypeParameterReferences();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
 		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "T1", 2);
-		discard = false; // use same working copy for next test
 		search(typeParam, REFERENCES, scope);
 		assertSearchResults(
 			"src/b81190/Test.java b81190.Test [T1] EXACT_MATCH INSIDE_JAVADOC\n" + 
@@ -618,11 +620,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		);
 	}
 	public void testJavadocTypeParameterReferences02() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		setUpJavadocTypeParameterReferences();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
 		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "U", 2);
-		discard = false; // use same working copy for next test
 		search(typeParam, REFERENCES, scope);
 		assertSearchResults(
 			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH INSIDE_JAVADOC\n" + 
@@ -631,8 +631,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	// Local variables references in Javadoc have been fixed while implementing 81190
 	public void testJavadocParameterReferences01() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		setUpJavadocTypeParameterReferences();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
 		ILocalVariable local = selectLocalVariable(workingCopies[0], "x", 2);
 		search(local, REFERENCES, scope);
@@ -966,7 +965,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		for (int i=0,l=methods.length; i<l; i++) {
 			search(methods[i], REFERENCES, getJavaSearchScope());
 		}
-		discard = false; // use working copy for next test
 		assertSearchResults(
 			"src/b83285/A.java b83285.B$C(String) [B(Exception)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 			"src/b83285/A.java b83285.B$C(String) [foo()] EXACT_MATCH INSIDE_JAVADOC"
@@ -974,8 +972,27 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testBug83285b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
+			"package b83285;\n" + 
+			"class A {\n" + 
+			"	A(char c) {}\n" + 
+			"}\n" + 
+			"class B {\n" + 
+			"	B(Exception ex) {}\n" + 
+			"	void foo() {} \n" + 
+			"	class C { \n" + 
+			"	    /**\n" + 
+			"	     * Link {@link #B(Exception)} OK\n" + 
+			"	     * Link {@link #C(String)} OK\n" + 
+			"	     * Link {@link #foo()} OK\n" + 
+			"	     * Link {@link #bar()} OK\n" + 
+			"	     */\n" + 
+			"	    public C(String str) {}\n" + 
+			"		void bar() {}\n" + 
+			"	}\n" + 
+			"}"
+		);
 		IMethod[] methods = workingCopies[0].getType("B").getType("C").getMethods();
 		assertEquals("Invalid number of methods", 2, methods.length);
 		for (int i=0,l=methods.length; i<l; i++) {

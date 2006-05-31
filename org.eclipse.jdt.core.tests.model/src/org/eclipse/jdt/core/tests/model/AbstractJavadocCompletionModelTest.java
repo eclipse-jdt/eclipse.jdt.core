@@ -389,13 +389,6 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		return toDisplay.replaceAll(", 8}", ", \"+JAVADOC_RELEVANCE+\"}");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelCompletionTests#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
 	protected void setUpProjectOptions(String compliance) throws JavaModelException {
 		try {
 			setUpProjectCompliance(COMPLETION_PROJECT, compliance);

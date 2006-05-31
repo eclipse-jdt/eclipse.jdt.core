@@ -32,7 +32,7 @@ public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMet
 
 	public static Test suite() {
 		TestSuite suite = new Suite(JavaSearchGenericMethodEquivalentTests.class.getName());
-		List tests = buildTestsList(JavaSearchGenericMethodEquivalentTests.class, 1);
+		List tests = buildTestsList(JavaSearchGenericMethodEquivalentTests.class, 1, 0/* do not sort*/);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}

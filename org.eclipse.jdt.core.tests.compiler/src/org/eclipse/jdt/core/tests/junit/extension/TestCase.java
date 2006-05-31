@@ -230,13 +230,16 @@ public static void assertStringEquals(String message, String expected, String ac
  * @return a list ({@link List}) of tests ({@link Test}).
  */
 public static List buildTestsList(Class evaluationTestClass) {
-	return buildTestsList(evaluationTestClass, 0);
+	return buildTestsList(evaluationTestClass, 0/*only one level*/, 0/* do not sort*/);
 }
 
 /**
- * Build a list of method to run for a test suite.
+ * Build a list of methods to run for a test suite.
+ * This methods list may be sorted in alphabetical ascending or descending order if specified.
+ * <br>
  * Differ from {@link #buildTestsList(Class)} in the fact that one
  * can specify level of recursion in hierarchy to find additional tests.
+ * <br>
  * For example
  * <pre>
  * 	public class AbstractTest extends TestCase {
@@ -273,9 +276,13 @@ public static List buildTestsList(Class evaluationTestClass) {
  * 
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
+ * @param sort expected tests sorted order:
+ *		0: none,
+ *		positive: alpha ascending order,
+ *		negative: alpha descending order (not implemented yet)
  * @return a {@link List} a {@link Test}
  */
-public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
+public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, int sort) {
 	List tests = new ArrayList();
 	List testNames = new ArrayList();
 	List onlyNames = new ArrayList();
@@ -387,6 +394,11 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
 
 	// Add corresponding tests
 	List names = onlyNames.size() > 0 ? onlyNames : testNames;
+	if (sort>0) {
+		Collections.sort(names);
+	} else if (sort<0) {
+		// TODO (frederic) implement execution in reverse order
+	}
 	Iterator iterator = names.iterator();
 	while (iterator.hasNext()) {
 		String testName = (String) iterator.next();

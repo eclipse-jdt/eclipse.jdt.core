@@ -47,7 +47,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	// working copies usage
 	protected ICompilationUnit[] workingCopies;
 	protected WorkingCopyOwner wcOwner;
-	protected boolean discard;
 	
 	// infos for invalid results
 	protected int tabs = 2;
@@ -187,8 +186,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * @return a test suite ({@link Test}) 
 	 */
 	public static Test buildModelTestSuite(Class evaluationTestClass) {
+		return buildModelTestSuite(evaluationTestClass, 0/* do not sort*/);
+	}
+
+	/**
+	 * Build a test suite with all tests computed from public methods starting with "test"
+	 * found in the given test class and sorted in alphabetical order.
+	 * Test suite name is the name of the given test class.
+	 * 
+	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
+	 * 
+	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
+	 * a {@link Suite} instead of a simple framework {@link TestSuite}.
+	 * 
+	 * @param evaluationTestClass
+	 * @return a test suite ({@link Test}) 
+	 */
+	public static Test buildModelTestSuite(Class evaluationTestClass, int sort) {
 		TestSuite suite = new Suite(evaluationTestClass.getName());
-		List tests = buildTestsList(evaluationTestClass);
+		List tests = buildTestsList(evaluationTestClass, 0, sort);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
@@ -2132,7 +2148,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		this.discard = true;
 		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
@@ -2237,13 +2252,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (this.discard) {
-			if (this.workingCopies != null) {
-				discardWorkingCopies(this.workingCopies);
-				this.workingCopies = null;
-			}
-			this.wcOwner = null;
+		if (this.workingCopies != null) {
+			discardWorkingCopies(this.workingCopies);
+			this.workingCopies = null;
 		}
+		this.wcOwner = null;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
