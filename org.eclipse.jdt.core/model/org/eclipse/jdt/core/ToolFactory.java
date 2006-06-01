@@ -84,7 +84,12 @@ public class ToolFactory {
 	}
 
 	/**
-	 * Create an instance of the built-in code formatter. 
+	 * Create an instance of the built-in code formatter.
+	 * <p>The given options should at least provide the source level ({@link JavaCore#COMPILER_SOURCE}),
+	 * the  compiler compliance level ({@link JavaCore#COMPILER_COMPLIANCE}) and the target platform
+	 * ({@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}).
+	 * Without these options, it is not possible for the code formatter to know what kind of source it needs to format.
+	 * </p>
 	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
 	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
 	 * 	the current settings from <code>JavaCore#getOptions</code>.
