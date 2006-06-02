@@ -558,7 +558,7 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 	char[] genericSignature = info.getGenericSignature();
 	String anchor = null;
 	if (genericSignature != null) {
-		CharOperation.replace(genericSignature, '/', '.');
+		genericSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 		anchor = Util.toAnchor(genericSignature, methodName, Flags.isVarargs(this.getFlags()));
 		if (anchor == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	} else {
