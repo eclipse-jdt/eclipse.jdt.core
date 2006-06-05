@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -18,10 +19,12 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -30,6 +33,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	static {
@@ -55,7 +59,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		this.project = setUpJavaProject("AttachedJavadocProject"); //$NON-NLS-1$
+		this.project = setUpJavaProject("AttachedJavadocProject", "1.5"); //$NON-NLS-1$
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
 		this.project.setOptions(options);
@@ -442,5 +446,41 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
 		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
 		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
+	}
+	
+	/*
+	 * Ensures that calling getAttachedJavadoc(...) on a binary method
+	 * has no side-effect on the underlying Java model cache.
+	 * (regression test for bug 140879 Spontaneous error "java.util.Set cannot be resolved...")
+	 */
+	public void test021() throws CoreException, IOException {
+		ICompilationUnit workingCopy = null;
+		try {
+			IPackageFragment p = this.root.getPackageFragment("p2");
+			IType type = p.getClassFile("X.class").getType();
+			IMethod method = type.getMethod("foo", new String[0]);
+			
+			// the following call should have no side-effect
+			method.getAttachedJavadoc(null);
+			
+			// ensure no side-effect
+			ProblemRequestor problemRequestor = new ProblemRequestor();
+			workingCopy = getWorkingCopy(
+				"/AttachedJavadocProject/src/Test.java", 
+				"import p2.Y;\n" +
+				"public class Test extends Y { }",
+				new WorkingCopyOwner() {},
+				problemRequestor
+			);
+			assertProblems(
+				"Unexpected problems", 
+				"----------\n" + 
+				"----------\n",
+				problemRequestor);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+			deleteProject("P");
+		}
 	}
 }
