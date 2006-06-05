@@ -1310,6 +1310,28 @@ public void test0094_instanceof() {
 		"");
 }
 
+// null analysis -- instanceof combined with conditional or
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=145202
+public void test0095_instanceof_conditional_or() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  void foo(Object x) {\n" + 
+			"    if (! (x instanceof String)\n" +
+			"         || x == null) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	|| x == null) {\n" + 
+		"	   ^\n" + 
+		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+}
+
 // null analysis -- strings concatenation
 // JLS 15.18.1: if one of the operands is null, it is replaced by "null"
 // Note: having the diagnostic could come handy when the initialization path
