@@ -13,6 +13,7 @@
 package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,9 +49,9 @@ public class PreferencesTests extends APTTestBase {
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
 		Map<FactoryContainer, FactoryPath.Attributes> factories = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
-		FactoryContainer jarFactory1 = FactoryPathUtil.newExtJarFactoryContainer(new File("C:/test1.jar")); //$NON-NLS-1$
+		FactoryContainer jarFactory1 = FactoryPathUtil.newExtJarFactoryContainer(new File(JAR_PATH_1)); //$NON-NLS-1$
 		FactoryPath.Attributes jarFPA1 = new FactoryPath.Attributes(true, false);
-		FactoryContainer jarFactory2 = FactoryPathUtil.newExtJarFactoryContainer(new File("C:/test2.jar")); //$NON-NLS-1$
+		FactoryContainer jarFactory2 = FactoryPathUtil.newExtJarFactoryContainer(new File(JAR_PATH_2)); //$NON-NLS-1$
 		FactoryPath.Attributes jarFPA2 = new FactoryPath.Attributes(true, true);
 		FactoryContainer pluginFactory = FactoryPathUtil.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
 		FactoryPath.Attributes pluginFPA = new FactoryPath.Attributes(false, false);
@@ -94,11 +95,34 @@ public class PreferencesTests extends APTTestBase {
 		}
 	}
 	
+	// Need to use temp files to get path to external jars.
+	// Platform differences prevent us from hard-coding a string here
+	private static final String JAR_PATH_1;
+	private static final String JAR_PATH_2;
+	
+	static {
+		File jar1 = null;
+		File jar2 = null;
+		try {
+			jar1 = File.createTempFile("test1", "jar");
+			jar2 = File.createTempFile("test2", "jar");
+			JAR_PATH_1 = jar1.getAbsolutePath();
+			JAR_PATH_2 = jar2.getAbsolutePath();
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException("Could not create temp jar files", ioe);
+		}
+		finally {
+			if (jar1 != null) jar1.delete();
+			if (jar2 != null) jar2.delete();
+		}
+	}
+	
 	@SuppressWarnings("nls")
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
-		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test1.jar\" enabled=\"true\" runInBatchMode=\"false\"/>\n" + 
-		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test2.jar\" enabled=\"true\" runInBatchMode=\"true\"/>\n" + 
+		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_1 + "\" enabled=\"true\" runInBatchMode=\"false\"/>\n" + 
+		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_2 + "\" enabled=\"true\" runInBatchMode=\"true\"/>\n" + 
 		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\" runInBatchMode=\"false\"/>\n" + 
 		"</factorypath>\n";
 	
