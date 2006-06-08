@@ -73,8 +73,6 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] doubleDoubleSignature = "(D)Ljava/lang/Double;".toCharArray(); //$NON-NLS-1$
 	public static final char[] DOUBLEVALUE_DOUBLE_METHOD_NAME = "doubleValue".toCharArray(); //$NON-NLS-1$
 	public static final char[] DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE = "()D".toCharArray(); //$NON-NLS-1$
-	public static final char[] Equals = "equals".toCharArray(); //$NON-NLS-1$
-	public static final char[] EqualsSignature = "(Ljava/lang/Object;)Z".toCharArray(); //$NON-NLS-1$
 	public static final char[] Exit = "exit".toCharArray(); //$NON-NLS-1$
 	public static final char[] ExitIntSignature = "(I)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] FloatConstrSignature = "(F)V".toCharArray(); //$NON-NLS-1$
@@ -143,7 +141,6 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JavaLangErrorConstantPoolName = "java/lang/Error".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangExceptionConstantPoolName = "java/lang/Exception".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangFloatConstantPoolName = "java/lang/Float".toCharArray(); //$NON-NLS-1$
-	public static final char[] JavaLangIllegalArgumentExceptionConstantPoolName = "java/lang/IllegalArgumentException".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangIntegerConstantPoolName = "java/lang/Integer".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangLongConstantPoolName = "java/lang/Long".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangNoClassDefFoundErrorConstantPoolName = "java/lang/NoClassDefFoundError".toCharArray(); //$NON-NLS-1$
@@ -169,8 +166,6 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] longLongSignature = "(J)Ljava/lang/Long;".toCharArray(); //$NON-NLS-1$
 	public static final char[] LONGVALUE_LONG_METHOD_NAME = "longValue".toCharArray(); //$NON-NLS-1$
 	public static final char[] LONGVALUE_LONG_METHOD_SIGNATURE = "()J".toCharArray(); //$NON-NLS-1$
-	public static final char[] Name = "name".toCharArray(); //$NON-NLS-1$
-	public static final char[] NameSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
 	public static final char[] NewInstance = "newInstance".toCharArray(); //$NON-NLS-1$
 	public static final char[] NewInstanceSignature = "(Ljava/lang/Class;[I)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] Next = "next".toCharArray();//$NON-NLS-1$

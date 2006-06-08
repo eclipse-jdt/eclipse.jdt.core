@@ -1110,10 +1110,11 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 	super.invokeJavaLangClassDesiredAssertionStatus();
 	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.BOOLEAN);	
 }
-public void invokeJavaLangEnumname(TypeBinding typeBinding) {
-	// invokevirtual: java.lang.Enum.name()String
-	super.invokeJavaLangEnumname(typeBinding);
-	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeIds.T_JavaLangString, ConstantPool.JavaLangStringConstantPoolName);		
+public void invokeJavaLangEnumvalueOf(ReferenceBinding binding) {
+	// invokestatic: java.lang.Enum.valueOf(Class,String)
+	super.invokeJavaLangEnumvalueOf(binding);
+	this.currentFrame.numberOfStackItems -= 2;
+	this.currentFrame.addStackItem(binding);
 }
 public void invokeJavaLangEnumValues(TypeBinding enumBinding, ArrayBinding arrayBinding) {
 	super.invokeJavaLangEnumValues(enumBinding, arrayBinding);
@@ -1122,13 +1123,6 @@ public void invokeJavaLangEnumValues(TypeBinding enumBinding, ArrayBinding array
 public void invokeJavaLangErrorConstructor() {
 	super.invokeJavaLangErrorConstructor();
 	this.currentFrame.numberOfStackItems --;
-	this.currentFrame.initializeReceiver();
-	this.currentFrame.numberOfStackItems--; // remove the top of stack
-}
-public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
-	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
-	super.invokeJavaLangIllegalArgumentExceptionStringConstructor();
-	this.currentFrame.numberOfStackItems--;
 	this.currentFrame.initializeReceiver();
 	this.currentFrame.numberOfStackItems--; // remove the top of stack
 }
@@ -1254,11 +1248,6 @@ public void invokeStringConcatenationStringConstructor() {
 public void invokeStringConcatenationToString() {
 	super.invokeStringConcatenationToString();
 	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeIds.T_JavaLangString, ConstantPool.JavaLangStringConstantPoolName);		
-}
-public void invokeStringEquals() {
-	super.invokeStringEquals();
-	this.currentFrame.numberOfStackItems--; // remove argument
-	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.BOOLEAN);		
 }
 public void invokeStringValueOf(int typeID) {
 	super.invokeStringValueOf(typeID);
@@ -1559,13 +1548,6 @@ public void newJavaLangError() {
 	int pc = this.position;
 	super.newJavaLangError();
 	final VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(TypeIds.T_JavaLangError, VerificationTypeInfo.ITEM_UNINITIALIZED, ConstantPool.JavaLangErrorConstantPoolName);
-	verificationTypeInfo.offset = pc;
-	this.currentFrame.addStackItem(verificationTypeInfo);
-}
-public void newJavaLangIllegalArgumentException() {
-	int pc = this.position;
-	super.newJavaLangIllegalArgumentException();
-	final VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(TypeIds.T_JavaLangIllegalArgumentException, VerificationTypeInfo.ITEM_UNINITIALIZED, ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName);
 	verificationTypeInfo.offset = pc;
 	this.currentFrame.addStackItem(verificationTypeInfo);
 }

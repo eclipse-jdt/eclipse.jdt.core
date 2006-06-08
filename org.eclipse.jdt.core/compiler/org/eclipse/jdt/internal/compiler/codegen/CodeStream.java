@@ -2328,16 +2328,17 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	this.return_();
 }
 //static X valueOf(String name) {
-// return (X) Enum.valueOf(name, X.class);
+// return (X) Enum.valueOf(X.class, name);
 //}		
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
 	initializeMaxLocals(methodBinding);
-	this.ldc(methodBinding.declaringClass);
+	final ReferenceBinding declaringClass = methodBinding.declaringClass;
+	this.ldc(declaringClass);
 	this.aload_0();
-	this.invokeJavaLangEnumvalueOf();
-	this.checkcast(methodBinding.declaringClass);
+	this.invokeJavaLangEnumvalueOf(declaringClass);
+	this.checkcast(declaringClass);
 	this.areturn();
-}	
+}
 //static X[] values() {
 // X[] values;
 // int length;
@@ -3904,20 +3905,9 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 			ConstantPool.DesiredAssertionStatus,
 			ConstantPool.DesiredAssertionStatusSignature);
 }
-public void invokeJavaLangEnumname(TypeBinding typeBinding) {
-	// invokevirtual: java.lang.Enum.name()String
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.name()Ljava/lang/String;"); //$NON-NLS-1$
-	this.invoke(
-			Opcodes.OPC_invokevirtual,
-			0, // argCount
-			1, // return type size
-			typeBinding.constantPoolName(),
-			ConstantPool.Name,
-			ConstantPool.NameSignature);
-}
-public void invokeJavaLangEnumvalueOf() {
-	// invokevirtual: java.lang.Enum.valueOf(String,Class)
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.valueOf(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Enum;"); //$NON-NLS-1$
+public void invokeJavaLangEnumvalueOf(ReferenceBinding binding) {
+	// invokestatic: java.lang.Enum.valueOf(Class,String)
+	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.Enum.valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"); //$NON-NLS-1$
 	this.invoke(
 			Opcodes.OPC_invokestatic,
 			2, // argCount
@@ -3939,17 +3929,6 @@ public void invokeJavaLangErrorConstructor() {
 			1, // argCount
 			0, // return type size
 			ConstantPool.JavaLangErrorConstantPoolName,
-			ConstantPool.Init,
-			ConstantPool.StringConstructorSignature);
-}
-public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
-	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
-	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.IllegalArgumentException.<init>(java.lang.String)V"); //$NON-NLS-1$
-	this.invoke(
-			Opcodes.OPC_invokespecial,
-			1, // argCount
-			0, // return type size
-			ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName,
 			ConstantPool.Init,
 			ConstantPool.StringConstructorSignature);
 }
@@ -4375,17 +4354,6 @@ public void invokeStringConcatenationToString() {
 			declaringClass,
 			ConstantPool.ToString,
 			ConstantPool.ToStringSignature);
-}
-public void invokeStringEquals() {
-	// invokevirtual: java.lang.String.equals(java.lang.Object)
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.equals(...)"); //$NON-NLS-1$
-	this.invoke(
-			Opcodes.OPC_invokevirtual,
-			1, // argCount
-			1, // return type size
-			ConstantPool.JavaLangStringConstantPoolName,
-			ConstantPool.Equals,
-			ConstantPool.EqualsSignature);
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
@@ -5551,20 +5519,6 @@ public void newJavaLangError() {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangErrorConstantPoolName));
-}
-public void newJavaLangIllegalArgumentException() {
-	// new: java.lang.IllegalArgumentException
-	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.IllegalArgumentException"); //$NON-NLS-1$
-	countLabels = 0;
-	stackDepth++;
-	if (stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = Opcodes.OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName));
 }
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError
