@@ -340,6 +340,47 @@ public class BuildpathTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	public void testMissingFieldType() throws JavaModelException {
+		IPath projectPath = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Test {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingNoProblems();
+
+		IPath projectPath2 = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
+		env.addRequiredProject(projectPath2, projectPath);
+		IPath root2 = env.getPackageFragmentRootPath(projectPath2, ""); //$NON-NLS-1$
+		env.addClass(root2, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Test2 {\n" + //$NON-NLS-1$
+			"	public static p1.Test field;\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		IPath projectPath3 = env.addProject("Project3"); //$NON-NLS-1$
+		env.addExternalJars(projectPath3, Util.getJavaClassLibs());
+		env.addRequiredProject(projectPath3, projectPath2);
+		IPath root3 = env.getPackageFragmentRootPath(projectPath3, ""); //$NON-NLS-1$
+		env.addClass(root3, "p3", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class Test3 extends p2.Test2 {\n" + //$NON-NLS-1$
+			"	static Object field;\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingNoProblems();
+	}
+
 	public void testMissingLibrary1() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$

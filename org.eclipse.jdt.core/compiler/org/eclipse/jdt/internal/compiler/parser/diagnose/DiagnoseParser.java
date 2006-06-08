@@ -383,7 +383,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					}
 					
 					if(this.parser.problemReporter().options.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {						
-						if(this.recoveryScanner == null) return;
+						if(this.recoveryScanner == null || !this.recoveryScanner.record) return;
 						this.reportProblem = false;
 					}
 	

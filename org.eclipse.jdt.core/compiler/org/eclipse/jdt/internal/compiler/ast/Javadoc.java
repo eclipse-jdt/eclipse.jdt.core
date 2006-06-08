@@ -140,15 +140,16 @@ public class Javadoc extends ASTNode {
 					if (this.seeReferences[i] instanceof JavadocMessageSend) {
 						JavadocMessageSend messageSend = (JavadocMessageSend) this.seeReferences[i];
 						// if binding is valid then look if we have a reference to an overriden method/constructor
-						if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
-							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.actualReceiverType) &&
+						if (messageSend.binding != null && messageSend.binding.isValidBinding() && messageSend.actualReceiverType instanceof ReferenceBinding) {
+							ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
+							if ((methodReceiverType.isSuperclassOf(methDecl.binding.declaringClass) || (methodReceiverType.isInterface() && methDecl.binding.declaringClass.implementsInterface(methodReceiverType, true))) &&
 								CharOperation.equals(messageSend.selector, methDecl.selector) &&
 								(methDecl.binding.returnType.isCompatibleWith(messageSend.binding.returnType))) {
 								if (messageSend.arguments == null && methDecl.arguments == null) {
 									superRef = true;
 								}
 								else if (messageSend.arguments != null && methDecl.arguments != null) {
-									superRef = methDecl.binding.areParametersCompatibleWith(messageSend.binding.parameters);
+									superRef = methDecl.binding.areParameterErasuresEqual(messageSend.binding);
 								}
 							}
 						}
@@ -171,6 +172,14 @@ public class Javadoc extends ASTNode {
 			}
 			catch (Exception e) {
 				// Something wrong happen, forget super ref...
+			}
+		}
+		
+		// Look at @Override annotations
+		if (!superRef && methDecl != null && methDecl.annotations != null) {
+			int length = methDecl.annotations.length;
+			for (int i=0; i<length && !superRef; i++) {
+				superRef = (methDecl.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			}
 		}
 		

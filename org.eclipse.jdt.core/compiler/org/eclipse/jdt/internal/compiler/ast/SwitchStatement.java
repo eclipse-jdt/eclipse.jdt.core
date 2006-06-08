@@ -349,7 +349,8 @@ public class SwitchStatement extends Statement {
 						if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
 						findConstant : {
 							for (int j = 0; j < caseCount; j++) {
-								if (enumConstant.id == this.constants[j]) break findConstant;
+								if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
+									break findConstant;
 							}
 							// enum constant did not get referenced from switch
 							upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);

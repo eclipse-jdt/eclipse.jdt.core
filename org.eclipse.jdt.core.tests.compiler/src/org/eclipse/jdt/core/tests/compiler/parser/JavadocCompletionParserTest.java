@@ -391,7 +391,7 @@ public void test015() {
 	verifyCompletionInJavadoc(source, "Obj");
 	assertCompletionNodeResult(source,
 		"<CompletionOnJavadocSingleTypeReference:Obj\n" + 
-		"	infos:text,formal reference\n" + 
+		"	infos:formal reference\n" + 
 		">"
 	);
 }

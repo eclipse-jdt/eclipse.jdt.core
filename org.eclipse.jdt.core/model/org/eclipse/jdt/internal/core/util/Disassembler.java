@@ -1747,7 +1747,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				case IVerificationTypeInfo.ITEM_OBJECT :
 					char[] classTypeName = infos[i].getClassTypeName();
 					CharOperation.replace(classTypeName, '/', '.');
-					if (classTypeName[0] == '[') {
+					if (classTypeName.length > 0 && classTypeName[0] == '[') { // length check for resilience
 						classTypeName = Signature.toCharArray(classTypeName);
 					}
 					buffer.append(returnClassName(classTypeName, '.', mode));

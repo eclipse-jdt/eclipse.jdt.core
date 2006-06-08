@@ -552,7 +552,7 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 					if (argumentTypeNames != null) {
 						for (int j = 0; j < argCount; j++) {
 							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-							if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), argumentTypeNames[j]))
+							if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), CharOperation.replaceOnCopy(argumentTypeNames[j], '$', '.')))
 								continue nextMethod;
 							parameterTypes[j] = parameterTypeName;
 						}

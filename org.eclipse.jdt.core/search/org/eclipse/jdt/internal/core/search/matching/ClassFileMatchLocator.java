@@ -73,9 +73,11 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 				for (int i = 0, l = methods.length; i < l; i++) {
 					MethodBinding method = methods[i];
 					if (locator.patternLocator.resolveLevel(method) == PatternLocator.ACCURATE_MATCH) {
+						char[] methodSignature = method.genericSignature();
+						if (methodSignature == null) methodSignature = method.signature();
 						IMethod methodHandle = binaryType.getMethod(
 							new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
-							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.signature()))));
+							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature))));
 						locator.reportBinaryMemberDeclaration(null, methodHandle, method, info, SearchMatch.A_ACCURATE);
 					}
 				}

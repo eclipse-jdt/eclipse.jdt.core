@@ -268,7 +268,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 			boolean needFieldInitializations = constructorCall == null || constructorCall.accessMode != ExplicitConstructorCall.This;
 
-			// post 1.4 source level, synthetic initializations occur prior to explicit constructor call
+			// post 1.4 target level, synthetic initializations occur prior to explicit constructor call
 			boolean preInitSyntheticFields = scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_4;
 
 			if (needFieldInitializations && preInitSyntheticFields){

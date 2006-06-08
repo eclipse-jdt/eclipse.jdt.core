@@ -6644,4 +6644,175 @@ public void test201() {
 		"The annotation type X cannot override the method Annotation.toString()\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259
+public void test202() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			" public class X {\n" + 
+			" @Ann(m=Object)\n" + 
+			" private int foo;\n" + 
+			" private NonExisting bar;\n" + 
+			" }\n" + 
+			" @interface Ann {\n" + 
+			" String m();\n" + 
+			" }\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=Object)\n" + 
+		"	       ^^^^^^\n" + 
+		"Object cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar;\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+public void test203() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@Ann(m=Object())\n" + 
+			"	private void foo(){}\n" + 
+			"	private NonExisting bar(){}\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"    String m();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=Object())\n" + 
+		"	       ^^^^^^\n" + 
+		"The method Object() is undefined for the type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(){}\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+public void test204() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@Ann(m=bar(null))\n" + 
+			"	private void foo(){}\n" + 
+			"	private NonExisting bar(NonExisting ne){}\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"    String m();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=bar(null))\n" + 
+		"	       ^^^\n" + 
+		"The method bar(null) is undefined for the type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(NonExisting ne){}\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(NonExisting ne){}\n" + 
+		"	                        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+public void test205() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@Ann(m=foo())\n" + 
+			"	private void foo(){}\n" + 
+			"	private NonExisting bar(NonExisting ne){}\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"    String m();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=foo())\n" + 
+		"	       ^^^^^\n" + 
+		"Type mismatch: cannot convert from void to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(NonExisting ne){}\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(NonExisting ne){}\n" + 
+		"	                        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+public void test206() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@Ann(m=bar())\n" + 
+			"	private void foo(){}\n" + 
+			"	private NonExisting bar(){}\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"    String m();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=bar())\n" + 
+		"	       ^^^\n" + 
+		"The method bar() is undefined for the type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar(){}\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+public void test207() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			" public class X {\n" + 
+			"@Ann(m=foo)\n" + 
+			" private NonExisting foo;\n" + 
+			" private NonExisting bar;\n" + 
+			" }\n" + 
+			" @interface Ann {\n" + 
+			" String m();\n" + 
+			" }\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=foo)\n" + 
+		"	       ^^^\n" + 
+		"foo cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	private NonExisting foo;\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	private NonExisting bar;\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

@@ -829,7 +829,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (!currentType.canBeSeenBy(this))
 			return new ProblemFieldBinding(currentType, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 
-		FieldBinding field = currentType.getField(fieldName, true /*resolve*/);
+		FieldBinding field = currentType.getField(fieldName, needResolve);
 		if (field != null) {
 			if (invocationSite == null
 				? field.canBeSeenBy(getCurrentPackage())
@@ -850,7 +850,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 				itsInterfaces = currentType.superInterfaces();
 			}
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
 					nextPosition = interfacesToVisit.length;
@@ -899,7 +899,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					}
 				} else {
 					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 						int itsLength = itsInterfaces.length;
 						if (nextPosition + itsLength >= interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
@@ -928,8 +928,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	public ReferenceBinding findMemberType(char[] typeName, ReferenceBinding enclosingType) {
 		if ((enclosingType.tagBits & TagBits.HasNoMemberTypes) != 0)
 			return null; // know it has no member types (nor inherited member types)
-		if (enclosingType.isTypeVariable())
-			return null; // cannot access anything from a type variable
 
 		ReferenceBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();
@@ -961,7 +959,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 				itsInterfaces = currentType.superInterfaces();
 			}
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
 					nextPosition = interfacesToVisit.length;
@@ -1012,7 +1010,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					}
 				} else {
 					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 						int itsLength = itsInterfaces.length;
 						if (nextPosition + itsLength >= interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
@@ -1289,7 +1287,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 	protected void findMethodInSuperInterfaces(ReferenceBinding currentType, char[] selector, ObjectVector found) {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[] interfacesToVisit = itsInterfaces;
 			int nextPosition = interfacesToVisit.length;
 			for (int i = 0; i < nextPosition; i++) {
@@ -1298,7 +1296,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
 				if (currentMethods.length > 0)
 					found.addAll(currentMethods);
-				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+				if ((itsInterfaces = currentType.superInterfaces()) != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 					int itsLength = itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
 						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
@@ -1713,10 +1711,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		boolean insideConstructorCall = false;
 		boolean insideTypeAnnotation = false;
 		MethodBinding foundMethod = null;
-		MethodBinding foundFuzzyProblem = null;
-		// the weird method lookup case (matches method name in scope, then arg types, then visibility)
-		MethodBinding foundInsideProblem = null;
-		// inside Constructor call or inside static context
+		MethodBinding foundProblem = null;
 		Scope scope = this;
 		int depth = 0;
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
@@ -1733,90 +1728,67 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (!insideTypeAnnotation) {
 						// retrieve an exact visible match (if possible)
 						// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
-						MethodBinding methodBinding =
-							(foundMethod == null)
-								? classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite)
-								: classScope.findExactMethod(receiverType, foundMethod.selector, foundMethod.parameters, invocationSite);
+						MethodBinding methodBinding = classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite);
 						if (methodBinding == null)
 							methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite);
 						if (methodBinding != null) { // skip it if we did not find anything
-							if (methodBinding.problemId() == ProblemReasons.Ambiguous) {
-								if (foundMethod == null || foundMethod.problemId() == ProblemReasons.NotVisible) {
-									// supercedes any potential InheritedNameHidesEnclosingName problem
-									return methodBinding;
-								}
-								// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-								return new ProblemMethodBinding(
-									methodBinding, // closest match
-									selector,
-									argumentTypes,
-									ProblemReasons.InheritedNameHidesEnclosingName);
-							}
-							MethodBinding fuzzyProblem = null;
-							MethodBinding insideProblem = null;
-							if (methodBinding.isValidBinding()) {
-								if (!methodBinding.isStatic()) {
-									if (insideConstructorCall) {
-										insideProblem =
-											new ProblemMethodBinding(
-												methodBinding, // closest match
-												methodBinding.selector,
-												methodBinding.parameters,
-												ProblemReasons.NonStaticReferenceInConstructorInvocation);
-									} else if (insideStaticContext) {
-										insideProblem =
-											new ProblemMethodBinding(
-												methodBinding, // closest match
-												methodBinding.selector,
-												methodBinding.parameters,
-												ProblemReasons.NonStaticReferenceInStaticContext);
+							if (foundMethod == null) {
+								if (methodBinding.isValidBinding()) {
+									if (!methodBinding.isStatic() && (insideConstructorCall || insideStaticContext)) {
+										if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
+											return foundProblem; // takes precedence
+										return new ProblemMethodBinding(
+											methodBinding, // closest match
+											methodBinding.selector,
+											methodBinding.parameters,
+											insideConstructorCall
+												? ProblemReasons.NonStaticReferenceInConstructorInvocation
+												: ProblemReasons.NonStaticReferenceInStaticContext);
 									}
-								}
 
-								if (foundMethod == null) {
 									if (receiverType == methodBinding.declaringClass
-										|| (receiverType.getMethods(selector)) != Binding.NO_METHODS
-										|| ((foundFuzzyProblem == null || foundFuzzyProblem.problemId() != ProblemReasons.NotVisible) && compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+										|| ((foundProblem == null || foundProblem.problemId() != ProblemReasons.NotVisible) && compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+										|| (receiverType.getMethods(selector)) != Binding.NO_METHODS) {
 											// found a valid method in the 'immediate' scope (ie. not inherited)
-											// OR the receiverType implemented a method with the correct name
 											// OR in 1.4 mode (inherited visible shadows enclosing)
+											// OR the receiverType implemented a method with the correct name
+											// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
+											if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
+												return foundProblem;
 											if (depth > 0) {
 												invocationSite.setDepth(depth);
 												invocationSite.setActualReceiverType(receiverType);
 											}
-											// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
-											if (foundFuzzyProblem != null && foundFuzzyProblem.problemId() != ProblemReasons.NotVisible)
-												return foundFuzzyProblem;
-											if (insideProblem != null)
-												return insideProblem;
 											return methodBinding;
-										}
 									}
-							} else {
-								fuzzyProblem = methodBinding;
-							}
 
-							if (foundMethod != null && foundMethod.declaringClass != methodBinding.declaringClass)
-								if (receiverType == methodBinding.declaringClass || (receiverType.getMethods(selector)) != Binding.NO_METHODS)
-									// if a method was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
+									if (foundProblem == null) {
+										// only remember the methodBinding if its the first one found
+										// remember that private methods are visible if defined directly by an enclosing class
+										if (depth > 0) {
+											invocationSite.setDepth(depth);
+											invocationSite.setActualReceiverType(receiverType);
+										}
+										foundMethod = methodBinding;
+									}
+								} else { // methodBinding is a problem method
+									if (methodBinding.problemId() != ProblemReasons.NotVisible && methodBinding.problemId() != ProblemReasons.NotFound)
+										return methodBinding; // return the error now
+									if (foundProblem == null || (foundProblem.problemId() == ProblemReasons.NotVisible && methodBinding.problemId() == ProblemReasons.NotFound))
+										foundProblem = methodBinding; // hold onto the first not visible/found error and keep the second not found if first is not visible
+								}
+							} else { // found a valid method so check to see if this is a hiding case
+								if (methodBinding.problemId() == ProblemReasons.Ambiguous
+									|| (foundMethod.declaringClass != methodBinding.declaringClass
+										&& (receiverType == methodBinding.declaringClass || receiverType.getMethods(selector) != Binding.NO_METHODS)))
+									// ambiguous case -> must qualify the method (javac generates an ambiguous error instead)
+									// otherwise if a method was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
 									// NOTE: Unlike fields, a non visible method hides a visible method
 									return new ProblemMethodBinding(
 										methodBinding, // closest match
-										methodBinding.selector,
-										methodBinding.parameters,
+										selector,
+										argumentTypes,
 										ProblemReasons.InheritedNameHidesEnclosingName);
-
-							if (foundMethod == null || (foundMethod.problemId() == ProblemReasons.NotVisible && methodBinding.problemId() != ProblemReasons.NotVisible)) {
-								// only remember the methodBinding if its the first one found or the previous one was not visible & methodBinding is...
-								// remember that private methods are visible if defined directly by an enclosing class
-								if (depth > 0) {
-									invocationSite.setDepth(depth);
-									invocationSite.setActualReceiverType(receiverType);
-								}
-								foundFuzzyProblem = fuzzyProblem;
-								foundInsideProblem = insideProblem;
-								if (fuzzyProblem == null)
-									foundMethod = methodBinding; // only keep it if no error was found
 							}
 						}
 					}
@@ -1827,8 +1799,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					// in order to do so, we change the flag as we exit from the type, not the method
 					// itself, because the class scope is used to retrieve the fields.
 					MethodScope enclosingMethodScope = scope.methodScope();
-					insideConstructorCall =
-						enclosingMethodScope == null ? false : enclosingMethodScope.isConstructorCall;
+					insideConstructorCall = enclosingMethodScope == null ? false : enclosingMethodScope.isConstructorCall;
 					break;
 				case COMPILATION_UNIT_SCOPE :
 					break done;
@@ -1836,15 +1807,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			scope = scope.parent;
 		}
 
-		if (foundFuzzyProblem != null)
-			if (foundFuzzyProblem.problemId() != ProblemReasons.NotVisible && foundFuzzyProblem.problemId() != ProblemReasons.NotFound)
-				return foundFuzzyProblem;
-		if (foundInsideProblem != null)
-			return foundInsideProblem;
-
 		if (insideStaticContext && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			if (foundFuzzyProblem != null && foundFuzzyProblem.declaringClass != null && foundFuzzyProblem.declaringClass.id == TypeIds.T_JavaLangObject)
-				return foundFuzzyProblem; // static imports lose to methods from Object
+			if (foundProblem != null) {
+				if (foundProblem.declaringClass != null && foundProblem.declaringClass.id == TypeIds.T_JavaLangObject)
+					return foundProblem; // static imports lose to methods from Object
+				if (foundProblem.problemId() == ProblemReasons.NotFound) {
+					MethodBinding closestMatch = ((ProblemMethodBinding) foundProblem).closestMatch;
+					if (closestMatch != null && closestMatch.canBeSeenBy(invocationSite, this))
+						return foundProblem; // visible method selectors take precedence
+				}
+			}
 
 			// at this point the scope is a compilation unit scope & need to check for imported static methods
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
@@ -1880,10 +1852,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								}
 							}
 						}
-						if (possible != null && possible != foundFuzzyProblem) {
+						if (possible != null && possible != foundProblem) {
 							if (!possible.isValidBinding()) {
-								if (foundFuzzyProblem == null)
-									foundFuzzyProblem = possible; // answer as error case match
+								if (foundProblem == null)
+									foundProblem = possible; // answer as error case match
 							} else if (possible.isStatic()) {
 								MethodBinding compatibleMethod = computeCompatibleMethod(possible, argumentTypes, invocationSite);
 								if (compatibleMethod != null) {
@@ -1900,14 +1872,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 													visible = new ObjectVector(3);
 												visible.add(compatibleMethod);
 											}
-										} else if (foundFuzzyProblem == null) {
-											foundFuzzyProblem = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, ProblemReasons.NotVisible);
+										} else if (foundProblem == null) {
+											foundProblem = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, ProblemReasons.NotVisible);
 										}
-									} else if (foundFuzzyProblem == null) {
-										foundFuzzyProblem = compatibleMethod;
+									} else if (foundProblem == null) {
+										foundProblem = compatibleMethod;
 									}
-								} else if (foundFuzzyProblem == null) {
-									foundFuzzyProblem = new ProblemMethodBinding(possible, selector, argumentTypes, ProblemReasons.NotFound);
+								} else if (foundProblem == null) {
+									foundProblem = new ProblemMethodBinding(possible, selector, argumentTypes, ProblemReasons.NotFound);
 								}
 							}
 						}
@@ -1925,8 +1897,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			invocationSite.setActualReceiverType(foundMethod.declaringClass);
 			return foundMethod;
 		}
-		if (foundFuzzyProblem != null)
-			return foundFuzzyProblem;
+		if (foundProblem != null)
+			return foundProblem;
 
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	}

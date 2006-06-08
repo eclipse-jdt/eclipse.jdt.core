@@ -2082,7 +2082,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * TODO Fix multi local declaration alignment
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44909
 	 */
-	public void _test202() {
+	public void test202() {
 		Hashtable options = new Hashtable();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT, JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, JavaCore.DO_NOT_INSERT);
@@ -5993,7 +5993,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44642
 	 * @deprecated
 	 */
-	public void _test465() {
+	public void test465() {
 		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
 		options.put(
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION,
@@ -6016,7 +6016,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44642
 	 * @deprecated
 	 */
-	public void _test466() {
+	public void test466() {
 		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
 		options.put(
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION,
@@ -6039,7 +6039,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44642
 	 * @deprecated
 	 */
-	public void _test467() {
+	public void test467() {
 		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
 		options.put(
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION,
@@ -8559,7 +8559,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test606", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111270 
-	public void _test607() {
+	public void test607() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);

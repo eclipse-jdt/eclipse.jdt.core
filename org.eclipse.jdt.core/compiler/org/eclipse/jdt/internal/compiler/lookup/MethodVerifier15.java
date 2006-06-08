@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 class MethodVerifier15 extends MethodVerifier {
 
@@ -527,6 +528,74 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	return inheritedMethod != null
 		&& inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+}
+SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+	if (!this.type.isHierarchyInconsistent())
+		return null; // hasErasedCandidatesCollisions() did NOT mark the type has inconsistent
+
+	ReferenceBinding[] interfacesToVisit = null;
+	int nextPosition = 0;
+	ReferenceBinding[] itsInterfaces = superInterfaces;
+	if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+		nextPosition = itsInterfaces.length;
+		interfacesToVisit = itsInterfaces;
+	}
+
+	ReferenceBinding superType = superclass;
+	while (superType != null && superType.isValidBinding()) {
+		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+			if (interfacesToVisit == null) {
+				interfacesToVisit = itsInterfaces;
+				nextPosition = interfacesToVisit.length;
+			} else {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface : for (int a = 0; a < itsLength; a++) {
+					ReferenceBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b]) continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
+		}
+		superType = superType.superclass();
+	}
+
+	for (int i = 0; i < nextPosition; i++) {
+		superType = interfacesToVisit[i];
+		if (superType.isValidBinding()) {
+			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface : for (int a = 0; a < itsLength; a++) {
+					ReferenceBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b]) continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
+		}
+	}
+
+	SimpleSet copy = null;
+	for (int i = 0; i < nextPosition; i++) {
+		ReferenceBinding current = interfacesToVisit[i];
+		if (current.isValidBinding()) {
+			TypeBinding erasure = current.erasure();
+			for (int j = i + 1; j < nextPosition; j++) {
+				ReferenceBinding next = interfacesToVisit[j];
+				if (next.isValidBinding() && next.erasure() == erasure) {
+					if (copy == null)
+						copy = new SimpleSet(nextPosition);
+					copy.add(interfacesToVisit[i]);
+					copy.add(interfacesToVisit[j]);
+				}
+			}
+		}
+	}
+	return copy;
 }
 boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	if (currentMethod.typeVariables == Binding.NO_TYPE_VARIABLES

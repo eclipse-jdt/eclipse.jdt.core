@@ -2328,50 +2328,16 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	this.return_();
 }
 //static X valueOf(String name) {
-// X[] values;
-// for (int i = (values = $VALUES).length; --i >= 0;) {
-// 		 X value;
-// 		 if (name.equals(value = values[i].name())) return value;
-// }
-// throw new IllegalArgumentException(name);
+// return (X) Enum.valueOf(name, X.class);
 //}		
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
-	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
-	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
 	initializeMaxLocals(methodBinding);
-	BranchLabel loopCond = new BranchLabel(this);
-	BranchLabel loopStart = new BranchLabel(this);
-	BranchLabel wrongConstant = new BranchLabel(this);
-
-	this.getstatic(enumValuesSyntheticfield);
-	this.dup();
-	this.astore_1();
-	this.arraylength();
-	this.istore_2();
-	this.goto_(loopCond);
-	loopStart.place();
+	this.ldc(methodBinding.declaringClass);
 	this.aload_0();
-	this.aload_1();
-	this.iload_2();
-	this.aaload();
-	this.dup();
-	this.astore_3();
-	this.invokeJavaLangEnumname(this.classFile.referenceBinding);
-	this.invokeStringEquals();
-	this.ifeq(wrongConstant);
-	this.aload_3();
+	this.invokeJavaLangEnumvalueOf();
+	this.checkcast(methodBinding.declaringClass);
 	this.areturn();
-	wrongConstant.place();
-	loopCond.place();
-	this.iinc(2, -1);		
-	this.iload_2();
-	this.ifge(loopStart);
-	this.newJavaLangIllegalArgumentException();
-	this.dup();
-	this.aload_0();
-	this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
-	this.athrow();
-}
+}	
 //static X[] values() {
 // X[] values;
 // int length;
@@ -2552,7 +2518,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 				this.aload_0();
 				this.getstatic(fieldBinding);
 				this.invokeEnumOrdinal(enumBinding.constantPoolName());
-				this.generateInlinedValue(fieldBinding.id);
+				this.generateInlinedValue(fieldBinding.id + 1); // zero should not be returned see bug 141810
 				this.iastore();
 				anyExceptionHandler.placeEnd();
 				this.goto_(endLabel);
@@ -3943,11 +3909,22 @@ public void invokeJavaLangEnumname(TypeBinding typeBinding) {
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.name()Ljava/lang/String;"); //$NON-NLS-1$
 	this.invoke(
 			Opcodes.OPC_invokevirtual,
-			0,
-			1,
+			0, // argCount
+			1, // return type size
 			typeBinding.constantPoolName(),
 			ConstantPool.Name,
 			ConstantPool.NameSignature);
+}
+public void invokeJavaLangEnumvalueOf() {
+	// invokevirtual: java.lang.Enum.valueOf(String,Class)
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.valueOf(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Enum;"); //$NON-NLS-1$
+	this.invoke(
+			Opcodes.OPC_invokestatic,
+			2, // argCount
+			1, // return type size
+			ConstantPool.JavaLangEnumConstantPoolName,
+			ConstantPool.ValueOf,
+			ConstantPool.ValueOfStringClassSignature);
 }
 public void invokeJavaLangEnumValues(TypeBinding enumBinding, ArrayBinding arrayBinding) {
 	char[] signature = "()".toCharArray(); //$NON-NLS-1$

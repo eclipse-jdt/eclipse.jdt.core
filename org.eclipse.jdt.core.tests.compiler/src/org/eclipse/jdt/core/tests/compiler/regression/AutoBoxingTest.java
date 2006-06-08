@@ -2165,7 +2165,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
-	public void _test080() {
+	public void test080() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2186,7 +2186,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
-	public void _test081() {
+	public void test081() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

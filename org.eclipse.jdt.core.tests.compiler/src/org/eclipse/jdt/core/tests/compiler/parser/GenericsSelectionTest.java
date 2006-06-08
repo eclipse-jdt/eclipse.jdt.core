@@ -859,7 +859,7 @@ public void test0021() {
 /*
  * Selection of simple name
  */
-public void _test000X() {
+public void test0022() {
 
 	String str =
 		"public class X {		\n" + 

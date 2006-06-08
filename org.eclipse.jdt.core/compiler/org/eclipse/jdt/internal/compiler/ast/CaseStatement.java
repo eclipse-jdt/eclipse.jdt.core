@@ -118,7 +118,7 @@ public class CaseStatement extends Statement {
 					} else 	if (reference instanceof QualifiedNameReference) {
 						 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
 					}
-					return IntConstant.fromValue(field.original().id); // ordinal value
+					return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
 				}
 			} else {
 				return constantExpression.constant;

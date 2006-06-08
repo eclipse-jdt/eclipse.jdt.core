@@ -1790,5 +1790,5 @@ public class VarargsTest extends AbstractComparableTest {
 					"}",
 				},
 				"12");
-	}	
+	}		
 }

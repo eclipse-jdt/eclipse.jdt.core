@@ -186,7 +186,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * @return a test suite ({@link Test}) 
 	 */
 	public static Test buildModelTestSuite(Class evaluationTestClass) {
-		return buildModelTestSuite(evaluationTestClass, 0/* do not sort*/);
+		return buildModelTestSuite(evaluationTestClass, ORDERING);
 	}
 
 	/**
@@ -200,11 +200,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * a {@link Suite} instead of a simple framework {@link TestSuite}.
 	 * 
 	 * @param evaluationTestClass
+	 * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
 	 * @return a test suite ({@link Test}) 
 	 */
-	public static Test buildModelTestSuite(Class evaluationTestClass, int sort) {
+	public static Test buildModelTestSuite(Class evaluationTestClass, long ordering) {
 		TestSuite suite = new Suite(evaluationTestClass.getName());
-		List tests = buildTestsList(evaluationTestClass, 0, sort);
+		List tests = buildTestsList(evaluationTestClass, 0, ordering);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}

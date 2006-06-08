@@ -1425,6 +1425,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	int mode = DEFAULT;
 	this.repetitions = 0;
 	boolean printUsageRequired = false;
+	String usageSection = null;	
 	boolean printVersionRequired = false;
 	
 	boolean didSpecifyDefaultEncoding = false;
@@ -1725,6 +1726,12 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-help:warn") || //$NON-NLS-1$
+						currentArg.equals("-?:warn")) { //$NON-NLS-1$ 
+					printUsageRequired = true;
+					usageSection = "misc.usage.warn"; //$NON-NLS-1$
+					continue;
+				}				
 				if (currentArg.equals("-noExit")) { //$NON-NLS-1$
 					this.systemExitWhenFinished = false;
 					mode = DEFAULT;
@@ -2389,7 +2396,11 @@ public void configure(String[] argv) throws InvalidInputException {
 	this.logger.logVersion(printVersionRequired);
 	
 	if (printUsageRequired || filesCount == 0) {
-		printUsage();
+		if (usageSection ==  null) {
+			printUsage(); // default
+		} else {
+			printUsage(usageSection);
+		}
 		this.proceed = false;
 		return;
 	}
@@ -2957,14 +2968,18 @@ public void performCompilation() throws InvalidInputException {
 	environment.cleanup();
 }
 public void printUsage() {
-	this.logger.logUsage(Main.bind("misc.usage", //$NON-NLS-1$
-		new String[] {
-			System.getProperty("path.separator"), //$NON-NLS-1$
-			Main.bind("compiler.name"), //$NON-NLS-1$
-			Main.bind("compiler.version"), //$NON-NLS-1$
-			Main.bind("compiler.copyright") //$NON-NLS-1$
-		}
-	));
+	printUsage("misc.usage"); //$NON-NLS-1$
+}
+private void printUsage(String sectionID) {
+	this.logger.logUsage(
+		Main.bind(
+			sectionID,
+			new String[] {
+				System.getProperty("path.separator"), //$NON-NLS-1$
+				Main.bind("compiler.name"), //$NON-NLS-1$
+				Main.bind("compiler.version"), //$NON-NLS-1$
+				Main.bind("compiler.copyright") //$NON-NLS-1$
+			}));	
 	this.logger.flush();
 }
 

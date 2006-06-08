@@ -965,6 +965,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									this.scanner.currentPosition = this.tokenPreviousPosition;
 									this.currentTokenType = -1;
 								}
+								// fall through default case to raise exception
 							default:
 								throw new InvalidInputException();
 						}

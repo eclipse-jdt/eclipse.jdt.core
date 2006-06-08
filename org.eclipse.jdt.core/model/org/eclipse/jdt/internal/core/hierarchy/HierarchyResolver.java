@@ -164,9 +164,9 @@ private IType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 		TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
 		if (superclass instanceof ProblemReferenceBinding) {
 			superclass = ((ProblemReferenceBinding) superclass).closestMatch;
-			if (superclass != null) 
-				((SourceTypeBinding) typeBinding).superclass = superBinding = (ReferenceBinding) superclass;
 		}
+		if (superclass != null) 
+			((SourceTypeBinding) typeBinding).superclass = superBinding = (ReferenceBinding) superclass;
 	}
 	
 	if (superBinding != null) {

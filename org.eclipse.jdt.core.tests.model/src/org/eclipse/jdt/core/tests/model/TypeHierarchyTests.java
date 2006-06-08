@@ -30,15 +30,15 @@ public class TypeHierarchyTests extends ModifyingResourceTests {
 	 */
 	ITypeHierarchy typeHierarchy;
 
-public TypeHierarchyTests(String name) {
-	super(name);
-	this.displayName = true;
-}
 static {
 //	TESTS_NAMES= new String[] { "testGeneric7" };
 }
 public static Test suite() {
 	return buildModelTestSuite(TypeHierarchyTests.class);
+}
+public TypeHierarchyTests(String name) {
+	super(name);
+	this.displayName = true;
 }
 
 /* (non-Javadoc)
@@ -294,6 +294,50 @@ public void testBinaryInnerTypeGetSuperInterfaces() throws JavaModelException {
 		"binary.I\n", 
 		h.getSuperInterfaces(type));
 }
+/*
+ * Ensures that the hierarchy lookup mechanism get the right binary if it is missplaced.
+ * (regression test for bug 139279 Fup of bug 134110, got CCE changing an external jar contents and refreshing the project)
+ */
+public void testBinaryInWrongPackage() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			"pakage p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
+		getFile("/P/bin/p/X.class").copy(new Path("/P/lib/X.class"), false, null);
+		ITypeHierarchy hierarchy = getClassFile("P", "/P/lib", "", "X.class").getType().newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n" + 
+			"Root classes:\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a hierarchy with a binary subclass that is also referenced can be computed
+ * (regression test for bug 48459 NPE in Type hierarchy)
+ */
+public  void testBinarySubclass() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy/src/p48459/p1/X48459.java").getType("X48459");
+	ITypeHierarchy h = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X48459 [in X48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo [in Z48459 [in Z48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  Y48459 [in Y48459.class [in p48459.p2 [in lib48459 [in TypeHierarchy]]]]\n",
+		h);
+}
 /**
  * Ensures that the superclass can be retrieved for a binary type's superclass.
  */
@@ -401,49 +445,22 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
-/*
- * Ensures that the hierarchy lookup mechanism get the right binary if it is missplaced.
- * (regression test for bug 139279 Fup of bug 134110, got CCE changing an external jar contents and refreshing the project)
+/**
+ * Ensures that the creation of a type hierarchy can be cancelled.
  */
-public void testBinaryInWrongPackage() throws CoreException {
+public void testCancel() throws JavaModelException {
+	boolean isCanceled = false;
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java").getType("X");
+	IRegion region = JavaCore.newRegion();
+	region.add(getPackageFragmentRoot("TypeHierarchy", "src"));
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
-		createFolder("/P/src/p");
-		createFile(
-			"/P/src/p/X.java",
-			"pakage p;\n" +
-			"public class X {\n" +
-			"}"
-		);
-		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
-		waitForAutoBuild();
-		getFile("/P/bin/p/X.class").copy(new Path("/P/lib/X.class"), false, null);
-		ITypeHierarchy hierarchy = getClassFile("P", "/P/lib", "", "X.class").getType().newSupertypeHierarchy(null);
-		assertHierarchyEquals(
-			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" + 
-			"Super types:\n" + 
-			"Sub types:\n" + 
-			"Root classes:\n",
-			hierarchy);
-	} finally {
-		deleteProject("P");
+		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
+		monitor.setCancelledCounter(1);
+		type.getJavaProject().newTypeHierarchy(type, region, monitor);
+	} catch (OperationCanceledException e) {
+		isCanceled = true;
 	}
-}
-/*
- * Ensures that a hierarchy with a binary subclass that is also referenced can be computed
- * (regression test for bug 48459 NPE in Type hierarchy)
- */
-public  void testBinarySubclass() throws JavaModelException {
-	IType type = getCompilationUnit("TypeHierarchy/src/p48459/p1/X48459.java").getType("X48459");
-	ITypeHierarchy h = type.newTypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: X48459 [in X48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in foo [in Z48459 [in Z48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]]]\n" + 
-		"  Y48459 [in Y48459.class [in p48459.p2 [in lib48459 [in TypeHierarchy]]]]\n",
-		h);
+	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 }
 /**
  * Ensures that contains(...) returns true for a type that is part of the
@@ -535,497 +552,6 @@ public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {
 		"  <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
-/**
- * Ensures that getType() returns the type the hierarchy was created for.
- */
-public void testGetType() throws JavaModelException {
-	// hierarchy created on a type
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
-	IType type = cf.getType();
-	ITypeHierarchy hierarchy = null;
-	try {
-		hierarchy = type.newSupertypeHierarchy(null);
-	} catch (IllegalArgumentException iae) {
-		assertTrue("IllegalArgumentException", false);
-	}
-	assertEquals("Unexpected focus type", type, hierarchy.getType());
-
-	// hierarchy created on a region
-	assertTrue("Unexpected focus type for hierarchy on region", this.typeHierarchy.getType() == null);
-}
-/*
- * Ensures that a hierarchy on an type that implements a binary inner interface is correct.
- * (regression test for bug 58440 type hierarchy incomplete when implementing fully qualified interface)
- */
-public void testImplementBinaryInnerInterface() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "test58440.jar", "p58440", "Y.class");
-	IType type = cf.getType();
-	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: Y [in Y.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
-		"Super types:\n" + 
-		"  Inner [in X$Inner.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/**
- * Ensures that a hierarchy on an inner type is correctly rooted.
- */
-public void testInnerType1() throws JavaModelException {
-	IType type = getCompilationUnit("TypeHierarchy", "src", "p5", "X.java").getType("X").getType("Inner");
-	ITypeHierarchy hierarchy = null;
-	try {
-		hierarchy = type.newTypeHierarchy(null);
-	} catch (IllegalArgumentException iae) {
-		assertTrue("IllegalArgumentException", false);
-	}
-	assertHierarchyEquals(
-		"Focus: Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/**
- * Ensures that a hierarchy on an inner type has the correct subtype.
- * (regression test for bug 43274 Type hierarchy broken)
- */
-public void testInnerType2() throws JavaModelException {
-	IType type = getCompilationUnit("TypeHierarchy", "src", "p6", "A.java").getType("A").getType("Inner");
-	ITypeHierarchy hierarchy = null;
-	try {
-		hierarchy = type.newTypeHierarchy(null);
-	} catch (IllegalArgumentException iae) {
-		assertTrue("IllegalArgumentException", false);
-	}
-	assertHierarchyEquals(
-		"Focus: Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
-		hierarchy);
-}
-/*
- * Ensures that a hierarchy on a local type in an initializer is correct.
- */
-public void testLocalType1() throws JavaModelException {
-	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
-	IType type = typeA.getInitializer(1).getType("Y1", 1);
-	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"Super types:\n" + 
-		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
-		hierarchy);
-}
-/*
- * Ensures that a hierarchy on a local type in a second initializer is correct.
- */
-public void testLocalType2() throws JavaModelException {
-	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
-	IType type = typeA.getInitializer(2).getType("Y3", 1);
-	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/*
- * Ensures that a hierarchy on a local type in a method declaration is correct.
- */
-public void testLocalType3() throws JavaModelException {
-	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
-	IType type = typeA.getMethod("foo", new String[] {}).getType("Y2", 1);
-	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"Super types:\n" + 
-		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/*
- * Ensures that a super type hierarchy on a local type in a method declaration is correct.
- * (regression test for bug 44073 Override methods action does not work for local types [code manipulation])
- */
-public void testLocalType4() throws JavaModelException {
-	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
-	IType type = typeA.getMethod("foo", new String[] {}).getType("Y1", 1);
-	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
-	assertHierarchyEquals(
-		"Focus: Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"Super types:\n" + 
-		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/**
- * Ensures that a hierarchy on a type that implements a missing interface is correctly rooted.
- * (regression test for bug 24691 Missing interface makes hierarchy incomplete)
- */
-public void testMissingInterface() throws JavaModelException {
-	IType type = getCompilationUnit("TypeHierarchy", "src", "p4", "X.java").getType("X");
-	ITypeHierarchy hierarchy = null;
-	try {
-		hierarchy = type.newTypeHierarchy(null);
-	} catch (IllegalArgumentException iae) {
-		assertTrue("IllegalArgumentException", false);
-	}
-	assertHierarchyEquals(
-		"Focus: X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n",
-		hierarchy);
-}
-/**
- * Ensures that a potential subtype that is not in the classpth is handle correctly.
- * (Regression test for PR #1G4GL9R)
- */
-public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
-	IJavaProject project = getJavaProject("TypeHierarchy");
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java");
-	IType type = cu.getType("X");
-	ITypeHierarchy h = type.newTypeHierarchy(project, null);
-	IType[] types = h.getSubtypes(type);
-	this.assertTypesEqual(
-		"Unexpected sub types of X",
-		"p1.Y\n",
-		types
-	);
-}
-/*
- * Ensures that a type hierarchy on a region contains all subtypes
- * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
- */
-public void testRegion1() throws JavaModelException {
-	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q1");
-	IRegion region = JavaCore.newRegion();
-	region.add(pkg);
-	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
-	assertTypesEqual(
-		"Unexpected types in hierarchy",
-		"java.lang.Object\n" + 
-		"q1.X\n" +
-		"q1.Z\n" +
-		"q2.Y\n",
-		h.getAllTypes()
-	);
-}
-/*
- * Ensures that a type hierarchy on a region contains all subtypes
- * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
- */
-public void testRegion2() throws JavaModelException {
-	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q2");
-	IRegion region = JavaCore.newRegion();
-	region.add(pkg);
-	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
-	assertTypesEqual(
-		"Unexpected types in hierarchy",
-		"java.lang.Object\n" + 
-		"q1.X\n" +
-		"q2.Y\n",
-		h.getAllTypes()
-	);
-}
-/*
- * Ensures that a type hierarchy on a region contains anonymous/local types in this region
- * (regression test for bug 48395 Hierarchy on region misses local classes)
- */
-public void testRegion3() throws JavaModelException {
-	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "p9");
-	IRegion region = JavaCore.newRegion();
-	region.add(pkg);
-	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
-	assertTypesEqual(
-		"Unexpected types in hierarchy",
-		"java.lang.Object\n" + 
-		"p9.X\n" + 
-		"p9.X$1\n" + 
-		"p9.X$Y\n",
-		h.getAllTypes()
-	);
-}
-public void testRegion4() throws CoreException {
-	try {
-		IJavaProject p1 = createJavaProject("P1");
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
-		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
-		createFile(
-			"/P1/X.java",
-			"public class X {\n" +
-			"}"
-		);
-		createFile(
-			"/P2/Y.java",
-			"public class Y extends X X {\n" +
-			"}"
-		);
-		createFile(
-			"/P3/Z.java",
-			"public class Z extends X X {\n" +
-			"}"
-		);
-		IRegion region = JavaCore.newRegion();
-		region.add(p1);
-		region.add(p2);
-		region.add(p3);
-		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
-		assertHierarchyEquals(
-			"Focus: <NONE>\n" + 
-			"Sub types of root classes:\n" + 
-			"  X [in X.java [in <default> [in <project root> [in P1]]]]\n" + 
-			"    Z [in Z.java [in <default> [in <project root> [in P3]]]]\n" + 
-			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n" + 
-			"  Throwable [in Throwable.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"    Exception [in Exception.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"      RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"        IllegalMonitorStateException [in IllegalMonitorStateException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"      InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"      CloneNotSupportedException [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"    Error [in Error.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"  String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
-			"  Class [in Class.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n",
-			hierarchy);
-	} finally {
-		deleteProjects(new String[] {"P1", "P2", "P3"});
-	}
-}
-
-/*
- * Ensures that the focus type is put as a non-resolved type
- * (regression test for bug 92357 ITypeHierarchy#getType() should return an unresolved handle)
- */
-public void testResolvedTypeAsFocus() throws CoreException {
-	try {
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		String source =
-			"public class X {\n" +
-			"  Y<String> field;\n" +
-			"}\n" +
-			"class Y<E> {\n" +
-			"}";
-		createFile("/P/X.java", source);
-		int start = source.indexOf("Y");
-		int end = source.indexOf("<String>");
-		IJavaElement[] elements = getCompilationUnit("/P/X.java").codeSelect(start, end-start);
-		IType focus = (IType) elements[0];
-		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
-		assertElementsEqual(
-			"Unexpected focus type in hierarchy", 
-			"Y [in X.java [in <default> [in <project root> [in P]]]]",
-			new IJavaElement[] {hierarchy.getType()},
-			true/*show resolved info*/);
-	} finally {
-		deleteProject("P");
-	}
-}
-
-/*
- * Ensures that a type hierarchy on a member type with subtypes in another project is correct
- * (regression test for bug 101019 RC3: Type Hierarchy does not find implementers/extenders of inner class/interface in other project)
- */
-public void testMemberTypeSubtypeDifferentProject() throws CoreException {
-	try {
-		createJavaProject("P1");
-		createFile(
-			"/P1/X.java",
-			"public class X {\n" +
-			"  public class Member {\n" +
-			"  }\n" +
-			"}"
-			);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
-		createFile(
-			"/P2/Y.java",
-			"public class Y extends X.Member {\n" +
-			"}"
-		);
-		IType focus = getCompilationUnit("/P1/X.java").getType("X").getType("Member");
-		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null/*no progress*/);
-		assertHierarchyEquals(
-			"Focus: Member [in X [in X.java [in <default> [in <project root> [in P1]]]]]\n" + 
-			"Super types:\n" + 
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P2]]]]\n" + 
-			"Sub types:\n" + 
-			"  Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
-			hierarchy);
-	} finally {
-		deleteProjects(new String[] {"P1", "P2"});
-	}
-}
-
-/**
- * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
- */
-public void testSourceTypeGetSuperclass() throws JavaModelException {
-	//unqualified superclass in a source type
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
-	IType type = cu.getType("Y");
-	ITypeHierarchy h = type.newSupertypeHierarchy(null);
-	IType superclass = h.getSuperclass(type);
-	assertTrue("Superclass not found for Y", superclass != null);
-	assertEquals("Unexpected super class for Y", "X", superclass.getElementName());
-}
-/**
- * Ensures that the superclass can be retrieved for a source type's superclass when no superclass is specified
- * in the source type.
- */
-public void testSourceTypeGetSuperclass2() throws JavaModelException {
-	//no superclass specified for a source type
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java");
-	IType type = cu.getType("X");
-	ITypeHierarchy h = type.newSupertypeHierarchy(null);
-	IType superclass = h.getSuperclass(type);
-	assertTrue("Superclass not found for X", superclass != null);
-	assertEquals("Unexpected super class for X", "Object", superclass.getElementName());
-}
-/**
- * Ensures that the superclass can be retrieved for a source type's superclass.
- * This type hierarchy is relatively deep.
- */
-public void testSourceTypeGetSuperclass3() throws JavaModelException {
-	//no superclass specified for a source type
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Deep.java");
-	IType type = cu.getType("Deep");
-	ITypeHierarchy h = type.newSupertypeHierarchy(null);
-	IType superclass = h.getSuperclass(type);
-	assertTrue("Superclass not found for Deep", superclass != null);
-	assertEquals("Unexpected super class for Deep", "Z", superclass.getElementName());
-}
-/**
- * Ensures that the superclass can be retrieved when it is defined
- * in the same compilation unit.
- */
-public void testSourceTypeGetSuperclass4() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "A.java");
-	IType type = cu.getType("A");
-	ITypeHierarchy h = type.newSupertypeHierarchy(null);
-	IType superclass = h.getSuperclass(type);
-	assertTrue("Superclass not found for A", superclass != null);
-	assertEquals("Unexpected super class for A", "B", superclass.getElementName());
-}
-/**
- * Ensures that the superinterfaces can be retrieved for a source type's superinterfaces.
- */
-public void testSourceTypeGetSuperInterfaces() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
-	IType type = cu.getType("Y");
-	ITypeHierarchy h = type.newSupertypeHierarchy(null);
-	IType[] superInterfaces = h.getSuperInterfaces(type);
-	assertTypesEqual("Unexpected super interfaces for Y", 
-		"p1.I1\n" +
-		"p1.I2\n", 
-		superInterfaces);
-}
-/**
- * Ensures that no subclasses exist in a super type hierarchy for the focus type.
- */
-public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
-	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
-	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
-	IType[] types = hierarchy.getSubclasses(type);
-	assertTypesEqual(
-		"Unexpected subclasses of Object", 
-		"", 
-		types);
-	
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
-	type = cu.getType("Y");
-	hierarchy = type.newSupertypeHierarchy(null);
-	types = hierarchy.getSubclasses(type);
-	assertTypesEqual(
-		"Unexpected subclasses of Y", 
-		"", 
-		types);
-}
-/**
- * Ensures that no subtypes exist in a super type hierarchy for the focus type.
- */
-public void testSupertypeHierarchyGetSubtypes() throws JavaModelException {
-	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
-	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
-	IType[] types = hierarchy.getSubtypes(type);
-	assertTypesEqual(
-		"Unexpected subtypes of Object", 
-		"", 
-		types);
-	
-	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
-	type = cu.getType("Y");
-	hierarchy = type.newSupertypeHierarchy(null);
-	types = hierarchy.getSubtypes(type);
-	assertTypesEqual(
-		"Unexpected subtypes of Y", 
-		"", 
-		types);
-}
-/**
- * Ensures that a super type hierarchy can be created on a working copy.
- * (regression test for bug 3446 type hierarchy: incorrect behavior wrt working copies (1GLDHOA))
- */
-public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
-	ICompilationUnit cu = this.getCompilationUnit("TypeHierarchy", "src", "wc", "X.java");
-	ICompilationUnit workingCopy = null;
-	try {
-		workingCopy = cu.getWorkingCopy(null);
-		workingCopy.createType(
-			"class B{\n" +
-			"	void m(){\n" +
-			"	}\n" +
-			"	void f(){\n" +
-			"		m();\n" +
-			"	}\n" +
-			"}\n",
-			null,
-			true,
-			null);
-		workingCopy.createType(
-			"class A extends B{\n" +
-			"	void m(){\n" +
-			"	}\n" +
-			"}",
-			null,
-			true,
-			null);
-		IType typeA = workingCopy.getType("A");
-		ITypeHierarchy hierarchy = typeA.newSupertypeHierarchy(null);
-		IType typeB = workingCopy.getType("B");
-		assertTrue("hierarchy should contain B", hierarchy.contains(typeB));
-	} finally {
-		if (workingCopy != null) {
-			workingCopy.discardWorkingCopy();
-		}
-	}
-}
-/**
- * Ensures that the creation of a type hierarchy can be cancelled.
- */
-public void testCancel() throws JavaModelException {
-	boolean isCanceled = false;
-	IType type = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java").getType("X");
-	IRegion region = JavaCore.newRegion();
-	region.add(getPackageFragmentRoot("TypeHierarchy", "src"));
-	try {
-		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
-		monitor.setCancelledCounter(1);
-		type.getJavaProject().newTypeHierarchy(type, region, monitor);
-	} catch (OperationCanceledException e) {
-		isCanceled = true;
-	}
-	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
-}
 /*
  * Ensures that a hierarchy on a generic type can be opened
  */
@@ -1099,7 +625,6 @@ public void testGeneric04() throws JavaModelException {
 		hierarchy
 	);
 }
-
 /*
  * Ensures that a hierarchy on a generic interface can be opened
  * (regression test for bug 82004 [model][5.0] 3.1M4 type hierarchy for generic interface)
@@ -1213,8 +738,6 @@ public void testGetAllClassesInRegion() {
 		"rich.C\n", 
 		types);
 }
-
-
 /**
  * Ensures the correctness of all interfaces in a type hierarchy based on a region.
  */
@@ -1262,6 +785,7 @@ public void testGetAllSubtypesFromBinary() throws JavaModelException {
 		"binary.Z\n", 
 		types);
 }
+
 /**
  * Ensures that the correct superclasses of a type exist in the type 
  * hierarchy.
@@ -1277,6 +801,7 @@ public void testGetAllSuperclasses() throws JavaModelException {
 		"p1.Y\n",
 		types);
 }
+
 /**
  * Ensures that the correct superclasses of a binary type exist in the type  hierarchy.
  * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
@@ -1298,6 +823,7 @@ public void testGetAllSuperclassesFromBinary() throws JavaModelException {
 		types,
 		false);
 }
+
 /**
  * Ensures that the correct superclasses of a binary type exist in the type  hierarchy.
  * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043)
@@ -1535,7 +1061,6 @@ public void testGetSuperclassInRegion() throws JavaModelException {
 	IType superclass= hierarchy.getSuperclass(type);
 	assertEquals("Unexpected super class of Y", "X", superclass.getElementName());
 }
-
 /**
  * Ensures that the correct supertypes exist in the type 
  * hierarchy created on a region.
@@ -1564,6 +1089,523 @@ public void testGetSupertypesWithProjectRegion() throws JavaModelException {
 		"binary.X\n",
 		superTypes);
 }
+/**
+ * Ensures that getType() returns the type the hierarchy was created for.
+ */
+public void testGetType() throws JavaModelException {
+	// hierarchy created on a type
+	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
+	IType type = cf.getType();
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newSupertypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertEquals("Unexpected focus type", type, hierarchy.getType());
+
+	// hierarchy created on a region
+	assertTrue("Unexpected focus type for hierarchy on region", this.typeHierarchy.getType() == null);
+}
+/*
+ * Ensures that a hierarchy on an type that implements a binary inner interface is correct.
+ * (regression test for bug 58440 type hierarchy incomplete when implementing fully qualified interface)
+ */
+public void testImplementBinaryInnerInterface() throws JavaModelException {
+	IClassFile cf = getClassFile("TypeHierarchy", "test58440.jar", "p58440", "Y.class");
+	IType type = cf.getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y [in Y.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Inner [in X$Inner.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+/**
+ * Ensures that a hierarchy on an inner type is correctly rooted.
+ */
+public void testInnerType1() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p5", "X.java").getType("X").getType("Inner");
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newTypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertHierarchyEquals(
+		"Focus: Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+
+
+/**
+ * Ensures that a hierarchy on an inner type has the correct subtype.
+ * (regression test for bug 43274 Type hierarchy broken)
+ */
+public void testInnerType2() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p6", "A.java").getType("A").getType("Inner");
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newTypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertHierarchyEquals(
+		"Focus: Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
+		hierarchy);
+}
+/*
+ * Ensures that a hierarchy on a local type in an initializer is correct.
+ */
+public void testLocalType1() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
+	IType type = typeA.getInitializer(1).getType("Y1", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		hierarchy);
+}
+/*
+ * Ensures that a hierarchy on a local type in a second initializer is correct.
+ */
+public void testLocalType2() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
+	IType type = typeA.getInitializer(2).getType("Y3", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+/*
+ * Ensures that a hierarchy on a local type in a method declaration is correct.
+ */
+public void testLocalType3() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
+	IType type = typeA.getMethod("foo", new String[] {}).getType("Y2", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+/*
+ * Ensures that a super type hierarchy on a local type in a method declaration is correct.
+ * (regression test for bug 44073 Override methods action does not work for local types [code manipulation])
+ */
+public void testLocalType4() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
+	IType type = typeA.getMethod("foo", new String[] {}).getType("Y1", 1);
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+/*
+ * Ensures that a type hierarchy on a member type with subtypes in another project is correct
+ * (regression test for bug 101019 RC3: Type Hierarchy does not find implementers/extenders of inner class/interface in other project)
+ */
+public void testMemberTypeSubtypeDifferentProject() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"  public class Member {\n" +
+			"  }\n" +
+			"}"
+			);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P2/Y.java",
+			"public class Y extends X.Member {\n" +
+			"}"
+		);
+		IType focus = getCompilationUnit("/P1/X.java").getType("X").getType("Member");
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null/*no progress*/);
+		assertHierarchyEquals(
+			"Focus: Member [in X [in X.java [in <default> [in <project root> [in P1]]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P2]]]]\n" + 
+			"Sub types:\n" + 
+			"  Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+/**
+ * Ensures that a hierarchy on a type that implements a missing interface is correctly rooted.
+ * (regression test for bug 24691 Missing interface makes hierarchy incomplete)
+ */
+public void testMissingInterface() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p4", "X.java").getType("X");
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newTypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertHierarchyEquals(
+		"Focus: X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
+/**
+ * Ensures that a potential subtype that is not in the classpth is handle correctly.
+ * (Regression test for PR #1G4GL9R)
+ */
+public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
+	IJavaProject project = getJavaProject("TypeHierarchy");
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java");
+	IType type = cu.getType("X");
+	ITypeHierarchy h = type.newTypeHierarchy(project, null);
+	IType[] types = h.getSubtypes(type);
+	this.assertTypesEqual(
+		"Unexpected sub types of X",
+		"p1.Y\n",
+		types
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion1() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q1");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q1.Z\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion2() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q2");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains anonymous/local types in this region
+ * (regression test for bug 48395 Hierarchy on region misses local classes)
+ */
+public void testRegion3() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "p9");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"p9.X\n" + 
+		"p9.X$1\n" + 
+		"p9.X$Y\n",
+		h.getAllTypes()
+	);
+}
+public void testRegion4() throws CoreException {
+	try {
+		IJavaProject p1 = createJavaProject("P1");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		createFile(
+			"/P2/Y.java",
+			"public class Y extends X X {\n" +
+			"}"
+		);
+		createFile(
+			"/P3/Z.java",
+			"public class Z extends X X {\n" +
+			"}"
+		);
+		IRegion region = JavaCore.newRegion();
+		region.add(p1);
+		region.add(p2);
+		region.add(p3);
+		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
+		assertHierarchyEquals(
+			"Focus: <NONE>\n" + 
+			"Sub types of root classes:\n" + 
+			"  X [in X.java [in <default> [in <project root> [in P1]]]]\n" + 
+			"    Z [in Z.java [in <default> [in <project root> [in P3]]]]\n" + 
+			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n" + 
+			"  Throwable [in Throwable.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"    Exception [in Exception.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"        IllegalMonitorStateException [in IllegalMonitorStateException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"      CloneNotSupportedException [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"    Error [in Error.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"  String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"  Class [in Class.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144976
+public void testResilienceToMissingBinaries() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "/TypeHierarchy/test144976.jar"}, "bin");
+		createFolder("/P/src/tools/");
+		createFile(
+			"/P/src/tools/DisplayTestResult2.java",
+			"pakage tools;\n" +
+			"import servlet.*;\n" +
+			"public class DisplayTestResult2 extends TmrServlet2 {\n" +
+			"}"
+		);
+		createFolder("/P/src/servlet/");
+		createFile(
+				"/P/src/servlet/TmrServlet2.java",
+				"pakage servlet;\n" +
+				"public class TmrServlet2 extends TmrServlet {\n" +
+				"}"
+			);
+		createFile(
+				"/P/src/servlet/TmrServlet.java",
+				"pakage servlet;\n" +
+				"import gk.*;\n" +
+				"public class TmrServlet extends GKServlet {\n" +
+				"}"
+			);
+		IType type = getCompilationUnit("P", "src", "tools", "DisplayTestResult2.java").getType("DisplayTestResult2");		
+		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+		System.out.println(hierarchy.getSupertypes(type));
+		assertHierarchyEquals(
+				"Focus: DisplayTestResult2 [in DisplayTestResult2.java [in tools [in src [in P]]]]\n" + 
+				"Super types:\n" + 
+				"  TmrServlet2 [in TmrServlet2.java [in servlet [in src [in P]]]]\n" + 
+				"    TmrServlet [in TmrServlet.java [in servlet [in src [in P]]]]\n" + 
+				"      GKServlet [in GKServlet.class [in gk [in /TypeHierarchy/test144976.jar [in P]]]]\n" + 
+				"Sub types:\n" + 
+				"No root classes",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the focus type is put as a non-resolved type
+ * (regression test for bug 92357 ITypeHierarchy#getType() should return an unresolved handle)
+ */
+public void testResolvedTypeAsFocus() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		String source =
+			"public class X {\n" +
+			"  Y<String> field;\n" +
+			"}\n" +
+			"class Y<E> {\n" +
+			"}";
+		createFile("/P/X.java", source);
+		int start = source.indexOf("Y");
+		int end = source.indexOf("<String>");
+		IJavaElement[] elements = getCompilationUnit("/P/X.java").codeSelect(start, end-start);
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+		assertElementsEqual(
+			"Unexpected focus type in hierarchy", 
+			"Y [in X.java [in <default> [in <project root> [in P]]]]",
+			new IJavaElement[] {hierarchy.getType()},
+			true/*show resolved info*/);
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
+ */
+public void testSourceTypeGetSuperclass() throws JavaModelException {
+	//unqualified superclass in a source type
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
+	IType type = cu.getType("Y");
+	ITypeHierarchy h = type.newSupertypeHierarchy(null);
+	IType superclass = h.getSuperclass(type);
+	assertTrue("Superclass not found for Y", superclass != null);
+	assertEquals("Unexpected super class for Y", "X", superclass.getElementName());
+}
+/**
+ * Ensures that the superclass can be retrieved for a source type's superclass when no superclass is specified
+ * in the source type.
+ */
+public void testSourceTypeGetSuperclass2() throws JavaModelException {
+	//no superclass specified for a source type
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "X.java");
+	IType type = cu.getType("X");
+	ITypeHierarchy h = type.newSupertypeHierarchy(null);
+	IType superclass = h.getSuperclass(type);
+	assertTrue("Superclass not found for X", superclass != null);
+	assertEquals("Unexpected super class for X", "Object", superclass.getElementName());
+}
+/**
+ * Ensures that the superclass can be retrieved for a source type's superclass.
+ * This type hierarchy is relatively deep.
+ */
+public void testSourceTypeGetSuperclass3() throws JavaModelException {
+	//no superclass specified for a source type
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Deep.java");
+	IType type = cu.getType("Deep");
+	ITypeHierarchy h = type.newSupertypeHierarchy(null);
+	IType superclass = h.getSuperclass(type);
+	assertTrue("Superclass not found for Deep", superclass != null);
+	assertEquals("Unexpected super class for Deep", "Z", superclass.getElementName());
+}
+/**
+ * Ensures that the superclass can be retrieved when it is defined
+ * in the same compilation unit.
+ */
+public void testSourceTypeGetSuperclass4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "A.java");
+	IType type = cu.getType("A");
+	ITypeHierarchy h = type.newSupertypeHierarchy(null);
+	IType superclass = h.getSuperclass(type);
+	assertTrue("Superclass not found for A", superclass != null);
+	assertEquals("Unexpected super class for A", "B", superclass.getElementName());
+}
+
+/**
+ * Ensures that the superinterfaces can be retrieved for a source type's superinterfaces.
+ */
+public void testSourceTypeGetSuperInterfaces() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
+	IType type = cu.getType("Y");
+	ITypeHierarchy h = type.newSupertypeHierarchy(null);
+	IType[] superInterfaces = h.getSuperInterfaces(type);
+	assertTypesEqual("Unexpected super interfaces for Y", 
+		"p1.I1\n" +
+		"p1.I2\n", 
+		superInterfaces);
+}
+
+/**
+ * Ensures that no subclasses exist in a super type hierarchy for the focus type.
+ */
+public void testSupertypeHierarchyGetSubclasses() throws JavaModelException {
+	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	IType[] types = hierarchy.getSubclasses(type);
+	assertTypesEqual(
+		"Unexpected subclasses of Object", 
+		"", 
+		types);
+	
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
+	type = cu.getType("Y");
+	hierarchy = type.newSupertypeHierarchy(null);
+	types = hierarchy.getSubclasses(type);
+	assertTypesEqual(
+		"Unexpected subclasses of Y", 
+		"", 
+		types);
+}
+/**
+ * Ensures that no subtypes exist in a super type hierarchy for the focus type.
+ */
+public void testSupertypeHierarchyGetSubtypes() throws JavaModelException {
+	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	IType[] types = hierarchy.getSubtypes(type);
+	assertTypesEqual(
+		"Unexpected subtypes of Object", 
+		"", 
+		types);
+	
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchy", "src", "p1", "Y.java");
+	type = cu.getType("Y");
+	hierarchy = type.newSupertypeHierarchy(null);
+	types = hierarchy.getSubtypes(type);
+	assertTypesEqual(
+		"Unexpected subtypes of Y", 
+		"", 
+		types);
+}
+/**
+ * Ensures that a super type hierarchy can be created on a working copy.
+ * (regression test for bug 3446 type hierarchy: incorrect behavior wrt working copies (1GLDHOA))
+ */
+public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
+	ICompilationUnit cu = this.getCompilationUnit("TypeHierarchy", "src", "wc", "X.java");
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = cu.getWorkingCopy(null);
+		workingCopy.createType(
+			"class B{\n" +
+			"	void m(){\n" +
+			"	}\n" +
+			"	void f(){\n" +
+			"		m();\n" +
+			"	}\n" +
+			"}\n",
+			null,
+			true,
+			null);
+		workingCopy.createType(
+			"class A extends B{\n" +
+			"	void m(){\n" +
+			"	}\n" +
+			"}",
+			null,
+			true,
+			null);
+		IType typeA = workingCopy.getType("A");
+		ITypeHierarchy hierarchy = typeA.newSupertypeHierarchy(null);
+		IType typeB = workingCopy.getType("B");
+		assertTrue("hierarchy should contain B", hierarchy.contains(typeB));
+	} finally {
+		if (workingCopy != null) {
+			workingCopy.discardWorkingCopy();
+		}
+	}
+}
 /*
  * Ensures that creating a hierarchy on a project with classpath problem doesn't throw a NPE
  * (regression test for bug 49809  NPE from MethodVerifier)
@@ -1581,9 +1623,11 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 		IType type = cu.getType("Z");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" + 
-			"Super types:\n" + 
-			"Sub types:\n",
+				"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" + 
+				"Super types:\n" + 
+				"  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]\n" + 
+				"Sub types:\n" + 
+				"No root classes",
 			hierarchy
 		);
 	} finally {

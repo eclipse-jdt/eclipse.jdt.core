@@ -333,7 +333,7 @@ public void test014() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
-public void _test015() {
+public void test015() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

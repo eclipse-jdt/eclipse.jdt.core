@@ -723,6 +723,31 @@ public void test020() {
 		},
 		"SUCCESS");
 }
+public void test020a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class T {	\n"+
+			"      void foo(U j) { System.out.println(\"SUCCESS\"); }	\n"+
+			"}	\n"+
+			"class U {	\n"+
+			"}	\n"+
+			"public class X extends U {	\n"+
+			"      void foo(X j) { System.out.println(\"FAILED\"); }	\n"+
+			"      void bar() {	\n"+
+			"            new T() {	\n"+
+			"                  {	\n"+
+			"                        foo(new X()); 	\n"+
+			"                  }	\n"+
+			"            };	\n"+
+			"      }	\n"+
+			"      public static void main(String[] arguments) {	\n"+
+			"			new X().bar();	\n" +
+			"      }	\n"+
+			"} 	\n"
+		},
+		"SUCCESS");
+}
 // binary check for 11511
 public void test021() {
 	this.runConformTest(

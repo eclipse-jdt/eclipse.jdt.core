@@ -180,7 +180,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected final static String LOG_VERSION;
 	static {
 		String version = Main.bind("compiler.version");
-		LOG_VERSION = "v_"+version.substring(version.indexOf('.')+1, version.indexOf(','));
+		version = version.substring(0, version.indexOf(','));
+		version.replaceAll("0.", "v_");
+		LOG_VERSION = version;
 	}
 	// Patch version currently applied: may be null!
 	protected final static String PATCH_ID = System.getProperty("patch");

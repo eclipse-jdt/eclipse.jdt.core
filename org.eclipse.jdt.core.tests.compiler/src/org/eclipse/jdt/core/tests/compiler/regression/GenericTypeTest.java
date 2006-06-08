@@ -6634,7 +6634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// can resolve member through type variable
 	public void test0229() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				" public class X <T extends XC> {\n" + 
@@ -6643,19 +6643,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		System.out.println(\"SUCCESS\");\n" + 
 				"	}\n" + 
 				" }\n" + 
-				"\n" + 
 				" class XC {\n" + 
 				" 	class MXC {}\n" + 
 				" }\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	T.MXC f;\r\n" + 
-			"	^^^^^\n" + 
-			"Illegal qualified access from the type parameter T\n" + 
-			"----------\n"
-			 // cannot select from a type variable
-		);
+			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69375 - equivalence of wildcards
 	public void test0230() {
@@ -8681,25 +8673,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  	private static class M { private static int j = 2; }\n" + 
 				"  	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
 				"  	public int foo2(T t) { return T.CONSTANT; }\n" + // why is this allowed?
+				"}\n" +
+				"class Y extends Zork {\n" +
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	private static class M { private static int j = 2; }\n" + 
-			"	                     ^\n" + 
-			"The type X<T>.M is never used locally\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	private static class M { private static int j = 2; }\n" + 
-			"	                                            ^\n" + 
-			"The field X<T>.M.j is never read locally\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
 			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
-			"	                                           ^^^\n" + 
-			"T.M cannot be resolved\n" + 
+			"	                                           ^^^^^\n" + 
+			"Read access to enclosing field X<T>.M.j is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	class Y extends Zork {\n" + 
+			"	                ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
 			"----------\n"
-			// 5: cannot select from a type variable
 			// 5: operator + cannot be applied to int,<any>.j
 			// 5: incompatible type, found : <nulltype>, required: int
 		);
@@ -27478,7 +27466,7 @@ public void test0882() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-public void _test0883() {
+public void test0883() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -28701,6 +28689,9 @@ public void test0917() {
 		"----------\n"
 		// cannot select from a type variable
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423 - variation
+public void test0917a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28715,6 +28706,9 @@ public void test0917() {
 		"----------\n"
 		// cannot select from a type variable
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423 - variation
+public void test0917b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28725,9 +28719,10 @@ public void test0917() {
 		"	public class X<T> { Class<T> c = T.class; }\n" + 
 		"	                                 ^^^^^^^\n" + 
 		"Illegal class literal for the type parameter T\n" + 
-		"----------\n"
-		// cannot select from a type variable
-	);
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423 - variation
+public void test0917c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28739,9 +28734,7 @@ public void test0917() {
 		"	public class X<T> extends X2<T.class> { }\n" + 
 		"	                               ^^^^^\n" + 
 		"Syntax error on token \"class\", Identifier expected\n" + 
-		"----------\n"
-		// cannot select from a type variable
-	);
+		"----------\n");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
@@ -30414,42 +30407,12 @@ public void test0968() {
 		"	             ^\n" + 
 		"The interface Collection cannot be implemented more than once with different arguments: Collection<T0> and Collection\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method addAll(Collection<? extends E>) of type ArrayList<T0> has the same erasure as addAll(Collection<? extends E>) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method retainAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as retainAll(Collection<?>) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method toArray(T[]) of type ArrayList<T0> has the same erasure as toArray(T[]) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method add(E) of type ArrayList<T0> has the same erasure as add(E) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method containsAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as containsAll(Collection<?>) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method removeAll(Collection<?>) of type AbstractCollection<T0> has the same erasure as removeAll(Collection<?>) of type Collection but does not override it\n" + 
-		"----------\n" + 
-		"8. WARNING in X.java (at line 2)\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
 		"	public class X<T0> extends ArrayList<T0> implements I<T0> {\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n" + 
-		"9. WARNING in X.java (at line 4)\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
 		"	interface I<T1> extends Collection {\n" + 
 		"	                        ^^^^^^^^^^\n" + 
 		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
@@ -31055,7 +31018,7 @@ public void test0984() {
 		false /* do not skip javac for this peculiar test */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
-public void _test0985() {
+public void test0985() {
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -31258,7 +31221,7 @@ public void test0988() {
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
 			"----------\n");
 }
-//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653
 public void test0989() {
 	this.runNegativeTest(
 			new String[] {
@@ -31364,8 +31327,166 @@ public void test0992() {
 			"Type safety: The method add(Object) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n");
 }
-// regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=144261
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897
 public void test0993() {
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"  public class Inner {\n" + 
+				"    Inner() {\n" +
+				"      System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" +
+				"    new ATest<X>();\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ATest<T extends X> {\n" + 
+				"   public ATest() {\n" + 
+				"      T instance = makeInstance();\n" + 
+				"      X.Inner peq = instance.new Inner(); //**\n" + 
+				"   }\n" + 
+				"\n" + 
+				"   private T makeInstance() {\n" + 
+				"      return (T) new X();\n" + 
+				"   }\n" + 
+				"}", // =================
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
+public void test0994() {
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"  public class Inner {\n" + 
+				"    Inner() {\n" +
+				"      System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"  }\n" + 
+				"  void foo(boolean b, X1 x1, X2 x2) {\n" + 
+				"	  (b ? x1 : x2).new Inner();\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" +
+				"    new X().foo(true, new X1(), new X2());\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X1 extends X implements Comparable<X1> {\n" +
+				"  public int compareTo(X1 other) {\n" +
+				"    return 0;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class X2 extends X implements Comparable<X2> {\n" +
+				"  public int compareTo(X2 other) {\n" +
+				"    return 0;\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142964
+public void _test0995() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"public class X {\n" + 
+				"  public class Inner {\n" + 
+				"  }\n" + 
+				"  void foo(boolean b, X1 x1, X2 x2) {\n" + 
+				"	  Comparable<? extends X> cx1 = b ? x1 : x2;\n" + 
+				"	  Comparable<X> cx2 = b ? x1 : x2;\n" + 
+				"	  String s = b ? x1 : x2;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class X1 extends X implements Comparable<X1> {}\n" + 
+				"abstract class X2 extends X implements Comparable<X2> {}", // =================
+			},
+			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=143793
+public void test0996() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"\n" + 
+				"  private T aObject = null;\n" + 
+				"\n" + 
+				"  public static <U> List<U> castList(final List<? extends Object> pList, final Class<U> pClass) {\n" + 
+				"    final List<U> result = new ArrayList<U>();\n" + 
+				"    for (Object o:pList) {\n" + 
+				"      if (pClass.isInstance(o)) {\n" + 
+				"        result.add(pClass.cast(o));\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"    return result;\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  /**\n" + 
+				"   * @param pArgs\n" + 
+				"   */\n" + 
+				"  public static void main(final String[] pArgs) {\n" + 
+				"    final List<Object> l1 = new ArrayList<Object>();\n" + 
+				"    l1.add(new X<String>());\n" + 
+				"    l1.add(new X<String>());\n" + 
+				"    final List<X<?>> l2 = castList(l1, X.class);\n" + 
+				"    System.exit(0);\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	private T aObject = null;\n" + 
+			"	          ^^^^^^^\n" + 
+			"The field X<T>.aObject is never read locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 25)\n" + 
+			"	final List<X<?>> l2 = castList(l1, X.class);\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<X> to List<X<?>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
+public void test0997() {
+	this.runConformTest(
+			new String[] {
+				"X.java",//===================
+				"public class X implements Outer {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    new ATest<X>();\n" +
+				"  }\n" + 
+				"}\n" +
+				"interface Outer {\n" + 
+				"  public class Inner {\n" + 
+				"    Inner() {\n" +
+				"      System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ATest<T extends Outer> {\n" + 
+				"   public ATest() {\n" + 
+				"      Outer.Inner peq = new T.Inner(); //**\n" + 
+				"   }\n" + 
+				"\n" + 
+				"   private T makeInstance() {\n" + 
+				"      return (T) new X();\n" + 
+				"   }\n" + 
+				"}", // =================
+			},
+			"SUCCESS");
+}
+//regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=144261
+public void test0998() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -31386,6 +31507,212 @@ public void test0993() {
 			"        }\n" + 
 			"    }\n" + 
 			"}",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144879
+public void test0999() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static final <T,E extends T> Iterator<T> chain(Iterator<E>... it) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void foo1() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		List<Float> l2 = Arrays.asList(4f, 5f, 6f);\n" + 
+			"		Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	}\n" + 
+			"	void foo2() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		List<Float> l2 = Arrays.asList(4f, 5f, 6f);\n" + 
+			"		Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+			"	}\n" + 
+			"	void foo3() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation chain(Iterator...) of the generic method chain(Iterator<E>...) of type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<Number>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+		"	                         ^^^^^\n" + 
+		"The method chain(Iterator<E>...) in the type X is not applicable for the arguments (Iterator<Integer>, Iterator<Float>)\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 18)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144879
+public void test1000() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static final <T> Iterator<T> chain(Iterator<? extends T>... it) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void foo1() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		List<Float> l2 = Arrays.asList(4f, 5f, 6f);\n" + 
+			"		Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	}\n" + 
+			"	void foo2() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		List<Float> l2 = Arrays.asList(4f, 5f, 6f);\n" + 
+			"		Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+			"	}\n" + 
+			"	void foo3() {\n" + 
+			"		List<Integer> l1 = Arrays.asList(1, 2, 3);\n" + 
+			"		Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation chain(Iterator...) of the generic method chain(Iterator<? extends T>...) of type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<Number>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 14)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Iterator<Number&Comparable<?>> to Iterator<Number>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 18)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 18)\n" + 
+		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Iterator<Integer> to Iterator<Number>\n" + 
+		"----------\n");
+}
+public void test1001() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static class Box<T> {}\n" + 
+			"	static class ABox<T extends A> {}\n" + 
+			"	static class A {}\n" + 
+			"	\n" + 
+			"	void foo(ABox<? extends A> a1, ABox<?> a2) {\n" + 
+			"		a1 = a2;	\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
+public void test1002() {
+	this.runNegativeTest(
+		new String[] {
+			"Base.java",
+			"class Base {\n" + 
+			"}\n" + 
+			"class Foo<U extends Base, V extends Bar<U, Foo<U, V>>> {\n" + 
+			"	U u;\n" + 
+			"	V v;\n" + 
+			"}\n" + 
+			"class Bar<E extends Base, F extends Foo<E, Bar<E, F>>> {\n" + 
+			"	E e;\n" + 
+			"	F f;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in Base.java (at line 3)\n" + 
+		"	class Foo<U extends Base, V extends Bar<U, Foo<U, V>>> {\n" + 
+		"	                                           ^^^\n" + 
+		"Bound mismatch: The type Foo<U,V> is not a valid substitute for the bounded parameter <F extends Foo<E,Bar<E,F>>> of the type Bar<E,F>\n" + 
+		"----------\n" + 
+		"2. ERROR in Base.java (at line 7)\n" + 
+		"	class Bar<E extends Base, F extends Foo<E, Bar<E, F>>> {\n" + 
+		"	                                           ^^^\n" + 
+		"Bound mismatch: The type Bar<E,F> is not a valid substitute for the bounded parameter <V extends Bar<U,Foo<U,V>>> of the type Foo<U,V>\n" + 
+		"----------\n");
+}
+public void test1003() {
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"class B {\n" + 
+			"}\n" + 
+			"class S<BB extends B, SS extends S<BB, SS, TT>, TT extends T<BB, SS, TT>> {\n" + 
+			"	BB b;\n" + 
+			"	TT t;\n" + 
+			"}\n" + 
+			"class T<BB extends B, SS extends S<BB, SS, TT>, TT extends T<BB, SS, TT>> {\n" + 
+			"	BB b;\n" + 
+			"	SS t;\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+public void test1004() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<B> B getOtherValue() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	<A> A getValue() {\n" + 
+			"		return getOtherValue();\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420
+public void test1005() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T1,T2> {\n" + 
+			"\n" + 
+			"    private static final Object NULL_REF = new Object();\n" + 
+			"    private Object data;\n" + 
+			"\n" + 
+			"    private static <RT> RT unwrap(Object obj) {\n" + 
+			"        return (RT)(obj == NULL_REF ? null : obj);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public T1 getAsT1() {\n" + 
+			"        return unwrap(data);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public T2 getAsT2() {\n" + 
+			"        return unwrap(data);\n" + 
+			"    }\n" + 
+			"}", // =================
 		},
 		"");
 }

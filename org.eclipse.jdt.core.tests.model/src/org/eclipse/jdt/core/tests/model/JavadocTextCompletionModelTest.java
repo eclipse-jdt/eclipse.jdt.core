@@ -459,9 +459,9 @@ public void test034() throws JavaModelException {
 		"	 */\n" + 
 		"	int foo;\n" + 
 		"}";
-	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
-		"foo[JAVADOC_FIELD_REF]{{@link #foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DICNRNS+"}"
 	);
 }
 

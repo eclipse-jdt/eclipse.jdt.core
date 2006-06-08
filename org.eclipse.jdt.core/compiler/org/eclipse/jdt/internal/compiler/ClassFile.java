@@ -85,10 +85,38 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 public class ClassFile
 	implements TypeConstants, TypeIds {
 
+	private byte[] bytes;
+	public CodeStream codeStream;
+	public ConstantPool constantPool;
+
+	public int constantPoolOffset;
+
+	// the header contains all the bytes till the end of the constant pool
+	public byte[] contents;
+
+	public int contentsOffset;
+
+	protected boolean creatingProblemType;
+	
+	public ClassFile enclosingClassFile;
+	public byte[] header;
+	// that collection contains all the remaining bytes of the .class file
+	public int headerOffset;
+	public ReferenceBinding[] innerClassesBindings;
+	public int methodCount;
+	public int methodCountOffset;
+	public int numberOfInnerClasses;
+	// pool managment
+	public boolean isShared = false;
+	// used to generate private access methods
+	// debug and stack map attributes
+	public int produceAttributes;
+	public SourceTypeBinding referenceBinding;
+	public long targetJDK;
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
-
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * Build all the directories and subdirectories corresponding to the packages names
@@ -110,47 +138,103 @@ public class ClassFile
 		char fileSeparatorChar = File.separatorChar;
 		String fileSeparator = File.separator;
 		File f;
-		// First we ensure that the outputPath exists
 		outputPath = outputPath.replace('/', fileSeparatorChar);
-		// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
-		if (outputPath.endsWith(fileSeparator)) {
-			outputPath = outputPath.substring(0, outputPath.length() - 1);
-		}
-		f = new File(outputPath);
-		if (f.exists()) {
-			if (!f.isDirectory()) {
-				final String message = Messages.bind(Messages.output_isFile, f.getAbsolutePath());
-				throw new IOException(message);
+			// these could be optimized out if we normalized paths once and for
+			// all
+		relativeFileName = relativeFileName.replace('/', fileSeparatorChar);
+		String outputDirPath, fileName;
+		int separatorIndex = relativeFileName.lastIndexOf(fileSeparatorChar);
+		if (separatorIndex == -1) {
+			if (outputPath.endsWith(fileSeparator)) {
+				outputDirPath = outputPath.substring(0, outputPath.length() - 1);
+				fileName = outputPath + relativeFileName;
+			} else {
+				outputDirPath = outputPath;
+				fileName = outputPath + fileSeparator + relativeFileName;
 			}
 		} else {
-			// we have to create that directory
-			if (!f.mkdirs()) {
-				final String message = Messages.bind(Messages.output_notValidAll, f.getAbsolutePath());
-				throw new IOException(message);
+			if (outputPath.endsWith(fileSeparator)) {
+				outputDirPath = outputPath + 
+					relativeFileName.substring(0, separatorIndex);
+				fileName = outputPath + relativeFileName;
+			} else {
+				outputDirPath = outputPath + fileSeparator +
+					relativeFileName.substring(0, separatorIndex);
+				fileName = outputPath + fileSeparator + relativeFileName;
 			}
 		}
-		StringBuffer outDir = new StringBuffer(outputPath);
-		outDir.append(fileSeparator);
-		StringTokenizer tokenizer =
-			new StringTokenizer(relativeFileName, fileSeparator);
-		String token = tokenizer.nextToken();
-		while (tokenizer.hasMoreTokens()) {
-			f = new File(outDir.append(token).append(fileSeparator).toString());
+		f = new File(outputDirPath);
+		f.mkdirs();
+		if (f.isDirectory()) {
+			return fileName;
+		} else {
+			// the directory creation failed for some reason - retry using
+			// a slower algorithm so as to refine the diagnostic
+			if (outputPath.endsWith(fileSeparator)) {
+				outputPath = outputPath.substring(0, outputPath.length() - 1);
+			}
+			f = new File(outputPath);
+			boolean checkFileType = false;
 			if (f.exists()) {
-				// The outDir already exists, so we proceed the next entry
-				// System.out.println("outDir: " + outDir + " already exists.");
+			  	checkFileType = true; // pre-existed
 			} else {
-				// Need to add the outDir
-				if (!f.mkdir()) {
-					throw new IOException(Messages.bind(Messages.output_notValid, f.getName()));
+				// we have to create that directory
+				if (!f.mkdirs()) {
+				  	if (f.exists()) {
+				  	  	// someone else created f -- need to check its type
+				  	  	checkFileType = true;
+				  	} else {
+				  	  	// no one could create f -- complain
+	    				throw new IOException(Messages.bind(
+	    					Messages.output_notValidAll, f.getAbsolutePath()));
+				  	}
 				}
 			}
-			token = tokenizer.nextToken();
+			if (checkFileType) {
+			  	if (!f.isDirectory()) {
+	    			throw new IOException(Messages.bind(
+	    				Messages.output_isFile, f.getAbsolutePath()));
+			  	}
+			}
+			StringBuffer outDir = new StringBuffer(outputPath);
+			outDir.append(fileSeparator);
+			StringTokenizer tokenizer =
+				new StringTokenizer(relativeFileName, fileSeparator);
+			String token = tokenizer.nextToken();
+			while (tokenizer.hasMoreTokens()) {
+				f = new File(outDir.append(token).append(fileSeparator).toString());
+			  	checkFileType = false; // reset
+				if (f.exists()) {
+				  	checkFileType = true; // this is suboptimal, but it catches corner cases
+				  						  // in which a regular file pre-exists
+				} else {
+				// we have to create that directory
+	    			if (!f.mkdir()) {
+	    			  	if (f.exists()) {
+	    			  	  	// someone else created f -- need to check its type
+	    			  	  	checkFileType = true;
+	    			  	} else {
+	    			  	  	// no one could create f -- complain
+	        				throw new IOException(Messages.bind(
+	        					Messages.output_notValid, 
+	        						outDir.substring(outputPath.length() + 1, 
+	        							outDir.length() - 1),
+	        						outputPath));
+	    			  	}
+	    			}
+				}
+	    		if (checkFileType) {
+	    		  	if (!f.isDirectory()) {
+	        			throw new IOException(Messages.bind(
+	        				Messages.output_isFile, f.getAbsolutePath()));
+	    		  	}
+	    		}
+				token = tokenizer.nextToken();
+			}
+			// token contains the last one
+			return outDir.append(token).toString();
 		}
-		// token contains the last one
-		return outDir.append(token).toString();
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * Request the creation of a ClassFile compatible representation of a problematic type
@@ -232,7 +316,10 @@ public class ClassFile
 		classFile.addAttributes();
 		unitResult.record(typeBinding.constantPoolName(), classFile);
 	}
-
+	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
+		LookupEnvironment env = typeBinding.scope.environment();
+		return env.classFilePool.acquire(typeBinding);
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * Search the line number corresponding to a specific position
@@ -262,7 +349,7 @@ public class ClassFile
 		}
 		return m + 2;
 	}
-
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * outputPath is formed like:
@@ -322,31 +409,6 @@ public class ClassFile
 		}
 	}
 	
-	private byte[] bytes;
-	public CodeStream codeStream;
-	public ConstantPool constantPool;
-	public int constantPoolOffset;
-	// the header contains all the bytes till the end of the constant pool
-	public byte[] contents;
-	public int contentsOffset;
-	protected boolean creatingProblemType;
-	public ClassFile enclosingClassFile;
-	public byte[] header;
-	// that collection contains all the remaining bytes of the .class file
-	public int headerOffset;
-	public ReferenceBinding[] innerClassesBindings;
-	public int methodCount;
-	public int methodCountOffset;
-	public int numberOfInnerClasses;
-	
-	// pool managment
-	public boolean isShared = false;
-	// used to generate private access methods
-	// debug and stack map attributes
-	public int produceAttributes;
-	public SourceTypeBinding referenceBinding;
-	public long targetJDK;
-	
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods creates a new instance of the receiver.
@@ -369,90 +431,6 @@ public class ClassFile
 			this.codeStream = new CodeStream(this);
 		}
 		this.initByteArrays();
-	}
-	
-	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
-		LookupEnvironment env = typeBinding.scope.environment();
-		return env.classFilePool.acquire(typeBinding);
-	}
-
-	public void initialize(SourceTypeBinding aType, ClassFile parentClassFile, boolean createProblemType) {
-		// generate the magic numbers inside the header
-		header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
-		header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
-		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
-		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
-		
-		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
-		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
-		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
-		header[headerOffset++] = (byte) (this.targetJDK >> 16); // major low
-
-		constantPoolOffset = headerOffset;
-		headerOffset += 2;
-		this.constantPool.initialize(this);
-		
-		// Modifier manipulations for classfile
-		int accessFlags = aType.getAccessFlags();
-		if (aType.isPrivate()) { // rewrite private to non-public
-			accessFlags &= ~ClassFileConstants.AccPublic;
-		}
-		if (aType.isProtected()) { // rewrite protected into public
-			accessFlags |= ClassFileConstants.AccPublic;
-		}
-		// clear all bits that are illegal for a class or an interface
-		accessFlags
-			&= ~(
-				ClassFileConstants.AccStrictfp
-					| ClassFileConstants.AccProtected
-					| ClassFileConstants.AccPrivate
-					| ClassFileConstants.AccStatic
-					| ClassFileConstants.AccSynchronized
-					| ClassFileConstants.AccNative);
-					
-		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		if (!aType.isInterface()) { // class or enum
-			accessFlags |= ClassFileConstants.AccSuper;
-		}
-		
-		this.enclosingClassFile = parentClassFile;
-		// innerclasses get their names computed at code gen time
-
-		// now we continue to generate the bytes inside the contents array
-		contents[contentsOffset++] = (byte) (accessFlags >> 8);
-		contents[contentsOffset++] = (byte) accessFlags;
-		int classNameIndex = constantPool.literalIndexForType(aType.constantPoolName());
-		contents[contentsOffset++] = (byte) (classNameIndex >> 8);
-		contents[contentsOffset++] = (byte) classNameIndex;
-		int superclassNameIndex;
-		if (aType.isInterface()) {
-			superclassNameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
-		} else {
-			superclassNameIndex =
-				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass.constantPoolName()));
-		}
-		contents[contentsOffset++] = (byte) (superclassNameIndex >> 8);
-		contents[contentsOffset++] = (byte) superclassNameIndex;
-		ReferenceBinding[] superInterfacesBinding = aType.superInterfaces();
-		int interfacesCount = superInterfacesBinding.length;
-		contents[contentsOffset++] = (byte) (interfacesCount >> 8);
-		contents[contentsOffset++] = (byte) interfacesCount;
-		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
-			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
-			contents[contentsOffset++] = (byte) interfaceIndex;
-		}
-		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
-		this.creatingProblemType = createProblemType;
-
-		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
-		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
-		if (this.enclosingClassFile == null) {
-			this.codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
-		} else {
-			ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
-			this.codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
-		}
 	}
 
 	/**
@@ -699,7 +677,7 @@ public class ClassFile
 		header[constantPoolOffset++] = (byte) (constantPoolCount >> 8);
 		header[constantPoolOffset] = (byte) constantPoolCount;
 	}
-	
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generate all the default abstract method infos that correpond to
@@ -715,7 +693,7 @@ public class ClassFile
 			completeMethodInfo(methodAttributeOffset, attributeNumber);
 		}
 	}
-
+	
 	private int addFieldAttributes(FieldBinding fieldBinding, int fieldAttributeOffset) {
 		int attributesNumber = 0;
 		// 4.7.2 only static constant fields get a ConstantAttribute
@@ -861,6 +839,7 @@ public class ClassFile
 		}
 		return attributesNumber;
 	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generates the bytes for the given field binding
@@ -900,7 +879,6 @@ public class ClassFile
 		contents[fieldAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[fieldAttributeOffset] = (byte) attributeNumber;
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generate all the fields infos for the receiver.
@@ -967,7 +945,7 @@ public class ClassFile
 		}
 		innerClassesBindings[numberOfInnerClasses++] = refBinding;
 	}
-	
+
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, CategorizedProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
@@ -999,7 +977,7 @@ public class ClassFile
 			
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
-
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem clinit method info that correspond to a boggus method.
@@ -1290,7 +1268,7 @@ public class ClassFile
 			}
 		}
 	}
-		
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the bytes for a synthetic method that provides an access to a private constructor.
@@ -1320,7 +1298,7 @@ public class ClassFile
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
-
+		
 	/**
 	 * INTERNAL USE-ONLY
 	 *  Generate the bytes for a synthetic method that implements Enum#valueOf(String) for a given enum type
@@ -1351,30 +1329,6 @@ public class ClassFile
 		contents[methodAttributeOffset] = (byte) attributeNumber;			
 	}
 
-	public void addSyntheticSwitchTable(SyntheticMethodBinding methodBinding) {
-		generateMethodInfoHeader(methodBinding);
-		int methodAttributeOffset = this.contentsOffset;
-		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
-		// Code attribute
-		int codeAttributeOffset = contentsOffset;
-		attributeNumber++; // add code attribute
-		generateCodeAttributeHeader();
-		codeStream.init(this);
-		codeStream.generateSyntheticBodyForSwitchTable(methodBinding);
-		completeCodeAttributeForSyntheticMethod(
-			true,
-			methodBinding,
-			codeAttributeOffset,
-			((SourceTypeBinding) methodBinding.declaringClass)
-				.scope
-				.referenceCompilationUnit()
-				.compilationResult
-				.getLineSeparatorPositions());
-		// update the number of attributes
-		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
-		contents[methodAttributeOffset] = (byte) attributeNumber;
-	}
 	/**
 	 * INTERNAL USE-ONLY
 	 *  Generate the bytes for a synthetic method that implements Enum#values() for a given enum type
@@ -1435,7 +1389,6 @@ public class ClassFile
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem method info that correspond to a synthetic method that
@@ -1485,6 +1438,31 @@ public class ClassFile
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForMethodAccess(methodBinding);
 		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
+
+	public void addSyntheticSwitchTable(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		codeStream.init(this);
+		codeStream.generateSyntheticBodyForSwitchTable(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			true,
 			methodBinding,
 			codeAttributeOffset,
 			((SourceTypeBinding) methodBinding.declaringClass)
@@ -4315,31 +4293,6 @@ public class ClassFile
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
 	public void completeCodeAttributeForSyntheticMethod(
-		SyntheticMethodBinding binding,
-		int codeAttributeOffset,
-		int[] startLineIndexes) {
-		
-		this.completeCodeAttributeForSyntheticMethod(
-				false,
-				binding,
-				codeAttributeOffset,
-				startLineIndexes);
-	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * That method completes the creation of the code attribute by setting
-	 * - the attribute_length
-	 * - max_stack
-	 * - max_locals
-	 * - code_length
-	 * - exception table
-	 * - and debug attributes if necessary.
-	 *
-	 * @param binding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
-	 * @param codeAttributeOffset <CODE>int</CODE>
-	 */
-	public void completeCodeAttributeForSyntheticMethod(
 		boolean hasExceptionHandlers,
 		SyntheticMethodBinding binding,
 		int codeAttributeOffset,
@@ -4938,7 +4891,32 @@ public class ClassFile
 		contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
-	
+
+	/**
+	 * INTERNAL USE-ONLY
+	 * That method completes the creation of the code attribute by setting
+	 * - the attribute_length
+	 * - max_stack
+	 * - max_locals
+	 * - code_length
+	 * - exception table
+	 * - and debug attributes if necessary.
+	 *
+	 * @param binding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
+	 * @param codeAttributeOffset <CODE>int</CODE>
+	 */
+	public void completeCodeAttributeForSyntheticMethod(
+		SyntheticMethodBinding binding,
+		int codeAttributeOffset,
+		int[] startLineIndexes) {
+		
+		this.completeCodeAttributeForSyntheticMethod(
+				false,
+				binding,
+				codeAttributeOffset,
+				startLineIndexes);
+	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * Complete the creation of a method info by setting up the number of attributes at the right offset.
@@ -4953,7 +4931,7 @@ public class ClassFile
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
-
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods returns a char[] representing the file name of the receiver
@@ -5153,7 +5131,7 @@ public class ClassFile
 				}
 		}
 	}
-	
+
 	private void generateElementValueForNonConstantExpression(Expression defaultValue, int attributeOffset, TypeBinding defaultValueBinding) {
 		if (defaultValueBinding != null) {
 			if (defaultValueBinding.isEnum()) {
@@ -5221,9 +5199,36 @@ public class ClassFile
 			contentsOffset = attributeOffset;
 		}
 	}
-
+	
 	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
 		return generateMethodInfoAttribute(methodBinding, false);
+	}
+
+	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
+		int attributesNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeOffset = contentsOffset;
+		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
+			// add an annotation default attribute
+			int annotationDefaultNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.AnnotationDefaultName);
+			contents[contentsOffset++] = (byte) (annotationDefaultNameIndex >> 8);
+			contents[contentsOffset++] = (byte) annotationDefaultNameIndex;
+			int attributeLengthOffset = contentsOffset;
+			contentsOffset += 4;
+			if (contentsOffset + 4 >= this.contents.length) {
+				resizeContents(4);
+			}
+			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
+			if (contentsOffset != attributeOffset) {
+				int attributeLength = contentsOffset - attributeLengthOffset - 4;
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
+				contents[attributeLengthOffset++] = (byte) attributeLength;			
+				attributesNumber++;
+			}
+		}
+		return attributesNumber;
 	}
 	/**
 	 * INTERNAL USE-ONLY
@@ -5358,33 +5363,6 @@ public class ClassFile
 		return attributeNumber;
 	}
 
-	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
-		int attributesNumber = generateMethodInfoAttribute(methodBinding);
-		int attributeOffset = contentsOffset;
-		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
-			// add an annotation default attribute
-			int annotationDefaultNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.AnnotationDefaultName);
-			contents[contentsOffset++] = (byte) (annotationDefaultNameIndex >> 8);
-			contents[contentsOffset++] = (byte) annotationDefaultNameIndex;
-			int attributeLengthOffset = contentsOffset;
-			contentsOffset += 4;
-			if (contentsOffset + 4 >= this.contents.length) {
-				resizeContents(4);
-			}
-			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
-			if (contentsOffset != attributeOffset) {
-				int attributeLength = contentsOffset - attributeLengthOffset - 4;
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
-				contents[attributeLengthOffset++] = (byte) attributeLength;			
-				attributesNumber++;
-			}
-		}
-		return attributesNumber;
-	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a method info:
@@ -5398,6 +5376,7 @@ public class ClassFile
 	public void generateMethodInfoHeader(MethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers);
 	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a method info:
@@ -5432,7 +5411,6 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (descriptorIndex >> 8);
 		contents[contentsOffset++] = (byte) descriptorIndex;
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the method info header of a clinit:
@@ -5592,7 +5570,7 @@ public class ClassFile
 		}
 		return attributesNumber;
 	}
-	
+
 	private int generateRuntimeAnnotationsForParameters(Argument[] arguments) {
 		final int argumentsLength = arguments.length;
 		final int VISIBLE_INDEX = 0;
@@ -5720,6 +5698,7 @@ public class ClassFile
 		}
 		return attributesNumber;
 	}
+	
 	/**
 	 * EXTERNAL API
 	 * Answer the actual bytes of the class file
@@ -5737,7 +5716,6 @@ public class ClassFile
 		}
 		return this.bytes;
 	}
-
 	/**
 	 * EXTERNAL API
 	 * Answer the compound name of the class file.
@@ -5752,6 +5730,85 @@ public class ClassFile
 		int members = referenceBinding.methods().length + referenceBinding.fields().length;
 		this.header = new byte[INITIAL_HEADER_SIZE];
 		this.contents = new byte[members < 15 ? INITIAL_CONTENTS_SIZE : INITIAL_HEADER_SIZE];
+	}
+
+	public void initialize(SourceTypeBinding aType, ClassFile parentClassFile, boolean createProblemType) {
+		// generate the magic numbers inside the header
+		header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
+		header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
+		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
+		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
+		
+		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
+		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
+		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
+		header[headerOffset++] = (byte) (this.targetJDK >> 16); // major low
+
+		constantPoolOffset = headerOffset;
+		headerOffset += 2;
+		this.constantPool.initialize(this);
+		
+		// Modifier manipulations for classfile
+		int accessFlags = aType.getAccessFlags();
+		if (aType.isPrivate()) { // rewrite private to non-public
+			accessFlags &= ~ClassFileConstants.AccPublic;
+		}
+		if (aType.isProtected()) { // rewrite protected into public
+			accessFlags |= ClassFileConstants.AccPublic;
+		}
+		// clear all bits that are illegal for a class or an interface
+		accessFlags
+			&= ~(
+				ClassFileConstants.AccStrictfp
+					| ClassFileConstants.AccProtected
+					| ClassFileConstants.AccPrivate
+					| ClassFileConstants.AccStatic
+					| ClassFileConstants.AccSynchronized
+					| ClassFileConstants.AccNative);
+					
+		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
+		if (!aType.isInterface()) { // class or enum
+			accessFlags |= ClassFileConstants.AccSuper;
+		}
+		
+		this.enclosingClassFile = parentClassFile;
+		// innerclasses get their names computed at code gen time
+
+		// now we continue to generate the bytes inside the contents array
+		contents[contentsOffset++] = (byte) (accessFlags >> 8);
+		contents[contentsOffset++] = (byte) accessFlags;
+		int classNameIndex = constantPool.literalIndexForType(aType.constantPoolName());
+		contents[contentsOffset++] = (byte) (classNameIndex >> 8);
+		contents[contentsOffset++] = (byte) classNameIndex;
+		int superclassNameIndex;
+		if (aType.isInterface()) {
+			superclassNameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
+		} else {
+			superclassNameIndex =
+				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass.constantPoolName()));
+		}
+		contents[contentsOffset++] = (byte) (superclassNameIndex >> 8);
+		contents[contentsOffset++] = (byte) superclassNameIndex;
+		ReferenceBinding[] superInterfacesBinding = aType.superInterfaces();
+		int interfacesCount = superInterfacesBinding.length;
+		contents[contentsOffset++] = (byte) (interfacesCount >> 8);
+		contents[contentsOffset++] = (byte) interfacesCount;
+		for (int i = 0; i < interfacesCount; i++) {
+			int interfaceIndex = constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
+			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
+			contents[contentsOffset++] = (byte) interfaceIndex;
+		}
+		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
+		this.creatingProblemType = createProblemType;
+
+		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
+		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
+		if (this.enclosingClassFile == null) {
+			this.codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
+		} else {
+			ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
+			this.codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
+		}
 	}
 
 	
@@ -5864,27 +5921,6 @@ public class ClassFile
 		addInnerClasses(binding);
 	}
 	
-	/**
-	 * Resize the pool contents
-	 */
-	private final void resizeContents(int minimalSize) {
-		int length = this.contents.length;
-		int toAdd = length;
-		if (toAdd < minimalSize)
-			toAdd = minimalSize;
-		System.arraycopy(this.contents, 0, this.contents = new byte[length + toAdd], 0, length);
-	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * This methods leaves the space for method counts recording.
-	 */
-	public void setForMethodInfos() {
-		// leave some space for the methodCount
-		methodCountOffset = contentsOffset;
-		contentsOffset += 2;
-	}
-
 	public void reset(SourceTypeBinding typeBinding) {
 		// the code stream is reinitialized for each method
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
@@ -5905,5 +5941,26 @@ public class ClassFile
 		this.methodCount = 0;
 		this.methodCountOffset = 0;
 		this.numberOfInnerClasses = 0;
+	}
+
+	/**
+	 * Resize the pool contents
+	 */
+	private final void resizeContents(int minimalSize) {
+		int length = this.contents.length;
+		int toAdd = length;
+		if (toAdd < minimalSize)
+			toAdd = minimalSize;
+		System.arraycopy(this.contents, 0, this.contents = new byte[length + toAdd], 0, length);
+	}
+
+	/**
+	 * INTERNAL USE-ONLY
+	 * This methods leaves the space for method counts recording.
+	 */
+	public void setForMethodInfos() {
+		// leave some space for the methodCount
+		methodCountOffset = contentsOffset;
+		contentsOffset += 2;
 	}
 }

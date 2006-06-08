@@ -35,7 +35,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 //		TESTS_RANGE = new int[] { 21, 38 };
 	}
 	public static Test suite() {
-		return buildModelTestSuite(CreateMembersTests.class, 1/*sort ascending order*/);
+		return buildModelTestSuite(CreateMembersTests.class, ALPHABETICAL_SORT);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();

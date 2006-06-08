@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.test.performance.PerformanceTestCase;
 
 import junit.framework.ComparisonFailure;
@@ -28,6 +29,80 @@ public class TestCase extends PerformanceTestCase {
 	// Filters
 	public static final String METHOD_PREFIX = "test";
 	public  static String RUN_ONLY_ID = "ONLY_";
+	
+	// Ordering
+	public static final int NO_ORDER = 0;
+	public static final int ALPHABETICAL_SORT = 1;
+	public static final int ALPHA_REVERSE_SORT = 2;
+	public static final int RANDOM_ORDER_JDT = 3;
+	public static final int RANDOM_ORDER_TIME = 4;
+
+	/**
+	 * Expected tests order while building tests list for test suites.
+	 * 	@see #buildTestsList(Class, int, long)
+	 * <br>
+	 * User may use following different values:
+	 * 	<ul>
+	 *			<li>{@value #NO_ORDER}: none (this is the default)</li>
+	 *			<li>{@value #ALPHABETICAL_SORT}: alphabetical order (ie. ascending)</li>
+	 *			<li>{@value #ALPHA_REVERSE_SORT}: alpha reverse order (ie. descending )</li>
+	 *			<li>{@value #RANDOM_ORDER_JDT}: random order using JDT/Core current version as seed</li>
+	 *			<li>{@value #RANDOM_TIME_SORT}: random order using current time as seed (used time value is displayed in console)</li>
+	 *			<li>other values: random order using given <code>long</code> value as seed</li>
+	 * 	</ul>
+	 * This value is initialized with <code>"ordering"</code> system property.
+	 */
+	public static final long ORDERING;
+	static {
+		long ordering = NO_ORDER; // default is no order
+		try {
+			long seed = Long.parseLong(System.getProperty("ordering", "0"));
+			try {
+				int kind = Integer.parseInt(System.getProperty("ordering", "0"));
+				switch (kind) {
+					case NO_ORDER:
+						break;
+					case ALPHABETICAL_SORT:
+						ordering = kind;
+						System.err.println("Note that tests will be run sorted using alphabetical order...");
+						break;
+					case ALPHA_REVERSE_SORT:
+						ordering = kind;
+						System.err.println("Note that tests will be run sorted using alphabetical reverse order...");
+						break;
+					case RANDOM_ORDER_JDT:
+						String version = Main.bind("compiler.version");
+						try {
+							String v_number = version.substring(2, 5);
+							ordering = Long.parseLong(v_number);
+							System.err.println("Note that tests will be run in random order using seed="+v_number+" (ie. JDT/Core version)");
+						}
+						catch (NumberFormatException nfe) {
+							System.err.println("Cannot extract valid JDT/Core version number from 'compiler.version': "+version+" => no order will be finally used...");
+							ordering = NO_ORDER;
+						}
+						break;
+					case RANDOM_ORDER_TIME:
+						ordering = System.currentTimeMillis();
+						System.err.println("Note that tests will be run in random order using seed="+ordering+" (ie. current time)");
+						break;
+					default:
+						ordering = seed;
+						System.err.println("Note that tests will be run in random order using seed="+seed+" (ie. given value)");
+						break;
+				}
+			} catch (NumberFormatException nfe) {
+				// ordering value is over int range but is a valid long => keep the value
+				ordering = seed;
+				System.err.println("Note that tests will be run in random order using seed="+seed+" (ie. given value)");
+			}
+		}
+		catch (NumberFormatException nfe) {
+			System.err.println("Only integer or long values are allowed for 'ordering' system property: "+System.getProperty("ordering", "0")+" is not valid ! => no order will be finally used...");
+			ordering = NO_ORDER;
+		}
+		ORDERING = ordering;
+	}
 
 	// Garbage collect constants
 	final static int MAX_GC = 5; // Max gc iterations
@@ -230,17 +305,29 @@ public static void assertStringEquals(String message, String expected, String ac
  * @return a list ({@link List}) of tests ({@link Test}).
  */
 public static List buildTestsList(Class evaluationTestClass) {
-	return buildTestsList(evaluationTestClass, 0/*only one level*/, 0/* do not sort*/);
+	return buildTestsList(evaluationTestClass, 0/*only one level*/, ORDERING);
 }
 
 /**
  * Build a list of methods to run for a test suite.
- * This methods list may be sorted in alphabetical ascending or descending order if specified.
  * <br>
  * Differ from {@link #buildTestsList(Class)} in the fact that one
  * can specify level of recursion in hierarchy to find additional tests.
+ * 
+ * @param evaluationTestClass the test suite class
+ * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
+ * @return a list ({@link List}) of tests ({@link Test}).
+ */
+public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
+	return buildTestsList(evaluationTestClass, inheritedDepth, ORDERING);
+}
+
+/**
+ * Build a list of methods to run for a test suite.
  * <br>
- * For example
+ * This list may be ordered in different ways using {@link #ORDERING}.
+ * <br>
+ * Example
  * <pre>
  * 	public class AbstractTest extends TestCase {
  * 		public MyTest(String name) {
@@ -276,13 +363,10 @@ public static List buildTestsList(Class evaluationTestClass) {
  * 
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
- * @param sort expected tests sorted order:
- *		0: none,
- *		positive: alpha ascending order,
- *		negative: alpha descending order (not implemented yet)
+ * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
  * @return a {@link List} a {@link Test}
  */
-public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, int sort) {
+public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, long ordering) {
 	List tests = new ArrayList();
 	List testNames = new ArrayList();
 	List onlyNames = new ArrayList();
@@ -360,7 +444,7 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 							try {
 								int num = Integer.parseInt(methName.substring(numStart, n));
 								// tests numbers subset
-								if (TESTS_NUMBERS != null && !tests.contains(methName)) {
+								if (TESTS_NUMBERS != null && !testNames.contains(methName)) {
 									for (int i = 0; i < TESTS_NUMBERS.length; i++) {
 										if (TESTS_NUMBERS[i] == num) {
 											testNames.add(methName);
@@ -369,7 +453,7 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 									}
 								}
 								// tests range subset
-								if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !tests.contains(methName)) {
+								if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !testNames.contains(methName)) {
 									if ((TESTS_RANGE[0]==-1 || num>=TESTS_RANGE[0]) && (TESTS_RANGE[1]==-1 || num<=TESTS_RANGE[1])) {
 										testNames.add(methName);
 										continue nextMethod;
@@ -392,13 +476,17 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 		}
 	}
 
-	// Add corresponding tests
+	// Order tests
 	List names = onlyNames.size() > 0 ? onlyNames : testNames;
-	if (sort>0) {
+	if (ordering == ALPHA_REVERSE_SORT) {
+		Collections.sort(names, Collections.reverseOrder());
+	} else if (ordering == ALPHABETICAL_SORT) {
 		Collections.sort(names);
-	} else if (sort<0) {
-		// TODO (frederic) implement execution in reverse order
+	} else if (ordering != NO_ORDER) {
+		Collections.shuffle(names, new Random(ordering));
 	}
+
+	// Add corresponding tests
 	Iterator iterator = names.iterator();
 	while (iterator.hasNext()) {
 		String testName = (String) iterator.next();

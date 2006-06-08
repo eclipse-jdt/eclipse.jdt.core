@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class MethodVerifier {
 	SourceTypeBinding type;
@@ -501,10 +502,13 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		}
 		superType = superType.superclass();
 	}
+	if (nextPosition == 0) return;
 
+	SimpleSet skip = findSuperinterfaceCollisions(superclass, superInterfaces);
 	for (int i = 0; i < nextPosition; i++) {
 		superType = interfacesToVisit[i];
 		if (superType.isValidBinding()) {
+			if (skip != null && skip.includes(superType)) continue;
 			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 				int itsLength = itsInterfaces.length;
 				if (nextPosition + itsLength >= interfacesToVisit.length)
@@ -613,6 +617,9 @@ ProblemReporter problemReporter(MethodBinding currentMethod) {
 	if (currentMethod.declaringClass == type && currentMethod.sourceMethod() != null)	// only report against the currentMethod if its implemented by the type
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
+}
+SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+	return null; // noop in 1.4
 }
 boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);

@@ -21,6 +21,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	String docCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
+	String reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 	String reportMissingJavadocComments = null;
 	String reportMissingJavadocCommentsVisibility = null;
 
@@ -54,10 +55,14 @@ public class JavadocTest_1_5 extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
 		if (reportMissingJavadocCommentsVisibility != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, reportMissingJavadocCommentsVisibility);
-		if (reportMissingJavadocTags != null) 
+		if (reportMissingJavadocTags != null)  {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
-		else
+			if (this.reportMissingJavadocTagsOverriding != null) {
+				options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, reportMissingJavadocTagsOverriding);
+			}
+		} else {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+		}
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -72,6 +77,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.docCommentSupport = CompilerOptions.ENABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocTags = CompilerOptions.ERROR;
+		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
 	}
 
@@ -2160,6 +2166,79 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"public class Test<T> {\n" + 
 				"	T field;\n" + 
 				"	T foo() { return null; }\n" + 
+				"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Bug 132430: [1.5][javadoc] Unwanted missing tag warning for overridden method with parameter containing type variable
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=132430"
+	 */
+	public void testBug132430() {
+		runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<E> {\n" + 
+				"    /**\n" + 
+				"     * @param object\n" + 
+				"     */\n" + 
+				"    public void aMethod(E object) {}\n" + 
+				"}",
+				"B.java",
+				"public class B<E> extends A<E> {\n" + 
+				"	/**\n" + 
+				"	 * @see A#aMethod(java.lang.Object)\n" + 
+				"	 */\n" + 
+				"	@Override\n" + 
+				"	public void aMethod(E object) {\n" + 
+				"		super.aMethod(object);\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug132430b() {
+		runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<E> {\n" + 
+				"    /**\n" + 
+				"     * @param object\n" + 
+				"     */\n" + 
+				"    public void aMethod(E object) {}\n" + 
+				"}",
+				"B.java",
+				"public class B<E> extends A<E> {\n" + 
+				"	/**\n" + 
+				"	 * @see A#aMethod(java.lang.Object)\n" + 
+				"	 */\n" + 
+				"	public void aMethod(E object) {\n" + 
+				"		super.aMethod(object);\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug132430c() {
+		runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<E> {\n" + 
+				"    /**\n" + 
+				"     * @param object\n" + 
+				"     */\n" + 
+				"    public void aMethod(E object) {}\n" + 
+				"}",
+				"B.java",
+				"public class B<E> extends A<E> {\n" + 
+				"	/**\n" + 
+				"	 * Empty comment\n" + 
+				"	 */\n" + 
+				"	@Override\n" + 
+				"	public void aMethod(E object) {\n" + 
+				"		super.aMethod(object);\n" + 
+				"	}\n" + 
 				"}\n"
 			}
 		);

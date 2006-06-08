@@ -114,6 +114,9 @@ protected void search(String patternString, int searchFor, int limitTo, int matc
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "1.5");
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b95152.jar", false);
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b123679.jar", false);
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b140156.jar", false);
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearchBugs");
@@ -3196,6 +3199,239 @@ public void testBug94718() throws CoreException {
 }
 
 /**
+ * Bug 95152: [search] Field references not found when type is a qualified member type [regression]
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95152"
+ */
+public void testBug95152_jar01() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T1$T12.class").getType();
+	// search constructor first level member
+	search(type.getMethods()[0], REFERENCES);
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T1$T12$T13.class").getType();
+	// search constructor second level member
+	search(type.getMethods()[0], REFERENCES);
+	assertSearchResults(
+		"src/b95152/T1.java b95152.T1() [new T12()] EXACT_MATCH\n" + 
+		"src/b95152/T1.java b95152.T1() [c2.new T13()] EXACT_MATCH"
+	);
+}
+public void testBug95152_jar02() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T2$T22.class").getType();
+	// search constructor first level member
+	search(type.getMethods()[0], REFERENCES);
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T2$T22$T23.class").getType();
+	// search constructor second level member
+	search(type.getMethods()[0], REFERENCES);
+	assertSearchResults(
+		"src/b95152/T2.java b95152.T2(int) [new T22(c)] EXACT_MATCH\n" + 
+		"src/b95152/T2.java b95152.T2(int) [c2.new T23(c)] EXACT_MATCH"
+	);
+}
+public void testBug95152_jar03() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T3$T32.class").getType();
+	// search constructor first level member
+	search(type.getMethods()[0], REFERENCES);
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T3$T32$T33.class").getType();
+	// search constructor second level member
+	search(type.getMethods()[0], REFERENCES);
+	assertSearchResults(
+		"src/b95152/T3.java b95152.T3(T3) [new T32(c)] EXACT_MATCH\n" + 
+		"src/b95152/T3.java b95152.T3(T3) [c2.new T33(c2)] EXACT_MATCH"
+	);
+}
+public void testBug95152_jar04() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T4$T42.class").getType();
+	// search constructor first level member
+	search(type.getMethods()[0], REFERENCES);
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T4$T42$T43.class").getType();
+	// search constructor second level member
+	search(type.getMethods()[0], REFERENCES);
+	assertSearchResults(
+		"src/b95152/T4.java b95152.T4(T4, String) [new T42(c, str)] EXACT_MATCH\n" + 
+		"src/b95152/T4.java b95152.T4(T4, String) [c2.new T43(c2, str)] EXACT_MATCH"
+	);
+}
+public void testBug95152_cu01() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T1.java");
+	// search constructor first level member
+	IType type = unit.getType("T1").getType("T12");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T13");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T1.java b95152.T1() [new T12()] EXACT_MATCH\n" +
+		"src/b95152/T1.java b95152.T1() [c2.new T13()] EXACT_MATCH"
+	);
+}
+public void testBug95152_cu02() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T2.java");
+	// search constructor first level member
+	IType type = unit.getType("T2").getType("T22");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T23");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T2.java b95152.T2(int) [new T22(c)] EXACT_MATCH\n" + 
+		"src/b95152/T2.java b95152.T2(int) [c2.new T23(c)] EXACT_MATCH"
+	);
+}
+public void testBug95152_cu03() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T3.java");
+	// search constructor first level member
+	IType type = unit.getType("T3").getType("T32");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T33");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T3.java b95152.T3(T3) [new T32(c)] EXACT_MATCH\n" + 
+		"src/b95152/T3.java b95152.T3(T3) [c2.new T33(c2)] EXACT_MATCH"
+	);
+}
+public void testBug95152_cu04() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T4.java");
+	// search constructor first level member
+	IType type = unit.getType("T4").getType("T42");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T43");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T4.java b95152.T4(T4, String) [new T42(c, str)] EXACT_MATCH\n" + 
+		"src/b95152/T4.java b95152.T4(T4, String) [c2.new T43(c2, str)] EXACT_MATCH"
+	);
+}
+public void testBug95152_wc01() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
+		"package b95152;\n" + 
+		"public class T {\n" + 
+		"	T2 c2;\n" + 
+		"	T2.T3 c3;\n" + 
+		"	T() {\n" + 
+		"		c2 = new T2();\n" + 
+		"		c3 = c2.new T3();\n" + 
+		"	}\n" + 
+		"	class T2 {\n" + 
+		"		T2() {}\n" + 
+		"		class T3 {\n" + 
+		"			T3() {}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	// search constructor first level member
+	IType type = workingCopies[0].getType("T").getType("T2");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T3");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T.java b95152.T() [new T2()] EXACT_MATCH\n" +
+		"src/b95152/T.java b95152.T() [c2.new T3()] EXACT_MATCH"
+	);
+}
+public void testBug95152_wc02() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
+		"package b95152;\n" + 
+		"public class T {\n" + 
+		"	T2 c2;\n" + 
+		"	T2.T3 c3;\n" + 
+		"	T(int c) {\n" + 
+		"		c2 = new T2(c);\n" + 
+		"		c3 = c2.new T3(c);\n" + 
+		"	}\n" + 
+		"	class T2 {\n" + 
+		"		T2(int x) {}\n" + 
+		"		class T3 {\n" + 
+		"			T3(int x) {}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	// search constructor first level member
+	IType type = workingCopies[0].getType("T").getType("T2");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T3");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T.java b95152.T(int) [new T2(c)] EXACT_MATCH\n" +
+		"src/b95152/T.java b95152.T(int) [c2.new T3(c)] EXACT_MATCH"
+	);
+}
+public void testBug95152_wc03() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
+		"package b95152;\n" + 
+		"public class T {\n" + 
+		"	T2 c2;\n" + 
+		"	T2.T3 c3;\n" + 
+		"	T(T c) {\n" + 
+		"		c2 = new T2(c);\n" + 
+		"		c3 = c2.new T3(c2);\n" + 
+		"	}\n" + 
+		"	class T2 {\n" + 
+		"		T2(T c) {}\n" + 
+		"		class T3 {\n" + 
+		"			T3(T2 c) {}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	// search constructor first level member
+	IType type = workingCopies[0].getType("T").getType("T2");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T3");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T.java b95152.T(T) [new T2(c)] EXACT_MATCH\n" +
+		"src/b95152/T.java b95152.T(T) [c2.new T3(c2)] EXACT_MATCH"
+	);
+}
+public void testBug95152_wc04() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
+		"package b95152;\n" + 
+		"public class T {\n" + 
+		"	T2 c2;\n" + 
+		"	T2.T3 c3;\n" + 
+		"	T(T c, String str) {\n" + 
+		"		c2 = new T2(c, str);\n" + 
+		"		c3 = c2.new T3(c2, str);\n" + 
+		"	}\n" + 
+		"	class T2 {\n" + 
+		"		T2(T c, String str) {}\n" + 
+		"		class T3 {\n" + 
+		"			T3(T2 c, String str) {}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	// search constructor first level member
+	IType type = workingCopies[0].getType("T").getType("T2");
+	search(type.getMethods()[0], REFERENCES);
+	// search constructor second level member
+	type = type.getType("T3");
+	search(type.getMethods()[0], REFERENCES);
+	// verify searches results
+	assertSearchResults(
+		"src/b95152/T.java b95152.T(T, String) [new T2(c, str)] EXACT_MATCH\n" + 
+		"src/b95152/T.java b95152.T(T, String) [c2.new T3(c2, str)] EXACT_MATCH"
+	);
+}
+
+/**
  * Bug 95794: [1.5][search][annot] Find references in workspace breaks on an annotation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95794"
  */
@@ -5588,6 +5824,76 @@ public void testBug122442i() throws CoreException {
 }
 
 /**
+ * Bug 123679: [search] Field references not found when type is a qualified member type [regression]
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123679"
+ */
+public void testBug123679() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b123679.jar", "pack").getClassFile("I123679.class").getType();
+	search(type, REFERENCES);
+	assertSearchResults(
+		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" + 
+		"lib/b123679.jar test.Test$StaticClass$Member.parent EXACT_MATCH\n" + 
+		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" + 
+		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" + 
+		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" + 
+		"lib/b123679.jar pack.I123679 test.Test$StaticClass$Member.getParent() EXACT_MATCH"
+	);
+}
+public void testBug123679_cu() throws CoreException {
+	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b123679.pack", "I123679.java");
+	IType type = unit.getType("I123679");
+	search(type, REFERENCES);
+	assertSearchResults(
+		"src/b123679/test/Test.java [b123679.pack.I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java I123679 b123679.test.Test$StaticClass$Member.getParent() [I123679] EXACT_MATCH"
+	);
+}
+public void testBug123679_wc() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/I122679.java",
+		"package pack;\n" + 
+		"public interface I123679 {\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+		"package test;\n" + 
+		"import pack.I123679;\n" + 
+		"public class Test {\n" + 
+		"	static class StaticClass {\n" + 
+		"		class Member {\n" + 
+		"			private I123679 parent;\n" + 
+		"			Member(Object obj) {\n" + 
+		"				if (obj instanceof I123679) {\n" + 
+		"					parent = (I123679) obj;\n" + 
+		"				} else {\n" + 
+		"					parent = new I123679() {};\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"			I123679 getParent() {\n" + 
+		"				return parent;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("I123679");
+	search(type, REFERENCES);
+	assertSearchResults(
+		// import reference is not found because package fragment and CU do not exist on disk
+		// So, PackageReferenceLocator.isDeclaringPackageFragment(...) returns false and S.E. misses this match
+		"src/test/Test.java test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" + 
+		"src/test/Test.java test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" + 
+		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/test/Test.java I123679 test.Test$StaticClass$Member.getParent() [I123679] EXACT_MATCH"
+	);
+}
+
+/**
  * Bug 124469: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124469"
  */
@@ -6316,6 +6622,20 @@ public void testBug137984_wc() throws CoreException {
 	search(field, REFERENCES);
 	assertSearchResults(
 		"src/CW.java CW(int) [c3] EXACT_MATCH"
+	);
+}
+
+/**
+ * Bug 140156: [1.5][search] Invalid method handle with parameterized parameters when no source is attached
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=140156"
+ */
+public void testBug140156() throws CoreException {
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b140156.jar", "").getClassFile("X.class").getType();
+	IMethod method = type.getMethods()[1];
+	assertEquals("Search wrong method!!!", "foo", method.getElementName());
+	search(method, DECLARATIONS);
+	assertSearchResults(
+		"lib/b140156.jar void X.foo(List<T>) [No source] EXACT_MATCH"
 	);
 }
 }

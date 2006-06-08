@@ -94,7 +94,9 @@ public void addStackItem(TypeBinding binding) {
 	this.addStackItem(new VerificationTypeInfo(binding));
 }
 public Object clone() throws CloneNotSupportedException {
-	StackMapFrame result = new StackMapFrame();
+	StackMapFrame result = (StackMapFrame) super.clone();
+	result.numberOfLocals = -1;
+	result.numberOfDifferentLocals = -1;
 	result.pc = this.pc;
 	result.numberOfStackItems = this.numberOfStackItems;
 	

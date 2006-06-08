@@ -114,7 +114,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug125903"));
+		suite.addTest(new ASTConverterJavadocTest("testBug130752"));
 		return suite;
 	}
 
@@ -3283,6 +3283,66 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Tag name should be empty", tag.getTagName(), "@");
 			tag = (TagElement) tags.get(1);
 			assertEquals("Tag name should be empty", tag.getTagName(), "@");
+		}
+	}
+
+	/**
+	 * @bug 130752: [comments] first BlockComment parsed as LineComment
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130752"
+	 */
+	public void testBug130752() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
+			"/* Ceci n'est pas\n" + 
+			" * une ligne. */\n" + 
+			"package javadoc.b130752;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.BLOCK_COMMENT);
+		}
+	}
+	public void testBug130752b() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
+			"// Line comment\n" + 
+			"package javadoc.b130752;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.LINE_COMMENT);
+		}
+	}
+	public void testBug130752c() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
+			"/** Javadoc comment */\n" + 
+			"package javadoc.b130752;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
 		}
 	}
 }
