@@ -133,7 +133,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		this.workingCopy = getCompilationUnit("P/Y.java");
 
 		this.workingCopy.becomeWorkingCopy(null, null);
-		assertElementsEqual(
+		assertSortedElementsEqual(
 			"Unexpected children of default package",
 			"X.java [in <default> [in <project root> [in P]]]\n" +
 			"[Working copy] Y.java [in <default> [in <project root> [in P]]]",

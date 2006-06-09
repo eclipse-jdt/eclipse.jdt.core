@@ -568,6 +568,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unepexeted type parameters", expected, actual);
 	}
+	protected void assertSortedStringsEqual(String message, String expected, String[] strings) {
+		Util.sort(strings);
+		assertStringsEqual(message, expected, strings);
+	}
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
 		String actual = toString(strings, true/*add extra new lines*/);
 		if (!expected.equals(actual)) {

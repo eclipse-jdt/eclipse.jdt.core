@@ -238,7 +238,7 @@ public void testExtraJavaLikeExtension1() throws CoreException {
 		createFile("/P/pack/X.java", "package pack; public class X {}");
 		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
 		IPackageFragment pkg = getPackage("/P/pack");
-		assertElementsEqual(
+		assertSortedElementsEqual(
 			"Unexpected children of package pack", 
 			"X.java [in pack [in <project root> [in P]]]\n" + 
 			"Y.bar [in pack [in <project root> [in P]]]",
@@ -1132,33 +1132,34 @@ public void testUserLibrary() throws JavaModelException {
 	String containerKey = UserLibraryManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TEST";
 	String libraryPreference = instancePreferences.get(containerKey, null);
 	assertNotNull("Should get a preference for TEST user library", libraryPreference);
-	StringBuffer expected = new StringBuffer();
-	expected.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
-	expected.append("<userlibrary systemlibrary=\"false\" version=\"1\">\r\n");
-	expected.append("	<archive path=\"/tmp/test.jar\">\r\n");
-	expected.append("		<attributes>\r\n");
-	expected.append("			<attribute value=\"http://www.sample-url.org/doc/\" name=\"javadoc_location\"/>\r\n");
-	expected.append("			<attribute value=\"/tmp\" name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\"/>\r\n");
-	expected.append("		</attributes>\r\n");
-	expected.append("		<accessrules>\r\n");
-	expected.append("			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\r\n");
-	expected.append("			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\r\n");
-	expected.append("			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\r\n");
-	expected.append("		</accessrules>\r\n");
-	expected.append("	</archive>\r\n");
-	expected.append("	<archive path=\"/tmp/test.jar\">\r\n");
-	expected.append("		<attributes>\r\n");
-	expected.append("			<attribute value=\"http://www.sample-url.org/doc/\" name=\"javadoc_location\"/>\r\n");
-	expected.append("			<attribute value=\"/tmp\" name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\"/>\r\n");
-	expected.append("		</attributes>\r\n");
-	expected.append("		<accessrules>\r\n");
-	expected.append("			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\r\n");
-	expected.append("			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\r\n");
-	expected.append("			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\r\n");
-	expected.append("		</accessrules>\r\n");
-	expected.append("	</archive>\r\n");
-	expected.append("</userlibrary>\r\n");
-	String expectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected.toString());
-	assertEquals("Invalid library contents", expectedString, org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(libraryPreference));
+
+	assertSourceEquals(
+		"Invalid library contents", 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+		"<userlibrary systemlibrary=\"false\" version=\"1\">\n" + 
+		"	<archive path=\"/tmp/test.jar\">\n" + 
+		"		<attributes>\n" + 
+		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" + 
+		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" + 
+		"		</attributes>\n" + 
+		"		<accessrules>\n" + 
+		"			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\n" + 
+		"			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\n" + 
+		"			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\n" + 
+		"		</accessrules>\n" + 
+		"	</archive>\n" + 
+		"	<archive path=\"/tmp/test.jar\">\n" + 
+		"		<attributes>\n" + 
+		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" + 
+		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" + 
+		"		</attributes>\n" + 
+		"		<accessrules>\n" + 
+		"			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\n" + 
+		"			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\n" + 
+		"			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\n" + 
+		"		</accessrules>\n" + 
+		"	</archive>\n" + 
+		"</userlibrary>\n", 
+		libraryPreference);
 }
 }

@@ -1078,7 +1078,7 @@ public void test012b(){
 		String expectedLogContents = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">\n" + 
-			"<compiler name=\"{1}\" copyright=\"{2}\" version=\"{3}\">\n" + 
+			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" + 
 			"	<command_line>\n" + 
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" + 
 			"		<argument value=\"-1.5\"/>\n" + 
@@ -1170,10 +1170,10 @@ public void test012b(){
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
 			"	<sources>\n" + 
 			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\">\n" + 
-			"			<problems problems=\"1\" errors=\"1\" warnings=\"0\">\n" + 
-			"				<problem charEnd=\"28\" charStart=\"25\" severity=\"ERROR\" line=\"3\" id=\"UndefinedType\">\n" + 
+			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" + 
+			"				<problem charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" severity=\"ERROR\">\n" + 
 			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
-			"					<source_context value=\"Zork z;\" sourceStart=\"0\" sourceEnd=\"3\"/>\n" + 
+			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" + 
 			"					<arguments>\n" + 
 			"						<argument value=\"Zork\"/>\n" + 
 			"					</arguments>\n" + 
@@ -1183,7 +1183,7 @@ public void test012b(){
 			"		</source>\n" + 
 			"	</sources>\n" + 
 			"	<stats>\n" + 
-			"		<problem_summary problems=\"1\" errors=\"1\" warnings=\"0\" tasks=\"0\"/>\n" + 
+			"		<problem_summary errors=\"1\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" + 
 			"	</stats>\n" + 
 			"</compiler>\n";
 		String normalizedExpectedLogContents =

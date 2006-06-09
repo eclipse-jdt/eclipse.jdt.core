@@ -28,9 +28,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -958,12 +956,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			buffer.append("<"); //$NON-NLS-1$
 			buffer.append(name);
 			if (params != null) {
-				for (Enumeration enumeration = Collections.enumeration(params.keySet()); enumeration.hasMoreElements();) {
+				int length = parameters.size();
+				String[] keys = new String[length];
+				parameters.keySet().toArray(keys);
+				Arrays.sort(keys);
+				for (int i = 0; i < length; i++) {
 					buffer.append(" "); //$NON-NLS-1$
-					String key= (String) enumeration.nextElement();
-					buffer.append(key);
+					buffer.append(keys[i]);
 					buffer.append("=\""); //$NON-NLS-1$
-					buffer.append(getEscaped(String.valueOf(params.get(key))));
+					buffer.append(getEscaped(String.valueOf(params.get(keys[i]))));
 					buffer.append("\""); //$NON-NLS-1$
 				}
 			}
