@@ -31716,4 +31716,36 @@ public void test1005() {
 		},
 		"");
 }
+public void testONLY_1006() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Reference<T> {\n" + 
+			"	T target;\n" + 
+			"	Reference(T target) {\n" + 
+			"		this.target = target;\n" + 
+			"	}\n" + 
+			"	T deref() {\n" + 
+			"		return this.target;\n" + 
+			"	}\n" + 
+			"	static <U> Reference<U> create(U u) {\n" + 
+			"		return new Reference<U>(u);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class BaseObject {}\n" + 
+			"class Person extends BaseObject {}\n" + 
+			"class Building extends BaseObject {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(Building b, Person p) {\n" + 
+			"		Reference<Building> bRef = Reference.create(b);\n" + 
+			"		Reference<Person> pRef = Reference.create(p);\n" + 
+			"\n" + 
+			"		final Building building = bRef.deref();\n" + 
+			"		final Person person = pRef.deref();\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
