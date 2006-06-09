@@ -38,20 +38,20 @@ public class Argument extends LocalDeclaration {
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
-				return;
-			}
-			boolean isSpecialArgument = false;
-			if (existingVariable instanceof FieldBinding) {
-				if (scope.isInsideConstructor()) {
-					isSpecialArgument = true; // constructor argument
-				} else {
-					AbstractMethodDeclaration methodDecl = scope.referenceMethod();
-					if (methodDecl != null && CharOperation.prefixEquals(SET, methodDecl.selector)) {
-						isSpecialArgument = true; // setter argument
+			} else {
+				boolean isSpecialArgument = false;
+				if (existingVariable instanceof FieldBinding) {
+					if (scope.isInsideConstructor()) {
+						isSpecialArgument = true; // constructor argument
+					} else {
+						AbstractMethodDeclaration methodDecl = scope.referenceMethod();
+						if (methodDecl != null && CharOperation.prefixEquals(SET, methodDecl.selector)) {
+							isSpecialArgument = true; // setter argument
+						}
 					}
 				}
+				scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 			}
-			scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 		}
 
 		scope.addLocalVariable(
@@ -109,19 +109,18 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
 			return null;
 		}		
-		TypeBinding throwable = scope.getJavaLangThrowable();
-		if (!exceptionType.isCompatibleWith(throwable)) {
-			scope.problemReporter().typeMismatchError(exceptionType, throwable, this);
+		if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+			scope.problemReporter().cannotThrowType(this.type, exceptionType);
 			return null;
-		}
+		}			
 		
 		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
-				return null;
+			} else {
+				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
-			scope.problemReporter().localVariableHiding(this, existingVariable, false);
 		}
 
 		this.binding = new LocalVariableBinding(this, exceptionType, modifiers, false); // argument decl, but local var  (where isArgument = false)

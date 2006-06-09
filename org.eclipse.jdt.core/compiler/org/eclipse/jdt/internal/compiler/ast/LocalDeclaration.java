@@ -162,26 +162,22 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		
 		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-		boolean shouldInsertInScope = true;
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
-				shouldInsertInScope = false;
 				scope.problemReporter().redefineLocal(this);
 			} else {
 				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
 		}
 				
-		if (shouldInsertInScope) {
-			if ((modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
-				modifiers |= ExtraCompilerModifiers.AccBlankFinal;
-			}
-			this.binding = new LocalVariableBinding(this, variableType, modifiers, false);
-			scope.addLocalVariable(binding);
-			this.binding.setConstant(Constant.NotAConstant);
-			// allow to recursivelly target the binding....
-			// the correct constant is harmed if correctly computed at the end of this method
+		if ((modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
+			modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 		}
+		this.binding = new LocalVariableBinding(this, variableType, modifiers, false);
+		scope.addLocalVariable(binding);
+		this.binding.setConstant(Constant.NotAConstant);
+		// allow to recursivelly target the binding....
+		// the correct constant is harmed if correctly computed at the end of this method
 
 		if (variableType == null) {
 			if (initialization != null)
@@ -229,23 +225,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 					}
 				}
 			}
-			if (binding != null) {
-				// check for assignment with no effect
-				if (this.binding == Assignment.getDirectBinding(this.initialization)) {
-					scope.problemReporter().assignmentHasNoEffect(this, this.name);
-				}
-				// change the constant in the binding when it is final
-				// (the optimization of the constant propagation will be done later on)
-				// cast from constant actual type to variable type
-				binding.setConstant(
-					binding.isFinal()
-						? initialization.constant.castTo((variableType.id << 4) + initialization.constant.typeID())
-						: Constant.NotAConstant);
+			// check for assignment with no effect
+			if (this.binding == Assignment.getDirectBinding(this.initialization)) {
+				scope.problemReporter().assignmentHasNoEffect(this, this.name);
 			}
+			// change the constant in the binding when it is final
+			// (the optimization of the constant propagation will be done later on)
+			// cast from constant actual type to variable type
+			binding.setConstant(
+				binding.isFinal()
+					? initialization.constant.castTo((variableType.id << 4) + initialization.constant.typeID())
+					: Constant.NotAConstant);
 		}
 		// only resolve annotation at the end, for constant to be positionned before (96991)
-		if (this.binding != null)
-			resolveAnnotations(scope, this.annotations, this.binding);
+		resolveAnnotations(scope, this.annotations, this.binding);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
