@@ -242,10 +242,9 @@ public void test007() {
 		"----------\n" + 
 		"1. ERROR in p1\\Test.java (at line 5)\n" + 
 		"	throw null; \n" + 
-		"	^^^^^^^^^^\n" + 
-		"Cannot throw null\n" + 
-		"----------\n"
-	);
+		"	      ^^^^\n" + 
+		"Cannot throw null as an exception\n" + 
+		"----------\n");
 }
 public void test008() {
 	this.runConformTest(
@@ -2559,8 +2558,8 @@ public void test072() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	if (true) throw null;\n" + 
-		"	          ^^^^^^^^^^\n" + 
-		"Cannot throw null\n" + 
+		"	                ^^^^\n" + 
+		"Cannot throw null as an exception\n" + 
 		"----------\n");
 }
 

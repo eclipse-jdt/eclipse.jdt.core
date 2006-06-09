@@ -272,7 +272,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass; // java/lang/Object
 	}	
-
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
@@ -399,23 +398,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
 		if (this.superclass != null)
-			this.superclass = BinaryTypeBinding.resolveUnresolvedType(this.superclass, environment, true);
+			this.superclass = BinaryTypeBinding.resolveType(this.superclass, environment, true);
 		ReferenceBinding[] interfaces = this.superInterfaces;
 		int length;
 		if ((length = interfaces.length) != 0) {
 			oldFirstInterface = interfaces[0];
 			for (int i = length; --i >= 0;) {
-				interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
+				interfaces[i] = BinaryTypeBinding.resolveType(interfaces[i], environment, true);
 			}
 		}
-		this.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-	
-		// finish resolving the types
-		if (this.superclass != null)
-			this.superclass = BinaryTypeBinding.resolveType(this.superclass, environment, true);
-		for (int i = interfaces.length; --i >= 0;)
-			interfaces[i] = BinaryTypeBinding.resolveType(interfaces[i], environment, true);
-
 		// refresh the firstBound in case it changed
 		if (this.firstBound != null) {
 			if (this.firstBound == oldSuperclass) {
@@ -424,6 +415,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				this.firstBound = interfaces[0];
 			}
 		}
+		this.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 		return this;
 	}
 	

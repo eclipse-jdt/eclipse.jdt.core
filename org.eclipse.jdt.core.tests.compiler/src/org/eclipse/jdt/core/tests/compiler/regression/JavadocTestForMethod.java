@@ -1366,17 +1366,17 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "		IllegalArgumentException\n"
 					+ "	{}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 12)\n"
-				+ "	InvalidException, \n"
-				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 13)\n"
-				+ "	String, \n"
-				+ "	^^^^^^\n"
-				+ "Cannot throw the type String\n"
-				+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in X.java (at line 12)\n" + 
+					"	InvalidException, \n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"InvalidException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 13)\n" + 
+					"	String, \n" + 
+					"	^^^^^^\n" + 
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
+					"----------\n");
 	}
 
 	public void test066() {
@@ -1396,42 +1396,42 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "		IllegalArgumentException\n"
 					+ "	{}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws %IllegalArgumenException Invalid exception: invalid class name\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Missing class name\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @exception (IllegalArgumen Invalid exception: invalid class name\n"
-				+ "	   ^^^^^^^^^\n"
-				+ "Javadoc: Missing class name\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 5)\n"
-				+ "	* @exception \"IllegalArgumen Invalid exception: invalid class name\n"
-				+ "	   ^^^^^^^^^\n"
-				+ "Javadoc: Missing class name\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	IllegalAccessException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	InvalidException, \n"
-				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 10)\n"
-				+ "	String, \n"
-				+ "	^^^^^^\n"
-				+ "Cannot throw the type String\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 11)\n"
-				+ "	IllegalArgumentException\n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalArgumentException\n"
-				+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in X.java (at line 3)\n" + 
+					"	* @throws %IllegalArgumenException Invalid exception: invalid class name\n" + 
+					"	   ^^^^^^\n" + 
+					"Javadoc: Missing class name\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 4)\n" + 
+					"	* @exception (IllegalArgumen Invalid exception: invalid class name\n" + 
+					"	   ^^^^^^^^^\n" + 
+					"Javadoc: Missing class name\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 5)\n" + 
+					"	* @exception \"IllegalArgumen Invalid exception: invalid class name\n" + 
+					"	   ^^^^^^^^^\n" + 
+					"Javadoc: Missing class name\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 8)\n" + 
+					"	IllegalAccessException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalAccessException\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 9)\n" + 
+					"	InvalidException, \n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"InvalidException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"6. ERROR in X.java (at line 10)\n" + 
+					"	String, \n" + 
+					"	^^^^^^\n" + 
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
+					"----------\n" + 
+					"7. ERROR in X.java (at line 11)\n" + 
+					"	IllegalArgumentException\n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+					"----------\n");
 	}
 
 	public void test067() {
@@ -1450,37 +1450,37 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "		IllegalArgumentException\n"
 					+ "	{}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @throws IOException Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	IllegalAccessException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	InvalidException, \n"
-				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	String, \n"
-				+ "	^^^^^^\n"
-				+ "Cannot throw the type String\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 10)\n"
-				+ "	IllegalArgumentException\n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalArgumentException\n"
-				+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in X.java (at line 3)\n" + 
+					"	* @throws java.awt.AWTexception Invalid exception: unknown type\n" + 
+					"	          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: java.awt.AWTexception cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 4)\n" + 
+					"	* @throws IOException Invalid exception: unknown type\n" + 
+					"	          ^^^^^^^^^^^\n" + 
+					"Javadoc: IOException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 7)\n" + 
+					"	IllegalAccessException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalAccessException\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 8)\n" + 
+					"	InvalidException, \n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"InvalidException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 9)\n" + 
+					"	String, \n" + 
+					"	^^^^^^\n" + 
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
+					"----------\n" + 
+					"6. ERROR in X.java (at line 10)\n" + 
+					"	IllegalArgumentException\n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+					"----------\n");
 	}
 
 	public void test068() {
@@ -1500,37 +1500,37 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "		IllegalArgumentException\n"
 					+ "	{}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception EOFException is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception FileNotFoundException is not declared\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	IllegalAccessException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	InvalidException, \n"
-				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	String, \n"
-				+ "	^^^^^^\n"
-				+ "Cannot throw the type String\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	IllegalArgumentException\n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalArgumentException\n"
-				+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in X.java (at line 4)\n" + 
+					"	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n" + 
+					"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Exception EOFException is not declared\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 5)\n" + 
+					"	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n" + 
+					"	          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Exception FileNotFoundException is not declared\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 8)\n" + 
+					"	IllegalAccessException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalAccessException\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 9)\n" + 
+					"	InvalidException, \n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"InvalidException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 10)\n" + 
+					"	String, \n" + 
+					"	^^^^^^\n" + 
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
+					"----------\n" + 
+					"6. ERROR in X.java (at line 11)\n" + 
+					"	IllegalArgumentException\n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+					"----------\n");
 	}
 
 	public void test069() {
@@ -1551,42 +1551,42 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "		IllegalArgumentException\n"
 					+ "	{}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	IllegalAccessException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	InvalidException, \n"
-				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	String, \n"
-				+ "	^^^^^^\n"
-				+ "Cannot throw the type String\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	java.io.EOFException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception EOFException\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	FileNotFoundException, \n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception FileNotFoundException\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	IOException, \n"
-				+ "	^^^^^^^^^^^\n"
-				+ "IOException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 12)\n"
-				+ "	IllegalArgumentException\n"
-				+ "	^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalArgumentException\n"
-				+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in X.java (at line 6)\n" + 
+					"	IllegalAccessException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalAccessException\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 7)\n" + 
+					"	InvalidException, \n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"InvalidException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 8)\n" + 
+					"	String, \n" + 
+					"	^^^^^^\n" + 
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 9)\n" + 
+					"	java.io.EOFException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception EOFException\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 10)\n" + 
+					"	FileNotFoundException, \n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception FileNotFoundException\n" + 
+					"----------\n" + 
+					"6. ERROR in X.java (at line 11)\n" + 
+					"	IOException, \n" + 
+					"	^^^^^^^^^^^\n" + 
+					"IOException cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"7. ERROR in X.java (at line 12)\n" + 
+					"	IllegalArgumentException\n" + 
+					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+					"----------\n");
 	}
 
 	/* (non-Javadoc)

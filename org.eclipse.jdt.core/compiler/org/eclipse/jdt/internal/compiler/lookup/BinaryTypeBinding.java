@@ -132,18 +132,6 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 	}
 	return type;
 }
-// resolve hierarchy types in 2 steps by first resolving any UnresolvedTypes
-static ReferenceBinding resolveUnresolvedType(ReferenceBinding type, LookupEnvironment environment, boolean convertGenericToRawType) {
-	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment, convertGenericToRawType);
-
-	if (type.isParameterizedType())
-		resolveUnresolvedType(((ParameterizedTypeBinding) type).type, environment, false); // still part of parameterized type ref
-	else if (type.isWildcard())
-		resolveType(((WildcardBinding) type).genericType, environment, null, 0);
-	return type;
-}
-
 
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
@@ -595,11 +583,9 @@ public ReferenceBinding enclosingType() {
 	if ((this.tagBits & TagBits.HasUnresolvedEnclosingType) == 0)
 		return this.enclosingType;
 
-	this.enclosingType = resolveUnresolvedType(this.enclosingType, this.environment, false); // no raw conversion for now
-	this.tagBits &= ~TagBits.HasUnresolvedEnclosingType;
-
 	// finish resolving the type
 	this.enclosingType = resolveType(this.enclosingType, this.environment, false);
+	this.tagBits &= ~TagBits.HasUnresolvedEnclosingType;
 	return this.enclosingType;
 }
 // NOTE: the type of each field of a binary type is resolved when needed
@@ -838,11 +824,8 @@ public ReferenceBinding[] memberTypes() {
 		return this.memberTypes;
 
 	for (int i = this.memberTypes.length; --i >= 0;)
-		this.memberTypes[i] = resolveUnresolvedType(this.memberTypes[i], this.environment, false); // no raw conversion for now
-	this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
-
-	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = resolveType(this.memberTypes[i], this.environment, false); // no raw conversion for now
+	this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
 	return this.memberTypes;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
@@ -904,11 +887,9 @@ public ReferenceBinding superclass() {
 	if ((this.tagBits & TagBits.HasUnresolvedSuperclass) == 0)
 		return this.superclass;
 
-	this.superclass = resolveUnresolvedType(this.superclass, this.environment, true);
-	this.tagBits &= ~TagBits.HasUnresolvedSuperclass;
-
 	// finish resolving the type
 	this.superclass = resolveType(this.superclass, this.environment, true);
+	this.tagBits &= ~TagBits.HasUnresolvedSuperclass;
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
@@ -917,11 +898,8 @@ public ReferenceBinding[] superInterfaces() {
 		return this.superInterfaces;
 
 	for (int i = this.superInterfaces.length; --i >= 0;)
-		this.superInterfaces[i] = resolveUnresolvedType(this.superInterfaces[i], this.environment, true);
-	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
-
-	for (int i = this.superInterfaces.length; --i >= 0;)
 		this.superInterfaces[i] = resolveType(this.superInterfaces[i], this.environment, true);
+	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;
 }
 public TypeVariableBinding[] typeVariables() {

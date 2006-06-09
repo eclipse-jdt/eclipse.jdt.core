@@ -1336,7 +1336,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				continue;
 			}
 			if (resolvedExceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
-				methodDecl.scope.problemReporter().cannotThrowType(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
+				methodDecl.scope.problemReporter().cannotThrowType(exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
 		    if ((resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)

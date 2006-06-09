@@ -585,70 +585,6 @@ public FieldBinding[] fields() {
 	return Binding.NO_FIELDS;
 }
 
-/**
- * Find supertype which erases to a given well-known type, or null if not found
- * (using id avoids triggering the load of well-known type: 73740)
- * NOTE: only works for erasures of well-known types, as random other types may share
- * same id though being distincts.
- *
- */
-public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean erasureIsClass) {
-
-    // do not allow type variables to match with erasures for free
-    if (this.id == wellKnownErasureID || (!isTypeVariable() && !isIntersectionType()  && erasure().id == wellKnownErasureID)) return this;
-
-    ReferenceBinding currentType = this;
-    // iterate superclass to avoid recording interfaces if searched supertype is class
-    if (erasureIsClass) {
-		while ((currentType = currentType.superclass()) != null) { 
-			if (currentType.id == wellKnownErasureID || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure().id == wellKnownErasureID))
-				return currentType;
-		}    
-		return null;
-    }
-	ReferenceBinding[] interfacesToVisit = null;
-	int nextPosition = 0;
-	do {
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		// be resilient to unitialized interfaces (144976)
-		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) { // null check for extra resilience (144976)
-			if (interfacesToVisit == null) {
-				interfacesToVisit = itsInterfaces;
-				nextPosition = interfacesToVisit.length;
-			} else {
-				int itsLength = itsInterfaces.length;
-				if (nextPosition + itsLength >= interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-				nextInterface : for (int a = 0; a < itsLength; a++) {
-					ReferenceBinding next = itsInterfaces[a];
-					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
-					interfacesToVisit[nextPosition++] = next;
-				}
-			}
-		}
-	} while ((currentType = currentType.superclass()) != null);
-			
-	for (int i = 0; i < nextPosition; i++) {
-		currentType = interfacesToVisit[i];
-		if (currentType.id == wellKnownErasureID || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure().id == wellKnownErasureID))
-			return currentType;
-
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			int itsLength = itsInterfaces.length;
-			if (nextPosition + itsLength >= interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-			nextInterface : for (int a = 0; a < itsLength; a++) {
-				ReferenceBinding next = itsInterfaces[a];
-				for (int b = 0; b < nextPosition; b++)
-					if (next == interfacesToVisit[b]) continue nextInterface;
-				interfacesToVisit[nextPosition++] = next;
-			}
-		}
-	}
-	return null;
-}
 public final int getAccessFlags() {
 	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
@@ -1024,6 +960,22 @@ public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
 		if (otherType.isEquivalentTo(this)) return true;
 	}
+	return false;
+}
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isThrowable()
+ */
+public boolean isThrowable() {
+	ReferenceBinding current = this;
+	do {
+		switch (current.id) {
+			case TypeIds.T_JavaLangThrowable :
+			case TypeIds.T_JavaLangError :
+			case TypeIds.T_JavaLangRuntimeException :
+			case TypeIds.T_JavaLangException :
+				return true;
+		}
+	} while ((current = current.superclass()) != null);
 	return false;
 }
 /**

@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -2969,6 +2970,64 @@ public void test046() {
 	} catch (IOException e) {
 		assertTrue(false);
 	}	
+}
+public void test047() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_3) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"        public static void main(String[] args) {\n" + 
+					"                try {\n" + 
+					"					if (false) throw null;\n" +
+					"					throw new Object();\n" +
+					"                } catch(Object o) {\n" + 
+					"                }\n" + 
+					"        }\n" + 
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	if (false) throw null;\n" + 
+				"	                 ^^^^\n" + 
+				"Cannot throw null as an exception\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	throw new Object();\n" + 
+				"	      ^^^^^^^^^^^^\n" + 
+				"No exception of type Object can be thrown; an exception type must be a subclass of Throwable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	} catch(Object o) {\n" + 
+				"	        ^^^^^^\n" + 
+				"No exception of type Object can be thrown; an exception type must be a subclass of Throwable\n" + 
+				"----------\n");
+		return;
+	}	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                try {\n" + 
+			"					if (false) throw null;\n" +
+			"					throw new Object();\n" +
+			"                } catch(Object o) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	throw new Object();\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"No exception of type Object can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	} catch(Object o) {\n" + 
+		"	        ^^^^^^\n" + 
+		"No exception of type Object can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return TryStatementTest.class;

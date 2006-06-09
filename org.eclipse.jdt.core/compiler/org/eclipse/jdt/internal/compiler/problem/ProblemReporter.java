@@ -885,21 +885,21 @@ public void cannotReturnInInitializer(ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotThrowNull(ThrowStatement statement) {
+public void cannotThrowNull(ASTNode expression) {
 	this.handle(
 		IProblem.CannotThrowNull,
 		NoArgument,
 		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
+		expression.sourceStart,
+		expression.sourceEnd);
 }
-public void cannotThrowType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, TypeReference exceptionType, TypeBinding expectedType) {
+public void cannotThrowType(ASTNode exception, TypeBinding expectedType) {
 	this.handle(
 		IProblem.CannotThrowType,
 		new String[] {new String(expectedType.readableName())},
 		new String[] {new String(expectedType.shortReadableName())},
-		exceptionType.sourceStart,
-		exceptionType.sourceEnd);
+		exception.sourceStart,
+		exception.sourceEnd);
 }
 public void cannotUseQualifiedEnumConstantInCaseLabel(Reference location, FieldBinding field) {
 	this.handle(

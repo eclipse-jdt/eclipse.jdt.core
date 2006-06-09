@@ -249,7 +249,7 @@ public void test011() {
 			"Duplicate local variable x\n" + 
 			"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144426 - variation
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
 public void test012() {
 	this.runNegativeTest(
 			new String[] {
@@ -272,6 +272,61 @@ public void test012() {
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	int x = x = 1;\n" + 
 			"	    ^\n" + 
+			"Duplicate local variable x\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	int x = x = 1;\n" + 
+			"	    ^^^^^^^^^\n" + 
+			"The assignment to variable x has no effect\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
+//check variable collision resiliance (catch argument)
+// variable collision should not interfere with exception collision
+public void test013() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                int x = 2;\n" + 
+				"                try {\n" + 
+				"                	\n" + 
+				"                } catch(Exception x) {\n" + 
+				"                } catch(Exception e) {\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	} catch(Exception x) {\n" + 
+			"	                  ^\n" + 
+			"Duplicate parameter x\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	} catch(Exception e) {\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Unreachable catch block for Exception. It is already handled by the catch block for Exception\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
+public void test014() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(){\n" + 
+				"		int x = 0;\n" + 
+				"		String x = \"\";\n" + 
+				"		x.toString();\n" + 
+				"	  }\n" +
+				"	}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	String x = \"\";\n" + 
+			"	       ^\n" + 
 			"Duplicate local variable x\n" + 
 			"----------\n");
 }
