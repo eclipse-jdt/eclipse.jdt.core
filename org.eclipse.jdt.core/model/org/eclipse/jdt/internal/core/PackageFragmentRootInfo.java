@@ -60,7 +60,7 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
-		IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+		IClasspathEntry[] classpath = project.getResolvedClasspath();
 		IResource[] members = folder.members();
 		nextResource: for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];

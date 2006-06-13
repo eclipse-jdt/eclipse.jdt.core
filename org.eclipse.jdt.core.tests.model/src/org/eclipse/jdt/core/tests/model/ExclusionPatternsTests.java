@@ -71,7 +71,7 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 	
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+		"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
@@ -102,7 +102,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 	
 		assertDeltas(
 			"Unexpected deltas",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]"
 		);
@@ -136,7 +136,7 @@ public void testAddExclusionOnPackage() throws CoreException {
 	
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+		"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
@@ -175,7 +175,7 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected deltas",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -845,7 +845,7 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 	
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+		"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
@@ -875,7 +875,7 @@ public void testRemoveExclusionOnPackage() throws CoreException {
 	
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+		"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 		"	ResourceDelta(/P/.classpath)[*]"
 	);

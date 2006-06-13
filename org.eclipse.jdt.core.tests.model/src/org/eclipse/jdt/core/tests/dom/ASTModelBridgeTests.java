@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -73,6 +75,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
+		setUpJavaProject();
+	}
+
+	private void setUpJavaProject() throws CoreException, IOException, JavaModelException {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
 		project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
@@ -137,10 +143,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 	
 	public void tearDownSuite() throws Exception {
+		tearDownJavaProject();
+		super.tearDownSuite();
+	}
+
+	private void tearDownJavaProject() throws JavaModelException, CoreException {
 		if (this.workingCopy != null)
 			this.workingCopy.discardWorkingCopy();
 		deleteProject("P");
-		super.tearDownSuite();
 	}
 
 	/*
@@ -338,6 +348,42 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertTrue("Element should exist", element.exists());
 	}
 	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a type in a jar is correct after deleting the first project
+	 * referencing it.
+	 */
+	public void testBinaryType3() throws CoreException, IOException {
+		// force String to be put in the jar cache
+		buildAST(
+			"public class X {\n" + 
+			"    /*start*/String/*end*/ field;\n" + 
+			"}"
+		);
+		try {
+			tearDownJavaProject();
+			
+			createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createFile(
+				"/P1/X.java",
+				"public class X {\n" + 
+				"    /*start*/String/*end*/ field;\n" + 
+				"}"
+			);
+			ASTNode node = buildAST(getCompilationUnit("/P1/X.java"));
+			IBinding binding = ((Type) node).resolveBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P1]]]]",
+				element
+			);
+			assertTrue("Element should exist", element.exists());
+		} finally {
+			deleteProject("P1");
+			setUpJavaProject();
+		}
+	}
+
 	/*
 	 * Ensures that the IJavaElement for a binary member type coming from an anoumous class file is correct.
 	 * (regression test for bug 100636 [model] Can't find overriden methods of protected nonstatic inner class.)

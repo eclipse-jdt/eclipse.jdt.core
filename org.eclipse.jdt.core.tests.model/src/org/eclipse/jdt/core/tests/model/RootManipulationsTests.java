@@ -145,7 +145,7 @@ public void testCopySourceFolder1() throws CoreException {
 		this.copy(root, new Path("/P2/src"));
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -177,7 +177,7 @@ public void testCopySourceFolder2() throws CoreException {
 		this.copy(root, new Path("/P2/src2"));
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src2[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -217,7 +217,7 @@ public void testCopySourceFolder3() throws CoreException {
 		this.copy(root, new Path("/P2/src1"));
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -247,7 +247,7 @@ public void testCopySourceFolder4() throws CoreException {
 		this.copy(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta (1)",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
 			"	src[+]: {}\n" + 
@@ -266,7 +266,7 @@ public void testCopySourceFolder4() throws CoreException {
 		this.copy(root, new Path("/P2/src3"), sibling);
 		assertDeltas(
 			"Unexpected delta (2)",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
 			"	src3[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
@@ -284,7 +284,7 @@ public void testCopySourceFolder4() throws CoreException {
 		this.copy(root, new Path("/P2/src4"), null);
 		assertDeltas(
 			"Unexpected delta (3)",
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src4[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -369,7 +369,7 @@ public void testCopySourceFolder6() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[+]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -452,7 +452,7 @@ public void testDeleteJarFile1() throws CoreException {
 		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -482,7 +482,7 @@ public void testDeleteJarFile3() throws CoreException {
 		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	" + getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -513,10 +513,10 @@ public void testDeleteJarFile2() throws CoreException {
 		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	/P1/myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -559,7 +559,7 @@ public void testDeleteSourceFolder1() throws CoreException {
 		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -601,7 +601,7 @@ public void testDeleteSourceFolder2() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src1/src2[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
@@ -646,10 +646,10 @@ public void testMoveSourceFolder1() throws CoreException {
 		this.move(root, new Path("/P2/src"));
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -694,10 +694,10 @@ public void testMoveSourceFolder2() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {MOVED_TO(src2 [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src2[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -751,12 +751,12 @@ public void testMoveSourceFolder3() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src1/src2[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/src1)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -802,10 +802,10 @@ public void testMoveSourceFolder4() throws CoreException {
 		this.move(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
@@ -849,10 +849,10 @@ public void testMoveSourceFolder5() throws CoreException {
 		this.move(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
@@ -894,10 +894,10 @@ public void testMoveSourceFolder6() throws CoreException {
 		this.move(root, new Path("/P2/src"), null);
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -942,7 +942,7 @@ public void testRenameSourceFolder1() throws CoreException {
 		this.move(root, new Path("/P/src2"));
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[-]: {MOVED_TO(src2 [in P])}\n" + 
 			"	src2[+]: {MOVED_FROM(src1 [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -982,7 +982,7 @@ public void testRenameSourceFolder3() throws CoreException {
 		move(root, new Path("/P/src2"));
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	src1[-]: {MOVED_TO(src2 [in P])}\n" + 
 			"	src2[+]: {MOVED_FROM(src1 [in P])}\n" + 
@@ -1038,7 +1038,7 @@ public void testRenameSourceFolder2() throws CoreException {
 		this.move(root, new Path("/P/src4"));
 		assertDeltas(
 			"Unexpected delta after renaming src1",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src1[-]: {MOVED_TO(src4 [in P])}\n" + 
 			"	src4[+]: {MOVED_FROM(src1 [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1061,7 +1061,7 @@ public void testRenameSourceFolder2() throws CoreException {
 		this.move(root, new Path("/P/src5"));
 		assertDeltas(
 			"Unexpected delta after renaming src2",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src2[-]: {MOVED_TO(src5 [in P])}\n" + 
 			"	src5[+]: {MOVED_FROM(src2 [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1084,7 +1084,7 @@ public void testRenameSourceFolder2() throws CoreException {
 		this.move(root, new Path("/P/src6"));
 		assertDeltas(
 			"Unexpected delta after renaming src3",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	src3[-]: {MOVED_TO(src6 [in P])}\n" + 
 			"	src6[+]: {MOVED_FROM(src3 [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1119,7 +1119,7 @@ public void testRenameJarFile1() throws CoreException {
 		this.move(root, new Path("/P/myLib2.jar"));
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	myLib.jar[-]: {MOVED_TO(myLib2.jar [in P])}\n" + 
 			"	myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1152,11 +1152,11 @@ public void testRenameJarFile2() throws CoreException {
 		this.move(root, new Path("/P1/myLib2.jar"));
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	myLib.jar[-]: {MOVED_TO(myLib2.jar [in P1])}\n" + 
 			"	myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"P2[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	/P1/myLib.jar[-]: {MOVED_TO(myLib2.jar [in P1])}\n" + 
 			"	/P1/myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
@@ -1205,7 +1205,7 @@ public void testRenameJarFile3() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	myLib1.jar[-]: {MOVED_TO(myLib2.jar [in P])}\n" + 
 			"	myLib2.jar[*]: {CONTENT | REORDERED | ARCHIVE CONTENT CHANGED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"

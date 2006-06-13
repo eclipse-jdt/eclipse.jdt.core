@@ -220,7 +220,7 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		setClasspath(proj, swappedEntries);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	"+  getExternalJCLPathString() +"[*]: {REORDERED}\n" + 
 			"	"+  getExternalJCLSourcePathString() +"[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -258,11 +258,10 @@ public void testClasspathCorruption() throws CoreException {
 */
 		p1.close();
 		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(p1.getProject(), true/*create if missing*/);
-		perProjectInfo.updateClasspathInformation(null);
-		perProjectInfo.outputLocation = null;
+		perProjectInfo.setClasspath(null, null, null, null, null, null);
 
 		// shouldn't fail 
-		p1.getExpandedClasspath(true, true, null, null);
+		p1.getExpandedClasspath();
 
 		// if could reach that far, then all is fine
 		
@@ -631,22 +630,7 @@ public void testClasspathNoChanges() throws CoreException {
 		IClasspathEntry[] oldClasspath= p.getRawClasspath();
 		startDeltas();
 		p.setRawClasspath(oldClasspath, null);
-
-
-//		try {
-//			java.io.File file = p.getProject().getFile(JavaProject.CLASSPATH_FILENAME).getLocation().toFile();
-//			if (file.exists()){
-//				char[] classpath = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, "UTF-8");
-//				System.out.println(new String(classpath));
-//			}
-//		} catch(java.io.IOException e){
-//		}
-
-		StringBuffer buffer = new StringBuffer(10);
-		for (int i = 0; i < this.deltaListener.deltas.length; i++){
-			buffer.append(this.deltaListener.deltas[i].toString()).append('\n');
-		}
-		assertEquals("No deltas should be generated for the same classpath", "", buffer.toString());
+		assertDeltas("Unexpected delta", "");
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
@@ -1884,17 +1868,16 @@ public void testCycleReport() throws CoreException {
 		newCP[length]= JavaCore.newProjectEntry(p3.getProject().getFullPath(), false);
 		p1.setRawClasspath(newCP, null);
 
-		// Ensure a cycle is reported on one of the projects
-		// Ensure no cycle reported
+		waitForAutoBuild(); // wait for cycle markers to be created
 		cycleMarkerCount = 0;
 		for (int i = 0; i < projects.length; i++){
-			cycleMarkerCount += this.numberOfCycleMarkers(projects[i]);
+			cycleMarkerCount += numberOfCycleMarkers(projects[i]);
 		}
-		assertTrue("Should have 3 projects involved in a classpath cycle", cycleMarkerCount == 3);
+		assertEquals("Unexpected number of projects involved in a classpath cycle", 3, cycleMarkerCount);
 		
 	} finally {
 		// cleanup  
-		this.deleteProjects(new String[] {"P1", "P2", "P3"});
+		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
 }
 /**
@@ -1930,7 +1913,7 @@ public void testEmptyClasspath() throws CoreException {
 		// ensure the deltas are correct
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -2135,7 +2118,7 @@ public void testExportContainer() throws CoreException {
 		
 		// create dependent project P2
 		IJavaProject  p2 = this.createJavaProject("P2", new String[] {}, new String[] {}, new String[] {"/P1"}, "");
-		IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath(true);
+		IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath();
 		
 		// ensure container is exported to P2
 		assertEquals("Unexpected number of classpath entries", 2, classpath.length);
@@ -3133,7 +3116,6 @@ public void testCycleDetection4() throws CoreException {
 		waitForAutoBuild();
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
 		createFile("/P1/test.txt", "");
-		waitForAutoBuild();
 		assertCycleMarkers(p1, new IJavaProject[] {p1, p2}, new int[] {1, 1});
 	} finally {
 		getWorkspace().removeResourceChangeListener(listener);
@@ -3251,7 +3233,7 @@ public void testNoResourceChange04() throws CoreException {
 		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}"
 		);
@@ -3852,7 +3834,7 @@ public void testRemoveDuplicates() throws CoreException {
 		};
 		setClasspath(p2, p2ClasspathEntries);
 	
-		IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath(true);
+		IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath();
 		assertEquals("Unexpected number of classpath entries", 2, classpath.length);
 		assertEquals("Unexpected first entry", "/P1", classpath[0].getPath().toString());
 		assertEquals("Unexpected second entry", getExternalJCLPathString(), classpath[1].getPath().toOSString());

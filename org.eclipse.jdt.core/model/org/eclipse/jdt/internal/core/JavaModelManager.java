@@ -372,7 +372,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (outputLocation.isPrefixOf(folderPath)) {
 				// only allow nesting in project's output if there is a corresponding source folder
 				// or if the project's output is not used (in other words, if all source folders have their custom output)
-				IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+				IClasspathEntry[] classpath = project.getResolvedClasspath();
 				boolean isOutputUsed = false;
 				for (int i = 0, length = classpath.length; i < length; i++) {
 					IClasspathEntry entry = classpath[i];
@@ -777,7 +777,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Create a jar package fragment root only if on the classpath
 		IPath resourcePath = file.getFullPath();
 		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				IPath rootPath = entry.getPath();
@@ -805,7 +805,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			IClasspathEntry[] entries = 
 				org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment())
 					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
-					: ((JavaProject)project).getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+					: ((JavaProject)project).getResolvedClasspath();
 				
 			for (int i = 0; i < entries.length; i++) {
 				IClasspathEntry entry = entries[i];
@@ -891,7 +891,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public Object savedState;
 		public boolean triedRead;
 		public IClasspathEntry[] rawClasspath;
+		public IJavaModelStatus rawClasspathStatus;
 		public IClasspathEntry[] resolvedClasspath;
+		public IJavaModelStatus unresolvedEntryStatus;
 		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
 		public IPath outputLocation;
 		
@@ -928,14 +930,81 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 		
-		// updating raw classpath need to flush obsoleted cached information about resolved entries
-		public synchronized void updateClasspathInformation(IClasspathEntry[] newRawClasspath) {
-
+		public synchronized void resetResolvedClasspath() {
+			// null out resolved information
+			setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null);
+		}
+		
+		public synchronized void setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newResolvedPathToRawEntries, IJavaModelStatus newUnresolvedEntryStatus) {
+			// remember old info
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
+			deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
+			
 			this.rawClasspath = newRawClasspath;
-			this.resolvedClasspath = null;
-			this.resolvedPathToRawEntries = null;
+			this.outputLocation = newOutputLocation;
+			this.rawClasspathStatus = newRawClasspathStatus;
+			this.resolvedClasspath = newResolvedClasspath;
+			this.resolvedPathToRawEntries = newResolvedPathToRawEntries;
+			this.unresolvedEntryStatus = newUnresolvedEntryStatus;
 			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
+		
+		/*
+		 * Reads the raw classpath and output location from disk, and remember them.
+		 * Return the raw classpath, or JavaProject#INVALID_CLASSPATH if unable to read it.
+		 */
+		public synchronized IClasspathEntry[] readAndCacheClasspath(JavaProject javaProject) {
+			// read file entries and update status
+			IClasspathEntry[] classpath;
+			IJavaModelStatus status;
+			try {
+				classpath = javaProject.readFileEntriesWithException(null/*not interested in unknown elements*/);
+				status = JavaModelStatus.VERIFIED_OK;
+			} catch (CoreException e) {
+				classpath = JavaProject.INVALID_CLASSPATH;
+				status = 
+					new JavaModelStatus(
+						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+						Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
+			} catch (IOException e) {
+				classpath = JavaProject.INVALID_CLASSPATH;
+				if (Messages.file_badFormat.equals(e.getMessage()))
+					status = 
+						new JavaModelStatus(
+							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+							Messages.bind(Messages.classpath_xmlFormatError, javaProject.getElementName(), Messages.file_badFormat));
+				else				
+					status = 
+						new JavaModelStatus(
+							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+							Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
+			} catch (AssertionFailedException e) {
+				classpath = JavaProject.INVALID_CLASSPATH;
+				status =  
+					new JavaModelStatus(
+						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+						Messages.bind(Messages.classpath_illegalEntryInClasspathFile, new String[] {javaProject.getElementName(), e.getMessage()}));
+			}
+		
+			// extract out the output location
+			IPath output = null;
+			if (classpath.length > 0) {
+				IClasspathEntry entry = classpath[classpath.length - 1];
+				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+					output = entry.getPath();
+					IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
+					System.arraycopy(classpath, 0, copy, 0, copy.length);
+					classpath = copy;
+				}
+			}
+			
+			// store new raw classpath, new output and new status, and null out resolved info
+			setClasspath(classpath, output, status, null, null, null);
+			
+			return classpath;
+		}
+		
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("Info for "); //$NON-NLS-1$
@@ -1050,7 +1119,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						newPath = null;
 					}
 					try {
-						manager.updateVariableValues(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/, null/*no progress available*/);
+						SetVariablesOperation operation = new SetVariablesOperation(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/);
+						operation.runOperation(null/*no progress available*/);
 					} catch (JavaModelException e) {
 						Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
 					}
@@ -2629,8 +2699,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (containerString == null) {
 			getJavaModelManager().containerPut(project, containerPath, null);
 		} else {
-			final IClasspathEntry[] containerEntries = ((JavaProject) project).decodeClasspath(containerString, false, false);
-			if (containerEntries != null && containerEntries != JavaProject.INVALID_CLASSPATH) {
+			IClasspathEntry[] entries;
+			try {
+				entries = ((JavaProject) project).decodeClasspath(containerString, null/*not interested in unknown elements*/);
+			} catch (IOException e) {
+				Util.log(e, "Could not recreate persisted container: \n" + containerString); //$NON-NLS-1$
+				entries = JavaProject.INVALID_CLASSPATH;
+			}
+			if (entries != JavaProject.INVALID_CLASSPATH) {
+				final IClasspathEntry[] containerEntries = entries;
 				IClasspathContainer container = new IClasspathContainer() {
 					public IClasspathEntry[] getClasspathEntries() {
 						return containerEntries;
@@ -3830,167 +3907,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	/*
-	 * Internal updating of a variable values (null path meaning removal), allowing to change multiple variable values at once.
-	 */
-	public void updateVariableValues(
-		String[] variableNames,
-		IPath[] variablePaths,
-		boolean updatePreferences,
-		IProgressMonitor monitor) throws JavaModelException {
-	
-		if (monitor != null && monitor.isCanceled()) return;
-		
-		if (CP_RESOLVE_VERBOSE){
-			Util.verbose(
-				"CPVariable SET  - setting variables\n" + //$NON-NLS-1$
-				"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variableNames) + '\n' +//$NON-NLS-1$
-				"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variablePaths)); //$NON-NLS-1$
-		}
-		
-		if (variablePutIfInitializingWithSameValue(variableNames, variablePaths))
-			return;
-
-		int varLength = variableNames.length;
-		
-		// gather classpath information for updating
-		final HashMap affectedProjectClasspaths = new HashMap(5);
-		IJavaModel model = getJavaModel();
-	
-		// filter out unmodified variables
-		int discardCount = 0;
-		for (int i = 0; i < varLength; i++){
-			String variableName = variableNames[i];
-			IPath oldPath = this.variableGet(variableName); // if reentering will provide previous session value 
-			if (oldPath == VARIABLE_INITIALIZATION_IN_PROGRESS){
-//				IPath previousPath = (IPath)this.previousSessionVariables.get(variableName);
-//				if (previousPath != null){
-//					if (CP_RESOLVE_VERBOSE){
-//						Util.verbose(
-//							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" +
-//							"	variable: "+ variableName + '\n' +
-//							"	previous value: " + previousPath);
-//					}
-//					this.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
-//				}
-				oldPath = null;  //33695 - cannot filter out restored variable, must update affected project to reset cached CP
-			}
-			if (oldPath != null && oldPath.equals(variablePaths[i])){
-				variableNames[i] = null;
-				discardCount++;
-			}
-		}
-		if (discardCount > 0){
-			if (discardCount == varLength) return;
-			int changedLength = varLength - discardCount;
-			String[] changedVariableNames = new String[changedLength];
-			IPath[] changedVariablePaths = new IPath[changedLength];
-			for (int i = 0, index = 0; i < varLength; i++){
-				if (variableNames[i] != null){
-					changedVariableNames[index] = variableNames[i];
-					changedVariablePaths[index] = variablePaths[i];
-					index++;
-				}
-			}
-			variableNames = changedVariableNames;
-			variablePaths = changedVariablePaths;
-			varLength = changedLength;
-		}
-		
-		if (monitor != null && monitor.isCanceled()) return;
-
-		if (model != null) {
-			IJavaProject[] projects = model.getJavaProjects();
-			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
-				JavaProject project = (JavaProject) projects[i];
-						
-				// check to see if any of the modified variables is present on the classpath
-				IClasspathEntry[] classpath = project.getRawClasspath();
-				for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
-					
-					IClasspathEntry entry = classpath[j];
-					for (int k = 0; k < varLength; k++){
-	
-						String variableName = variableNames[k];						
-						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
-	
-							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
-								continue nextProject;
-							}
-							IPath sourcePath, sourceRootPath;
-							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
-								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
-	
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
-								continue nextProject;
-							}
-						}												
-					}
-				}
-			}
-		}
-		// update variables
-		for (int i = 0; i < varLength; i++){
-			variablePut(variableNames[i], variablePaths[i]);
-			if (updatePreferences)
-				variablePreferencesPut(variableNames[i], variablePaths[i]);
-		}
-		final String[] dbgVariableNames = variableNames;
-				
-		// update affected project classpaths
-		if (!affectedProjectClasspaths.isEmpty()) {
-			try {
-				final boolean canChangeResources = !ResourcesPlugin.getWorkspace().isTreeLocked();
-				JavaCore.run(
-					new IWorkspaceRunnable() {
-						public void run(IProgressMonitor progressMonitor) throws CoreException {
-							// propagate classpath change
-							Iterator projectsToUpdate = affectedProjectClasspaths.keySet().iterator();
-							while (projectsToUpdate.hasNext()) {
-			
-								if (progressMonitor != null && progressMonitor.isCanceled()) return;
-			
-								JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
-
-								if (CP_RESOLVE_VERBOSE){
-									Util.verbose(
-										"CPVariable SET  - updating affected project due to setting variables\n" + //$NON-NLS-1$
-										"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
-										"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
-								}
-
-								affectedProject
-									.setRawClasspath(
-										affectedProject.getRawClasspath(),
-										SetClasspathOperation.DO_NOT_SET_OUTPUT,
-										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
-										canChangeResources, 
-										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
-										false, // updating - no need for early validation
-										false); // updating - no need to save
-							}
-						}
-					},
-					null/*no need to lock anything*/,
-					monitor);
-			} catch (CoreException e) {
-				if (CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPVariable SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
-						"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames), //$NON-NLS-1$
-						System.err); 
-					e.printStackTrace();
-				}
-				if (e instanceof JavaModelException) {
-					throw (JavaModelException)e;
-				} else {
-					throw new JavaModelException(e);
-				}
-			}
-		}
-	}
-	
-	/*
 	 * Returns the set of variable names that are being initialized in the current thread.
 	 */
 	private HashSet variableInitializationInProgress() {
@@ -4038,7 +3954,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
-	private void variablePreferencesPut(String variableName, IPath variablePath) {
+	public void variablePreferencesPut(String variableName, IPath variablePath) {
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		if (variablePath == null) {
 			this.variablesWithInitializer.remove(variableName);
@@ -4051,23 +3967,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} catch (BackingStoreException e) {
 			// ignore exception
 		}
-	}
-	
-	/*
-	 * Optimize startup case where 1 variable is initialized at a time with the same value as on shutdown.
-	 */
-	public boolean variablePutIfInitializingWithSameValue(String[] variableNames, IPath[] variablePaths) {
-		if (variableNames.length != 1)
-			return false;
-		String variableName = variableNames[0];
-		IPath oldPath = getPreviousSessionVariable(variableName);
-		if (oldPath == null)
-			return false;
-		IPath newPath = variablePaths[0];
-		if (!oldPath.equals(newPath))
-			return false;
-		variablePut(variableName, newPath);
-		return true;
 	}
 
 	public void contentTypeChanged(ContentTypeChangeEvent event) {

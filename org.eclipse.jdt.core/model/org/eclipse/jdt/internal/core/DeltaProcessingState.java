@@ -23,7 +23,6 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -50,18 +49,18 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 */
 	private ThreadLocal deltaProcessors = new ThreadLocal();
 	
-	/* A table from IPath (from a classpath entry) to RootInfo */
+	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo */
 	public HashMap roots = new HashMap();
 	
-	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
+	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * Used when an IPath corresponds to more than one root */
 	public HashMap otherRoots = new HashMap();
 	
-	/* A table from IPath (from a classpath entry) to RootInfo
+	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked. */
 	public HashMap oldRoots = new HashMap();
 	
-	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
+	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked.
 	 * Used when an IPath corresponds to more than one root */
 	public HashMap oldOtherRoots = new HashMap();
@@ -78,94 +77,15 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/* Threads that are currently running initializeRoots() */
 	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	
 	
+	/* A table from file system absoulte path (String) to timestamp (Long) */
 	public Hashtable externalTimeStamps;
 	
-	public HashMap projectUpdates = new HashMap();
+	/* A table from JavaProject to ClasspathValidation */
+	private HashMap classpathValidations = new HashMap();
+	
+	/* A table from JavaProject to ProjectReferenceChange */
+	private HashMap projectReferenceChanges= new HashMap();
 
-	public static class ProjectUpdateInfo {
-		JavaProject project;
-		IClasspathEntry[] oldResolvedPath;
-		IClasspathEntry[] newResolvedPath;
-		IClasspathEntry[] newRawPath;
-		
-		/**
-		 * Update projects references so that the build order is consistent with the classpath
-		 */
-		public void updateProjectReferencesIfNecessary() throws JavaModelException {
-			
-			String[] oldRequired = this.oldResolvedPath == null ? CharOperation.NO_STRINGS : this.project.projectPrerequisites(this.oldResolvedPath);
-	
-			if (this.newResolvedPath == null) {
-				if (this.newRawPath == null)
-					this.newRawPath = this.project.getRawClasspath(true/*create markers*/, false/*don't log problems*/);
-				this.newResolvedPath = 
-					this.project.getResolvedClasspath(
-						this.newRawPath, 
-						null/*no output*/, 
-						true/*ignore unresolved entry*/, 
-						true/*generate marker on error*/, 
-						null/*no reverse map*/);
-			}
-			String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
-			try {
-				IProject projectResource = this.project.getProject();
-				IProjectDescription description = projectResource.getDescription();
-				 
-				IProject[] projectReferences = description.getDynamicReferences();
-				
-				HashSet oldReferences = new HashSet(projectReferences.length);
-				for (int i = 0; i < projectReferences.length; i++){
-					String projectName = projectReferences[i].getName();
-					oldReferences.add(projectName);
-				}
-				HashSet newReferences = (HashSet)oldReferences.clone();
-		
-				for (int i = 0; i < oldRequired.length; i++){
-					String projectName = oldRequired[i];
-					newReferences.remove(projectName);
-				}
-				for (int i = 0; i < newRequired.length; i++){
-					String projectName = newRequired[i];
-					newReferences.add(projectName);
-				}
-		
-				Iterator iter;
-				int newSize = newReferences.size();
-				
-				checkIdentity: {
-					if (oldReferences.size() == newSize){
-						iter = newReferences.iterator();
-						while (iter.hasNext()){
-							if (!oldReferences.contains(iter.next())){
-								break checkIdentity;
-							}
-						}
-						return;
-					}
-				}
-				String[] requiredProjectNames = new String[newSize];
-				int index = 0;
-				iter = newReferences.iterator();
-				while (iter.hasNext()){
-					requiredProjectNames[index++] = (String)iter.next();
-				}
-				Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
-				
-				IProject[] requiredProjectArray = new IProject[newSize];
-				IWorkspaceRoot wksRoot = projectResource.getWorkspace().getRoot();
-				for (int i = 0; i < newSize; i++){
-					requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
-				}
-				description.setDynamicReferences(requiredProjectArray);
-				projectResource.setDescription(description, null);
-		
-			} catch(CoreException e){
-				if (!ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(this.project.getElementName()))
-					throw new JavaModelException(e);
-			}
-		}
-	}
-	
 	/**
 	 * Workaround for bug 15168 circular errors not reported  
 	 * This is a cache of the projects before any project addition/deletion has started.
@@ -225,25 +145,21 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		return deltaProcessor;
 	}
 
-	public void updateProjectReferences(JavaProject project, IClasspathEntry[] oldResolvedPath, IClasspathEntry[] newResolvedPath, IClasspathEntry[] newRawPath, boolean canChangeResources) throws JavaModelException {
-		ProjectUpdateInfo info;
-		synchronized (this) {
-			info = (ProjectUpdateInfo) (canChangeResources ? this.projectUpdates.remove(project) /*remove possibly awaiting one*/ : this.projectUpdates.get(project));
-			if (info == null) {
-				info = new ProjectUpdateInfo();
-				info.project = project;
-				info.oldResolvedPath = oldResolvedPath;
-				if (!canChangeResources) {
-					this.projectUpdates.put(project, info);
-				}
-		    } // else refresh new classpath information
-		    info.newResolvedPath = newResolvedPath;
-		    info.newRawPath = newRawPath;
-		}
-
-	    if (canChangeResources) {
-	        info.updateProjectReferencesIfNecessary();
-	    } // else project references will be updated on next PRE_BUILD notification
+	public synchronized ClasspathValidation addClasspathValidation(JavaProject project) {
+		ClasspathValidation validation = (ClasspathValidation) this.classpathValidations.get(project);
+		if (validation == null) {
+			validation = new ClasspathValidation(project);
+			this.classpathValidations.put(project, validation);
+	    }
+		return validation;
+	}
+	
+	public synchronized void addProjectReferenceChange(JavaProject project, IClasspathEntry[] oldResolvedClasspath) {
+		ProjectReferenceChange change = (ProjectReferenceChange) this.projectReferenceChanges.get(project);
+		if (change == null) {
+			change = new ProjectReferenceChange(project, oldResolvedClasspath);
+			this.projectReferenceChanges.put(project, change);
+	    }
 	}
 	
 	public void initializeRoots() {
@@ -283,7 +199,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					JavaProject project = (JavaProject) projects[i];
 					IClasspathEntry[] classpath;
 					try {
-						classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+						classpath = project.getResolvedClasspath();
 					} catch (JavaModelException e) {
 						// continue with next project
 						continue;
@@ -357,12 +273,21 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		}
 	}
 
-	public synchronized ProjectUpdateInfo[] removeAllProjectUpdates() {
-	    int length = this.projectUpdates.size();
+	public synchronized ClasspathValidation[] removeClasspathValidations() {
+	    int length = this.classpathValidations.size();
 	    if (length == 0) return null;
-	    ProjectUpdateInfo[]  updates = new ProjectUpdateInfo[length];
-	    this.projectUpdates.values().toArray(updates);
-	    this.projectUpdates.clear();
+	    ClasspathValidation[]  validations = new ClasspathValidation[length];
+	    this.classpathValidations.values().toArray(validations);
+	    this.classpathValidations.clear();
+	    return validations;
+	}
+	
+	public synchronized ProjectReferenceChange[] removeProjectReferenceChanges() {
+	    int length = this.projectReferenceChanges.size();
+	    if (length == 0) return null;
+	    ProjectReferenceChange[]  updates = new ProjectReferenceChange[length];
+	    this.projectReferenceChanges.values().toArray(updates);
+	    this.projectReferenceChanges.clear();
 	    return updates;
 	}
 	

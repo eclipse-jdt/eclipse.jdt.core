@@ -88,7 +88,7 @@ private void computeClasspathLocations(
 			cycleMarker.setAttribute(IMarker.SEVERITY, severity);
 	}
 
-	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true/*ignore unresolved variable*/, false/*don't create markers*/, null/*preferred cp*/, null/*preferred output*/);
+	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath();
 	ArrayList sLocations = new ArrayList(classpathEntries.length);
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {

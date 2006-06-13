@@ -52,7 +52,7 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 		IClasspathEntry[] focusEntries = null;
 		if (isPolymorphicSearch) {
 			JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject) focus.getParent() : (JavaProject) focus;
-			focusEntries = focusProject.getExpandedClasspath(true);
+			focusEntries = focusProject.getExpandedClasspath();
 		}
 		IJavaModel model = focus.getJavaModel();
 		IJavaProject project = getJavaProject(projectOrJarPath, model);
@@ -64,7 +64,7 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 		IJavaProject[] allProjects = model.getJavaProjects();
 		for (int i = 0, length = allProjects.length; i < length; i++) {
 			JavaProject otherProject = (JavaProject) allProjects[i];
-			IClasspathEntry[] entries = otherProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+			IClasspathEntry[] entries = otherProject.getResolvedClasspath();
 			for (int j = 0, length2 = entries.length; j < length2; j++) {
 				IClasspathEntry entry = entries[j];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectOrJarPath))
@@ -94,7 +94,7 @@ public static boolean canSeeFocus(IJavaElement focus, JavaProject javaProject, I
 		if (focus instanceof JarPackageFragmentRoot) {
 			// focus is part of a jar
 			IPath focusPath = focus.getPath();
-			IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
+			IClasspathEntry[] entries = javaProject.getExpandedClasspath();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(focusPath))
@@ -104,7 +104,7 @@ public static boolean canSeeFocus(IJavaElement focus, JavaProject javaProject, I
 		}
 		// look for dependent projects
 		IPath focusPath = ((JavaProject) focus).getProject().getFullPath();
-		IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
+		IClasspathEntry[] entries = javaProject.getExpandedClasspath();
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT && entry.getPath().equals(focusPath))
@@ -137,7 +137,7 @@ private void initializeIndexLocations() {
 			IClasspathEntry[] focusEntries = null;
 			if (this.pattern != null && MatchLocator.isPolymorphicSearch(this.pattern)) { // isPolymorphicSearch
 				JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject) focus.getParent() : (JavaProject) focus;
-				focusEntries = focusProject.getExpandedClasspath(true);
+				focusEntries = focusProject.getExpandedClasspath();
 			}
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 			for (int i = 0; i < length; i++) {
@@ -154,7 +154,7 @@ private void initializeIndexLocations() {
 				}
 			}
 			for (int i = 0; i < projectIndex && jarsToCheck.elementSize > 0; i++) {
-				IClasspathEntry[] entries = projectsCanSeeFocus[i].getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+				IClasspathEntry[] entries = projectsCanSeeFocus[i].getResolvedClasspath();
 				for (int j = entries.length; --j >= 0;) {
 					IClasspathEntry entry = entries[j];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
@@ -172,7 +172,7 @@ private void initializeIndexLocations() {
 				for (int i = 0, l = allProjects.length; i < l && jarsToCheck.elementSize > 0; i++) {
 					JavaProject project = (JavaProject) allProjects[i];
 					if (!visitedProjects.includes(project)) {
-						IClasspathEntry[] entries = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+						IClasspathEntry[] entries = project.getResolvedClasspath();
 						for (int j = entries.length; --j >= 0;) {
 							IClasspathEntry entry = entries[j];
 							if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {

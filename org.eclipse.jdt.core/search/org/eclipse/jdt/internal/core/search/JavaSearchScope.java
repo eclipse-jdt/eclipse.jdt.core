@@ -12,25 +12,15 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -104,7 +94,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 	String projectPathString = projectPath.toString();
 	this.addEnclosingProjectOrJar(projectPath);
 
-	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+	IClasspathEntry[] entries = javaProject.getResolvedClasspath();
 	IJavaModel model = javaProject.getJavaModel();
 	JavaModelManager.PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
 	for (int i = 0, length = entries.length; i < length; i++) {
@@ -122,8 +112,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
 				IClasspathEntry rawEntry = null;
-				if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
-					rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
+				Map resolvedPathToRawEntries = perProjectInfo.resolvedPathToRawEntries;
+				if (resolvedPathToRawEntries != null) {
+					rawEntry = (IClasspathEntry) resolvedPathToRawEntries.get(entry.getPath());
 				}
 				if (rawEntry == null) break;
 				switch (rawEntry.getEntryKind()) {

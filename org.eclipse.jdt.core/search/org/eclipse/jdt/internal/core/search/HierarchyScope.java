@@ -162,7 +162,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			HashSet visited = new HashSet();
 			for (int i = 0; i < projects.length; i++) {
 				JavaProject project = (JavaProject) projects[i];
-				IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+				IClasspathEntry[] classpath = project.getResolvedClasspath();
 				for (int j = 0; j < classpath.length; j++) {
 					if (rootPath.equals(classpath[j].getPath())) {
 						// add the project and its binary pkg fragment roots

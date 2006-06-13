@@ -314,7 +314,7 @@ public IPackageFragment createPackageFragment(String pkgName, boolean force, IPr
  * 		not exist.
  */
 protected int determineKind(IResource underlyingResource) throws JavaModelException {
-	IClasspathEntry[] entries= ((JavaProject)getJavaProject()).getResolvedClasspath(true);
+	IClasspathEntry[] entries= ((JavaProject)getJavaProject()).getResolvedClasspath();
 	for (int i= 0; i < entries.length; i++) {
 		IClasspathEntry entry= entries[i];
 		if (entry.getPath().equals(underlyingResource.getFullPath())) {
@@ -584,10 +584,10 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 
 	IClasspathEntry rawEntry = null;
 	JavaProject project = (JavaProject)this.getJavaProject();
-	project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/); // force the reverse rawEntry cache to be populated
-	JavaModelManager.PerProjectInfo perProjectInfo = project.getPerProjectInfo();
-	if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
-		rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(this.getPath());
+	project.getResolvedClasspath(); // force the reverse rawEntry cache to be populated
+	Map resolvedPathToRawEntries = project.getPerProjectInfo().resolvedPathToRawEntries;
+	if (resolvedPathToRawEntries != null) {
+		rawEntry = (IClasspathEntry) resolvedPathToRawEntries.get(this.getPath());
 	}
 	return rawEntry;
 }
@@ -778,7 +778,7 @@ protected IStatus validateOnClasspath() {
 	try {
 		// check package fragment root on classpath of its project
 		JavaProject project = (JavaProject) getJavaProject();
-		IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);	
+		IClasspathEntry[] classpath = project.getResolvedClasspath();	
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getPath().equals(path)) {

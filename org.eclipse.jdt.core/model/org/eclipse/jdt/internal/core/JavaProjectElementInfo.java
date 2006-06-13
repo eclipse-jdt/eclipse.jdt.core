@@ -103,7 +103,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		IClasspathEntry[] classpath = null;
 		IPath projectOutput = null;
 		try {
-			classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+			classpath = project.getResolvedClasspath();
 			for (int i = 0; i < classpath.length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {
@@ -292,7 +292,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	void resetCaches() {
 		this.projectCache = null;
-		JavaModelManager.getJavaModelManager().resetJarTypeCache();
 	}
 	
 	/**

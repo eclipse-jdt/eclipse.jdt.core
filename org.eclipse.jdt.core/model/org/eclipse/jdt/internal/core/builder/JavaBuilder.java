@@ -402,7 +402,7 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 
 	ArrayList projects = new ArrayList();
 	try {
-		IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
+		IClasspathEntry[] entries = javaProject.getExpandedClasspath();
 		for (int i = 0, l = entries.length; i < l; i++) {
 			IClasspathEntry entry = entries[i];
 			IPath path = entry.getPath();
@@ -583,9 +583,6 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 }
 
 private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throws CoreException {
-	if (classpath == JavaProject.INVALID_CLASSPATH) // the .classpath file could not be read
-		return true;
-
 	IMarker[] markers = p.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	for (int i = 0, l = markers.length; i < l; i++)
 		if (((Integer) markers[i].getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR)

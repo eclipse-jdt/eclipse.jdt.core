@@ -853,7 +853,7 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 		case IJavaElementDelta.ADDED :
 			try {
 				// if the added project is on the classpath, then the hierarchy has changed
-				IClasspathEntry[] classpath = ((JavaProject)this.javaProject()).getExpandedClasspath(true);
+				IClasspathEntry[] classpath = ((JavaProject)this.javaProject()).getExpandedClasspath();
 				for (int i = 0; i < classpath.length; i++) {
 					if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT 
 							&& classpath[i].getPath().equals(element.getPath())) {
@@ -862,7 +862,7 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 				}
 				if (this.focusType != null) {
 					// if the hierarchy's project is on the added project classpath, then the hierarchy has changed
-					classpath = ((JavaProject)element).getExpandedClasspath(true);
+					classpath = ((JavaProject)element).getExpandedClasspath();
 					IPath hierarchyProject = javaProject().getPath();
 					for (int i = 0; i < classpath.length; i++) {
 						if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT 
@@ -928,7 +928,7 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					for (int i = 0; i < elements.length; i++) {
 						JavaProject javaProject = (JavaProject)elements[i];
 						try {
-							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+							IClasspathEntry[] classpath = javaProject.getResolvedClasspath();
 							for (int j = 0; j < classpath.length; j++) {
 								IClasspathEntry entry = classpath[j];
 								if (entry.getPath().equals(rootPath)) {

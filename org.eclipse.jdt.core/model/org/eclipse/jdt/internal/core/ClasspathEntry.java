@@ -1309,7 +1309,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		// retrieve resolved classpath
 		IClasspathEntry[] classpath; 
 		try {
-			classpath = ((JavaProject)javaProject).getResolvedClasspath(rawClasspath, null /*output*/, true/*ignore pb*/, false/*no marker*/, null /*no reverse map*/);
+			classpath = ((JavaProject)javaProject).resolveClasspath(rawClasspath);
 		} catch(JavaModelException e){
 			return e.getJavaModelStatus();
 		}
@@ -1694,7 +1694,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 			// project entry check
 			case IClasspathEntry.CPE_PROJECT :
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+				if (path != null && path.isAbsolute() && path.segmentCount() == 1) {
 					IProject prereqProjectRsc = workspaceRoot.getProject(path.segment(0));
 					IJavaProject prereqProject = JavaCore.create(prereqProjectRsc);
 					try {
@@ -1715,7 +1715,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundProject, new String[] {path.segment(0), projectName})); 
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalProjectPath, new String[] {path.segment(0), projectName})); 
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalProjectPath, new String[] {path.toString(), projectName})); 
 				}
 				break;
 	

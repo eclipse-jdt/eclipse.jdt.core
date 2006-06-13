@@ -425,7 +425,7 @@ public class TestingEnvironment {
 		try {
 			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 			JavaProject javaProject = (JavaProject) JavaCore.create(getProject(projectPath));
-			return javaProject.getExpandedClasspath(true);
+			return javaProject.getExpandedClasspath();
 //			IPath[] packageFragmentRootsPath = new IPath[entries.length];
 //			for (int i = 0; i < entries.length; ++i)
 //				packageFragmentRootsPath[i] = entries[i].getPath();

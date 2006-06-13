@@ -260,7 +260,7 @@ public class HandleFactory {
 			JavaProject javaProject = (JavaProject) this.javaModel.getJavaProject(jarFile);
 			IClasspathEntry[] classpathEntries;
 			try {
-				classpathEntries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+				classpathEntries = javaProject.getResolvedClasspath();
 				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 					if (classpathEntries[j].getPath().equals(jarPath)) {
 						return javaProject.getPackageFragmentRoot(jarFile);
@@ -310,7 +310,7 @@ public class HandleFactory {
 		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 			try {
 				JavaProject javaProject= (JavaProject)projects[i];
-				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath();
 				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 					if (classpathEntries[j].getPath().equals(jarPath)) {
 						if (target instanceof IFile) {

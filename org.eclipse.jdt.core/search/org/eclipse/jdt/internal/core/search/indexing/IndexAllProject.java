@@ -60,8 +60,8 @@ public class IndexAllProject extends IndexRequest {
 		try {
 			// Get source folder entries. Libraries are done as a separate job
 			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
-			// Do not create marker nor log problems while getting raw classpath (see bug 41859)
-			IClasspathEntry[] entries = javaProject.getRawClasspath(false, false);
+			// Do not create marker while getting raw classpath (see bug 41859)
+			IClasspathEntry[] entries = javaProject.getRawClasspath();
 			int length = entries.length;
 			IClasspathEntry[] sourceEntries = new IClasspathEntry[length];
 			int sourceEntriesNumber = 0;
@@ -120,8 +120,8 @@ public class IndexAllProject extends IndexRequest {
 					// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
 					final HashSet outputs = new HashSet();
 					if (sourceFolder.getType() == IResource.PROJECT) {
-						// Do not create marker nor log problems while getting output location (see bug 41859)
-						outputs.add(javaProject.getOutputLocation(false, false));
+						// Do not create marker while getting output location (see bug 41859)
+						outputs.add(javaProject.getOutputLocation());
 						for (int j = 0; j < sourceEntriesNumber; j++) {
 							IPath output = sourceEntries[j].getOutputLocation();
 							if (output != null) {

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import junit.framework.Test;
 
@@ -20,7 +19,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -40,14 +38,7 @@ static {
 //	TESTS_RANGE = new int[] { 16, -1 };
 //	TESTS_PREFIX = "testScopeEncloses";
 }
-protected void tearDown() throws Exception {
-	// Cleanup caches
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.containers = new HashMap(5);
-	manager.variables = new HashMap(5);
 
-	super.tearDown();
-}
 /**
  * Field occurences in 2 working copies within 2 projects (one prereq this other one).
  * (regression test for bug 41534 incorrect shadowing reported by rename [refactoring])

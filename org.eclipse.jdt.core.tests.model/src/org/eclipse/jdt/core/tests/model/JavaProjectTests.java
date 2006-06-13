@@ -95,6 +95,32 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 		deleteResource(resource.getWorkspace().getRoot().getFile(newPath));
 	}
 }
+/*
+ * Ensures that adding a project prerequisite in the classpath updates the referenced projects
+ */
+public void testAddProjectPrerequisite() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createJavaProject("P2");
+		waitForAutoBuild();
+		editFile(
+			"/P2/.classpath", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"\"/>\n" +
+			"</classpath>"
+		);
+		waitForAutoBuild();
+		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
+		assertResourcesEqual(
+			"Unexpected project references", 
+			"/P1", 
+			referencedProjects);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
 /**
  * Test that a class file in a jar has no corresponding resource.
  */
@@ -128,7 +154,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 		project.setOutputLocation(folder.getFullPath(), null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CHILDREN}\n" + 
+			"JavaProjectTests[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		bin[+]: {}\n" + 
 			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
@@ -141,7 +167,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 			project.setOutputLocation(folder.getFullPath(), null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[*]: {CHILDREN}\n" + 
+				"JavaProjectTests[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 				"	<project root>[*]: {CHILDREN}\n" + 
 				"		bin[-]: {}\n" + 
 				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"

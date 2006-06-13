@@ -304,16 +304,12 @@ public void testContainerInitializer05() throws CoreException {
 		waitForAutoBuild();
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
+		clearDeltas();
 		getJavaProject("P1").getResolvedClasspath(true);
 		assertDeltas(
 			"Unexpected delta after setting container", 
 			"P1[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[+]: {}\n" + 
-			"\n" + 
-			"P1[*]: {CONTENT}\n" + 
-			"	ResourceDelta(/P1/lib.jar)[+]"
+			"	lib.jar[*]: {ADDED TO CLASSPATH}"
 		);
 
 	} catch (StackOverflowError e) {
