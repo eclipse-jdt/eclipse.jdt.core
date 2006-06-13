@@ -893,8 +893,8 @@ public void test012(){
         "                       -target 1.5)\n" + 
         "    -1.6               use 1.6 compliance level (implicit -source 1.6\n" + 
         "                       -target 1.6)\n" + 
-        "    -source <version>  set source level: 1.3 to 1.6 (or 6 or 6.0)\n" + 
-        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 6 or 6.0)\n" + 
+        "    -source <version>  set source level: 1.3 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
+        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
         " \n" + 
         " Warning options:\n" + 
         "    -deprecation     + deprecation outside deprecated code\n" + 
