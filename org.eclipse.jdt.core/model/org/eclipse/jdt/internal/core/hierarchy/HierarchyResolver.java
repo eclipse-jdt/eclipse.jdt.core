@@ -156,19 +156,6 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 private IType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 	ReferenceBinding superBinding = typeBinding.superclass();
 	
-	// check if the super binding was replaced with the java.lang.Object binding (because of a visibility problem for example)
-	ClassScope scope;
-	if (typeBinding instanceof SourceTypeBinding && (scope = ((SourceTypeBinding) typeBinding).scope) != null) {
-		TypeDeclaration typeDeclaration = scope.referenceContext;
-		TypeReference superclassRef = typeDeclaration == null ? null : typeDeclaration.superclass;
-		TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
-		if (superclass instanceof ProblemReferenceBinding) {
-			superclass = ((ProblemReferenceBinding) superclass).closestMatch;
-		}
-		if (superclass != null) 
-			((SourceTypeBinding) typeBinding).superclass = superBinding = (ReferenceBinding) superclass;
-	}
-	
 	if (superBinding != null) {
 		superBinding = (ReferenceBinding) superBinding.erasure();
 		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
@@ -246,31 +233,7 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 		return null;
 	}
 	
-	ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
-	
-	// check if bindings were removed while resolving (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=136095)
-	ClassScope scope;
-	if (typeBinding instanceof SourceTypeBinding && (scope = ((SourceTypeBinding) typeBinding).scope) != null) {
-		TypeDeclaration typeDeclaration = scope.referenceContext;
-		TypeReference[] superInterfaces = typeDeclaration == null ? null : typeDeclaration.superInterfaces;
-		int length;
-		if (superInterfaces != null && (length = superInterfaces.length) > (interfaceBindings == null ? 0 : interfaceBindings.length)) { // check for interfaceBindings being null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139689)
-			
-			interfaceBindings = new ReferenceBinding[length];
-			int index = 0;
-			for (int i = 0; i < length; i++) {
-				ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
-				if (superInterface instanceof ProblemReferenceBinding)
-					superInterface = ((ProblemReferenceBinding) superInterface).closestMatch;
-				if (superInterface != null)
-					interfaceBindings[index++] = superInterface;
-			}
-			if (index < length)
-				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[index], 0 , index);
-			((SourceTypeBinding) typeBinding).superInterfaces = interfaceBindings;
-		}
-	}
-	
+	ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();	
 	int bindingIndex = 0;
 	int bindingLength = interfaceBindings == null ? 0 : interfaceBindings.length;
 	int length = superInterfaceNames == null ? 0 : superInterfaceNames.length;
@@ -311,6 +274,59 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 	if (index != length)
 		System.arraycopy(superinterfaces, 0, superinterfaces = new IType[index], 0, index);
 	return superinterfaces;
+}
+private void fixSupertypeBindings() {
+	for (int current = this.typeIndex; current >= 0; current--) {
+		ReferenceBinding typeBinding = this.typeBindings[current];
+	
+		
+		if (typeBinding instanceof SourceTypeBinding) {
+			ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
+			if (scope != null) {
+				TypeDeclaration typeDeclaration = scope.referenceContext;
+				TypeReference superclassRef = typeDeclaration == null ? null : typeDeclaration.superclass;
+				TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
+				if (superclass instanceof ProblemReferenceBinding) {
+					superclass = ((ProblemReferenceBinding) superclass).closestMatch;
+				}
+				if (superclass != null) 
+					((SourceTypeBinding) typeBinding).superclass = (ReferenceBinding) superclass;
+	
+				TypeReference[] superInterfaces = typeDeclaration == null ? null : typeDeclaration.superInterfaces;
+				int length;
+				ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
+				if (superInterfaces != null && (length = superInterfaces.length) > (interfaceBindings == null ? 0 : interfaceBindings.length)) { // check for interfaceBindings being null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139689)
+					interfaceBindings = new ReferenceBinding[length];
+					int index = 0;
+					for (int i = 0; i < length; i++) {
+						ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
+						if (superInterface instanceof ProblemReferenceBinding)
+							superInterface = ((ProblemReferenceBinding) superInterface).closestMatch;
+						if (superInterface != null)
+							interfaceBindings[index++] = superInterface;
+					}
+					if (index < length)
+						System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[index], 0 , index);
+					((SourceTypeBinding) typeBinding).superInterfaces = interfaceBindings;
+				}
+			}		
+		} else if (typeBinding instanceof BinaryTypeBinding) {
+			try {
+				typeBinding.superclass();
+			} catch (AbortCompilation e) {
+				// allow subsequent call to superclass() to succeed so that we don't have to catch AbortCompilation everywhere
+				((BinaryTypeBinding) typeBinding).tagBits &= ~TagBits.HasUnresolvedSuperclass;
+				this.builder.hierarchy.missingTypes.add(new String(typeBinding.superclass().sourceName()));
+				this.hasMissingSuperClass = true;
+			}
+			try {
+				typeBinding.superInterfaces();
+			} catch (AbortCompilation e) {
+				// allow subsequent call to superInterfaces() to succeed so that we don't have to catch AbortCompilation everywhere
+				((BinaryTypeBinding) typeBinding).tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
+			}
+		}
+	}	
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
@@ -436,6 +452,9 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 			}
 		}
 	}
+	
+	// be resilient and fix super type bindings
+	fixSupertypeBindings();
 	
 	int objectIndex = -1;
 	for (int current = this.typeIndex; current >= 0; current--) {

@@ -1426,8 +1426,7 @@ public void testResilienceToMissingBinaries() throws CoreException {
 				"  TmrServlet2 [in TmrServlet2.java [in servlet [in src [in P]]]]\n" + 
 				"    TmrServlet [in TmrServlet.java [in servlet [in src [in P]]]]\n" + 
 				"      GKServlet [in GKServlet.class [in gk [in /TypeHierarchy/test144976.jar [in P]]]]\n" + 
-				"Sub types:\n" + 
-				"No root classes",
+				"Sub types:\n",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -1626,8 +1625,7 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 				"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" + 
 				"Super types:\n" + 
 				"  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]\n" + 
-				"Sub types:\n" + 
-				"No root classes",
+				"Sub types:\n",
 			hierarchy
 		);
 	} finally {
