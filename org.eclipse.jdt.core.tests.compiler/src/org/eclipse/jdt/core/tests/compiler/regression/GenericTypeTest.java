@@ -31716,7 +31716,7 @@ public void test1005() {
 		},
 		"");
 }
-public void testONLY_1006() {
+public void test1006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
