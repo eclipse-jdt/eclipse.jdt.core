@@ -31,7 +31,6 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 
 	IJavaProject project;
 	boolean deleteProject = true;
-	boolean restart = true;
 
 	public class TestSearchParticipant extends SearchParticipant {
 		
@@ -151,10 +150,6 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.restart) {
-			simulateRestart();
-			this.restart = false;
-		}
 		if (this.project == null) {
 			this.project = createJavaProject("P");
 		}
@@ -261,11 +256,13 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		simulateExit();
 		assertTrue("Index file should stay after shutdown",  getIndexLocation().toFile().length() > 0);
 		this.deleteProject = false;
-		this.restart = true;
 
 		// remove index file
 		participant.removeIndex(getIndexLocation());
 		assertFalse("Index file should have been removed",  getIndexLocation().toFile().exists());
+
+		// restart
+		simulateRestart();
 	}
 
 	/*
