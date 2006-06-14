@@ -285,4 +285,11 @@ protected boolean resourceExists() {
 		return super.resourceExists();
 	}
 }
+protected void toStringAncestors(StringBuffer buffer) {
+	if (isExternal())
+		// don't show project as it is irrelevant for external jar files.
+		// also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146615
+		return;
+	super.toStringAncestors(buffer);
+}
 }
