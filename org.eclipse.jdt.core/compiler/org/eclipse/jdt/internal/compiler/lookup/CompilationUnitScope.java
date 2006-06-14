@@ -108,9 +108,10 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		TypeDeclaration typeDecl = types[i];
 		ReferenceBinding typeBinding = fPackage.getType0(typeDecl.name);
 		recordSimpleReference(typeDecl.name); // needed to detect collision cases
-		if (typeBinding != null && !(typeBinding instanceof UnresolvedReferenceBinding)) {
-			// if a type exists, it must be a valid type - cannot be a NotFound problem type
-			// unless its an unresolved type which is now being defined
+		if (typeBinding != null && typeBinding.isValidBinding() && !(typeBinding instanceof UnresolvedReferenceBinding)) {
+			// if a type exists, check that its a valid type
+			// it can be a NotFound problem type if its a secondary type referenced before its primary type found in additional units
+			// and it can be an unresolved type which is now being defined
 			problemReporter().duplicateTypes(referenceContext, typeDecl);
 			continue nextType;
 		}

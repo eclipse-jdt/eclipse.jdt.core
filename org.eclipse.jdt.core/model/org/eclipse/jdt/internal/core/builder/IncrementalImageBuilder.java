@@ -168,24 +168,10 @@ protected void buildAfterBatchBuild() {
 protected void addAffectedSourceFiles() {
 	if (qualifiedStrings.elementSize == 0 && simpleStrings.elementSize == 0) return;
 
-	addAffectedSourceFiles(qualifiedStrings, simpleStrings);
+	addAffectedSourceFiles(qualifiedStrings, simpleStrings, null);
 }
 
-protected void addAffectedSourceFiles(char[] secondaryTypeName) {
-	// the secondary type search can have too many false hits if we addAffectedSource files using all the qualified type names
-	// of each secondary type... so look for the dependents 1 file at a time
-	int index = CharOperation.lastIndexOf('/', secondaryTypeName);
-	String packageName = index == -1 ? "" : new String(CharOperation.subarray(secondaryTypeName, 0, index)); //$NON-NLS-1$
-	StringSet packageNames = new StringSet(1);
-	packageNames.add(packageName);
-	String typeName = new String(index == -1 ? secondaryTypeName : CharOperation.subarray(secondaryTypeName, index + 1, secondaryTypeName.length));
-	StringSet typeNames = new StringSet(1);
-	typeNames.add(typeName);
-
-	addAffectedSourceFiles(packageNames, typeNames);
-}
-
-private void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet) {
+protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet, StringSet affectedTypes) {
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	char[][][] internedQualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedSet);
 	// if a well known qualified name was found then we can skip over these
@@ -199,19 +185,22 @@ private void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet)
 	Object[] keyTable = newState.references.keyTable;
 	Object[] valueTable = newState.references.valueTable;
 	next : for (int i = 0, l = valueTable.length; i < l; i++) {
-		ReferenceCollection refs = (ReferenceCollection) valueTable[i];
-		if (refs != null && refs.includes(internedQualifiedNames, internedSimpleNames)) {
-			String typeLocator = (String) keyTable[i];
-			IFile file = javaBuilder.currentProject.getFile(typeLocator);
-			SourceFile sourceFile = findSourceFile(file);
-			if (sourceFile == null) continue next;
-			if (sourceFiles.contains(sourceFile)) continue next;
-			if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
-				continue next; // can skip previously compiled files since already saw hierarchy related problems
-
-			if (JavaBuilder.DEBUG)
-				System.out.println("  adding affected source file " + typeLocator); //$NON-NLS-1$
-			sourceFiles.add(sourceFile);
+		String typeLocator = (String) keyTable[i];
+		if (typeLocator != null) {
+			if (affectedTypes != null && !affectedTypes.includes(typeLocator)) continue next;
+			ReferenceCollection refs = (ReferenceCollection) valueTable[i];
+			if (refs.includes(internedQualifiedNames, internedSimpleNames)) {
+				IFile file = javaBuilder.currentProject.getFile(typeLocator);
+				SourceFile sourceFile = findSourceFile(file);
+				if (sourceFile == null) continue next;
+				if (sourceFiles.contains(sourceFile)) continue next;
+				if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
+					continue next; // can skip previously compiled files since already saw hierarchy related problems
+	
+				if (JavaBuilder.DEBUG)
+					System.out.println("  adding affected source file " + typeLocator); //$NON-NLS-1$
+				sourceFiles.add(sourceFile);
+			}
 		}
 	}
 }
@@ -274,6 +263,33 @@ protected void cleanUp() {
 	this.secondaryTypesToRemove = null;
 	this.hasStructuralChanges = false;
 	this.compileLoop = 0;
+}
+
+protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean compilingFirstGroup) {
+	if (compilingFirstGroup && additionalUnits != null) {
+		// add any source file from additionalUnits to units if it defines secondary types
+		// otherwise its possible during testing with MAX_AT_ONCE == 1 that a secondary type
+		// can cause an infinite loop as it alternates between not found and defined, see bug 146324
+		ArrayList extras = null;
+		for (int i = 0, l = additionalUnits.length; i < l; i++) {
+			SourceFile unit = additionalUnits[i];
+			if (unit != null && newState.getDefinedTypeNamesFor(unit.typeLocator()) != null) {
+				if (JavaBuilder.DEBUG)
+					System.out.println("About to compile file with secondary types "+ unit.typeLocator()); //$NON-NLS-1$
+				if (extras == null)
+					extras = new ArrayList(3);
+				extras.add(unit);
+			}
+		}
+		if (extras != null) {
+			int oldLength = units.length;
+			int toAdd = extras.size();
+			System.arraycopy(units, 0, units = new SourceFile[oldLength + toAdd], 0, oldLength);
+			for (int i = 0; i < toAdd; i++)
+				units[oldLength++] = (SourceFile) extras.get(i);
+		}
+	}
+	super.compile(units, additionalUnits, compilingFirstGroup);
 }
 
 protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {

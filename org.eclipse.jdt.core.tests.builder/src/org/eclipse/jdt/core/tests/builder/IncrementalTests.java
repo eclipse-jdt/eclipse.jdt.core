@@ -723,10 +723,10 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "", "AB", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class AB extends AZ {}"); //$NON-NLS-1$
+			"public class AB { AZ z = new AA();}"); //$NON-NLS-1$
 
 		env.addClass(root, "", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class AA {} \n"+ //$NON-NLS-1$
+			"public class AA extends AZ {} \n"+ //$NON-NLS-1$
 			"class AZ {}"); //$NON-NLS-1$
 
 		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
