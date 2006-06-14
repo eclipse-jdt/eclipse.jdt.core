@@ -181,7 +181,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	static {
 		String version = Main.bind("compiler.version");
 		version = version.substring(0, version.indexOf(','));
-		version.replaceAll("0.", "v_");
+		if (version.startsWith("0.")) {
+			version = "v_"+version.substring(2);
+		}
 		LOG_VERSION = version;
 	}
 	// Patch version currently applied: may be null!
