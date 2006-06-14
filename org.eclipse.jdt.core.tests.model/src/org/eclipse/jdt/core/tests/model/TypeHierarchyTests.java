@@ -149,6 +149,15 @@ public void setUpSuite() throws Exception {
 		"	public int compareTo(CycleChild o) { return 0; }\n" +
 		"}"
 	);
+	createFile(
+		"/TypeHierarchy15/src/Try.java", 
+		"public enum Try {\n" + 
+		"    THIS,\n" + 
+		"    THAT(),\n" + 
+		"    ANONYMOUS() {}\n" + 
+		"}"
+	);
+	
 }
 
 /* (non-Javadoc)
@@ -270,6 +279,42 @@ public void testAnonymousType7() throws CoreException {
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	IType[] subtypes = hierarchy.getSubtypes(type);
 	assertEquals("Unexpected key", "Lmy/pkg/Y$1;", subtypes.length < 1 ? null : subtypes[0].getKey());
+}
+/*
+ * Ensure that hierarchy on an enum also include the anonymous of its enum contants
+ * (regression test for bug 120667 [hierarchy] Type hierarchy for enum type does not include anonymous subtypes)
+ */
+public void testAnonymousType8() throws CoreException {
+	IType type = getCompilationUnit("TypeHierarchy15/src/Try.java").getType("Try");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in ANONYMOUS [in Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]]]\n",
+		hierarchy);
+}
+/*
+ * Ensure that hierarchy on the anonymous type of an enum constant is correct
+ * (regression test for bug 120667 [hierarchy] Type hierarchy for enum type does not include anonymous subtypes)
+ */
+public void testAnonymousType9() throws CoreException {
+	IType type = getCompilationUnit("TypeHierarchy15/src/Try.java").getType("Try").getField("ANONYMOUS").getType("", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: <anonymous #1> [in ANONYMOUS [in Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]]]\n" + 
+		"Super types:\n" + 
+		"  Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"    Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"      Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"      Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
 }
 /**
  * Ensures that the superclass can be retrieved for a binary inner type.

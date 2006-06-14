@@ -248,25 +248,34 @@ public class SourceTypeConverter {
 		if ((this.flags & LOCAL_TYPE) != 0) {
 			IJavaElement[] children = fieldInfo.getChildren();
 			int childrenLength = children.length;
-			if (childrenLength > 0) {
+			if (childrenLength == 1) {
+				field.initialization = convert(children[0], isEnumConstant ? field : null, compilationResult);
+			} else if (childrenLength > 1) {
 				ArrayInitializer initializer = new ArrayInitializer();
 				field.initialization = initializer;
 				Expression[] expressions = new Expression[childrenLength];
 				initializer.expressions = expressions;
 				for (int i = 0; i < childrenLength; i++) {
-					IJavaElement localType = children[i];
-					TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceType) localType, compilationResult);
-					QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
-					expression.type = anonymousLocalTypeDeclaration.superclass;
-					anonymousLocalTypeDeclaration.superclass = null;
-					anonymousLocalTypeDeclaration.superInterfaces = null;
-					anonymousLocalTypeDeclaration.allocation = expression;
-					anonymousLocalTypeDeclaration.modifiers &= ~ClassFileConstants.AccEnum; // remove tag in case this is the init of an enum constant
-					expressions[i] = expression;
+					expressions[i] = convert(children[i], isEnumConstant ? field : null, compilationResult);
 				}
 			}
 		}
 		return field;
+	}
+
+	private QualifiedAllocationExpression convert(IJavaElement localType, FieldDeclaration enumConstant, CompilationResult compilationResult) throws JavaModelException {
+		TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceType) localType, compilationResult);
+		QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
+		expression.type = anonymousLocalTypeDeclaration.superclass;
+		anonymousLocalTypeDeclaration.superclass = null;
+		anonymousLocalTypeDeclaration.superInterfaces = null;
+		anonymousLocalTypeDeclaration.allocation = expression;
+		if (enumConstant != null) {
+			anonymousLocalTypeDeclaration.modifiers &= ~ClassFileConstants.AccEnum;
+			expression.enumConstant = enumConstant;
+			expression.type = null;
+		}
+		return expression;
 	}
 
 	/*

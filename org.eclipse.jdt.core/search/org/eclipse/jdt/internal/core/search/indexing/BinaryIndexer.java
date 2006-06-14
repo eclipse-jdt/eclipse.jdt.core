@@ -677,7 +677,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures, false);
 					break;
 				case TypeDeclaration.ENUM_DECL :
-					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, false);
+					superclass = replace('/', '.', reader.getSuperclassName());
+					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, false);
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
