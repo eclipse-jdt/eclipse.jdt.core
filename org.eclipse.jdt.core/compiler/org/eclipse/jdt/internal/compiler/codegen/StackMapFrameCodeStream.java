@@ -907,63 +907,48 @@ public void imul() {
 	super.imul();
 	this.currentFrame.numberOfStackItems--;
 }
-/*
- * Some placed labels might be branching to a goto bytecode which we can optimize better.
- */
-public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
-	
-/*
- Code required to optimized unreachable gotos.
-	public boolean isBranchTarget(int location) {
-		Label[] labels = codeStream.labels;
-		for (int i = codeStream.countLabels - 1; i >= 0; i--){
-			Label label = labels[i];
-			if ((label.position == location) && label.isStandardLabel()){
-				return true;
-			}
-		}
-		return false;
-	}
- */
-	boolean hasStandardLabel = false;
+public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
+	int chaining = L_UNKNOWN;
+
 	boolean removeFrame = true;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
-		if (currentLabel.position == gotoLocation) {
-			if (currentLabel.isStandardLabel()) {
-				hasStandardLabel = true;
-				if (currentLabel.forwardReferenceCount == 0 && ((currentLabel.tagBits & BranchLabel.USED) != 0)) {
-					removeFrame = false;
-				}
-			} else if (currentLabel.isCaseLabel()) {
+		if (currentLabel.position != gotoLocation) break;
+		if (currentLabel == label) {
+			chaining |= L_CANNOT_OPTIMIZE;
+			continue;
+		}
+		if (currentLabel.isStandardLabel()) {
+			if (label.delegate != null) continue;			
+			chaining |= L_OPTIMIZABLE;
+			if (currentLabel.forwardReferenceCount() == 0 && ((currentLabel.tagBits & BranchLabel.USED) != 0)) {
 				removeFrame = false;
 			}
-		} else {
-			break; // same target labels should be contiguous
+			continue;
 		}
+		// case label
+		removeFrame = false;
+		chaining |= L_CANNOT_OPTIMIZE;
 	}
-	if (hasStandardLabel) {
+	if ((chaining & L_OPTIMIZABLE) != 0) {
 		for (int i = this.countLabels - 1; i >= 0; i--) {
 			BranchLabel currentLabel = labels[i];
-			if (currentLabel.position == gotoLocation) {
-				if (currentLabel.isStandardLabel()){
-					label.appendForwardReferencesFrom(currentLabel);
-					// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
-					if (removeFrame) {
-						currentLabel.tagBits &= ~BranchLabel.USED;
-						this.removeStackFrameFor(gotoLocation);
-					}
+			if (currentLabel.position != gotoLocation) break;
+			if (currentLabel == label) continue;
+			if (currentLabel.isStandardLabel()) {
+				if (label.delegate != null) continue;
+				label.becomeDelegateFor(currentLabel);
+				// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
+				if (removeFrame) {
+					currentLabel.tagBits &= ~BranchLabel.USED;
+					this.removeStackFrameFor(gotoLocation);
 				}
-				/*
-				 Code required to optimized unreachable gotos.
-					label.position = POS_NOT_SET;
-				*/
-			} else {
-				break; // same target labels should be contiguous
 			}
 		}
 	}
+	return (chaining & (L_OPTIMIZABLE|L_CANNOT_OPTIMIZE)) == L_OPTIMIZABLE; // check was some standards, and no case/recursive	
 }
+
 public void init(ClassFile targetClassFile) {
 	super.init(targetClassFile);
 	this.framesCounter = 0;
@@ -1613,7 +1598,7 @@ public void newWrapperFor(int typeID) {
 }
 public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	super.optimizeBranch(oldPosition, lbl);
-	if (lbl.forwardReferenceCount > 0) {
+	if (lbl.forwardReferenceCount() > 0) {
 		StackMapFrame frame = this.frames;
 		loop: while (frame != null) {
 			if (frame.pc == oldPosition) {

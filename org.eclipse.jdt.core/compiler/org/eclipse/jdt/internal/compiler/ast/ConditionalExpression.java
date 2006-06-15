@@ -169,7 +169,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 					falseInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 			}
-			if (falseLabel.forwardReferenceCount > 0) {
+			if (falseLabel.forwardReferenceCount() > 0) {
 				falseLabel.place();
 			}
 			valueIfFalse.generateCode(currentScope, codeStream, valueRequired);

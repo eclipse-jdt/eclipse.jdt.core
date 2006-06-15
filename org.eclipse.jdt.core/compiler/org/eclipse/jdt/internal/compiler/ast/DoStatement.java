@@ -164,7 +164,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 	}
-	if (this.breakLabel.forwardReferenceCount > 0) {
+	if (this.breakLabel.forwardReferenceCount() > 0) {
 		this.breakLabel.place();
 	}
 

@@ -148,7 +148,7 @@ public class OR_OR_Expression extends BinaryExpression {
 				} else {
 					codeStream.iconst_0();
 				}
-				if (trueLabel.forwardReferenceCount > 0) {
+				if (trueLabel.forwardReferenceCount() > 0) {
 					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);

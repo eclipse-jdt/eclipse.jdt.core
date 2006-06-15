@@ -134,8 +134,10 @@ public class CodeStream {
 	public int generateAttributes;
 	// store all the labels placed at the current position to be able to optimize
 	// a jump to the next bytecode.
+	static final int L_UNKNOWN = 0, L_OPTIMIZABLE = 2, L_CANNOT_OPTIMIZE = 4;	
 	public BranchLabel[] labels = new BranchLabel[LABELS_INCREMENT];
 	public int lastEntryPC; // last entry recorded
+	public int lastAbruptCompletion; // position of last instruction which abrupts completion: goto/return/athrow
 	public int[] lineSeparatorPositions;
 	
 	public LocalVariableBinding[] locals = new LocalVariableBinding[LOCALS_INCREMENT];
@@ -239,7 +241,7 @@ public void addLabel(BranchLabel aLabel) {
 }
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
-		&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
 
 	if (visibleLocalsCount >= visibleLocals.length)
@@ -354,6 +356,7 @@ public void areturn() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_areturn;
+	this.lastAbruptCompletion = this.position;		
 }
 public void arrayAt(int typeBindingID) {
 	switch (typeBindingID) {
@@ -521,6 +524,7 @@ public void athrow() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_athrow;
+	this.lastAbruptCompletion = this.position;		
 }
 public void baload() {
 	if (DEBUG) System.out.println(position + "\t\tbaload"); //$NON-NLS-1$
@@ -859,6 +863,7 @@ public void dreturn() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_dreturn;
+	this.lastAbruptCompletion = this.position;		
 }
 public void dstore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tdstore:"+iArg); //$NON-NLS-1$
@@ -1293,6 +1298,7 @@ public void freturn() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_freturn;
+	this.lastAbruptCompletion = this.position;		
 }
 public void fstore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tfstore:"+iArg); //$NON-NLS-1$
@@ -2944,7 +2950,16 @@ final public void goto_(BranchLabel label) {
 	if (classFileOffset >= bCodeStream.length) {
 		resizeByteArray();
 	}
-	this.inlineForwardReferencesFromLabelsTargeting(label, position);
+	boolean chained = this.inlineForwardReferencesFromLabelsTargeting(label, position);
+	if (DEBUG && chained) {
+		if (DEBUG) {
+			if (this.lastAbruptCompletion == this.position) {
+				System.out.println("\t\t\t\t<branch chaining - goto eliminated : "+this.position+","+label+">");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$				
+			} else {
+				System.out.println("\t\t\t\t<branch chaining - goto issued : "+this.position+","+label+">");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			}
+		}		
+	}
 	/*
 	 Possible optimization for code such as:
 	 public Object foo() {
@@ -2961,29 +2976,33 @@ final public void goto_(BranchLabel label) {
 	}
 	The goto around the else block for the first if will
 	be unreachable, because the thenClause of the second if
-	returns.
-	See inlineForwardReferencesFromLabelsTargeting defined
-	on the Label class for the remaining part of this
-	optimization.
-	 if (!lbl.isBranchTarget(position)) {
-		switch(bCodeStream[classFileOffset-1]) {
-			case Opcodes.OPC_return :
-			case Opcodes.OPC_areturn:
-				return;
-		}
+	returns. Also see 114894
 	}*/
+	if (chained && this.lastAbruptCompletion == this.position) {
+		if (label.position != Label.POS_NOT_SET) { // ensure existing forward references are updated
+			int[] forwardRefs = label.forwardReferences();
+			for (int i = 0, max = label.forwardReferenceCount(); i < max; i++) {
+				this.writePosition(label, forwardRefs[i]);
+			}				
+			this.countLabels = 0; // backward jump, no further chaining allowed
+		}
+//		this.lastAbruptCompletion = -1;
+		return;
+	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_goto;
 	label.branch();
+	this.lastAbruptCompletion = this.position;
 }
-final public void goto_w(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tgotow:"+lbl); //$NON-NLS-1$
+final public void goto_w(BranchLabel label) {
+	if (DEBUG) System.out.println(position + "\t\tgotow:"+label); //$NON-NLS-1$
 	if (classFileOffset >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_goto_w;
-	lbl.branchWide();
+	label.branchWide();
+	this.lastAbruptCompletion = this.position;	
 }
 public void i2b() {
 	if (DEBUG) System.out.println(position + "\t\ti2b"); //$NON-NLS-1$
@@ -3225,7 +3244,7 @@ public void if_icmpeq(BranchLabel lbl) {
 	}
 }
 public void if_icmpge(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tif_iacmpge:"+lbl); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tif_icmpge:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -3240,7 +3259,7 @@ public void if_icmpge(BranchLabel lbl) {
 	}
 }
 public void if_icmpgt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tif_iacmpgt:"+lbl); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tif_icmpgt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -3255,7 +3274,7 @@ public void if_icmpgt(BranchLabel lbl) {
 	}
 }
 public void if_icmple(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tif_iacmple:"+lbl); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tif_icmple:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -3270,7 +3289,7 @@ public void if_icmple(BranchLabel lbl) {
 	}
 }
 public void if_icmplt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tif_iacmplt:"+lbl); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tif_icmplt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -3285,7 +3304,7 @@ public void if_icmplt(BranchLabel lbl) {
 	}
 }
 public void if_icmpne(BranchLabel lbl) {
-	if (DEBUG) System.out.println(position + "\t\tif_iacmpne:"+lbl); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tif_icmpne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -3556,36 +3575,25 @@ public void ineg() {
 /*
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
-public void inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
-	
-/*
- Code required to optimized unreachable gotos.
-	public boolean isBranchTarget(int location) {
-		Label[] labels = codeStream.labels;
-		for (int i = codeStream.countLabels - 1; i >= 0; i--){
-			Label label = labels[i];
-			if ((label.position == location) && label.isStandardLabel()){
-				return true;
-			}
-		}
-		return false;
-	}
- */
-	
+public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
+	int chaining = L_UNKNOWN;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
-		if (currentLabel.position == gotoLocation) {
-			if (currentLabel.isStandardLabel()) {
-				label.appendForwardReferencesFrom(currentLabel);
-			}
-			/*
-			 Code required to optimized unreachable gotos.
-				label.position = POS_NOT_SET;
-			*/
-		} else {
-			break; // same target labels should be contiguous
+		if (currentLabel.position != gotoLocation) break;
+		if (currentLabel == label) {
+			chaining |= L_CANNOT_OPTIMIZE; // recursive
+			continue;
+		} 
+		if (currentLabel.isStandardLabel()) {
+			if (label.delegate != null) continue; // ignore since already inlined
+			label.becomeDelegateFor(currentLabel);
+			chaining |= L_OPTIMIZABLE; // optimizable, providing no vetoing
+			continue;
 		}
+		// case label
+		chaining |= L_CANNOT_OPTIMIZE;
 	}
+	return (chaining & (L_OPTIMIZABLE|L_CANNOT_OPTIMIZE)) == L_OPTIMIZABLE; // check was some standards, and no case/recursive
 }
 public void init(ClassFile targetClassFile) {
 	this.classFile = targetClassFile;
@@ -3622,6 +3630,7 @@ public void init(ClassFile targetClassFile) {
 	}
 	System.arraycopy(noLabels, 0, labels, 0, length);
 	countLabels = 0;
+	this.lastAbruptCompletion = -1;
 
 	stackMax = 0;
 	stackDepth = 0;
@@ -4493,6 +4502,7 @@ public void ireturn() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_ireturn;
+	this.lastAbruptCompletion = this.position;		
 }
 public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariableBinding local) {
 	// Mirror of UnconditionalFlowInfo.isDefinitelyAssigned(..)
@@ -5278,6 +5288,7 @@ public void lreturn() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_lreturn;
+	this.lastAbruptCompletion = this.position;		
 }
 public void lshl() {
 	if (DEBUG) System.out.println(position + "\t\tlshl"); //$NON-NLS-1$
@@ -5624,14 +5635,16 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 			label.position = position;
 			if (label instanceof CaseLabel) {
 				int offset = position - ((CaseLabel) label).instructionPosition;
-				for (int j = 0; j < label.forwardReferenceCount; j++) {
-					int forwardPosition = label.forwardReferences[j];
-					this.writeSignedWord(forwardPosition, offset);
+				int[] forwardRefs = label.forwardReferences();
+				for (int j = 0, length = label.forwardReferenceCount(); j < length; j++) {
+					int forwardRef = forwardRefs[j];
+					this.writeSignedWord(forwardRef, offset);
 				}
 			} else {
-				for (int j = 0; j < label.forwardReferenceCount; j++) {
-					final int forwardReference = label.forwardReferences[j];
-					this.writePosition(lbl, forwardReference);
+				int[] forwardRefs = label.forwardReferences();
+				for (int j = 0, length = label.forwardReferenceCount(); j < length; j++) {
+					final int forwardRef = forwardRefs[j];
+					this.writePosition(lbl, forwardRef);
 				}
 			}
 		}
@@ -5898,6 +5911,7 @@ public void return_() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_return;
+	this.lastAbruptCompletion = this.position;	
 }
 public void saload() {
 	if (DEBUG) System.out.println(position + "\t\tsaload"); //$NON-NLS-1$
@@ -6275,8 +6289,9 @@ protected void writePosition(BranchLabel label) {
 		throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 	}
 	this.writeSignedShort(offset);
-	for (int i = 0, max = label.forwardReferenceCount; i < max; i++) {
-		this.writePosition(label, label.forwardReferences[i]);
+	int[] forwardRefs = label.forwardReferences();
+	for (int i = 0, max = label.forwardReferenceCount(); i < max; i++) {
+		this.writePosition(label, forwardRefs[i]);
 	}	
 }
 protected void writePosition(BranchLabel label, int forwardReference) {
@@ -6350,8 +6365,9 @@ protected void writeWidePosition(BranchLabel label) {
 	int labelPos = label.position;
 	int offset = labelPos - this.position + 1;
 	this.writeSignedWord(offset);
-	for (int i = 0, max = label.forwardReferenceCount; i < max; i++) {
-		int forward = label.forwardReferences[i];
+	int[] forwardRefs = label.forwardReferences();
+	for (int i = 0, max = label.forwardReferenceCount(); i < max; i++) {
+		int forward = forwardRefs[i];
 		offset = labelPos - forward + 1;
 		this.writeSignedWord(forward, offset);
 	}	

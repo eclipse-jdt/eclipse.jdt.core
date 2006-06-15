@@ -17,8 +17,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 public class BranchLabel extends Label {
 	
-	public int[] forwardReferences = new int[10]; // Add an overflow check here.
-	public int forwardReferenceCount = 0;
+	private int[] forwardReferences = new int[10]; // Add an overflow check here.
+	private int forwardReferenceCount = 0;
+	BranchLabel delegate; //
 	
 	// Label tagbits
 	public int tagBits;
@@ -40,6 +41,10 @@ public BranchLabel(CodeStream codeStream) {
  * Add a forward refrence for the array.
  */
 void addForwardReference(int pos) {
+	if (this.delegate != null) {
+		this.delegate.addForwardReference(pos);
+		return;
+	}
 	final int count = this.forwardReferenceCount;
 	if (count >= 1) {
 		int previousValue = this.forwardReferences[count - 1];
@@ -69,9 +74,13 @@ void addForwardReference(int pos) {
 }
 
 /**
- * Add a forward reference for the array.
+ * Makes the current label inline all references to the other label
  */
-public void appendForwardReferencesFrom(BranchLabel otherLabel) {
+public void becomeDelegateFor(BranchLabel otherLabel) {
+	// other label is delegating to receiver from now on
+	otherLabel.delegate = this;
+	
+	// all existing forward refs to other label are inlined into current label
 	final int otherCount = otherLabel.forwardReferenceCount;
 	if (otherCount == 0) return;
 	// need to merge the two sorted arrays of forward references
@@ -110,6 +119,10 @@ public void appendForwardReferencesFrom(BranchLabel otherLabel) {
 */
 void branch() {
 	this.tagBits |= BranchLabel.USED;
+	if (this.delegate != null) {
+		this.delegate.branch();
+		return;
+	}
 	if (this.position == Label.POS_NOT_SET) {
 		addForwardReference(this.codeStream.position);
 		// Leave two bytes free to generate the jump afterwards
@@ -128,6 +141,10 @@ void branch() {
 */
 void branchWide() {
 	this.tagBits |= BranchLabel.USED;
+	if (this.delegate != null) {
+		this.delegate.branchWide();
+		return;
+	}
 	if (this.position == Label.POS_NOT_SET) {
 		addForwardReference(this.codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
@@ -139,10 +156,19 @@ void branchWide() {
 	}
 }
 
+public int forwardReferenceCount() {
+	if (this.delegate != null) this.delegate.forwardReferenceCount();
+	return forwardReferenceCount;
+}
+public int[] forwardReferences() {
+	if (this.delegate != null) this.delegate.forwardReferences();
+	return forwardReferences;
+}
 public void initialize(CodeStream stream) {
     this.codeStream = stream;
    	this.position = Label.POS_NOT_SET;
-	this.forwardReferenceCount = 0; 
+	this.forwardReferenceCount = 0;
+	this.delegate = null;
 }
 public boolean isCaseLabel() {
 	return false;
@@ -150,6 +176,7 @@ public boolean isCaseLabel() {
 public boolean isStandardLabel(){
 	return true;
 }
+
 /*
 * Place the label. If we have forward references resolve them.
 */
@@ -220,6 +247,7 @@ public void place() { // Currently lacking wide support.
 		}
 	}
 }
+
 /**
  * Print out the receiver
  */
@@ -229,6 +257,7 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer(basic); 
 	buffer.append('@').append(Integer.toHexString(hashCode()));
 	buffer.append("(position=").append(this.position); //$NON-NLS-1$
+	if (this.delegate != null) buffer.append("delegate=").append(this.delegate); //$NON-NLS-1$
 	buffer.append(", forwards = ["); //$NON-NLS-1$
 	for (int i = 0; i < this.forwardReferenceCount - 1; i++)
 		buffer.append(this.forwardReferences[i] + ", "); //$NON-NLS-1$

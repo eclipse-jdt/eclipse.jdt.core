@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ExceptionLabel extends Label {
@@ -59,7 +60,7 @@ public String toString() {
 	basic = basic.substring(basic.lastIndexOf('.')+1);
 	StringBuffer buffer = new StringBuffer(basic); 
 	buffer.append('@').append(Integer.toHexString(hashCode()));
-	buffer.append("(type=").append(this.exceptionType == null ? null : this.exceptionType.readableName()); //$NON-NLS-1$
+	buffer.append("(type=").append(this.exceptionType == null ? CharOperation.NO_CHAR : this.exceptionType.readableName()); //$NON-NLS-1$
 	buffer.append(", position=").append(position); //$NON-NLS-1$
 	buffer.append(", ranges = "); //$NON-NLS-1$
 	if (this.count == 0) {

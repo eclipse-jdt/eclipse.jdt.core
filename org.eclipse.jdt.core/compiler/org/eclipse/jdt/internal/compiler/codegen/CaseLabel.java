@@ -64,8 +64,9 @@ public void place() {
 	}
 	if (instructionPosition != POS_NOT_SET) {
 		int offset = position - instructionPosition;
-		for (int i = 0; i < forwardReferenceCount; i++) {
-			codeStream.writeSignedWord(forwardReferences[i], offset);
+		int[] forwardRefs = forwardReferences();
+		for (int i = 0, length = forwardReferenceCount(); i < length; i++) {
+			codeStream.writeSignedWord(forwardRefs[i], offset);
 		}
 		// add the label int the codeStream labels collection
 		codeStream.addLabel(this);
