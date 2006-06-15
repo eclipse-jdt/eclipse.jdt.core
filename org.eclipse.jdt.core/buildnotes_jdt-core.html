@@ -88,17 +88,20 @@ Eclipse SDK 3.3M1 - 13th June 2006
 <li>Progressive help message for the batch compiler.<br>
 	The new <tt>-help:warn</tt> option displays details about the various 
     parameters applicable to the <tt>-warn</tt> option; these details are no
-    more part of the general help message, which is thus more compact.
-    (See also bug 
-    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>.)
+    more part of the general help message, which is thus more compact
+    (cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>).
     </li>
+<li>
+</li>Compiler is now better resilient to duplicate local variables, thus allowing further
+operation to still be carried out accurately (codeselect, completion, search, DOM AST ops)
+(cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144858">144858</a>).
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146215">146215</a>
 JDT Core tests should not be dependent on HashMap implementation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144858">144858</a>
-[compiler] Should be more resilient with duplicate constructs
+[compiler] Should be more resilient with duplicate locals
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145746">145746</a>
 [1.5][compiler] Enum synthetic methods should be improved
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145732">145732</a>
