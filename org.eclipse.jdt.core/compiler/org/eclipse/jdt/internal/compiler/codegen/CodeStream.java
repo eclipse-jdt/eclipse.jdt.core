@@ -3575,18 +3575,18 @@ public void ineg() {
 /*
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
-public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
+public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
 	int chaining = L_UNKNOWN;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
 		if (currentLabel.position != gotoLocation) break;
-		if (currentLabel == label) {
+		if (currentLabel == targetLabel) {
 			chaining |= L_CANNOT_OPTIMIZE; // recursive
 			continue;
 		} 
 		if (currentLabel.isStandardLabel()) {
-			if (label.delegate != null) continue; // ignore since already inlined
-			label.becomeDelegateFor(currentLabel);
+			if (currentLabel.delegate != null) continue; // ignore since already inlined
+			targetLabel.becomeDelegateFor(currentLabel);
 			chaining |= L_OPTIMIZABLE; // optimizable, providing no vetoing
 			continue;
 		}

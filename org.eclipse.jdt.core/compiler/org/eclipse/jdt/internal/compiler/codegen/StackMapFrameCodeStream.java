@@ -907,19 +907,19 @@ public void imul() {
 	super.imul();
 	this.currentFrame.numberOfStackItems--;
 }
-public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int gotoLocation) {
+public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
 	int chaining = L_UNKNOWN;
 
 	boolean removeFrame = true;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
 		if (currentLabel.position != gotoLocation) break;
-		if (currentLabel == label) {
+		if (currentLabel == targetLabel) {
 			chaining |= L_CANNOT_OPTIMIZE;
 			continue;
 		}
 		if (currentLabel.isStandardLabel()) {
-			if (label.delegate != null) continue;			
+			if (currentLabel.delegate != null) continue;			
 			chaining |= L_OPTIMIZABLE;
 			if (currentLabel.forwardReferenceCount() == 0 && ((currentLabel.tagBits & BranchLabel.USED) != 0)) {
 				removeFrame = false;
@@ -934,10 +934,10 @@ public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel label, int
 		for (int i = this.countLabels - 1; i >= 0; i--) {
 			BranchLabel currentLabel = labels[i];
 			if (currentLabel.position != gotoLocation) break;
-			if (currentLabel == label) continue;
+			if (currentLabel == targetLabel) continue;
 			if (currentLabel.isStandardLabel()) {
-				if (label.delegate != null) continue;
-				label.becomeDelegateFor(currentLabel);
+				if (currentLabel.delegate != null) continue;
+				targetLabel.becomeDelegateFor(currentLabel);
 				// we should remove the frame corresponding to otherLabel position in order to prevent unused stack frame
 				if (removeFrame) {
 					currentLabel.tagBits &= ~BranchLabel.USED;

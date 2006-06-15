@@ -4446,6 +4446,134 @@ public void test053() {
 		assertTrue(false);
 	}	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+public void test054() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" X parent;\n" + 
+				" int kind;\n" + 
+				" static boolean F = false;\n" + 
+				" public static void main(String[] args) {\n" + 
+				"  X x = new X();\n" + 
+				"  x.kind = 2; \n" + 
+				"  try {\n" + 
+				"   x.foo();\n" + 
+				"  } catch(NullPointerException e) { \n" + 
+				"   System.out.println(\"SUCCESS\");\n" + 
+				"   return;\n" + 
+				"  }\n" + 
+				"  System.out.println(\"FAILED\");  \n" + 
+				" }\n" + 
+				" void foo() {\n" + 
+				"  X x = this;\n" + 
+				"  done : while (true) {\n" + 
+				"   switch (x.kind) {\n" + 
+				"    case 2 :\n" + 
+				"     if (F) {\n" + 
+				"      return;\n" + 
+				"     }\n" + 
+				"     break;\n" + 
+				"    case 3 :\n" + 
+				"     break done;\n" + 
+				"   }\n" + 
+				"   x = x.parent; // should throw npe\n" + 
+				"  }\n" + 
+				" } \n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6
+		?	"  // Method descriptor #12 ()V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  void foo();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  astore_1 [x]\n" + 
+			"     2  aload_1 [x]\n" + 
+			"     3  getfield X.kind : int [25]\n" + 
+			"     6  tableswitch default: 38\n" + 
+			"          case 2: 28\n" + 
+			"          case 3: 35\n" + 
+			"    28  getstatic X.F : boolean [14]\n" + 
+			"    31  ifeq 38\n" + 
+			"    34  return\n" + 
+			"    35  goto 46\n" + 
+			"    38  aload_1 [x]\n" + 
+			"    39  getfield X.parent : X [53]\n" + 
+			"    42  astore_1 [x]\n" + 
+			"    43  goto 2\n" + 
+			"    46  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 17]\n" + 
+			"        [pc: 2, line: 19]\n" + 
+			"        [pc: 28, line: 21]\n" + 
+			"        [pc: 34, line: 22]\n" + 
+			"        [pc: 35, line: 26]\n" + 
+			"        [pc: 38, line: 28]\n" + 
+			"        [pc: 43, line: 18]\n" + 
+			"        [pc: 46, line: 30]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 47] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 47] local: x index: 1 type: X\n"
+		:	
+			"  // Method descriptor #12 ()V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  void foo();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  astore_1 [x]\n" + 
+			"     2  aload_1 [x]\n" + 
+			"     3  getfield X.kind : int [25]\n" + 
+			"     6  tableswitch default: 38\n" + 
+			"          case 2: 28\n" + 
+			"          case 3: 35\n" + 
+			"    28  getstatic X.F : boolean [14]\n" + 
+			"    31  ifeq 38\n" + 
+			"    34  return\n" + 
+			"    35  goto 46\n" + 
+			"    38  aload_1 [x]\n" + 
+			"    39  getfield X.parent : X [55]\n" + 
+			"    42  astore_1 [x]\n" + 
+			"    43  goto 2\n" + 
+			"    46  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 17]\n" + 
+			"        [pc: 2, line: 19]\n" + 
+			"        [pc: 28, line: 21]\n" + 
+			"        [pc: 34, line: 22]\n" + 
+			"        [pc: 35, line: 26]\n" + 
+			"        [pc: 38, line: 28]\n" + 
+			"        [pc: 43, line: 18]\n" + 
+			"        [pc: 46, line: 30]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 47] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 47] local: x index: 1 type: X\n" + 
+			"      Stack map table: number of frames 5\n" + 
+			"        [pc: 2, append: {X}]\n" + 
+			"        [pc: 28, same]\n" + 
+			"        [pc: 35, same]\n" + 
+			"        [pc: 38, same]\n" + 
+			"        [pc: 46, same]\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
