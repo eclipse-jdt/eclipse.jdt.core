@@ -814,6 +814,32 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensure that the hierarchy using a working copy owner doesn't have primary working copy owner type
+	 * that are hidden by a type of the working copy owner
+	 * (regression test for bug 133372 [hierarchy] Type hierarchy returns type twice if executed on working copy layer)
+	 */
+	public void testHierarchy() throws CoreException {
+		try {
+			createFile(
+				"/P/Y.java",
+				"public class Y extends X {\n" +
+				"}"
+			);
+			WorkingCopyOwner owner = new TestWorkingCopyOwner();
+			this.workingCopy = getCompilationUnit("/P/Y.java").getWorkingCopy(owner, null/*no problem requestor*/, null/*no progress*/);
+			IType focus = getCompilationUnit("/P/X.java").getType("X");
+			ITypeHierarchy hierarchy = focus.newTypeHierarchy(owner, null/*no progress*/);
+			IType[] subtypes = hierarchy.getSubtypes(focus);
+			assertTypesEqual(
+				"Unexpected types", 
+				"Y\n",
+				subtypes);
+		} finally {
+			deleteFile("/P/Y.java");
+		}
+	}
+	
+	/*
 	 * Ensures that moving a primary working copy from one package to another removes that 
 	 * working copy from the original package.
 	 * (regression test for bug 43847 IPackageFragment not updated after CUs have moved)
