@@ -489,21 +489,30 @@ public static int getFreePort() {
 public static String[] getJavaClassLibs() {
 	String jreDir = getJREDirectory();
 	final String osName = System.getProperty("os.name");
-	if (jreDir == null)  {
+	if (jreDir == null) {
 		return new String[] {};
 	}
 	if (osName.startsWith("Mac")) {
-		return new String[] { toNativePath(jreDir + "/../Classes/classes.jar")};
+		return new String[] { toNativePath(jreDir + "/../Classes/classes.jar") };
 	}
 	final String vmName = System.getProperty("java.vm.name");
 	if ("J9".equals(vmName)) {
-		return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip")};
+		return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip") };
 	}
 	File file = new File(jreDir + "/lib/rt.jar");
 	if (file.exists()) {
 		return new String[] {
 			toNativePath(jreDir + "/lib/rt.jar")
-		};				
+		};
+	}
+	file = new File(jreDir + "/lib/vm.jar");
+	if (file.exists()) {
+		// The IBM J2SE 5.0 has put the java.lang classes in vm.jar.
+		return new String[] { 
+			toNativePath(jreDir + "/lib/vm.jar"),
+			toNativePath(jreDir + "/lib/core.jar"),
+			toNativePath(jreDir + "/lib/security.jar"),
+			toNativePath(jreDir + "/lib/graphics.jar") };				
 	}
 	return new String[] { 
 		toNativePath(jreDir + "/lib/core.jar"),
@@ -525,18 +534,18 @@ public static String getJavaClassLibsAsString() {
 /**
  * Returns the JRE directory this tests are running on.
  * Returns null if none could be found.
- *
+ * 
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getJREDirectory()]
-*/
+ */
 public static String getJREDirectory() {
 	return System.getProperty("java.home");
 }
 /**
  * Search the user hard-drive for a possible output directory.
  * Returns null if none could be found.
- *
+ * 
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getOutputDirectory()]
-*/
+ */
 public static String getOutputDirectory() {
 	String container = System.getProperty("user.home");
 	if (container == null){
