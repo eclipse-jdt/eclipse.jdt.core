@@ -4574,6 +4574,243 @@ public void test054() {
 		assertTrue(false);
 	}	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+public void test055() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"void foo5() {\n" + 
+				"  L : for (;;) {\n" + 
+				"    continue L; // good\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"}\n",
+			},
+			"");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6
+		?	"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  void foo5();\n" + 
+			"    0  goto 0\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 3] local: this index: 0 type: X\n"
+		:	
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  void foo5();\n" + 
+			"    0  goto 0\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+			"      Stack map table: number of frames 1\n" + 
+			"        [pc: 0, same]\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+public void _test056() {
+	this.runNegativeTest(
+		new String[] {
+			"p/BytecodeA.java",
+			"package p;\n" + 
+			"class BytecodeA {\n" + 
+			"  \n" + 
+			"int foo() { // good\n" + 
+			"  boolean b = true;\n" + 
+			"  if (b) {\n" + 
+			"    if (true)\n" + 
+			"      return 0;\n" + 
+			"  } else {\n" + 
+			"    if (true)\n" + 
+			"      return 1;\n" + 
+			"  }\n" + 
+			"  return 5;\n" + 
+			"}\n" + 
+			"int foo10() {\n" + 
+			"  try {\n" + 
+			"    //if (true)\n" + 
+			"      return 0;\n" + 
+			"  } catch (Exception e) {\n" + 
+			"    if (true)\n" + 
+			"      return 1;\n" + 
+			"  } finally {\n" + 
+			"    if (true)\n" + 
+			"      return 2;\n" + 
+			"  };\n" + 
+			"  return 1;\n" + 
+			"}   \n" + 
+			"int foo11() {\n" + 
+			"  synchronized (this) {\n" + 
+			"    if (true)\n" + 
+			"      return 1;\n" + 
+			"  };\n" + 
+			"  return 2;\n" + 
+			"} \n" + 
+			"int foo12() {\n" + 
+			"  for (;;)\n" + 
+			"    return 1;\n" + 
+			"}\n" + 
+			"int foo13() {\n" + 
+			"  for (;;)\n" + 
+			"    if (true)\n" + 
+			"      return 1;\n" + 
+			"}\n" + 
+			"int foo14() {\n" + 
+			"  for (int i = 1; i < 10; i++)\n" + 
+			"    if (true)\n" + 
+			"      return 1;\n" + 
+			"  return 2;\n" + 
+			"} \n" + 
+			"int foo15() {\n" + 
+			"  for (int i = 1; i < 10; i++)\n" + 
+			"    return 1;\n" + 
+			"  return 2;\n" + 
+			"}\n" + 
+			"int foo16() {\n" + 
+			"  final int i;\n" + 
+			"  while (true) {\n" + 
+			"    i = 1;\n" + 
+			"    if (true)\n" + 
+			"      break;\n" + 
+			"  };\n" + 
+			"  return 1;\n" + 
+			"}              \n" + 
+			"int foo17() {\n" + 
+			"  final int i;\n" + 
+			"  for (;;) {\n" + 
+			"    i = 1;\n" + 
+			"    if (true)\n" + 
+			"      break;\n" + 
+			"  };\n" + 
+			"  return 1;\n" + 
+			"} \n" + 
+			"void foo2() {\n" + 
+			"  L1 :;  // good\n" + 
+			"}\n" + 
+			"void foo20() {\n" + 
+			"  if (true)\n" + 
+			"    return;\n" + 
+			"} \n" + 
+			"void foo3() {\n" + 
+			"  L : if (true) {\n" + 
+			"    for (;;) {\n" + 
+			"      continue L; // bad\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}   \n" + 
+			"void foo4() {\n" + 
+			"  L : if (true) {\n" + 
+			"    try {\n" + 
+			"      for (;;) {\n" + 
+			"        continue L; // bad\n" + 
+			"      }\n" + 
+			"    } finally {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  } \n" + 
+			"}\n" + 
+			"void foo5() {\n" + 
+			"  L : for (;;) {\n" + 
+			"    continue L; // good\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"void foo5bis() {\n" + 
+			"  L : K : for (;;) {\n" + 
+			"    continue L; // good\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"void foo6(){\n" + 
+			"  int i;\n" + 
+			"  boolean a[] = new boolean[5];\n" + 
+			"  a[i=1] = i > 0; // good\n" + 
+			"}    \n" + 
+			"void foo7(){\n" + 
+			"  Object x[];\n" + 
+			"  x [1] = (x = new Object[5]); // bad\n" + 
+			"}    \n" + 
+			"void foo8() {\n" + 
+			"  try {\n" + 
+			"  } catch (java.io.IOException e) {\n" + 
+			"    foo(); // unreachable\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"void foo9() {\n" + 
+			"  try {\n" + 
+			"  } catch (NullPointerException e) {\n" + 
+			"    foo(); // ok\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"      BytecodeA a = new BytecodeA();\n" + 
+			"      a.foo10();\n" + 
+			"    }\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\BytecodeA.java (at line 74)\n" + 
+		"	L1 :;  // good\n" + 
+		"	^^\n" + 
+		"The label L1 is never explicitly referenced\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\BytecodeA.java (at line 83)\n" + 
+		"	continue L; // bad\n" + 
+		"	^^^^^^^^^^\n" + 
+		"continue cannot be used outside of a loop\n" + 
+		"----------\n" + 
+		"3. ERROR in p\\BytecodeA.java (at line 91)\n" + 
+		"	continue L; // bad\n" + 
+		"	^^^^^^^^^^\n" + 
+		"continue cannot be used outside of a loop\n" + 
+		"----------\n" + 
+		"4. WARNING in p\\BytecodeA.java (at line 93)\n" + 
+		"	} finally {\n" + 
+		"      return;\n" + 
+		"    }\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"finally block does not complete normally\n" + 
+		"----------\n" + 
+		"5. WARNING in p\\BytecodeA.java (at line 104)\n" + 
+		"	L : K : for (;;) {\n" + 
+		"	    ^\n" + 
+		"The label K is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6. ERROR in p\\BytecodeA.java (at line 105)\n" + 
+		"	continue L; // good\n" + 
+		"	^^^^^^^^^^\n" + 
+		"continue cannot be used outside of a loop\n" + 
+		"----------\n" + 
+		"7. ERROR in p\\BytecodeA.java (at line 115)\n" + 
+		"	x [1] = (x = new Object[5]); // bad\n" + 
+		"	^\n" + 
+		"The local variable x may not have been initialized\n" + 
+		"----------\n" + 
+		"8. ERROR in p\\BytecodeA.java (at line 119)\n" + 
+		"	} catch (java.io.IOException e) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }

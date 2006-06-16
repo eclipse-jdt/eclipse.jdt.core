@@ -908,6 +908,7 @@ public void imul() {
 	this.currentFrame.numberOfStackItems--;
 }
 public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
+	if (targetLabel.delegate != null) return false; // already inlined
 	int chaining = L_UNKNOWN;
 
 	boolean removeFrame = true;

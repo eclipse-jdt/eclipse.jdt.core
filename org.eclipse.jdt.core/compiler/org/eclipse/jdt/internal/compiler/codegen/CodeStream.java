@@ -3576,6 +3576,7 @@ public void ineg() {
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
 public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
+	if (targetLabel.delegate != null) return false; // already inlined
 	int chaining = L_UNKNOWN;
 	for (int i = this.countLabels - 1; i >= 0; i--) {
 		BranchLabel currentLabel = labels[i];
