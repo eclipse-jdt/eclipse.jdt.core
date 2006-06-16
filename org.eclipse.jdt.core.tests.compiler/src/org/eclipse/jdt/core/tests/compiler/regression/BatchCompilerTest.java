@@ -3052,6 +3052,44 @@ public void test056(){
 			"/out/p cannot be used as output directory\n",
 		true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147461
+// TODO (maxime) finish and activate when fixed
+public void _test057_access_restrictions_separator(){
+	String oppositeSeparator = File.pathSeparatorChar == ':' ?
+			";" : ":";
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"	OK1 ok1;\n" + 
+			"	OK2 ok2;\n" + 
+			"	KO ko;\n" + 
+			"}",
+			"OK1.java",
+			"/** */\n" + 
+			"public class OK1 {\n" + 
+			"	// empty\n" + 
+			"}",
+			"OK2.java",
+			"/** */\n" + 
+			"public class OK2 {\n" + 
+			"	// empty\n" + 
+			"}",
+			"KO.java",
+			"/** */\n" + 
+			"public class KO {\n" + 
+			"	// empty\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]" 
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "", 
+        "ERR: invalid spec",
+        true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
