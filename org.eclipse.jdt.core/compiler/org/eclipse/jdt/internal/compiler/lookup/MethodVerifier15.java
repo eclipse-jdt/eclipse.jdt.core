@@ -530,9 +530,6 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
-	if (!this.type.isHierarchyInconsistent())
-		return null; // hasErasedCandidatesCollisions() did NOT mark the type has inconsistent
-
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
 	ReferenceBinding[] itsInterfaces = superInterfaces;
@@ -541,8 +538,10 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 		interfacesToVisit = itsInterfaces;
 	}
 
+	boolean isInconsistent = this.type.isHierarchyInconsistent();
 	ReferenceBinding superType = superclass;
 	while (superType != null && superType.isValidBinding()) {
+		isInconsistent |= superType.isHierarchyInconsistent();
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 			if (interfacesToVisit == null) {
 				interfacesToVisit = itsInterfaces;
@@ -565,6 +564,7 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	for (int i = 0; i < nextPosition; i++) {
 		superType = interfacesToVisit[i];
 		if (superType.isValidBinding()) {
+			isInconsistent |= superType.isHierarchyInconsistent();
 			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 				int itsLength = itsInterfaces.length;
 				if (nextPosition + itsLength >= interfacesToVisit.length)
@@ -579,6 +579,7 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 		}
 	}
 
+	if (!isInconsistent) return null; // hierarchy is consistent so no collisions are possible
 	SimpleSet copy = null;
 	for (int i = 0; i < nextPosition; i++) {
 		ReferenceBinding current = interfacesToVisit[i];

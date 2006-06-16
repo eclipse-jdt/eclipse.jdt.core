@@ -5097,7 +5097,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
-	public void _test089() {
+	public void test089() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//===================
@@ -5111,6 +5111,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	abstract class X2 extends X3 implements List<String> {}\n" + 
 			"	               ^^\n" + 
 			"The interface List cannot be implemented more than once with different arguments: List<Thread> and List<String>\n" + 
-			"----------\n");
+			"----------\n"
+		);
 	}
 }
