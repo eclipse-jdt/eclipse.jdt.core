@@ -44,6 +44,15 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 
 public class SourceTypeConverter {
+	
+	/* 
+	 * Exception thrown while converting an anonymous type of a member type
+	 * in this case, we must parse the source as the enclosing instance cannot be recreated
+	 * from the model
+	 */
+	static class AnonymousMemberFound extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
 
 	public static final int FIELD = 0x01;
 	public static final int CONSTRUCTOR = 0x02;
@@ -138,19 +147,23 @@ public class SourceTypeConverter {
 				sourceImport.getModifiers());
 		}
 		/* convert type(s) */
-		int typeCount = sourceTypes.length;
-		final TypeDeclaration[] types = new TypeDeclaration[typeCount];
-		/*
-		 * We used a temporary types collection to prevent this.unit.types from being null during a call to
-		 * convert(...) when the source is syntactically incorrect and the parser is flushing the unit's types.
-		 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
-		 */
-		for (int i = 0; i < typeCount; i++) {
-			SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) sourceTypes[i];
-			types[i] = convert((SourceType) typeInfo.getHandle(), compilationResult);
+		try {
+			int typeCount = sourceTypes.length;
+			final TypeDeclaration[] types = new TypeDeclaration[typeCount];
+			/*
+			 * We used a temporary types collection to prevent this.unit.types from being null during a call to
+			 * convert(...) when the source is syntactically incorrect and the parser is flushing the unit's types.
+			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
+			 */
+			for (int i = 0; i < typeCount; i++) {
+				SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) sourceTypes[i];
+				types[i] = convert((SourceType) typeInfo.getHandle(), compilationResult);
+			}
+			this.unit.types = types;
+			return this.unit;
+		} catch (AnonymousMemberFound e) {
+			return new Parser(this.problemReporter, true).parse(this.cu, compilationResult);
 		}
-		this.unit.types = types;
-		return this.unit;
 	}
 	
 	private void addIdentifiers(String typeSignature, int start, int endExclusive, int identCount, ArrayList fragments) {
@@ -422,6 +435,8 @@ public class SourceTypeConverter {
 	 */
 	private TypeDeclaration convert(SourceType typeHandle, CompilationResult compilationResult) throws JavaModelException {
 		SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) typeHandle.getElementInfo();
+		if (typeInfo.isAnonymousMember())
+			throw new AnonymousMemberFound();
 		/* create type declaration - can be member type */
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if (typeInfo.getEnclosingType() == null) {

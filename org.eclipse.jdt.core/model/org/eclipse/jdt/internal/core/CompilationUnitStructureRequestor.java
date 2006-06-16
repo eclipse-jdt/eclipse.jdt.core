@@ -357,7 +357,14 @@ public void enterType(TypeInfo typeInfo) {
 	SourceType handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
-	SourceTypeElementInfo info = new SourceTypeElementInfo();
+	SourceTypeElementInfo info = 
+		typeInfo.anonymousMember ? 
+			new SourceTypeElementInfo() {
+				public boolean isAnonymousMember() {
+					return true;
+				}
+			} : 
+		new SourceTypeElementInfo();
 	info.setHandle(handle);
 	info.setSourceRangeStart(typeInfo.declarationStart);
 	info.setFlags(typeInfo.modifiers);

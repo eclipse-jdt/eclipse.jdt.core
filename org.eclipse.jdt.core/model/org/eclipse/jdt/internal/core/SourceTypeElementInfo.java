@@ -279,6 +279,12 @@ public char[][] getTypeParameterNames() {
 public boolean isBinaryType() {
 	return false;
 }
+/*
+ * Returns whether the source type is an anonymous type of a member type.
+ */
+public boolean isAnonymousMember() {
+	return false;
+}
 /**
  * Sets the handle for this type info
  */

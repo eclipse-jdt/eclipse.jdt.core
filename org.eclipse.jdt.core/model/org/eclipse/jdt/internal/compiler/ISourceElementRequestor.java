@@ -50,6 +50,7 @@ public interface ISourceElementRequestor {
 		public long[] annotationPositions;
 		public char[][] categories;
 		public boolean secondary;
+		public boolean anonymousMember;
 	}
 	
 	public static class TypeParameterInfo {

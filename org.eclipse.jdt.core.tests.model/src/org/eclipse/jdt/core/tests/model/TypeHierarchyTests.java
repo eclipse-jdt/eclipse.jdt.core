@@ -173,7 +173,7 @@ public void tearDownSuite() throws Exception {
 /*
  * Ensures that a hierarchy on an anonymous type in an initializer is correct.
  */
-public void testAnonymousType1() throws JavaModelException {
+public void testAnonymousType01() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
 	IType type = typeA.getInitializer(1).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -188,7 +188,7 @@ public void testAnonymousType1() throws JavaModelException {
 /*
  * Ensures that a hierarchy on an anonymous type in a second initializer is correct.
  */
-public void testAnonymousType2() throws JavaModelException {
+public void testAnonymousType02() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
 	IType type = typeA.getInitializer(2).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -203,7 +203,7 @@ public void testAnonymousType2() throws JavaModelException {
 /*
  * Ensures that a hierarchy on an anonymous type in a field declaration is correct.
  */
-public void testAnonymousType3() throws JavaModelException {
+public void testAnonymousType03() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
 	IType type = typeA.getField("field1").getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -218,7 +218,7 @@ public void testAnonymousType3() throws JavaModelException {
 /*
  * Ensures that a hierarchy on an anonymous type in a field declaration is correct.
  */
-public void testAnonymousType4() throws JavaModelException {
+public void testAnonymousType04() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
 	IType type = typeA.getField("field2").getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -242,7 +242,7 @@ public void testAnonymousType4() throws JavaModelException {
 /*
  * Ensures that a hierarchy on an anonymous type in a method declaration is correct.
  */
-public void testAnonymousType5() throws JavaModelException {
+public void testAnonymousType05() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
 	IType type = typeA.getMethod("foo", new String[] {}).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -258,7 +258,7 @@ public void testAnonymousType5() throws JavaModelException {
  * Ensures that a hierarchy on an anonymous type that uses a non-default constructor is correct.
  * (regression test for bug 44506 Type hierarchy is missing anonymous type)
  */
-public void testAnonymousType6() throws JavaModelException {
+public void testAnonymousType06() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p8", "X.java").getType("X");
 	IType type = typeA.getMethod("foo", new String[] {}).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -274,7 +274,7 @@ public void testAnonymousType6() throws JavaModelException {
  * Ensure that the key of an anonymous binary type in a hierarchy is correct.
  * (regression test for bug 93826 ArrayIndexOutOfBoundsException when opening type hierarchy)
  */
-public void testAnonymousType7() throws CoreException {
+public void testAnonymousType07() throws CoreException {
 	IType type = getClassFile("TypeHierarchy","myLib.jar", "my.pkg", "X.class").getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	IType[] subtypes = hierarchy.getSubtypes(type);
@@ -284,7 +284,7 @@ public void testAnonymousType7() throws CoreException {
  * Ensure that hierarchy on an enum also include the anonymous of its enum contants
  * (regression test for bug 120667 [hierarchy] Type hierarchy for enum type does not include anonymous subtypes)
  */
-public void testAnonymousType8() throws CoreException {
+public void testAnonymousType08() throws CoreException {
 	IType type = getCompilationUnit("TypeHierarchy15/src/Try.java").getType("Try");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -302,7 +302,7 @@ public void testAnonymousType8() throws CoreException {
  * Ensure that hierarchy on the anonymous type of an enum constant is correct
  * (regression test for bug 120667 [hierarchy] Type hierarchy for enum type does not include anonymous subtypes)
  */
-public void testAnonymousType9() throws CoreException {
+public void testAnonymousType09() throws CoreException {
 	IType type = getCompilationUnit("TypeHierarchy15/src/Try.java").getType("Try").getField("ANONYMOUS").getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
@@ -314,6 +314,23 @@ public void testAnonymousType9() throws CoreException {
 		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
 		"      Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
 		"Sub types:\n",
+		hierarchy);
+}
+/*
+ * Ensure that hierarchy on the anonymous type of a member type that is opened is correct
+ * (regression test for bug 122444 [hierarchy] Type hierarchy of inner member type misses anonymous subtypes)
+ */
+public void testAnonymousType10() throws CoreException {
+	ICompilationUnit cu =  getCompilationUnit("TypeHierarchy/src/q7/X.java");
+	cu.open(null);
+	IType type = cu.getType("X").getType("Member");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Member [in X [in X.java [in q7 [in src [in TypeHierarchy]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo(X) [in Y [in X.java [in q7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
 /**

@@ -1400,6 +1400,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 			typeInfo.categories = (char[][]) this.nodesToCategories.get(typeDeclaration);
 			typeInfo.secondary = typeDeclaration.isSecondary();
+			typeInfo.anonymousMember = typeDeclaration.allocation != null && typeDeclaration.allocation.enclosingInstance != null;
 			requestor.enterType(typeInfo);
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
