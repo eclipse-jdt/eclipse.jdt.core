@@ -139,6 +139,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 					case IConstantPoolConstant.CONSTANT_NameAndType :
 						constantPoolOffsets[i] = readOffset;
 						readOffset += IConstantPoolConstant.CONSTANT_NameAndType_SIZE;
+						break;
+					default:
+						throw new ClassFormatException(ClassFormatException.INVALID_TAG_CONSTANT);
 				}
 			}
 			
