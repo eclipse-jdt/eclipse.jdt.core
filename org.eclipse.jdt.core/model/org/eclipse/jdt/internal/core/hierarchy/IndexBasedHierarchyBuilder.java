@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
@@ -137,13 +138,38 @@ public void build(boolean computeSubtypes) {
 	}
 }
 private void buildForProject(JavaProject project, ArrayList potentialSubtypes, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
-	// copy vectors into arrays
-	int openablesLength = potentialSubtypes.size();
-	Openable[] openables = new Openable[openablesLength];
-	potentialSubtypes.toArray(openables);
-
 	// resolve
+	int openablesLength = potentialSubtypes.size();
 	if (openablesLength > 0) {
+		// copy vectors into arrays
+		Openable[] openables = new Openable[openablesLength];
+		potentialSubtypes.toArray(openables);
+
+		// sort in the order of roots and in reverse alphabetical order for .class file
+		// since requesting top level types in the process of caching an enclosing type is
+		// not supported by the lookup environment
+		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+		int rootsLength = roots.length;
+		final HashtableOfObjectToInt indexes = new HashtableOfObjectToInt(openablesLength);
+		for (int i = 0; i < openablesLength; i++) {
+			IJavaElement root = openables[i].getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			int index;
+			for (index = 0; index < rootsLength; index++) {
+				if (roots[index].equals(root))
+					break;
+			}		
+			indexes.put(openables[i], index);
+		}
+		Util.sort(openables, new Util.Comparer() {
+			public int compare(Object a, Object b) {
+				int aIndex = indexes.get(a);
+				int bIndex = indexes.get(b);
+				if (aIndex != bIndex)
+					return aIndex - bIndex;
+				return ((Openable) b).getElementName().compareTo(((Openable) a).getElementName());
+			}
+		});
+		
 		IType focusType = this.getType();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
 		org.eclipse.jdt.core.ICompilationUnit[] unitsToLookInside = null;
@@ -240,17 +266,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		length++;
 	}
 	
-	// sort by projects
-	/*
-	 * NOTE: To workaround pb with hierarchy resolver that requests top  
-	 * level types in the process of caching an enclosing type, this needs to
-	 * be sorted in reverse alphabetical order so that top level types are cached
-	 * before their inner types.
-	 */
-	org.eclipse.jdt.internal.core.util.Util.sortReverseOrder(allPotentialSubTypes);
-	
 	ArrayList potentialSubtypes = new ArrayList();
-
 	try {
 		// create element infos for subtypes
 		HandleFactory factory = new HandleFactory();

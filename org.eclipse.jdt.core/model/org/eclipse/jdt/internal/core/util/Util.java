@@ -1616,39 +1616,6 @@ public class Util {
 	}
 
 	/**
-	 * Sort the objects in the given collection using the given sort order.
-	 */
-	private static void quickSort(Object[] sortedCollection, int left, int right, int[] sortOrder) {
-		int original_left = left;
-		int original_right = right;
-		int mid = sortOrder[ (left + right) / 2];
-		do {
-			while (sortOrder[left] < mid) {
-				left++;
-			}
-			while (mid < sortOrder[right]) {
-				right--;
-			}
-			if (left <= right) {
-				Object tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				int tmp2 = sortOrder[left];
-				sortOrder[left] = sortOrder[right];
-				sortOrder[right] = tmp2;
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		if (original_left < right) {
-			quickSort(sortedCollection, original_left, right, sortOrder);
-		}
-		if (left < original_right) {
-			quickSort(sortedCollection, left, original_right, sortOrder);
-		}
-	}
-
-	/**
 	 * Sort the strings in the given collection.
 	 */
 	private static void quickSort(String[] sortedCollection, int left, int right) {
@@ -1678,35 +1645,6 @@ public class Util {
 		}
 	}
 
-	/**
-	 * Sort the strings in the given collection in reverse alphabetical order.
-	 */
-	private static void quickSortReverse(String[] sortedCollection, int left, int right) {
-		int original_left = left;
-		int original_right = right;
-		String mid = sortedCollection[ (left + right) / 2];
-		do {
-			while (sortedCollection[left].compareTo(mid) > 0) {
-				left++;
-			}
-			while (mid.compareTo(sortedCollection[right]) > 0) {
-				right--;
-			}
-			if (left <= right) {
-				String tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		if (original_left < right) {
-			quickSortReverse(sortedCollection, original_left, right);
-		}
-		if (left < original_right) {
-			quickSortReverse(sortedCollection, left, original_right);
-		}
-	}
 	/**
 	 * Reads in a string from the specified data input stream. The 
 	 * string has been encoded using a modified UTF-8 format. 
@@ -1923,14 +1861,6 @@ public class Util {
 	}
 
 	/**
-	 * Sorts an array of objects in place, using the sort order given for each item.
-	 */
-	public static void sort(Object[] objects, int[] sortOrder) {
-		if (objects.length > 1)
-			quickSort(objects, 0, objects.length - 1, sortOrder);
-	}
-
-	/**
 	 * Sorts an array of strings in place using quicksort.
 	 */
 	public static void sort(String[] strings) {
@@ -1991,15 +1921,6 @@ public class Util {
 		return copy;
 	}
 
-	/**
-	 * Sorts an array of strings in place using quicksort
-	 * in reverse alphabetical order.
-	 */
-	public static void sortReverseOrder(String[] strings) {
-		if (strings.length > 1)
-			quickSortReverse(strings, 0, strings.length - 1);
-	}
-	
 	/*
 	 * Returns whether the given compound name starts with the given prefix.
 	 * Returns true if the n first elements of the prefix are equals and the last element of the 

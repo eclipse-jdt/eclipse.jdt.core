@@ -1522,6 +1522,45 @@ public void testResolvedTypeAsFocus() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensure that the order of roots is taken into account when a type is present in multiple roots.
+ * (regression test for bug 139555 [hierarchy] Opening a class from Type hierarchy will give the wrong one if source and compiled are in defined in project)
+ */
+public void testRootOrder() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"abc"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P/abc/p");
+		createFile(
+			"/P/abc/p/X.java", 
+			"package p;\n"+ 
+			"public class X {}"
+		);
+		createFile(
+			"/P/abc/p/Y.java", 
+			"package p;\n"+ 
+			"public class Y extends X {}"
+		);
+		addLibrary(project, "lib.jar", "libsrc.zip", new String[] {
+			"p/X.java", 
+			"package p;\n"+ 
+			"public class X {}",
+			"p/Y.java", 
+			"package p;\n"+ 
+			"public class Y extends X {}"
+		}, "1.4");
+		IType type = getCompilationUnit("/P/abc/p/X.java").getType("X");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.java [in p [in abc [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Sub types:\n" + 
+			"  Y [in Y.java [in p [in abc [in P]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
  */
