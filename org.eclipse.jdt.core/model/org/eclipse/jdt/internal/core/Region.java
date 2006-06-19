@@ -13,12 +13,8 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IRegion;
-import org.eclipse.jdt.core.JavaModelException;
-
 
 /**
  * @see IRegion
@@ -47,20 +43,6 @@ public void add(IJavaElement element) {
 		//"new" element added to region
 		removeAllChildren(element);
 		fRootElements.add(element);
-		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
-			// add jar roots as well so that jars don't rely on their parent to know 
-			// if they are contained in the region
-			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146615)
-			try {
-				IPackageFragmentRoot[] roots = ((IJavaProject) element).getPackageFragmentRoots();
-				for (int i = 0, length = roots.length; i < length; i++) {
-					if (roots[i].isArchive() && !fRootElements.contains(roots[i]))
-						fRootElements.add(roots[i]);
-				}
-			} catch (JavaModelException e) {
-				// project doesn't exist
-			}
-		}
 		fRootElements.trimToSize();
 	}
 }
@@ -127,7 +109,7 @@ public boolean remove(IJavaElement element) {
  *
  * <p>Children are all children, not just direct children.
  */
-private void removeAllChildren(IJavaElement element) {
+protected void removeAllChildren(IJavaElement element) {
 	if (element instanceof IParent) {
 		ArrayList newRootElements = new ArrayList();
 		for (int i = 0, size = fRootElements.size(); i < size; i++) {
