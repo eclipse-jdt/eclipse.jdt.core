@@ -815,7 +815,7 @@ public class SourceTypeConverter {
 					if (!nameStarted) {
 						nameFragmentStart = this.namePos+1;
 						nameStarted = true;
-					} else
+					} else if (this.namePos > nameFragmentStart) // handle name starting with a $ (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=91709)
 						identCount ++;
 					break;
 				case Signature.C_GENERIC_START :

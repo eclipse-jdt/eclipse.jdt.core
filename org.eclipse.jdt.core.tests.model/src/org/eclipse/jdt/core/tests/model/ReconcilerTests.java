@@ -2729,6 +2729,49 @@ public void testTypeParameterWithBound() throws CoreException {
 	}
 }
 /*
+ * Ensures that a method that has a type parameter starting with $ can be reconciled against.
+ * (regression test for bug 91709 [1.5][model] Quick Fix Error but no Problem Reported)
+ */
+public void testTypeParameterStartingWithDollar() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getWorkingCopy(
+			"/Reconciler15/src/test/Y.java",
+			"package test;\n"+
+			"public class Y<$T> {\n"+
+			"	void foo($T t);\n"+
+			"}\n",
+			owner,
+			null /*no problem requestor*/
+		);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", owner, this.problemRequestor);
+		setWorkingCopyContents(
+			"package test;\n"+
+			"public class X {\n"+
+			"	public void bar() {\n"+
+			"    new Y<String>().foo(\"\");\n" +
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+	}
+}
+/*
  * Ensures that a working copy with a type with a dollar name can be reconciled without errors.
  * (regression test for bug 117121 Can't create class called A$B in eclipse)
  */
