@@ -31748,4 +31748,26 @@ public void test1006() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147381
+public void test1007() {
+	this.runNegativeTest(
+		new String[] {
+			"GenericsProblem.java",
+			"public class GenericsProblem {\n" + 
+			"	public <T> void test(T val) {\n" + 
+			"		GenericsProblem gp = new GenericsProblem();\n" + 
+			"		// this is fine with both\n" + 
+			"		Class<? extends GenericsProblem> cl2 = gp.getClass();\n" + 
+			"		// This fails on Sun\'s compiler\n" + 
+			"		Class<? extends T> cl = val.getClass();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in GenericsProblem.java (at line 7)\n" + 
+		"	Class<? extends T> cl = val.getClass();\n" + 
+		"	                        ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture-of ? extends Object> to Class<? extends T>\n" + 
+		"----------\n");
+}		
 }

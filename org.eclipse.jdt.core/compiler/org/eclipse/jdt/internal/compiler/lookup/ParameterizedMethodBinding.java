@@ -216,7 +216,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.thrownExceptions = originalMethod.thrownExceptions;
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
 		LookupEnvironment environment = scope.environment();
-		TypeBinding rawType = environment.convertToRawType(receiverType);
+		TypeBinding rawType = environment.convertToRawType(receiverType.erasure());
 		method.returnType = environment.createParameterizedType(
 			genericClassType,
 			new TypeBinding[] {  environment.createWildcard(genericClassType, 0, rawType, null /*no extra bound*/, Wildcard.EXTENDS) },
