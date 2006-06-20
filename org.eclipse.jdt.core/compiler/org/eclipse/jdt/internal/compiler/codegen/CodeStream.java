@@ -4127,28 +4127,34 @@ public void invokespecial(MethodBinding methodBinding) {
 			methodBinding.selector,
 			methodBinding.signature(),
 			false));
-	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
-		// enclosing instances
-		TypeBinding[] syntheticArgumentTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes();
-		if (syntheticArgumentTypes != null) {
-			for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
-				if (((id = syntheticArgumentTypes[i].id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-					argCount += 2;
-				} else {
-					argCount++;
+	if (methodBinding.isConstructor()) {
+		final ReferenceBinding declaringClass = methodBinding.declaringClass;
+		if (declaringClass.isNestedType()) {
+			// enclosing instances
+			TypeBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
+			if (syntheticArgumentTypes != null) {
+				for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
+					if (((id = syntheticArgumentTypes[i].id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
+						argCount += 2;
+					} else {
+						argCount++;
+					}
 				}
 			}
-		}
-		// outer local variables
-		SyntheticArgumentBinding[] syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables();
-		if (syntheticArguments != null) {
-			for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-				if (((id = syntheticArguments[i].type.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-					argCount += 2;
-				} else {
-					argCount++;
+			// outer local variables
+			SyntheticArgumentBinding[] syntheticArguments = declaringClass.syntheticOuterLocalVariables();
+			if (syntheticArguments != null) {
+				for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+					if (((id = syntheticArguments[i].type.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
+						argCount += 2;
+					} else {
+						argCount++;
+					}
 				}
 			}
+		} else if (declaringClass.isEnum()) {
+			// adding String and int
+			argCount += 2;
 		}
 	}
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)

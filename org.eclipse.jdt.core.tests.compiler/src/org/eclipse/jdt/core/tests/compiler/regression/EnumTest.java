@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 128 };
+//		TESTS_NUMBERS = new int[] { 133 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4396,7 +4396,7 @@ public void test129() {
 		"  private static final synthetic X[] ENUM$VALUES;\n" + 
 		"  \n" + 
 		"  // Method descriptor #12 ()V\n" + 
-		"  // Stack: 10, Locals: 0\n" + 
+		"  // Stack: 4, Locals: 0\n" + 
 		"  static {};\n" + 
 		"     0  new X [1]\n" + 
 		"     3  dup\n" + 
@@ -4580,5 +4580,81 @@ public void test132() {
     			"}\n",
          },
          "NullPointerException");
-}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=147747
+public void test133() {
+	this.runConformTest(
+         new String[] {
+        		"X.java",
+     			"public enum X {\n" + 
+    			"	A, B, C;\n" +
+    			"	public static void main(String[] args) {}\n" + 
+    			"}\n",
+         },
+         "");
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String actualOutput = null;
+	try {
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		assertTrue("IOException", false);
+	}
+	
+	String expectedOutput = 
+		"  // Method descriptor #12 ()V\n" + 
+		"  // Stack: 4, Locals: 0\n" + 
+		"  static {};\n" + 
+		"     0  new X [1]\n" + 
+		"     3  dup\n" + 
+		"     4  ldc <String \"A\"> [14]\n" + 
+		"     6  iconst_0\n" + 
+		"     7  invokespecial X(java.lang.String, int) [15]\n" + 
+		"    10  putstatic X.A : X [19]\n" + 
+		"    13  new X [1]\n" + 
+		"    16  dup\n" + 
+		"    17  ldc <String \"B\"> [21]\n" + 
+		"    19  iconst_1\n" + 
+		"    20  invokespecial X(java.lang.String, int) [15]\n" + 
+		"    23  putstatic X.B : X [22]\n" + 
+		"    26  new X [1]\n" + 
+		"    29  dup\n" + 
+		"    30  ldc <String \"C\"> [24]\n" + 
+		"    32  iconst_2\n" + 
+		"    33  invokespecial X(java.lang.String, int) [15]\n" + 
+		"    36  putstatic X.C : X [25]\n" + 
+		"    39  iconst_3\n" + 
+		"    40  anewarray X [1]\n" + 
+		"    43  dup\n" + 
+		"    44  iconst_0\n" + 
+		"    45  getstatic X.A : X [19]\n" + 
+		"    48  aastore\n" + 
+		"    49  dup\n" + 
+		"    50  iconst_1\n" + 
+		"    51  getstatic X.B : X [22]\n" + 
+		"    54  aastore\n" + 
+		"    55  dup\n" + 
+		"    56  iconst_2\n" + 
+		"    57  getstatic X.C : X [25]\n" + 
+		"    60  aastore\n" + 
+		"    61  putstatic X.ENUM$VALUES : X[] [27]\n" + 
+		"    64  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 39, line: 1]\n"; 
+		
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
+	}
+	if (index == -1) {
+		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+	}
+}
 }

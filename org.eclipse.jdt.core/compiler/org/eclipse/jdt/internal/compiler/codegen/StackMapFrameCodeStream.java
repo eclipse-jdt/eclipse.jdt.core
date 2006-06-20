@@ -1183,17 +1183,20 @@ public void invokespecial(MethodBinding methodBinding) {
 	super.invokespecial(methodBinding);
 	int argCount = 0;
 	if (methodBinding.isConstructor()) {
-		if (methodBinding.declaringClass.isNestedType()) {
+		final ReferenceBinding declaringClass = methodBinding.declaringClass;
+		if (declaringClass.isNestedType()) {
 			// enclosing instances
-			TypeBinding[] syntheticArgumentTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes();
+			TypeBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
 			if (syntheticArgumentTypes != null) {
 				argCount += syntheticArgumentTypes.length;
 			}
 			// outer local variables
-			SyntheticArgumentBinding[] syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables();
+			SyntheticArgumentBinding[] syntheticArguments = declaringClass.syntheticOuterLocalVariables();
 			if (syntheticArguments != null) {
 				argCount += syntheticArguments.length;
 			}
+		} else if (declaringClass.isEnum()) {
+			argCount += 2;
 		}
 		argCount += methodBinding.parameters.length;
 		this.currentFrame.numberOfStackItems -= argCount;
