@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -95,7 +96,8 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 			case IJavaElement.PACKAGE_DECLARATION :
 				return new CreatePackageDeclarationOperation(element.getElementName(), (ICompilationUnit) dest);
 			case IJavaElement.IMPORT_DECLARATION :
-				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest);
+				IImportDeclaration importDeclaration = (IImportDeclaration) element;
+				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest, importDeclaration.getFlags());
 			case IJavaElement.TYPE :
 				if (isRenamingMainType(element, dest)) {
 					IPath path = element.getPath();

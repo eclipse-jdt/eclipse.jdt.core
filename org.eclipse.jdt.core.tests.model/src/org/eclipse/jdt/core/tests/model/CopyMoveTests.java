@@ -104,6 +104,8 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 				}
 			}
 		}
+		if (copy.getElementType() == IJavaElement.IMPORT_DECLARATION)
+			container = ((ICompilationUnit) container).getImportContainer();
 		IJavaElementDelta destDelta = getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
