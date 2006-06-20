@@ -612,11 +612,11 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 	 * @param valueRequired
 	 */
 	public void generateOptimizedBoolean(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		BranchLabel trueLabel,
-		BranchLabel falseLabel,
-		boolean valueRequired) {
+			BlockScope currentScope,
+			CodeStream codeStream,
+			BranchLabel trueLabel,
+			BranchLabel falseLabel,
+			boolean valueRequired) {
 
 		// a label valued to nil means: by default we fall through the case... 
 		// both nil means we leave the value on the stack
