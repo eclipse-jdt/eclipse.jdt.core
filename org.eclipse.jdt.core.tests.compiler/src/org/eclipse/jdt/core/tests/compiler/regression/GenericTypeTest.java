@@ -31418,9 +31418,7 @@ public void test0996() {
 				"import java.util.List;\n" + 
 				"\n" + 
 				"public class X<T> {\n" + 
-				"\n" + 
 				"  private T aObject = null;\n" + 
-				"\n" + 
 				"  public static <U> List<U> castList(final List<? extends Object> pList, final Class<U> pClass) {\n" + 
 				"    final List<U> result = new ArrayList<U>();\n" + 
 				"    for (Object o:pList) {\n" + 
@@ -31431,28 +31429,44 @@ public void test0996() {
 				"    return result;\n" + 
 				"  }\n" + 
 				"\n" + 
-				"  /**\n" + 
-				"   * @param pArgs\n" + 
-				"   */\n" + 
 				"  public static void main(final String[] pArgs) {\n" + 
 				"    final List<Object> l1 = new ArrayList<Object>();\n" + 
 				"    l1.add(new X<String>());\n" + 
 				"    l1.add(new X<String>());\n" + 
-				"    final List<X<?>> l2 = castList(l1, X.class);\n" + 
-				"    System.exit(0);\n" + 
+				"    final List<X<?>> l2 = castList(l1, List.class);\n" + 
+				"    \n" + 
+				"    List<X> l3 = l2;\n" + 
+				"    List<X<String>> l4 = null;\n" + 
+				"    l3 = l4;\n" + 
 				"  }\n" + 
+				"\n" + 
 				"}\n", // =================
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
 			"	private T aObject = null;\n" + 
 			"	          ^^^^^^^\n" + 
 			"The field X<T>.aObject is never read locally\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 25)\n" + 
-			"	final List<X<?>> l2 = castList(l1, X.class);\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<X> to List<X<?>>\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	final List<X<?>> l2 = castList(l1, List.class);\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<List> to List<X<?>>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 22)\n" + 
+			"	List<X> l3 = l2;\n" + 
+			"	     ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
+			"	List<X> l3 = l2;\n" + 
+			"	             ^^\n" + 
+			"Type mismatch: cannot convert from List<X<?>> to List<X>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 24)\n" + 
+			"	l3 = l4;\n" + 
+			"	     ^^\n" + 
+			"Type mismatch: cannot convert from List<X<String>> to List<X>\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
