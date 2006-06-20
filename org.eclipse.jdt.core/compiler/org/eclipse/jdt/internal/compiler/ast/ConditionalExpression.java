@@ -121,18 +121,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		Constant cst = condition.constant;
-		Constant condCst = condition.optimizedBooleanConstant();
-		boolean needTruePart =
-			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == false))
-				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == false)));
-		boolean needFalsePart =
-			!(((cst != Constant.NotAConstant) && (cst.booleanValue() == true))
-				|| ((condCst != Constant.NotAConstant) && (condCst.booleanValue() == true)));
+		Constant cst = condition.optimizedBooleanConstant();
+		boolean needTruePart = !(cst != Constant.NotAConstant && cst.booleanValue() == false);
+		boolean needFalsePart = 	!(cst != Constant.NotAConstant && cst.booleanValue() == true);
 		endifLabel = new BranchLabel(codeStream);
 
 		// Generate code for the condition
-		boolean needConditionValue = (cst == Constant.NotAConstant) && (condCst == Constant.NotAConstant);
 		falseLabel = new BranchLabel(codeStream);
 		falseLabel.tagBits |= BranchLabel.USED;
 		condition.generateOptimizedBoolean(
@@ -140,7 +134,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			codeStream,
 			null,
 			falseLabel,
-			needConditionValue);
+			cst == Constant.NotAConstant);
 
 		if (trueInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(

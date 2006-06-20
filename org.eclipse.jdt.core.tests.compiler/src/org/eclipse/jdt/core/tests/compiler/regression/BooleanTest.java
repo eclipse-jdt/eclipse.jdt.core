@@ -1570,6 +1570,369 @@ public void test036() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=147024
+public void test037() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" public class X {\n" + 
+			" public static final boolean T = true;\n" + 
+			"	public static final boolean F = false;\n" + 
+			"	\n" + 
+			"	public boolean getFlagBT() {\n" + 
+			"		boolean b = this.T;\n" + 
+			"		if (this.T)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public int getFlagIT() {\n" + 
+			"		boolean b = this.T;\n" + 
+			"		if (this.T)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean getFlagBF() {\n" + 
+			"		boolean b = this.F;\n" + 
+			"		if (this.F)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public int getFlagIF() {\n" + 
+			"		boolean b = this.F;\n" + 
+			"		if (this.F)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"	public boolean getFlagBT2() {\n" + 
+			"		boolean b = T;\n" + 
+			"		if (T)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public int getFlagIT2() {\n" + 
+			"		boolean b = T;\n" + 
+			"		if (T)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean getFlagBF2() {\n" + 
+			"		boolean b = F;\n" + 
+			"		if (F)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public int getFlagIF2() {\n" + 
+			"		boolean b = F;\n" + 
+			"		if (F)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"	public boolean getFlagBT3() {\n" + 
+			"		X self = this;\n" + 
+			"		boolean b = self.T;\n" + 
+			"		if (self.T)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public int getFlagIT3() {\n" + 
+			"		X self = this;\n" + 
+			"		boolean b = self.T;\n" + 
+			"		if (self.T)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean getFlagBF3() {\n" + 
+			"		X self = this;\n" + 
+			"		boolean b = self.F;\n" + 
+			"		if (self.F)\n" + 
+			"			return true;\n" + 
+			"		else\n" + 
+			"			return false;\n" + 
+			"	}\n" + 
+			"	public int getFlagIF3() {\n" + 
+			"		X self = this;\n" + 
+			"		boolean b = self.F;\n" + 
+			"		if (self.F)\n" + 
+			"			return 0;\n" + 
+			"		else\n" + 
+			"			return 1;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"It worked.\");\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"It worked.");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public boolean getFlagBT();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 6]\n" + 
+		"        [pc: 2, line: 8]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public int getFlagIT();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 2, line: 16]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public boolean getFlagBF();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 22]\n" + 
+		"        [pc: 2, line: 26]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public int getFlagIF();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 30]\n" + 
+		"        [pc: 2, line: 34]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public boolean getFlagBT2();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 37]\n" + 
+		"        [pc: 2, line: 39]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public int getFlagIT2();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 45]\n" + 
+		"        [pc: 2, line: 47]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public boolean getFlagBF2();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 53]\n" + 
+		"        [pc: 2, line: 57]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public int getFlagIF2();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  istore_1 [b]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 61]\n" + 
+		"        [pc: 2, line: 65]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 4] local: b index: 1 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public boolean getFlagBT3();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  astore_1 [self]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  istore_2 [b]\n" + 
+		"    4  iconst_1\n" + 
+		"    5  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 68]\n" + 
+		"        [pc: 2, line: 69]\n" + 
+		"        [pc: 4, line: 71]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 6] local: self index: 1 type: X\n" + 
+		"        [pc: 4, pc: 6] local: b index: 2 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public int getFlagIT3();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  astore_1 [self]\n" + 
+		"    2  iconst_1\n" + 
+		"    3  istore_2 [b]\n" + 
+		"    4  iconst_0\n" + 
+		"    5  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 77]\n" + 
+		"        [pc: 2, line: 78]\n" + 
+		"        [pc: 4, line: 80]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 6] local: self index: 1 type: X\n" + 
+		"        [pc: 4, pc: 6] local: b index: 2 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #21 ()Z\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public boolean getFlagBF3();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  astore_1 [self]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  istore_2 [b]\n" + 
+		"    4  iconst_0\n" + 
+		"    5  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 86]\n" + 
+		"        [pc: 2, line: 87]\n" + 
+		"        [pc: 4, line: 91]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 6] local: self index: 1 type: X\n" + 
+		"        [pc: 4, pc: 6] local: b index: 2 type: boolean\n" + 
+		"  \n" + 
+		"  // Method descriptor #24 ()I\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public int getFlagIF3();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  astore_1 [self]\n" + 
+		"    2  iconst_0\n" + 
+		"    3  istore_2 [b]\n" + 
+		"    4  iconst_1\n" + 
+		"    5  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 94]\n" + 
+		"        [pc: 2, line: 95]\n" + 
+		"        [pc: 4, line: 99]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 6] local: self index: 1 type: X\n" + 
+		"        [pc: 4, pc: 6] local: b index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+public void test038() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" public class X {\n" + 
+			"	static boolean foo() { System.out.print(\"[foo]\"); return false; }\n" + 
+			"	static boolean bar() { System.out.print(\"[bar]\"); return true; }\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if ((foo() || bar()) && false) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		System.out.println(\"[done]\");\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"[foo][bar][done]");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #34 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  invokestatic X.foo() : boolean [35]\n" + 
+		"     3  ifne 10\n" + 
+		"     6  invokestatic X.bar() : boolean [37]\n" + 
+		"     9  pop\n" + 
+		"    10  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    13  ldc <String \"[done]\"> [39]\n" + 
+		"    15  invokevirtual java.io.PrintStream.println(java.lang.String) : void [41]\n" + 
+		"    18  return\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
 
 public static Class testClass() {
 	return BooleanTest.class;

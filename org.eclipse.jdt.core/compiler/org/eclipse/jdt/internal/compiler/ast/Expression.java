@@ -621,9 +621,11 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 		// a label valued to nil means: by default we fall through the case... 
 		// both nil means we leave the value on the stack
 
-		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
+		Constant cst = this.optimizedBooleanConstant();
+		generateCode(currentScope, codeStream, valueRequired && cst == Constant.NotAConstant);
+		if ((cst != Constant.NotAConstant) && (cst.typeID() == T_boolean)) {
 			int pc = codeStream.position;
-			if (constant.booleanValue() == true) {
+			if (cst.booleanValue() == true) {
 				// constant == true
 				if (valueRequired) {
 					if (falseLabel == null) {
@@ -646,7 +648,6 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		generateCode(currentScope, codeStream, valueRequired);
 		// branching
 		int position = codeStream.position;
 		if (valueRequired) {

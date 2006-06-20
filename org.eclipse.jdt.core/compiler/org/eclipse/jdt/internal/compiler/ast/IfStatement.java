@@ -142,7 +142,6 @@ public class IfStatement extends Statement {
 			!((cst != Constant.NotAConstant && cst.booleanValue() == true)
 				|| this.elseStatement == null
 				|| this.elseStatement.isEmptyBlock());
-
 		if (hasThenPart) {
 			BranchLabel falseLabel = null;
 			// generate boolean condition
@@ -151,7 +150,7 @@ public class IfStatement extends Statement {
 				codeStream,
 				null,
 				hasElsePart ? (falseLabel = new BranchLabel(codeStream)) : endifLabel,
-				true);
+				true/*cst == Constant.NotAConstant*/);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (thenInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
@@ -186,7 +185,7 @@ public class IfStatement extends Statement {
 				codeStream,
 				endifLabel,
 				null,
-				true);
+				true/*cst == Constant.NotAConstant*/);
 			// generate else statement
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (elseInitStateIndex != -1) {
