@@ -15786,7 +15786,8 @@ public void test0500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	// ensure there is no unchecked warning (javac incorrectly reports one)
+	// ensure there is no unchecked warning (javac incorrectly reported one -
+	// 1.5.0_08 and 6.0 b86 are ok)
 	public void test0524(){
 		runNegativeTest(
 			new String[] {
@@ -15882,7 +15883,8 @@ public void test0500(){
 			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
 			"----------\n");
 	}				
-	// should not produce unchecked errors (javac incorrectly does)
+	// should not produce unchecked errors (javac incorrectly did -
+	// 1.5.0_08 and 6.0 b86 are ok)
 	public void test0527(){
 		runNegativeTest(
 			new String[] {
@@ -16518,7 +16520,8 @@ public void test0500(){
 			"Name clash: The method bar(X<? extends Object>) of type D has the same erasure as bar(X<String>) of type C but does not override it\n" + 
 			"----------\n");
 	}		
-	// ensure no unsafe cast warning (javac incorrectly reports one)
+	// ensure no unsafe cast warning (javac incorrectly reported one -
+	// 1.5.0_08 and 6.0 b86 are ok)
 	public void test0546() {
 		this.runNegativeTest(
 			new String[] {
@@ -19808,7 +19811,7 @@ public void test0617() {
 			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n");
 	}			
-// javac incorrectly rejects the cast
+// javac incorrectly rejected the cast - 1.5.0_08 and 6.0 b86 are ok
 public void test0655() {
 	this.runNegativeTest(
 		new String[] {
