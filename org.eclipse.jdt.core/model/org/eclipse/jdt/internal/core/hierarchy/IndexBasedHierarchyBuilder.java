@@ -160,7 +160,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			}		
 			indexes.put(openables[i], index);
 		}
-		Util.sort(openables, new Util.Comparer() {
+		Arrays.sort(openables, new Comparator() {
 			public int compare(Object a, Object b) {
 				int aIndex = indexes.get(a);
 				int bIndex = indexes.get(b);
@@ -266,6 +266,11 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		length++;
 	}
 	
+	/*
+	 * Sort in alphabetical order so that potential subtypes are grouped per project
+	 */
+	Arrays.sort(allPotentialSubTypes);
+
 	ArrayList potentialSubtypes = new ArrayList();
 	try {
 		// create element infos for subtypes
