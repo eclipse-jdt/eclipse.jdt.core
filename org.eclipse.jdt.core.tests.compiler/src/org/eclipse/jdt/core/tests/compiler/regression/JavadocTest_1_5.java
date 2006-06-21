@@ -2243,4 +2243,33 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Bug 145007: [1.5][javadoc] Generics + Inner Class -> Javadoc "missing @throws" warning
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=145007"
+	 */
+	public void testBug145007() {
+		runConformTest(
+			new String[] {
+				"TestClass.java",
+				"class TestClass<T> {\n" + 
+				"    static class Test1 {\n" + 
+				"        /**\n" + 
+				"         * A simple method that demonstrates tag problems\n" + 
+				"         * \n" + 
+				"         * @return a string\n" + 
+				"         * @throws MyException\n" + 
+				"         *             if something goes wrong\n" + 
+				"         */\n" + 
+				"        public String getString() throws MyException {\n" + 
+				"            throw new MyException();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    static class MyException extends Exception {\n" + 
+				"        private static final long serialVersionUID = 1L;\n" + 
+				"    }\n" + 
+				"}"
+			}
+		);
+	}
 }
