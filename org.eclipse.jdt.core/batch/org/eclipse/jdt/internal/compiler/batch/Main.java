@@ -59,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.GenericXMLWriter;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -67,12 +68,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
-		private static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 		private PrintWriter err;
 		private PrintWriter log;
 		private PrintWriter out;
 		private HashMap parameters;
-		private int tab;
 		int tagBits;
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
@@ -131,7 +130,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
 		public static final int XML = 1;
 		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">"; //$NON-NLS-1$
-		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
 		static {
 			try {
 				Class c = IProblem.class;
@@ -148,40 +146,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				e.printStackTrace();
 			}
 		}
-		private static void appendEscapedChar(StringBuffer buffer, char c) {
-			String replacement= getReplacement(c);
-			if (replacement != null) {
-				buffer.append('&');
-				buffer.append(replacement);
-				buffer.append(';');
-			} else {
-				buffer.append(c);
-			}
-		}
-		private static String getEscaped(String s) {
-			StringBuffer result= new StringBuffer(s.length() + 10);
-			for (int i= 0; i < s.length(); ++i)
-				appendEscapedChar(result, s.charAt(i));
-			return result.toString();
-		}
-		private static String getReplacement(char c) {
-			// Encode special XML characters into the equivalent character references.
-			// These five are defined by default for all XML documents.
-			switch (c) {
-				case '<' :
-					return "lt"; //$NON-NLS-1$
-				case '>' :
-					return "gt"; //$NON-NLS-1$
-				case '"' :
-					return "quot"; //$NON-NLS-1$
-				case '\'' :
-					return "apos"; //$NON-NLS-1$
-				case '&' :
-					return "amp"; //$NON-NLS-1$
-			}
-			return null;
-		}
-
 		public Logger(PrintWriter out, PrintWriter err) {
 			this.out = out;
 			this.err = err;
@@ -221,6 +185,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
+		private void endTag(String name) {
+			((GenericXMLWriter) this.log).endTag(name, true, true);
+		}
+		
+		private void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
+			((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
+			this.parameters.clear();
+		}
 		/**
 		 * 
 		 */
@@ -250,11 +222,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.endTag(Logger.TASKS);
 			}
-		}
-		public void endTag(String name) {
-			this.tab--;
-			this.printTag('/' + name, null, true, false);
-			this.tab--;
 		}
 		private void extractContext(CategorizedProblem problem, char[] unitSource) {
 			//sanity .....
@@ -352,7 +319,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 				File f = new File(fileName);
 				try {
-					this.parameters.clear();
 					this.parameters.put(Logger.PATH, f.getCanonicalPath());
 					this.printTag(Logger.CLASS_FILE, this.parameters, true, true);
 				} catch (IOException e) {
@@ -368,7 +334,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					// generate xml output
 					this.printTag(Logger.CLASSPATHS, null, true, false);
 					for (int i = 0; i < length; i++) {
-						this.parameters.clear();
 						String classpath = classpaths[i].getPath();
 						this.parameters.put(Logger.PATH, classpath);
 						File f = new File(classpath);
@@ -400,7 +365,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (length != 0) {
 					// generate xml output
 					this.printTag(Logger.COMMAND_LINE_ARGUMENTS, null, true, false);
-					this.parameters.clear();
 					for (int i = 0; i < length; i++) {
 						this.parameters.put(Logger.VALUE, commandLineArguments[i]);
 						this.printTag(Logger.COMMAND_LINE_ARGUMENT, this.parameters, true, true);
@@ -427,11 +391,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				StringBuffer buffer = new StringBuffer();
 				String message = e.getMessage();
 				if (message != null) {
-					buffer.append(message).append(LINE_SEPARATOR);
+					buffer.append(message).append(Util.LINE_SEPARATOR);
 				}
 				try {
 					while ((line = reader.readLine()) != null && i < 4) {
-						buffer.append(line).append(LINE_SEPARATOR);
+						buffer.append(line).append(Util.LINE_SEPARATOR);
 						i++;
 					}
 					reader.close();
@@ -439,7 +403,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					// ignore
 				}
 				message = buffer.toString();
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, message);
 				this.parameters.put(Logger.CLASS, e.getClass());
 				this.printTag(Logger.EXCEPTION, this.parameters, true, true);
@@ -458,7 +421,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logIncorrectClasspath(String wrongClasspath) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
@@ -472,7 +434,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logIncorrectExtDirsEntry(String wrongPath) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
@@ -486,7 +447,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logIncorrectEndorsedDirsEntry(String wrongPath) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
@@ -499,7 +459,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logNoClassFileCreated(String outputDir, String relativeFileName, IOException e) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", //$NON-NLS-1$
 					new String[] {
 						outputDir,
@@ -518,7 +477,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		public void logNoClasspath() {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("configure.noClasspath")); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
@@ -530,7 +488,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logNumberOfClassFilesGenerated(int exportedClassFilesCounter) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.VALUE, new Integer(exportedClassFilesCounter));
 				this.printTag(Logger.NUMBER_OF_CLASSFILES, this.parameters, true, true);
 			}
@@ -552,7 +509,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				Object[] keys = keySet.toArray();
 				Arrays.sort(keys);
 				for (int i = 0, max = keys.length; i < max; i++) {
-					this.parameters.clear();
 					Object key = keys[i];
 					this.parameters.put(Logger.KEY, key);
 					this.parameters.put(Logger.VALUE, options.get(key));
@@ -680,7 +636,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			int globalErrorsCount, int globalWarningsCount, int globalTasksCount) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				// generate xml
-				this.parameters.clear();
 				this.parameters.put(Logger.NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
 				this.parameters.put(Logger.NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
 				this.parameters.put(Logger.NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
@@ -764,10 +719,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logTiming(long time, long lineCount) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.VALUE, new Long(time));
 				this.printTag(Logger.TIME, this.parameters, true, true);
-				this.parameters.clear();
 				this.parameters.put(Logger.VALUE, new Long(lineCount));
 				this.printTag(Logger.NUMBER_OF_LINES, this.parameters, true, true);
 			}
@@ -825,7 +778,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logWrongJDK() {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				this.printTag(Logger.ERROR, this.parameters, true, true);				
 			}
@@ -841,24 +793,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void logXmlProblem(CategorizedProblem problem, char[] unitSource) {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
-			this.parameters.clear();
 			this.parameters.put(Logger.PROBLEM_ID, getFieldName(problem.getID()));
 			this.parameters.put(Logger.PROBLEM_SEVERITY, problem.isError() ? Logger.ERROR : Logger.WARNING);
 			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(sourceStart));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(sourceEnd));
 			this.printTag(Logger.PROBLEM_TAG, this.parameters, true, false);
-			this.parameters.clear();
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
-			this.parameters.clear();
 			extractContext(problem, unitSource);
 			this.printTag(Logger.SOURCE_CONTEXT, this.parameters, true, true);
 			String[] arguments = problem.getArguments();
 			final int length = arguments.length;
 			if (length != 0) {
 				this.printTag(Logger.PROBLEM_ARGUMENTS, null, true, false);
-				this.parameters.clear();
 				for (int i = 0; i < length; i++) {
 					this.parameters.put(Logger.PROBLEM_ARGUMENT_VALUE, arguments[i]);
 					this.printTag(Logger.PROBLEM_ARGUMENT, this.parameters, true, true);
@@ -875,15 +823,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 *            the given unit source
 		 */
 		private void logXmlTask(CategorizedProblem problem, char[] unitSource) {
-			this.parameters.clear();
 			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(problem.getSourceEnd()));
 			this.printTag(Logger.TASK, this.parameters, true, false);
-			this.parameters.clear();
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
-			this.parameters.clear();
 			extractContext(problem, unitSource);
 			this.printTag(Logger.SOURCE_CONTEXT, this.parameters, true, true);
 			this.endTag(Logger.TASK);
@@ -950,36 +895,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		public void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
-			for (int i= this.tab; i > 0; i--) this.log.print('\t');
-			StringBuffer buffer= new StringBuffer();
-			buffer.append("<"); //$NON-NLS-1$
-			buffer.append(name);
-			if (params != null) {
-				int length = parameters.size();
-				String[] keys = new String[length];
-				parameters.keySet().toArray(keys);
-				Arrays.sort(keys);
-				for (int i = 0; i < length; i++) {
-					buffer.append(" "); //$NON-NLS-1$
-					buffer.append(keys[i]);
-					buffer.append("=\""); //$NON-NLS-1$
-					buffer.append(getEscaped(String.valueOf(params.get(keys[i]))));
-					buffer.append("\""); //$NON-NLS-1$
-				}
-			}
-			if (closeTag) {
-				buffer.append("/>"); //$NON-NLS-1$
-			} else {
-				buffer.append(">"); //$NON-NLS-1$
-				this.tab++;
-			}
-			if (insertNewLine) {
-				this.log.println(String.valueOf(buffer));
-			} else {
-				this.log.print(String.valueOf(buffer));
-			}
-		}
 		public void setEmacs() {
 			this.tagBits |= Logger.EMACS;
 		}
@@ -988,12 +903,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			final Date date = new Date();
 			final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.getDefault());
 			try {
-				this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 				int index = logFileName.lastIndexOf('.');
 				if (index != -1) {
 					if (logFileName.substring(index).toLowerCase().equals(".xml")) { //$NON-NLS-1$
+						this.log = new GenericXMLWriter(new FileOutputStream(logFileName, false), Util.LINE_SEPARATOR, true);
 						this.tagBits |= Logger.XML;
-						this.log.println(Logger.XML_HEADER);
 						// insert time stamp as comment
 						try {
 							this.log.println("<!-- " + new String(dateFormat.format(date).getBytes(), "UTF-8") + " -->");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -1001,16 +915,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							e.printStackTrace();
 						}
 						this.log.println(Logger.XML_DTD_DECLARATION);
-						this.tab = 0;
-						this.parameters.clear();
 						this.parameters.put(Logger.COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$
 						this.parameters.put(Logger.COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$
 						this.parameters.put(Logger.COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$
 						this.printTag(Logger.COMPILER, this.parameters, true, false);
 					} else {
+						this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 						this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 					}
 				} else {
+					this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
@@ -1023,7 +937,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * Only use in xml mode.
 		 */
 		private void startLoggingProblems(int errors, int warnings) {
-			this.parameters.clear();
 			this.parameters.put(Logger.NUMBER_OF_PROBLEMS, new Integer(errors + warnings));
 			this.parameters.put(Logger.NUMBER_OF_ERRORS, new Integer(errors));
 			this.parameters.put(Logger.NUMBER_OF_WARNINGS, new Integer(warnings));
@@ -1035,7 +948,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				char[] fileName = compilationUnit.getFileName();
 				File f = new File(new String(fileName));
 				if (fileName != null) {
-					this.parameters.clear();
 					if (compilationUnit != null) {
 						this.parameters.put(Logger.PATH, f.getAbsolutePath());
 					}
@@ -1050,7 +962,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		public void startLoggingTasks(int tasks) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.clear();
 				this.parameters.put(Logger.NUMBER_OF_TASKS, new Integer(tasks));
 				this.printTag(Logger.TASKS, this.parameters, true, false);
 			}
