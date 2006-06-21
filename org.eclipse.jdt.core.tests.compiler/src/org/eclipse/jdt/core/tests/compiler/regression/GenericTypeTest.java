@@ -7327,6 +7327,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
+	// effective result may change depending upon 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=148241
+	// (expect an unchecked warning on (Set<X>) iter.next(), as raised by
+	//  javac 1.5.0_08 and 6.0 b86)
 	public void test0252() {
 		this.runNegativeTest(
 			new String[] {
@@ -16601,6 +16605,7 @@ public void test0500(){
 			"----------\n");
 	}
 	// legal, but javac rejects it
+	// note: 1.5.0_08 no more rejects it; 6.0 b86 still does
 	public void test0549() {
 		this.runConformTest(
 			new String[] {
@@ -16614,6 +16619,10 @@ public void test0500(){
 			},
 			"");
 	}	
+// results may change depending on 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=148046
+// javac 1.5.0_08 and 6.0 b86 both raise an error where eclipse raises a
+// warning
 	public void test0550() {
 		this.runNegativeTest(
 			new String[] {
@@ -17644,7 +17653,9 @@ public void test0500(){
 			"----------\n");
 	}			
 	
-	//javac incorrectly rejects it
+	// javac incorrectly rejected it - javac 1.5.0_08 and javac 6.0 b86 are ok
+	// note: the test does not show the needed unchecked warning, since it is
+	//       a conform test
 	public void test0586() {
 	    this.runConformTest(
             new String[] {
